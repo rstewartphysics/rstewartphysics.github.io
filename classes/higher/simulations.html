@@ -1,202 +1,260 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Higher Physics – Interactive Simulations</title>
+---
+layout: none
+title: Higher Physics – Simulations
+---
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* -----------------------------------------------------
-   GLOBAL PAGE LAYOUT (same shell as your site)
------------------------------------------------------ */
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    color: #222;
+:root {
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --radius-card: 1rem;
+  --shadow-card: 0 24px 48px rgba(0,0,0,0.8);
+  --text-main: #ffffff;
+  --bg1: #0e1b38;
+  --bg2: #152b63;
+  --bg3: #0a1130;
 }
 
-header.banner img {
+/* ------------------ MOBILE FIXES ------------------ */
+@media (max-width: 480px) {
+  .class-tile {
+    aspect-ratio: auto;
+    max-width: 340px;
     width: 100%;
-    height: auto;
-    display: block;
+    margin: 0 auto;
+    transform: none;
+  }
+  .tile-label {
+    font-size: 0.95rem;
+  }
+  h1.page-title { font-size: 1.4rem; }
+  p.page-desc  { font-size: 1rem; }
 }
 
-main.page-wrap {
-    padding: 20px;
-    max-width: 1100px;
-    margin: auto;
+/* ------------------ PAGE BASE ------------------ */
+body {
+  margin: 0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 90%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: var(--font-stack);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* -----------------------------------------------------
-   SIDE MENU (blurred iPad style)
------------------------------------------------------ */
+/* ------------------ BANNER ------------------ */
+.banner-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+}
+.banner {
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: cover;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+@media (max-width: 768px) { .banner { max-height: 260px; } }
+@keyframes fadeIn { to { opacity: 1; } }
 
-#sideMenu {
-    position: fixed;
-    top: 0; left: 0;
-    width: 260px;
-    height: 100%;
-    background: rgba(255,255,255,0.25);
-    backdrop-filter: blur(20px);
-    padding: 20px;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-    transform: translateX(-280px);
-    transition: transform 0.3s;
-    z-index: 9999;
+.banner-tint {
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg, rgba(33,150,243,0.4), rgba(21,101,192,0.4), rgba(0,212,255,0.3));
+  mix-blend-mode: multiply;
+  animation: tintShift 20s ease-in-out infinite alternate;
+}
+@keyframes tintShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
-#sideMenu.open {
-    transform: translateX(0);
+.banner-overlay-text {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(0,255,255,0.5);
+  border-top: 1px solid rgba(255,255,255,0.2);
 }
 
-#sideMenu h2 {
-    margin-top: 0;
+/* ------------------ MENU BUTTON ------------------ */
+.menu-btn {
+  position: fixed;
+  top: 15px; right: 20px;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 200;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
 }
 
-#sideMenu a {
-    display: block;
-    padding: 12px 0;
-    text-decoration: none;
-    color: #222;
-    font-size: 1.2rem;
+/* ------------------ SIDE MENU ------------------ */
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 99;
+}
+.side-menu {
+  position: fixed;
+  top: 0; right: -270px;
+  width: 270px; height: 100%;
+  background: rgba(15,23,42,0.92);
+  backdrop-filter: blur(12px) saturate(160%);
+  padding-top: 4rem;
+  display: flex; flex-direction: column;
+  transition: right 0.3s ease;
+  z-index: 150;
+}
+.side-menu.open { right: 0; }
+.menu-overlay.show { display: block; }
+
+.side-menu a {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.9rem 1.5rem;
+  font-size: 1.1rem;
+  display: flex; align-items: center;
+  gap: 0.8rem;
+}
+.side-menu a:hover { background: rgba(255,255,255,0.12); }
+
+/* ------------------ PAGE WRAP ------------------ */
+.page-wrap {
+  max-width: 1200px;
+  padding: 2rem 1rem 4rem;
+  margin: 2rem auto;
 }
 
-#menuButton {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    padding: 10px 14px;
-    font-size: 1.2rem;
-    background: rgba(255,255,255,0.7);
-    border: none;
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-    z-index: 10000;
+/* ------------------ GRID ------------------ */
+.tile-grid {
+  display: grid;
+  gap: 1.4rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 2rem;
 }
 
-#menuButton:focus {
-    outline: 3px solid #007aff;
+/* ------------------ TILES ------------------ */
+.class-tile {
+  display: block;
+  border-radius: var(--radius-card);
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.05), 0 16px 30px rgba(0,0,0,0.8);
+  text-decoration: none;
+  color: #fff;
+  padding: 1.5rem;
+  min-height: 140px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.class-tile:hover {
+  transform: scale(1.05) translateY(-3px);
+  box-shadow: 0 26px 50px rgba(0,255,255,0.5);
+  border-color: #0ff;
 }
 
-/* -----------------------------------------------------
-   TILE GRID
------------------------------------------------------ */
-
-.tiles {
-    display: grid;
-    gap: 20px;
-    margin-top: 20px;
+.class-tile h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  text-shadow: 0 0 10px rgba(0,255,255,0.7);
+}
+.class-tile p {
+  margin: 0.4rem 0 0;
+  color: #e2e2e2;
+  font-size: 1rem;
 }
 
-@media (min-width: 700px) {
-    .tiles {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-.tile {
-    background: white;
-    border-radius: 18px;
-    padding: 20px;
-    text-align: center;
-    border: 2px solid #e0e0e0;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-    transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.tile:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 5px 14px rgba(0,0,0,0.1);
-}
-
-.tile:focus-within {
-    outline: 3px solid #007aff;
-}
-
-.tile a {
-    text-decoration: none;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #0048cc;
-}
-
-.tile p {
-    margin-top: 8px;
-    color: #444;
-    font-size: 1rem;
+/* ------------------ FOOTER ------------------ */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(255,255,255,0.2);
 }
 </style>
-</head>
 
-<body>
 
 <!-- MENU BUTTON -->
-<button id="menuButton" aria-label="Open menu">☰</button>
-
-<!-- SIDE MENU -->
-<nav id="sideMenu" aria-label="Main site menu">
-    <h2>Menu</h2>
-    <a href="/index.html">🏠 Home</a>
-    <a href="/science/index.html">🧪 Science</a>
-    <a href="/physics/index.html">⚡ Physics</a>
-    <a href="/electronics/index.html">💡 Electronics</a>
-    <a href="/engineering/index.html">🧰 Engineering</a>
-</nav>
+<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
 
 <!-- BANNER -->
-<header class="banner">
-    <img src="/banners/physics-banner.jpg" alt="Physics Banner">
-</header>
+<div class="banner-wrap">
+  <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>Higher Physics – Interactive Simulations</h1>
+  </div>
+</div>
 
-<!-- MAIN CONTENT -->
+<!-- CONTENT -->
 <main class="page-wrap">
-    <h1 style="text-align:center;">Higher Physics Simulations</h1>
-    <p style="text-align:center;">
-        Interactive tools to help understand key Higher Physics concepts.
-    </p>
+  <h1 class="page-title" style="text-align:center;">Interactive Simulations</h1>
+  <p class="page-desc" style="text-align:center;">
+    Explore interactive tools that help visualise key Higher Physics concepts.
+  </p>
 
-    <!-- TILE GRID -->
-    <div class="tiles">
+  <section class="tile-grid">
 
-        <!-- RELATIVITY SIM -->
-        <div class="tile">
-            <a href="relativity-simulation.html" aria-label="Open relativity simulation">
-                ⏱️ Length Contraction & Time Dilation
-            </a>
-            <p>Interactive Special Relativity simulation with adjustable velocity.</p>
-        </div>
+    <!-- RELATIVITY -->
+    <a class="class-tile" href="relativity-simulation.html" aria-label="Open relativity simulation">
+      <h2>⏱️ Length Contraction & Time Dilation</h2>
+      <p>Adjust velocity and observe the relativistic effects in real time.</p>
+    </a>
 
-        <!-- FUTURE SIM PLACEHOLDER -->
-        <div class="tile">
-            <a href="#" aria-label="Placeholder simulation">
-                ⚙️ Coming Soon
-            </a>
-            <p>More Higher Physics simulations will be added here.</p>
-        </div>
+    <!-- Placeholder -->
+    <a class="class-tile" href="#" aria-label="Coming soon simulations">
+      <h2>⚙️ More Coming Soon</h2>
+      <p>Additional simulations will be added here shortly.</p>
+    </a>
 
-        <div class="tile">
-            <a href="#" aria-label="Placeholder simulation">
-                ⚙️ Coming Soon
-            </a>
-            <p>Additional digital tools planned for later units.</p>
-        </div>
+    <a class="class-tile" href="#" aria-label="Coming soon simulations">
+      <h2>⚙️ More Coming Soon</h2>
+      <p>Digital tools planned for later Higher units.</p>
+    </a>
 
-    </div>
+  </section>
 </main>
 
-<script>
-// MENU JS
-const menu = document.getElementById("sideMenu");
-const menuBtn = document.getElementById("menuButton");
+<!-- FOOTER -->
+<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
 
-menuBtn.onclick = () => menu.classList.toggle("open");
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") menu.classList.remove("open");
+<!-- SIDEMENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
+<script>
+function toggleMenu(){
+  const menu=document.getElementById('sideMenu');
+  const overlay=document.getElementById('menuOverlay');
+  menu.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
 });
 </script>
-
-</body>
-</html>
