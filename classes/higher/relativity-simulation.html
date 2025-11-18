@@ -18,8 +18,6 @@ header {
     padding: 20px 0 10px;
 }
 
-h1 { margin-bottom: 5px; }
-
 #controls {
     padding: 15px;
     background: #eaeaea;
@@ -31,6 +29,11 @@ h1 { margin-bottom: 5px; }
 
 .control-group {
     margin-bottom: 15px;
+}
+
+.snap-buttons button {
+    margin-right: 6px;
+    padding: 6px 10px;
 }
 
 canvas {
@@ -64,8 +67,17 @@ canvas {
 
     <div class="control-group">
         <strong>Velocity (fraction of c):</strong><br>
-        <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.45">
-        <span id="velRead">0.45c</span>
+        <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.70">
+        <span id="velRead">0.70c</span><br>
+        <span id="velMS">2.10 × 10⁸ m/s</span>
+    </div>
+
+    <!-- Snap buttons -->
+    <div class="control-group snap-buttons">
+        <button onclick="snapSpeed(0.50)">0.50c</button>
+        <button onclick="snapSpeed(0.70)">0.70c</button>
+        <button onclick="snapSpeed(0.90)">0.90c</button>
+        <button onclick="snapSpeed(0.99)">0.99c</button>
     </div>
 
     <div class="control-group">
@@ -79,17 +91,18 @@ canvas {
     </div>
 
     <div class="control-group">
-        <div id="gammaRead">γ = 1.12</div>
-        <div id="timeRead">Dilated Time: 0.00 s</div>
-        <div id="lengthRead">Contracted Length: 0.89 L₀</div>
+        <div id="gammaRead">γ = 1.40</div>
+        <div id="properRead">Proper Time (τ): 0.00 s</div>
+        <div id="timeRead">Dilated Time (t): 0.00 s</div>
+        <div id="lengthRead">Contracted Length: 0.71 L₀</div>
     </div>
 
 </div>
 
-<!-- SIMULATION CANVASES -->
+<!-- SIM PANELS -->
 <div id="container">
     <div class="panel">
-        <canvas id="clock" width="400" height="330"></canvas>
+        <canvas id="clock" width="440" height="350"></canvas>
         <div>Light Clock (Time Dilation)</div>
     </div>
 
@@ -101,114 +114,153 @@ canvas {
 
 <script>
 // ---------------------------------------------------------
-// GLOBAL VARIABLES
+// CONSTANTS
 // ---------------------------------------------------------
+const c = 3e8; // speed of light (m/s)
+
 const clock = document.getElementById("clock");
 const ctx = clock.getContext("2d");
 
 const ship = document.getElementById("ship");
 const sctx = ship.getContext("2d");
 
-let t = 0;
-let dt = 0.033; // ~30fps for iPad stability
-let timeDilated = 0;
+let dt = 0.033;
 let running = true;
+
+// time counters
+let tau = 0;   // proper time
+let tDil = 0;  // dilated time
 
 // UI elements
 const velSlider = document.getElementById("velSlider");
 const velRead = document.getElementById("velRead");
+const velMS = document.getElementById("velMS");
+
 const gammaRead = document.getElementById("gammaRead");
+const properRead = document.getElementById("properRead");
 const timeRead = document.getElementById("timeRead");
 const lengthRead = document.getElementById("lengthRead");
-const playBtn = document.getElementById("playBtn");
-const resetBtn = document.getElementById("resetBtn");
-const showClock = document.getElementById("showClock");
-const showShip = document.getElementById("showShip");
 
 // ---------------------------------------------------------
-// MATH
+// MATH HELPERS
 // ---------------------------------------------------------
 function getGamma(v) {
     return 1 / Math.sqrt(1 - v*v);
 }
 
+function toMS(v) {
+    return v * c;
+}
+
+function formatMS(m) {
+    return (m/1e8).toFixed(2) + " × 10⁸ m/s";
+}
+
+// ---------------------------------------------------------
+// SNAP BUTTONS
+// ---------------------------------------------------------
+function snapSpeed(v) {
+    velSlider.value = v;
+    updateReadouts();
+}
+
 // ---------------------------------------------------------
 // UPDATE READOUTS
 // ---------------------------------------------------------
-function updateReadouts(v, gamma) {
+function updateReadouts() {
+    const v = parseFloat(velSlider.value);
+    const gamma = getGamma(v);
+
     velRead.textContent = v.toFixed(2) + "c";
+    velMS.textContent = formatMS(toMS(v));
+
     gammaRead.textContent = "γ = " + gamma.toFixed(2);
-    timeRead.textContent = "Dilated Time: " + timeDilated.toFixed(2) + " s";
+    properRead.textContent = "Proper Time (τ): " + tau.toFixed(2) + " s";
+    timeRead.textContent = "Dilated Time (t): " + tDil.toFixed(2) + " s";
     lengthRead.textContent = "Contracted Length: " + (1/gamma).toFixed(2) + " L₀";
 }
 
 // ---------------------------------------------------------
-// DRAW TIME DILATION CLOCK
+// LIGHT CLOCK (IMPROVED PHOTON PATH)
 // ---------------------------------------------------------
-function drawClock(v, gamma) {
+function drawClock() {
     if (!showClock.checked) {
-        ctx.clearRect(0,0,clock.width,clock.height);
+        ctx.clearRect(0, 0, clock.width, clock.height);
         return;
     }
 
-    ctx.clearRect(0,0,clock.width,clock.height);
+    const v = parseFloat(velSlider.value);
+    const gamma = getGamma(v);
 
-    // Clock wells
+    ctx.clearRect(0, 0, clock.width, clock.height);
+
+    ctx.fillStyle = "white";
+    ctx.font = "14px Arial";
+    ctx.fillText("Rest Clock (Proper Time τ)", 40, 25);
+    ctx.fillText("Moving Clock (Dilated Time t)", 240, 25);
+
+    // Wells
     ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
+    ctx.strokeRect(60,50,60,260);
+    ctx.strokeRect(260,50,60,260);
 
-    ctx.strokeRect(80,50,60,230);
-    ctx.strokeRect(260,50,60,230);
+    // Photon positions
+    let yRest = 50 + (tau * 60) % 260;
+    let yMove = 50 + (tDil * 60) % 260;
 
-    let yRest = 50 + (t * 60) % 230;
-    let yMove = 50 + (t * 60 / gamma) % 230;
-
-    // stationary photon
+    // Rest photon (vertical)
     ctx.fillStyle = "cyan";
     ctx.beginPath();
-    ctx.arc(110, yRest, 8, 0, 2*Math.PI);
+    ctx.arc(90, yRest, 8, 0, 2*Math.PI);
     ctx.fill();
 
-    // moving photon
+    // Moving photon (diagonal path)
+    const horizontalDrift = v * 50; // visual exaggeration factor
+    const xMove = 290 + horizontalDrift * tDil;
+
+    // Path line
+    ctx.strokeStyle = "rgba(255,255,0,0.4)";
+    ctx.beginPath();
+    ctx.moveTo(290, 50);
+    ctx.lineTo(xMove, yMove);
+    ctx.stroke();
+
+    // photon itself
     ctx.fillStyle = "yellow";
     ctx.beginPath();
-    ctx.arc(290, yMove, 8, 0, 2*Math.PI);
+    ctx.arc(xMove, yMove, 8, 0, 2*Math.PI);
     ctx.fill();
 }
 
 // ---------------------------------------------------------
-// DRAW LENGTH CONTRACTION (MUCH IMPROVED VERSION)
+// LENGTH CONTRACTION (unchanged improved)
 // ---------------------------------------------------------
-function drawShip(v, gamma) {
+function drawShip() {
     if (!showShip.checked) {
         sctx.clearRect(0,0,ship.width,ship.height);
         return;
     }
 
+    const v = parseFloat(velSlider.value);
+    const gamma = getGamma(v);
+
     sctx.clearRect(0,0,ship.width,ship.height);
 
     const baseX = 60;
     const baseY = 60;
-    const baseWidth = 320;  // rest length in px
-    const thickness = 40;
+    const baseWidth = 320;
+    const h = 40;
 
-    // contraction — true physics
     const contracted = baseWidth / gamma;
 
-    // -------------------------------------------------
-    // background ruler
-    // -------------------------------------------------
+    // ruler
+    const rulerY = baseY + h + 35;
     sctx.strokeStyle = "#444";
-    sctx.lineWidth = 1;
-
-    // baseline
-    const rulerY = baseY + thickness + 35;
     sctx.beginPath();
     sctx.moveTo(baseX - 10, rulerY);
     sctx.lineTo(baseX + baseWidth + 60, rulerY);
     sctx.stroke();
 
-    // tick marks
     for (let x = baseX; x <= baseX + baseWidth; x += 20) {
         sctx.beginPath();
         sctx.moveTo(x, rulerY - 5);
@@ -216,37 +268,25 @@ function drawShip(v, gamma) {
         sctx.stroke();
     }
 
-    // -------------------------------------------------
-    // rest ship (blue)
-    // -------------------------------------------------
+    // rest ship
     sctx.fillStyle = "#4466ff";
-    sctx.fillRect(baseX, baseY, baseWidth, thickness);
-
+    sctx.fillRect(baseX, baseY, baseWidth, h);
     sctx.fillStyle = "white";
-    sctx.font = "14px Arial";
-    sctx.fillText("Rest length L₀", baseX, baseY - 10);
+    sctx.fillText("Rest length L₀", baseX, baseY - 8);
 
-    // -------------------------------------------------
-    // moving ship (red, contracted)
-    // -------------------------------------------------
+    // moving ship
     const movingY = baseY + 70;
-
     sctx.fillStyle = "#ff4444";
-    sctx.fillRect(baseX, movingY, contracted, thickness);
-
+    sctx.fillRect(baseX, movingY, contracted, h);
     sctx.fillStyle = "white";
-    sctx.fillText("Moving length L = L₀/γ", baseX, movingY - 10);
+    sctx.fillText("Moving length L = L₀/γ", baseX, movingY - 8);
 
-    // numeric ratio L/L0
     sctx.fillText("L/L₀ = " + (1/gamma).toFixed(2),
                   baseX + baseWidth + 10,
-                  movingY + thickness/2 + 5);
+                  movingY + h/2 + 5);
 
-    // -------------------------------------------------
-    // direction of motion arrow
-    // -------------------------------------------------
-    const arrowY = movingY + thickness + 30;
-
+    // motion arrow
+    const arrowY = movingY + h + 30;
     sctx.beginPath();
     sctx.moveTo(baseX, arrowY);
     sctx.lineTo(baseX + 140, arrowY);
@@ -254,28 +294,27 @@ function drawShip(v, gamma) {
 
     sctx.beginPath();
     sctx.moveTo(baseX + 140, arrowY);
-    sctx.lineTo(baseX + 130, arrowY - 7);
-    sctx.lineTo(baseX + 130, arrowY + 7);
-    sctx.closePath();
+    sctx.lineTo(baseX + 130, arrowY - 6);
+    sctx.lineTo(baseX + 130, arrowY + 6);
     sctx.fill();
 
     sctx.fillText("Direction of motion", baseX + 150, arrowY + 5);
 }
 
 // ---------------------------------------------------------
-// ANIMATION LOOP
+// MAIN LOOP
 // ---------------------------------------------------------
 function animate() {
     if (running) {
         const v = parseFloat(velSlider.value);
         const gamma = getGamma(v);
 
-        t += dt;
-        timeDilated += dt / gamma;
+        tau += dt;
+        tDil += dt / gamma;
 
-        updateReadouts(v, gamma);
-        drawClock(v, gamma);
-        drawShip(v, gamma);
+        updateReadouts();
+        drawClock();
+        drawShip();
     }
 
     requestAnimationFrame(animate);
@@ -287,19 +326,20 @@ animate();
 // UI EVENTS
 // ---------------------------------------------------------
 velSlider.addEventListener("input", () => {
-    const v = parseFloat(velSlider.value);
-    updateReadouts(v, getGamma(v));
+    updateReadouts();
 });
 
-playBtn.onclick = () => {
+document.getElementById("playBtn").onclick = () => {
     running = !running;
     playBtn.textContent = running ? "Pause" : "Play";
 };
 
-resetBtn.onclick = () => {
-    t = 0;
-    timeDilated = 0;
+document.getElementById("resetBtn").onclick = () => {
+    tau = 0;
+    tDil = 0;
+    updateReadouts();
 };
+
 </script>
 
 </body>
