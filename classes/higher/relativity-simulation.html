@@ -7,7 +7,7 @@
 
 <style>
 /* ----------------------------------------------
-   GLOBAL DARK BLUE HIGHER THEME
+   GLOBAL HIGHER BLUE THEME
 ---------------------------------------------- */
 body {
     margin: 0;
@@ -18,7 +18,6 @@ body {
     line-height: 1.5;
 }
 
-/* Center the whole page content */
 .page-wrap {
     max-width: 1100px;
     margin: 2rem auto;
@@ -26,7 +25,7 @@ body {
 }
 
 /* ----------------------------------------------
-   HIGHER-STYLE TILE CARDS
+   HIGHER TILE CARD STYLE
 ---------------------------------------------- */
 .card {
     background: linear-gradient(145deg, #0e1b38, #152b63);
@@ -35,23 +34,22 @@ body {
     margin-bottom: 2rem;
     box-shadow:
         inset 0 0 22px rgba(255,255,255,0.08),
-        0 20px 40px rgba(0,0,0,0.7);
+        0 20px 50px rgba(0,0,0,0.8);
     border: 2px solid rgba(255,255,255,0.18);
     outline: 2px solid rgba(255,255,255,0.1);
     outline-offset: -4px;
 }
 
-/* Card headings */
 .card h2 {
-    margin-top: 0;
+    margin: 0 0 1rem 0;
     text-align: center;
-    font-size: 1.6rem;
+    font-size: 1.7rem;
     font-weight: 700;
     text-shadow: 0 0 12px rgba(0,255,255,0.6);
 }
 
 /* ----------------------------------------------
-   CANVAS STYLE (Higher Blue)
+   SIM CANVAS
 ---------------------------------------------- */
 canvas {
     width: 100%;
@@ -64,96 +62,179 @@ canvas {
     margin: 1rem auto;
 }
 
-/* ----------------------------------------------
-   BUTTONS + SLIDERS (Higher style)
----------------------------------------------- */
-button {
-    font-family: inherit;
-    background: linear-gradient(135deg, #1e3a8a, #4169e1);
-    color: #fff;
-    padding: 0.6rem 1.2rem;
-    margin-right: 0.4rem;
-    border-radius: 0.6rem;
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 0 10px rgba(0,150,255,0.4);
-    cursor: pointer;
-}
-
-button:hover,
-button:focus {
-    box-shadow: 0 0 14px rgba(0,200,255,0.8);
-    transform: translateY(-2px);
-}
-
-input[type=range] {
-    width: 80%;
-    accent-color: #00e0ff;
-    margin-top: 0.5rem;
-}
-
-/* Labels beneath canvases */
 .panel-label {
     text-align: center;
     margin-top: 0.4rem;
     font-size: 1rem;
 }
 
+/* ----------------------------------------------
+   BUTTONS & SLIDERS (Higher Style)
+---------------------------------------------- */
+button {
+    font-family: inherit;
+    background: linear-gradient(135deg, #1e3a8a, #4169e1);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    margin: 0.25rem;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 12px rgba(0,150,255,0.4);
+    cursor: pointer;
+}
 
-/* Responsive */
+button:hover,
+button:focus {
+    box-shadow: 0 0 16px rgba(0,200,255,0.8);
+    transform: translateY(-2px);
+}
+
+input[type=range] {
+    width: 100%;
+    accent-color: #00e0ff;
+    margin-top: 0.5rem;
+}
+
+input[type=number] {
+    width: 90px;
+    padding: 0.4rem;
+    border-radius: 0.4rem;
+    border: none;
+    margin-left: 0.5rem;
+}
+
+.question-box {
+    background: rgba(255,255,255,0.08);
+    padding: 1rem;
+    border-radius: 0.7rem;
+    margin: 0.8rem 0;
+}
+
+.question-box input[type=text] {
+    width: 120px;
+    padding: 0.3rem;
+    border-radius: 0.4rem;
+    border: none;
+}
+
+.solution {
+    margin-top: 0.5rem;
+    color: #7fffd4;
+    display: none;
+}
+
+/* ----------------------------------------------
+   RESPONSIVE
+---------------------------------------------- */
 @media (max-width: 700px) {
-    canvas {
-        max-width: 100%;
-    }
+    canvas { max-width: 100%; }
 }
 </style>
 </head>
 
 <body>
-
 <div class="page-wrap">
 
-<!-- -----------------------------------------------------
-     CONTROL TILE
------------------------------------------------------- -->
+<!-- ==============================================
+     CARD 1 — CONTROLS
+================================================== -->
 <div class="card">
     <h2>Simulation Controls</h2>
 
-    <strong>Velocity:</strong><br>
+    <label><strong>Velocity (fraction of c):</strong></label>
     <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.70">
     <div>
         <span id="velRead">0.70c</span> —
         <span id="velMS">2.10 × 10⁸ m/s</span>
     </div>
 
-    <div style="margin-top:1rem;">
-        <button onclick="snapSpeed(0.50)">0.50c</button>
-        <button onclick="snapSpeed(0.70)">0.70c</button>
-        <button onclick="snapSpeed(0.90)">0.90c</button>
-        <button onclick="snapSpeed(0.99)">0.99c</button>
-    </div>
+    <br>
 
-    <div style="margin-top:1rem;">
-        <button id="playBtn">Pause</button>
-        <button id="resetBtn">Reset</button>
-    </div>
+    <label>Enter Proper Time τ (s):</label>
+    <input type="number" id="tauInput" value="1.0" step="0.1" min="0">
 
-    <div style="margin-top:1rem;">
-        <label><input type="checkbox" id="showClock" checked> Time Dilation</label><br>
-        <label><input type="checkbox" id="showShip" checked> Length Contraction</label>
-    </div>
+    <br><br>
 
-    <div style="margin-top:1rem;">
-        <div id="gammaRead">γ = 1.40</div>
-        <div id="properRead">Proper Time (τ): 0.00 s</div>
-        <div id="timeRead">Dilated Time (t): 0.00 s</div>
-        <div id="lengthRead">Contracted Length: 0.71 L₀</div>
-    </div>
+    <label>Enter Rest Length l₀ (m):</label>
+    <input type="number" id="lenInput" value="1.0" step="0.1" min="0">
+
+    <br><br>
+
+    <button onclick="snapSpeed(0.50)">0.50c</button>
+    <button onclick="snapSpeed(0.70)">0.70c</button>
+    <button onclick="snapSpeed(0.90)">0.90c</button>
+    <button onclick="snapSpeed(0.99)">0.99c</button>
+
+    <br><br>
+
+    <button id="playBtn">Pause</button>
+    <button id="resetBtn">Reset</button>
+
+    <br><br>
+
+    <div id="gammaRead">γ = 1.40</div>
+    <div id="properRead">Proper Time τ = 1.00 s</div>
+    <div id="timeRead">Dilated Time t' = 1.40 s</div>
+    <div id="lengthRead">Contracted Length l' = 0.71 m</div>
 </div>
 
 
-<!-- -----------------------------------------------------
-     SIMULATION TILE
------------------------------------------------------- -->
+<!-- ==============================================
+     CARD 2 — EQUATIONS + SUBSTITUTIONS
+================================================== -->
+<div class="card">
+    <h2>Equations Used</h2>
+
+    <strong>SQA Given Equations:</strong><br><br>
+
+    Time dilation:<br>
+    <code style="font-size:1.2rem;">
+        t' = t / √(1 − (v/c)²)
+    </code>
+    <br><br>
+
+    Length contraction:<br>
+    <code style="font-size:1.2rem;">
+        l' = l √(1 − (v/c)²)
+    </code>
+
+    <br><br><hr><br>
+
+    <strong>With Your Values:</strong><br><br>
+
+    <div id="subTime">t' = ?</div>
+    <br>
+    <div id="subLen">l' = ?</div>
+</div>
+
+
+<!-- ==============================================
+     CARD 3 — QUESTION GENERATOR
+================================================== -->
+<div class="card">
+    <h2>Practice Questions</h2>
+
+    <div id="questionArea"></div>
+
+    <button onclick="generateQuestions()">New Questions</button>
+</div>
+
+
+<!-- ==============================================
+     CARD 4 — SCENARIO GENERATOR
+================================================== -->
+<div class="card">
+    <h2>Scenario Problem</h2>
+
+    <div id="scenarioBox"></div>
+
+    <button onclick="generateScenario()">New Scenario</button>
+</div>
+
+
+<!-- ==============================================
+     CARD 5 — SIMULATION
+================================================== -->
 <div class="card">
     <h2>Relativity Simulation</h2>
 
@@ -164,233 +245,301 @@ input[type=range] {
     <div class="panel-label">Spaceship (Length Contraction)</div>
 </div>
 
-</div><!-- END PAGE WRAP -->
+</div> <!-- END PAGE WRAP -->
 
 
+<!-- ==============================================
+     JAVASCRIPT ENGINE (SIM + QUESTIONS + EQUATIONS)
+================================================== -->
 <script>
-/* ----------------------------------------------
-   CONSTANTS + SETUP
----------------------------------------------- */
+/* CONSTANTS */
 const c = 3e8;
-
 let dt = 0.033;
 let running = true;
+let tauCounter = 0;
+let tDilCounter = 0;
 
-let tau = 0;   // proper time
-let tDil = 0;  // dilated time
-
-// UI
+/* UI refs */
 const velSlider = document.getElementById("velSlider");
 const velRead = document.getElementById("velRead");
 const velMS = document.getElementById("velMS");
-
+const tauInput = document.getElementById("tauInput");
+const lenInput = document.getElementById("lenInput");
 const gammaRead = document.getElementById("gammaRead");
 const properRead = document.getElementById("properRead");
 const timeRead = document.getElementById("timeRead");
 const lengthRead = document.getElementById("lengthRead");
+const subTime = document.getElementById("subTime");
+const subLen = document.getElementById("subLen");
+const questionArea = document.getElementById("questionArea");
+const scenarioBox = document.getElementById("scenarioBox");
 
-/* ----------------------------------------------
-   CANVASES
----------------------------------------------- */
+/* CANVAS SETUP */
 const clock = document.getElementById("clock");
 const ctx = clock.getContext("2d");
-
 const ship = document.getElementById("ship");
 const sctx = ship.getContext("2d");
 
-/* ----------------------------------------------
-   MATH UTILITIES
----------------------------------------------- */
-function getGamma(v) {
-    return 1 / Math.sqrt(1 - v*v);
-}
+/* MATH UTILITIES */
+function gamma(v){ return 1/Math.sqrt(1 - v*v); }
+function ms(v){ return v*c; }
+function formatSci(x){ return (x/1e8).toFixed(2) + " × 10⁸"; }
 
-function toMS(v) {
-    return v * c;
-}
-
-function formatMS(m) {
-    return (m/1e8).toFixed(2) + " × 10⁸ m/s";
-}
-
-/* ----------------------------------------------
-   SNAP BUTTON FUNCTION
----------------------------------------------- */
-function snapSpeed(v) {
+/* SNAP BUTTONS */
+function snapSpeed(v){
     velSlider.value = v;
-    updateReadouts();
+    updateAll();
 }
 
-/* ----------------------------------------------
-   UPDATE READOUTS
----------------------------------------------- */
-function updateReadouts() {
+/* UPDATE EVERYTHING */
+function updateAll(){
     const v = parseFloat(velSlider.value);
-    const gamma = getGamma(v);
+    const g = gamma(v);
+    const tau = parseFloat(tauInput.value);
+    const L0 = parseFloat(lenInput.value);
 
+    const tPrime = tau / Math.sqrt(1 - v*v);
+    const LPrime = L0 * Math.sqrt(1 - v*v);
+
+    /* Readouts */
     velRead.textContent = v.toFixed(2) + "c";
-    velMS.textContent = formatMS(toMS(v));
+    velMS.textContent = formatSci(ms(v)) + " m/s";
+    gammaRead.textContent = "γ = " + g.toFixed(2);
 
-    gammaRead.textContent = "γ = " + gamma.toFixed(2);
-    properRead.textContent = "Proper Time (τ): " + tau.toFixed(2) + " s";
-    timeRead.textContent = "Dilated Time (t): " + tDil.toFixed(2) + " s";
-    lengthRead.textContent = "Contracted Length: " + (1/gamma).toFixed(2) + " L₀";
+    properRead.textContent = `Proper Time τ = ${tau.toFixed(2)} s`;
+    timeRead.textContent = `Dilated Time t' = ${tPrime.toFixed(2)} s`;
+    lengthRead.textContent = `Contracted Length l' = ${LPrime.toFixed(2)} m`;
+
+    /* Substitutions (Equations) */
+    subTime.innerHTML =
+        `t' = ${tau.toFixed(2)} / √(1 − (${v.toFixed(2)})²)
+         = ${tPrime.toFixed(2)} s`;
+
+    subLen.innerHTML =
+        `l' = ${L0.toFixed(2)} × √(1 − (${v.toFixed(2)})²)
+         = ${LPrime.toFixed(2)} m`;
 }
 
-/* ----------------------------------------------
-   DRAW TIME DILATION CLOCK – VERTICAL ONLY
----------------------------------------------- */
-function drawClock() {
-    if (!showClock.checked) {
-        ctx.clearRect(0,0,clock.width,clock.height);
-        return;
-    }
-
+/* ---------------------------
+   DRAW CLOCK (VERTICAL)
+---------------------------- */
+function drawClock(){
     ctx.clearRect(0,0,clock.width,clock.height);
 
-    ctx.fillStyle = "#fff";
-    ctx.font = "15px Trebuchet MS";
-    ctx.fillText("Rest Clock (Proper Time τ)", 40, 28);
-    ctx.fillText("Moving Clock (Dilated Time t)", 240, 28);
+    const v = parseFloat(velSlider.value);
+    const g = gamma(v);
 
+    /* Wells */
     ctx.strokeStyle = "#fff";
     ctx.strokeRect(60,50,60,260);
     ctx.strokeRect(260,50,60,260);
 
-    // Photon positions
-    let yRest = 50 + (tau * 60) % 260;
-    let yMove = 50 + (tDil * 60) % 260;
+    /* Labels */
+    ctx.fillStyle = "#fff";
+    ctx.font = "15px Trebuchet MS";
+    ctx.fillText("Rest Clock (τ)", 40, 28);
+    ctx.fillText("Moving Clock (t')", 240, 28);
 
-    // Rest photon — cyan glow
+    /* Photon positions */
+    let yRest = 50 + (tauCounter * 60) % 260;
+    let yMove = 50 + (tDilCounter * 60) % 260;
+
+    /* Rest photon (cyan) */
     ctx.shadowColor = "rgba(0,255,255,0.6)";
     ctx.shadowBlur = 12;
     ctx.fillStyle = "#00eaff";
     ctx.beginPath();
-    ctx.arc(90, yRest, 8, 0, Math.PI*2);
+    ctx.arc(90, yRest, 8, 0, 2*Math.PI);
     ctx.fill();
 
-    // Moving photon — purple glow
+    /* Moving photon (purple) */
     ctx.shadowColor = "rgba(190,90,255,0.7)";
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 14;
     ctx.fillStyle = "#c060ff";
     ctx.beginPath();
-    ctx.arc(290, yMove, 8, 0, Math.PI*2);
+    ctx.arc(290, yMove, 8, 0, 2*Math.PI);
     ctx.fill();
 
     ctx.shadowBlur = 0;
 }
 
-/* ----------------------------------------------
-   LENGTH CONTRACTION (unchanged improved)
----------------------------------------------- */
-function drawShip() {
-    if (!showShip.checked) {
-        sctx.clearRect(0,0,ship.width,ship.height);
-        return;
-    }
+/* ---------------------------
+   DRAW LENGTH CONTRACTION
+---------------------------- */
+function drawShip(){
+    sctx.clearRect(0,0,ship.width,ship.height);
 
     const v = parseFloat(velSlider.value);
-    const gamma = getGamma(v);
-
-    sctx.clearRect(0,0,ship.width,ship.height);
+    const g = gamma(v);
 
     const baseX = 60;
     const baseY = 60;
-    const baseWidth = 320;
-    const h = 40;
+    const W = 320;
+    const H = 40;
 
-    const contracted = baseWidth / gamma;
+    const contracted = W * Math.sqrt(1 - v*v);
 
-    // ruler
-    const rulerY = baseY + h + 35;
+    /* Ruler */
+    const rY = baseY + H + 35;
     sctx.strokeStyle = "#3498db";
     sctx.beginPath();
-    sctx.moveTo(baseX - 10, rulerY);
-    sctx.lineTo(baseX + baseWidth + 60, rulerY);
+    sctx.moveTo(baseX-10, rY);
+    sctx.lineTo(baseX + W + 60, rY);
     sctx.stroke();
 
-    for (let x = baseX; x <= baseX + baseWidth; x += 20) {
+    for (let x = baseX; x <= baseX+W; x+=20){
         sctx.beginPath();
-        sctx.moveTo(x, rulerY - 5);
-        sctx.lineTo(x, rulerY + 5);
+        sctx.moveTo(x, rY-5);
+        sctx.lineTo(x, rY+5);
         sctx.stroke();
     }
 
-    // rest (blue glow)
+    /* Rest ship */
     sctx.shadowColor = "rgba(0,180,255,0.5)";
     sctx.shadowBlur = 12;
     sctx.fillStyle = "#4466ff";
-    sctx.fillRect(baseX, baseY, baseWidth, h);
+    sctx.fillRect(baseX, baseY, W, H);
     sctx.shadowBlur = 0;
     sctx.fillStyle = "#fff";
     sctx.fillText("Rest length L₀", baseX, baseY - 8);
 
-    // moving (red)
-    const movingY = baseY + 70;
+    /* Moving ship */
+    const y2 = baseY + 70;
     sctx.fillStyle = "#ff4444";
-    sctx.fillRect(baseX, movingY, contracted, h);
+    sctx.fillRect(baseX, y2, contracted, H);
     sctx.fillStyle = "#fff";
-    sctx.fillText("Moving length L = L₀/γ", baseX, movingY - 8);
-
-    sctx.fillText("L/L₀ = " + (1/gamma).toFixed(2),
-                  baseX + baseWidth + 10,
-                  movingY + h/2 + 5);
-
-    // motion arrow
-    const arrowY = movingY + h + 30;
-    sctx.beginPath();
-    sctx.moveTo(baseX, arrowY);
-    sctx.lineTo(baseX + 140, arrowY);
-    sctx.stroke();
-
-    sctx.beginPath();
-    sctx.moveTo(baseX + 140, arrowY);
-    sctx.lineTo(baseX + 130, arrowY - 6);
-    sctx.lineTo(baseX + 130, arrowY + 6);
-    sctx.fill();
-
-    sctx.fillText("Direction of motion", baseX + 150, arrowY + 5);
+    sctx.fillText("Moving length l'", baseX, y2 - 8);
+    sctx.fillText(`l'/L₀ = ${(Math.sqrt(1-v*v)).toFixed(2)}`, baseX + W + 10, y2+H/2+5);
 }
 
-/* ----------------------------------------------
-   MAIN LOOP
----------------------------------------------- */
-function animate() {
-    if (running) {
+/* ---------------------------
+   MAIN ANIMATION LOOP
+---------------------------- */
+function animate(){
+    if (running){
         const v = parseFloat(velSlider.value);
-        const gamma = getGamma(v);
+        const g = gamma(v);
 
-        tau += dt;
-        tDil += dt / gamma;
+        tauCounter += dt;
+        tDilCounter += dt / g;
 
-        updateReadouts();
         drawClock();
         drawShip();
     }
-
     requestAnimationFrame(animate);
 }
 
 animate();
 
-/* ----------------------------------------------
-   UI EVENTS
----------------------------------------------- */
-velSlider.addEventListener("input", updateReadouts);
-
+/* PLAY / PAUSE */
 document.getElementById("playBtn").onclick = () => {
     running = !running;
     playBtn.textContent = running ? "Pause" : "Play";
 };
 
+/* RESET */
 document.getElementById("resetBtn").onclick = () => {
-    tau = 0;
-    tDil = 0;
-    updateReadouts();
+    tauCounter = 0;
+    tDilCounter = 0;
+    updateAll();
 };
 
-</script>
+/* UPDATE ON INPUT */
+velSlider.addEventListener("input", updateAll);
+tauInput.addEventListener("input", updateAll);
+lenInput.addEventListener("input", updateAll);
 
+/* INITIAL UPDATE */
+updateAll();
+
+/* ==========================================
+   QUESTION GENERATOR
+========================================== */
+function generateQuestions(){
+    const v = parseFloat(velSlider.value);
+    const g = gamma(v);
+    const tau = parseFloat(tauInput.value);
+    const L0 = parseFloat(lenInput.value);
+
+    const tPrime = tau / Math.sqrt(1 - v*v);
+    const LPrime = L0 * Math.sqrt(1 - v*v);
+
+    questionArea.innerHTML = `
+        <div class="question-box">
+            <strong>1. Calculate the dilated time t' when τ = ${tau.toFixed(2)} s and v = ${v.toFixed(2)}c.</strong><br>
+            <input type="text" id="q1">
+            <button onclick="checkQ1(${tPrime.toFixed(2)})">Check</button>
+            <div class="solution" id="s1">Correct answer: ${tPrime.toFixed(2)} s</div>
+        </div>
+
+        <div class="question-box">
+            <strong>2. Calculate the contracted length l' when L₀ = ${L0.toFixed(2)} m and v = ${v.toFixed(2)}c.</strong><br>
+            <input type="text" id="q2">
+            <button onclick="checkQ2(${LPrime.toFixed(2)})">Check</button>
+            <div class="solution" id="s2">Correct answer: ${LPrime.toFixed(2)} m</div>
+        </div>
+
+        <div class="question-box">
+            <strong>3. True or False: At this speed, time passes more quickly for the moving observer.</strong><br>
+            <button onclick="alert('False – moving clocks always run slower.')">True</button>
+            <button onclick="alert('Correct!')">False</button>
+        </div>
+
+        <div class="question-box">
+            <strong>4. Which effect is stronger at v = ${v.toFixed(2)}c?</strong><br>
+            <button onclick="alert('Correct! Time dilation grows faster than contraction.')">Time dilation</button>
+            <button onclick="alert('No — length contraction is weaker at moderate speeds.')">Length contraction</button>
+            <button onclick="alert('No.')">They are equal</button>
+        </div>
+    `;
+}
+
+function checkQ1(ans){
+    const v = document.getElementById("q1").value;
+    if (Math.abs(v - ans) < 0.05){ alert("Correct!"); }
+    else { alert("Close, try again."); }
+    document.getElementById("s1").style.display = "block";
+}
+
+function checkQ2(ans){
+    const v = document.getElementById("q2").value;
+    if (Math.abs(v - ans) < 0.05){ alert("Correct!"); }
+    else { alert("Not quite, try again."); }
+    document.getElementById("s2").style.display = "block";
+}
+
+/* ==========================================
+   SCENARIO GENERATOR
+========================================== */
+function generateScenario(){
+    const v = parseFloat(velSlider.value);
+    const g = gamma(v);
+
+    const distances = [5, 8, 10, 12, 15];
+    const D = distances[Math.floor(Math.random()*distances.length)];
+
+    const tEarth = D / v;  
+    const tShip = tEarth / g; 
+
+    scenarioBox.innerHTML = `
+        <div class="question-box">
+            <strong>Spaceship travels to a star ${D} light-years away at v = ${v.toFixed(2)}c.</strong><br><br>
+
+            <strong>1.</strong> Earth sees the journey take: ${tEarth.toFixed(2)} years<br>
+            <strong>2.</strong> Astronauts experience: ${tShip.toFixed(2)} years<br>
+            <strong>3.</strong> Explain why these times differ.<br><br>
+
+            <button onclick="alert('Because time runs slower in the moving frame — t\' = t/γ.')">
+                Show explanation
+            </button>
+        </div>
+    `;
+}
+
+/* Generate defaults on load */
+generateQuestions();
+generateScenario();
+
+</script>
 </body>
 </html>
-
