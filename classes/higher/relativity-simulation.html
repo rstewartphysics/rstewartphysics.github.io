@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Higher Physics – Relativity Simulation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* -----------------------------------------------------
+   GLOBAL PAGE LAYOUT (matches your physics site shell)
+----------------------------------------------------- */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    color: #222;
+}
+
+header.banner {
+    width: 100%;
+    height: auto;
+}
+
+header.banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Page wrap */
+main.page-wrap {
+    padding: 20px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* -----------------------------------------------------
+   SIDE MENU (blurred iPad style, ESC closes)
+----------------------------------------------------- */
+
+#sideMenu {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    transform: translateX(-280px);
+    transition: transform 0.3s;
+    z-index: 9999;
+}
+
+#sideMenu.open {
+    transform: translateX(0);
+}
+
+#sideMenu h2 {
+    margin-top: 0;
+}
+
+#sideMenu a {
+    display: block;
+    padding: 12px 0;
+    text-decoration: none;
+    color: #222;
+    font-size: 1.2rem;
+}
+
+#menuButton {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    padding: 10px 14px;
+    font-size: 1.2rem;
+    background: rgba(255,255,255,0.7);
+    border: none;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    z-index: 10000;
+}
+
+#menuButton:focus {
+    outline: 3px solid #007aff;
+}
+
+/* -----------------------------------------------------
+   TITLES / SUBTITLES
+----------------------------------------------------- */
+h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+/* -----------------------------------------------------
+   SIMULATION STYLES
+----------------------------------------------------- */
+
+#controls {
+    padding: 15px;
+    background: #e9e9e9;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.control-group {
+    margin-bottom: 12px;
+}
+
+canvas {
+    background: #000;
+    border: 1px solid #666;
+}
+
+#container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px 0;
+    gap: 30px;
+}
+
+.panel {
+    text-align: center;
+}
+
+button {
+    padding: 6px 12px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+    #container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- MENU BUTTON -->
+<button id="menuButton" aria-label="Open menu">☰</button>
+
+<!-- SIDE MENU -->
+<nav id="sideMenu" aria-label="Main site menu">
+    <h2>Menu</h2>
+    <a href="/index.html">🏠 Home</a>
+    <a href="/science/index.html">🧪 Science</a>
+    <a href="/physics/index.html">⚡ Physics</a>
+    <a href="/electronics/index.html">💡 Electronics</a>
+    <a href="/engineering/index.html">🧰 Engineering</a>
+</nav>
+
+<!-- BANNER -->
+<header class="banner">
+    <img src="/banners/physics-banner.jpg" alt="Physics Banner">
+</header>
+
+<main class="page-wrap">
+
+<h1>Interactive Relativity Simulation</h1>
+<p style="text-align:center;">Explore time dilation and length contraction using the controls below.</p>
+
+<!-- CONTROLS -->
+<div id="controls">
+    <div class="control-group">
+        <label><strong>Velocity (fraction of c):</strong></label><br>
+        <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.5">
+        <span id="velRead">0.50c</span>
+    </div>
+
+    <div class="control-group">
+        <button id="playBtn">Pause</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <div class="control-group">
+        <label><input type="checkbox" id="showClock" checked> Show Time Dilation</label><br>
+        <label><input type="checkbox" id="showShip" checked> Show Length Contraction</label>
+    </div>
+
+    <div class="control-group">
+        <div id="gammaRead"><strong>γ = 1.15</strong></div>
+        <div id="timeRead">Dilated Time: 0.00 s</div>
+        <div id="lengthRead">Contracted Length: 0.87 L₀</div>
+    </div>
+</div>
+
+<!-- SIM PANELS -->
+<div id="container">
+    <div class="panel">
+        <canvas id="clock" width="370" height="300"></canvas>
+        <div style="margin-top:8px;">Light Clock (Time Dilation)</div>
+    </div>
+
+    <div class="panel">
+        <canvas id="ship" width="500" height="160"></canvas>
+        <div style="margin-top:8px;">Spaceship (Length Contraction)</div>
+    </div>
+</div>
+
+</main>
+
+<!-- JS: MENU + SIMULATION -->
+<script>
+// ---------------------------------------------
+// SIDE MENU OPEN/CLOSE
+// ---------------------------------------------
+const menu = document.getElementById("sideMenu");
+const menuBtn = document.getElementById("menuButton");
+
+menuBtn.onclick = () => menu.classList.toggle("open");
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") menu.classList.remove("open");
+});
+
+// ---------------------------------------------
+// SIM VARIABLES
+// ---------------------------------------------
+const clock = document.getElementById("clock");
+const ctx = clock.getContext("2d");
+const ship = document.getElementById("ship");
+const sctx = ship.getContext("2d");
+
+const velSlider = document.getElementById("velSlider");
+const velRead = document.getElementById("velRead");
+const gammaRead = document.getElementById("gammaRead");
+const timeRead = document.getElementById("timeRead");
+const lengthRead = document.getElementById("lengthRead");
+
+const showClock = document.getElementById("showClock");
+const showShip = document.getElementById("showShip");
+
+let running = true;
+let t = 0;
+let dt = 0.033;
+let timeDilated = 0;
+
+// ---------------------------------------------
+// MATHS
+// ---------------------------------------------
+function getGamma(v) {
+    return 1 / Math.sqrt(1 - v*v);
+}
+
+function updateReadouts(v, gamma) {
+    velRead.textContent = v.toFixed(2) + "c";
+    gammaRead.textContent = "γ = " + gamma.toFixed(2);
+    timeRead.textContent = "Dilated Time: " + timeDilated.toFixed(2) + " s";
+    lengthRead.textContent = "Contracted Length: " + (1/gamma).toFixed(2) + " L₀";
+}
+
+// ---------------------------------------------
+// DRAW TIME DILATION CLOCK
+// ---------------------------------------------
+function drawClock(v, gamma) {
+    if (!showClock.checked) {
+        ctx.clearRect(0,0,clock.width,clock.height);
+        return;
+    }
+    ctx.clearRect(0,0,clock.width,clock.height);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(50,50,60,200);
+    ctx.strokeRect(260,50,60,200);
+
+    let yRest = 50 + (t * 60) % 200;
+    let yMove = 50 + (t * 60 / gamma) % 200;
+
+    ctx.fillStyle = "cyan";
+    ctx.beginPath();
+    ctx.arc(80, yRest, 7, 0, 2*Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(290, yMove, 7, 0, 2*Math.PI);
+    ctx.fill();
+}
+
+// ---------------------------------------------
+// DRAW LENGTH CONTRACTION SHIP
+// ---------------------------------------------
+function drawShip(v, gamma) {
+    if (!showShip.checked) {
+        sctx.clearRect(0,0,ship.width,ship.height);
+        return;
+    }
+
+    sctx.clearRect(0,0,ship.width,ship.height);
+
+    let baseWidth = 250;
+    let contracted = baseWidth / gamma;
+
+    // Rest ship
+    sctx.fillStyle = "#44f";
+    sctx.fillRect(50,60,baseWidth,40);
+    sctx.fillStyle = "white";
+    sctx.fillText("Rest Length L₀", 120, 120);
+
+    // Moving ship
+    sctx.fillStyle = "#f44";
+    sctx.fillRect(330,60,contracted,40);
+    sctx.fillStyle = "white";
+    sctx.fillText("L = L₀/γ", 350, 120);
+}
+
+// ---------------------------------------------
+// MAIN LOOP
+// ---------------------------------------------
+function animate() {
+    if (running) {
+        let v = parseFloat(velSlider.value);
+        let gamma = getGamma(v);
+
+        t += dt;
+        timeDilated += dt / gamma;
+
+        updateReadouts(v, gamma);
+        drawClock(v, gamma);
+        drawShip(v, gamma);
+    }
+    requestAnimationFrame(animate);
+}
+animate();
+
+// ---------------------------------------------
+// BUTTONS
+// ---------------------------------------------
+document.getElementById("playBtn").onclick = () => {
+    running = !running;
+    playBtn.textContent = running ? "Pause" : "Play";
+};
+
+document.getElementById("resetBtn").onclick = () => {
+    t = 0;
+    timeDilated = 0;
+};
+</script>
+</body>
+</html>
