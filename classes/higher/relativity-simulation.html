@@ -2,136 +2,184 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Interactive Relativity Simulation</title>
+<title>Higher Physics – Relativity Simulation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+/* ----------------------------------------------
+   GLOBAL DARK BLUE HIGHER THEME
+---------------------------------------------- */
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    color: #222;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    background: radial-gradient(circle at 25% 30%, #0e1b38 0%, #152b63 45%, #0a1130 90%);
+    background-attachment: fixed;
+    color: #fff;
+    line-height: 1.5;
 }
 
-header {
+/* Center the whole page content */
+.page-wrap {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem 3rem;
+}
+
+/* ----------------------------------------------
+   HIGHER-STYLE TILE CARDS
+---------------------------------------------- */
+.card {
+    background: linear-gradient(145deg, #0e1b38, #152b63);
+    border-radius: 1rem;
+    padding: 1.6rem;
+    margin-bottom: 2rem;
+    box-shadow:
+        inset 0 0 22px rgba(255,255,255,0.08),
+        0 20px 40px rgba(0,0,0,0.7);
+    border: 2px solid rgba(255,255,255,0.18);
+    outline: 2px solid rgba(255,255,255,0.1);
+    outline-offset: -4px;
+}
+
+/* Card headings */
+.card h2 {
+    margin-top: 0;
     text-align: center;
-    padding: 20px 0 10px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(0,255,255,0.6);
 }
 
-#controls {
-    padding: 15px;
-    background: #eaeaea;
-    max-width: 900px;
-    margin: 0 auto 20px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-.control-group {
-    margin-bottom: 15px;
-}
-
-.snap-buttons button {
-    margin-right: 6px;
-    padding: 6px 10px;
-}
-
+/* ----------------------------------------------
+   CANVAS STYLE (Higher Blue)
+---------------------------------------------- */
 canvas {
+    width: 100%;
+    max-width: 520px;
     background: #000;
-    border: 1px solid #666;
+    border-radius: 12px;
+    border: 2px solid rgba(0,255,255,0.2);
+    box-shadow: 0 0 18px rgba(0,255,255,0.25);
+    display: block;
+    margin: 1rem auto;
 }
 
-#container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-    padding-bottom: 50px;
+/* ----------------------------------------------
+   BUTTONS + SLIDERS (Higher style)
+---------------------------------------------- */
+button {
+    font-family: inherit;
+    background: linear-gradient(135deg, #1e3a8a, #4169e1);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    margin-right: 0.4rem;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 10px rgba(0,150,255,0.4);
+    cursor: pointer;
 }
 
-.panel {
+button:hover,
+button:focus {
+    box-shadow: 0 0 14px rgba(0,200,255,0.8);
+    transform: translateY(-2px);
+}
+
+input[type=range] {
+    width: 80%;
+    accent-color: #00e0ff;
+    margin-top: 0.5rem;
+}
+
+/* Labels beneath canvases */
+.panel-label {
     text-align: center;
+    margin-top: 0.4rem;
+    font-size: 1rem;
+}
+
+
+/* Responsive */
+@media (max-width: 700px) {
+    canvas {
+        max-width: 100%;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>Interactive Relativity Simulation</h1>
-    <p>Explore time dilation and length contraction using the controls below.</p>
-</header>
+<div class="page-wrap">
 
-<!-- CONTROL PANEL -->
-<div id="controls">
+<!-- -----------------------------------------------------
+     CONTROL TILE
+------------------------------------------------------ -->
+<div class="card">
+    <h2>Simulation Controls</h2>
 
-    <div class="control-group">
-        <strong>Velocity (fraction of c):</strong><br>
-        <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.70">
-        <span id="velRead">0.70c</span><br>
+    <strong>Velocity:</strong><br>
+    <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.70">
+    <div>
+        <span id="velRead">0.70c</span> —
         <span id="velMS">2.10 × 10⁸ m/s</span>
     </div>
 
-    <!-- Snap buttons -->
-    <div class="control-group snap-buttons">
+    <div style="margin-top:1rem;">
         <button onclick="snapSpeed(0.50)">0.50c</button>
         <button onclick="snapSpeed(0.70)">0.70c</button>
         <button onclick="snapSpeed(0.90)">0.90c</button>
         <button onclick="snapSpeed(0.99)">0.99c</button>
     </div>
 
-    <div class="control-group">
+    <div style="margin-top:1rem;">
         <button id="playBtn">Pause</button>
         <button id="resetBtn">Reset</button>
     </div>
 
-    <div class="control-group">
-        <label><input type="checkbox" id="showClock" checked> Show Time Dilation</label><br>
-        <label><input type="checkbox" id="showShip" checked> Show Length Contraction</label>
+    <div style="margin-top:1rem;">
+        <label><input type="checkbox" id="showClock" checked> Time Dilation</label><br>
+        <label><input type="checkbox" id="showShip" checked> Length Contraction</label>
     </div>
 
-    <div class="control-group">
+    <div style="margin-top:1rem;">
         <div id="gammaRead">γ = 1.40</div>
         <div id="properRead">Proper Time (τ): 0.00 s</div>
         <div id="timeRead">Dilated Time (t): 0.00 s</div>
         <div id="lengthRead">Contracted Length: 0.71 L₀</div>
     </div>
-
 </div>
 
-<!-- SIM PANELS -->
-<div id="container">
-    <div class="panel">
-        <canvas id="clock" width="440" height="350"></canvas>
-        <div>Light Clock (Time Dilation)</div>
-    </div>
 
-    <div class="panel">
-        <canvas id="ship" width="550" height="250"></canvas>
-        <div>Spaceship (Length Contraction)</div>
-    </div>
+<!-- -----------------------------------------------------
+     SIMULATION TILE
+------------------------------------------------------ -->
+<div class="card">
+    <h2>Relativity Simulation</h2>
+
+    <canvas id="clock" width="440" height="350"></canvas>
+    <div class="panel-label">Light Clock (Time Dilation)</div>
+
+    <canvas id="ship" width="550" height="250"></canvas>
+    <div class="panel-label">Spaceship (Length Contraction)</div>
 </div>
+
+</div><!-- END PAGE WRAP -->
+
 
 <script>
-// ---------------------------------------------------------
-// CONSTANTS
-// ---------------------------------------------------------
-const c = 3e8; // speed of light (m/s)
-
-const clock = document.getElementById("clock");
-const ctx = clock.getContext("2d");
-
-const ship = document.getElementById("ship");
-const sctx = ship.getContext("2d");
+/* ----------------------------------------------
+   CONSTANTS + SETUP
+---------------------------------------------- */
+const c = 3e8;
 
 let dt = 0.033;
 let running = true;
 
-// time counters
 let tau = 0;   // proper time
 let tDil = 0;  // dilated time
 
-// UI elements
+// UI
 const velSlider = document.getElementById("velSlider");
 const velRead = document.getElementById("velRead");
 const velMS = document.getElementById("velMS");
@@ -141,9 +189,18 @@ const properRead = document.getElementById("properRead");
 const timeRead = document.getElementById("timeRead");
 const lengthRead = document.getElementById("lengthRead");
 
-// ---------------------------------------------------------
-// MATH HELPERS
-// ---------------------------------------------------------
+/* ----------------------------------------------
+   CANVASES
+---------------------------------------------- */
+const clock = document.getElementById("clock");
+const ctx = clock.getContext("2d");
+
+const ship = document.getElementById("ship");
+const sctx = ship.getContext("2d");
+
+/* ----------------------------------------------
+   MATH UTILITIES
+---------------------------------------------- */
 function getGamma(v) {
     return 1 / Math.sqrt(1 - v*v);
 }
@@ -156,17 +213,17 @@ function formatMS(m) {
     return (m/1e8).toFixed(2) + " × 10⁸ m/s";
 }
 
-// ---------------------------------------------------------
-// SNAP BUTTONS
-// ---------------------------------------------------------
+/* ----------------------------------------------
+   SNAP BUTTON FUNCTION
+---------------------------------------------- */
 function snapSpeed(v) {
     velSlider.value = v;
     updateReadouts();
 }
 
-// ---------------------------------------------------------
-// UPDATE READOUTS
-// ---------------------------------------------------------
+/* ----------------------------------------------
+   UPDATE READOUTS
+---------------------------------------------- */
 function updateReadouts() {
     const v = parseFloat(velSlider.value);
     const gamma = getGamma(v);
@@ -180,27 +237,23 @@ function updateReadouts() {
     lengthRead.textContent = "Contracted Length: " + (1/gamma).toFixed(2) + " L₀";
 }
 
-// ---------------------------------------------------------
-// LIGHT CLOCK (IMPROVED PHOTON PATH)
-// ---------------------------------------------------------
+/* ----------------------------------------------
+   DRAW TIME DILATION CLOCK – VERTICAL ONLY
+---------------------------------------------- */
 function drawClock() {
     if (!showClock.checked) {
-        ctx.clearRect(0, 0, clock.width, clock.height);
+        ctx.clearRect(0,0,clock.width,clock.height);
         return;
     }
 
-    const v = parseFloat(velSlider.value);
-    const gamma = getGamma(v);
+    ctx.clearRect(0,0,clock.width,clock.height);
 
-    ctx.clearRect(0, 0, clock.width, clock.height);
+    ctx.fillStyle = "#fff";
+    ctx.font = "15px Trebuchet MS";
+    ctx.fillText("Rest Clock (Proper Time τ)", 40, 28);
+    ctx.fillText("Moving Clock (Dilated Time t)", 240, 28);
 
-    ctx.fillStyle = "white";
-    ctx.font = "14px Arial";
-    ctx.fillText("Rest Clock (Proper Time τ)", 40, 25);
-    ctx.fillText("Moving Clock (Dilated Time t)", 240, 25);
-
-    // Wells
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "#fff";
     ctx.strokeRect(60,50,60,260);
     ctx.strokeRect(260,50,60,260);
 
@@ -208,33 +261,28 @@ function drawClock() {
     let yRest = 50 + (tau * 60) % 260;
     let yMove = 50 + (tDil * 60) % 260;
 
-    // Rest photon (vertical)
-    ctx.fillStyle = "cyan";
+    // Rest photon — cyan glow
+    ctx.shadowColor = "rgba(0,255,255,0.6)";
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = "#00eaff";
     ctx.beginPath();
-    ctx.arc(90, yRest, 8, 0, 2*Math.PI);
+    ctx.arc(90, yRest, 8, 0, Math.PI*2);
     ctx.fill();
 
-    // Moving photon (diagonal path)
-    const horizontalDrift = v * 50; // visual exaggeration factor
-    const xMove = 290 + horizontalDrift * tDil;
-
-    // Path line
-    ctx.strokeStyle = "rgba(255,255,0,0.4)";
+    // Moving photon — purple glow
+    ctx.shadowColor = "rgba(190,90,255,0.7)";
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = "#c060ff";
     ctx.beginPath();
-    ctx.moveTo(290, 50);
-    ctx.lineTo(xMove, yMove);
-    ctx.stroke();
-
-    // photon itself
-    ctx.fillStyle = "yellow";
-    ctx.beginPath();
-    ctx.arc(xMove, yMove, 8, 0, 2*Math.PI);
+    ctx.arc(290, yMove, 8, 0, Math.PI*2);
     ctx.fill();
+
+    ctx.shadowBlur = 0;
 }
 
-// ---------------------------------------------------------
-// LENGTH CONTRACTION (unchanged improved)
-// ---------------------------------------------------------
+/* ----------------------------------------------
+   LENGTH CONTRACTION (unchanged improved)
+---------------------------------------------- */
 function drawShip() {
     if (!showShip.checked) {
         sctx.clearRect(0,0,ship.width,ship.height);
@@ -255,7 +303,7 @@ function drawShip() {
 
     // ruler
     const rulerY = baseY + h + 35;
-    sctx.strokeStyle = "#444";
+    sctx.strokeStyle = "#3498db";
     sctx.beginPath();
     sctx.moveTo(baseX - 10, rulerY);
     sctx.lineTo(baseX + baseWidth + 60, rulerY);
@@ -268,17 +316,20 @@ function drawShip() {
         sctx.stroke();
     }
 
-    // rest ship
+    // rest (blue glow)
+    sctx.shadowColor = "rgba(0,180,255,0.5)";
+    sctx.shadowBlur = 12;
     sctx.fillStyle = "#4466ff";
     sctx.fillRect(baseX, baseY, baseWidth, h);
-    sctx.fillStyle = "white";
+    sctx.shadowBlur = 0;
+    sctx.fillStyle = "#fff";
     sctx.fillText("Rest length L₀", baseX, baseY - 8);
 
-    // moving ship
+    // moving (red)
     const movingY = baseY + 70;
     sctx.fillStyle = "#ff4444";
     sctx.fillRect(baseX, movingY, contracted, h);
-    sctx.fillStyle = "white";
+    sctx.fillStyle = "#fff";
     sctx.fillText("Moving length L = L₀/γ", baseX, movingY - 8);
 
     sctx.fillText("L/L₀ = " + (1/gamma).toFixed(2),
@@ -301,9 +352,9 @@ function drawShip() {
     sctx.fillText("Direction of motion", baseX + 150, arrowY + 5);
 }
 
-// ---------------------------------------------------------
-// MAIN LOOP
-// ---------------------------------------------------------
+/* ----------------------------------------------
+   MAIN LOOP
+---------------------------------------------- */
 function animate() {
     if (running) {
         const v = parseFloat(velSlider.value);
@@ -322,12 +373,10 @@ function animate() {
 
 animate();
 
-// ---------------------------------------------------------
-// UI EVENTS
-// ---------------------------------------------------------
-velSlider.addEventListener("input", () => {
-    updateReadouts();
-});
+/* ----------------------------------------------
+   UI EVENTS
+---------------------------------------------- */
+velSlider.addEventListener("input", updateReadouts);
 
 document.getElementById("playBtn").onclick = () => {
     running = !running;
@@ -344,3 +393,4 @@ document.getElementById("resetBtn").onclick = () => {
 
 </body>
 </html>
+
