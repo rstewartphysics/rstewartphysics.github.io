@@ -102,7 +102,6 @@ title: 555 Astable Simulator
 
 </div>
 
-
 <!-- ============================================================= -->
 <!-- ======================= JAVASCRIPT =========================== -->
 <!-- ============================================================= -->
@@ -118,27 +117,38 @@ function showView(v){
 
 /* -------------------- GLOBALS -------------------- */
 let T = 1, Tm = 0.5, Ts = 0.5;
-let simTime = 0;
 let outputHigh = false;
+let lastTime = performance.now();
+let simTime = 0;
 
 let wave, cap;
 
-/* -------------------- INIT ON LOAD -------------------- */
-window.onload = function(){
+/* -------------------- SAFE INIT ON LOAD -------------------- */
+window.addEventListener("load", function(){
 
-  const wf = document.getElementById("waveform");
-  const cc = document.getElementById("cap-curve");
+  requestAnimationFrame(() => {
 
-  /* Match canvas pixel size to CSS width */
-  wf.width = wf.clientWidth;
-  cc.width = cc.clientWidth;
+    const wf = document.getElementById("waveform");
+    const cc = document.getElementById("cap-curve");
 
-  wave = wf.getContext("2d");
-  cap  = cc.getContext("2d");
+    /* Retry if width is not ready (iPad Safari fix) */
+    if (wf.clientWidth === 0) {
+      requestAnimationFrame(() => window.dispatchEvent(new Event("load")));
+      return;
+    }
 
-  updateSim();
-  requestAnimationFrame(animate);
-};
+    /* Match canvas pixel size to CSS width */
+    wf.width = wf.clientWidth;
+    cc.width = cc.clientWidth;
+
+    wave = wf.getContext("2d");
+    cap  = cc.getContext("2d");
+
+    updateSim();
+    requestAnimationFrame(animate);
+
+  });
+});
 
 /* -------------------- PRESETS -------------------- */
 function applyPreset(R1, R2, C1){
@@ -150,13 +160,13 @@ function applyPreset(R1, R2, C1){
 
 /* -------------------- UPDATE SIM -------------------- */
 function updateSim(){
-  let R1 = parseFloat(document.getElementById("r1").value) * 1000;
-  let R2 = parseFloat(document.getElementById("r2").value) * 1000;
-  let C1 = parseFloat(document.getElementById("c1").value) / 1e6;
+  let R1 = parseFloat(r1.value) * 1000;
+  let R2 = parseFloat(r2.value) * 1000;
+  let C1 = parseFloat(c1.value) / 1e6;
 
-  document.getElementById("r1-label").innerText = (R1/1000).toFixed(0);
-  document.getElementById("r2-label").innerText = (R2/1000).toFixed(0);
-  document.getElementById("c1-label").innerText = (C1*1e6).toFixed(0);
+  r1-label.innerText = (R1/1000).toFixed(0);
+  r2-label.innerText = (R2/1000).toFixed(0);
+  c1-label.innerText = (C1*1e6).toFixed(0);
 
   Tm = 0.7 * (R1 + R2) * C1;
   Ts = 0.7 * R2 * C1;
@@ -165,38 +175,41 @@ function updateSim(){
   let f = 1/T;
   let duty = (Tm/T)*100;
 
-  document.getElementById("val-T").innerText = T.toFixed(3);
-  document.getElementById("val-f").innerText = f.toFixed(2);
-  document.getElementById("val-Tm").innerText = Tm.toFixed(3);
-  document.getElementById("val-Ts").innerText = Ts.toFixed(3);
-  document.getElementById("val-duty").innerText = duty.toFixed(1);
+  val-T.innerText = T.toFixed(3);
+  val-f.innerText = f.toFixed(2);
+  val-Tm.innerText = Tm.toFixed(3);
+  val-Ts.innerText = Ts.toFixed(3);
+  val-duty.innerText = duty.toFixed(1);
 }
 
 /* -------------------- ANIMATION LOOP -------------------- */
 function animate(){
+
   requestAnimationFrame(animate);
 
-  simTime += 0.01;
+  /* Time delta ensures perfect timing */
+  const now = performance.now();
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  simTime += dt;
+
   let t = simTime % T;
   outputHigh = t < Tm;
 
-  /* LEDs */
-  let red = document.getElementById("led-red");
-  let green = document.getElementById("led-green");
-
+  /* ===================== LEDs ===================== */
   if(outputHigh){
-    red.style.background = "#f33";
-    red.style.boxShadow = "0 0 14px #f33";
-    green.style.background = "#030";
-    green.style.boxShadow = "0 0 4px #000";
+    led-red.style.background = "rgb(255,60,60)";
+    led-red.style.boxShadow = "0 0 12px rgba(255,60,60,0.9)";
+    led-green.style.background = "rgb(20,40,20)";
+    led-green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   } else {
-    green.style.background = "#3f3";
-    green.style.boxShadow = "0 0 14px #3f3";
-    red.style.background = "#300";
-    red.style.boxShadow = "0 0 4px #000";
+    led-green.style.background = "rgb(60,255,60)";
+    led-green.style.boxShadow = "0 0 12px rgba(60,255,60,0.9)";
+    led-red.style.background = "rgb(40,0,0)";
+    led-red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   }
 
-  /* WAVEFORM GRAPH */
+  /* ===================== WAVEFORM GRAPH ===================== */
   const W = wave.canvas.width;
   const H = wave.canvas.height;
 
@@ -210,12 +223,12 @@ function animate(){
   for(let x = 0; x < W; x++){
     let time = (simTime - (W-x)/W*T*2) % T;
     let high = time < Tm;
-    let y = high ? 30 : H-30;
+    let y = high ? 30 : (H - 30);
     wave.lineTo(x,y);
   }
   wave.stroke();
 
-  /* CAPACITOR CURVE */
+  /* ===================== CAPACITOR CURVE (real exponential) ===================== */
   const CH = cap.canvas.height;
   const CW = cap.canvas.width;
 
@@ -231,14 +244,19 @@ function animate(){
 
     let v;
     if(time < Tm){
-      v = 1/3 + (time/Tm)*(1/3);
+      /* Charging: Vc = 1/3 + (2/3)*(1 - e^(-t / (R1+R2)C)) */
+      v = (1/3) + (2/3)*(1 - Math.exp(-time / ((Tm/0.7))));
     } else {
-      v = 2/3 - ((time-Tm)/Ts)*(1/3);
+      /* Discharging: Vc = 2/3 * e(-(t - Tm)/R2C) */
+      let t2 = time - Tm;
+      v = (2/3) * Math.exp(-t2 / (Ts/0.7));
     }
 
-    let y = CH - (v * (CH-20));
-    cap.lineTo(x,y);
+    /* Map voltage to canvas Y */
+    let y = (CH - 10) - v * (CH - 20);
+    cap.lineTo(x, y);
   }
+
   cap.stroke();
 }
 </script>
