@@ -211,12 +211,15 @@ let simTime = 0;
 let outputHigh = false;
 let wave, cap;
 
+// Utility to safely get elements
+function el(id){ return document.getElementById(id); }
+
 /*********** SAFE INIT ***********/
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
 
-    const wf = document.getElementById("waveform");
-    const cc = document.getElementById("cap-curve");
+    const wf = el("waveform");
+    const cc = el("cap-curve");
 
     wf.width = wf.clientWidth;
     cc.width = cc.clientWidth;
@@ -231,31 +234,31 @@ window.addEventListener("load", () => {
 
 /*********** PRESET HANDLER ***********/
 function applyPreset(R1, R2, C1){
-  r1.value = R1;
-  r2.value = R2;
-  c1.value = C1;
+  el("r1").value = R1;
+  el("r2").value = R2;
+  el("c1").value = C1;
   updateSim();
 }
 
 /*********** SIM UPDATE ***********/
 function updateSim(){
-  let R1 = parseFloat(r1.value) * 1000;
-  let R2 = parseFloat(r2.value) * 1000;
-  let C1 = parseFloat(c1.value) / 1e6;
+  let R1 = parseFloat(el("r1").value) * 1000;
+  let R2 = parseFloat(el("r2").value) * 1000;
+  let C1 = parseFloat(el("c1").value) / 1e6;
 
-  r1_label.innerText = (R1/1000).toFixed(0);
-  r2_label.innerText = (R2/1000).toFixed(0);
-  c1_label.innerText = (C1*1e6).toFixed(0);
+  el("r1-label").innerText = (R1/1000).toFixed(0);
+  el("r2-label").innerText = (R2/1000).toFixed(0);
+  el("c1-label").innerText = (C1*1e6).toFixed(0);
 
   Tm = 0.7 * (R1 + R2) * C1;
   Ts = 0.7 * R2 * C1;
   T  = Tm + Ts;
 
-  val_T.innerText = T.toFixed(3);
-  val_f.innerText = (1/T).toFixed(2);
-  val_Tm.innerText = Tm.toFixed(3);
-  val_Ts.innerText = Ts.toFixed(3);
-  val_duty.innerText = ((Tm/T)*100).toFixed(1);
+  el("val-T").innerText = T.toFixed(3);
+  el("val-f").innerText = (1/T).toFixed(2);
+  el("val-Tm").innerText = Tm.toFixed(3);
+  el("val-Ts").innerText = Ts.toFixed(3);
+  el("val-duty").innerText = ((Tm/T)*100).toFixed(1);
 }
 
 /*********** ANIMATION LOOP ***********/
@@ -266,19 +269,17 @@ function animate(){
   let t = simTime % T;
   outputHigh = (t < Tm);
 
-  const red = document.getElementById("led-red");
-  const green = document.getElementById("led-green");
+  const red = el("led-red");
+  const green = el("led-green");
 
   if(outputHigh){
     red.style.background = "rgb(255,80,80)";
     red.style.boxShadow = "0 0 16px rgba(255,80,80,0.9)";
-
     green.style.background = "rgb(20,40,20)";
     green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   } else {
     green.style.background = "rgb(0,255,180)";
     green.style.boxShadow = "0 0 16px rgba(0,255,200,0.9)";
-
     red.style.background = "rgb(40,0,0)";
     red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   }
@@ -298,3 +299,34 @@ function animate(){
     let time = (simTime - (W-x)/W*T*2) % T;
     let high = time < Tm;
     let y = high ? 30 : H-30;
+    wave.lineTo(x,y);
+  }
+  wave.stroke();
+
+  /*********** CAP CURVE ***********/
+  const CW = cap.canvas.width;
+  const CH = cap.canvas.height;
+
+  cap.fillStyle = "black";
+  cap.fillRect(0,0,CW,CH);
+
+  cap.strokeStyle = "#00baff";
+  cap.lineWidth = 2;
+  cap.beginPath();
+
+  for(let x=0;x<CW;x++){
+    let time = (simTime - (CW-x)/CW*T*2) % T;
+
+    let v;
+    if(time < Tm){
+      v = 1/3 + (time/Tm)*(1/3);
+    } else {
+      v = 2/3 - ((time-Tm)/Ts)*(1/3);
+    }
+
+    let y = (CH - 10) - v*(CH - 20);
+    cap.lineTo(x,y);
+  }
+  cap.stroke();
+}
+</script>
