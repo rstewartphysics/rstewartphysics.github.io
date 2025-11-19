@@ -12,6 +12,7 @@ title: 555 Astable Simulator
 :root {
   --el-green: #00e6b3;
   --el-green-glow: rgba(0,255,200,0.55);
+  --el-red-glow: rgba(255,120,120,0.65);
   --el-bg1: #003c2e;
   --el-bg2: #005f47;
   --el-bg3: #052a1f;
@@ -20,18 +21,21 @@ title: 555 Astable Simulator
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 }
 
+/* Base page */
 body {
   background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
   color: white;
   font-family: var(--font-stack);
   margin: 0;
   padding: 20px;
+  line-height: 1.45;
 }
 
-/* Titles */
-#astable-sim h2, #astable-sim h3 {
+#astable-sim h2, 
+#astable-sim h3 {
   text-shadow: 0 0 12px var(--el-green-glow);
   color: white;
+  margin-left: 0;
 }
 
 /* Buttons */
@@ -49,7 +53,6 @@ body {
 
 #astable-sim button:hover {
   background: rgba(0,255,200,0.25);
-  transform: translateY(-2px);
   box-shadow: 0 0 12px var(--el-green-glow);
 }
 
@@ -57,13 +60,17 @@ body {
 input[type=range] {
   width: 100%;
   accent-color: var(--el-green);
+  margin-bottom: 12px;
 }
 
 /* LEDs */
-#led-red, #led-green {
+.led {
+  width: 32px;
+  height: 32px;
   border: 2px solid var(--tile-border);
   outline: 2px solid var(--tile-outline);
   border-radius: 50%;
+  transition: 0.15s ease;
 }
 
 /* Canvas */
@@ -72,7 +79,7 @@ canvas {
   outline: 2px solid var(--tile-outline);
   border-radius: 14px;
   background: black !important;
-  box-shadow: inset 0 0 20px rgba(0,255,200,0.05), 0 12px 30px rgba(0,0,0,0.4);
+  margin-bottom: 15px;
 }
 
 /* Divider */
@@ -83,21 +90,39 @@ hr {
   margin: 25px 0;
 }
 
-small { opacity: 0.85; }
-
-/* Collapsible learning areas */
-.summary-box {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+/* Highlight pads (small, safe regions) */
+.highlight-spot {
+  position: absolute;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease, box-shadow 0.4s ease;
 }
+
+/* Glow on charge/discharge */
+#charge-bar {
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: color 0.4s ease;
+}
+
+/* Ensure consistent alignment of all content */
+section, p, ul, details { margin-left: 0; padding-left: 0; }
+
 summary {
   cursor: pointer;
   font-weight: 700;
   color: var(--el-green);
   text-shadow: 0 0 8px var(--el-green-glow);
+}
+
+.summary-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 15px;
+  border-radius: 12px;
 }
 </style>
 
@@ -109,15 +134,27 @@ summary {
 
   <h2 style="text-align:center;">555 Astable Simulator</h2>
 
-  <!-- Combined image -->
-  <img src="/assets/electronics/555.jpg"
-       alt="555 Stripboard and Circuit Diagram"
-       style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
+  <!-- Image Wrapper -->
+  <div style="position:relative; width:100%;">
+    <img src="/assets/electronics/555.jpg"
+         alt="555 Stripboard and Circuit Diagram"
+         style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
 
-  <!-- Light-up output label (new) -->
-  <h3 id="output-state" style="text-align:center;margin-top:10px;">
-    Output State: —
-  </h3>
+    <!-- Safe Highlight Spots -->
+    <div id="spot-r1" class="highlight-spot"
+      style="top:18%; left:32%; width:10%; height:20%;"></div>
+
+    <div id="spot-r2" class="highlight-spot"
+      style="top:42%; left:33%; width:10%; height:20%;"></div>
+
+    <div id="spot-c1" class="highlight-spot"
+      style="top:68%; left:26%; width:12%; height:18%;"></div>
+
+    <div id="spot-output" class="highlight-spot"
+      style="top:30%; left:72%; width:18%; height:25%;"></div>
+  </div>
+
+  <h3 id="charge-bar">Output State: —</h3>
 
   <hr>
 
@@ -147,19 +184,15 @@ summary {
 
   <!-- LEDs -->
   <h3>LED Output</h3>
-  <div style="display:flex;justify-content:center;gap:40px;margin:10px 0;">
+  <div style="display:flex;justify-content:center;gap:60px;margin:10px 0;">
     
     <div style="text-align:center;">
-      <div id="led-red"
-           style="width:32px;height:32px;background:#200;box-shadow:0 0 6px #000;">
-      </div>
+      <div id="led-red" class="led" style="background:#200;"></div>
       <small>Red LED<br>(pin 3 → GND)</small>
     </div>
 
     <div style="text-align:center;">
-      <div id="led-green"
-           style="width:32px;height:32px;background:#020;box-shadow:0 0 6px #000;">
-      </div>
+      <div id="led-green" class="led" style="background:#020;"></div>
       <small>Green LED<br>(Vsupply → pin 3)</small>
     </div>
 
@@ -188,11 +221,11 @@ summary {
 
 </div>
 
+<hr>
+
 <!-- ======================================= -->
 <!-- ========== LEARNING SECTIONS ========== -->
 <!-- ======================================= -->
-
-<hr>
 
 <h2>Learning Goals</h2>
 <ul>
@@ -207,12 +240,9 @@ summary {
 
 <details class="summary-box">
   <summary>📘 How the 555 Astable Works (click to expand)</summary>
-  <p>The capacitor charges through R1 and R2 until it reaches 2/3 of the supply voltage.  
+  <p>The capacitor charges through R1 and R2 until it reaches 2/3 of the supply.  
   The 555 then forces the output LOW and the capacitor discharges through R2 only until it drops below 1/3 of the supply.  
-  This cycle repeats over and over, making a square wave.</p>
-
-  <p>Output HIGH = capacitor charging<br>
-     Output LOW = capacitor discharging</p>
+  This repeats, creating a square wave.</p>
 </details>
 
 <br>
@@ -237,17 +267,6 @@ summary {
   <li>PWM dimming circuits</li>
 </ul>
 
-<br>
-
-<h2>Print-Friendly Stripboard Build Guide</h2>
-<p><strong>Download & Print:</strong></p>
-<ul>
-  <li>Stripboard layout (included above)</li>
-  <li>Component checklist</li>
-  <li>Mark/space timing table</li>
-  <li>LED polarity reminder</li>
-</ul>
-
 <hr>
 
 <!-- ======================================= -->
@@ -255,33 +274,27 @@ summary {
 <!-- ======================================= -->
 
 <script>
-// Utility
 const el = id => document.getElementById(id);
 
-/******** GLOBALS ********/
 let T = 1, Tm = 0.5, Ts = 0.5;
 let simTime = 0;
-let outputHigh = false;
 let wave, cap;
 
-/******** INIT ********/
+/* INIT */
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
-    const wf = el("waveform");
-    const cc = el("cap-curve");
+    wave = el("waveform").getContext("2d");
+    cap  = el("cap-curve").getContext("2d");
 
-    wf.width = wf.clientWidth;
-    cc.width = cc.clientWidth;
-
-    wave = wf.getContext("2d");
-    cap  = cc.getContext("2d");
+    el("waveform").width  = el("waveform").clientWidth;
+    el("cap-curve").width = el("cap-curve").clientWidth;
 
     updateSim();
     requestAnimationFrame(animate);
   });
 });
 
-/******** PRESETS ********/
+/* PRESETS */
 function applyPreset(R1, R2, C1){
   el("r1").value = R1;
   el("r2").value = R2;
@@ -289,11 +302,11 @@ function applyPreset(R1, R2, C1){
   updateSim();
 }
 
-/******** UPDATE SIM ********/
+/* SIM UPDATE */
 function updateSim(){
-  let R1 = parseFloat(el("r1").value) * 1000;
-  let R2 = parseFloat(el("r2").value) * 1000;
-  let C1 = parseFloat(el("c1").value) / 1e6;
+  const R1 = parseFloat(el("r1").value)*1000;
+  const R2 = parseFloat(el("r2").value)*1000;
+  const C1 = parseFloat(el("c1").value)/1e6;
 
   el("r1-label").innerText = (R1/1000).toFixed(0);
   el("r2-label").innerText = (R2/1000).toFixed(0);
@@ -301,48 +314,56 @@ function updateSim(){
 
   Tm = 0.7*(R1+R2)*C1;
   Ts = 0.7*(R2)*C1;
-  T  = Tm + Ts;
+  T = Tm + Ts;
 
   el("val-T").innerText = T.toFixed(3);
   el("val-f").innerText = (1/T).toFixed(2);
   el("val-Tm").innerText = Tm.toFixed(3);
   el("val-Ts").innerText = Ts.toFixed(3);
   el("val-duty").innerText = ((Tm/T)*100).toFixed(1);
+
+  glowPads();
 }
 
-/******** ANIMATION ********/
+/* Highlight pads briefly */
+function glowPads(){
+  const pads = ["spot-r1","spot-r2","spot-c1","spot-output"];
+  pads.forEach(id => {
+    const p = el(id);
+    p.style.opacity = 1;
+    p.style.boxShadow = "0 0 15px 6px var(--el-green-glow)";
+    setTimeout(()=>{ p.style.opacity = 0; }, 600);
+  });
+}
+
+/* MAIN ANIMATION */
 function animate(){
   requestAnimationFrame(animate);
 
   simTime += 0.01;
-  let t = simTime % T;
-  outputHigh = (t < Tm);
+  const t = simTime % T;
+  const outputHigh = (t < Tm);
 
   const red = el("led-red");
   const green = el("led-green");
-  const stateLabel = el("output-state");
+  const bar = el("charge-bar");
 
+  /* LED + bar state */
   if(outputHigh){
-    red.style.background = "rgb(255,80,80)";
-    red.style.boxShadow = "0 0 16px rgba(255,80,80,0.9)";
-
-    green.style.background = "rgb(20,40,20)";
-    green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
-
-    stateLabel.innerText = "Output State: HIGH (charging)";
-    stateLabel.style.color = "#00ffcc";
+    green.style.background = "rgb(0,255,160)";
+    green.style.boxShadow = "0 0 14px var(--el-green-glow)";
+    red.style.background = "#200";
+    bar.innerText = "Output State: HIGH (charging)";
+    bar.style.color = "#00ffcc";
   } else {
-    green.style.background = "rgb(0,255,180)";
-    green.style.boxShadow = "0 0 16px rgba(0,255,200,0.9)";
-
-    red.style.background = "rgb(40,0,0)";
-    red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
-
-    stateLabel.innerText = "Output State: LOW (discharging)";
-    stateLabel.style.color = "#ff6666";
+    red.style.background = "rgb(255,80,80)";
+    red.style.boxShadow = "0 0 14px var(--el-red-glow)";
+    green.style.background = "#020";
+    bar.innerText = "Output State: LOW (discharging)";
+    bar.style.color = "#ff8080";
   }
 
-  /******** WAVEFORM ********/
+  /* Waveform */
   const W = wave.canvas.width;
   const H = wave.canvas.height;
 
@@ -354,14 +375,12 @@ function animate(){
   wave.beginPath();
 
   for(let x=0;x<W;x++){
-    let time = (simTime - (W-x)/W*T*2) % T;
-    let high = (time < Tm);
-    let y = high ? 30 : H-30;
-    wave.lineTo(x,y);
+    let tau = (simTime - (W-x)/W*T*2)%T;
+    wave.lineTo(x, tau < Tm ? 30 : H-30);
   }
   wave.stroke();
 
-  /******** CAP CURVE ********/
+  /* Capacitor curve */
   const CW = cap.canvas.width;
   const CH = cap.canvas.height;
 
@@ -373,17 +392,16 @@ function animate(){
   cap.beginPath();
 
   for(let x=0;x<CW;x++){
-    let time = (simTime - (CW-x)/CW*T*2) % T;
-    let v;
+    let tau = (simTime - (CW-x)/CW*T*2)%T;
 
-    if(time < Tm){
-      v = 1/3 + (time/Tm)*(1/3);
+    let v;
+    if(tau < Tm){
+      v = 1/3 + (tau/Tm)*(1/3);
     } else {
-      v = 2/3 - ((time-Tm)/Ts)*(1/3);
+      v = 2/3 - ((tau-Tm)/Ts)*(1/3);
     }
 
-    let y = (CH - 10) - v*(CH - 20);
-    cap.lineTo(x,y);
+    cap.lineTo(x, (CH - 10) - v*(CH - 20));
   }
   cap.stroke();
 }
