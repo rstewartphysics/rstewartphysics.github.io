@@ -5,9 +5,6 @@ title: 555 Astable Simulator
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- ======================================= -->
-<!-- ========== ELECTRONICS THEME ========== -->
-<!-- ======================================= -->
 <style>
 :root {
   --el-green: #00e6b3;
@@ -21,7 +18,7 @@ title: 555 Astable Simulator
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 }
 
-/* Base page */
+/* Base */
 body {
   background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
   color: white;
@@ -31,15 +28,12 @@ body {
   line-height: 1.45;
 }
 
-#astable-sim h2, 
-#astable-sim h3 {
+h2, h3, summary {
   text-shadow: 0 0 12px var(--el-green-glow);
-  color: white;
-  margin-left: 0;
 }
 
 /* Buttons */
-#astable-sim button {
+button {
   background: rgba(0,255,200,0.15);
   border: 2px solid var(--tile-border);
   padding: 8px 14px;
@@ -50,13 +44,9 @@ body {
   transition: 0.2s ease;
   backdrop-filter: blur(6px);
 }
+button:hover { background: rgba(0,255,200,0.25); }
 
-#astable-sim button:hover {
-  background: rgba(0,255,200,0.25);
-  box-shadow: 0 0 12px var(--el-green-glow);
-}
-
-/* Sliders */
+/* Slider */
 input[type=range] {
   width: 100%;
   accent-color: var(--el-green);
@@ -67,18 +57,18 @@ input[type=range] {
 .led {
   width: 32px;
   height: 32px;
+  border-radius: 50%;
   border: 2px solid var(--tile-border);
   outline: 2px solid var(--tile-outline);
-  border-radius: 50%;
-  transition: 0.15s ease;
 }
 
 /* Canvas */
 canvas {
-  border: 2px solid var(--tile-border) !important;
+  width: 100%;
+  border: 2px solid var(--tile-border);
   outline: 2px solid var(--tile-outline);
   border-radius: 14px;
-  background: black !important;
+  background: black;
   margin-bottom: 15px;
 }
 
@@ -87,146 +77,34 @@ hr {
   border: none;
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(0,255,200,0.45), transparent);
-  margin: 25px 0;
+  margin: 30px 0;
 }
 
-/* Highlight pads (small, safe regions) */
-.highlight-spot {
-  position: absolute;
-  border-radius: 8px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease, box-shadow 0.4s ease;
-}
-
-/* Glow on charge/discharge */
-#charge-bar {
-  width: 100%;
-  text-align: center;
-  font-weight: 600;
-  margin-top: 10px;
-  transition: color 0.4s ease;
-}
-
-/* Ensure consistent alignment of all content */
-section, p, ul, details { margin-left: 0; padding-left: 0; }
-
-summary {
-  cursor: pointer;
-  font-weight: 700;
-  color: var(--el-green);
-  text-shadow: 0 0 8px var(--el-green-glow);
-}
-
-.summary-box {
+/* Collapsible Sections */
+details {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.15);
   padding: 15px;
-  border-radius: 12px;
+  border-radius: 10px;
+  margin-bottom: 18px;
 }
+summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+summary:hover { opacity: 0.85; }
 </style>
 
-<!-- ======================================= -->
-<!-- ========== SIMULATOR HTML ============= -->
-<!-- ======================================= -->
+<div style="max-width:900px;margin:auto;">
 
-<div id="astable-sim" style="max-width:900px;margin:auto;">
+<!-- TITLE -->
+<h2 style="text-align:center;">555 Astable Simulator</h2>
 
-  <h2 style="text-align:center;">555 Astable Simulator</h2>
 
-  <!-- Image Wrapper -->
-  <div style="position:relative; width:100%;">
-    <img src="/assets/electronics/555.jpg"
-         alt="555 Stripboard and Circuit Diagram"
-         style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
-
-    <!-- Safe Highlight Spots -->
-    <div id="spot-r1" class="highlight-spot"
-      style="top:18%; left:32%; width:10%; height:20%;"></div>
-
-    <div id="spot-r2" class="highlight-spot"
-      style="top:42%; left:33%; width:10%; height:20%;"></div>
-
-    <div id="spot-c1" class="highlight-spot"
-      style="top:68%; left:26%; width:12%; height:18%;"></div>
-
-    <div id="spot-output" class="highlight-spot"
-      style="top:30%; left:72%; width:18%; height:25%;"></div>
-  </div>
-
-  <h3 id="charge-bar">Output State: —</h3>
-
-  <hr>
-
-  <!-- Presets -->
-  <h3>Presets</h3>
-  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-    <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
-    <button onclick="applyPreset(1,220,3)">3 Hz Flash</button>
-    <button onclick="applyPreset(1,68,1)">10 Hz Flash</button>
-    <button onclick="applyPreset(1,150,10)">Equal On/Off</button>
-    <button onclick="applyPreset(1,470,10)">0.5 Hz Slow</button>
-  </div>
-
-  <!-- Controls -->
-  <h3>Adjust Component Values</h3>
-
-  <label>R1 (kΩ): <span id="r1-label">1</span></label>
-  <input id="r1" type="range" min="1" max="100" value="1" oninput="updateSim()">
-
-  <label>R2 (kΩ): <span id="r2-label">68</span></label>
-  <input id="r2" type="range" min="1" max="500" value="68" oninput="updateSim()">
-
-  <label>C1 (µF): <span id="c1-label">10</span></label>
-  <input id="c1" type="range" min="1" max="200" value="10" oninput="updateSim()">
-
-  <hr>
-
-  <!-- LEDs -->
-  <h3>LED Output</h3>
-  <div style="display:flex;justify-content:center;gap:60px;margin:10px 0;">
-    
-    <div style="text-align:center;">
-      <div id="led-red" class="led" style="background:#200;"></div>
-      <small>Red LED<br>(pin 3 → GND)</small>
-    </div>
-
-    <div style="text-align:center;">
-      <div id="led-green" class="led" style="background:#020;"></div>
-      <small>Green LED<br>(Vsupply → pin 3)</small>
-    </div>
-
-  </div>
-
-  <hr>
-
-  <!-- Waveforms -->
-  <h3>Waveforms</h3>
-  
-  <p><strong>Output Square Wave</strong></p>
-  <canvas id="waveform" height="150" style="width:100%;"></canvas>
-
-  <p><strong>Capacitor Voltage Curve</strong></p>
-  <canvas id="cap-curve" height="150" style="width:100%;"></canvas>
-
-  <hr>
-
-  <!-- Calculated Values -->
-  <h3>Calculated Values</h3>
-  <p><strong>Period T:</strong> <span id="val-T">—</span> s</p>
-  <p><strong>Frequency f:</strong> <span id="val-f">—</span> Hz</p>
-  <p><strong>Mark time Tm:</strong> <span id="val-Tm">—</span> s</p>
-  <p><strong>Space time Ts:</strong> <span id="val-Ts">—</span> s</p>
-  <p><strong>Duty cycle:</strong> <span id="val-duty">—</span>%</p>
-
-</div>
-
-<hr>
-
-<!-- ======================================= -->
-<!-- ========== LEARNING SECTIONS ========== -->
-<!-- ======================================= -->
-
+<!-- ============================= -->
+<!-- LEARNING GOALS -->
+<!-- ============================= -->
 <h2>Learning Goals</h2>
 <ul>
   <li>Understand how R1, R2 and C1 set the flash rate</li>
@@ -236,43 +114,216 @@ summary {
   <li>Calculate Tm, Ts, T, f and duty cycle</li>
 </ul>
 
-<br>
+<hr>
 
-<details class="summary-box">
+
+<!-- ============================= -->
+<!-- HOW THE ASTABLE WORKS -->
+<!-- ============================= -->
+<details>
   <summary>📘 How the 555 Astable Works (click to expand)</summary>
   <p>The capacitor charges through R1 and R2 until it reaches 2/3 of the supply.  
-  The 555 then forces the output LOW and the capacitor discharges through R2 only until it drops below 1/3 of the supply.  
-  This repeats, creating a square wave.</p>
+  The 555 then switches LOW and the capacitor discharges through R2 until it drops below 1/3.  
+  This repeats, creating a continuous square wave.</p>
 </details>
 
-<br>
+<hr>
 
+
+<!-- ============================= -->
+<!-- TRY THIS -->
+<!-- ============================= -->
 <h2>Try This!</h2>
 <ul>
   <li>Find component values that give exactly 1 Hz.</li>
-  <li>Make the LED on-time equal the off-time.</li>
+  <li>Make the LED on-time equal to the off-time.</li>
   <li>Increase only C1 — what changes?</li>
-  <li>Make the waveform as fast as possible.</li>
-  <li>Which resistor controls discharge time?</li>
-</ul>
-
-<br>
-
-<h2>Real-World Uses of Astables</h2>
-<ul>
-  <li>Bicycle flashers</li>
-  <li>LED indicators</li>
-  <li>Clock pulses for counters</li>
-  <li>Tone generators</li>
-  <li>PWM dimming circuits</li>
+  <li>Make the flashing as fast as possible.</li>
+  <li>Which resistor controls the discharge time?</li>
 </ul>
 
 <hr>
 
-<!-- ======================================= -->
-<!-- ========== JAVASCRIPT ================= -->
-<!-- ======================================= -->
 
+<!-- ============================= -->
+<!-- LED OUTPUT -->
+<!-- ============================= -->
+<h3 style="text-align:center;">LED Output</h3>
+
+<div style="display:flex;justify-content:center;gap:60px;margin:10px 0;">
+  <div style="text-align:center;">
+    <div id="led-red" class="led" style="background:#200;"></div>
+    <small>Red LED<br>(pin 3 → GND)</small>
+  </div>
+
+  <div style="text-align:center;">
+    <div id="led-green" class="led" style="background:#020;"></div>
+    <small>Green LED<br>(Vsupply → pin 3)</small>
+  </div>
+</div>
+
+<h3 id="charge-bar" style="text-align:center;">Output State: —</h3>
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- PRESETS -->
+<!-- ============================= -->
+<h3>Presets</h3>
+<div style="display:flex;flex-wrap:wrap;gap:10px;">
+  <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
+  <button onclick="applyPreset(1,220,3)">3 Hz Flash</button>
+  <button onclick="applyPreset(1,68,1)">10 Hz Flash</button>
+  <button onclick="applyPreset(1,150,10)">Equal On/Off</button>
+  <button onclick="applyPreset(1,470,10)">0.5 Hz Slow</button>
+</div>
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- ADJUSTABLE VALUES -->
+<!-- ============================= -->
+<h3>Adjust Component Values</h3>
+
+<label>R1 (kΩ): <span id="r1-label">1</span></label>
+<input id="r1" type="range" min="1" max="100" value="1" oninput="updateSim()">
+
+<label>R2 (kΩ): <span id="r2-label">68</span></label>
+<input id="r2" type="range" min="1" max="500" value="68" oninput="updateSim()">
+
+<label>C1 (µF): <span id="c1-label">10</span></label>
+<input id="c1" type="range" min="1" max="200" value="10" oninput="updateSim()">
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- CIRCUIT + STRIPBOARD IMAGE -->
+<!-- ============================= -->
+<img src="/assets/electronics/555.jpg"
+     alt="555 Stripboard and Circuit Diagram"
+     style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- SPOT THE DIFFERENCE -->
+<!-- ============================= -->
+<details>
+  <summary>🔍 Spot the Difference: Schematic vs Stripboard (click to expand)</summary>
+
+  <h3>🟦 1. Shape Differences</h3>
+  <p>Schematics are neat. Stripboards follow physical copper strips, so things move around.</p>
+
+  <h3>🟥 2. IC Orientation</h3>
+  <p>Schematics show tidy pin layout. Stripboard places the 555 across the centre gap.</p>
+
+  <h3>🟧 3. Resistors Move</h3>
+  <p>They may look far apart but still connect to the same pins on the 555.</p>
+
+  <h3>🟩 4. Capacitor Position</h3>
+  <p>C1 sits lower on stripboard but connects to exactly the same points.</p>
+
+  <h3>🟪 5. LED Positions</h3>
+  <p>The LEDs move sideways but still connect to pin 3.</p>
+
+  <h3>🟫 6. Power Rails</h3>
+  <p>Stripboard uses long coloured copper rails instead of symbolic +9V/0V dots.</p>
+
+  <h3>🟨 7. Wires Appear</h3>
+  <p>Stripboard drawings show coloured link wires not shown in schematics.</p>
+
+  <p><strong>Key idea:</strong> The stripboard looks different, but every connection is electrically identical.</p>
+</details>
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- STUDENT-FRIENDLY EXPLANATION -->
+<!-- ============================= -->
+<details>
+  <summary>🎓 Student-Friendly Explanation (click to expand)</summary>
+
+  <p>This circuit makes two LEDs flash one after the other using a 555 timer.</p>
+
+  <h3>🌟 How it works</h3>
+  <p>The capacitor charges and discharges repeatedly.  
+  R1 and R2 control how quickly this happens.  
+  The 555 output switches HIGH/LOW based on the capacitor level.</p>
+
+  <p>HIGH → green LED on  
+  LOW → red LED on</p>
+
+  <p>The 680Ω resistors protect the LEDs.</p>
+</details>
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- STRIPBOARD BUILD GUIDE -->
+<!-- ============================= -->
+<details>
+  <summary>🛠️ Stripboard Build Guide (click to expand)</summary>
+
+  <h3>Step 1 — Identify the parts</h3>
+  <p>555 IC, R1, R2, C1, LEDs, LED resistors, rails.</p>
+
+  <h3>Step 2 — Place the 555</h3>
+  <p>Always across the centre gap.</p>
+
+  <h3>Step 3 — Power rails</h3>
+  <p>Red = +9V, Black = 0V.</p>
+
+  <h3>Step 4 — R1 and R2</h3>
+  <p>R1: pin 8 → pin 7  
+     R2: pin 7 → pins 6/2</p>
+
+  <h3>Step 5 — Capacitor</h3>
+  <p>C1 connects between pins 2/6 and 0V.</p>
+
+  <h3>Step 6 — LEDs</h3>
+  <p>Green LED lights on HIGH, red LED lights on LOW.</p>
+
+  <h3>Step 7 — Add link wires</h3>
+  <p>Used to bridge copper strips.</p>
+
+  <p><strong>Important:</strong> Stripboard looks different but is electrically identical.</p>
+</details>
+
+<hr>
+
+
+<!-- ============================= -->
+<!-- WAVEFORMS + VALUES -->
+<!-- ============================= -->
+<h2>Waveforms</h2>
+
+<p><strong>Output Square Wave</strong></p>
+<canvas id="waveform" height="150"></canvas>
+
+<p><strong>Capacitor Voltage Curve</strong></p>
+<canvas id="cap-curve" height="150"></canvas>
+
+<hr>
+
+<h2>Calculated Values</h2>
+<p><strong>Period T:</strong> <span id="val-T">—</span> s</p>
+<p><strong>Frequency f:</strong> <span id="val-f">—</span> Hz</p>
+<p><strong>Mark Time Tm:</strong> <span id="val-Tm">—</span> s</p>
+<p><strong>Space Time Ts:</strong> <span id="val-Ts">—</span> s</p>
+<p><strong>Duty Cycle:</strong> <span id="val-duty">—</span>%</p>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- JAVASCRIPT -->
+<!-- ============================= -->
 <script>
 const el = id => document.getElementById(id);
 
@@ -282,19 +333,16 @@ let wave, cap;
 
 /* INIT */
 window.addEventListener("load", () => {
-  requestAnimationFrame(() => {
-    wave = el("waveform").getContext("2d");
-    cap  = el("cap-curve").getContext("2d");
+  wave = el("waveform").getContext("2d");
+  cap  = el("cap-curve").getContext("2d");
 
-    el("waveform").width  = el("waveform").clientWidth;
-    el("cap-curve").width = el("cap-curve").clientWidth;
+  el("waveform").width = el("waveform").clientWidth;
+  el("cap-curve").width = el("cap-curve").clientWidth;
 
-    updateSim();
-    requestAnimationFrame(animate);
-  });
+  updateSim();
+  requestAnimationFrame(animate);
 });
 
-/* PRESETS */
 function applyPreset(R1, R2, C1){
   el("r1").value = R1;
   el("r2").value = R2;
@@ -302,7 +350,6 @@ function applyPreset(R1, R2, C1){
   updateSim();
 }
 
-/* SIM UPDATE */
 function updateSim(){
   const R1 = parseFloat(el("r1").value)*1000;
   const R2 = parseFloat(el("r2").value)*1000;
@@ -321,43 +368,25 @@ function updateSim(){
   el("val-Tm").innerText = Tm.toFixed(3);
   el("val-Ts").innerText = Ts.toFixed(3);
   el("val-duty").innerText = ((Tm/T)*100).toFixed(1);
-
-  glowPads();
 }
 
-/* Highlight pads briefly */
-function glowPads(){
-  const pads = ["spot-r1","spot-r2","spot-c1","spot-output"];
-  pads.forEach(id => {
-    const p = el(id);
-    p.style.opacity = 1;
-    p.style.boxShadow = "0 0 15px 6px var(--el-green-glow)";
-    setTimeout(()=>{ p.style.opacity = 0; }, 600);
-  });
-}
-
-/* MAIN ANIMATION */
 function animate(){
   requestAnimationFrame(animate);
-
   simTime += 0.01;
   const t = simTime % T;
+  
   const outputHigh = (t < Tm);
-
   const red = el("led-red");
   const green = el("led-green");
   const bar = el("charge-bar");
 
-  /* LED + bar state */
   if(outputHigh){
     green.style.background = "rgb(0,255,160)";
-    green.style.boxShadow = "0 0 14px var(--el-green-glow)";
     red.style.background = "#200";
     bar.innerText = "Output State: HIGH (charging)";
     bar.style.color = "#00ffcc";
   } else {
     red.style.background = "rgb(255,80,80)";
-    red.style.boxShadow = "0 0 14px var(--el-red-glow)";
     green.style.background = "#020";
     bar.innerText = "Output State: LOW (discharging)";
     bar.style.color = "#ff8080";
@@ -366,12 +395,9 @@ function animate(){
   /* Waveform */
   const W = wave.canvas.width;
   const H = wave.canvas.height;
-
   wave.fillStyle = "black";
   wave.fillRect(0,0,W,H);
-
   wave.strokeStyle = "#00ff99";
-  wave.lineWidth = 2;
   wave.beginPath();
 
   for(let x=0;x<W;x++){
@@ -380,26 +406,19 @@ function animate(){
   }
   wave.stroke();
 
-  /* Capacitor curve */
+  /* Capacitor */
   const CW = cap.canvas.width;
   const CH = cap.canvas.height;
-
   cap.fillStyle = "black";
   cap.fillRect(0,0,CW,CH);
-
   cap.strokeStyle = "#00baff";
-  cap.lineWidth = 2;
   cap.beginPath();
 
   for(let x=0;x<CW;x++){
     let tau = (simTime - (CW-x)/CW*T*2)%T;
-
-    let v;
-    if(tau < Tm){
-      v = 1/3 + (tau/Tm)*(1/3);
-    } else {
-      v = 2/3 - ((tau-Tm)/Ts)*(1/3);
-    }
+    let v = tau < Tm
+      ? 1/3 + (tau/Tm)*(1/3)
+      : 2/3 - ((tau-Tm)/Ts)*(1/3);
 
     cap.lineTo(x, (CH - 10) - v*(CH - 20));
   }
