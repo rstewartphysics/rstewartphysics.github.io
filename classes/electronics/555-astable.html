@@ -28,14 +28,13 @@ body {
   padding: 20px;
 }
 
-/* Title + Section Headers */
-#astable-sim h2, 
-#astable-sim h3 {
+/* Titles */
+#astable-sim h2, #astable-sim h3 {
   text-shadow: 0 0 12px var(--el-green-glow);
   color: white;
 }
 
-/* Buttons (View + Presets) */
+/* Buttons */
 #astable-sim button {
   background: rgba(0,255,200,0.15);
   border: 2px solid var(--tile-border);
@@ -54,13 +53,13 @@ body {
   box-shadow: 0 0 12px var(--el-green-glow);
 }
 
-/* Range Sliders */
+/* Sliders */
 input[type=range] {
   width: 100%;
   accent-color: var(--el-green);
 }
 
-/* LEDs (base style) */
+/* LEDs */
 #led-red, #led-green {
   border: 2px solid var(--tile-border);
   outline: 2px solid var(--tile-outline);
@@ -76,22 +75,15 @@ canvas {
   box-shadow: inset 0 0 20px rgba(0,255,200,0.05), 0 12px 30px rgba(0,0,0,0.4);
 }
 
-/* HR line styled */
+/* Divider */
 hr {
   border: none;
   height: 1px;
-  background: linear-gradient(
-     to right,
-     transparent,
-     rgba(0,255,200,0.45),
-     transparent
-  );
+  background: linear-gradient(to right, transparent, rgba(0,255,200,0.45), transparent);
   margin: 25px 0;
 }
 
-small {
-  opacity: 0.85;
-}
+small { opacity: 0.85; }
 </style>
 
 <!-- ======================================= -->
@@ -102,29 +94,14 @@ small {
 
   <h2 style="text-align:center;">555 Astable Simulator</h2>
 
-  <!-- VIEW SWITCH -->
-  <div style="text-align:center;margin-bottom:10px;">
-    <button onclick="showView('circuit')">Circuit Diagram</button>
-    <button onclick="showView('stripboard')">Stripboard Layout</button>
-  </div>
-
-  <!-- CIRCUIT VIEW -->
-  <div id="view-circuit">
-    <img src="/assets/electronics/555-circuit.png"
-         alt="555 Astable Circuit"
-         style="width:100%;">
-  </div>
-
-  <!-- STRIPBOARD VIEW -->
-  <div id="view-stripboard" style="display:none;">
-    <img src="/assets/electronics/555-stripboard.png"
-         alt="555 Stripboard Layout"
-         style="width:100%;">
-  </div>
+  <!-- COMBINED CIRCUIT + STRIPBOARD IMAGE -->
+  <img src="/assets/electronics/555.jpg"
+       alt="555 Stripboard and Circuit Diagram"
+       style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
 
   <hr>
 
-  <!-- PRESET BUTTONS -->
+  <!-- PRESETS -->
   <h3>Presets</h3>
   <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
     <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
@@ -170,7 +147,7 @@ small {
 
   <hr>
 
-  <!-- CANVAS GRAPHS -->
+  <!-- WAVEFORMS -->
   <h3>Waveforms</h3>
   
   <p><strong>Output Square Wave</strong></p>
@@ -192,29 +169,21 @@ small {
 </div>
 
 
-<!-- ============================================================= -->
-<!-- ======================= JAVASCRIPT =========================== -->
-<!-- ============================================================= -->
+<!-- ======================================= -->
+<!-- ========== JAVASCRIPT ================== -->
+<!-- ======================================= -->
 
 <script>
-/*********** VIEW SWITCH ***********/
-function showView(v){
-  document.getElementById("view-circuit").style.display =
-      v==="circuit" ? "block" : "none";
-  document.getElementById("view-stripboard").style.display =
-      v==="stripboard" ? "block" : "none";
-}
+// Utility shortcut
+const el = id => document.getElementById(id);
 
-/*********** GLOBALS ***********/
+/******** GLOBALS ********/
 let T = 1, Tm = 0.5, Ts = 0.5;
 let simTime = 0;
 let outputHigh = false;
 let wave, cap;
 
-// Utility to safely get elements
-function el(id){ return document.getElementById(id); }
-
-/*********** SAFE INIT ***********/
+/******** INIT ********/
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
 
@@ -232,7 +201,7 @@ window.addEventListener("load", () => {
   });
 });
 
-/*********** PRESET HANDLER ***********/
+/******** PRESETS ********/
 function applyPreset(R1, R2, C1){
   el("r1").value = R1;
   el("r2").value = R2;
@@ -240,7 +209,7 @@ function applyPreset(R1, R2, C1){
   updateSim();
 }
 
-/*********** SIM UPDATE ***********/
+/******** UPDATE SIM ********/
 function updateSim(){
   let R1 = parseFloat(el("r1").value) * 1000;
   let R2 = parseFloat(el("r2").value) * 1000;
@@ -250,8 +219,8 @@ function updateSim(){
   el("r2-label").innerText = (R2/1000).toFixed(0);
   el("c1-label").innerText = (C1*1e6).toFixed(0);
 
-  Tm = 0.7 * (R1 + R2) * C1;
-  Ts = 0.7 * R2 * C1;
+  Tm = 0.7*(R1+R2)*C1;
+  Ts = 0.7*(R2)*C1;
   T  = Tm + Ts;
 
   el("val-T").innerText = T.toFixed(3);
@@ -261,7 +230,7 @@ function updateSim(){
   el("val-duty").innerText = ((Tm/T)*100).toFixed(1);
 }
 
-/*********** ANIMATION LOOP ***********/
+/******** ANIMATION ********/
 function animate(){
   requestAnimationFrame(animate);
 
@@ -272,19 +241,22 @@ function animate(){
   const red = el("led-red");
   const green = el("led-green");
 
+  /** LED STATES **/
   if(outputHigh){
     red.style.background = "rgb(255,80,80)";
     red.style.boxShadow = "0 0 16px rgba(255,80,80,0.9)";
+
     green.style.background = "rgb(20,40,20)";
     green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   } else {
     green.style.background = "rgb(0,255,180)";
     green.style.boxShadow = "0 0 16px rgba(0,255,200,0.9)";
+
     red.style.background = "rgb(40,0,0)";
     red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   }
 
-  /*********** WAVEFORM ***********/
+  /******** WAVEFORM ********/
   const W = wave.canvas.width;
   const H = wave.canvas.height;
 
@@ -297,13 +269,13 @@ function animate(){
 
   for(let x=0;x<W;x++){
     let time = (simTime - (W-x)/W*T*2) % T;
-    let high = time < Tm;
+    let high = (time < Tm);
     let y = high ? 30 : H-30;
     wave.lineTo(x,y);
   }
   wave.stroke();
 
-  /*********** CAP CURVE ***********/
+  /******** CAPACITOR CURVE ********/
   const CW = cap.canvas.width;
   const CH = cap.canvas.height;
 
