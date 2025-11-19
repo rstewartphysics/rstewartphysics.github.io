@@ -6,7 +6,7 @@ title: Electronics Simulations
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* Same CSS variables and theme as National 5 Electronics */
+/* Same theme as National 5 Electronics */
 :root {
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --radius-card: 1rem;
@@ -17,18 +17,65 @@ title: Electronics Simulations
   --bg3: #052a1f;
 }
 
-/* identical styling — copied from N5 Electronics page */
 body {
   margin: 0;
   background: radial-gradient(circle at 25% 30%, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 90%);
   background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-stack);
-  line-height: 1.5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+/* MENU BUTTON */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 200;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+
+/* DRAWER */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 99;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -270px;
+  width: 270px;
+  height: 100%;
+  background: rgba(15,23,42,0.92);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  padding-top: 4rem;
+  transition: 0.35s ease;
+  z-index: 150;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  color: #fff;
+  padding: 0.9rem 1.5rem;
+  text-decoration: none;
+  font-size: 1.1rem;
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* BANNER */
@@ -36,87 +83,88 @@ body {
   position: relative;
   width: 100%;
   overflow: hidden;
-  flex-shrink: 0;
   box-shadow: 0 6px 15px rgba(0,0,0,0.6);
 }
 .banner {
   width: 100%;
-  height: auto;
   max-height: 360px;
   object-fit: cover;
-  display: block;
   opacity: 0;
-  animation: fadeIn 1.2s ease forwards;
+  animation: fadeIn 1.2s forwards;
 }
 @keyframes fadeIn { to { opacity: 1; } }
-@media (max-width: 768px) { .banner { max-height: 260px; } }
 
 .banner-tint {
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, rgba(0,255,200,0.3), rgba(0,180,255,0.3));
+  background: linear-gradient(120deg, rgba(0,255,200,0.35), rgba(0,180,255,0.35));
   mix-blend-mode: multiply;
 }
 
 .banner-overlay-text {
   position: absolute;
-  bottom: 0; left: 0;
+  bottom: 0;
   width: 100%;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(8px);
-  padding: 1rem 0.5rem;
+  padding: 1rem;
   text-align: center;
-  color: white;
   font-weight: 600;
   font-size: 1.2rem;
 }
 
-/* GRID + TILES (identical) */
+/* PAGE */
 .page-wrap {
   flex: 1;
   width: 100%;
   max-width: 1200px;
   margin: 2rem auto;
-  padding: 0 1rem 4rem;
-  position: relative;
-  z-index: 1;
+  padding: 0 1rem 5rem;
 }
 
+/* GRID */
 .tile-grid {
   display: grid;
   gap: 1.3rem;
-  grid-template-columns: repeat(auto-fit, minmax(190px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  justify-items: center;
 }
 
+/* TILE */
 .class-tile {
-  display: block;
+  position: relative;
   border-radius: var(--radius-card);
   border: 2px solid rgba(255,255,255,0.25);
   outline: 2px solid rgba(255,255,255,0.1);
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.05), 0 16px 30px rgba(0,0,0,0.7);
+  outline-offset: -4px;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.05), 0 18px 45px rgba(0,0,0,0.8);
   overflow: hidden;
-  cursor: pointer;
-  transition: 0.2s;
   aspect-ratio: 1.1/1;
+  transform: scale(0.82);
+  transition: 0.22s ease;
 }
-.class-tile:hover { transform: scale(1.05); outline: 3px solid #0ff; }
-
-.class-tile img { width: 100%; height: 100%; object-fit: cover; }
-
-.visually-hidden {
-  position: absolute !important;
-  height: 1px; width: 1px;
-  clip: rect(1px,1px,1px,1px);
-  white-space: nowrap;
+.class-tile:hover {
+  transform: scale(0.86) translateY(-3px);
+  outline: 3px solid #0ff;
 }
 
-/* Footer + Menu identical */
-footer {
+.class-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* TRANSPARENT OVERLAY LABEL ON TILES */
+.tile-label {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  color: white;
+  padding: 0.6rem;
+  font-size: 1rem;
   text-align: center;
-  padding: 1rem;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
-  margin-top: auto;
 }
 </style>
 
@@ -125,22 +173,25 @@ footer {
 
 <!-- BANNER -->
 <div class="banner-wrap">
-  <img src="/assets/Electronicsbanner.png" class="banner">
+  <img src="/assets/Electronicsbanner.png" class="banner" alt="">
   <div class="banner-tint"></div>
   <div class="banner-overlay-text"><h1>Electronics Simulations</h1></div>
 </div>
 
+<!-- PAGE CONTENT -->
 <main class="page-wrap">
   <section class="tile-grid">
 
-    <a class="class-tile" href="/classes/electronics/simulations/555-astable.html" aria-label="555 Astable Simulator">
-      <img src="/assets/electronics/sim-555.png">
-      <span class="visually-hidden">555 Astable Simulator</span>
+    <!-- 555 SIM -->
+    <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/555-astable.html" aria-label="555 Astable Simulator">
+      <img src="/assets/electronics/sim-555.png" alt="">
+      <div class="tile-label">555 Astable</div>
     </a>
 
-    <a class="class-tile" href="#" aria-label="Coming soon">
-      <img src="/assets/electronics/sim-placeholder.png">
-      <span class="visually-hidden">More simulations coming soon</span>
+    <!-- MORE COMING -->
+    <a class="class-tile" href="#" aria-label="More simulations coming soon">
+      <img src="/assets/electronics/sim-placeholder.png" alt="">
+      <div class="tile-label">More Coming Soon</div>
     </a>
 
   </section>
@@ -148,6 +199,26 @@ footer {
 
 <footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
 
+<!-- DRAWER NAVIGATION -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
 <script>
-// identical drawer code
+function toggleMenu(){
+  document.getElementById('sideMenu').classList.toggle('open');
+  document.getElementById('menuOverlay').classList.toggle('show');
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
+});
 </script>
