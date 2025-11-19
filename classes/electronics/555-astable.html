@@ -5,28 +5,121 @@ title: 555 Astable Simulator
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<div id="astable-sim" style="max-width:900px;margin:auto;font-family:Trebuchet MS;">
+<!-- ======================================= -->
+<!-- ========== ELECTRONICS THEME ========== -->
+<!-- ======================================= -->
+<style>
+:root {
+  --el-green: #00e6b3;
+  --el-green-glow: rgba(0,255,200,0.55);
+  --el-bg1: #003c2e;
+  --el-bg2: #005f47;
+  --el-bg3: #052a1f;
+  --tile-border: rgba(0,255,200,0.35);
+  --tile-outline: rgba(0,255,200,0.15);
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
+  color: white;
+  font-family: var(--font-stack);
+  margin: 0;
+  padding: 20px;
+}
+
+/* Title + Section Headers */
+#astable-sim h2, 
+#astable-sim h3 {
+  text-shadow: 0 0 12px var(--el-green-glow);
+  color: white;
+}
+
+/* Buttons (View + Presets) */
+#astable-sim button {
+  background: rgba(0,255,200,0.15);
+  border: 2px solid var(--tile-border);
+  padding: 8px 14px;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+#astable-sim button:hover {
+  background: rgba(0,255,200,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px var(--el-green-glow);
+}
+
+/* Range Sliders */
+input[type=range] {
+  width: 100%;
+  accent-color: var(--el-green);
+}
+
+/* LEDs (base style) */
+#led-red, #led-green {
+  border: 2px solid var(--tile-border);
+  outline: 2px solid var(--tile-outline);
+  border-radius: 50%;
+}
+
+/* Canvas styling */
+canvas {
+  border: 2px solid var(--tile-border) !important;
+  outline: 2px solid var(--tile-outline);
+  border-radius: 14px;
+  background: black !important;
+  box-shadow: inset 0 0 20px rgba(0,255,200,0.05), 0 12px 30px rgba(0,0,0,0.4);
+}
+
+/* HR line styled */
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+     to right,
+     transparent,
+     rgba(0,255,200,0.45),
+     transparent
+  );
+  margin: 25px 0;
+}
+
+small {
+  opacity: 0.85;
+}
+</style>
+
+<!-- ======================================= -->
+<!-- ========== SIMULATOR HTML ============= -->
+<!-- ======================================= -->
+
+<div id="astable-sim" style="max-width:900px;margin:auto;">
 
   <h2 style="text-align:center;">555 Astable Simulator</h2>
 
   <!-- VIEW SWITCH -->
   <div style="text-align:center;margin-bottom:10px;">
-    <button onclick="showView('circuit')" style="padding:8px 16px;">Circuit Diagram</button>
-    <button onclick="showView('stripboard')" style="padding:8px 16px;">Stripboard Layout</button>
+    <button onclick="showView('circuit')">Circuit Diagram</button>
+    <button onclick="showView('stripboard')">Stripboard Layout</button>
   </div>
 
   <!-- CIRCUIT VIEW -->
   <div id="view-circuit">
     <img src="/assets/electronics/555-circuit.png"
          alt="555 Astable Circuit"
-         style="width:100%;border:1px solid #ccc;">
+         style="width:100%;">
   </div>
 
   <!-- STRIPBOARD VIEW -->
   <div id="view-stripboard" style="display:none;">
     <img src="/assets/electronics/555-stripboard.png"
          alt="555 Stripboard Layout"
-         style="width:100%;border:1px solid #ccc;">
+         style="width:100%;">
   </div>
 
   <hr>
@@ -57,20 +150,18 @@ title: 555 Astable Simulator
 
   <!-- LEDs -->
   <h3>LED Output</h3>
-  <div style="display:flex;justify-content:center;gap:30px;margin:10px 0;">
+  <div style="display:flex;justify-content:center;gap:40px;margin:10px 0;">
     
     <div style="text-align:center;">
-      <div id="led-red" style="
-        width:30px;height:30px;border-radius:50%;background:#200;
-        transition:0.15s;box-shadow:0 0 6px #000;">
+      <div id="led-red"
+           style="width:32px;height:32px;background:#200;box-shadow:0 0 6px #000;">
       </div>
       <small>Red LED<br>(pin 3 → GND)</small>
     </div>
 
     <div style="text-align:center;">
-      <div id="led-green" style="
-        width:30px;height:30px;border-radius:50%;background:#020;
-        transition:0.15s;box-shadow:0 0 6px #000;">
+      <div id="led-green"
+           style="width:32px;height:32px;background:#020;box-shadow:0 0 6px #000;">
       </div>
       <small>Green LED<br>(Vsupply → pin 3)</small>
     </div>
@@ -83,12 +174,10 @@ title: 555 Astable Simulator
   <h3>Waveforms</h3>
   
   <p><strong>Output Square Wave</strong></p>
-  <canvas id="waveform" height="150"
-          style="width:100%;border:1px solid #ccc;background:black;"></canvas>
+  <canvas id="waveform" height="150" style="width:100%;"></canvas>
 
   <p><strong>Capacitor Voltage Curve</strong></p>
-  <canvas id="cap-curve" height="150"
-          style="width:100%;border:1px solid #ccc;background:black;"></canvas>
+  <canvas id="cap-curve" height="150" style="width:100%;"></canvas>
 
   <hr>
 
@@ -102,12 +191,13 @@ title: 555 Astable Simulator
 
 </div>
 
+
 <!-- ============================================================= -->
 <!-- ======================= JAVASCRIPT =========================== -->
 <!-- ============================================================= -->
 
 <script>
-/* -------------------- VIEW SWITCH -------------------- */
+/*********** VIEW SWITCH ***********/
 function showView(v){
   document.getElementById("view-circuit").style.display =
       v==="circuit" ? "block" : "none";
@@ -115,29 +205,19 @@ function showView(v){
       v==="stripboard" ? "block" : "none";
 }
 
-/* -------------------- GLOBALS -------------------- */
+/*********** GLOBALS ***********/
 let T = 1, Tm = 0.5, Ts = 0.5;
-let outputHigh = false;
-let lastTime = performance.now();
 let simTime = 0;
-
+let outputHigh = false;
 let wave, cap;
 
-/* -------------------- SAFE INIT ON LOAD -------------------- */
-window.addEventListener("load", function(){
-
+/*********** SAFE INIT ***********/
+window.addEventListener("load", () => {
   requestAnimationFrame(() => {
 
     const wf = document.getElementById("waveform");
     const cc = document.getElementById("cap-curve");
 
-    /* Retry if width is not ready (iPad Safari fix) */
-    if (wf.clientWidth === 0) {
-      requestAnimationFrame(() => window.dispatchEvent(new Event("load")));
-      return;
-    }
-
-    /* Match canvas pixel size to CSS width */
     wf.width = wf.clientWidth;
     cc.width = cc.clientWidth;
 
@@ -146,117 +226,75 @@ window.addEventListener("load", function(){
 
     updateSim();
     requestAnimationFrame(animate);
-
   });
 });
 
-/* -------------------- PRESETS -------------------- */
+/*********** PRESET HANDLER ***********/
 function applyPreset(R1, R2, C1){
-  document.getElementById("r1").value = R1;
-  document.getElementById("r2").value = R2;
-  document.getElementById("c1").value = C1;
+  r1.value = R1;
+  r2.value = R2;
+  c1.value = C1;
   updateSim();
 }
 
-/* -------------------- UPDATE SIM -------------------- */
+/*********** SIM UPDATE ***********/
 function updateSim(){
   let R1 = parseFloat(r1.value) * 1000;
   let R2 = parseFloat(r2.value) * 1000;
   let C1 = parseFloat(c1.value) / 1e6;
 
-  r1-label.innerText = (R1/1000).toFixed(0);
-  r2-label.innerText = (R2/1000).toFixed(0);
-  c1-label.innerText = (C1*1e6).toFixed(0);
+  r1_label.innerText = (R1/1000).toFixed(0);
+  r2_label.innerText = (R2/1000).toFixed(0);
+  c1_label.innerText = (C1*1e6).toFixed(0);
 
   Tm = 0.7 * (R1 + R2) * C1;
   Ts = 0.7 * R2 * C1;
   T  = Tm + Ts;
 
-  let f = 1/T;
-  let duty = (Tm/T)*100;
-
-  val-T.innerText = T.toFixed(3);
-  val-f.innerText = f.toFixed(2);
-  val-Tm.innerText = Tm.toFixed(3);
-  val-Ts.innerText = Ts.toFixed(3);
-  val-duty.innerText = duty.toFixed(1);
+  val_T.innerText = T.toFixed(3);
+  val_f.innerText = (1/T).toFixed(2);
+  val_Tm.innerText = Tm.toFixed(3);
+  val_Ts.innerText = Ts.toFixed(3);
+  val_duty.innerText = ((Tm/T)*100).toFixed(1);
 }
 
-/* -------------------- ANIMATION LOOP -------------------- */
+/*********** ANIMATION LOOP ***********/
 function animate(){
-
   requestAnimationFrame(animate);
 
-  /* Time delta ensures perfect timing */
-  const now = performance.now();
-  const dt = (now - lastTime) / 1000;
-  lastTime = now;
-  simTime += dt;
-
+  simTime += 0.01;
   let t = simTime % T;
-  outputHigh = t < Tm;
+  outputHigh = (t < Tm);
 
-  /* ===================== LEDs ===================== */
+  const red = document.getElementById("led-red");
+  const green = document.getElementById("led-green");
+
   if(outputHigh){
-    led-red.style.background = "rgb(255,60,60)";
-    led-red.style.boxShadow = "0 0 12px rgba(255,60,60,0.9)";
-    led-green.style.background = "rgb(20,40,20)";
-    led-green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
+    red.style.background = "rgb(255,80,80)";
+    red.style.boxShadow = "0 0 16px rgba(255,80,80,0.9)";
+
+    green.style.background = "rgb(20,40,20)";
+    green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   } else {
-    led-green.style.background = "rgb(60,255,60)";
-    led-green.style.boxShadow = "0 0 12px rgba(60,255,60,0.9)";
-    led-red.style.background = "rgb(40,0,0)";
-    led-red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
+    green.style.background = "rgb(0,255,180)";
+    green.style.boxShadow = "0 0 16px rgba(0,255,200,0.9)";
+
+    red.style.background = "rgb(40,0,0)";
+    red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
   }
 
-  /* ===================== WAVEFORM GRAPH ===================== */
+  /*********** WAVEFORM ***********/
   const W = wave.canvas.width;
   const H = wave.canvas.height;
 
   wave.fillStyle = "black";
   wave.fillRect(0,0,W,H);
 
-  wave.strokeStyle = "#0f0";
+  wave.strokeStyle = "#00ff99";
   wave.lineWidth = 2;
   wave.beginPath();
 
-  for(let x = 0; x < W; x++){
+  for(let x=0;x<W;x++){
     let time = (simTime - (W-x)/W*T*2) % T;
     let high = time < Tm;
-    let y = high ? 30 : (H - 30);
-    wave.lineTo(x,y);
-  }
-  wave.stroke();
-
-  /* ===================== CAPACITOR CURVE (real exponential) ===================== */
-  const CH = cap.canvas.height;
-  const CW = cap.canvas.width;
-
-  cap.fillStyle = "black";
-  cap.fillRect(0,0,CW,CH);
-
-  cap.strokeStyle = "#0af";
-  cap.lineWidth = 2;
-  cap.beginPath();
-
-  for(let x = 0; x < CW; x++){
-    let time = (simTime - (CW-x)/CW*T*2) % T;
-
-    let v;
-    if(time < Tm){
-      /* Charging: Vc = 1/3 + (2/3)*(1 - e^(-t / (R1+R2)C)) */
-      v = (1/3) + (2/3)*(1 - Math.exp(-time / ((Tm/0.7))));
-    } else {
-      /* Discharging: Vc = 2/3 * e(-(t - Tm)/R2C) */
-      let t2 = time - Tm;
-      v = (2/3) * Math.exp(-t2 / (Ts/0.7));
-    }
-
-    /* Map voltage to canvas Y */
-    let y = (CH - 10) - v * (CH - 20);
-    cap.lineTo(x, y);
-  }
-
-  cap.stroke();
-}
-</script>
+    let y = high ? 30 : H-30;
