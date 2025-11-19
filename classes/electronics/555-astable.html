@@ -66,7 +66,7 @@ input[type=range] {
   border-radius: 50%;
 }
 
-/* Canvas styling */
+/* Canvas */
 canvas {
   border: 2px solid var(--tile-border) !important;
   outline: 2px solid var(--tile-outline);
@@ -84,6 +84,21 @@ hr {
 }
 
 small { opacity: 0.85; }
+
+/* Collapsible learning areas */
+.summary-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--el-green);
+  text-shadow: 0 0 8px var(--el-green-glow);
+}
 </style>
 
 <!-- ======================================= -->
@@ -94,14 +109,19 @@ small { opacity: 0.85; }
 
   <h2 style="text-align:center;">555 Astable Simulator</h2>
 
-  <!-- COMBINED CIRCUIT + STRIPBOARD IMAGE -->
+  <!-- Combined image -->
   <img src="/assets/electronics/555.jpg"
        alt="555 Stripboard and Circuit Diagram"
        style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
 
+  <!-- Light-up output label (new) -->
+  <h3 id="output-state" style="text-align:center;margin-top:10px;">
+    Output State: —
+  </h3>
+
   <hr>
 
-  <!-- PRESETS -->
+  <!-- Presets -->
   <h3>Presets</h3>
   <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
     <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
@@ -111,7 +131,7 @@ small { opacity: 0.85; }
     <button onclick="applyPreset(1,470,10)">0.5 Hz Slow</button>
   </div>
 
-  <!-- CONTROLS -->
+  <!-- Controls -->
   <h3>Adjust Component Values</h3>
 
   <label>R1 (kΩ): <span id="r1-label">1</span></label>
@@ -147,7 +167,7 @@ small { opacity: 0.85; }
 
   <hr>
 
-  <!-- WAVEFORMS -->
+  <!-- Waveforms -->
   <h3>Waveforms</h3>
   
   <p><strong>Output Square Wave</strong></p>
@@ -158,7 +178,7 @@ small { opacity: 0.85; }
 
   <hr>
 
-  <!-- CALCULATED VALUES -->
+  <!-- Calculated Values -->
   <h3>Calculated Values</h3>
   <p><strong>Period T:</strong> <span id="val-T">—</span> s</p>
   <p><strong>Frequency f:</strong> <span id="val-f">—</span> Hz</p>
@@ -168,13 +188,74 @@ small { opacity: 0.85; }
 
 </div>
 
+<!-- ======================================= -->
+<!-- ========== LEARNING SECTIONS ========== -->
+<!-- ======================================= -->
+
+<hr>
+
+<h2>Learning Goals</h2>
+<ul>
+  <li>Understand how R1, R2 and C1 set the flash rate</li>
+  <li>Explain why LEDs flash alternately</li>
+  <li>Relate the capacitor voltage curve to LED behaviour</li>
+  <li>Read and link a stripboard layout to a circuit diagram</li>
+  <li>Calculate Tm, Ts, T, f and duty cycle</li>
+</ul>
+
+<br>
+
+<details class="summary-box">
+  <summary>📘 How the 555 Astable Works (click to expand)</summary>
+  <p>The capacitor charges through R1 and R2 until it reaches 2/3 of the supply voltage.  
+  The 555 then forces the output LOW and the capacitor discharges through R2 only until it drops below 1/3 of the supply.  
+  This cycle repeats over and over, making a square wave.</p>
+
+  <p>Output HIGH = capacitor charging<br>
+     Output LOW = capacitor discharging</p>
+</details>
+
+<br>
+
+<h2>Try This!</h2>
+<ul>
+  <li>Find component values that give exactly 1 Hz.</li>
+  <li>Make the LED on-time equal the off-time.</li>
+  <li>Increase only C1 — what changes?</li>
+  <li>Make the waveform as fast as possible.</li>
+  <li>Which resistor controls discharge time?</li>
+</ul>
+
+<br>
+
+<h2>Real-World Uses of Astables</h2>
+<ul>
+  <li>Bicycle flashers</li>
+  <li>LED indicators</li>
+  <li>Clock pulses for counters</li>
+  <li>Tone generators</li>
+  <li>PWM dimming circuits</li>
+</ul>
+
+<br>
+
+<h2>Print-Friendly Stripboard Build Guide</h2>
+<p><strong>Download & Print:</strong></p>
+<ul>
+  <li>Stripboard layout (included above)</li>
+  <li>Component checklist</li>
+  <li>Mark/space timing table</li>
+  <li>LED polarity reminder</li>
+</ul>
+
+<hr>
 
 <!-- ======================================= -->
-<!-- ========== JAVASCRIPT ================== -->
+<!-- ========== JAVASCRIPT ================= -->
 <!-- ======================================= -->
 
 <script>
-// Utility shortcut
+// Utility
 const el = id => document.getElementById(id);
 
 /******** GLOBALS ********/
@@ -186,7 +267,6 @@ let wave, cap;
 /******** INIT ********/
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
-
     const wf = el("waveform");
     const cc = el("cap-curve");
 
@@ -240,20 +320,26 @@ function animate(){
 
   const red = el("led-red");
   const green = el("led-green");
+  const stateLabel = el("output-state");
 
-  /** LED STATES **/
   if(outputHigh){
     red.style.background = "rgb(255,80,80)";
     red.style.boxShadow = "0 0 16px rgba(255,80,80,0.9)";
 
     green.style.background = "rgb(20,40,20)";
     green.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
+
+    stateLabel.innerText = "Output State: HIGH (charging)";
+    stateLabel.style.color = "#00ffcc";
   } else {
     green.style.background = "rgb(0,255,180)";
     green.style.boxShadow = "0 0 16px rgba(0,255,200,0.9)";
 
     red.style.background = "rgb(40,0,0)";
     red.style.boxShadow = "0 0 4px rgba(0,0,0,0.6)";
+
+    stateLabel.innerText = "Output State: LOW (discharging)";
+    stateLabel.style.color = "#ff6666";
   }
 
   /******** WAVEFORM ********/
@@ -275,7 +361,7 @@ function animate(){
   }
   wave.stroke();
 
-  /******** CAPACITOR CURVE ********/
+  /******** CAP CURVE ********/
   const CW = cap.canvas.width;
   const CH = cap.canvas.height;
 
@@ -288,8 +374,8 @@ function animate(){
 
   for(let x=0;x<CW;x++){
     let time = (simTime - (CW-x)/CW*T*2) % T;
-
     let v;
+
     if(time < Tm){
       v = 1/3 + (time/Tm)*(1/3);
     } else {
