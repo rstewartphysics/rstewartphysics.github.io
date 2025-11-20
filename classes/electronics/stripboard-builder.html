@@ -1,0 +1,255 @@
+---
+layout: none
+title: Stripboard Builder
+---
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* ======================================
+   ELECTRONICS THEME VARIABLES
+====================================== */
+:root {
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --el-green: #00e6b3;
+  --el-green-light: rgba(0,255,200,0.25);
+  --el-bg1: #003c2e;
+  --el-bg2: #005f47;
+  --el-bg3: #052a1f;
+
+  --drawer-bg: rgba(10, 25, 20, 0.55);
+  --drawer-border: rgba(0,255,200,0.2);
+  --drawer-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+/* ======================================
+   BASE LAYOUT
+====================================== */
+body {
+  margin: 0;
+  font-family: var(--font-stack);
+  background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
+  color: white;
+}
+
+.page-wrap {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* ======================================
+   SIDE DRAWER (same style as whole site)
+====================================== */
+#drawer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 260px;
+  height: 100vh;
+  background: var(--drawer-bg);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--drawer-border);
+  box-shadow: var(--drawer-shadow);
+  transform: translateX(-100%);
+  transition: 0.35s;
+  padding: 1rem;
+}
+
+#drawer.open { transform: translateX(0); }
+
+#drawer a {
+  display: block;
+  color: white;
+  padding: 0.7rem 0;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+#menu-btn {
+  background: none;
+  border: 2px solid var(--el-green);
+  color: var(--el-green);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+/* ======================================
+   SECTION TABS FOR THE 3 BOARDS
+====================================== */
+.board-nav {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.board-nav button {
+  flex: 1;
+  min-width: 160px;
+  padding: 0.7rem;
+  border-radius: 10px;
+  border: 2px solid var(--el-green);
+  background: rgba(0,255,200,0.1);
+  color: white;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: 0.2s;
+}
+
+.board-nav button.active,
+.board-nav button:hover {
+  background: var(--el-green);
+  color: black;
+}
+
+/* ======================================
+   STRIPBOARD PANELS
+====================================== */
+.board-panel {
+  display: none;
+}
+
+.board-panel.active {
+  display: block;
+  padding: 1rem 0;
+}
+
+/* Placeholder images area */
+.board-img {
+  width: 100%;
+  max-width: 1000px;
+  margin: 1rem auto;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed rgba(255,255,255,0.2);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 1rem;
+}
+
+/* ======================================
+   STEP-BY-STEP GUIDER
+====================================== */
+.steps {
+  margin-top: 1rem;
+  background: rgba(255,255,255,0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+}
+
+.steps h3 { margin-top: 0; }
+
+.step {
+  margin: 0.5rem 0;
+  border-left: 4px solid var(--el-green);
+  padding-left: 0.7rem;
+}
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+@media (max-width: 600px) {
+  .board-nav { flex-direction: column; }
+}
+</style>
+
+<body>
+
+<!-- ===================== -->
+<!--  SIDE DRAWER          -->
+<!-- ===================== -->
+<div id="drawer" aria-label="Main navigation drawer">
+  <a href="/">🏠 Home</a>
+  <a href="/science">🧪 Science</a>
+  <a href="/physics">⚡ Physics</a>
+  <a href="/electronics">💡 Electronics</a>
+  <a href="/engineering">🧰 Engineering</a>
+</div>
+
+<script>
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") drawer.classList.remove("open");
+});
+</script>
+
+<main class="page-wrap">
+
+<button id="menu-btn" onclick="drawer.classList.add('open')">☰ Menu</button>
+
+<h1>Stripboard Builder</h1>
+<p>Use the tabs below to build each board, then wire them together using screw-terminal blocks.</p>
+
+<!-- ===================== -->
+<!--     NAV BUTTONS       -->
+<!-- ===================== -->
+<div class="board-nav">
+  <button class="active" onclick="switchBoard('input')">Input Board</button>
+  <button onclick="switchBoard('logic')">Logic / Processing Board</button>
+  <button onclick="switchBoard('output')">Output Board (555 Flasher)</button>
+</div>
+
+<!-- ===================== -->
+<!--     INPUT BOARD       -->
+<!-- ===================== -->
+<div id="input" class="board-panel active">
+  <div class="board-img">📥 INPUT BOARD IMAGE HERE  
+    <br><small>(Switches & sensors: thermistor, LDR, toggle)</small>
+  </div>
+
+  <div class="steps">
+    <h3>Build Steps</h3>
+    <div class="step">1. Place switch and sensors onto the stripboard.</div>
+    <div class="step">2. Connect each device to the top power rail.</div>
+    <div class="step">3. Add pulldown resistors for each input line.</div>
+    <div class="step">4. Route outputs to terminal block OUT1 / OUT2 / OUT3.</div>
+  </div>
+</div>
+
+<!-- ===================== -->
+<!--     LOGIC BOARD       -->
+<!-- ===================== -->
+<div id="logic" class="board-panel">
+  <div class="board-img">🔧 LOGIC BOARD IMAGE HERE  
+    <br><small>(AND / OR / NOT logic using 74HC08 etc.)</small>
+  </div>
+
+  <div class="steps">
+    <h3>Build Steps</h3>
+    <div class="step">1. Insert ICs so legs bridge the centre gap.</div>
+    <div class="step">2. Add 10 kΩ resistors to inputs.</div>
+    <div class="step">3. Connect logic outputs to the terminal marked “TO OUTPUT BOARD”.</div>
+  </div>
+</div>
+
+<!-- ===================== -->
+<!--     OUTPUT BOARD      -->
+<!-- ===================== -->
+<div id="output" class="board-panel">
+  <div class="board-img">💡 OUTPUT BOARD (555) IMAGE HERE  
+    <br><small>(Matches your “555 new.jpg” layout)</small>
+  </div>
+
+  <div class="steps">
+    <h3>Build Steps</h3>
+    <div class="step">1. Insert NE555 with correct orientation.</div>
+    <div class="step">2. Add R1 (1 kΩ), R2 (10 kΩ), and C1 (100 μF).</div>
+    <div class="step">3. Connect LEDs with 680 Ω resistors.</div>
+    <div class="step">4. Bring power & trigger from the logic board via the terminal block.</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchBoard(id) {
+  document.querySelectorAll('.board-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.board-nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
