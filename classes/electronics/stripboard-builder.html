@@ -1,5 +1,3 @@
-<!-- FULL REPLACEMENT WITH 555 SIMULATOR STYLE + 4‑TAB STRIPBOARD BUILDER -->
-
 ---
 layout: none
 title: Stripboard Builder
@@ -11,109 +9,161 @@ title: Stripboard Builder
 :root {
   --el-green: #00e6b3;
   --el-green-glow: rgba(0,255,200,0.55);
-  --el-red-glow: rgba(255,120,120,0.65);
   --el-bg1: #003c2e;
   --el-bg2: #005f47;
   --el-bg3: #052a1f;
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --tile-border: rgba(0,255,200,0.35);
   --tile-outline: rgba(0,255,200,0.15);
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 }
 
+/* BASE PAGE */
 body {
+  margin: 0;
   background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
+  background-attachment: fixed;
   color: white;
   font-family: var(--font-stack);
-  margin: 0;
-  padding: 20px;
-  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  overflow-x: hidden;
 }
 
-h2, h3, summary {
-  text-shadow: 0 0 12px var(--el-green-glow);
+.page-wrap {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem;
 }
 
-/* Drawer */
-#drawer {
-  position: fixed; top:0; left:0; width:260px; height:100vh;
-  background: rgba(10,25,20,0.55); backdrop-filter: blur(18px);
-  border-right:1px solid rgba(0,255,200,0.25);
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  transform: translateX(-100%);
-  transition: 0.35s;
-  padding:1rem;
-  z-index: 9999;
+/* MENU BUTTON */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 200;
+  transition: transform 0.2s ease;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
 }
-#drawer.open { transform: translateX(0); }
-#drawer a {
-  color:white; display:block; padding:0.7rem 0; text-decoration:none;
-}
-#menu-btn {
-  background:none; border:2px solid var(--el-green);
-  color:var(--el-green); padding:6px 14px;
-  border-radius:8px; cursor:pointer;
-  backdrop-filter:blur(6px);
-  margin-bottom:10px;
+.menu-btn:hover,
+.menu-btn:focus {
+  transform: scale(1.1);
+  outline: none;
 }
 
-/* Tabs */
-.tab-buttons { display:flex; gap:10px; margin:1rem 0; flex-wrap:wrap; }
+/* SIDEMENU */
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 99;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed;
+  top: 0; right: -270px;
+  height: 100%; width: 270px;
+  background: rgba(15,23,42,0.92);
+  backdrop-filter: blur(12px) saturate(160%);
+  transition: right 0.3s ease;
+  z-index: 150;
+  padding-top: 4rem;
+  display: flex; flex-direction: column;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.5rem;
+  display: flex; gap: 0.8rem;
+}
+.side-menu a:hover { background: rgba(255,255,255,0.12); }
+
+/* TABS */
+.tab-buttons {
+  display: flex; gap: 10px;
+  margin: 1.5rem 0; flex-wrap: wrap;
+}
 .tab-buttons button {
-  flex:1; min-width:160px;
+  flex: 1; min-width: 160px;
   background: rgba(0,255,200,0.15);
-  border:2px solid var(--tile-border);
-  padding:8px 14px; color:white;
-  border-radius:12px; font-weight:600; cursor:pointer;
-  transition:0.2s;
+  border: 2px solid var(--tile-border);
+  padding: 10px 14px;
+  color:white; border-radius:12px;
+  font-weight:600; cursor:pointer;
+  transition:0.2s ease;
 }
-.tab-buttons button.active { background:var(--el-green); color:black; }
-
+.tab-buttons button.active {
+  background:var(--el-green);
+  color:black;
+}
 .tab { display:none; }
 .tab.active { display:block; }
 
-/* Image blocks */
+/* IMAGE BLOCKS */
 .board-img {
-  margin:1rem 0;
-  border:2px solid var(--tile-border);
-  outline:2px solid var(--tile-outline);
-  border-radius:14px;
-  background:rgba(255,255,255,0.05);
-  padding:10px;
+  max-width: 600px;
+  margin: 1.5rem auto;
+  border: 2px solid var(--tile-border);
+  outline: 2px solid var(--tile-outline);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  padding: 10px;
 }
-.board-img img { width:100%; border-radius:10px; }
-.caption { font-size:0.9rem; opacity:0.75; margin-bottom:6px; }
+.board-img img {
+  width: 100%;
+  border-radius: 10px;
+}
+.caption {
+  text-align: center;
+  font-size: 0.9rem; 
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
 
-/* Step boxes */
-.step-box {
+/* INTRO BOXES */
+.intro-box {
   background: rgba(0,255,200,0.10);
-  border:1px solid rgba(0,255,200,0.25);
-  padding:14px; border-radius:10px; margin:12px 0;
+  border: 1px solid rgba(0,255,200,0.25);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin: 1rem 0;
 }
-.step {
-  border-left:4px solid var(--el-green);
-  padding-left:10px; margin:6px 0;
+
+/* HEADINGS */
+h1, h2, h3 {
+  text-shadow: 0 0 12px var(--el-green-glow);
 }
 </style>
 
-<!-- DRAWER -->
-<div id="drawer">
+<!-- MENU BUTTON -->
+<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+
+<!-- SIDEMENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<nav class="side-menu" id="sideMenu">
   <a href="/">🏠 Home</a>
   <a href="/science">🧪 Science</a>
   <a href="/physics">⚡ Physics</a>
   <a href="/electronics">💡 Electronics</a>
   <a href="/engineering">🧰 Engineering</a>
-</div>
-<script>
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') drawer.classList.remove('open'); });
-</script>
+</nav>
 
-<button id="menu-btn" onclick="drawer.classList.add('open')">☰ Menu</button>
+<!-- CONTENT -->
+<main class="page-wrap">
 
-<!-- PAGE TITLE -->
-<h2 style="text-align:center;">Stripboard Builder – Interactive Guide</h2>
-<p class="intro-box">Explore how the Input, Process, and Output boards link together to form your full system.</p>
+<h1 style="text-align:center;">Stripboard Builder – Interactive Guide</h1>
 
-<!-- TABS -->
+<!-- TAB BUTTONS -->
 <div class="tab-buttons">
   <button class="active" onclick="switchTab('overview', this)">Overview</button>
   <button onclick="switchTab('input', this)">Input</button>
@@ -121,267 +171,253 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') drawer.classList.r
   <button onclick="switchTab('output', this)">Output</button>
 </div>
 
-<!-- ================= OVERVIEW TAB ================= -->
+<!-- ========================== OVERVIEW ========================== -->
 <div id="overview" class="tab active">
   <h2>System Overview</h2>
-  <p class="intro-box">Three stripboards form the full logic chain: Input → Process → Output.</p>
+
+  <p class="intro-box">
+    These three boards form a complete system:  
+    <strong>Input → Process → Output.</strong><br>
+    Each board has one job, but all three work together.
+  </p>
 
   <div class="board-img">
-    <div class="caption">Yenka Schematic (Full System)</div>
-    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg" alt="Full Yenka schematic">
+    <div class="caption">Yenka – Full System</div>
+    <img src="/assets/electronics/stripboard/mockyeanka.jpeg">
   </div>
   <div class="board-img">
     <div class="caption">Input Board</div>
-    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockinput.jpeg" alt="Input stripboard">
+    <img src="/assets/electronics/stripboard/mockinput.jpeg">
   </div>
   <div class="board-img">
     <div class="caption">Process Board</div>
-    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockprocess.jpeg" alt="Process stripboard">
+    <img src="/assets/electronics/stripboard/mockprocess.jpeg">
   </div>
   <div class="board-img">
     <div class="caption">Output Board</div>
-    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockoutput.jpeg" alt="Output stripboard">
+    <img src="/assets/electronics/stripboard/mockoutput.jpeg">
   </div>
-</div>
-    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg" alt="Full Yenka schematic">
-  </div>
+
+  <p class="intro-box">
+    <strong>Input board:</strong> makes two logic signals  
+    <strong>Process board:</strong> AND gate decision  
+    <strong>Output board:</strong> 555 LED flasher
+  </p>
+
+  <p class="intro-box">
+    <strong>Important:</strong> The boards look different from the schematic,  
+    but the <em>connections</em> are identical.  
+    Follow the coloured wires between boards.
+  </p>
 </div>
 
-<!-- ================= INPUT TAB ================= -->
+<!-- =========================== INPUT ============================ -->
 <div id="input" class="tab">
-  $1
-<h3>⭐ PART 1 — INPUT BOARD (Temperature Sensor + Switch Input)</h3>
-<p>(Matches schematic section labelled “Input” and stripboard https://rstewartphysics.github.io/assets/electronics/stripboard/mockinput.jpeg)</p>
+  <h2>Input Board</h2>
 
-<h3>Step 1 — Identify all parts (Yenka → Stripboard)</h3>
-<p>Using the Yenka schematic (https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg): You must be able to point to each part in both the schematic and the stripboard layout.</p>
-<ul>
-  <li><strong>RT</strong> — Thermistor — left of board, vertical</li>
-  <li><strong>R1</strong> — 4.7 kΩ pulldown — bottom-left</li>
-  <li><strong>R2</strong> — 10 kΩ pull-up — right side</li>
-  <li><strong>R3</strong> — 10 kΩ pulldown — centre-right</li>
-  <li><strong>SW1</strong> — Switch — three-pin block, right side</li>
-  <li><strong>+5 V rail</strong> — red long strip — very top track</li>
-  <li><strong>0 V rail</strong> — black long strip — very bottom track</li>
-</ul>
-<p><strong>Why this matters:</strong> This board outputs two logic signals (TempOut and SwitchOut) that feed the process board.</p>
-
-<h3>Step 2 — Place the power rails</h3>
-<p>In https://rstewartphysics.github.io/assets/electronics/stripboard/mockinput.jpeg, the top red strip is +V and the bottom black strip is 0V. Confirm both rails are continuous using continuity mode.</p>
-
-<h3>Step 3 — Install RT and R1 (thermistor input)</h3>
-<p>RT and R1 create a voltage divider:</p>
-<ul>
-  <li>RT: between +V (top rail) and TempOut node</li>
-  <li>R1: between TempOut node and 0V (bottom rail)</li>
-</ul>
-<p><strong>Common mistake:</strong> Connecting RT to 0V instead of +V reverses the behaviour.</p>
-
-<h3>Step 4 — Install R2, R3, and SW1 (switch input)</h3>
-<ul>
-  <li>R2 (10 kΩ) — +V → SwitchOut</li>
-  <li>R3 (10 kΩ) — SwitchOut → 0V</li>
-  <li>SW1 — centre pin connected to SwitchOut</li>
-</ul>
-<p>This produces: SW1 pressed → HIGH, released → LOW.</p>
-
-<h3>Step 5 — Confirm the output lines</h3>
-<ul>
-  <li><strong>Blue</strong> = TempOut</li>
-  <li><strong>Green</strong> = SwitchOut</li>
-</ul>
-<p>Both run to the terminal block on the right.</p>
-
-<h3>Step 6 — Add link wires</h3>
-<ul>
-  <li>Blue → TempOut</li>
-  <li>Green → SwitchOut</li>
-  <li>Red → +V extension</li>
-  <li>Black → 0V extension</li>
-</ul>
-<p><strong>Rule:</strong> If the schematic joins two points but the stripboard does not, add a link wire.</p>
-<p><strong>Input Board Complete ✔</strong> — This board now outputs two logic-level signals to the process board.</p>
-$2
-    <div class="step">RT forms voltage divider with R1 → TempOut (blue).</div>
-    <div class="step">R2 + R3 form pull-up / pull-down for SwitchOut (green).</div>
-    <div class="step">Extend +V and 0V rails (red/black).</div>
+  <div class="board-img">
+    <div class="caption">Yenka – Input Section</div>
+    <img src="/assets/electronics/stripboard/mockyeanka.jpeg">
   </div>
+
+  <div class="board-img">
+    <div class="caption">Input Stripboard</div>
+    <img src="/assets/electronics/stripboard/mockinput.jpeg">
+  </div>
+
+  <h3>⭐ Part 1 — What the Input Board Does</h3>
+
+  <p class="intro-box">
+    The Input board creates two clean logic signals that feed into the AND gate:
+    <br><strong>TempOut</strong> (blue)  
+    <strong>SwitchOut</strong> (green)
+  </p>
+
+  <h3>1 — Identify all components</h3>
+  <ul>
+    <li>RT — Thermistor</li>
+    <li>R1 — 4.7 kΩ pulldown</li>
+    <li>R2 — 10 kΩ pull-up</li>
+    <li>R3 — 10 kΩ pulldown</li>
+    <li>SW1 — Switch</li>
+    <li>+V rail — top copper strip</li>
+    <li>0V rail — bottom copper strip</li>
+  </ul>
+
+  <h3>2 — Thermistor voltage divider</h3>
+  <p>
+    RT (to +V) and R1 (to 0V) form a voltage divider.  
+    High temperature → low RT → higher TempOut voltage.
+  </p>
+
+  <h3>3 — Switch voltage divider</h3>
+  <ul>
+    <li>R2 pulls SwitchOut HIGH</li>
+    <li>R3 pulls SwitchOut LOW</li>
+    <li>SW1 drives the centre pin of the divider</li>
+  </ul>
+
+  <h3>4 — Output lines</h3>
+  <ul>
+    <li><span style="color:#4cf;">Blue</span> = TempOut</li>
+    <li><span style="color:#6f6;">Green</span> = SwitchOut</li>
+  </ul>
+
+  <h3>5 — Link wires</h3>
+  <ul>
+    <li>Red = +V</li>
+    <li>Black = 0V</li>
+    <li>Blue = TempOut</li>
+    <li>Green = SwitchOut</li>
+  </ul>
+
+  <p class="intro-box"><strong>Input Board Complete ✔</strong></p>
 </div>
 
-<!-- ================= PROCESS TAB ================= -->
+<!-- =========================== PROCESS ========================== -->
 <div id="process" class="tab">
-  <h2>Process Board – 74HC08 AND Gate</h2>
-<p><strong>⭐ PROCESS BOARD — 74HC08 AND-Gate Logic Stage</strong><br>(Matches your Yenka schematic AND block and the stripboard in https://rstewartphysics.github.io/assets/electronics/stripboard/mockprocess.jpeg)</p>
-<p>This board takes the two inputs from the Input Board:</p>
-<ul>
-<li><strong>TempOut</strong> (blue wire)</li>
-<li><strong>SwitchOut</strong> (green wire)</li>
-</ul>
-<p>…and feeds them into one AND gate inside the 74HC08. The AND output then goes to the Output Board.</p>
-<div class="step-box">
-<h3>Step 1 — Identify all parts (Schematic → Stripboard)</h3>
-<p>From the Yenka schematic (IMG_0073.jpeg), the Process section contains:</p>
-<ul>
-<li><strong>IC2a (74HC08)</strong> — AND gate — middle of board with track-cut isolation</li>
-<li><strong>TempOut</strong> — blue link — input A</li>
-<li><strong>SwitchOut</strong> — green link — input B</li>
-<li><strong>+V</strong> — top red power rail</li>
-<li><strong>0V</strong> — bottom black rail</li>
-<li><strong>AND Output</strong> — yellow link — to Output Board</li>
-</ul>
-<p><strong>Why this matters:</strong> The AND output must only be HIGH when both inputs are HIGH.</p>
+  <h2>Process Board – AND Gate</h2>
 
-<h3>Step 2 — Place the 74HC08 IC correctly</h3>
-<p>Your stripboard has no centre gap, so every pin must sit on an isolated track segment. Your image shows the correct red-X track cuts under every pin.</p>
-<p><strong>Orientation:</strong> Pin 1 at the notch/dot (top left when viewed overhead).</p>
-<pre>
-       _________
-  1A  | 1     14 | Vcc (+5 V)
-  1B  | 2     13 | 4A
-  1Y  | 3     12 | 4B
-  2A  | 4     11 | 4Y
-  2B  | 5     10 | 3A
-  2Y  | 6      9 | 3B
- GND  | 7      8 | 3Y
-       ---------
-</pre>
-<p>You are using <strong>Gate 1 (1A, 1B → 1Y)</strong>, so you only need pins <strong>1, 2, 3</strong>.</p>
-
-<h3>Step 3 — Connect the power pins</h3>
-<ul>
-<li><strong>Pin 14 → +V</strong> (top red rail)</li>
-<li><strong>Pin 7 → 0V</strong> (bottom black rail)</li>
-</ul>
-<p>Check for no accidental copper continuity to other tracks.</p>
-
-<h3>Step 4 — Connect TempOut and SwitchOut</h3>
-<p>Your stripboard shows:</p>
-<ul>
-<li>Blue → <strong>pin 1</strong> (1A)</li>
-<li>Green → <strong>pin 2</strong> (1B)</li>
-</ul>
-<p>Each pin must touch only its link wire and its own isolated copper pad.</p>
-
-<h3>Step 5 — Route the AND gate output</h3>
-<p><strong>Pin 3</strong> is the output (1Y). Your yellow vertical link carries this to the right-hand terminal block → Output Board (555 trigger).</p>
-<p><strong>Correct behaviour:</strong> ANDout → enables 555 only when TempOut AND SwitchOut are TRUE.</p>
-
-<h3>Step 6 — Add required link wires</h3>
-<p>Your board uses colour-coded links:</p>
-<ul>
-<li><strong>Red</strong> → +V</li>
-<li><strong>Black</strong> → 0V</li>
-<li><strong>Blue</strong> → TempOut</li>
-<li><strong>Green</strong> → SwitchOut</li>
-<li><strong>Yellow</strong> → AND Output</li>
-</ul>
-<p>During soldering:</p>
-<ul>
-<li>Use short, neat wires</li>
-<li>Keep colour-coding consistent</li>
-<li>Check continuity for all isolated IC pins</li>
-</ul>
-<p><strong>Process Board Complete ✔</strong> — The AND gate now outputs a clean digital signal to drive the 555 Output Board.</p>
-</div>
-    <div class="step">TempOut (blue) → pin 1, SwitchOut (green) → pin 2.</div>
-    <div class="step">Pin 3 output (yellow) goes to Output Board.</div>
-    <div class="step">Pin 14 → +V, Pin 7 → 0V.</div>
+  <div class="board-img">
+    <div class="caption">Yenka – AND Section</div>
+    <img src="/assets/electronics/stripboard/mockyeanka.jpeg">
   </div>
+
+  <div class="board-img">
+    <div class="caption">Process Stripboard</div>
+    <img src="/assets/electronics/stripboard/mockprocess.jpeg">
+  </div>
+
+  <h3>⭐ Part 2 — What the Process Board Does</h3>
+
+  <p class="intro-box">
+    The Process board uses a <strong>74HC08 AND gate</strong>.  
+    Output = HIGH only when <strong>TempOut AND SwitchOut</strong> are HIGH.
+  </p>
+
+  <h3>1 — Identify parts</h3>
+  <ul>
+    <li>74HC08 AND gate IC</li>
+    <li>Using Gate 1 → pins 1 (A), 2 (B), 3 (Y)</li>
+    <li>Pin 14 → +V</li>
+    <li>Pin 7 → 0V</li>
+    <li>Blue → TempOut → pin 1</li>
+    <li>Green → SwitchOut → pin 2</li>
+    <li>Yellow → AND output → Output board</li>
+  </ul>
+
+  <h3>2 — IC orientation</h3>
+  <p>No centre gap → each pin sits on an isolated copper pad.  
+     Track cuts isolate all pins.</p>
+
+  <h3>3 — Power</h3>
+  <ul>
+    <li>Pin 14 → +V</li>
+    <li>Pin 7 → 0V</li>
+  </ul>
+
+  <h3>4 — Inputs</h3>
+  <ul>
+    <li>Pin 1 = TempOut</li>
+    <li>Pin 2 = SwitchOut</li>
+  </ul>
+
+  <h3>5 — Output</h3>
+  <p>Pin 3 is the AND output → yellow wire → triggers the 555.</p>
+
+  <h3>6 — Link wires</h3>
+  <ul>
+    <li>Red = +V</li>
+    <li>Black = 0V</li>
+    <li>Blue = TempOut</li>
+    <li>Green = SwitchOut</li>
+    <li>Yellow = AND output</li>
+  </ul>
+
+  <p class="intro-box"><strong>Process Board Complete ✔</strong></p>
 </div>
 
-<!-- ================= OUTPUT TAB ================= -->
+<!-- =========================== OUTPUT =========================== -->
 <div id="output" class="tab">
   <h2>Output Board – 555 LED Flasher</h2>
-<p><strong>⭐ OUTPUT BOARD — 555 Astable LED Flasher</strong><br>(Matches Yenka schematic + your stripboard https://rstewartphysics.github.io/assets/electronics/stripboard/mockoutput.jpeg)</p>
-<p>This board turns the logic output from the Process board into alternating flashing LEDs using the NE555 in astable mode.</p>
 
-<div class="board-img">
-  <div class="caption">Output Board Stripboard Layout (555)</div>
-  <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockoutput.jpeg" alt="Output stripboard">
+  <div class="board-img">
+    <div class="caption">Yenka – Output Section</div>
+    <img src="/assets/electronics/stripboard/mockyeanka.jpeg">
+  </div>
+
+  <div class="board-img">
+    <div class="caption">Output Stripboard</div>
+    <img src="/assets/electronics/stripboard/mockoutput.jpeg">
+  </div>
+
+  <h3>⭐ Part 3 — What the Output Board Does</h3>
+
+  <p class="intro-box">
+    The Output board contains a <strong>555 astable</strong> that flashes green & red LEDs.  
+    It only runs when the AND gate output (yellow wire) is HIGH.
+  </p>
+
+  <h3>1 — Identify all parts</h3>
+  <ul>
+    <li>555 IC</li>
+    <li>R4, R5 — timing resistors</li>
+    <li>C1 — timing capacitor</li>
+    <li>Red LEDs — LOW output</li>
+    <li>Green LEDs — HIGH output</li>
+  </ul>
+
+  <h3>2 — Power pins</h3>
+  <ul>
+    <li>Pin 1 → 0V</li>
+    <li>Pin 8 → +V</li>
+  </ul>
+
+  <h3>3 — Timing network</h3>
+  <ul>
+    <li>R4: +V → pin 7</li>
+    <li>R5: pin 7 → timing node (pins 2/6)</li>
+    <li>C1: timing node → 0V</li>
+  </ul>
+
+  <h3>4 — LEDs</h3>
+  <p><strong>Green LEDs (HIGH)</strong></p>
+  <ul><li>Pin 3 → resistor → LED → 0V</li></ul>
+
+  <p><strong>Red LEDs (LOW)</strong></p>
+  <ul><li>+V → resistor → LED → pin 3</li></ul>
+
+  <h3>5 — AND gate trigger</h3>
+  <p>Yellow wire from Process → pin 2 of 555.</p>
+
+  <h3>6 — Link wires</h3>
+  <ul>
+    <li>Red = +V</li>
+    <li>Black = 0V</li>
+    <li>Yellow = AND output</li>
+    <li>Blue = 555 output</li>
+    <li>Purple = timing node</li>
+  </ul>
+
+  <p class="intro-box"><strong>Output Board Complete ✔</strong></p>
 </div>
 
-<div class="step-box">
-<h3>Step 1 — Identify all parts (Schematic → Stripboard)</h3>
-<ul>
-  <li><strong>555</strong> — NE555 timer IC — creates HIGH/LOW pulses</li>
-  <li><strong>R4 (4.7 kΩ)</strong> — timing resistor 1 — controls charge rate</li>
-  <li><strong>R5 (10 kΩ)</strong> — timing resistor 2 — controls discharge path</li>
-  <li><strong>C1 (100 μF)</strong> — timing capacitor — charges & discharges to create flashing</li>
-  <li><strong>R6, R7, R8, R9 (270 Ω)</strong> — LED resistors</li>
-  <li><strong>RL1, RL2</strong> — red LEDs — LOW output state</li>
-  <li><strong>GL1, GL2</strong> — green LEDs — HIGH output state</li>
-  <li><strong>+V</strong> — red rail</li>
-  <li><strong>0V</strong> — black rail</li>
-</ul>
-<p>Your stripboard shows the 555 centered with red-X cuts under each pin and all resistors and LEDs placed exactly as drawn.</p>
-
-<h3>Step 2 — Place the 555 with correct track cuts</h3>
-<p>Your stripboard has no centre gap, so each pin must sit on an isolated copper pad. The red-X cuts provide this.</p>
-<ul>
-  <li><strong>Pin 1 (bottom left)</strong> → 0V</li>
-  <li><strong>Pin 8 (top right)</strong> → +V</li>
-  <li><strong>Pins 2 and 6 linked</strong> — timing node</li>
-</ul>
-<p>All your pin isolations and orientation are correct.</p>
-
-<h3>Step 3 — Connect the power rails</h3>
-<ul>
-  <li><strong>Pin 8 → +V</strong> (vertical black strip + yellow link)</li>
-  <li><strong>Pin 1 → 0V</strong> (vertical black link)</li>
-</ul>
-<p>Pins 4 and 8 are tied HIGH, keeping RESET active.</p>
-
-<h3>Step 4 — Build the timing network (R4, R5, C1)</h3>
-<ul>
-  <li><strong>R4:</strong> +V → Pin 7 (Discharge)</li>
-  <li><strong>R5:</strong> Pin 7 → Pins 2/6 (timing node)</li>
-  <li><strong>C1:</strong> + leg → Pins 2/6, – leg → 0V</li>
-</ul>
-<p>C1 sits bottom-centre; the purple node links R5 → C1 → pins 2/6.</p>
-<p><strong>Common mistake:</strong> Reversing C1 or putting its negative leg to +V stops oscillation.</p>
-
-<h3>Step 5 — Connect AND-gate Output (Trigger)</h3>
-<p>The yellow wire from the Process Board is the AND output. It must connect to <strong>Pin 2</strong> (trigger).</p>
-<ul>
-  <li>Yellow wire enters from left</li>
-  <li>Travels downward</li>
-  <li>Reaches timing node (pins 2/6)</li>
-</ul>
-<p>Correct: The flasher only runs when <em>both</em> inputs are TRUE.</p>
-
-<h3>Step 6 — Add the LED output section</h3>
-<p><strong>Green LEDs (HIGH output)</strong></p>
-<ul>
-  <li>Pin 3 → R8 → GL1 → 0V</li>
-  <li>Pin 3 → R9 → GL2 → 0V</li>
-</ul>
-<p>Pin 3 is fed by a blue link; LEDs are below resistors with negative legs to ground.</p>
-
-<p><strong>Red LEDs (LOW output)</strong></p>
-<ul>
-  <li>+V → R6 → RL1 → Pin 3</li>
-  <li>+V → R7 → RL2 → Pin 3</li>
-</ul>
-<p>Resistors sit above LEDs and feed from the +V rail.</p>
-<p><strong>Why they alternate:</strong> Green = HIGH, Red = LOW.</p>
-
-<h3>Step 7 — Final link wires</h3>
-<ul>
-  <li><strong>Blue</strong> → 555 output</li>
-  <li><strong>Yellow</strong> → AND input</li>
-  <li><strong>Purple</strong> → timing node</li>
-  <li><strong>Black</strong> → ground</li>
-  <li><strong>Yellow (right)</strong> → terminal block output</li>
-</ul>
-<p>Rule: If two schematic points connect but stripboard holes don’t, add a link.</p>
-
-<p><strong>⭐ Output Board Complete ✔</strong><br>Your astable is fully wired: power, timing, trigger input, LEDs, isolated pins, and final output to the system.</p>
-</div>
-</div>
-</div>
+</main>
 
 <script>
-function switchTab(id, btn){
+function toggleMenu(){
+  const menu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('menuOverlay');
+  menu.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
+});
+function switchTab(id,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.tab-buttons button').forEach(b=>b.classList.remove('active'));
