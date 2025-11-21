@@ -1,3 +1,5 @@
+<!-- FULL REPLACEMENT WITH 555 SIMULATOR STYLE + 4‑TAB STRIPBOARD BUILDER -->
+
 ---
 layout: none
 title: Stripboard Builder
@@ -6,250 +8,368 @@ title: Stripboard Builder
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ======================================
-   ELECTRONICS THEME VARIABLES
-====================================== */
 :root {
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --el-green: #00e6b3;
-  --el-green-light: rgba(0,255,200,0.25);
+  --el-green-glow: rgba(0,255,200,0.55);
+  --el-red-glow: rgba(255,120,120,0.65);
   --el-bg1: #003c2e;
   --el-bg2: #005f47;
   --el-bg3: #052a1f;
-
-  --drawer-bg: rgba(10, 25, 20, 0.55);
-  --drawer-border: rgba(0,255,200,0.2);
-  --drawer-shadow: 0 0 40px rgba(0,0,0,0.5);
+  --tile-border: rgba(0,255,200,0.35);
+  --tile-outline: rgba(0,255,200,0.15);
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 }
 
-/* ======================================
-   BASE LAYOUT
-====================================== */
 body {
-  margin: 0;
-  font-family: var(--font-stack);
   background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
   color: white;
+  font-family: var(--font-stack);
+  margin: 0;
+  padding: 20px;
+  line-height: 1.45;
 }
 
-.page-wrap {
-  padding: 1rem;
-  max-width: 1200px;
-  margin: auto;
+h2, h3, summary {
+  text-shadow: 0 0 12px var(--el-green-glow);
 }
 
-/* ======================================
-   SIDE DRAWER (same style as whole site)
-====================================== */
+/* Drawer */
 #drawer {
-  position: fixed;
-  top: 0; left: 0;
-  width: 260px;
-  height: 100vh;
-  background: var(--drawer-bg);
-  backdrop-filter: blur(18px);
-  border-right: 1px solid var(--drawer-border);
-  box-shadow: var(--drawer-shadow);
+  position: fixed; top:0; left:0; width:260px; height:100vh;
+  background: rgba(10,25,20,0.55); backdrop-filter: blur(18px);
+  border-right:1px solid rgba(0,255,200,0.25);
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
   transform: translateX(-100%);
   transition: 0.35s;
-  padding: 1rem;
+  padding:1rem;
+  z-index: 9999;
 }
-
 #drawer.open { transform: translateX(0); }
-
 #drawer a {
-  display: block;
-  color: white;
-  padding: 0.7rem 0;
-  text-decoration: none;
-  font-size: 1.1rem;
+  color:white; display:block; padding:0.7rem 0; text-decoration:none;
 }
-
 #menu-btn {
-  background: none;
-  border: 2px solid var(--el-green);
-  color: var(--el-green);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
+  background:none; border:2px solid var(--el-green);
+  color:var(--el-green); padding:6px 14px;
+  border-radius:8px; cursor:pointer;
+  backdrop-filter:blur(6px);
+  margin-bottom:10px;
 }
 
-/* ======================================
-   SECTION TABS FOR THE 3 BOARDS
-====================================== */
-.board-nav {
-  display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
-  flex-wrap: wrap;
+/* Tabs */
+.tab-buttons { display:flex; gap:10px; margin:1rem 0; flex-wrap:wrap; }
+.tab-buttons button {
+  flex:1; min-width:160px;
+  background: rgba(0,255,200,0.15);
+  border:2px solid var(--tile-border);
+  padding:8px 14px; color:white;
+  border-radius:12px; font-weight:600; cursor:pointer;
+  transition:0.2s;
 }
+.tab-buttons button.active { background:var(--el-green); color:black; }
 
-.board-nav button {
-  flex: 1;
-  min-width: 160px;
-  padding: 0.7rem;
-  border-radius: 10px;
-  border: 2px solid var(--el-green);
-  background: rgba(0,255,200,0.1);
-  color: white;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: 0.2s;
-}
+.tab { display:none; }
+.tab.active { display:block; }
 
-.board-nav button.active,
-.board-nav button:hover {
-  background: var(--el-green);
-  color: black;
-}
-
-/* ======================================
-   STRIPBOARD PANELS
-====================================== */
-.board-panel {
-  display: none;
-}
-
-.board-panel.active {
-  display: block;
-  padding: 1rem 0;
-}
-
-/* Placeholder images area */
+/* Image blocks */
 .board-img {
-  width: 100%;
-  max-width: 1000px;
-  margin: 1rem auto;
-  background: rgba(255,255,255,0.05);
-  border: 2px dashed rgba(255,255,255,0.2);
-  padding: 2rem;
-  text-align: center;
-  border-radius: 1rem;
+  margin:1rem 0;
+  border:2px solid var(--tile-border);
+  outline:2px solid var(--tile-outline);
+  border-radius:14px;
+  background:rgba(255,255,255,0.05);
+  padding:10px;
 }
+.board-img img { width:100%; border-radius:10px; }
+.caption { font-size:0.9rem; opacity:0.75; margin-bottom:6px; }
 
-/* ======================================
-   STEP-BY-STEP GUIDER
-====================================== */
-.steps {
-  margin-top: 1rem;
-  background: rgba(255,255,255,0.05);
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
+/* Step boxes */
+.step-box {
+  background: rgba(0,255,200,0.10);
+  border:1px solid rgba(0,255,200,0.25);
+  padding:14px; border-radius:10px; margin:12px 0;
 }
-
-.steps h3 { margin-top: 0; }
-
 .step {
-  margin: 0.5rem 0;
-  border-left: 4px solid var(--el-green);
-  padding-left: 0.7rem;
-}
-
-/* ======================================
-   RESPONSIVE
-====================================== */
-@media (max-width: 600px) {
-  .board-nav { flex-direction: column; }
+  border-left:4px solid var(--el-green);
+  padding-left:10px; margin:6px 0;
 }
 </style>
 
-<body>
-
-<!-- ===================== -->
-<!--  SIDE DRAWER          -->
-<!-- ===================== -->
-<div id="drawer" aria-label="Main navigation drawer">
+<!-- DRAWER -->
+<div id="drawer">
   <a href="/">🏠 Home</a>
   <a href="/science">🧪 Science</a>
   <a href="/physics">⚡ Physics</a>
   <a href="/electronics">💡 Electronics</a>
   <a href="/engineering">🧰 Engineering</a>
 </div>
-
 <script>
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") drawer.classList.remove("open");
-});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') drawer.classList.remove('open'); });
 </script>
-
-<main class="page-wrap">
 
 <button id="menu-btn" onclick="drawer.classList.add('open')">☰ Menu</button>
 
-<h1>Stripboard Builder</h1>
-<p>Use the tabs below to build each board, then wire them together using screw-terminal blocks.</p>
+<!-- PAGE TITLE -->
+<h2 style="text-align:center;">Stripboard Builder – Interactive Guide</h2>
+<p class="intro-box">Explore how the Input, Process, and Output boards link together to form your full system.</p>
 
-<!-- ===================== -->
-<!--     NAV BUTTONS       -->
-<!-- ===================== -->
-<div class="board-nav">
-  <button class="active" onclick="switchBoard('input')">Input Board</button>
-  <button onclick="switchBoard('logic')">Logic / Processing Board</button>
-  <button onclick="switchBoard('output')">Output Board (555 Flasher)</button>
+<!-- TABS -->
+<div class="tab-buttons">
+  <button class="active" onclick="switchTab('overview', this)">Overview</button>
+  <button onclick="switchTab('input', this)">Input</button>
+  <button onclick="switchTab('process', this)">Process</button>
+  <button onclick="switchTab('output', this)">Output</button>
 </div>
 
-<!-- ===================== -->
-<!--     INPUT BOARD       -->
-<!-- ===================== -->
-<div id="input" class="board-panel active">
-  <div class="board-img">📥 INPUT BOARD IMAGE HERE  
-    <br><small>(Switches & sensors: thermistor, LDR, toggle)</small>
-  </div>
+<!-- ================= OVERVIEW TAB ================= -->
+<div id="overview" class="tab active">
+  <h2>System Overview</h2>
+  <p class="intro-box">Three stripboards form the full logic chain: Input → Process → Output.</p>
 
-  <div class="steps">
-    <h3>Build Steps</h3>
-    <div class="step">1. Place switch and sensors onto the stripboard.</div>
-    <div class="step">2. Connect each device to the top power rail.</div>
-    <div class="step">3. Add pulldown resistors for each input line.</div>
-    <div class="step">4. Route outputs to terminal block OUT1 / OUT2 / OUT3.</div>
+  <div class="board-img">
+    <div class="caption">Yenka Schematic (Full System)</div>
+    <img src="/mnt/data/IMG_0073.jpeg" alt="Full Yenka schematic">
   </div>
 </div>
 
-<!-- ===================== -->
-<!--     LOGIC BOARD       -->
-<!-- ===================== -->
-<div id="logic" class="board-panel">
-  <div class="board-img">🔧 LOGIC BOARD IMAGE HERE  
-    <br><small>(AND / OR / NOT logic using 74HC08 etc.)</small>
-  </div>
+<!-- ================= INPUT TAB ================= -->
+<div id="input" class="tab">
+  $1
+<h3>⭐ PART 1 — INPUT BOARD (Temperature Sensor + Switch Input)</h3>
+<p>(Matches schematic section labelled “Input” and stripboard /mnt/data/IMG_0074 1.jpeg)</p>
 
-  <div class="steps">
-    <h3>Build Steps</h3>
-    <div class="step">1. Insert ICs so legs bridge the centre gap.</div>
-    <div class="step">2. Add 10 kΩ resistors to inputs.</div>
-    <div class="step">3. Connect logic outputs to the terminal marked “TO OUTPUT BOARD”.</div>
+<h3>Step 1 — Identify all parts (Yenka → Stripboard)</h3>
+<p>Using the Yenka schematic (/mnt/data/IMG_0073.jpeg): You must be able to point to each part in both the schematic and the stripboard layout.</p>
+<ul>
+  <li><strong>RT</strong> — Thermistor — left of board, vertical</li>
+  <li><strong>R1</strong> — 4.7 kΩ pulldown — bottom-left</li>
+  <li><strong>R2</strong> — 10 kΩ pull-up — right side</li>
+  <li><strong>R3</strong> — 10 kΩ pulldown — centre-right</li>
+  <li><strong>SW1</strong> — Switch — three-pin block, right side</li>
+  <li><strong>+5 V rail</strong> — red long strip — very top track</li>
+  <li><strong>0 V rail</strong> — black long strip — very bottom track</li>
+</ul>
+<p><strong>Why this matters:</strong> This board outputs two logic signals (TempOut and SwitchOut) that feed the process board.</p>
+
+<h3>Step 2 — Place the power rails</h3>
+<p>In /mnt/data/IMG_0074 1.jpeg, the top red strip is +V and the bottom black strip is 0V. Confirm both rails are continuous using continuity mode.</p>
+
+<h3>Step 3 — Install RT and R1 (thermistor input)</h3>
+<p>RT and R1 create a voltage divider:</p>
+<ul>
+  <li>RT: between +V (top rail) and TempOut node</li>
+  <li>R1: between TempOut node and 0V (bottom rail)</li>
+</ul>
+<p><strong>Common mistake:</strong> Connecting RT to 0V instead of +V reverses the behaviour.</p>
+
+<h3>Step 4 — Install R2, R3, and SW1 (switch input)</h3>
+<ul>
+  <li>R2 (10 kΩ) — +V → SwitchOut</li>
+  <li>R3 (10 kΩ) — SwitchOut → 0V</li>
+  <li>SW1 — centre pin connected to SwitchOut</li>
+</ul>
+<p>This produces: SW1 pressed → HIGH, released → LOW.</p>
+
+<h3>Step 5 — Confirm the output lines</h3>
+<ul>
+  <li><strong>Blue</strong> = TempOut</li>
+  <li><strong>Green</strong> = SwitchOut</li>
+</ul>
+<p>Both run to the terminal block on the right.</p>
+
+<h3>Step 6 — Add link wires</h3>
+<ul>
+  <li>Blue → TempOut</li>
+  <li>Green → SwitchOut</li>
+  <li>Red → +V extension</li>
+  <li>Black → 0V extension</li>
+</ul>
+<p><strong>Rule:</strong> If the schematic joins two points but the stripboard does not, add a link wire.</p>
+<p><strong>Input Board Complete ✔</strong> — This board now outputs two logic-level signals to the process board.</p>
+$2
+    <div class="step">RT forms voltage divider with R1 → TempOut (blue).</div>
+    <div class="step">R2 + R3 form pull-up / pull-down for SwitchOut (green).</div>
+    <div class="step">Extend +V and 0V rails (red/black).</div>
   </div>
 </div>
 
-<!-- ===================== -->
-<!--     OUTPUT BOARD      -->
-<!-- ===================== -->
-<div id="output" class="board-panel">
-  <div class="board-img">💡 OUTPUT BOARD (555) IMAGE HERE  
-    <br><small>(Matches your “555 new.jpg” layout)</small>
-  </div>
+<!-- ================= PROCESS TAB ================= -->
+<div id="process" class="tab">
+  <h2>Process Board – 74HC08 AND Gate</h2>
+<p><strong>⭐ PROCESS BOARD — 74HC08 AND-Gate Logic Stage</strong><br>(Matches your Yenka schematic AND block and the stripboard in /mnt/data/IMG_0074.jpeg)</p>
+<p>This board takes the two inputs from the Input Board:</p>
+<ul>
+<li><strong>TempOut</strong> (blue wire)</li>
+<li><strong>SwitchOut</strong> (green wire)</li>
+</ul>
+<p>…and feeds them into one AND gate inside the 74HC08. The AND output then goes to the Output Board.</p>
+<div class="step-box">
+<h3>Step 1 — Identify all parts (Schematic → Stripboard)</h3>
+<p>From the Yenka schematic (IMG_0073.jpeg), the Process section contains:</p>
+<ul>
+<li><strong>IC2a (74HC08)</strong> — AND gate — middle of board with track-cut isolation</li>
+<li><strong>TempOut</strong> — blue link — input A</li>
+<li><strong>SwitchOut</strong> — green link — input B</li>
+<li><strong>+V</strong> — top red power rail</li>
+<li><strong>0V</strong> — bottom black rail</li>
+<li><strong>AND Output</strong> — yellow link — to Output Board</li>
+</ul>
+<p><strong>Why this matters:</strong> The AND output must only be HIGH when both inputs are HIGH.</p>
 
-  <div class="steps">
-    <h3>Build Steps</h3>
-    <div class="step">1. Insert NE555 with correct orientation.</div>
-    <div class="step">2. Add R1 (1 kΩ), R2 (10 kΩ), and C1 (100 μF).</div>
-    <div class="step">3. Connect LEDs with 680 Ω resistors.</div>
-    <div class="step">4. Bring power & trigger from the logic board via the terminal block.</div>
+<h3>Step 2 — Place the 74HC08 IC correctly</h3>
+<p>Your stripboard has no centre gap, so every pin must sit on an isolated track segment. Your image shows the correct red-X track cuts under every pin.</p>
+<p><strong>Orientation:</strong> Pin 1 at the notch/dot (top left when viewed overhead).</p>
+<pre>
+       _________
+  1A  | 1     14 | Vcc (+5 V)
+  1B  | 2     13 | 4A
+  1Y  | 3     12 | 4B
+  2A  | 4     11 | 4Y
+  2B  | 5     10 | 3A
+  2Y  | 6      9 | 3B
+ GND  | 7      8 | 3Y
+       ---------
+</pre>
+<p>You are using <strong>Gate 1 (1A, 1B → 1Y)</strong>, so you only need pins <strong>1, 2, 3</strong>.</p>
+
+<h3>Step 3 — Connect the power pins</h3>
+<ul>
+<li><strong>Pin 14 → +V</strong> (top red rail)</li>
+<li><strong>Pin 7 → 0V</strong> (bottom black rail)</li>
+</ul>
+<p>Check for no accidental copper continuity to other tracks.</p>
+
+<h3>Step 4 — Connect TempOut and SwitchOut</h3>
+<p>Your stripboard shows:</p>
+<ul>
+<li>Blue → <strong>pin 1</strong> (1A)</li>
+<li>Green → <strong>pin 2</strong> (1B)</li>
+</ul>
+<p>Each pin must touch only its link wire and its own isolated copper pad.</p>
+
+<h3>Step 5 — Route the AND gate output</h3>
+<p><strong>Pin 3</strong> is the output (1Y). Your yellow vertical link carries this to the right-hand terminal block → Output Board (555 trigger).</p>
+<p><strong>Correct behaviour:</strong> ANDout → enables 555 only when TempOut AND SwitchOut are TRUE.</p>
+
+<h3>Step 6 — Add required link wires</h3>
+<p>Your board uses colour-coded links:</p>
+<ul>
+<li><strong>Red</strong> → +V</li>
+<li><strong>Black</strong> → 0V</li>
+<li><strong>Blue</strong> → TempOut</li>
+<li><strong>Green</strong> → SwitchOut</li>
+<li><strong>Yellow</strong> → AND Output</li>
+</ul>
+<p>During soldering:</p>
+<ul>
+<li>Use short, neat wires</li>
+<li>Keep colour-coding consistent</li>
+<li>Check continuity for all isolated IC pins</li>
+</ul>
+<p><strong>Process Board Complete ✔</strong> — The AND gate now outputs a clean digital signal to drive the 555 Output Board.</p>
+</div>
+    <div class="step">TempOut (blue) → pin 1, SwitchOut (green) → pin 2.</div>
+    <div class="step">Pin 3 output (yellow) goes to Output Board.</div>
+    <div class="step">Pin 14 → +V, Pin 7 → 0V.</div>
   </div>
 </div>
 
-</main>
+<!-- ================= OUTPUT TAB ================= -->
+<div id="output" class="tab">
+  <h2>Output Board – 555 LED Flasher</h2>
+<p><strong>⭐ OUTPUT BOARD — 555 Astable LED Flasher</strong><br>(Matches Yenka schematic + your stripboard /mnt/data/IMG_0077.jpeg)</p>
+<p>This board turns the logic output from the Process board into alternating flashing LEDs using the NE555 in astable mode.</p>
+
+<div class="board-img">
+  <div class="caption">Output Board Stripboard Layout (555)</div>
+  <img src="/mnt/data/IMG_0077.jpeg" alt="Output stripboard">
+</div>
+
+<div class="step-box">
+<h3>Step 1 — Identify all parts (Schematic → Stripboard)</h3>
+<ul>
+  <li><strong>555</strong> — NE555 timer IC — creates HIGH/LOW pulses</li>
+  <li><strong>R4 (4.7 kΩ)</strong> — timing resistor 1 — controls charge rate</li>
+  <li><strong>R5 (10 kΩ)</strong> — timing resistor 2 — controls discharge path</li>
+  <li><strong>C1 (100 μF)</strong> — timing capacitor — charges & discharges to create flashing</li>
+  <li><strong>R6, R7, R8, R9 (270 Ω)</strong> — LED resistors</li>
+  <li><strong>RL1, RL2</strong> — red LEDs — LOW output state</li>
+  <li><strong>GL1, GL2</strong> — green LEDs — HIGH output state</li>
+  <li><strong>+V</strong> — red rail</li>
+  <li><strong>0V</strong> — black rail</li>
+</ul>
+<p>Your stripboard shows the 555 centered with red-X cuts under each pin and all resistors and LEDs placed exactly as drawn.</p>
+
+<h3>Step 2 — Place the 555 with correct track cuts</h3>
+<p>Your stripboard has no centre gap, so each pin must sit on an isolated copper pad. The red-X cuts provide this.</p>
+<ul>
+  <li><strong>Pin 1 (bottom left)</strong> → 0V</li>
+  <li><strong>Pin 8 (top right)</strong> → +V</li>
+  <li><strong>Pins 2 and 6 linked</strong> — timing node</li>
+</ul>
+<p>All your pin isolations and orientation are correct.</p>
+
+<h3>Step 3 — Connect the power rails</h3>
+<ul>
+  <li><strong>Pin 8 → +V</strong> (vertical black strip + yellow link)</li>
+  <li><strong>Pin 1 → 0V</strong> (vertical black link)</li>
+</ul>
+<p>Pins 4 and 8 are tied HIGH, keeping RESET active.</p>
+
+<h3>Step 4 — Build the timing network (R4, R5, C1)</h3>
+<ul>
+  <li><strong>R4:</strong> +V → Pin 7 (Discharge)</li>
+  <li><strong>R5:</strong> Pin 7 → Pins 2/6 (timing node)</li>
+  <li><strong>C1:</strong> + leg → Pins 2/6, – leg → 0V</li>
+</ul>
+<p>C1 sits bottom-centre; the purple node links R5 → C1 → pins 2/6.</p>
+<p><strong>Common mistake:</strong> Reversing C1 or putting its negative leg to +V stops oscillation.</p>
+
+<h3>Step 5 — Connect AND-gate Output (Trigger)</h3>
+<p>The yellow wire from the Process Board is the AND output. It must connect to <strong>Pin 2</strong> (trigger).</p>
+<ul>
+  <li>Yellow wire enters from left</li>
+  <li>Travels downward</li>
+  <li>Reaches timing node (pins 2/6)</li>
+</ul>
+<p>Correct: The flasher only runs when <em>both</em> inputs are TRUE.</p>
+
+<h3>Step 6 — Add the LED output section</h3>
+<p><strong>Green LEDs (HIGH output)</strong></p>
+<ul>
+  <li>Pin 3 → R8 → GL1 → 0V</li>
+  <li>Pin 3 → R9 → GL2 → 0V</li>
+</ul>
+<p>Pin 3 is fed by a blue link; LEDs are below resistors with negative legs to ground.</p>
+
+<p><strong>Red LEDs (LOW output)</strong></p>
+<ul>
+  <li>+V → R6 → RL1 → Pin 3</li>
+  <li>+V → R7 → RL2 → Pin 3</li>
+</ul>
+<p>Resistors sit above LEDs and feed from the +V rail.</p>
+<p><strong>Why they alternate:</strong> Green = HIGH, Red = LOW.</p>
+
+<h3>Step 7 — Final link wires</h3>
+<ul>
+  <li><strong>Blue</strong> → 555 output</li>
+  <li><strong>Yellow</strong> → AND input</li>
+  <li><strong>Purple</strong> → timing node</li>
+  <li><strong>Black</strong> → ground</li>
+  <li><strong>Yellow (right)</strong> → terminal block output</li>
+</ul>
+<p>Rule: If two schematic points connect but stripboard holes don’t, add a link.</p>
+
+<p><strong>⭐ Output Board Complete ✔</strong><br>Your astable is fully wired: power, timing, trigger input, LEDs, isolated pins, and final output to the system.</p>
+</div>
+</div>
+</div>
 
 <script>
-function switchBoard(id) {
-  document.querySelectorAll('.board-panel').forEach(p => p.classList.remove('active'));
+function switchTab(id, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-
-  document.querySelectorAll('.board-nav button').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  document.querySelectorAll('.tab-buttons button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
 }
 </script>
-
-</body>
