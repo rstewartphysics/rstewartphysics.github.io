@@ -1,6 +1,6 @@
---- 
+---
 layout: none
-title: 555 Astable Simulator
+title: Stripboard Builder
 ---
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,579 +9,423 @@ title: 555 Astable Simulator
 :root {
   --el-green: #00e6b3;
   --el-green-glow: rgba(0,255,200,0.55);
-  --el-red-glow: rgba(255,120,120,0.65);
   --el-bg1: #003c2e;
   --el-bg2: #005f47;
   --el-bg3: #052a1f;
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --tile-border: rgba(0,255,200,0.35);
   --tile-outline: rgba(0,255,200,0.15);
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 }
 
-/* Base */
+/* BASE PAGE */
 body {
+  margin: 0;
   background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
+  background-attachment: fixed;
   color: white;
   font-family: var(--font-stack);
-  margin: 0;
-  padding: 20px;
-  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  overflow-x: hidden;
 }
 
-h2, h3, summary {
-  text-shadow: 0 0 12px var(--el-green-glow);
+.page-wrap {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem;
 }
 
-/* Tinted intro box */
-.intro-box {
-  background: rgba(0,255,200,0.10);
-  border: 1px solid rgba(0,255,200,0.25);
-  padding: 10px 14px;
-  border-radius: 10px;
-  margin: 10px 0 18px 0;
-  font-size: 1rem;
+/* MENU SYSTEM (matches Higher + Simulator) */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 200;
+  transition: transform 0.2s ease;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+.menu-btn:hover,
+.menu-btn:focus {
+  transform: scale(1.1);
+  outline: none;
 }
 
-/* Buttons */
-button {
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 99;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed;
+  top: 0; right: -270px;
+  height: 100%; width: 270px;
+  background: rgba(15,23,42,0.92);
+  backdrop-filter: blur(12px) saturate(160%);
+  transition: right 0.3s ease;
+  z-index: 150;
+  padding-top: 4rem;
+  display: flex;
+  flex-direction: column;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  gap: 0.8rem;
+}
+.side-menu a:hover { background: rgba(255,255,255,0.12); }
+
+/* TABS */
+.tab-buttons {
+  display: flex; gap: 10px;
+  margin: 1rem 0; flex-wrap: wrap;
+}
+.tab-buttons button {
+  flex: 1; min-width: 160px;
   background: rgba(0,255,200,0.15);
   border: 2px solid var(--tile-border);
-  padding: 8px 14px;
-  color: white;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
-  backdrop-filter: blur(6px);
+  padding: 8px 14px; color:white;
+  border-radius: 12px; font-weight: 600;
+  cursor: pointer; transition: 0.2s;
 }
-button:hover { background: rgba(0,255,200,0.25); }
-
-/* Slider */
-input[type=range] {
-  width: 100%;
-  accent-color: var(--el-green);
-  margin-bottom: 12px;
+.tab-buttons button.active {
+  background: var(--el-green);
+  color: black;
 }
+.tab { display: none; }
+.tab.active { display: block; }
 
-/* LEDs */
-.led {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--tile-border);
-  outline: 2px solid var(--tile-outline);
-  transition: 0.15s ease;
-}
-
-/* Canvas */
-canvas {
-  width: 100%;
+/* IMAGES */
+.board-img {
+  max-width: 600px;
+  margin: 1.5rem auto;
   border: 2px solid var(--tile-border);
   outline: 2px solid var(--tile-outline);
   border-radius: 14px;
-  background: black;
-  margin-bottom: 15px;
+  background: rgba(255,255,255,0.06);
+  padding: 10px;
 }
-
-/* Divider */
-hr {
-  border: none;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(0,255,200,0.45), transparent);
-  margin: 30px 0;
+.board-img img {
+  width: 100%; border-radius: 10px;
 }
-
-/* Collapsible Sections */
-details {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 18px;
+.caption {
+  text-align: center;
+  font-size: 0.9rem; opacity: 0.75;
+  margin-bottom: 6px;
 }
-summary {
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-summary:hover { opacity: 0.85; }
 </style>
 
+<!-- MENU BUTTON -->
+<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
 
-<div style="max-width:900px;margin:auto;">
+<!-- SIDEMENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/science">🧪 Science</a>
+  <a href="/physics">⚡ Physics</a>
+  <a href="/electronics">💡 Electronics</a>
+  <a href="/engineering">🧰 Engineering</a>
+</nav>
 
-<!-- TITLE -->
-<h2 style="text-align:center;">555 Astable Simulator</h2>
+<!-- CONTENT -->
+<main class="page-wrap">
 
+<h1 style="text-align:center;text-shadow:0 0 12px var(--el-green-glow);">
+  Stripboard Builder – Interactive Guide
+</h1>
 
-<!-- ============================= -->
-<!-- LEARNING GOALS -->
-<!-- ============================= -->
-<h2>Learning Goals</h2>
+<!-- TAB BUTTONS -->
+<div class="tab-buttons">
+  <button class="active" onclick="switchTab('overview', this)">Overview</button>
+  <button onclick="switchTab('input', this)">Input</button>
+  <button onclick="switchTab('process', this)">Process</button>
+  <button onclick="switchTab('output', this)">Output</button>
+</div>
 
-<p class="intro-box">
-These goals show what you should be able to explain, simulate, and build by the end.  
-They support both practical electronics work and National 5-level answers.
+<!-- ========== OVERVIEW ========== -->
+<div id="overview" class="tab active">
+  <h2>System Overview</h2>
+  <p class="intro-box">
+    These three stripboards form the complete logic chain: Input → Process → Output.
+  </p>
+
+  <div class="board-img">
+    <div class="caption">Yenka – Full System</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg">
+  </div>
+
+  <div class="board-img">
+    <div class="caption">Input Board</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockinput.jpeg">
+  </div>
+
+  <div class="board-img">
+    <div class="caption">Process Board</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockprocess.jpeg">
+  </div>
+
+  <div class="board-img">
+    <div class="caption">Output Board</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockoutput.jpeg">
+  </div>
+  <p class="intro-box">
+  This system uses three linked boards to sense inputs, make logic decisions,  
+  and control the output flasher. Each board does one job:
 </p>
 
 <ul>
-  <li>Understand how R1, R2 and C1 set the flash rate</li>
-  <li>Explain why LEDs flash alternately</li>
-  <li>Relate the capacitor voltage curve to LED behaviour</li>
-  <li>Read and link a stripboard layout to a circuit diagram</li>
-  <li>Calculate Tm, Ts, T, f and duty cycle</li>
+  <li><strong>Input Board:</strong> Creates two clean logic signals (TempOut and SwitchOut).</li>
+  <li><strong>Process Board:</strong> Uses a 74HC08 AND gate to check both signals.</li>
+  <li><strong>Output Board:</strong> Runs a 555 LED flasher only when the AND condition is TRUE.</li>
 </ul>
 
-<hr>
-
-
-<!-- ============================= -->
-<!-- HOW THE ASTABLE WORKS -->
-<!-- ============================= -->
-<h2>How the 555 Astable Works</h2>
-
 <p class="intro-box">
-This section explains the core idea behind the 555 astable circuit.  
-Important misconception: <strong>The capacitor does NOT fully charge or fully discharge.</strong>  
-It only moves between 1/3 and 2/3 of the supply voltage.
+  <strong>Key idea:</strong>  
+  The boards look different from the Yenka schematic layout, but the <em>connections</em> are identical.  
+  Follow the labelled signals (blue, green, yellow) across all three boards.
 </p>
 
-<details>
-  <summary>📘 Click to expand explanation</summary>
-  <p>The capacitor charges through R1 and R2 until it reaches 2/3 of the supply voltage.  
-  The 555 then switches LOW and the capacitor discharges through only R2 until it drops below 1/3.  
-  This loop repeats forever, creating a continuous square wave.</p>
-</details>
+</div>
 
-<hr>
+<!-- ========== INPUT TAB ========== -->
+<div id="input" class="tab">
+  <h2>Input Board</h2>
 
+  <div class="board-img">
+    <div class="caption">Yenka – Input Section</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg">
+  </div>
+  <div class="board-img">
+    <div class="caption">Input Stripboard</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockinput.jpeg">
+  </div>
 
-<!-- ============================= -->
-<!-- TRY THIS -->
-<!-- ============================= -->
-<h2>Try This!</h2>
-
+ <h3>⭐ Part 1 — What the Input Board Does</h3>
 <p class="intro-box">
-These challenges help you explore how resistor and capacitor values control the timing.  
-Misconception to avoid: <strong>R1 does NOT affect discharge time — only R2 does.</strong>
+  The Input board creates two logic signals:  
+  <strong>TempOut</strong> (blue wire) and <strong>SwitchOut</strong> (green wire).  
+  These go to the AND gate on the Process board.
 </p>
 
+<h3>1 — Identify all components</h3>
 <ul>
-  <li>Find component values that give exactly 1 Hz.</li>
-  <li>Make the LED on-time equal to the off-time.</li>
-  <li>Increase only C1 — what changes?</li>
-  <li>Make the flashing as fast as possible.</li>
-  <li>Which resistor controls the discharge time?</li>
+  <li><strong>RT</strong> — Thermistor (temperature sensor)</li>
+  <li><strong>R1</strong> — 4.7 kΩ pulldown (TempOut divider)</li>
+  <li><strong>R2</strong> — 10 kΩ pull-up (SwitchOut divider)</li>
+  <li><strong>R3</strong> — 10 kΩ pulldown (SwitchOut divider)</li>
+  <li><strong>SW1</strong> — Switch input</li>
+  <li><strong>+V rail</strong> — top copper strip</li>
+  <li><strong>0V rail</strong> — bottom copper strip</li>
 </ul>
 
-<hr>
+<h3>2 — Thermistor voltage divider (TempOut)</h3>
+<p>RT is connected between +V and TempOut.  
+R1 is connected between TempOut and 0V.</p>
+<p><strong>Meaning:</strong> High temperature → RT decreases → TempOut voltage increases.</p>
 
+<h3>3 — Switch voltage divider (SwitchOut)</h3>
+<ul>
+  <li><strong>R2</strong> pulls the line HIGH</li>
+  <li><strong>R3</strong> pulls the line LOW</li>
+  <li><strong>SW1</strong> connects the centre pin to the SwitchOut node</li>
+</ul>
+<p>SW pressed = HIGH.  
+SW released = LOW.</p>
 
-<!-- ============================= -->
-<!-- LED OUTPUT -->
-<!-- ============================= -->
-<h2>LED Output</h2>
+<h3>4 — Output lines to Process board</h3>
+<ul>
+  <li><span style="color:#4cf;">Blue</span> → TempOut</li>
+  <li><span style="color:#6f6;">Green</span> → SwitchOut</li>
+</ul>
 
+<h3>5 — Link wires</h3>
+<p>These join points that are connected in the schematic but not on the stripboard tracks:</p>
+<ul>
+  <li>Red → +V extensions</li>
+  <li>Black → Ground rails</li>
+  <li>Blue → TempOut</li>
+  <li>Green → SwitchOut</li>
+</ul>
+
+<p class="intro-box"><strong>Input Board Complete ✔</strong>  
+You now have two clean logic inputs feeding the AND gate.</p>
+
+</div>
+
+<!-- ========== PROCESS TAB ========== -->
+<div id="process" class="tab">
+  <h2>Process Board – AND Gate</h2>
+
+  <div class="board-img">
+    <div class="caption">Yenka – AND Gate Section</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg">
+  </div>
+  <div class="board-img">
+    <div class="caption">Process Stripboard</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockprocess.jpeg">
+  </div>
+<h3>⭐ Part 2 — What the Process Board Does</h3>
 <p class="intro-box">
-These LEDs show the output behaviour of the 555.  
-When OUTPUT = HIGH → green LED glows.  
-When OUTPUT = LOW → red LED glows.  
-This matches the real physical circuit.
+  The Process board contains a <strong>74HC08 AND gate</strong>.  
+  It outputs HIGH only when <em>both</em> TempOut and SwitchOut are HIGH.
 </p>
 
-<div style="display:flex;justify-content:center;gap:60px;margin:10px 0;">
-  <div style="text-align:center;">
-    <div id="led-red" class="led" style="background:#200;"></div>
-    <small>Red LED<br>(pin 3 → GND)</small>
+<h3>1 — Identify the parts</h3>
+<ul>
+  <li><strong>74HC08 IC</strong> — contains four AND gates</li>
+  <li>Using <strong>Gate 1</strong>: pins 1 (A), 2 (B), 3 (Y)</li>
+  <li><strong>Pin 14 → +V</strong>, <strong>Pin 7 → 0V</strong></li>
+  <li><span style="color:#4cf;">Blue</span> wire → TempOut → pin 1</li>
+  <li><span style="color:#6f6;">Green</span> wire → SwitchOut → pin 2</li>
+  <li><span style="color:#ff0;">Yellow</span> wire → AND output → Output board</li>
+</ul>
+
+<h3>2 — IC orientation and track cuts</h3>
+<p>The stripboard has no centre gap, so each IC pin sits on its own isolated copper pad.  
+Track cuts (red Xs in photo) prevent unwanted joins.</p>
+
+<h3>3 — Power rails</h3>
+<ul>
+  <li><strong>Pin 14 → +V</strong> (top red rail)</li>
+  <li><strong>Pin 7 → 0V</strong> (bottom black rail)</li>
+</ul>
+
+<h3>4 — Inputs from the Input board</h3>
+<ul>
+  <li>TempOut → pin 1</li>
+  <li>SwitchOut → pin 2</li>
+</ul>
+
+<h3>5 — AND output wiring</h3>
+<ul>
+  <li>Pin 3 is the AND output</li>
+  <li>This is taken by a yellow link wire to the Output board</li>
+</ul>
+<p><strong>Logic rule:</strong> 1 AND 1 = 1 → enables the 555 flasher.</p>
+
+<h3>6 — Link wire summary</h3>
+<ul>
+  <li>Red = +V</li>
+  <li>Black = 0V</li>
+  <li>Blue = TempOut</li>
+  <li>Green = SwitchOut</li>
+  <li>Yellow = AND output</li>
+</ul>
+
+<p class="intro-box"><strong>Process Board Complete ✔</strong>  
+The AND output now controls the 555 flasher.</p>
+
+</div>
+
+<!-- ========== OUTPUT TAB ========== -->
+<div id="output" class="tab">
+  <h2>Output Board – 555 LED Flasher</h2>
+
+  <div class="board-img">
+    <div class="caption">Yenka – Output Section</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockyeanka.jpeg">
+  </div>
+  <div class="board-img">
+    <div class="caption">Output Stripboard</div>
+    <img src="https://rstewartphysics.github.io/assets/electronics/stripboard/mockoutput.jpeg">
   </div>
 
-  <div style="text-align:center;">
-    <div id="led-green" class="led" style="background:#020;"></div>
-    <small>Green LED<br>(Vsupply → pin 3)</small>
-  </div>
-</div>
-
-<h3 id="charge-bar" style="text-align:center;">Output State: —</h3>
-
-<hr>
-
-
-<!-- ============================= -->
-<!-- PRESETS -->
-<h2>Presets</h2>
-
-<div style="display:flex;flex-wrap:wrap;gap:10px;">
-  <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
-  <button onclick="applyPreset(1,220,3)">3 Hz Flash</button>
-  <button onclick="applyPreset(1,68,1)">10 Hz Flash</button>
-  <button onclick="applyPreset(1,150,10)">Equal On/Off</button>
-  <button onclick="applyPreset(1,470,10)">0.5 Hz Slow</button>
-</div>
-
-<hr>
-
-
-<!-- ============================= -->
-<!-- ADJUSTABLE VALUES -->
-<!-- ============================= -->
-<h2>Adjust Component Values</h2>
-
+<h3>⭐ Part 3 — What the Output Board Does</h3>
 <p class="intro-box">
-Move the sliders to change R1, R2 and C1.  
-This immediately updates the LED flashing pattern and the calculated frequency.
+  The Output board contains a <strong>555 astable flasher</strong>.  
+  It only runs when the AND gate output is HIGH.
 </p>
 
-<label>R1 (kΩ): <span id="r1-label">1</span></label>
-<input id="r1" type="range" min="1" max="100" value="1" oninput="updateSim()">
+<h3>1 — Identify all parts</h3>
+<ul>
+  <li><strong>555 IC</strong> — creates square wave output</li>
+  <li><strong>R4</strong> — timing resistor 1</li>
+  <li><strong>R5</strong> — timing resistor 2</li>
+  <li><strong>C1</strong> — timing capacitor</li>
+  <li><strong>Red LEDs</strong> — LOW output indicator</li>
+  <li><strong>Green LEDs</strong> — HIGH output indicator</li>
+</ul>
 
-<label>R2 (kΩ): <span id="r2-label">68</span></label>
-<input id="r2" type="range" min="1" max="500" value="68" oninput="updateSim()">
+<h3>2 — Pin connections</h3>
+<ul>
+  <li><strong>Pin 1 → 0V</strong></li>
+  <li><strong>Pin 8 → +V</strong></li>
+  <li><strong>Pins 2 and 6 linked</strong> — timing node</li>
+  <li><strong>Pin 3</strong> — output to LEDs</li>
+</ul>
 
-<label>C1 (µF): <span id="c1-label">10</span></label>
-<input id="c1" type="range" min="1" max="200" value="10" oninput="updateSim()">
+<h3>3 — Timing network</h3>
+<ul>
+  <li>R4: +V → pin 7</li>
+  <li>R5: pin 7 → timing node (pins 2/6)</li>
+  <li>C1: timing node → 0V</li>
+</ul>
+<p><strong>Note:</strong> Reversing C1 stops the oscillator.</p>
 
-<hr>
+<h3>4 — LEDs</h3>
+<p><strong>Green LEDs (HIGH output)</strong></p>
+<ul>
+  <li>Pin 3 → resistor → LED → 0V</li>
+</ul>
 
+<p><strong>Red LEDs (LOW output)</strong></p>
+<ul>
+  <li>+V → resistor → LED → Pin 3</li>
+</ul>
+<p>Opposite direction = opposite behaviour → they flash alternately.</p>
 
-<!-- ============================= -->
-<!-- CIRCUIT + STRIPBOARD IMAGE -->
-<!-- ============================= -->
-<h2>Circuit Diagram & Stripboard Layout</h2>
+<h3>5 — AND gate trigger input</h3>
+<p>The <span style="color:#ff0;">yellow</span> wire from the Process board goes into pin 2.  
+This means the flasher only runs when TempOut AND SwitchOut are both TRUE.</p>
 
-<p class="intro-box">
-This picture shows the schematic (right) and the equivalent stripboard layout (left).  
-They look different, but <strong>every electrical connection is identical.</strong>
-</p>
+<h3>6 — Link wires</h3>
+<ul>
+  <li>Red = +V</li>
+  <li>Black = 0V</li>
+  <li>Yellow = AND trigger</li>
+  <li>Blue = 555 output</li>
+  <li>Purple = timing node</li>
+</ul>
 
-<img src="/assets/electronics/555new.jpg"
-     alt="555 Stripboard and Circuit Diagram"
-     style="width:100%;border:2px solid var(--tile-border);border-radius:12px;">
-
-<hr>
-
-
-<!-- ============================= -->
-<!-- SPOT THE DIFFERENCE -->
-<!-- ============================= -->
-<details>
-  <summary>🔍 Spot the Difference: Schematic vs Stripboard</summary>
-
-  <h3>🟦 1. Shape Differences</h3>
-  <p>The schematic shows a neat, logical layout.  
-  The stripboard follows the copper strips, so parts shift sideways or downwards to fit the board.</p>
-
-  <h3>🟥 2. 555 Chip Placement</h3>
-  <p>The stripboard has <strong>continuous copper strips</strong> (no centre gap).  
-  This means <strong>track cuts must be made under specific pins</strong> so they don’t join together.  
-  These cuts are shown as the <strong>red X markings</strong> under the IC.</p>
-
-  <p><strong>Important:</strong> The chip still keeps the same pin numbering (pin 1 at the notch).  
-  The physical position changes, but the electrical connections do not.</p>
-
-  <h3>🟧 3. R1 and R2 Positions</h3>
-  <p>On the schematic they are vertical.  
-  On the stripboard they are placed horizontally and further apart — but still connect:</p>
-  <ul>
-    <li><strong>R1</strong>: pin 8 → pin 7</li>
-    <li><strong>R2</strong>: pin 7 → pins 6/2</li>
-  </ul>
-
-  <h3>🟩 4. Capacitor Position (C1)</h3>
-  <p>C1 sits far lower on the stripboard, but still connects the same node:</p>
-  <ul>
-    <li>Top leg → linked pins 2 & 6</li>
-    <li>Bottom leg → 0 V rail</li>
-  </ul>
-  <p>The long yellow link wire brings the 2/6 node down to the capacitor.</p>
-
-  <h3>🟪 5. LED Positions</h3>
-  <p>The LEDs are moved to the right-hand side of the board.  
-  They still connect correctly:</p>
-  <ul>
-    <li><strong>Green LED:</strong> pin 3 → resistor → 0 V</li>
-    <li><strong>Red LED:</strong> +9 V → resistor → pin 3</li>
-  </ul>
-  <p>The vertical yellow and black link wires create these paths.</p>
-
-  <h3>🟫 6. Power Rails</h3>
-  <p>Unlike the schematic’s symbolic rails, the stripboard uses long copper strips:</p>
-  <ul>
-    <li><strong>Top red strip:</strong> +9 V</li>
-    <li><strong>Bottom black strip:</strong> 0 V</li>
-  </ul>
-
-  <h3>🟨 7. Link Wires</h3>
-  <p>The schematic hides many connections because wires aren’t shown unless needed.  
-  On stripboard, link wires are required to join separate strips together.  
-  In the photo:</p>
-  <ul>
-    <li><strong>Yellow links</strong> join the timing nodes</li>
-    <li><strong>Blue link</strong> joins pin 7 to R2</li>
-    <li><strong>Black/red links</strong> extend power rails down the board</li>
-  </ul>
-
-  <p><strong>Key idea:</strong>  
-  The stripboard layout looks different, but every electrical <em>connection</em> is identical to the schematic.  
-  Follow the pin numbers, not the physical positions.</p>
-
-</details>
-
-
-<hr>
-
-
-<!-- ============================= -->
-<!-- 🎓 STUDENT-FRIENDLY EXPLANATION (UPDATED) -->
-<!-- ============================= -->
-<details>
-  <summary>🎓 Student-Friendly Explanation</summary>
-
-  <p>This circuit uses a 555 timer to make two LEDs flash one after the other.  
-  The 555 is running in <strong>astable mode</strong>, which means it never stays in one state — it keeps switching continuously.</p>
-
-  <h3>🌟 What the circuit is doing</h3>
-
-  <p><strong>1. The capacitor keeps charging and discharging.</strong><br>
-  Its voltage rises up to about <strong>⅔ of the supply</strong> and falls down to about <strong>⅓ of the supply</strong>.  
-  It never charges all the way to 9 V — this is a common misconception.</p>
-
-  <p><strong>2. R1 and R2 control how long each part of the cycle lasts.</strong><br>
-  • Bigger resistors = slower cycle (longer flashes)<br>
-  • Smaller resistors = faster cycle (shorter flashes)</p>
-
-  <p><strong>3. The 555 output switches HIGH and LOW based on capacitor voltage.</strong><br>
-  • HIGH → the green LED lights (current flows from pin 3 down to 0 V).<br>
-  • LOW → the red LED lights (current flows from +9 V down to pin 3).</p>
-
-  <p><strong>4. The two 680 Ω resistors protect the LEDs</strong>  
-  by limiting current so the LEDs do not burn out.</p>
-
-  <h3>🔁 Summary of the repeating cycle</h3>
-  <p>Charge → Output HIGH (green on) →  
-     Discharge → Output LOW (red on) →  
-     and the cycle repeats forever.</p>
-
-</details>
-
-
-<hr>
-
-
-<!-- ============================= -->
-<!-- 🛠️ STRIPBOARD BUILD GUIDE (UPDATED) -->
-<!-- ============================= -->
-<details>
-  <summary>🛠️ Stripboard Build Guide</summary>
-
-  <h3>Step 1 — Identify all parts</h3>
-  <p>Before placing anything, make sure you can point to each part on BOTH the schematic and the stripboard photo:</p>
-  <ul>
-    <li>555 IC (8-pin)</li>
-    <li>R1 and R2 (timing resistors)</li>
-    <li>C1 (timing capacitor, electrolytic)</li>
-    <li>Green LED + 680 Ω resistor (output HIGH)</li>
-    <li>Red LED + 680 Ω resistor (output LOW)</li>
-    <li>+9 V rail (red line)</li>
-    <li>0 V rail (black line)</li>
-    <li>Track cuts under pins (shown as red X symbols)</li>
-  </ul>
-  <p><strong>Important:</strong> The stripboard layout looks different, but the connections must match the schematic exactly.</p>
-
-  <h3>Step 2 — Place the 555 (with correct track cuts)</h3>
-  <p>The stripboard in the photo uses <strong>continuous copper strips</strong> with <strong>no centre gap</strong>.  
-  Therefore: <strong>track cuts must be made under the pins instead of using a centre gap.</strong></p>
-
-  <ul>
-    <li>Cut the copper tracks under each pin shown with a red X</li>
-    <li>The notch or dot marks <strong>pin 1</strong> (bottom-left in the photo)</li>
-    <li>Pins 1–4 run down one side, pins 5–8 run down the other</li>
-    <li>Each pin must be isolated on its own section of track</li>
-  </ul>
-
-  <h3>Step 3 — Set up the power rails</h3>
-  <ul>
-    <li><strong>Red strip</strong> = +9 V</li>
-    <li><strong>Black strip</strong> = 0 V (ground)</li>
-    <li>Both rails run horizontally across the whole board</li>
-  </ul>
-  <p>Check with a continuity tester before connecting parts.</p>
-
-  <h3>Step 4 — Fit the timing resistors R1 and R2</h3>
-  <p>They must match the schematic pin connections:</p>
-  <ul>
-    <li><strong>R1:</strong> pin 8 → pin 7</li>
-    <li><strong>R2:</strong> pin 7 → pins 6/2</li>
-  </ul>
-  <p>Pins <strong>2 and 6</strong> must be linked — they form the timing node.</p>
-
-  <h3>Step 5 — Add C1 (electrolytic capacitor)</h3>
-  <p>C1 connects between:</p>
-  <ul>
-    <li>Linked pins 2/6 (positive leg)</li>
-    <li>0 V rail (negative leg)</li>
-  </ul>
-  <p><strong>Common error:</strong> Reversing the capacitor or connecting it to +9 V.</p>
-
-  <h3>Step 6 — Add the LEDs + their 680 Ω resistors</h3>
-  <p><strong>Green LED (ON when output is HIGH)</strong></p>
-  <ul>
-    <li>Pin 3 → 680 Ω → 0 V</li>
-  </ul>
-  <p><strong>Red LED (ON when output is LOW)</strong></p>
-  <ul>
-    <li>+9 V → 680 Ω → pin 3</li>
-  </ul>
-  <p>This opposite direction is why one lights on HIGH and the other on LOW.</p>
-
-  <h3>Step 7 — Add the link wires</h3>
-  <p>Add short wires wherever the schematic shows a connection but the stripboard does not naturally join those points:</p>
-  <ul>
-    <li>Yellow links = timing node connections</li>
-    <li>Blue links = LED paths</li>
-    <li>Red / black = extensions of the power rails</li>
-  </ul>
-
-  <h3>Final Reminder</h3>
-  <p><strong>The layout in the photo looks different from the schematic,  
-  but every electrical connection must match exactly.</strong><br>
-  If something doesn’t work: check the track cuts, check pin numbers, then check LED polarity.</p>
-
-</details>
-
-
-<hr>
-
-
-<!-- ============================= -->
-<!-- WAVEFORMS + VALUES -->
-<!-- ============================= -->
-<h2>Waveforms</h2>
-
-<p class="intro-box">
-These graphs show the two key signals in a 555 astable:  
-the square wave output and the charging/discharging capacitor curve.
-</p>
-
-<p><strong>Output Square Wave</strong></p>
-<canvas id="waveform" height="150"></canvas>
-
-<p><strong>Capacitor Voltage Curve</strong></p>
-<canvas id="cap-curve" height="150"></canvas>
-
-<hr>
-
-<h2>Calculated Values</h2>
-<p><strong>Period T:</strong> <span id="val-T">—</span> s</p>
-<p><strong>Frequency f:</strong> <span id="val-f">—</span> Hz</p>
-<p><strong>Mark Time Tm:</strong> <span id="val-Tm">—</span> s</p>
-<p><strong>Space Time Ts:</strong> <span id="val-Ts">—</span> s</p>
-<p><strong>Duty Cycle:</strong> <span id="val-duty">—</span>%</p>
+<p class="intro-box"><strong>Output Board Complete ✔</strong>  
+Your full system is now functional — sense → logic → flashing output.</p>
 
 </div>
 
+</main>
 
-<!-- ============================= -->
-<!-- JAVASCRIPT -->
-<!-- ============================= -->
 <script>
-const el = id => document.getElementById(id);
-
-let T = 1, Tm = 0.5, Ts = 0.5;
-let simTime = 0;
-let wave, cap;
-
-/* INIT */
-window.addEventListener("load", () => {
-  wave = el("waveform").getContext("2d");
-  cap  = el("cap-curve").getContext("2d");
-
-  el("waveform").width = el("waveform").clientWidth;
-  el("cap-curve").width = el("cap-curve").clientWidth;
-
-  updateSim();
-  requestAnimationFrame(animate);
+function toggleMenu(){
+  const menu=document.getElementById('sideMenu');
+  const overlay=document.getElementById('menuOverlay');
+  menu.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
 });
-
-function applyPreset(R1, R2, C1){
-  el("r1").value = R1;
-  el("r2").value = R2;
-  el("c1").value = C1;
-  updateSim();
-}
-
-function updateSim(){
-  const R1 = parseFloat(el("r1").value)*1000;
-  const R2 = parseFloat(el("r2").value)*1000;
-  const C1 = parseFloat(el("c1").value)/1e6;
-
-  el("r1-label").innerText = (R1/1000).toFixed(0);
-  el("r2-label").innerText = (R2/1000).toFixed(0);
-  el("c1-label").innerText = (C1*1e6).toFixed(0);
-
-  Tm = 0.7*(R1+R2)*C1;
-  Ts = 0.7*(R2)*C1;
-  T = Tm + Ts;
-
-  el("val-T").innerText = T.toFixed(3);
-  el("val-f").innerText = (1/T).toFixed(2);
-  el("val-Tm").innerText = Tm.toFixed(3);
-  el("val-Ts").innerText = Ts.toFixed(3);
-  el("val-duty").innerText = ((Tm/T)*100).toFixed(1);
-}
-
-function animate(){
-  requestAnimationFrame(animate);
-  simTime += 0.01;
-  const t = simTime % T;
-  
-  const outputHigh = (t < Tm);
-  const red = el("led-red");
-  const green = el("led-green");
-  const bar = el("charge-bar");
-
-  if(outputHigh){
-    green.style.background = "rgb(0,255,160)";
-    red.style.background = "#200";
-    bar.innerText = "Output State: HIGH (charging)";
-    bar.style.color = "#00ffcc";
-  } else {
-    red.style.background = "rgb(255,80,80)";
-    green.style.background = "#020";
-    bar.innerText = "Output State: LOW (discharging)";
-    bar.style.color = "#ff8080";
-  }
-
-  /* Waveform */
-  const W = wave.canvas.width;
-  const H = wave.canvas.height;
-  wave.fillStyle = "black";
-  wave.fillRect(0,0,W,H);
-  wave.strokeStyle = "#00ff99";
-  wave.beginPath();
-
-  for(let x=0;x<W;x++){
-    let tau = (simTime - (W-x)/W*T*2)%T;
-    wave.lineTo(x, tau < Tm ? 30 : H-30);
-  }
-  wave.stroke();
-
-  /* Capacitor */
-  const CW = cap.canvas.width;
-  const CH = cap.canvas.height;
-  cap.fillStyle = "black";
-  cap.fillRect(0,0,CW,CH);
-  cap.strokeStyle = "#00baff";
-  cap.beginPath();
-
-  for(let x=0;x<CW;x++){
-    let tau = (simTime - (CW-x)/CW*T*2)%T;
-    let v = tau < Tm
-      ? 1/3 + (tau/Tm)*(1/3)
-      : 2/3 - ((tau-Tm)/Ts)*(1/3);
-
-    cap.lineTo(x, (CH - 10) - v*(CH - 20));
-  }
-  cap.stroke();
+function switchTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab-buttons button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
 }
 </script>
-c
