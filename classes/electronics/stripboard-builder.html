@@ -784,6 +784,10 @@ details[open] summary::after {
 
 <!-- =========================== QUIZ TAB =========================== -->
 <div id="quiz" class="tab">
+<!-- SCORE COUNTER -->
+<div id="quiz-score-box" class="intro-box" style="text-align:center; font-size:1.2rem; font-weight:700;">
+  Score: <span id="quiz-score">0</span> / 20
+</div>
 
   <h2>Final Quiz – Check Your Learning</h2>
   <div class="subtitle">Multiple-choice quiz with auto-marking</div>
@@ -1048,6 +1052,19 @@ details[open] summary::after {
     <p class="quiz-feedback"></p>
   </form>
 </details>
+<div id="quizScore" style="
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  background: rgba(0,255,200,0.12);
+  border: 1px solid rgba(0,255,200,0.3);
+  border-radius: 12px;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(0,255,200,0.6);
+">
+  Score: 0
+</div>
 
   </div>
 </div>
@@ -1075,28 +1092,54 @@ function switchTab(id,btn){
   document.querySelectorAll('.tab-buttons button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
+// ===== SCORE SYSTEM =====
+let quizScore = 0;
+
+// Track which questions have already been correctly answered
+const answeredCorrectly = new Set();
+
 // Auto-marking quiz system
 document.querySelectorAll('.quiz-check').forEach(button => {
   button.addEventListener('click', () => {
     const form = button.closest('.quiz-question');
+    const qName = form.querySelector('input[type="radio"]').name; // e.g., "q1"
     const correct = form.dataset.answer;
     const selected = form.querySelector('input[type="radio"]:checked');
     const feedback = form.querySelector('.quiz-feedback');
 
+    // No option chosen
     if (!selected) {
       feedback.textContent = "❗ Choose an answer first.";
       feedback.style.color = "#ff6666";
       return;
     }
 
+    // Correct answer
     if (selected.value === correct) {
       feedback.textContent = "✅ Correct!";
       feedback.style.color = "#66ffb3";
+
+      // Only add to score ONCE per question
+      if (!answeredCorrectly.has(qName)) {
+        quizScore++;
+        answeredCorrectly.add(qName);
+        updateScoreDisplay();
+      }
+
     } else {
       feedback.textContent = "❌ Not quite. Try again!";
       feedback.style.color = "#ff6666";
     }
   });
 });
+
+// ===== Display score (optional — add an element with id="quizScore" somewhere) =====
+function updateScoreDisplay() {
+  const box = document.getElementById('quizScore');
+  if (box) {
+    box.textContent = `Score: ${quizScore}`;
+  }
+}
+
 
 </script>
