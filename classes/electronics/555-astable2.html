@@ -1,4 +1,3 @@
----
 layout: none
 title: 555 Astable Simulator
 ---
@@ -539,93 +538,129 @@ canvas {
   <!-- STEP 1 -->
   <details>
     <summary>🧭 Step 1 — Place the 555 and mark pin 1</summary>
-    <p>Find the <strong>notch</strong> or <strong>dot</strong> on the 555 chip.  
-    This marks <strong>pin 1</strong>.</p>
+
+    <p>The 555 has a notch or a dot marking <strong>pin 1</strong>.  
+       Make sure this is at the top-left of the chip.</p>
+
+    <pre style="background:#001c14;padding:12px;border-radius:8px;">
+     Notch ↑
+      ___
+     |   |   ← 555 IC
+ 1 • |   | • 8
+ 2 • |   | • 7
+ 3 • |   | • 6
+ 4 • |___| • 5
+
+Pin numbers go counter-clockwise.
+    </pre>
 
     <ul>
-      <li>Pin 1 must go to 0V</li>
-      <li>Pin 8 must go to +V</li>
-      <li>Place the chip so each pin sits on its own copper strip</li>
+      <li>Pin 1 → 0V</li>
+      <li>Pin 8 → +V</li>
+      <li>Each pin must sit on its own copper strip</li>
     </ul>
 
-    <div class="board-img">
-      <div class="caption">555 orientation diagram</div>
-      <img src="/assets/electronics/555/pin1.png">
-    </div>
-
-    <p class="intro-box"><strong>Common error:</strong> chip rotated 180°.  
-    If pins 1 and 8 are not where you expect, STOP and rotate.</p>
+    <p class="intro-box"><strong>Common error:</strong> rotating the chip 180°.  
+    Always check pins 1 and 8.</p>
   </details>
 
   <!-- STEP 2 -->
   <details>
     <summary>🔌 Step 2 — Add the power rails (+V and 0V)</summary>
-    <p>Use the standard colour coding:</p>
+
+    <p>Use standard colour coding:</p>
     <ul>
       <li><strong style="color:#f55;">Red = +V</strong></li>
       <li><strong style="color:#ccc;">Black = 0V</strong></li>
     </ul>
 
-    <p>Run these neatly along the top and bottom strips of the board.</p>
+    <pre style="background:#001c14;padding:12px;border-radius:8px;">
+Top of board:
++V  ───────────────────────────────
 
-    <p class="intro-box">Make sure +V connects to pin 8 and 0V to pin 1.</p>
+Bottom of board:
+0V  ───────────────────────────────
+    </pre>
+
+    <p class="intro-box">
+      +V must reach pin 8.  
+      0V must reach pin 1.
+    </p>
   </details>
 
   <!-- STEP 3 -->
   <details>
     <summary>⏱ Step 3 — Build the timing network (R4, R5, C1)</summary>
 
-    <h3>Connections:</h3>
+    <h3>Connections</h3>
     <ul>
-      <li>R4 → from +V to pin 7</li>
-      <li>R5 → from pin 7 to timing node (pins 2 and 6)</li>
-      <li>C1 → from timing node to 0V</li>
+      <li>R4 → +V → pin 7</li>
+      <li>R5 → pin 7 → timing node (pins 2 & 6)</li>
+      <li>C1 → timing node → 0V</li>
     </ul>
 
-    <div class="board-img">
-      <div class="caption">Timing network layout</div>
-      <img src="/assets/electronics/555/timing.png">
-    </div>
+    <pre style="background:#001c14;padding:12px;border-radius:8px;">
+      +V
+       │
+      [R4]
+       │
+      Pin 7 ─────[R5]─────┐
+                          │
+                      Pins 2 & 6
+                          │
+                         [C1]
+                          │
+                         0V
+    </pre>
 
     <p class="intro-box"><strong>Polarity warning:</strong>  
-    C1 is electrolytic → long leg = timing node, short leg = 0V.</p>
+      C1 is electrolytic → long leg = timing node, short leg = 0V.
+    </p>
   </details>
 
   <!-- STEP 4 -->
   <details>
     <summary>💡 Step 4 — Add the LEDs and resistors</summary>
 
-    <h3>Green (HIGH output)</h3>
-    <ul>
-      <li>Pin 3 → resistor → LED → 0V</li>
-    </ul>
+    <h3>Green LED (HIGH output)</h3>
+    <pre style="background:#001c14;padding:12px;border-radius:8px;">
+Pin 3 ──[Resistor]──►|── 0V
+                     LED
+(►| = arrow points from + to –)
+    </pre>
 
-    <h3>Red (LOW output)</h3>
-    <ul>
-      <li>+V → resistor → LED → pin 3</li>
-    </ul>
+    <h3>Red LED (LOW output)</h3>
+    <pre style="background:#001c14;padding:12px;border-radius:8px;">
++V ──[Resistor]──►|── Pin 3
+                  LED
+    </pre>
 
-    <p class="intro-box">LEDs have a <strong>flat edge</strong> marking the negative side.</p>
-
-    <div class="board-img">
-      <div class="caption">LED polarity diagram</div>
-      <img src="/assets/electronics/555/ledpolarity.png">
-    </div>
+    <p class="intro-box">
+      The <strong>flat edge</strong> of an LED = negative (–).
+    </p>
   </details>
 
   <!-- STEP 5 -->
   <details>
     <summary>🖇 Step 5 — Add all required links</summary>
-    <p>Any schematic connection not joined by copper strips must be linked with a wire.</p>
+
+    <p>Any schematic connections not joined by copper tracks must be wired manually.</p>
 
     <p>Most common links:</p>
     <ul>
       <li>Pin 2 ↔ Pin 6 (timing node)</li>
-      <li>Power rail extensions</li>
-      <li>Long-distance nodes</li>
+      <li>+V rail extensions</li>
+      <li>0V rail extensions</li>
+      <li>Long cross-board connections</li>
     </ul>
 
-    <p class="intro-box">Use <strong>purple</strong> for timing node links (recommended).</p>
+    <pre style="background:#001c14;padding:12px;border-radius:8px;">
+Pins 2 and 6:
+   2 ─────────── 6
+(Use a short wire link)
+    </pre>
+
+    <p class="intro-box">Use <strong>purple</strong> for timing node links (recommended colour convention).</p>
   </details>
 
   <!-- STEP 6 -->
@@ -634,28 +669,29 @@ canvas {
 
     <div class="intro-box">
       <ul>
-        <li>Pin 1 → 0V?</li>
-        <li>Pin 8 → +V?</li>
-        <li>2 and 6 joined?</li>
-        <li>R4, R5, C1 correctly placed?</li>
-        <li>C1 polarity correct?</li>
-        <li>LED polarity correct?</li>
-        <li>No pins touching the same strip accidentally?</li>
+        <li>Pin 1 → 0V</li>
+        <li>Pin 8 → +V</li>
+        <li>Pins 2 & 6 joined</li>
+        <li>R4, R5, C1 correctly connected</li>
+        <li>C1 polarity correct</li>
+        <li>LED polarity correct</li>
+        <li>No pins share the same strip accidentally</li>
       </ul>
     </div>
 
     <p><strong>If the LED does not flash:</strong></p>
     <ul>
       <li>Check C1 orientation</li>
-      <li>Check pins 2 and 6 are linked</li>
+      <li>Check pins 2 & 6 are linked</li>
       <li>Check R4/R5 values</li>
-      <li>Check pin numbering</li>
+      <li>Check correct pin numbering</li>
     </ul>
   </details>
 
 </div>
 
 </div> <!-- end build tab -->
+
 <!-- ========================== STUDENT EXPLANATION TAB =========================== -->
 <div id="student" class="tab">
 
