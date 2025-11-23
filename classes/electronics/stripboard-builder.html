@@ -785,79 +785,82 @@ details[open] summary::after {
 <!-- =========================== QUIZ TAB =========================== -->
 <div id="quiz" class="tab">
 
-  <h2>Final Check – Short Quiz</h2>
-  <div class="subtitle">Test your understanding before building or handing in your board</div>
+  <h2>Final Quiz – Check Your Learning</h2>
+  <div class="subtitle">Multiple-choice quiz with auto-marking</div>
 
-  <!-- Success criteria reinforcement -->
   <div class="intro-box">
     <h3>I can...</h3>
     <ul>
-      <li>Explain the purpose of all three boards.</li>
-      <li>Follow colour codes and divider rules.</li>
-      <li>Spot wiring and polarity mistakes.</li>
+      <li>Spot wiring mistakes in a stripboard.</li>
+      <li>Explain what each board does.</li>
+      <li>Choose the correct resistor or connection.</li>
+      <li>Check polarity and timing components.</li>
     </ul>
   </div>
 
   <div class="collapsible-panel">
 
+    <!-- QUESTION 1 -->
     <details>
-      <summary>🧩 1. What does the Input board produce?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> TempOut (blue) and SwitchOut (green)</p>
-      </div>
+      <summary>🧩 Question 1 — What does the Input board create?</summary>
+
+      <form class="quiz-question" data-answer="b">
+        <p>Choose the correct answer:</p>
+
+        <label><input type="radio" name="q1" value="a"> Flashes the LEDs based on timing.</label><br>
+        <label><input type="radio" name="q1" value="b"> TempOut and SwitchOut signals.</label><br>
+        <label><input type="radio" name="q1" value="c"> AND gate logic decisions.</label><br>
+
+        <button type="button" class="quiz-check">Check Answer</button>
+        <p class="quiz-feedback"></p>
+      </form>
     </details>
 
+    <!-- QUESTION 2 -->
     <details>
-      <summary>🔌 2. Which colours must NEVER be reused?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> Red (+V) and Black (0V)</p>
-      </div>
+      <summary>🔌 Question 2 — What MUST every IC pin sit on?</summary>
+
+      <form class="quiz-question" data-answer="c">
+        <label><input type="radio" name="q2" value="a"> A long copper strip</label><br>
+        <label><input type="radio" name="q2" value="b"> The same strip as its neighbour</label><br>
+        <label><input type="radio" name="q2" value="c"> An isolated strip with a track cut</label><br>
+
+        <button type="button" class="quiz-check">Check Answer</button>
+        <p class="quiz-feedback"></p>
+      </form>
     </details>
 
+    <!-- QUESTION 3 -->
     <details>
-      <summary>🌡 3. What happens to TempOut as the thermistor warms up?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> TempOut increases (voltage goes up)</p>
-      </div>
+      <summary>⏱ Question 3 — What forms the timing network?</summary>
+
+      <form class="quiz-question" data-answer="a">
+        <label><input type="radio" name="q3" value="a"> R4, R5, C1</label><br>
+        <label><input type="radio" name="q3" value="b"> RT, R1</label><br>
+        <label><input type="radio" name="q3" value="c"> R2, R3</label><br>
+
+        <button type="button" class="quiz-check">Check Answer</button>
+        <p class="quiz-feedback"></p>
+      </form>
     </details>
 
+    <!-- QUESTION 4 -->
     <details>
-      <summary>💠 4. What is the job of the Process board?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> The 74HC08 AND gate outputs HIGH only when both inputs are HIGH</p>
-      </div>
-    </details>
+      <summary>💡 Question 4 — Which way does an LED point when driven from pin 3 on HIGH?</summary>
 
-    <details>
-      <summary>⏱ 5. Which three parts make the 555 timing network?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> R4, R5, C1</p>
-      </div>
-    </details>
+      <form class="quiz-question" data-answer="b">
+        <label><input type="radio" name="q4" value="a"> LED → resistor → +V</label><br>
+        <label><input type="radio" name="q4" value="b"> Pin 3 → resistor → LED → 0V</label><br>
+        <label><input type="radio" name="q4" value="c"> 0V → LED → resistor → pin 3</label><br>
 
-    <details>
-      <summary>💡 6. How are the green LEDs wired?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> Pin 3 → resistor → LED → 0V</p>
-      </div>
-    </details>
-
-    <details>
-      <summary>🟥 7. How are the red LEDs wired?</summary>
-      <div class="intro-box">
-        <p><strong>Answer:</strong> +V → resistor → LED → Pin 3</p>
-      </div>
-    </details>
-
-    <details>
-      <summary>✔ 8. Name one common mistake that stops the Output board working</summary>
-      <div class="intro-box">
-        <p><strong>Answers include:</strong> C1 reversed, pins 2/6 not linked, R4/R5 swapped, LEDs reversed.</p>
-      </div>
+        <button type="button" class="quiz-check">Check Answer</button>
+        <p class="quiz-feedback"></p>
+      </form>
     </details>
 
   </div>
 </div>
+
 
 
 </main>
@@ -881,4 +884,28 @@ function switchTab(id,btn){
   document.querySelectorAll('.tab-buttons button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
+// Auto-marking quiz system
+document.querySelectorAll('.quiz-check').forEach(button => {
+  button.addEventListener('click', () => {
+    const form = button.closest('.quiz-question');
+    const correct = form.dataset.answer;
+    const selected = form.querySelector('input[type="radio"]:checked');
+    const feedback = form.querySelector('.quiz-feedback');
+
+    if (!selected) {
+      feedback.textContent = "❗ Choose an answer first.";
+      feedback.style.color = "#ff6666";
+      return;
+    }
+
+    if (selected.value === correct) {
+      feedback.textContent = "✅ Correct!";
+      feedback.style.color = "#66ffb3";
+    } else {
+      feedback.textContent = "❌ Not quite. Try again!";
+      feedback.style.color = "#ff6666";
+    }
+  });
+});
+
 </script>
