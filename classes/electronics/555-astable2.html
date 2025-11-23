@@ -1,0 +1,972 @@
+---
+layout: none
+title: 555 Astable Simulator
+---
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root {
+  --el-green: #00e6b3;
+  --el-green-glow: rgba(0,255,200,0.55);
+  --el-bg1: #003c2e;
+  --el-bg2: #005f47;
+  --el-bg3: #052a1f;
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --tile-border: rgba(0,255,200,0.35);
+  --tile-outline: rgba(0,255,200,0.15);
+}
+
+/* BASE PAGE */
+body {
+  margin: 0;
+  background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
+  background-attachment: fixed;
+  color: white;
+  font-family: var(--font-stack);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.page-wrap {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem;
+}
+
+/* MENU BUTTON */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 200;
+  transition: transform 0.2s ease;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+.menu-btn:hover,
+.menu-btn:focus {
+  transform: scale(1.1);
+  outline: none;
+}
+
+/* SIDEMENU */
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 99;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed;
+  top: 0; right: -270px;
+  height: 100%; width: 270px;
+  background: rgba(15,23,42,0.92);
+  backdrop-filter: blur(12px) saturate(160%);
+  transition: right 0.3s ease;
+  z-index: 150;
+  padding-top: 4rem;
+  display: flex; flex-direction: column;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.5rem;
+  display: flex; gap: 0.8rem;
+}
+.side-menu a:hover { background: rgba(255,255,255,0.12); }
+
+/* TABS */
+.tab-buttons {
+  display: flex; gap: 10px;
+  margin: 1.5rem 0; flex-wrap: wrap;
+}
+.tab-buttons button {
+  flex: 1; min-width: 160px;
+  background: rgba(0,255,200,0.15);
+  border: 2px solid var(--tile-border);
+  padding: 10px 14px;
+  color:white; border-radius:12px;
+  font-weight:600; cursor:pointer;
+  transition:0.2s ease;
+}
+.tab-buttons button.active {
+  background:var(--el-green);
+  color:black;
+}
+.tab { display:none; }
+.tab.active { display:block; }
+
+/* IMAGE BLOCKS */
+.board-img {
+  max-width: 650px;
+  margin: 1.2rem auto;
+  border: 2px solid var(--tile-border);
+  outline: 2px solid var(--tile-outline);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  padding: 10px;
+}
+.board-img img {
+  width: 100%;
+  border-radius: 10px;
+}
+.caption {
+  text-align: center;
+  font-size: 0.9rem; 
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+/* INTRO BOXES */
+.intro-box {
+  background: rgba(0,255,200,0.10);
+  border: 1px solid rgba(0,255,200,0.25);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin: 1rem 0;
+}
+
+/* COLLAPSIBLES */
+details {
+  margin: 0.7rem 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  padding: 8px 12px;
+}
+details summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 10px 4px;
+  text-shadow: 0 0 10px var(--el-green-glow);
+}
+
+h1, h2, h3 {
+  text-shadow: 0 0 12px var(--el-green-glow);
+}
+</style>
+
+<!-- MENU BUTTON -->
+<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+
+<!-- SIDEMENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/science">🧪 Science</a>
+  <a href="/physics">⚡ Physics</a>
+  <a href="/electronics">💡 Electronics</a>
+  <a href="/engineering">🧰 Engineering</a>
+</nav>
+
+<main class="page-wrap">
+
+<h1 style="text-align:center;">555 Astable Simulator</h1>
+
+<!-- TAB BUTTONS -->
+<div class="tab-buttons">
+  <button class="active" onclick="switchTab('overview', this)">Overview</button>
+  <button onclick="switchTab('how', this)">How It Works</button>
+  <button onclick="switchTab('simulator', this)">Simulator</button>
+  <button onclick="switchTab('schematic', this)">Schematic & Stripboard</button>
+  <button onclick="switchTab('build', this)">Build Guide</button>
+  <button onclick="switchTab('student', this)">Student Explanation</button>
+  <button onclick="switchTab('quiz', this)">Quiz</button>
+</div>
+
+<!-- ========================== OVERVIEW TAB =========================== -->
+<div id="overview" class="tab active">
+
+<h2>Learning Goals</h2>
+<div class="intro-box">
+  <ul>
+    <li>Understand how R1, R2 and C1 set the flash rate</li>
+    <li>Explain why LEDs flash alternately</li>
+    <li>Relate the capacitor voltage curve to LED behaviour</li>
+    <li>Link a stripboard layout to a circuit diagram</li>
+    <li>Calculate Tm, Ts, T, f and duty cycle</li>
+  </ul>
+</div>
+
+<h2>Key Misconceptions</h2>
+<div class="intro-box">
+  <ul>
+    <li><strong>The capacitor never reaches 0V or full supply voltage.</strong></li>
+    <li>R1 affects charge time but <strong>NOT</strong> discharge time.</li>
+    <li>LEDs do not both connect the same way — one lights on HIGH, one on LOW.</li>
+    <li>R1, R2, C1 change the timing <strong>non-linearly</strong>.</li>
+  </ul>
+</div>
+
+<h2>What this Page Is For</h2>
+<div class="intro-box">
+  <p>This page helps you understand, build, and test a 555 astable circuit.  
+  Use the tabs at the top to explore how it works, try the simulator, compare the schematic to a stripboard, and read a simple student explanation.</p>
+  <p>Move slowly, test often, and try each slider to see what changes.</p>
+</div>
+
+</div> <!-- end overview tab -->
+
+  <!-- ========================== HOW IT WORKS TAB =========================== -->
+<div id="how" class="tab">
+
+<h2>How the 555 Astable Works</h2>
+
+<div class="intro-box">
+  <p><strong>The most important idea:</strong>  
+  The capacitor does NOT fully charge or fully discharge.  
+  It moves only between <strong>1/3</strong> and <strong>2/3</strong> of the supply voltage.</p>
+</div>
+
+<h3>Overview</h3>
+<div class="intro-box">
+  <p>The 555 astable creates a repeating HIGH–LOW output.  
+  The timing is controlled by three components:</p>
+  <ul>
+    <li><strong>R1</strong> – charge resistor</li>
+    <li><strong>R2</strong> – charge & discharge resistor</li>
+    <li><strong>C1</strong> – timing capacitor</li>
+  </ul>
+</div>
+
+<div class="collapsible-panel">
+
+  <details>
+    <summary>🔼 Threshold & Trigger – the 1/3 and 2/3 rule</summary>
+    <p>Inside the 555 are two voltage comparators:</p>
+    <ul>
+      <li><strong>Upper comparator:</strong> switches the output LOW when the capacitor reaches 2/3 Vcc</li>
+      <li><strong>Lower comparator:</strong> switches the output HIGH when the capacitor falls to 1/3 Vcc</li>
+    </ul>
+    <p>This causes the capacitor to “bounce” between these two levels forever.</p>
+  </details>
+
+  <details>
+    <summary>⚡ Charging Phase – Output HIGH</summary>
+    <p>When the output is HIGH:</p>
+    <ul>
+      <li>C1 charges through <strong>R1 + R2</strong></li>
+      <li>The voltage rises from 1/3 → 2/3 Vcc</li>
+      <li>The green LED lights (on your circuit)</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>⬇ Discharging Phase – Output LOW</summary>
+    <p>When the output is LOW:</p>
+    <ul>
+      <li>C1 discharges through <strong>R2 only</strong></li>
+      <li>Voltage falls from 2/3 → 1/3 Vcc</li>
+      <li>The red LED lights</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>🧮 R1, R2, C1 Timing Equations</summary>
+    <p><strong>Mark (HIGH) time:</strong>  
+       T<sub>m</sub> = 0.7 × (R1 + R2) × C1</p>
+
+    <p><strong>Space (LOW) time:</strong>  
+       T<sub>s</sub> = 0.7 × R2 × C1</p>
+
+    <p><strong>Period:</strong>  
+       T = T<sub>m</sub> + T<sub>s</sub></p>
+
+    <p><strong>Frequency:</strong>  
+       f = 1 / T</p>
+  </details>
+
+  <details>
+    <summary>🚫 Common Misconceptions Explained</summary>
+    <ul>
+      <li><strong>“R1 controls discharge time.”</strong><br>  
+          False — only R2 is in the discharge path.</li>
+
+      <li><strong>“The capacitor reaches full 0–Vcc.”</strong><br>  
+          False — the comparators limit it.</li>
+
+      <li><strong>“LEDs are symmetrical.”</strong><br>  
+          False — they need opposite driving for HIGH/LOW light.</li>
+    </ul>
+  </details>
+
+</div>
+
+</div> <!-- end how tab -->
+
+<!-- ========================== SIMULATOR TAB =========================== -->
+<div id="sim" class="tab">
+
+  <h2>Interactive Simulator</h2>
+  <p class="subtitle">Adjust R1, R2 and C1 to explore the 555 astable</p>
+
+  <div class="intro-box">
+    <p>This simulator shows the live behaviour of the 555:</p>
+    <ul>
+      <li>Real-time LED flashing</li>
+      <li>Output HIGH/LOW state</li>
+      <li>Charging/discharging phase</li>
+      <li>Waveform output</li>
+      <li>Capacitor voltage curve</li>
+      <li>Calculated timing values</li>
+    </ul>
+    <p>Everything updates instantly when you move the sliders.</p>
+  </div>
+
+  <!-- LED OUTPUT PANEL -->
+  <h3>LED Output</h3>
+  <p class="intro-box">
+    GREEN = Output HIGH (charging phase)<br>
+    RED = Output LOW (discharging phase)
+  </p>
+
+  <div style="display:flex;justify-content:center;gap:60px;margin:16px 0;">
+    <div style="text-align:center;">
+      <div id="led-red" class="led" style="background:#200;"></div>
+      <small>Red LED<br>(pin 3 → 0V)</small>
+    </div>
+
+    <div style="text-align:center;">
+      <div id="led-green" class="led" style="background:#020;"></div>
+      <small>Green LED<br>(Vsupply → pin 3)</small>
+    </div>
+  </div>
+
+  <h3 id="charge-bar" style="text-align:center;margin-bottom:1rem;">Output State: —</h3>
+
+  <!-- PRESETS -->
+  <h3>Presets</h3>
+  <p class="intro-box">Click a button to instantly load a timing setup.</p>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;">
+    <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
+    <button onclick="applyPreset(1,220,3)">3 Hz Flash</button>
+    <button onclick="applyPreset(1,68,1)">10 Hz Flash</button>
+    <button onclick="applyPreset(1,150,10)">Equal On/Off</button>
+    <button onclick="applyPreset(1,470,10)">0.5 Hz Slow</button>
+  </div>
+
+  <!-- SLIDERS -->
+  <h3>Adjust Component Values</h3>
+  <p class="intro-box">
+    Move the sliders to change resistor and capacitor values.  
+    The flash rate and waveforms update automatically.
+  </p>
+
+  <label>R1 (kΩ): <span id="r1-label">1</span></label>
+  <input id="r1" type="range" min="1" max="100" value="1" oninput="updateSim()">
+
+  <label>R2 (kΩ): <span id="r2-label">68</span></label>
+  <input id="r2" type="range" min="1" max="500" value="68" oninput="updateSim()">
+
+  <label>C1 (µF): <span id="c1-label">10</span></label>
+  <input id="c1" type="range" min="1" max="200" value="10" oninput="updateSim()">
+
+  <hr>
+
+  <!-- WAVEFORMS -->
+  <h3>Output Square Wave</h3>
+  <canvas id="waveform" height="150"></canvas>
+
+  <h3>Capacitor Voltage Curve</h3>
+  <canvas id="cap-curve" height="150"></canvas>
+
+  <hr>
+
+  <!-- CALCULATED VALUES -->
+  <h3>Calculated Values</h3>
+
+  <div class="intro-box">
+    <p><strong>Period T:</strong> <span id="val-T">—</span> s</p>
+    <p><strong>Frequency f:</strong> <span id="val-f">—</span> Hz</p>
+    <p><strong>Mark Time Tm:</strong> <span id="val-Tm">—</span> s (HIGH time)</p>
+    <p><strong>Space Time Ts:</strong> <span id="val-Ts">—</span> s (LOW time)</p>
+    <p><strong>Duty Cycle:</strong> <span id="val-duty">—</span>%</p>
+  </div>
+
+</div> <!-- end simulator tab -->
+
+  <!-- ====================== SCHEMATIC & STRIPBOARD TAB ====================== -->
+<div id="schem" class="tab">
+
+  <h2>Schematic & Stripboard</h2>
+  <p class="subtitle">Both diagrams show the same circuit in different layouts.</p>
+
+  <div class="intro-box">
+    <p>The schematic shows the <strong>logical</strong> circuit.</p>
+    <p>The stripboard shows the <strong>physical</strong> layout.</p>
+    <p>Every electrical connection must match – even if the picture looks different.</p>
+  </div>
+
+  <!-- IMAGE PANEL -->
+  <div class="board-img">
+    <div class="caption">Schematic (right) and matching Stripboard Layout (left)</div>
+    <img src="/assets/electronics/555new.jpg" alt="555 stripboard and schematic">
+  </div>
+
+  <div class="collapsible-panel">
+
+    <!-- SPOT THE DIFFERENCE -->
+    <details>
+      <summary>🔍 Spot the Difference — Schematic vs Stripboard</summary>
+
+      <p class="intro-box">
+        The pictures look different – but the <strong>connections are identical</strong>.  
+        Here’s what changes when moving from schematic → stripboard.
+      </p>
+
+      <h3>Key Differences</h3>
+      <ul>
+        <li><strong>Schematic is neat</strong> – wires avoid crossing, parts spaced out.</li>
+        <li><strong>Stripboard follows copper tracks</strong> – many parts end up rotated or moved.</li>
+        <li><strong>IC pins look different</strong> – but are still the same numbers.</li>
+        <li><strong>Components may swap sides</strong> of the chip.</li>
+      </ul>
+
+      <h3>What always stays the same</h3>
+      <ul>
+        <li>Pin 2 and pin 6 must be linked (timing node).</li>
+        <li>R1 and R2 must both connect to pin 7.</li>
+        <li>C1 must go between the timing node and 0V.</li>
+        <li>Pin 3 must drive the LEDs.</li>
+        <li>+V must always go to pin 8.</li>
+      </ul>
+
+      <p class="intro-box">
+        If the schematic says two things join →  
+        <strong>they MUST join on the stripboard</strong>,  
+        even if the picture layout is very different.
+      </p>
+
+    </details>
+
+    <!-- COMPARISON NOTES -->
+    <details>
+      <summary>📘 Key Comparison Notes</summary>
+
+      <h3>1. Pin Numbers NEVER change</h3>
+      <p>Pin 1 is always the bottom-left of the notch. Count anticlockwise.</p>
+
+      <h3>2. Timing node is the heart of the circuit</h3>
+      <p>Pins 2 and 6 must be connected together AND go to R5 and C1.</p>
+
+      <h3>3. LED wiring flips depending on HIGH/LOW driving</h3>
+      <ul>
+        <li>Green LEDs turn on when pin 3 is HIGH</li>
+        <li>Red LEDs turn on when pin 3 is LOW</li>
+      </ul>
+
+      <h3>4. Track cuts under pins</h3>
+      <p>Every IC pin must sit on isolated copper.</p>
+
+      <h3>5. Real boards look “messier” than diagrams</h3>
+      <p>This is normal. Electrical connections matter — not neatness.</p>
+
+    </details>
+
+  </div>
+
+</div> <!-- end schematic tab -->
+
+<!-- ========================== BUILD GUIDE TAB =========================== -->
+<div id="build" class="tab">
+
+<h2>Build Guide – 555 Astable Stripboard</h2>
+<div class="subtitle">A clear, student-friendly, step-by-step process</div>
+
+<div class="intro-box">
+  <h3>I can...</h3>
+  <ul>
+    <li>Place the 555 IC the correct way around</li>
+    <li>Wire the timing components correctly</li>
+    <li>Check LED polarity</li>
+    <li>Match every connection to the schematic</li>
+  </ul>
+</div>
+
+<div class="collapsible-panel">
+
+  <!-- STEP 1 -->
+  <details>
+    <summary>🧭 Step 1 — Place the 555 and mark pin 1</summary>
+    <p>Find the <strong>notch</strong> or <strong>dot</strong> on the 555 chip.  
+    This marks <strong>pin 1</strong>.</p>
+
+    <ul>
+      <li>Pin 1 must go to 0V</li>
+      <li>Pin 8 must go to +V</li>
+      <li>Place the chip so each pin sits on its own copper strip</li>
+    </ul>
+
+    <div class="board-img">
+      <div class="caption">555 orientation diagram</div>
+      <img src="/assets/electronics/555/pin1.png">
+    </div>
+
+    <p class="intro-box"><strong>Common error:</strong> chip rotated 180°.  
+    If pins 1 and 8 are not where you expect, STOP and rotate.</p>
+  </details>
+
+  <!-- STEP 2 -->
+  <details>
+    <summary>🔌 Step 2 — Add the power rails (+V and 0V)</summary>
+    <p>Use the standard colour coding:</p>
+    <ul>
+      <li><strong style="color:#f55;">Red = +V</strong></li>
+      <li><strong style="color:#ccc;">Black = 0V</strong></li>
+    </ul>
+
+    <p>Run these neatly along the top and bottom strips of the board.</p>
+
+    <p class="intro-box">Make sure +V connects to pin 8 and 0V to pin 1.</p>
+  </details>
+
+  <!-- STEP 3 -->
+  <details>
+    <summary>⏱ Step 3 — Build the timing network (R4, R5, C1)</summary>
+
+    <h3>Connections:</h3>
+    <ul>
+      <li>R4 → from +V to pin 7</li>
+      <li>R5 → from pin 7 to timing node (pins 2 and 6)</li>
+      <li>C1 → from timing node to 0V</li>
+    </ul>
+
+    <div class="board-img">
+      <div class="caption">Timing network layout</div>
+      <img src="/assets/electronics/555/timing.png">
+    </div>
+
+    <p class="intro-box"><strong>Polarity warning:</strong>  
+    C1 is electrolytic → long leg = timing node, short leg = 0V.</p>
+  </details>
+
+  <!-- STEP 4 -->
+  <details>
+    <summary>💡 Step 4 — Add the LEDs and resistors</summary>
+
+    <h3>Green (HIGH output)</h3>
+    <ul>
+      <li>Pin 3 → resistor → LED → 0V</li>
+    </ul>
+
+    <h3>Red (LOW output)</h3>
+    <ul>
+      <li>+V → resistor → LED → pin 3</li>
+    </ul>
+
+    <p class="intro-box">LEDs have a <strong>flat edge</strong> marking the negative side.</p>
+
+    <div class="board-img">
+      <div class="caption">LED polarity diagram</div>
+      <img src="/assets/electronics/555/ledpolarity.png">
+    </div>
+  </details>
+
+  <!-- STEP 5 -->
+  <details>
+    <summary>🖇 Step 5 — Add all required links</summary>
+    <p>Any schematic connection not joined by copper strips must be linked with a wire.</p>
+
+    <p>Most common links:</p>
+    <ul>
+      <li>Pin 2 ↔ Pin 6 (timing node)</li>
+      <li>Power rail extensions</li>
+      <li>Long-distance nodes</li>
+    </ul>
+
+    <p class="intro-box">Use <strong>purple</strong> for timing node links (recommended).</p>
+  </details>
+
+  <!-- STEP 6 -->
+  <details>
+    <summary>✔ Step 6 — Full Build Check</summary>
+
+    <div class="intro-box">
+      <ul>
+        <li>Pin 1 → 0V?</li>
+        <li>Pin 8 → +V?</li>
+        <li>2 and 6 joined?</li>
+        <li>R4, R5, C1 correctly placed?</li>
+        <li>C1 polarity correct?</li>
+        <li>LED polarity correct?</li>
+        <li>No pins touching the same strip accidentally?</li>
+      </ul>
+    </div>
+
+    <p><strong>If the LED does not flash:</strong></p>
+    <ul>
+      <li>Check C1 orientation</li>
+      <li>Check pins 2 and 6 are linked</li>
+      <li>Check R4/R5 values</li>
+      <li>Check pin numbering</li>
+    </ul>
+  </details>
+
+</div>
+
+</div> <!-- end build tab -->
+<!-- ========================== STUDENT EXPLANATION TAB =========================== -->
+<div id="student" class="tab">
+
+  <h2>Student-Friendly Explanation</h2>
+
+  <div class="intro-box">
+    <p>This section explains the 555 astable in simple language.  
+    It is written for a reading age of 11–12 and uses clear, everyday ideas.</p>
+  </div>
+
+  <h3>The Big Picture</h3>
+  <div class="intro-box">
+    <p>The 555 makes a repeating ON–OFF signal all by itself.  
+    This is called an <strong>astable</strong> because it never stays still.</p>
+    <p>It keeps flashing between HIGH and LOW forever.</p>
+  </div>
+
+  <h3>The Capacitor: The “Bucket” of Charge</h3>
+  <div class="intro-box">
+    <p>Think of the capacitor like a bucket that fills and empties.</p>
+    <ul>
+      <li>When the bucket is filling → the output is HIGH</li>
+      <li>When the bucket is emptying → the output is LOW</li>
+    </ul>
+    <p>But it never fills all the way and never empties all the way —  
+       it goes between 1/3 full and 2/3 full.</p>
+  </div>
+
+  <h3>What R1, R2 and C1 Do</h3>
+  <div class="intro-box">
+    <ul>
+      <li><strong>R1</strong> controls how fast the bucket fills</li>
+      <li><strong>R2</strong> controls filling AND emptying</li>
+      <li><strong>C1</strong> is the size of the bucket</li>
+    </ul>
+    <p>Bigger resistors → slower charging  
+       Bigger capacitor → longer flashes</p>
+  </div>
+
+  <h3>Why the LEDs Flash</h3>
+  <div class="intro-box">
+    <p>The output pin (pin 3) goes HIGH and LOW over and over.</p>
+    <ul>
+      <li>HIGH turns the <strong>green</strong> LED on</li>
+      <li>LOW turns the <strong>red</strong> LED on</li>
+    </ul>
+    <p>This creates an alternating flash.</p>
+  </div>
+
+  <h3>What You Control</h3>
+  <div class="intro-box">
+    <p>By changing R1, R2 or C1 you control:</p>
+    <ul>
+      <li>How fast the LEDs flash</li>
+      <li>How long the HIGH part lasts</li>
+      <li>How long the LOW part lasts</li>
+      <li>The overall frequency</li>
+    </ul>
+    <p>This is why the sliders in the simulator change the pattern instantly.</p>
+  </div>
+
+  <h3>Why the 555 is So Useful</h3>
+  <div class="intro-box">
+    <p>The 555 is one of the most used chips in electronics because it can:</p>
+    <ul>
+      <li>Make clocks and timers</li>
+      <li>Blink LEDs</li>
+      <li>Drive buzzers</li>
+      <li>Generate repeating pulses</li>
+    </ul>
+    <p>It is simple, cheap and reliable — perfect for learning electronics.</p>
+  </div>
+
+</div> <!-- end student tab -->
+<!-- =============================== QUIZ TAB =============================== -->
+<div id="quiz" class="tab">
+
+  <h2>Quick Quiz – Test Your Understanding</h2>
+
+  <div class="intro-box">
+    <p>Answer the questions below. Your score updates automatically.  
+    You can retry any question until it is correct.</p>
+  </div>
+
+  <h3>Your Score: <span id="quiz-score">0</span> / 6</h3>
+
+  <div class="collapsible-panel">
+
+    <!-- Q1 -->
+    <details class="quiz-question" data-answer="b">
+      <summary>1️⃣ What voltage levels does the capacitor move between?</summary>
+      <ul>
+        <li><label><input type="radio" name="q1" value="a"> 0 V and Vcc</label></li>
+        <li><label><input type="radio" name="q1" value="b"> 1/3 Vcc and 2/3 Vcc</label></li>
+        <li><label><input type="radio" name="q1" value="c"> 0 V and 1/2 Vcc</label></li>
+      </ul>
+      <button class="quiz-check">Check</button>
+      <p class="quiz-feedback"></p>
+    </details>
+
+    <!-- Q2 -->
+    <details class="quiz-question" data-answer="c">
+      <summary>2️⃣ Which component controls BOTH charging and discharging?</summary>
+      <ul>
+        <li><label><input type="radio" name="q2" value="a"> R1 only</label></li>
+        <li><label><input type="radio" name="q2" value="b"> C1 only</label></li>
+        <li><label><input type="radio" name="q2" value="c"> R2</label></li>
+      </ul>
+      <button class="quiz-check">Check</button>
+      <p class="quiz-feedback"></p>
+    </details>
+
+    <!-- Q3 -->
+    <details class="quiz-question" data-answer="a">
+      <summary>3️⃣ What happens when the capacitor reaches 2/3 Vcc?</summary>
+      <ul>
+        <li><label><input type="radio" name="q3" value="a"> Output switches LOW</label></li>
+        <li><label><input type="radio" name="q3" value="b"> Output switches HIGH</label></li>
+        <li><label><input type="radio" name="q3" value="c"> LEDs stop flashing</label></li>
+      </ul>
+      <button class="quiz-check">Check</button>
+      <p class="quiz-feedback"></p>
+    </details>
+
+    <!-- Q4 -->
+    <details class="quiz-question" data-answer="c">
+      <summary>4️⃣ Which part increases BOTH mark and space time?</summary>
+      <ul>
+        <li><label><input type="radio" name="q4" value="a"> Smaller capacitor</label></li>
+        <li><label><input type="radio" name="q4" value="b"> Smaller R2</label></li>
+        <li><label><input type="radio" name="q4" value="c"> Larger capacitor C1</label></li>
+      </ul>
+      <button class="quiz-check">Check</button>
+      <p class="quiz-feedback"></p>
+    </details>
+
+    <!-- Q5 -->
+    <details class="quiz-question" data-answer="b">
+      <summary>5️⃣ When the output is HIGH, which LED lights?</summary>
+      <ul>
+        <li><label><input type="radio" name="q5" value="a"> Red</label></li>
+        <li><label><input type="radio" name="q5" value="b"> Green</label></li>
+        <li><label><input type="radio" name="q5" value="c"> Both</label></li>
+      </ul>
+      <button class="quiz-check">Check</button>
+      <p class="quiz-feedback"></p>
+    </details>
+
+    <!-- Q6 -->
+    <details class="quiz-question" data-answer="a">
+      <summary>6️⃣ Which formula gives the HIGH time (mark time)?</summary>
+      <ul>
+        <li><label><input type="radio" name="q6" value="a"> 0.7 × (R1 + R2) × C1</label></li>
+        <li><label><input type="radio" name="q6" value="b"> 0.7 × R2 × C1</label></li>
+        <li><label><input type="radio" name="q6" value="c"> 1 / T</label></li>
+      </ul>
+      <button class="quiz-check">Check</button>
+      <p class="quiz-feedback"></p>
+    </details>
+
+  </div>
+</div>
+
+<script>
+/* =============================== */
+/*          SIDE MENU              */
+/* =============================== */
+function toggleMenu(){
+  const menu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('menuOverlay');
+  menu.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
+});
+
+/* =============================== */
+/*          TAB SWITCHING          */
+/* =============================== */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.tab-buttons button')
+    .forEach(b => b.classList.remove('active'));
+
+  btn.classList.add('active');
+}
+
+/* ===================================================== */
+/*                 555 SIMULATOR ENGINE                  */
+/* ===================================================== */
+
+const el = id => document.getElementById(id);
+
+let T = 1, Tm = 0.5, Ts = 0.5;
+let simTime = 0;
+let wave, cap;
+
+/* INIT SIMULATOR */
+window.addEventListener("load", () => {
+  wave = el("waveform").getContext("2d");
+  cap  = el("cap-curve").getContext("2d");
+
+  // Make canvas match responsive width
+  el("waveform").width = el("waveform").clientWidth;
+  el("cap-curve").width = el("cap-curve").clientWidth;
+
+  updateSim();
+  requestAnimationFrame(animate);
+});
+
+/* Apply preset R1/R2/C1 */
+function applyPreset(R1, R2, C1){
+  el("r1").value = R1;
+  el("r2").value = R2;
+  el("c1").value = C1;
+  updateSim();
+}
+
+/* UPDATE TIMING VALUES */
+function updateSim(){
+  const R1 = parseFloat(el("r1").value) * 1000;
+  const R2 = parseFloat(el("r2").value) * 1000;
+  const C1 = parseFloat(el("c1").value) / 1e6;
+
+  el("r1-label").innerText = (R1/1000).toFixed(0);
+  el("r2-label").innerText = (R2/1000).toFixed(0);
+  el("c1-label").innerText = (C1*1e6).toFixed(0);
+
+  Tm = 0.7 * (R1 + R2) * C1;
+  Ts = 0.7 * (R2) * C1;
+  T  = Tm + Ts;
+
+  el("val-T").innerText = T.toFixed(3);
+  el("val-f").innerText = (1/T).toFixed(2);
+  el("val-Tm").innerText = Tm.toFixed(3);
+  el("val-Ts").innerText = Ts.toFixed(3);
+  el("val-duty").innerText = ((Tm/T) * 100).toFixed(1);
+}
+
+/* =============================== */
+/*         MAIN ANIMATION          */
+/* =============================== */
+function animate(){
+  requestAnimationFrame(animate);
+
+  simTime += 0.01;
+  const t = simTime % T;
+
+  const outputHigh = (t < Tm);
+  const red = el("led-red");
+  const green = el("led-green");
+  const bar = el("charge-bar");
+
+  /* LED Behaviour */
+  if (outputHigh) {
+    green.style.background = "rgb(0,255,160)";
+    red.style.background = "#200";
+    bar.innerText = "Output State: HIGH (charging)";
+    bar.style.color = "#00ffcc";
+  } else {
+    red.style.background = "rgb(255,80,80)";
+    green.style.background = "#020";
+    bar.innerText = "Output State: LOW (discharging)";
+    bar.style.color = "#ff8080";
+  }
+
+  /* ========== OUTPUT WAVEFORM ========== */
+  const W = wave.canvas.width;
+  const H = wave.canvas.height;
+
+  wave.fillStyle = "black";
+  wave.fillRect(0,0,W,H);
+
+  wave.strokeStyle = "#00ff99";
+  wave.beginPath();
+
+  for (let x = 0; x < W; x++) {
+    let tau = (simTime - (W-x)/W * T * 2) % T;
+    wave.lineTo(x, tau < Tm ? 30 : H - 30);
+  }
+  wave.stroke();
+
+  /* ========== CAPACITOR VOLTAGE CURVE ========== */
+  const CW = cap.canvas.width;
+  const CH = cap.canvas.height;
+
+  cap.fillStyle = "black";
+  cap.fillRect(0,0,CW,CH);
+
+  cap.strokeStyle = "#00baff";
+  cap.beginPath();
+
+  for (let x = 0; x < CW; x++) {
+    let tau = (simTime - (CW-x)/CW * T * 2) % T;
+
+    // Cap voltage between 1/3 and 2/3
+    let v = tau < Tm
+      ? 1/3 + (tau/Tm) * (1/3)   // charging
+      : 2/3 - ((tau-Tm)/Ts) * (1/3); // discharging
+
+    cap.lineTo(x, (CH - 10) - v * (CH - 20));
+  }
+  cap.stroke();
+}
+
+/* ===================================================== */
+/*                       QUIZ SYSTEM                     */
+/* ===================================================== */
+
+let quizScore = 0;
+
+function checkQuizAnswer(questionId, correctAnswer) {
+  const q = document.getElementById(questionId);
+  const selected = q.querySelector("input[type=radio]:checked");
+  const feedback = q.querySelector(".quiz-feedback");
+
+  if (!selected) {
+    feedback.textContent = "❗ Choose an answer first.";
+    feedback.style.color = "#ff6666";
+    return;
+  }
+
+  if (selected.value === correctAnswer) {
+    feedback.textContent = "✅ Correct!";
+    feedback.style.color = "#66ffb3";
+
+    // Only score once
+    if (!q.dataset.done) {
+      quizScore++;
+      q.dataset.done = "1";
+      updateQuizScore();
+    }
+
+  } else {
+    feedback.textContent = "❌ Not quite. Try again!";
+    feedback.style.color = "#ff6666";
+  }
+}
+
+function updateQuizScore(){
+  const box = document.getElementById("quiz-score");
+  if (box) box.textContent = quizScore;
+}
+</script>
