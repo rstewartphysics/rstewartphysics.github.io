@@ -1,0 +1,357 @@
+---
+layout: none
+title: S3 Physics
+---
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root {
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --text-main: #ffffff;
+  --radius-card: 1rem;
+
+  /* S3 Physics colour scheme (teal-blue) */
+  --bg1: #0c2f3c;
+  --bg2: #104b5c;
+  --bg3: #082229;
+
+  --tab-active: #00e6b3;
+  --tab-hover: #3fffd1;
+  --tab-bg: rgba(255,255,255,0.08);
+}
+
+/* ----------------- PAGE BASE ----------------- */
+body {
+  margin: 0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+  background-attachment: fixed;
+  font-family: var(--font-stack);
+  color: var(--text-main);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ----------------- UTILITIES ----------------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* ----------------- MENU BUTTON ----------------- */
+.menu-btn {
+  position: fixed;
+  top: 15px; right: 20px;
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  cursor: pointer;
+  color: #fff;
+  z-index: 200;
+  transition: transform 0.2s ease;
+}
+.menu-btn:hover, .menu-btn:focus-visible { transform: scale(1.1); }
+
+/* ----------------- SIDE MENU ----------------- */
+.menu-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 90;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed; top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.85);
+  backdrop-filter: blur(16px) saturate(200%);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease;
+  z-index: 150;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.side-menu a:hover,
+.side-menu a:focus-visible {
+  background: rgba(255,255,255,0.14);
+}
+
+/* ----------------- BANNER ----------------- */
+.banner-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+}
+.banner {
+  width: 100%; height: auto;
+  max-height: 360px;
+  object-fit: cover;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+.banner-tint {
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg,
+    rgba(0,255,200,0.3),
+    rgba(0,180,255,0.25),
+    rgba(0,255,180,0.2)
+  );
+  mix-blend-mode: multiply;
+}
+
+.banner-overlay-text {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  padding: 1rem 0.6rem;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  border-top: 1px solid rgba(255,255,255,0.3);
+}
+.banner-overlay-text h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* ----------------- PAGE WRAPPER ----------------- */
+.page-wrap {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem;
+}
+
+/* ----------------- TABS ----------------- */
+.tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.6rem 1.2rem;
+  background: var(--tab-bg);
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+.tab-btn:hover {
+  background: rgba(255,255,255,0.18);
+}
+.tab-btn.active {
+  background: rgba(0,255,200,0.25);
+  border-color: var(--tab-active);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeTab 0.3s ease;
+}
+.tab-content.active { display: block; }
+@keyframes fadeTab { from {opacity:0;} to {opacity:1;} }
+
+/* ----------------- CONTENT BOX ----------------- */
+.topic-box {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  line-height: 1.6;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+  margin-bottom: 2rem;
+}
+
+.topic-box a {
+  color: #00e6b3;
+  font-weight: 600;
+}
+
+.placeholder-link {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  margin: 0.5rem 0 1rem;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  opacity: 0.7;
+  pointer-events: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ----------------- FOOTER ----------------- */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 0.9rem;
+}
+</style>
+
+<!-- ============================
+     MENU BUTTON
+=============================== -->
+<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+
+<!-- ============================
+     BANNER
+=============================== -->
+<div class="banner-wrap">
+  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>S3 Physics — Explore the Building Blocks of the Universe</h1>
+  </div>
+</div>
+
+<!-- ============================
+     PAGE CONTENT
+=============================== -->
+<main class="page-wrap">
+
+  <!-- --------- TAB BUTTONS --------- -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="openTab('space')">🌌 Space</button>
+    <button class="tab-btn" onclick="openTab('e1')">⚡ Electricity 1 — V, I & R</button>
+    <button class="tab-btn" onclick="openTab('e2')">💡 Electricity 2 — Electronics</button>
+    <button class="tab-btn" onclick="openTab('e3')">🔌 Electricity 3 — Concepts</button>
+    <button class="tab-btn" onclick="openTab('nuc')">☢️ Nuclear Radiation</button>
+  </div>
+
+  <!-- --------- TAB CONTENT --------- -->
+
+  <div id="space" class="tab-content active topic-box">
+    <h2>🌌 Space</h2>
+    <p><span class="placeholder-link">📘 Download Booklet (coming soon)</span></p>
+
+    <p>Useful links:</p>
+    <ul>
+      <li><a href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=JCgRyW" target="_blank">Mr Stewart’s Materials</a></li>
+      <li><a href="https://physicsflashrepo.ovh" target="_blank">Flash Physics</a></li>
+    </ul>
+  </div>
+
+  <div id="e1" class="tab-content topic-box">
+    <h2>⚡ Electricity 1 — Voltage, Current & Resistance</h2>
+    <p><span class="placeholder-link">📘 Download Booklet (coming soon)</span></p>
+
+    <p>Useful links:</p>
+    <ul>
+      <li><a href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=JCgRyW" target="_blank">Mr Stewart’s Materials</a></li>
+      <li><a href="https://physicsflashrepo.ovh" target="_blank">Flash Physics</a></li>
+    </ul>
+  </div>
+
+  <div id="e2" class="tab-content topic-box">
+    <h2>💡 Electricity 2 — Electronics</h2>
+    <p><span class="placeholder-link">📘 Download Booklet (coming soon)</span></p>
+
+    <p>Useful links:</p>
+    <ul>
+      <li><a href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=JCgRyW" target="_blank">Mr Stewart’s Materials</a></li>
+      <li><a href="https://physicsflashrepo.ovh" target="_blank">Flash Physics</a></li>
+    </ul>
+  </div>
+
+  <div id="e3" class="tab-content topic-box">
+    <h2>🔌 Electricity 3 — Concepts</h2>
+    <p><span class="placeholder-link">📘 Download Booklet (coming soon)</span></p>
+
+    <p>Useful links:</p>
+    <ul>
+      <li><a href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=JCgRyW" target="_blank">Mr Stewart’s Materials</a></li>
+      <li><a href="https://physicsflashrepo.ovh" target="_blank">Flash Physics</a></li>
+    </ul>
+  </div>
+
+  <div id="nuc" class="tab-content topic-box">
+    <h2>☢️ Nuclear Radiation</h2>
+    <p><span class="placeholder-link">📘 Download Booklet (coming soon)</span></p>
+
+    <p>Useful links:</p>
+    <ul>
+      <li><a href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=JCgRyW" target="_blank">Mr Stewart’s Materials</a></li>
+      <li><a href="https://physicsflashrepo.ovh" target="_blank">Flash Physics</a></li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
+
+<!-- ============================
+     SIDE MENU
+=============================== -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
+<!-- ============================
+     SCRIPT
+=============================== -->
+<script>
+function toggleMenu() {
+  const menu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('menuOverlay');
+  menu.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
+});
+
+function openTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(sec => sec.classList.remove('active'));
+
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
