@@ -6,271 +6,291 @@ title: Physics
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+/* =========================================================
+   GLOBAL VARIABLES
+   ========================================================= */
 :root {
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --radius-card: 1rem;
   --shadow-card: 0 24px 48px rgba(0,0,0,0.8);
-  --text-main: #f8fafc;
-  --bg1: #1a2248;
-  --bg2: #1e2a5a;
-  --bg3: #0f172a;
+
+  /* Physics colour palette (consistent with N5/Higher/AH) */
+  --phys-bg1: #0e1b38;
+  --phys-bg2: #152b63;
+  --phys-bg3: #0a1130;
+
+  --text-main: #ffffff;
 }
 
-/* PAGE BASE */
+/* =========================================================
+   PAGE BACKGROUND
+   ========================================================= */
 body {
   margin: 0;
-  background: radial-gradient(circle at 25% 30%, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 90%);
+  background: radial-gradient(circle at 25% 30%, var(--phys-bg1), var(--phys-bg2), var(--phys-bg3));
   background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-stack);
-  -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   overflow-x: hidden;
-  min-height: 100vh;
   display: flex;
+  min-height: 100vh;
   flex-direction: column;
-  animation: bgDrift 20s ease-in-out infinite alternate;
-}
-@keyframes bgDrift {
-  0% {background: radial-gradient(circle at 20% 30%, var(--bg1), var(--bg2), var(--bg3));}
-  100% {background: radial-gradient(circle at 70% 70%, #203c9f, #321d7a, #0c2e54);}
 }
 
-/* BANNER */
+/* =========================================================
+   ACCESSIBILITY — VISUALLY HIDDEN
+   ========================================================= */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0 0 0 0);
+}
+
+/* =========================================================
+   SIDE MENU (iPad-style translucent)
+   ========================================================= */
+.menu-btn {
+  position: fixed;
+  top: 15px; 
+  right: 20px;
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  cursor: pointer;
+  color: #fff;
+  z-index: 200;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.menu-btn:hover, .menu-btn:focus-visible {
+  transform: scale(1.1);
+  outline: none;
+}
+
+.menu-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 90;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed;
+  top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.82);
+  backdrop-filter: blur(14px) saturate(240%) brightness(110%);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease;
+  z-index: 150;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.side-menu a:hover,
+.side-menu a:focus-visible {
+  background: rgba(255,255,255,0.14);
+  outline: none;
+}
+
+/* =========================================================
+   BANNER
+   ========================================================= */
 .banner-wrap {
-  position: relative;
   width: 100%;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-  z-index: 1;
+  position: relative;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.65);
 }
+
 .banner {
   width: 100%;
   height: auto;
   max-height: 360px;
   object-fit: cover;
-  display: block;
   opacity: 0;
   animation: fadeIn 1.2s ease forwards;
 }
-@keyframes fadeIn {to{opacity:1;}}
-@media (max-width:768px){.banner{max-height:260px;}}
+@keyframes fadeIn { to { opacity: 1; } }
 
-/* Banner tint + overlay text */
 .banner-tint {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(0,119,255,0.35), rgba(139,0,255,0.3), rgba(255,136,0,0.25));
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(0,180,255,0.28),
+    rgba(139,0,255,0.25),
+    rgba(255,180,0,0.2)
+  );
   mix-blend-mode: multiply;
-  animation: tintShift 20s ease-in-out infinite alternate;
 }
-@keyframes tintShift {0%{background-position:0% 50%;}100%{background-position:100% 50%;}}
 
 .banner-overlay-text {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  bottom: 0; left: 0;
   width: 100%;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(8px);
-  text-align: center;
   padding: 1rem 0.5rem;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+.banner-overlay-text h1 {
+  margin: 0;
   font-weight: 600;
   font-size: 1.2rem;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-  color: #fff;
-}
-.banner-overlay-text h1 {margin:0;}
-@media(max-width:900px){
-  .banner-overlay-text{font-size:1rem;}
-  .banner-overlay-text h1{font-size:0.95rem;line-height:1.3;}
 }
 
-/* Separator */
-.banner-separator {
-  width:100%;
-  height:60px;
-  background:linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0));
-  margin-top:-3px;
-}
-
-/* MENU BUTTON */
-.menu-btn {
-  position:fixed;
-  top:15px; right:20px;
-  font-size:1.6rem;
-  background:none;
-  border:none;
-  color:#fff;
-  cursor:pointer;
-  z-index:200;
-  transition:transform 0.2s ease;
-  text-shadow:0 4px 10px rgba(0,0,0,0.8);
-}
-.menu-btn:hover,.menu-btn:focus{transform:scale(1.1);outline:none;}
-
-/* DRAWER MENU */
-.menu-overlay {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.5);
-  display:none; z-index:99;
-}
-.side-menu {
-  position:fixed; top:0; right:-270px;
-  height:100%; width:270px;
-  background:rgba(15,23,42,0.92);
-  backdrop-filter:blur(12px) saturate(160%);
-  box-shadow:-4px 0 25px rgba(0,0,0,0.6);
-  transition:right 0.3s ease;
-  z-index:150;
-  display:flex; flex-direction:column;
-  padding-top:4rem;
-}
-.side-menu.open{right:0;}
-.menu-overlay.show{display:block;}
-.side-menu a {
-  color:#fff; text-decoration:none;
-  font-size:1.1rem;
-  padding:0.9rem 1.5rem;
-  display:flex; align-items:center; gap:0.8rem;
-  transition:background 0.2s ease;
-}
-.side-menu a:hover,.side-menu a:focus {
-  background:rgba(255,255,255,0.12);
-  outline:none;
-}
-
-/* MAIN CONTENT */
+/* =========================================================
+   TILE GRID
+   ========================================================= */
 .page-wrap {
   flex: 1;
-  width:100%;
-  max-width:1200px;
-  margin:2rem auto;
-  padding:0 1rem 4rem;
-  position:relative;
-  z-index:1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem;
 }
 
-/* TILE GRID */
 .tile-grid {
-  display:grid;
-  gap:1.2rem;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  justify-items:center;
-  align-items:stretch;
-  margin-top:1rem;
-  padding: 0 0.5rem;
-}
-@media (max-width:700px){
-  .tile-grid{gap:0.9rem;}
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
-/* TILE BASE */
+/* =========================================================
+   TILES
+   ========================================================= */
 .class-tile {
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  border-radius:var(--radius-card);
-  width:100%;
-  min-height:140px;
-  box-shadow:var(--shadow-card);
-  border:2px solid rgba(0,0,0,0.6);
-  outline:2px solid rgba(255,255,255,0.07);
-  outline-offset:-4px;
-  overflow:hidden;
-  background-size:cover;
-  background-position:center;
-  text-decoration:none;
-  color:#fff;
-  transition:transform 0.18s ease, box-shadow 0.18s ease, filter 0.2s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 140px;
+  width: 100%;
+  border-radius: var(--radius-card);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  color: #fff;
+  text-decoration: none;
+  border: 2px solid rgba(255,255,255,0.15);
+  outline-offset: -4px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.2s ease;
 }
-.class-tile:hover,.class-tile:focus {
-  transform:translateY(-4px) scale(1.03);
-  box-shadow:0 30px 60px rgba(0,0,0,0.9);
-  filter:brightness(1.08);
-  outline:3px solid #fff;
+.class-tile:hover,
+.class-tile:focus-visible {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.85);
+  outline: 3px solid #fff;
+  filter: brightness(1.08);
 }
 
-/* TILE LABEL */
 .tile-label {
-  width:100%;
-  background:rgba(0,0,0,0.45);
-  backdrop-filter:blur(6px);
-  text-align:center;
-  font-weight:600;
-  font-size:1rem;
-  padding:0.5rem 0.4rem;
-  border-top:1px solid rgba(255,255,255,0.2);
-  text-shadow:0 2px 5px rgba(0,0,0,0.6);
-  border-radius:0 0 var(--radius-card) var(--radius-card);
-  pointer-events:none;
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  padding: 0.55rem 0.4rem;
+  border-top: 1px solid rgba(255,255,255,0.2);
 }
-.class-tile:hover .tile-label {background:rgba(0,0,0,0.6);}
 
-/* TILE IMAGES */
+/* Tile backgrounds */
 .tile-s3 { background-image: url("/assets/s3physicsbanner.png"); }
 .tile-n5 { background-image: url("/assets/n5physicsbanner.png"); }
 .tile-high { background-image: url("/assets/hphysicsbanner.png"); }
 .tile-adv { background-image: url("/assets/advbanner.png"); }
 
-/* FOOTER */
+/* =========================================================
+   FOOTER
+   ========================================================= */
 footer {
-  text-align:center;
-  color:#fff;
-  padding:1rem 0.5rem;
-  font-size:0.9rem;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter:blur(8px);
-  border-top:1px solid rgba(255,255,255,0.2);
-  margin-top:auto;
-  width:100%;
-  box-shadow:0 -3px 10px rgba(0,0,0,0.4);
+  text-align: center;
+  padding: 1rem 0.5rem;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 0.9rem;
 }
 </style>
 
-<!-- MENU BUTTON -->
+<!-- =========================================================
+     MENU BUTTON
+     ========================================================= -->
 <button class="menu-btn" type="button" onclick="toggleMenu()" aria-label="Open menu">☰</button>
 
-<!-- PAGE BANNER -->
+<!-- =========================================================
+     PAGE BANNER
+     ========================================================= -->
 <div class="banner-wrap">
-  <img src="/assets/physicsbanner.png" alt="Physics" class="banner">
+  <img src="/assets/physicsbanner.png" alt="Physics banner" class="banner">
   <div class="banner-tint"></div>
-  <div class="banner-overlay-text"><h1>Explore S3, National 5, Higher & Advanced Higher Physics</h1></div>
+  <div class="banner-overlay-text">
+    <h1>Discover the Physics Journey — From S3 to Advanced Higher</h1>
+  </div>
 </div>
 
-<div class="banner-separator"></div>
-
-<!-- PAGE CONTENT -->
+<!-- =========================================================
+     TILE SECTION
+     ========================================================= -->
 <main class="page-wrap">
   <section class="tile-grid">
 
-    <!-- NEW S3 TILE -->
-    <a class="class-tile tile-s3" href="/classes/s3-physics.html">
+    <a class="class-tile tile-s3" href="/classes/s3-physics.html" aria-label="S3 Physics">
+      <span class="visually-hidden">S3 Physics</span>
       <div class="tile-label">S3 Physics</div>
     </a>
 
-    <a class="class-tile tile-n5" href="/classes/s3-n5-physics.html">
+    <a class="class-tile tile-n5" href="/classes/s3-n5-physics.html" aria-label="National 5 Physics">
+      <span class="visually-hidden">National 5 Physics</span>
       <div class="tile-label">National 5 Physics</div>
     </a>
 
-    <a class="class-tile tile-high" href="/classes/higher-physics.html">
+    <a class="class-tile tile-high" href="/classes/higher-physics.html" aria-label="Higher Physics">
+      <span class="visually-hidden">Higher Physics</span>
       <div class="tile-label">Higher Physics</div>
     </a>
 
-    <a class="class-tile tile-adv" href="/classes/adv-higher-physics.html">
+    <a class="class-tile tile-adv" href="/classes/adv-higher-physics.html" aria-label="Advanced Higher Physics">
+      <span class="visually-hidden">Advanced Higher Physics</span>
       <div class="tile-label">Advanced Higher Physics</div>
     </a>
 
   </section>
 </main>
 
-<!-- FOOTER -->
 <footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
 
-<!-- DRAWER MENU -->
+<!-- =========================================================
+     SIDE MENU STRUCTURE
+     ========================================================= -->
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
 <nav class="side-menu" id="sideMenu">
   <a href="/">🏠 Home</a>
   <a href="/classes/science.html">🧪 Science</a>
@@ -279,23 +299,21 @@ footer {
   <a href="/classes/engineering.html">🧰 Engineering</a>
 </nav>
 
+<!-- =========================================================
+     SCRIPT
+     ========================================================= -->
 <script>
-function toggleMenu(){
-  const menu=document.getElementById('sideMenu');
-  const overlay=document.getElementById('menuOverlay');
+function toggleMenu() {
+  const menu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('menuOverlay');
   menu.classList.toggle('open');
   overlay.classList.toggle('show');
 }
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
     document.getElementById('sideMenu').classList.remove('open');
     document.getElementById('menuOverlay').classList.remove('show');
   }
-});
-window.addEventListener('scroll',()=>{
-  const banner=document.querySelector('.banner');
-  if(!banner)return;
-  const offset=window.scrollY*0.25;
-  banner.style.transform=`translateY(${offset}px)`;
 });
 </script>
