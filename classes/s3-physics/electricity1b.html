@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>S3 Physics – Electricity 1</title>
+
+<style>
+/* ============================================================
+   FULL S3 PHYSICS STYLE SYSTEM (UPGRADED)
+   ============================================================ */
+:root {
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --text-main: #ffffff;
+  --radius-card: 1rem;
+
+  --bg1: #0c2f3c;
+  --bg2: #104b5c;
+  --bg3: #082229;
+
+  --tab-active: #00e6b3;
+  --tab-bg: rgba(255,255,255,0.08);
+}
+
+/* ----------------- BASE ----------------- */
+body {
+  margin: 0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+  background-attachment: fixed;
+  font-family: var(--font-stack);
+  color: var(--text-main);
+  line-height: 1.55;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ----------------- MENU BUTTON ----------------- */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  cursor: pointer;
+  color: #fff;
+  z-index: 200;
+  transition: transform 0.2s ease;
+}
+.menu-btn:hover,
+.menu-btn:focus-visible {
+  transform: scale(1.1);
+}
+
+/* ----------------- SIDE MENU ----------------- */
+.menu-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 90;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed; top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.85);
+  backdrop-filter: blur(16px) saturate(200%);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease;
+  z-index: 150;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.side-menu a:hover,
+.side-menu a:focus-visible {
+  background: rgba(255,255,255,0.14);
+}
+
+/* ----------------- BANNER ----------------- */
+.banner-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+}
+.banner {
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: cover;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+.banner-tint {
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg,
+    rgba(0,255,200,0.3),
+    rgba(0,180,255,0.25),
+    rgba(0,255,180,0.2)
+  );
+  mix-blend-mode: multiply;
+}
+
+.banner-overlay-text {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  padding: 1rem 0.6rem;
+  border-top: 1px solid rgba(255,255,255,0.3);
+}
+.banner-overlay-text h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* ----------------- PAGE WRAPPER ----------------- */
+.page-wrap {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem 6rem; /* extra bottom padding */
+}
+
+/* ----------------- CONTENT PANELS ----------------- */
+.topic-box {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+  margin-bottom: 2rem;
+}
+
+.topic-box a {
+  color: #00e6b3;
+  font-weight: 600;
+}
+
+/* ----------------- CARDS ----------------- */
+.info-card,
+.core-revision-box,
+.checklist-box {
+  background: rgba(0,0,0,0.45);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.28);
+  padding: 1rem 1.1rem;
+  margin: 0.75rem 0 1.1rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+/* ----------------- GRID ----------------- */
+.core-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+@media (min-width: 700px) {
+  .core-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.core-item-title {
+  font-weight: 600;
+}
+
+/* ----------------- CHECKLIST ----------------- */
+.checklist-box ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.3rem 0;
+}
+.checklist-box li::before {
+  content: "☐ ";
+}
+
+/* ----------------- COLLAPSIBLES ----------------- */
+.collapsible-panel {
+  margin-top: 1.25rem;
+}
+
+.collapsible-panel details {
+  background: rgba(0,0,0,0.45);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+.collapsible-panel summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1rem 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg,
+    rgba(0,255,200,0.16),
+    rgba(0,180,255,0.18)
+  );
+  border-bottom: 1px solid rgba(255,255,255,0.25);
+  role: button;
+}
+
+/* Hide Safari built-in arrow */
+details summary::-webkit-details-marker {
+  display:none;
+}
+
+.summary-icon {
+  font-size: 1.2rem;
+}
+.summary-text {
+  flex: 1;
+}
+
+/* ----------------- VIDEO GRID ----------------- */
+.video-grid {
+  padding: 1rem 1.1rem 1.2rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 700px) {
+  .video-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.video-card {
+  background: rgba(0,0,0,0.5);
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.75rem;
+}
+
+.video-embed {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+
+.video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ----------------- FOOTER ----------------- */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 0.9rem;
+}
+</style>
+</head>
+<body>
+
+<!-- MENU BUTTON -->
+<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+
+<!-- SIDE MENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
+<!-- BANNER -->
+<div class="banner-wrap">
+  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>S3 Physics – Electricity 1: Voltage, Current & Resistance</h1>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="page-wrap">
+
+<div class="topic-box">
+
+<h2>📘 Electricity 1 – Notes & Revision</h2>
+
+<p>
+  <a href="/classes/s3-physics/RS Electricity B1 N5 2025.pdf"
+     target="_blank"
+     class="download-btn"
+     style="display:inline-block; padding:0.7rem 1.2rem; background:rgba(0,255,200,0.18);
+            border:1px solid rgba(0,255,200,0.4); border-radius:12px; font-weight:600;">
+     📘 Download the Full Booklet (PDF)
+  </a>
+</p>
+
+<p>
+  <strong>Use this page to revise for the Electricity 1 assessment.</strong><br>
+  Work through each collapsible section below.
+</p>
+
+<!-- ============================
+     WHAT THIS ASSESSMENT IS ABOUT
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">🗺️</span>
+    <span class="summary-text">What this assessment is about</span>
+  </summary>
+
+  <div class="info-card">
+    <p>You will be tested on:</p>
+    <ul>
+      <li>Circuit symbols and simple circuit diagrams</li>
+      <li>Voltage, current and resistance — meanings, symbols and units</li>
+      <li>Rules for current & voltage in series and parallel circuits</li>
+      <li>Using ohmmeters correctly</li>
+      <li>Using <strong>V = I R</strong> to solve problems</li>
+      <li>Combining resistors in series and parallel</li>
+    </ul>
+  </div>
+
+</details>
+</div>
+
+<!-- ============================
+     CORE FACTS
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">📌</span>
+    <span class="summary-text">Core Facts & Equations</span>
+  </summary>
+
+  <div class="core-revision-box">
+
+    <div class="core-grid">
+      <div>
+        <div class="core-item-title">Key definitions</div>
+        <ul>
+          <li><strong>Voltage (V)</strong> – energy per coulomb. Unit: volt (V)</li>
+          <li><strong>Current (I)</strong> – charge per second. Unit: ampere (A)</li>
+          <li><strong>Resistance (R)</strong> – opposition to current. Unit: ohm (Ω)</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="core-item-title">Essential equations</div>
+        <ul>
+          <li><strong>V = I R</strong></li>
+          <li><strong>Series resistance:</strong> R<sub>T</sub> = R₁ + R₂ + …</li>
+          <li><strong>Parallel resistance:</strong> 1/R<sub>T</sub> = 1/R₁ + 1/R₂ + …</li>
+          <li>Series circuits: currents same; voltages share</li>
+          <li>Parallel circuits: voltages same; currents share</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+</details>
+</div>
+
+<!-- ============================
+     USEFUL LINKS
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">🔗</span>
+    <span class="summary-text">Useful Links</span>
+  </summary>
+
+ <div class="info-card">
+  <ul>
+    <li><a href="https://physicsflashrepo.ovh" target="_blank">⚡ Flash Physics</a></li>
+    <li><a href="https://glowscotland-my.sharepoint.com" target="_blank">📁 Mr Stewart’s Materials</a></li>
+    <li><a href="/classes/s3-physics/Electricity Block 1 Practice Test.pdf" target="_blank">📝 Electricity 1 Practice Test (PDF)</a></li>
+  </ul>
+</div>
+
+</details>
+</div>
+
+<!-- ============================
+     VIDEOS (NEW, NO TITLES, ARIA LABELS)
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">🎬</span>
+    <span class="summary-text">Electricity 1 Revision Videos</span>
+  </summary>
+
+<div class="video-grid">
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy" 
+        src="https://www.youtube.com/embed/4t560bFk8DM"
+        aria-label="Ohm’s Law video"></iframe>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy"
+        src="https://www.youtube.com/embed/0ETqVlyTyfA"
+        aria-label="Non-ohmic conductor demonstration"></iframe>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy"
+        src="https://www.youtube.com/embed/14GTzFPsfzw"
+        aria-label="Resistors in series video"></iframe>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy"
+        src="https://www.youtube.com/embed/6H_4pfxWfiI"
+        aria-label="Resistors in parallel video"></iframe>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy"
+        src="https://www.youtube.com/embed/BSYu_hx__Lo"
+        aria-label="Resistance calculations video"></iframe>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy"
+        src="https://www.youtube.com/embed/YwIsLgRx1OU"
+        aria-label="Series and parallel worked questions video"></iframe>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe loading="lazy"
+        src="https://www.youtube.com/embed/0m-jg2NvUO8"
+        aria-label="Resistor colour band questions video"></iframe>
+    </div>
+  </div>
+
+</div>
+
+</details>
+</div>
+
+<!-- ============================
+     PHET SIMULATION
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">🔧</span>
+    <span class="summary-text">Interactive Simulation – Circuit Construction Kit (DC)</span>
+  </summary>
+
+  <div class="info-card">
+    <p>Use the simulation to build circuits, add meters, and experiment safely.</p>
+
+    <div class="video-embed" style="padding-top:70%;">
+      <iframe loading="lazy"
+        src="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html"
+        aria-label="PhET Circuit Construction Kit simulation"></iframe>
+    </div>
+
+  </div>
+
+</details>
+</div>
+
+<!-- ============================
+     PRACTICE QUESTIONS
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">✅</span>
+    <span class="summary-text">Practice Questions</span>
+  </summary>
+
+<div class="info-card">
+  <ul>
+    <li><strong>Practice Paper 1</strong> – basic circuit symbols, series/parallel rules.</li>
+    <li><strong>Practice Paper 2</strong> – current division, ohmmeters, V = IR graphs.</li>
+    <li><strong>Challenge Papers</strong> – higher difficulty problems.</li>
+    <li>
+      <a href="/classes/s3-physics/Electricity Block 1 Practice Test.pdf"
+         target="_blank"
+         style="font-weight:600;">
+        📝 Download the Electricity 1 Practice Test (PDF)
+      </a>
+    </li>
+  </ul>
+</div>
+
+</details>
+</div>
+
+<!-- ============================
+     SUCCESS CRITERIA (L1–L6)
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">📝</span>
+    <span class="summary-text">Self-Check: Success Criteria (L1–L6)</span>
+  </summary>
+
+<div class="checklist-box">
+
+<h3>L1</h3>
+<ul>
+  <li>I can draw the circuit symbol for: cell, battery, lamp, switch, voltmeter, ammeter, motor, microphone, loudspeaker, photovoltaic cell.</li>
+  <li>I can define potential difference (voltage).</li>
+  <li>I can define current.</li>
+  <li>I can describe practical applications of series and parallel circuits.</li>
+</ul>
+
+<h3>L2</h3>
+<ul>
+  <li>I can measure current and voltage correctly using appropriate meters.</li>
+  <li>I can apply current and voltage rules in series circuits.</li>
+  <li>I can apply current and voltage rules in parallel circuits.</li>
+  <li>I can describe the symbol, function and application of resistors and variable resistors.</li>
+</ul>
+
+<h3>L3</h3>
+<ul>
+  <li>I can use an ohmmeter to measure resistance.</li>
+  <li>I can use resistor colour coding.</li>
+  <li>I can make V-I measurements in simple and complex circuits.</li>
+  <li>I can determine resistance from a V-I graph.</li>
+  <li>I can use the correct relationship to calculate V, I and R.</li>
+</ul>
+
+<h3>L4</h3>
+<ul>
+  <li>I can describe how temperature affects resistance of a conductor.</li>
+  <li>I can describe how temperature affects resistance of a resistor.</li>
+  <li>I can describe an experiment to prove Ohm’s Law.</li>
+  <li>I know what happens to total resistance when components change in series and parallel circuits.</li>
+  <li>I can predict and measure total resistance in a series circuit.</li>
+</ul>
+
+<h3>L5</h3>
+<ul>
+  <li>I can predict the total resistance in a parallel circuit (equal resistors).</li>
+  <li>I can measure total resistance in a parallel circuit (equal resistors).</li>
+  <li>I can predict and measure total resistance in a series circuit.</li>
+</ul>
+
+<h3>L6</h3>
+<ul>
+  <li>I can predict the total resistance in a parallel circuit with equal resistors.</li>
+  <li>I can measure total resistance in a parallel circuit with equal resistors.</li>
+</ul>
+
+</div>
+
+</details>
+</div>
+
+<!-- END OF PART 2 -->
+<!-- ============================
+     INTERACTIVE TOOLS (SECTION HEADER)
+=============================== -->
+<h2 style="margin-top:2rem; margin-bottom:1rem;">⚙️ Interactive Tools</h2>
+
+<!-- ============================
+     RESISTOR COLOUR CODE CALCULATOR
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">🎨</span>
+    <span class="summary-text">Resistor Colour Code Calculator</span>
+  </summary>
+
+  <div class="info-card">
+
+    <p>Select the colours of the 4 bands to calculate the resistor value.</p>
+
+    <div style="display:grid; gap:0.6rem; max-width:420px;">
+      <label>1st Digit: <select id="band1"></select></label>
+      <label>2nd Digit: <select id="band2"></select></label>
+      <label>Multiplier: <select id="bandMult"></select></label>
+
+      <label>Tolerance:
+        <select id="bandTol">
+          <option value="±1%">Brown (±1%)</option>
+          <option value="±2%">Red (±2%)</option>
+          <option value="±5%">Gold (±5%)</option>
+          <option value="±10%">Silver (±10%)</option>
+        </select>
+      </label>
+    </div>
+
+    <h3 style="margin-top:1rem;">Value:</h3>
+    <div id="resVal" style="font-size:1.3rem; font-weight:600;">—</div>
+
+  </div>
+
+</details>
+</div>
+
+<!-- ============================
+     V = I R PRACTICE GENERATOR
+=============================== -->
+<div class="collapsible-panel">
+<details>
+  <summary>
+    <span class="summary-icon">⚡</span>
+    <span class="summary-text">V = I R Practice Generator</span>
+  </summary>
+
+  <div class="info-card">
+
+    <p>Click “New Question” to generate a random V, I or R calculation.</p>
+
+    <div id="vir-question" style="font-size:1.2rem; font-weight:600; margin:0.8rem 0;">Press “New Question”.</div>
+
+    <input id="vir-answer" type="number" step="0.01" placeholder="Enter your answer"
+      style="padding:0.5rem; border-radius:0.5rem; border:none; width:180px;" />
+
+    <button onclick="checkVIR()"
+      style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem;
+             border:none; background:#00e6b3; font-weight:600; cursor:pointer;">
+      Check
+    </button>
+
+    <button onclick="newVIR()"
+      style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem;
+             border:none; background:#0cc4a2; font-weight:600; cursor:pointer;">
+      New Question
+    </button>
+
+    <div id="vir-feedback" style="margin-top:1rem; font-size:1.1rem; font-weight:600;"></div>
+
+  </div>
+
+</details>
+</div>
+
+</div> <!-- END topic-box -->
+
+</main>
+
+<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
+
+<!-- ============================
+     JAVASCRIPT (MENU, TOOLS, LOGIC)
+=============================== -->
+
+<script>
+/* MOBILE SIDE MENU */
+function toggleMenu() {
+  const menu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('menuOverlay');
+  menu.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('sideMenu').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('show');
+  }
+});
+</script>
+
+<script>
+/* RESISTOR COLOUR CODE CALCULATOR */
+const digits = [
+  "Black (0)","Brown (1)","Red (2)","Orange (3)",
+  "Yellow (4)","Green (5)","Blue (6)",
+  "Violet (7)","Grey (8)","White (9)"
+];
+const multipliers = [
+  "Black (×1)","Brown (×10)","Red (×100)","Orange (×1k)",
+  "Yellow (×10k)","Green (×100k)","Blue (×1M)",
+  "Gold (×0.1)","Silver (×0.01)"
+];
+
+function populateSelect(id, arr) {
+  const sel = document.getElementById(id);
+  arr.forEach((t, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
+populateSelect("band1", digits);
+populateSelect("band2", digits);
+populateSelect("bandMult", multipliers);
+
+function updateResistor() {
+  const b1 = parseInt(document.getElementById("band1").value);
+  const b2 = parseInt(document.getElementById("band2").value);
+  const mult = parseInt(document.getElementById("bandMult").value);
+  const tol = document.getElementById("bandTol").value;
+
+  const multiplierValues = [1,10,100,1e3,1e4,1e5,1e6,0.1,0.01];
+
+  const base = b1 * 10 + b2;
+  const value = base * multiplierValues[mult];
+
+  let formatted = value + " Ω";
+  if (value >= 1e6) formatted = (value/1e6) + " MΩ";
+  else if (value >= 1e3) formatted = (value/1e3) + " kΩ";
+
+  document.getElementById("resVal").textContent = `${formatted}  ${tol}`;
+}
+
+["band1","band2","bandMult","bandTol"].forEach(id => {
+  document.getElementById(id).addEventListener("change", updateResistor);
+});
+</script>
+
+<script>
+/* V = I R PRACTICE GENERATOR */
+let currentAnswer = 0;
+
+function newVIR() {
+  document.getElementById("vir-feedback").textContent = "";
+  const type = Math.floor(Math.random() * 3);
+
+  let V = (Math.random()*9 + 1).toFixed(1);
+  let I = (Math.random()*0.9 + 0.1).toFixed(2);
+  let R = (Math.random()*90 + 10).toFixed(0);
+
+  V = parseFloat(V);
+  I = parseFloat(I);
+  R = parseFloat(R);
+
+  let question = "";
+
+  if (type === 0) {
+    V = I * R;
+    currentAnswer = parseFloat(V.toFixed(2));
+    question = `Calculate V:  I = ${I} A,  R = ${R} Ω`;
+  }
+  else if (type === 1) {
+    I = V / R;
+    currentAnswer = parseFloat(I.toFixed(2));
+    question = `Calculate I:  V = ${V} V,  R = ${R} Ω`;
+  }
+  else {
+    R = V / I;
+    currentAnswer = parseFloat(R.toFixed(2));
+    question = `Calculate R:  V = ${V} V,  I = ${I} A`;
+  }
+
+  document.getElementById("vir-question").textContent = question;
+}
+
+function checkVIR() {
+  const user = parseFloat(document.getElementById("vir-answer").value);
+  const fb = document.getElementById("vir-feedback");
+
+  if (isNaN(user)) {
+    fb.textContent = "Please enter a number.";
+    fb.style.color = "#ffca6f";
+    return;
+  }
+
+  if (Math.abs(user - currentAnswer) < 0.05) {
+    fb.textContent = "Correct!";
+    fb.style.color = "#00ffb3";
+  } else {
+    fb.textContent = `Not quite. Correct answer = ${currentAnswer}`;
+    fb.style.color = "#ff6f6f";
+  }
+}
+</script>
+
+</body>
+</html>
