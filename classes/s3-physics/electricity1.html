@@ -520,7 +520,199 @@ footer {
     </div>
 
   </div>
+<!-- ============================
+     RESISTOR COLOUR CODE CALCULATOR
+=============================== -->
+<div class="collapsible-panel">
+  <details>
+    <summary>
+      <span class="summary-icon">🎨</span>
+      <span class="summary-text">Resistor Colour Code Calculator</span>
+    </summary>
 
+    <div class="info-card">
+
+      <p>Select the colours of the 4 bands to calculate the resistor value.</p>
+
+      <div style="display:grid; gap:0.6rem; max-width:420px;">
+        <label>1st Digit:
+          <select id="band1"></select>
+        </label>
+
+        <label>2nd Digit:
+          <select id="band2"></select>
+        </label>
+
+        <label>Multiplier:
+          <select id="bandMult"></select>
+        </label>
+
+        <label>Tolerance:
+          <select id="bandTol">
+            <option value="±1%">Brown (±1%)</option>
+            <option value="±2%">Red (±2%)</option>
+            <option value="±5%">Gold (±5%)</option>
+            <option value="±10%">Silver (±10%)</option>
+          </select>
+        </label>
+      </div>
+
+      <h3 style="margin-top:1rem;">Value:</h3>
+      <div id="resVal" style="font-size:1.3rem; font-weight:600;">—</div>
+
+    </div>
+  </details>
+</div>
+
+<script>
+// Populate digit dropdowns
+const digits = [
+  "Black (0)","Brown (1)","Red (2)","Orange (3)","Yellow (4)",
+  "Green (5)","Blue (6)","Violet (7)","Grey (8)","White (9)"
+];
+const multipliers = [
+  "Black (×1)","Brown (×10)","Red (×100)","Orange (×1k)",
+  "Yellow (×10k)","Green (×100k)",
+  "Blue (×1M)","Gold (×0.1)","Silver (×0.01)"
+];
+
+function populateSelect(id, arr) {
+  const sel = document.getElementById(id);
+  arr.forEach((t,i)=>{
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
+populateSelect("band1", digits);
+populateSelect("band2", digits);
+populateSelect("bandMult", multipliers);
+
+// Calculator
+function updateResistor() {
+  const b1 = parseInt(document.getElementById("band1").value);
+  const b2 = parseInt(document.getElementById("band2").value);
+  const mult = parseInt(document.getElementById("bandMult").value);
+  const tol = document.getElementById("bandTol").value;
+
+  const multiplierValues = [1,10,100,1e3,1e4,1e5,1e6,0.1,0.01];
+
+  const base = b1 * 10 + b2;
+  const value = base * multiplierValues[mult];
+
+  let formatted = value + " Ω";
+  if (value >= 1e6) formatted = (value/1e6) + " MΩ";
+  else if (value >= 1e3) formatted = (value/1e3) + " kΩ";
+
+  document.getElementById("resVal").textContent = `${formatted}  ${tol}`;
+}
+
+// update whenever a value changes
+["band1","band2","bandMult","bandTol"].forEach(id=>{
+  document.getElementById(id).addEventListener("change", updateResistor);
+});
+</script>
+
+<!-- ============================
+     V = IR PRACTICE GENERATOR
+=============================== -->
+<div class="collapsible-panel">
+  <details>
+    <summary>
+      <span class="summary-icon">⚡</span>
+      <span class="summary-text">V = I R Practice Generator</span>
+    </summary>
+
+    <div class="info-card">
+
+      <p>Click “New Question” to generate a random V, I or R calculation.</p>
+
+      <div id="vir-question" style="font-size:1.2rem; font-weight:600; margin:0.8rem 0;">Press “New Question”.</div>
+
+      <input 
+        id="vir-answer"
+        type="number"
+        step="0.01"
+        placeholder="Enter your answer"
+        style="padding:0.5rem; border-radius:0.5rem; border:none; width:180px;"
+      />
+
+      <button onclick="checkVIR()" 
+        style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem; border:none; background:#00e6b3; font-weight:600; cursor:pointer;">
+        Check
+      </button>
+
+      <button onclick="newVIR()" 
+        style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem; border:none; background:#0cc4a2; font-weight:600; cursor:pointer;">
+        New Question
+      </button>
+
+      <div id="vir-feedback" style="margin-top:1rem; font-size:1.1rem; font-weight:600;"></div>
+
+    </div>
+
+  </details>
+</div>
+
+<script>
+let currentAnswer = 0;
+
+function newVIR() {
+  document.getElementById("vir-feedback").textContent = "";
+  const type = Math.floor(Math.random()*3); // 0 = V, 1 = I, 2 = R
+
+  let V = (Math.random()*9 + 1).toFixed(1);   // 1.0–10.0 V
+  let I = (Math.random()*0.9 + 0.1).toFixed(2); // 0.10–1.00 A
+  let R = (Math.random()*90 + 10).toFixed(0); // 10–100 Ω
+
+  V = parseFloat(V);
+  I = parseFloat(I);
+  R = parseFloat(R);
+
+  let question = "";
+
+  if (type === 0) { // Find V
+    V = I * R;
+    currentAnswer = parseFloat(V.toFixed(2));
+    question = `Calculate V:  I = ${I} A,  R = ${R} Ω`;
+  } 
+  else if (type === 1) { // Find I
+    I = V / R;
+    currentAnswer = parseFloat(I.toFixed(2));
+    question = `Calculate I:  V = ${V} V,  R = ${R} Ω`;
+  } 
+  else { // Find R
+    R = V / I;
+    currentAnswer = parseFloat(R.toFixed(2));
+    question = `Calculate R:  V = ${V} V,  I = ${I} A`;
+  }
+
+  document.getElementById("vir-question").textContent = question;
+}
+
+function checkVIR() {
+  const user = parseFloat(document.getElementById("vir-answer").value);
+  const fb = document.getElementById("vir-feedback");
+
+  if (isNaN(user)) {
+    fb.textContent = "Please enter a number.";
+    fb.style.color = "#ffca6f";
+    return;
+  }
+
+  if (Math.abs(user - currentAnswer) < 0.05) {
+    fb.textContent = "Correct!";
+    fb.style.color = "#00ffb3";
+  } else {
+    fb.textContent = `Not quite. Correct answer = ${currentAnswer}`;
+    fb.style.color = "#ff6f6f";
+  }
+}
+</script>
+
+   
 </main>
 
 <footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
