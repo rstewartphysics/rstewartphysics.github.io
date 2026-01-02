@@ -1272,27 +1272,75 @@ Copy this SECOND (directly after Part 1)
 
 <footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
 <!-- ============================
-PART 3 / 3  ✅  (All JS: menu + quizzes + storage + calculators + slider + generator + fault wizard)
-Copy this THIRD (directly after Part 2)
+PART 3 / v2  ✅  (All JS: menu + focus mgmt + quizzes + storage + calculators + slider + generator + fault wizard)
+Copy this to REPLACE your current Part 3
 =============================== -->
 <script>
 /* ============================
-   MENU (ESC closes)
+   HELPERS
 =============================== */
-function toggleMenu(){
-  const menu = document.getElementById("sideMenu");
-  const overlay = document.getElementById("menuOverlay");
-  const btn = document.getElementById("menuBtn");
-  const open = !menu.classList.contains("open");
-  menu.classList.toggle("open");
-  overlay.classList.toggle("show");
-  btn.setAttribute("aria-expanded", open ? "true" : "false");
+function $(id){ return document.getElementById(id); }
+
+/* ============================
+   MENU (ESC closes) + A11Y focus mgmt
+=============================== */
+let lastFocusEl = null;
+
+function openMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  lastFocusEl = document.activeElement;
+
+  menu.classList.add("open");
+  overlay.classList.add("show");
+
+  btn.setAttribute("aria-expanded","true");
+  btn.setAttribute("aria-label","Close menu");
+  overlay.setAttribute("aria-hidden","false");
+
+  // Move focus to first link in menu
+  const firstLink = menu.querySelector("a");
+  if(firstLink) firstLink.focus();
 }
-document.addEventListener("keydown", e => {
+
+function closeMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  menu.classList.remove("open");
+  overlay.classList.remove("show");
+
+  btn.setAttribute("aria-expanded","false");
+  btn.setAttribute("aria-label","Open menu");
+  overlay.setAttribute("aria-hidden","true");
+
+  // Return focus to where the user was (or the menu button)
+  if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+    lastFocusEl.focus();
+  } else {
+    btn.focus();
+  }
+  lastFocusEl = null;
+}
+
+function toggleMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return;
+  const isOpen = menu.classList.contains("open");
+  if(isOpen) closeMenu();
+  else openMenu();
+}
+
+document.addEventListener("keydown", (e) => {
   if(e.key === "Escape"){
-    document.getElementById("sideMenu").classList.remove("open");
-    document.getElementById("menuOverlay").classList.remove("show");
-    document.getElementById("menuBtn").setAttribute("aria-expanded","false");
+    // Close menu if open
+    const menu = $("sideMenu");
+    if(menu && menu.classList.contains("open")) closeMenu();
   }
 });
 
@@ -1300,10 +1348,10 @@ document.addEventListener("keydown", e => {
    QUICK JUMP (opens section + scroll)
 =============================== */
 function jumpTo(detailsId){
-  const d = document.getElementById(detailsId);
-  if(!d) return;
-  if(d.tagName === "DETAILS") d.open = true;
-  d.scrollIntoView({ behavior:"smooth", block:"start" });
+  const el = $(detailsId);
+  if(!el) return;
+  if(el.tagName === "DETAILS") el.open = true;
+  el.scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
 /* ============================
@@ -1318,6 +1366,7 @@ const quizKeys = {
   exit1: "a",
   exit2: "a"
 };
+
 const quizFeedback = {
   pd1:   "✅ Correct — increasing R₂ increases the fraction, so Vout increases.",
   led1:  "✅ Correct — higher supply means more voltage across the resistor, so R must increase for the same current.",
@@ -1327,9 +1376,11 @@ const quizFeedback = {
   exit1: "✅ Nice — divider output increases when R₂ increases (R₁ fixed).",
   exit2: "✅ Yes — the resistor limits current to protect the LED."
 };
+
 function quiz(targetId, choice){
-  const el = document.getElementById(targetId);
+  const el = $(targetId);
   if(!el) return;
+
   if(choice === quizKeys[targetId]){
     el.textContent = quizFeedback[targetId] || "✅ Correct!";
     el.style.color = "#00ffb3";
@@ -1343,62 +1394,80 @@ function quiz(targetId, choice){
    CHECKLIST (localStorage)
 =============================== */
 const checklistIds = ["t1","t2","t3","t4","t5","t6","t7","p1","p2","p3","p4"];
+
 function loadChecks(){
   try{
     const saved = JSON.parse(localStorage.getItem("e2_checks") || "{}");
     checklistIds.forEach(id=>{
-      const box = document.getElementById(id);
+      const box = $(id);
       if(box && typeof saved[id] === "boolean") box.checked = saved[id];
     });
   }catch(e){}
 }
+
 function saveChecks(){
   const state = {};
   checklistIds.forEach(id=>{
-    const box = document.getElementById(id);
+    const box = $(id);
     if(box) state[id] = !!box.checked;
   });
   try{ localStorage.setItem("e2_checks", JSON.stringify(state)); }catch(e){}
 }
+
 document.addEventListener("change", (e)=>{
-  if(checklistIds.includes(e.target.id)) saveChecks();
+  if(e && e.target && checklistIds.indexOf(e.target.id) !== -1) saveChecks();
 });
 
 /* ============================
    POTENTIAL DIVIDER CALC
 =============================== */
 function presetDivider(vs,r1,r2){
-  document.getElementById("pdVs").value = vs;
-  document.getElementById("pdR1").value = r1;
-  document.getElementById("pdR2").value = r2;
+  const vsEl = $("pdVs");
+  const r1El = $("pdR1");
+  const r2El = $("pdR2");
+  if(vsEl) vsEl.value = vs;
+  if(r1El) r1El.value = r1;
+  if(r2El) r2El.value = r2;
   calcDivider();
 }
+
 function resetDivider(){
   presetDivider(6.0, 1000, 1000);
-  document.getElementById("pdTarget").value = 3.0;
-  document.getElementById("pdSolvedR2").value = "—";
+  const t = $("pdTarget");
+  const s = $("pdSolvedR2");
+  if(t) t.value = 3.0;
+  if(s) s.value = "—";
 }
+
 function calcDivider(){
-  const vs = parseFloat(document.getElementById("pdVs").value);
-  const r1 = parseFloat(document.getElementById("pdR1").value);
-  const r2 = parseFloat(document.getElementById("pdR2").value);
-  const out = document.getElementById("pdOut");
+  const vsEl = $("pdVs"), r1El = $("pdR1"), r2El = $("pdR2");
+  const out = $("pdOut");
+  if(!vsEl || !r1El || !r2El || !out) return;
+
+  const vs = parseFloat(vsEl.value);
+  const r1 = parseFloat(r1El.value);
+  const r2 = parseFloat(r2El.value);
 
   if([vs,r1,r2].some(v=>isNaN(v)) || r1<=0 || r2<=0 || vs<=0){
     out.textContent = "⚠️ Please enter valid positive numbers for Vs, R1 and R2.";
     out.className = "output warn";
     return;
   }
+
   const vout = (r2/(r1+r2))*vs;
-  out.textContent = `✅ Vout = ${vout.toFixed(2)} V  (across R2)`;
+  out.textContent = "✅ Vout = " + vout.toFixed(2) + " V  (across R2)";
   out.className = "output good";
 }
+
 function solveR2(){
-  const vs = parseFloat(document.getElementById("pdVs").value);
-  const r1 = parseFloat(document.getElementById("pdR1").value);
-  const target = parseFloat(document.getElementById("pdTarget").value);
-  const box = document.getElementById("pdSolvedR2");
-  const out = document.getElementById("pdOut");
+  const vsEl = $("pdVs"), r1El = $("pdR1"), targetEl = $("pdTarget");
+  const box = $("pdSolvedR2");
+  const out = $("pdOut");
+  if(!vsEl || !r1El || !targetEl || !box || !out) return;
+
+  const vs = parseFloat(vsEl.value);
+  const r1 = parseFloat(r1El.value);
+  const target = parseFloat(targetEl.value);
 
   if([vs,r1,target].some(v=>isNaN(v)) || r1<=0 || vs<=0){
     box.value = "—";
@@ -1412,10 +1481,14 @@ function solveR2(){
     out.className = "output warn";
     return;
   }
+
   const r2 = (target * r1) / (vs - target);
   box.value = r2.toFixed(0);
-  document.getElementById("pdR2").value = r2.toFixed(0);
-  out.textContent = `✅ Solved R2 ≈ ${r2.toFixed(0)} Ω (now applied to R2 input)`;
+
+  const r2Input = $("pdR2");
+  if(r2Input) r2Input.value = r2.toFixed(0);
+
+  out.textContent = "✅ Solved R2 ≈ " + r2.toFixed(0) + " Ω (now applied to R2 input)";
   out.className = "output good";
 }
 
@@ -1423,72 +1496,101 @@ function solveR2(){
    LED RESISTOR CALC
 =============================== */
 const std = [100,120,150,180,220,270,330,390,470,560,680,820,1000,1200,1500,1800,2200,2700,3300,3900,4700,5600,6800,8200,10000];
+
 function presetLED(vs,vf,i){
-  document.getElementById("ledVs").value = vs;
-  document.getElementById("ledVf").value = vf;
-  document.getElementById("ledI").value = i;
+  const vsEl = $("ledVs"), vfEl = $("ledVf"), iEl = $("ledI");
+  if(vsEl) vsEl.value = vs;
+  if(vfEl) vfEl.value = vf;
+  if(iEl) iEl.value = i;
   calcLED();
 }
+
 function resetLED(){
   presetLED(5.0, 2.0, 10);
 }
+
 function calcLED(){
-  const vs = parseFloat(document.getElementById("ledVs").value);
-  const vf = parseFloat(document.getElementById("ledVf").value);
-  const imA = parseFloat(document.getElementById("ledI").value);
-  const out = document.getElementById("ledOut");
+  const vsEl = $("ledVs"), vfEl = $("ledVf"), iEl = $("ledI");
+  const out = $("ledOut");
+  if(!vsEl || !vfEl || !iEl || !out) return;
+
+  const vs = parseFloat(vsEl.value);
+  const vf = parseFloat(vfEl.value);
+  const imA = parseFloat(iEl.value);
 
   if([vs,vf,imA].some(v=>isNaN(v)) || vs<=0 || vf<=0 || imA<=0){
     out.textContent = "⚠️ Please enter valid positive numbers.";
     out.className = "output warn";
     return;
   }
+
   const vR = vs - vf;
   if(vR <= 0){
     out.textContent = "❌ Supply voltage must be higher than LED voltage (Vf).";
     out.className = "output bad";
     return;
   }
-  const i = imA/1000;
-  const r = vR / i;
-  let next = std.find(x=>x>=r);
-  if(!next) next = Math.ceil(r/1000)*1000;
+
+  const I = imA/1000;
+  const r = vR / I;
+  let next = null;
+  for(let k=0;k<std.length;k++){
+    if(std[k] >= r){ next = std[k]; break; }
+  }
+  if(next === null) next = Math.ceil(r/1000)*1000;
 
   out.innerHTML =
-    `✅ R ≈ <strong>${Math.round(r)} Ω</strong><br>` +
-    `👉 Choose the next standard value: <strong>${next} Ω</strong>`;
+    "✅ R ≈ <strong>" + Math.round(r) + " Ω</strong><br>" +
+    "👉 Choose the next standard value: <strong>" + next + " Ω</strong>";
   out.className = "output good";
 }
 
 /* ============================
-   SWITCH CHECK
+   SWITCH CHECK (fixed < bug)
 =============================== */
 function presetSwitch(v){
-  document.getElementById("vb").value = v.toFixed(2);
+  const vbEl = $("vb");
+  if(vbEl) vbEl.value = Number(v).toFixed(2);
   checkSwitch();
 }
+
 function resetSwitch(){
-  document.getElementById("vb").value = "0.67";
-  document.getElementById("vth").value = "0.70";
-  const out = document.getElementById("swOut");
-  out.textContent = "Enter a base voltage then press “Check”.";
-  out.className = "output";
+  const vbEl = $("vb");
+  const vthEl = $("vth");
+  const out = $("swOut");
+  if(vbEl) vbEl.value = "0.67";
+  if(vthEl) vthEl.value = "0.70";
+  if(out){
+    out.textContent = "Enter a base voltage then press “Check”.";
+    out.className = "output";
+  }
 }
+
 function checkSwitch(){
-  const vb = parseFloat(document.getElementById("vb").value);
-  const vth = parseFloat(document.getElementById("vth").value);
-  const out = document.getElementById("swOut");
+  const vbEl = $("vb");
+  const vthEl = $("vth");
+  const out = $("swOut");
+  if(!vbEl || !vthEl || !out) return;
+
+  const vb = parseFloat(vbEl.value);
+  const vth = parseFloat(vthEl.value);
 
   if([vb,vth].some(v=>isNaN(v)) || vth<=0){
     out.textContent = "⚠️ Enter valid voltages.";
     out.className = "output warn";
     return;
   }
+
   if(vb >= vth){
-    out.innerHTML = `✅ <strong>SWITCH ON</strong> (Vb = ${vb.toFixed(2)} V is ≥ ${vth.toFixed(2)} V)<br>💡 Expect the output device (LED/buzzer) to activate.`;
+    out.innerHTML =
+      "✅ <strong>SWITCH ON</strong> (Vb = " + vb.toFixed(2) + " V is ≥ " + vth.toFixed(2) + " V)<br>" +
+      "💡 Expect the output device (LED/buzzer) to activate.";
     out.className = "output good";
   } else {
-    out.innerHTML = `⚠️ <strong>SWITCH OFF</strong> (Vb = ${vb.toFixed(2)} V is < ${vth.toFixed(2)} V)<br>🔧 Increase Vb (adjust divider/sensor) to reach the threshold.`;
+    // NOTE: &lt; prevents HTML parsing issues
+    out.innerHTML =
+      "⚠️ <strong>SWITCH OFF</strong> (Vb = " + vb.toFixed(2) + " V is &lt; " + vth.toFixed(2) + " V)<br>" +
+      "🔧 Increase Vb (adjust divider/sensor) to reach the threshold.";
     out.className = "output warn";
   }
 }
@@ -1497,17 +1599,26 @@ function checkSwitch(){
    RC TIME CONSTANT
 =============================== */
 function calcRC(){
-  const R = parseFloat(document.getElementById("rcR").value);
-  const CuF = parseFloat(document.getElementById("rcC").value);
-  const out = document.getElementById("rcOut");
+  const rEl = $("rcR");
+  const cEl = $("rcC");
+  const out = $("rcOut");
+  if(!rEl || !cEl || !out) return;
+
+  const R = parseFloat(rEl.value);
+  const CuF = parseFloat(cEl.value);
+
   if([R,CuF].some(v=>isNaN(v)) || R<=0 || CuF<=0){
     out.textContent = "⚠️ Enter valid positive values for R and C.";
     out.className = "output warn";
     return;
   }
+
   const C = CuF * 1e-6;
   const tau = R * C;
-  out.innerHTML = `✅ Time constant τ ≈ <strong>${tau.toFixed(2)} s</strong><br>Rule of thumb: ~1τ = noticeable change, ~5τ ≈ “almost finished”.`;
+
+  out.innerHTML =
+    "✅ Time constant τ ≈ <strong>" + tau.toFixed(2) + " s</strong><br>" +
+    "Rule of thumb: ~1τ = noticeable change, ~5τ ≈ “almost finished”.";
   out.className = "output good";
 }
 
@@ -1518,98 +1629,109 @@ function formatOhms(v){
   if(v >= 1000) return (v/1000).toFixed(v>=10000 ? 0 : 1) + " kΩ";
   return Math.round(v) + " Ω";
 }
+
 function resetSensor(){
-  const s = document.getElementById("sdRsensor");
-  if(s){ s.value = 2000; }
-  document.getElementById("sdVs").value = "6.0";
-  document.getElementById("sdRfixed").value = "1000";
+  const s = $("sdRsensor");
+  const vsEl = $("sdVs");
+  const r1El = $("sdRfixed");
+
+  if(s) s.value = 2000;
+  if(vsEl) vsEl.value = "6.0";
+  if(r1El) r1El.value = "1000";
+
   calcSensorDivider();
 }
+
 function calcSensorDivider(){
-  const Vs = parseFloat(document.getElementById("sdVs")?.value);
-  const R1 = parseFloat(document.getElementById("sdRfixed")?.value);
-  const Rs = parseFloat(document.getElementById("sdRsensor")?.value);
-  const out = document.getElementById("sdOut");
-  const label = document.getElementById("sdLabel");
+  const vsEl = $("sdVs");
+  const r1El = $("sdRfixed");
+  const rsEl = $("sdRsensor");
+  const out = $("sdOut");
+  const label = $("sdLabel");
+
+  if(!vsEl || !r1El || !rsEl || !out) return;
+
+  const Vs = parseFloat(vsEl.value);
+  const R1 = parseFloat(r1El.value);
+  const Rs = parseFloat(rsEl.value);
 
   if(label && !isNaN(Rs)) label.textContent = formatOhms(Rs);
-  if(!out) return;
 
   if([Vs, R1, Rs].some(v => isNaN(v)) || Vs <= 0 || R1 <= 0 || Rs <= 0){
     out.textContent = "⚠️ Enter valid values (Vs > 0 and resistances > 0).";
     out.className = "output warn";
     return;
   }
+
   const Vout = (Rs / (R1 + Rs)) * Vs;
 
   out.innerHTML =
-    `✅ Vout (across sensor / R₂) = <strong>${Vout.toFixed(2)} V</strong><br>` +
-    `R₁ = ${formatOhms(R1)}, R₂(sensor) = ${formatOhms(Rs)}`;
+    "✅ Vout (across sensor / R₂) = <strong>" + Vout.toFixed(2) + " V</strong><br>" +
+    "R₁ = " + formatOhms(R1) + ", R₂(sensor) = " + formatOhms(Rs);
   out.className = "output good";
 }
 
 /* ============================
-   FAULT FINDING WIZARD (includes Yenka symptom)
+   FAULT FINDING WIZARD
 =============================== */
 function faultHelp(){
-  const s = document.getElementById("symptom").value;
-  const out = document.getElementById("faultOut");
+  const sel = $("symptom");
+  const out = $("faultOut");
+  if(!sel || !out) return;
+
+  const s = sel.value;
 
   const lines = {
     none: "Pick a symptom from the list first.",
     never:
-`🔍 LED never turns on:
-1) ✅ Check LED polarity (long leg to + through resistor).
-2) ✅ Confirm the resistor is present (not a wire link).
-3) ✅ Check supply voltage is present on the rails.
-4) ✅ Measure Vout from the divider — does it change?
-5) ✅ Check transistor orientation and base connection.`,
+"🔍 LED never turns on:\n" +
+"1) ✅ Check LED polarity (long leg to + through resistor).\n" +
+"2) ✅ Confirm the resistor is present (not a wire link).\n" +
+"3) ✅ Check supply voltage is present on the rails.\n" +
+"4) ✅ Measure Vout from the divider — does it change?\n" +
+"5) ✅ Check transistor orientation and base connection.",
     always:
-`🔍 LED always on:
-1) ✅ Base voltage may be too high — measure Vb.
-2) ✅ Divider may be wired wrong (R1/R2 swapped or shorted).
-3) ✅ Check for solder bridges feeding the base.
-4) ✅ Verify track cuts are where they should be.`,
+"🔍 LED always on:\n" +
+"1) ✅ Base voltage may be too high — measure Vb.\n" +
+"2) ✅ Divider may be wired wrong (R1/R2 swapped or shorted).\n" +
+"3) ✅ Check for solder bridges feeding the base.\n" +
+"4) ✅ Verify track cuts are where they should be.",
     noresponse:
-`🔍 No response when sensor changes:
-1) ✅ Confirm sensor is in the divider (not bypassed).
-2) ✅ Measure sensor resistance change (or Vout change).
-3) ✅ Check connections to the base (wrong track / missing link).
-4) ✅ Look for missing track cuts that short Vout.`,
+"🔍 No response when sensor changes:\n" +
+"1) ✅ Confirm sensor is in the divider (not bypassed).\n" +
+"2) ✅ Measure sensor resistance change (or Vout change).\n" +
+"3) ✅ Check connections to the base (wrong track / missing link).\n" +
+"4) ✅ Look for missing track cuts that short Vout.",
     flicker:
-`🔍 Flickering / unstable:
-1) ✅ Loose joint? Reflow dull joints.
-2) ✅ Long wire links? Shorten/tidy.
-3) ✅ Switching point too close to threshold — adjust slightly.
-4) ✅ Check power supply stability (battery sag).`,
+"🔍 Flickering / unstable:\n" +
+"1) ✅ Loose joint? Reflow dull joints.\n" +
+"2) ✅ Long wire links? Shorten/tidy.\n" +
+"3) ✅ Switching point too close to threshold — adjust slightly.\n" +
+"4) ✅ Check power supply stability (battery sag).",
     yenka:
-`🧪 Works in Yenka but not on the board:
-1) ✅ Track cuts missing / in wrong place (common #1).
-2) ✅ Solder bridges shorting adjacent tracks.
-3) ✅ Stripboard rotated 180° (track direction mistake).
-4) ✅ Component legs bridging tracks (not trimmed).
-5) ✅ Continuity test across cuts + between rails (should NOT be short).`,
+"🧪 Works in Yenka but not on the board:\n" +
+"1) ✅ Track cuts missing / in wrong place (common #1).\n" +
+"2) ✅ Solder bridges shorting adjacent tracks.\n" +
+"3) ✅ Stripboard rotated 180° (track direction mistake).\n" +
+"4) ✅ Component legs bridging tracks (not trimmed).\n" +
+"5) ✅ Continuity test across cuts + between rails (should NOT be short).",
     hot:
-`🚨 Something hot / smell:
-1) ❌ POWER OFF immediately.
-2) ✅ Look for a short (solder bridge, missing track cut).
-3) ✅ Check polarity of electrolytic capacitors (if used).
-4) ✅ Check transistor pinout/orientation and supply rails.`
+"🚨 Something hot / smell:\n" +
+"1) ❌ POWER OFF immediately.\n" +
+"2) ✅ Look for a short (solder bridge, missing track cut).\n" +
+"3) ✅ Check polarity of electrolytic capacitors (if used).\n" +
+"4) ✅ Check transistor pinout/orientation and supply rails."
   };
 
   out.textContent = lines[s] || lines.none;
 
-  if(s === "none"){
-    out.className = "output warn";
-  } else if(s === "hot"){
-    out.className = "output bad";
-  } else {
-    out.className = "output good";
-  }
+  if(s === "none") out.className = "output warn";
+  else if(s === "hot") out.className = "output bad";
+  else out.className = "output good";
 }
 
 /* ============================
-   PRACTICE GENERATOR (with better feedback + saved streak)
+   PRACTICE GENERATOR (saved streak)
 =============================== */
 let genType = "divider";
 let genAnswer = 0;
@@ -1620,33 +1742,39 @@ function roundTo(x, dp){
   const p = Math.pow(10, dp);
   return Math.round(x * p) / p;
 }
+
 function loadStreak(){
   try{
     const s = parseInt(localStorage.getItem("e2_genStreak") || "0", 10);
     genStreak = isNaN(s) ? 0 : s;
   }catch(e){ genStreak = 0; }
-  const score = document.getElementById("genScore");
+  const score = $("genScore");
   if(score) score.textContent = genStreak;
 }
+
 function saveStreak(){
   try{ localStorage.setItem("e2_genStreak", String(genStreak)); }catch(e){}
 }
+
 function genReset(){
   genStreak = 0;
   saveStreak();
-  const score = document.getElementById("genScore");
-  const fb = document.getElementById("genFb");
+
+  const score = $("genScore");
+  const fb = $("genFb");
+
   if(score) score.textContent = genStreak;
   if(fb){
     fb.textContent = "🔄 Streak reset. Press “New Question”.";
     fb.className = "output warn";
   }
 }
+
 function genNew(){
-  const q = document.getElementById("genQ");
-  const fb = document.getElementById("genFb");
-  const ans = document.getElementById("genAns");
-  const hint = document.getElementById("genHint");
+  const q = $("genQ");
+  const fb = $("genFb");
+  const ans = $("genAns");
+  const hint = $("genHint");
   if(!q || !fb || !ans) return;
 
   fb.textContent = "—";
@@ -1663,8 +1791,8 @@ function genNew(){
     genAnswer = roundTo(Vout, 2);
 
     q.textContent =
-      `🔢 Divider: Vs = ${Vs.toFixed(1)} V, R1 = ${R1} Ω, R2 = ${R2} Ω. ` +
-      `Calculate Vout across R2 (2 d.p.).`;
+      "🔢 Divider: Vs = " + Vs.toFixed(1) + " V, R1 = " + R1 + " Ω, R2 = " + R2 + " Ω. " +
+      "Calculate Vout across R2 (2 d.p.).";
 
     if(hint) hint.textContent = "Method: Vout = (R2 / (R1 + R2)) × Vs";
   } else {
@@ -1672,22 +1800,24 @@ function genNew(){
     const Vs = pick([3.0, 5.0, 9.0]);
     const Vf = pick([1.8, 2.0, 2.2]);
     const ImA = pick([5, 10, 15]);
+
     const I = ImA / 1000;
     const R = (Vs - Vf) / I;
 
     genAnswer = Math.round(R);
 
     q.textContent =
-      `💡 LED: Vs = ${Vs.toFixed(1)} V, Vf = ${Vf.toFixed(1)} V, I = ${ImA} mA. ` +
-      `Calculate resistor R (nearest whole Ω).`;
+      "💡 LED: Vs = " + Vs.toFixed(1) + " V, Vf = " + Vf.toFixed(1) + " V, I = " + ImA + " mA. " +
+      "Calculate resistor R (nearest whole Ω).";
 
     if(hint) hint.textContent = "Method: R = (Vs − Vf) / I  (I in amps)";
   }
 }
+
 function genCheck(){
-  const fb = document.getElementById("genFb");
-  const ans = document.getElementById("genAns");
-  const score = document.getElementById("genScore");
+  const fb = $("genFb");
+  const ans = $("genAns");
+  const score = $("genScore");
   if(!fb || !ans || !score) return;
 
   const user = parseFloat(ans.value);
@@ -1698,17 +1828,21 @@ function genCheck(){
   }
 
   const tol = (genType === "divider") ? 0.05 : 5;
+
   if(Math.abs(user - genAnswer) <= tol){
     genStreak += 1;
     saveStreak();
-    fb.textContent = `✅ Correct! (${genStreak} in a row 🔥)`;
+    fb.textContent = "✅ Correct! (" + genStreak + " in a row 🔥)";
     fb.className = "output good";
   } else {
     genStreak = 0;
     saveStreak();
-    fb.innerHTML = `❌ Not quite. Correct answer = <strong>${genAnswer}</strong><br><span style="opacity:0.95;">Tip: check the method line above.</span>`;
+    fb.innerHTML =
+      "❌ Not quite. Correct answer = <strong>" + genAnswer + "</strong><br>" +
+      "<span style='opacity:0.95;'>Tip: check the method line above.</span>";
     fb.className = "output bad";
   }
+
   score.textContent = genStreak;
 }
 
@@ -1716,22 +1850,26 @@ function genCheck(){
    INIT
 =============================== */
 document.addEventListener("DOMContentLoaded", () => {
+  // Ensure overlay starts hidden for a11y
+  const overlay = $("menuOverlay");
+  if(overlay) overlay.setAttribute("aria-hidden","true");
+
   loadChecks();
   loadStreak();
 
   // Slider live update
-  const s = document.getElementById("sdRsensor");
+  const s = $("sdRsensor");
   if(s){
     s.addEventListener("input", calcSensorDivider);
     calcSensorDivider();
   }
-  const sv = document.getElementById("sdVs");
-  const sr1 = document.getElementById("sdRfixed");
+  const sv = $("sdVs");
+  const sr1 = $("sdRfixed");
   if(sv) sv.addEventListener("input", calcSensorDivider);
   if(sr1) sr1.addEventListener("input", calcSensorDivider);
 
   // Enter key checks generator
-  const genAns = document.getElementById("genAns");
+  const genAns = $("genAns");
   if(genAns){
     genAns.addEventListener("keydown", (e)=>{
       if(e.key === "Enter") genCheck();
@@ -1740,8 +1878,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-</body>
-</html>
 
 
    
