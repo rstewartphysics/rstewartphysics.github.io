@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>S3 Physics – Electricity 2</title>
+
+<style>
+/* ============================
+   FLOATING BACK BUTTON
+=============================== */
+.back-to-s3 {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 300;
+  background: rgba(0, 255, 200, 0.18);
+  padding: 0.75rem 1.2rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 2px solid rgba(0,255,200,0.35);
+  box-shadow: 0 4px 14px rgba(0,255,200,0.35);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.back-to-s3:hover,
+.back-to-s3:focus-visible {
+  background: rgba(0, 255, 200, 0.32);
+  transform: scale(1.08);
+  outline: 3px solid #00e6b3;
+  outline-offset: 3px;
+}
+
+/* ============================
+   GLOBAL STYLE SYSTEM
+=============================== */
+:root {
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --text-main: #ffffff;
+  --bg1: #0c2f3c;
+  --bg2: #104b5c;
+  --bg3: #082229;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+  background-attachment: fixed;
+  font-family: var(--font-stack);
+  color: var(--text-main);
+  line-height: 1.55;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================
+   MENU BUTTON & SIDE MENU
+=============================== */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  color: #fff;
+  z-index: 200;
+}
+
+.menu-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 90;
+}
+.menu-overlay.show { display: block; }
+
+.side-menu {
+  position: fixed; top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.85);
+  backdrop-filter: blur(16px);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
+  transition: right 0.3s ease;
+  z-index: 150;
+}
+.side-menu.open { right: 0; }
+
+.side-menu a {
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  gap: 0.7rem;
+}
+.side-menu a:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+/* ============================
+   BANNER
+=============================== */
+.banner-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+}
+.banner {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+}
+.banner-tint {
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg,
+    rgba(0,255,200,0.3),
+    rgba(0,180,255,0.25),
+    rgba(0,255,180,0.2)
+  );
+}
+.banner-overlay-text {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  padding: 1rem;
+}
+.banner-overlay-text h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+/* ============================
+   MAIN CONTENT
+=============================== */
+.page-wrap {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem 6rem;
+}
+
+.topic-box {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+}
+
+.collapsible-panel details {
+  background: rgba(0,0,0,0.45);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  margin-bottom: 1rem;
+}
+
+.collapsible-panel summary {
+  cursor: pointer;
+  padding: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg,
+    rgba(0,255,200,0.16),
+    rgba(0,180,255,0.18)
+  );
+  border-bottom: 1px solid rgba(255,255,255,0.25);
+  list-style: none;
+}
+
+.info-card, .core-revision-box, .checklist-box {
+  padding: 1rem;
+}
+
+.checklist-box ul {
+  list-style: none;
+  padding-left: 0;
+}
+.checklist-box li::before {
+  content: "☐ ";
+}
+
+/* ============================
+   FOOTER
+=============================== */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.35);
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+</style>
+</head>
+
+<body>
+
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+<nav class="side-menu" id="sideMenu">
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
+<div class="banner-wrap">
+  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>S3 Physics – Electricity 2: Electronics & Control</h1>
+  </div>
+</div>
+
+<main class="page-wrap">
+<a href="/classes/s3-physics.html" class="back-to-s3">⬅ Back to S3 Physics</a>
+
+<div class="topic-box">
+
+<h2>📘 Electricity 2 – Notes & Revision</h2>
+
+<p><strong>This block focuses on electronics, sensing, control and switching circuits.</strong></p>
+
+<div class="collapsible-panel">
+<details open>
+<summary>🗺️ What this assessment is about</summary>
+<div class="info-card">
+<ul>
+<li>Potential dividers</li>
+<li>Diodes and LEDs</li>
+<li>Sensors and special components</li>
+<li>Control and switching circuits</li>
+<li>Soldering and construction</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>🔢 L1–L3 Potential Dividers</summary>
+<div class="core-revision-box">
+<p><strong>V₂ = (R₂ / (R₁ + R₂)) × V<sub>s</sub></strong></p>
+<ul>
+<li>Used to produce a fraction of the supply voltage</li>
+<li>Foundation of sensing and control circuits</li>
+<li>Always compare calculated, simulated and measured values</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>💡 L4 Diodes & LEDs</summary>
+<div class="info-card">
+<ul>
+<li>Diodes allow current in one direction</li>
+<li>LEDs emit light when forward biased</li>
+<li>Protective resistors prevent damage</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>🌡️ L5 Special Components</summary>
+<div class="info-card">
+<ul>
+<li>LDR: ↑ light → ↓ resistance</li>
+<li>Thermistor: ↑ temperature → ↓ resistance</li>
+<li>Capacitor stores charge</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>🎛️ L6 Control Circuits</summary>
+<div class="info-card">
+<ul>
+<li>Low / High light circuits</li>
+<li>Low / High temperature circuits</li>
+<li>Variable resistors set switching point</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>🔄 L7 Switching Circuits</summary>
+<div class="info-card">
+<ul>
+<li>NPN transistor & MOSFET</li>
+<li>Used as electronic switches</li>
+<li>Switch on at a threshold voltage</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>🔧 L8–L9 Soldering & Build</summary>
+<div class="info-card">
+<ul>
+<li>Stripboard soldering</li>
+<li>Track cutter, heat sink, solder sucker</li>
+<li>Design and build own circuit</li>
+</ul>
+</div>
+</details>
+</div>
+
+<div class="collapsible-panel">
+<details>
+<summary>📝 Success Criteria</summary>
+<div class="checklist-box">
+<ul>
+<li>I can calculate potential divider voltages</li>
+<li>I can simulate circuits using Yenka</li>
+<li>I can calculate LED protective resistors</li>
+<li>I can explain sensor behaviour</li>
+<li>I can build control and switching circuits</li>
+<li>I can solder safely</li>
+</ul>
+</div>
+</details>
+</div>
+
+</div>
+</main>
+
+<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
+
+<script>
+function toggleMenu() {
+  document.getElementById("sideMenu").classList.toggle("open");
+  document.getElementById("menuOverlay").classList.toggle("show");
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    document.getElementById("sideMenu").classList.remove("open");
+    document.getElementById("menuOverlay").classList.remove("show");
+  }
+});
+</script>
+
+</body>
+</html>
