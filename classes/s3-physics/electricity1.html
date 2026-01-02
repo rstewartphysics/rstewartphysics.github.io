@@ -1,9 +1,13 @@
+<!-- =========================
+     ELECTRICITY 2 — PART 1/4
+     (DOCTYPE → end of <style>)
+========================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>S3 Physics – Electricity 1</title>
+<title>S3 Physics – Electricity 2</title>
 
 <style>
 /* ============================
@@ -14,7 +18,6 @@
   bottom: 20px;
   left: 20px;
   z-index: 300;
-
   background: rgba(0, 255, 200, 0.18);
   padding: 0.75rem 1.2rem;
   border-radius: 12px;
@@ -22,14 +25,11 @@
   font-weight: 600;
   text-decoration: none;
   font-size: 0.95rem;
-
   backdrop-filter: blur(10px) saturate(160%);
   border: 2px solid rgba(0,255,200,0.35);
   box-shadow: 0 4px 14px rgba(0,255,200,0.35);
-
   transition: transform 0.2s ease, background 0.2s ease;
 }
-
 .back-to-s3:hover,
 .back-to-s3:focus-visible {
   background: rgba(0, 255, 200, 0.32);
@@ -38,9 +38,9 @@
   outline-offset: 3px;
 }
 
-/* ============================================================
-   FULL S3 PHYSICS STYLE SYSTEM (UPGRADED)
-   ============================================================ */
+/* ============================
+   GLOBAL STYLE SYSTEM (MATCH E1)
+=============================== */
 :root {
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --text-main: #ffffff;
@@ -50,8 +50,9 @@
   --bg2: #104b5c;
   --bg3: #082229;
 
-  --tab-active: #00e6b3;
-  --tab-bg: rgba(255,255,255,0.08);
+  --accent: #00e6b3;
+  --panel: rgba(0,0,0,0.35);
+  --panel-strong: rgba(0,0,0,0.45);
 }
 
 /* ----------------- BASE ----------------- */
@@ -66,6 +67,25 @@ body {
   flex-direction: column;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Skip link (keyboard users) */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  z-index: 999;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* ----------------- MENU BUTTON ----------------- */
@@ -87,6 +107,8 @@ body {
 .menu-btn:hover,
 .menu-btn:focus-visible {
   transform: scale(1.1);
+  outline: 3px solid rgba(0,230,179,0.65);
+  outline-offset: 3px;
 }
 
 /* ----------------- SIDE MENU ----------------- */
@@ -125,6 +147,8 @@ body {
 .side-menu a:hover,
 .side-menu a:focus-visible {
   background: rgba(255,255,255,0.14);
+  outline: 3px solid rgba(0,230,179,0.55);
+  outline-offset: -3px;
 }
 
 /* ----------------- BANNER ----------------- */
@@ -175,12 +199,12 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 2rem auto;
-  padding: 0 1rem 6rem; /* extra bottom padding */
+  padding: 0 1rem 6rem;
 }
 
 /* ----------------- CONTENT PANELS ----------------- */
 .topic-box {
-  background: rgba(0,0,0,0.35);
+  background: var(--panel);
   border: 1px solid rgba(255,255,255,0.25);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
@@ -188,17 +212,39 @@ body {
   box-shadow: 0 12px 24px rgba(0,0,0,0.4);
   margin-bottom: 2rem;
 }
-
 .topic-box a {
-  color: #00e6b3;
+  color: var(--accent);
   font-weight: 600;
+}
+
+/* Buttons / links */
+.btn {
+  display: inline-block;
+  padding: 0.7rem 1.2rem;
+  background: rgba(0,255,200,0.18);
+  border: 1px solid rgba(0,255,200,0.4);
+  border-radius: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 6px 18px rgba(0,255,200,0.25);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.btn:hover,
+.btn:focus-visible {
+  transform: scale(1.06);
+  background: rgba(0,255,200,0.28);
+  outline: 3px solid rgba(0,230,179,0.7);
+  outline-offset: 3px;
 }
 
 /* ----------------- CARDS ----------------- */
 .info-card,
 .core-revision-box,
-.checklist-box {
-  background: rgba(0,0,0,0.45);
+.checklist-box,
+.tool-card {
+  background: var(--panel-strong);
   border-radius: 0.9rem;
   border: 1px solid rgba(255,255,255,0.28);
   padding: 1rem 1.1rem;
@@ -206,18 +252,170 @@ body {
   box-shadow: 0 10px 20px rgba(0,0,0,0.5);
 }
 
-/* ----------------- GRID ----------------- */
-.core-grid {
+/* ----------------- COLLAPSIBLES ----------------- */
+.collapsible-panel { margin-top: 1.25rem; }
+
+.collapsible-panel details {
+  background: rgba(0,0,0,0.45);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.collapsible-panel summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1rem 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg,
+    rgba(0,255,200,0.16),
+    rgba(0,180,255,0.18)
+  );
+  border-bottom: 1px solid rgba(255,255,255,0.25);
+}
+details summary::-webkit-details-marker { display:none; }
+.summary-icon { font-size: 1.2rem; }
+.summary-text { flex: 1; }
+
+/* Dyslexia-friendly spacing inside collapsibles */
+.collapsible-panel details ul {
+  line-height: 1.75;
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.collapsible-panel details ul li {
+  margin-bottom: 0.85rem;
+  padding-left: 0.2rem;
+}
+.collapsible-panel details h3 {
+  margin-top: 1.1rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ----------------- VIDEO GRID (MATCH E1) ----------------- */
+.video-grid {
+  padding: 1rem 1.1rem 1.2rem;
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
 }
 @media (min-width: 700px) {
-  .core-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.core-item-title {
-  font-weight: 600;
+.video-card {
+  background: rgba(0,0,0,0.5);
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.75rem;
+}
+.video-embed {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  margin-top: 0.6rem;
+}
+.video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.video-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.video-head strong { font-size: 1rem; }
+
+/* Core/Optional tags */
+.video-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.tag-core {
+  background: rgba(0,255,200,0.25);
+  border: 1px solid rgba(0,255,200,0.6);
+}
+.tag-optional {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.35);
+}
+
+/* ----------------- MINI TASKS / FEEDBACK ----------------- */
+.task-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.task-row button {
+  border: none;
+  border-radius: 12px;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  font-weight: 800;
+  background: rgba(0,255,200,0.2);
+  color: #fff;
+}
+.task-row button:hover,
+.task-row button:focus-visible {
+  background: rgba(0,255,200,0.32);
+  outline: 3px solid rgba(0,230,179,0.7);
+  outline-offset: 3px;
+}
+.feedback {
+  margin-top: 0.75rem;
+  font-weight: 800;
+}
+
+/* ----------------- INTERACTIVE TOOLS ----------------- */
+.tool-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 850px) {
+  .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.7rem;
+}
+.field label { font-weight: 800; }
+.field input, .field select {
+  padding: 0.55rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  font-weight: 700;
+}
+.field input:focus-visible, .field select:focus-visible {
+  outline: 3px solid rgba(0,230,179,0.75);
+  outline-offset: 2px;
+}
+
+.result-box {
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  font-weight: 800;
 }
 
 /* ----------------- CHECKLIST ----------------- */
@@ -226,87 +424,7 @@ body {
   padding-left: 0;
   margin: 0.3rem 0;
 }
-.checklist-box li::before {
-  content: "☐ ";
-}
-
-/* ----------------- COLLAPSIBLES ----------------- */
-.collapsible-panel {
-  margin-top: 1.25rem;
-}
-
-.collapsible-panel details {
-  background: rgba(0,0,0,0.45);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.3);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-  overflow: hidden;
-}
-
-.collapsible-panel summary {
-  list-style: none;
-  cursor: pointer;
-  padding: 1rem 1.1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg,
-    rgba(0,255,200,0.16),
-    rgba(0,180,255,0.18)
-  );
-  border-bottom: 1px solid rgba(255,255,255,0.25);
-  role: button;
-}
-
-/* Hide Safari built-in arrow */
-details summary::-webkit-details-marker {
-  display:none;
-}
-
-.summary-icon {
-  font-size: 1.2rem;
-}
-.summary-text {
-  flex: 1;
-}
-
-/* ----------------- VIDEO GRID ----------------- */
-.video-grid {
-  padding: 1rem 1.1rem 1.2rem;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-@media (min-width: 700px) {
-  .video-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.video-card {
-  background: rgba(0,0,0,0.5);
-  border-radius: 0.8rem;
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 0.75rem;
-}
-
-.video-embed {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%;
-  border-radius: 0.7rem;
-  overflow: hidden;
-}
-
-.video-embed iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
+.checklist-box li::before { content: "☐ "; }
 
 /* ----------------- FOOTER ----------------- */
 footer {
@@ -318,51 +436,24 @@ footer {
   color: #fff;
   font-size: 0.9rem;
 }
-/* ============================================
-   DYSLEXIA-FRIENDLY SPACING FOR ALL COLLAPSIBLES
-   ============================================ */
-
-.collapsible-panel details ul {
-  line-height: 1.75;
-  margin-top: 0.8rem;
-  margin-bottom: 0.8rem;
-}
-
-.collapsible-panel details ul li {
-  margin-bottom: 0.85rem;
-  padding-left: 0.2rem;
-}
-
-.collapsible-panel details ul li ul li {
-  margin-bottom: 0.65rem;
-  padding-left: 1rem;
-}
-
-/* Extra breathing room inside opened panels */
-.collapsible-panel details[open] .info-card,
-.collapsible-panel details[open] .core-revision-box,
-.collapsible-panel details[open] .checklist-box {
-  padding-top: 1.1rem;
-  padding-bottom: 1.1rem;
-}
-
-/* More spacing before section headers inside collapsibles */
-.collapsible-panel details h3 {
-  margin-top: 1.1rem;
-  margin-bottom: 0.6rem;
-}
-
 </style>
 </head>
+
+<!-- =========================
+     ELECTRICITY 2 — PART 2/4
+     (<body> → end of L1–L3 section)
+========================= -->
 <body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <!-- MENU BUTTON -->
 <button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
 
 <!-- SIDE MENU -->
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
 
-<nav class="side-menu" id="sideMenu">
+<nav class="side-menu" id="sideMenu" aria-label="Site menu">
   <a href="/">🏠 Home</a>
   <a href="/classes/science.html">🧪 Science</a>
   <a href="/classes/physics.html">⚡ Physics</a>
@@ -375,815 +466,1155 @@ footer {
   <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
   <div class="banner-tint"></div>
   <div class="banner-overlay-text">
-    <h1>S3 Physics – Electricity 1: Voltage, Current & Resistance</h1>
+    <h1>S3 Physics – Electricity 2: Electronics & Control</h1>
   </div>
 </div>
 
 <!-- MAIN CONTENT -->
-<main class="page-wrap">
+<main class="page-wrap" id="main">
 
 <a href="/classes/s3-physics.html" class="back-to-s3">⬅ Back to S3 Physics</a>
-   
+
 <div class="topic-box">
 
-<h2>📘 Electricity 1 – Notes & Revision</h2>
-
-<p>
-  <a href="/classes/s3-physics/RS Electricity B1 N5 2025.pdf"
-     target="_blank"
-     class="download-btn"
-     style="display:inline-block; padding:0.7rem 1.2rem; background:rgba(0,255,200,0.18);
-            border:1px solid rgba(0,255,200,0.4); border-radius:12px; font-weight:600;">
-     📘 Download the Full Booklet (PDF)
-  </a>
-</p>
-
-<p>
-  <strong>Use this page to revise for the Electricity 1 assessment.</strong><br>
-  Work through each collapsible section below.
-</p>
-
-<!-- ============================
-     WHAT THIS ASSESSMENT IS ABOUT
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">🗺️</span>
-    <span class="summary-text">What this assessment is about</span>
-  </summary>
-
-  <div class="info-card">
-    <p>You will be tested on:</p>
-    <ul>
-      <li>Circuit symbols and simple circuit diagrams</li>
-      <li>Voltage, current and resistance — meanings, symbols and units</li>
-      <li>Rules for current & voltage in series and parallel circuits</li>
-      <li>Using ohmmeters correctly</li>
-      <li>Using <strong>V = I R</strong> to solve problems</li>
-      <li>Combining resistors in series and parallel</li>
-    </ul>
-  </div>
-
-</details>
-</div>
-
-
-<!-- ============================
-     USEFUL LINKS
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">🔗</span>
-    <span class="summary-text">Useful Links</span>
-  </summary>
-
- <div class="info-card">
-  <ul>
-    <li><a href="https://physicsflashrepo.ovh" target="_blank">⚡ Flash Physics</a></li>
-    <li><a href="https://glowscotland-my.sharepoint.com" target="_blank">📁 Mr Stewart’s Materials</a></li>
-    <li><a href="/classes/s3-physics/Electricity Block 1 Practice Test.pdf" target="_blank">📝 Electricity 1 Practice Test (PDF)</a></li>
-  </ul>
-</div>
-
-</details>
-</div>
-
-<!-- ============================
-     CORE FACTS & EQUATIONS (FINAL REWRITE)
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">📌</span>
-    <span class="summary-text">Core Facts & Equations</span>
-  </summary>
-
-  <div class="core-revision-box">
-    <div class="core-grid">
-
-      <!-- DEFINITIONS -->
-      <div>
-        <div class="core-item-title">Key Definitions</div>
-        <ul>
-          <li><strong>Voltage (V)</strong> – the electrical <strong>push</strong> that gives energy to charges.  
-              It is the <strong>energy transferred per unit charge</strong> (per coulomb).  
-              Unit: <strong>volt (V)</strong>.
-          </li>
-
-          <li><strong>Current (I)</strong> – the <strong>flow of charge</strong> every second.  
-              Bigger current means more charge passing a point each second.  
-              Unit: <strong>ampere (A)</strong>.
-          </li>
-
-          <li><strong>Resistance (R)</strong> – how much a component <strong>opposes</strong> the flow of current.  
-              High resistance → harder for current to flow.  
-              Unit: <strong>ohm (Ω)</strong>.
-          </li>
-        </ul>
-      </div>
-
-      <!-- EQUATIONS -->
-      <div>
-        <div class="core-item-title">Essential Equations & Rules</div>
-        <ul>
-          <li><strong>V = I × R</strong> (Ohm’s Law) – links voltage, current and resistance.</li>
-
-          <li><strong>Series circuits:</strong><br>
-            • Current: <strong>same</strong> everywhere (only one path).<br>
-            • Voltage: <strong>splits</strong> across components.  
-              Bigger resistance → bigger share of the voltage.<br>
-            • Resistance: <strong>adds up</strong> →  
-              R<sub>T</sub> = R₁ + R₂ + …<br>
-            • Adding more components increases total resistance → current becomes smaller.
-          </li>
-
-          <li><strong>Parallel circuits:</strong><br>
-            • Voltage: <strong>same</strong> across every branch.<br>
-            • Current: <strong>splits</strong> into branches and <strong>rejoins</strong> afterwards.  
-              Lower-resistance branches take <strong>more</strong> current.<br>
-            • Resistance: total becomes <strong>smaller</strong> than the smallest resistor →  
-              1/R<sub>T</sub> = 1/R₁ + 1/R₂ + …<br>
-            • Adding a new branch gives current another path → total current increases.
-          </li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
-</details>
-</div>
-
-<!-- ============================
-     COMMON MISTAKES & FIXES (FINAL REWRITE)
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">⚠️</span>
-    <span class="summary-text">Common Mistakes & How to Fix Them</span>
-  </summary>
-
-  <div class="info-card">
-    <ul style="margin-top:0.4rem;">
-
-      <li><strong>Mixing up voltage and current</strong><br>
-        • <strong>Voltage = push</strong><br>
-        • <strong>Current = flow</strong>
-      </li>
-
-      <li><strong>Putting an ammeter in parallel</strong><br>
-        • Can <strong>damage</strong> the meter.<br>
-        • Ammeters must be placed <strong>in series</strong>.
-      </li>
-
-      <li><strong>Adding resistors in parallel</strong><br>
-        • Total resistance <strong>always decreases</strong> when you add a parallel branch.
-      </li>
-
-      <li><strong>Reading resistor bands backwards</strong><br>
-        • Band 1 and Band 2 are the <strong>two stripes nearest the edge</strong>.
-      </li>
-
-      <li><strong>Forgetting units</strong><br>
-        • Voltage → <strong>V</strong> (volts)<br>
-        • Current → <strong>A</strong> (amps)<br>
-        • Resistance → <strong>Ω</strong> (ohms)
-      </li>
-
-      <li><strong>Using V = I R incorrectly</strong><br>
-        • To find <strong>I</strong> → I = V ÷ R<br>
-        • To find <strong>R</strong> → R = V ÷ I
-      </li>
-
-      <li><strong>Current in parallel branches</strong><br>
-        • Current <strong>splits</strong> into branches.<br>
-        • It <strong>joins back together</strong> before returning to the supply.<br>
-        • A lower-resistance branch takes <strong>more</strong> current.
-      </li>
-
-      <li><strong>Thinking bulbs “use up” current</strong><br>
-        • Bulbs use <strong>energy</strong>, not current.
-      </li>
-
-    </ul>
-  </div>
-
-</details>
-</div>
-
-<!-- ============================
-     REVISION SUMMARY GRID (FINAL REWRITE)
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">📊</span>
-    <span class="summary-text">Revision Summary Grid</span>
-  </summary>
-
-  <div class="info-card">
-    <div style="display:grid; grid-template-columns:1fr; gap:1rem;">
-
-      <!-- VOLTAGE -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
-        <strong>Voltage</strong><br>
-        • The <strong>push</strong> that moves charges<br>
-        • Measured in volts (V)<br>
-        • Series: <strong>voltage splits</strong><br>
-        • Parallel: <strong>voltage same</strong><br>
-        • Bigger resistance → bigger voltage drop
-      </div>
-
-      <!-- CURRENT -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
-        <strong>Current</strong><br>
-        • Flow of charge per second<br>
-        • Measured in amps (A)<br>
-        • Series: <strong>same</strong> everywhere<br>
-        • Parallel: <strong>splits then rejoins</strong><br>
-        • Lower resistance → more current in that branch
-      </div>
-
-      <!-- RESISTANCE -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
-        <strong>Resistance</strong><br>
-        • Opposition to current<br>
-        • Measured in ohms (Ω)<br>
-        • Series: <strong>adds</strong><br>
-        • Parallel: total is <strong>less than the smallest</strong> resistor
-      </div>
-
-      <!-- FORMULAS -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
-        <strong>Formulas</strong><br>
-        • V = I × R<br>
-        • R<sub>T</sub>(series) = R₁ + R₂ + …<br>
-        • 1 / R<sub>T</sub>(parallel) = 1/R₁ + 1/R₂ + …<br>
-        • I = V ÷ R  R = V ÷ I
-      </div>
-
-    </div>
-  </div>
-
-</details>
-</div>
-
-
-
-<!-- ============================
-     MINI-TASK LOGIC SCRIPTS
-=============================== -->
-<script>
-/* Task 1 */
-function mt_feedback1(ans) {
-  const fb = document.getElementById("mt1");
-  if (ans === "series") {
-    fb.textContent = "Correct — in series, current stays the same everywhere!";
-    fb.style.color = "#00ffb3";
-  } else {
-    fb.textContent = "Not quite — current only splits in parallel circuits.";
-    fb.style.color = "#ff6f6f";
-  }
-}
-
-/* Task 2 */
-function mt_feedback2(unit) {
-  const fb = document.getElementById("mt2");
-  if (unit === "A") {
-    fb.textContent = "Correct — current is measured in amps (A).";
-    fb.style.color = "#00ffb3";
-  } else {
-    fb.textContent = "Try again — that's not the unit for current.";
-    fb.style.color = "#ff6f6f";
-  }
-}
-
-/* Task 3 */
-function mt_feedback3(selection) {
-  const fb = document.getElementById("mt3");
-  if (selection === "I=V/R") {
-    fb.textContent = "Correct — I = V ÷ R.";
-    fb.style.color = "#00ffb3";
-  } else {
-    fb.textContent = "That's not the correct formula for finding current.";
-    fb.style.color = "#ff6f6f";
-  }
-}
-</script>
-
-   
-<!-- ============================
-     VIDEOS (NEW, NO TITLES, ARIA LABELS)
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">🎬</span>
-    <span class="summary-text">Electricity 1 Revision Videos</span>
-  </summary>
-
-<div class="video-grid">
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy" 
-        src="https://www.youtube.com/embed/4t560bFk8DM"
-        aria-label="Ohm’s Law video"></iframe>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy"
-        src="https://www.youtube.com/embed/0ETqVlyTyfA"
-        aria-label="Non-ohmic conductor demonstration"></iframe>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy"
-        src="https://www.youtube.com/embed/14GTzFPsfzw"
-        aria-label="Resistors in series video"></iframe>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy"
-        src="https://www.youtube.com/embed/6H_4pfxWfiI"
-        aria-label="Resistors in parallel video"></iframe>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy"
-        src="https://www.youtube.com/embed/BSYu_hx__Lo"
-        aria-label="Resistance calculations video"></iframe>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy"
-        src="https://www.youtube.com/embed/YwIsLgRx1OU"
-        aria-label="Series and parallel worked  video"></iframe>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-embed">
-      <iframe loading="lazy"
-        src="https://www.youtube.com/embed/0m-jg2NvUO8"
-        aria-label="Resistor colour band questions video"></iframe>
-    </div>
-  </div>
-
-</div>
-
-</details>
-</div>
-
-
-<!-- ============================
-     PRACTICE QUESTIONS (UPDATED)
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">✅</span>
-    <span class="summary-text">Practice Questions</span>
-  </summary>
-
-<div class="info-card">
-
-  <h3 style="margin-top:0;">Class Practice Papers</h3>
-  <ul>
-    <li><strong>Practice Paper 1</strong> – basic circuit symbols, series/parallel rules.</li>
-    <li><strong>Practice Paper 2</strong> – current division, ohmmeters, V = IR graphs.</li>
-    <li><strong>Challenge Papers</strong> – higher difficulty problems.</li>
-    <li>
-      <a href="/classes/s3-physics/Electricity Block 1 Practice Test.pdf"
-         target="_blank"
-         style="font-weight:600;">
-        📝 Electricity 1 Practice Test (PDF)
-      </a>
-    </li>
-  </ul>
-
-  <hr style="border:0; border-top:1px solid rgba(255,255,255,0.25); margin:1rem 0;">
-
-  <h3>N5 Practical Electronics Past-Paper Questions (Block 1)</h3>
+  <h2>📘 Electricity 2 – Notes, Revision & Practical Skills</h2>
 
   <p>
-    These questions come from the official  
-    <a href="/classes/s3-physics/N5 Practical Electronics PPQ Nov25 Update.pdf"
-       target="_blank"
-       style="font-weight:600;">
-       N5 Practical Electronics PPQ (Nov 2025 Update)
-    </a>,  
-    filtered to match the <strong>Electricity Block 1</strong> topics:
+    <strong>Use this page to revise for the Electricity 2 assessment.</strong><br>
+    This block is based on the <strong>Electricity B2 booklet</strong> (electronics, sensing, control, switching, stripboard, and fault finding).
   </p>
 
-  <ul style="margin-top:0.4rem;">
-    <li><strong>2017 SQP:</strong> Q1a, Q1b, Q3</li>
-    <li><strong>2018:</strong> Q1a, Q1b, Q3</li>
-    <li><strong>2019:</strong> Q1a, Q1b, Q3, Q5b</li>
-    <li><strong>2024:</strong> Q1a, Q1b, Q3, Q7b</li>
-    <li><strong>2025:</strong> Q1a, Q1b, Q2, Q3</li>
-  </ul>
-
-  <p style="margin-top:0.6rem;">
-    These cover all Block 1 outcomes: circuit symbols, colour code, voltage/current rules,
-    resistance calculations, series & parallel analysis, and <strong>V = IR</strong>.
-  </p>
-
-   <hr style="border:0; border-top:1px solid rgba(255,255,255,0.25); margin:1rem 0;">
-
-<h3>N5 Physics Past-Paper Questions (Block 1)</h3>
-
-<p>
-  These questions come from the  
-  <a href="https://rstewartphysics.github.io/classes/n5-physics/N5%20Physics%20Past%20Papers%20(September%202025%20Update).pdf"
-     target="_blank"
-     style="font-weight:600;">
-     N5 Physics Past Papers (Sept 2025 Update)
-  </a>,  
-  filtered to include only <strong>Electricity Block 1</strong> content.
-</p>
-
-<ul style="margin-top:0.4rem;">
-  <li><strong>2014:</strong> P1 Q1, Q2, Q3; P2 Q1</li>
-  <li><strong>2015:</strong> P1 Q1, Q2, Q3, Q4; P2 Q1</li>
-  <li><strong>2016:</strong> P1 Q1, Q3, Q4; P2 Q1, Q2b, Q3d</li>
-  <li><strong>2017:</strong> P1 Q3, Q4; P2 Q2a(i), Q2b(i)</li>
-  <li><strong>2018:</strong> P1 Q1a(ii), Q1b; P2 Q6a, Q6b, Q9, Q10, Q11</li>
-  <li><strong>2019:</strong> P1 Q1d, Q2a(i), Q2a(iii); P2 Q6a(ii), Q6b(ii)</li>
-  <li><strong>2020:</strong> P1 Q12, Q13; P2 Q6, Q7a, Q7b(i), Q7b(ii)</li>
-  <li><strong>2022:</strong> P1 Q6, Q7, Q12, Q13, Q14, Q6c</li>
-  <li><strong>2023:</strong> P1 Q11, Q12, Q13, Q16</li>
-  <li><strong>2024:</strong> P1 Q11, Q12, Q13, Q7c, Q6d, Q8, Q11a, Q12</li>
-  <li><strong>2025:</strong> P1 Q11, Q12, Q5; P2 Q6, Q7c, Q7a, Q7c</li>
-</ul>
-
-<p style="margin-top:0.6rem;">
-  These questions match the exact S3 assessment content:  
-  circuit symbols, voltage/current rules, series & parallel circuits,  
-  resistance calculations, and <strong>V = IR</strong>.
-</p>
-
-</div>
-
-</details>
-</div>
-
-
-<!-- ============================
-     SUCCESS CRITERIA (L1–L6)
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">📝</span>
-    <span class="summary-text">Self-Check: Success Criteria (L1–L6)</span>
-  </summary>
-
-<div class="checklist-box">
-
-<h3>L1</h3>
-<ul>
-  <li>I can draw the circuit symbol for: cell, battery, lamp, switch, voltmeter, ammeter, motor, microphone, loudspeaker, photovoltaic cell.</li>
-  <li>I can define potential difference (voltage).</li>
-  <li>I can define current.</li>
-  <li>I can describe practical applications of series and parallel circuits.</li>
-</ul>
-
-<h3>L2</h3>
-<ul>
-  <li>I can measure current and voltage correctly using appropriate meters.</li>
-  <li>I can apply current and voltage rules in series circuits.</li>
-  <li>I can apply current and voltage rules in parallel circuits.</li>
-  <li>I can describe the symbol, function and application of resistors and variable resistors.</li>
-</ul>
-
-<h3>L3</h3>
-<ul>
-  <li>I can use an ohmmeter to measure resistance.</li>
-  <li>I can use resistor colour coding.</li>
-  <li>I can make V-I measurements in simple and complex circuits.</li>
-  <li>I can determine resistance from a V-I graph.</li>
-  <li>I can use the correct relationship to calculate V, I and R.</li>
-</ul>
-
-<h3>L4</h3>
-<ul>
-  <li>I can describe how temperature affects resistance of a conductor.</li>
-  <li>I can describe how temperature affects resistance of a resistor.</li>
-  <li>I can describe an experiment to prove Ohm’s Law.</li>
-  <li>I know what happens to total resistance when components change in series and parallel circuits.</li>
-  <li>I can predict and measure total resistance in a series circuit.</li>
-</ul>
-
-<h3>L5</h3>
-<ul>
-  <li>I can predict the total resistance in a parallel circuit (equal resistors).</li>
-  <li>I can measure total resistance in a parallel circuit (equal resistors).</li>
-  <li>I can predict and measure total resistance in a series circuit.</li>
-</ul>
-
-<h3>L6</h3>
-<ul>
-  <li>I can predict the total resistance in a parallel circuit with equal resistors.</li>
-  <li>I can measure total resistance in a parallel circuit with equal resistors.</li>
-</ul>
-
-</div>
-
-</details>
-</div>
-<!-- ============================
-     MAGIC SCHOOL AI TUTOR
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">🧠</span>
-    <span class="summary-text">AI Tutor – Electricity Block 1 Revision</span>
-  </summary>
-
-  <div class="info-card">
-    <p>
-      Use our class AI tutor to revise Electricity Block 1.  
-      Click the button below to launch the tutor with the correct S3 Physics settings.
-    </p>
-
-    <a href="https://student.magicschool.ai/s/join?joinCode=QLzaLQ"
-       target="_blank"
-       rel="noopener"
-       style="
-         display:inline-block;
-         padding:0.9rem 1.4rem;
-         background:rgba(0,255,200,0.18);
-         border:1px solid rgba(0,255,200,0.45);
-         border-radius:14px;
-         color:white;
-         font-weight:700;
-         font-size:1.1rem;
-         text-decoration:none;
-         backdrop-filter:blur(12px) saturate(180%);
-         box-shadow:0 6px 18px rgba(0,255,200,0.35);
-         transition:transform 0.2s ease, background 0.2s ease;
-       "
-       onmouseover="this.style.transform='scale(1.08)'; this.style.background='rgba(0,255,200,0.32)';"
-       onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(0,255,200,0.18)';"
-    >
-      🚀 Launch AI Tutor
+  <!-- Booklet link (update filename if needed) -->
+  <p>
+    <a class="btn" href="/classes/s3-physics/RS Electricity B2 N5 2025.pdf" target="_blank" rel="noopener">
+      📘 Download the Full Booklet (PDF)
     </a>
+    <span style="display:block; font-size:0.9rem; opacity:0.9; margin-top:0.5rem;">
+      If your PDF has a different name, just change the link above (the rest of the page will still work).
+    </span>
+  </p>
 
-  </div>
-</details>
-</div>
+  <!-- WHAT THIS ASSESSMENT IS ABOUT -->
+  <div class="collapsible-panel">
+    <details open>
+      <summary>
+        <span class="summary-icon">🗺️</span>
+        <span class="summary-text">What this assessment is about (B2 alignment)</span>
+      </summary>
 
-<!-- END OF PART 2 -->
-<!-- ============================
-     INTERACTIVE TOOLS (SECTION HEADER)
-=============================== -->
-<h2 style="margin-top:2rem; margin-bottom:1rem;">⚙️ Interactive Tools</h2>
+      <div class="info-card">
+        <p>You should be confident with:</p>
+        <ul>
+          <li><strong>Potential dividers</strong> (including dividers with sensors)</li>
+          <li><strong>Diodes and LEDs</strong> (including choosing a protective resistor)</li>
+          <li><strong>Sensors</strong> (LDRs and thermistors) and how their resistance changes</li>
+          <li><strong>Control circuits</strong> (set a switching point using a variable resistor)</li>
+          <li><strong>Switching circuits</strong> (using an NPN transistor as an electronic switch)</li>
+          <li><strong>Stripboard layout</strong> (tracks, cuts, links, component placement)</li>
+          <li><strong>Fault finding</strong> (logical checks using a meter + visual inspection)</li>
+        </ul>
+        <p style="margin-top:0.6rem;">
+          <strong>Exam skill:</strong> show clear working + use correct units + explain what your circuit is doing.
+        </p>
+      </div>
 
-<!-- ============================
-     PHET SIMULATION
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">🔧</span>
-    <span class="summary-text">Interactive Simulation – Circuit Construction Kit (DC)</span>
-  </summary>
-
-  <div class="info-card">
-    <p>Use the simulation to build circuits, add meters, and experiment safely.</p>
-
-    <div class="video-embed" style="padding-top:70%;">
-      <iframe loading="lazy"
-        src="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html"
-        aria-label="PhET Circuit Construction Kit simulation"></iframe>
-    </div>
-
-  </div>
-
-</details>
-</div> 
-   
-<!-- ============================
-     RESISTOR COLOUR CODE CALCULATOR
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">🎨</span>
-    <span class="summary-text">Resistor Colour Code Calculator</span>
-  </summary>
-
-  <div class="info-card">
-
-    <p>Select the colours of the 4 bands to calculate the resistor value.</p>
-
-    <div style="display:grid; gap:0.6rem; max-width:420px;">
-      <label>1st Digit: <select id="band1"></select></label>
-      <label>2nd Digit: <select id="band2"></select></label>
-      <label>Multiplier: <select id="bandMult"></select></label>
-
-      <label>Tolerance:
-        <select id="bandTol">
-          <option value="±1%">Brown (±1%)</option>
-          <option value="±2%">Red (±2%)</option>
-          <option value="±5%">Gold (±5%)</option>
-          <option value="±10%">Silver (±10%)</option>
-        </select>
-      </label>
-    </div>
-
-    <h3 style="margin-top:1rem;">Value:</h3>
-    <div id="resVal" style="font-size:1.3rem; font-weight:600;">—</div>
-
+    </details>
   </div>
 
-</details>
-</div>
+  <!-- USEFUL LINKS -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🔗</span>
+        <span class="summary-text">Useful links (revision + practical)</span>
+      </summary>
 
-<!-- ============================
-     V = I R PRACTICE GENERATOR
-=============================== -->
-<div class="collapsible-panel">
-<details>
-  <summary>
-    <span class="summary-icon">⚡</span>
-    <span class="summary-text">V = I R Practice Generator</span>
-  </summary>
-
-  <div class="info-card">
-
-    <p>Click “New Question” to generate a random V, I or R calculation.</p>
-
-    <div id="vir-question" style="font-size:1.2rem; font-weight:600; margin:0.8rem 0;">Press “New Question”.</div>
-
-    <input id="vir-answer" type="number" step="0.01" placeholder="Enter your answer"
-      style="padding:0.5rem; border-radius:0.5rem; border:none; width:180px;" />
-
-    <button onclick="checkVIR()"
-      style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem;
-             border:none; background:#00e6b3; font-weight:600; cursor:pointer;">
-      Check
-    </button>
-
-    <button onclick="newVIR()"
-      style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem;
-             border:none; background:#0cc4a2; font-weight:600; cursor:pointer;">
-      New Question
-    </button>
-
-    <div id="vir-feedback" style="margin-top:1rem; font-size:1.1rem; font-weight:600;"></div>
-
+      <div class="info-card">
+        <ul>
+          <li><a href="https://physicsflashrepo.ovh" target="_blank" rel="noopener">⚡ Flash Physics</a></li>
+          <li><a href="https://glowscotland-my.sharepoint.com" target="_blank" rel="noopener">📁 Mr Stewart’s Materials</a></li>
+          <li><span style="opacity:0.95;">💻 Yenka: use class instructions + simulate before building</span></li>
+        </ul>
+      </div>
+    </details>
   </div>
 
-</details>
-</div>
+  <!-- ============================
+       L1–L3 POTENTIAL DIVIDERS
+  =============================== -->
+  <div class="collapsible-panel">
+    <details open>
+      <summary>
+        <span class="summary-icon">🔢</span>
+        <span class="summary-text">L1–L3 Potential Dividers (worked examples + interactive tools)</span>
+      </summary>
+
+      <div class="core-revision-box">
+        <p style="margin-top:0;">
+          <strong>Key idea (B2):</strong> a potential divider gives you a <strong>fraction</strong> of the supply voltage.
+          This is the foundation of sensing and control circuits.
+        </p>
+
+        <div class="info-card">
+          <p><strong>Formula:</strong></p>
+          <p style="font-size:1.15rem;">
+            <strong>V<sub>out</sub> = (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)) × V<sub>s</sub></strong>
+          </p>
+          <ul>
+            <li>V<sub>out</sub> is taken <strong>across R<sub>2</sub></strong></li>
+            <li>If R<sub>2</sub> increases → V<sub>out</sub> increases</li>
+            <li>If R<sub>2</sub> decreases → V<sub>out</sub> decreases</li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h3>Worked Example 1 – Equal resistors</h3>
+          <ul>
+            <li>V<sub>s</sub> = 6.0 V</li>
+            <li>R<sub>1</sub> = 1.0 kΩ</li>
+            <li>R<sub>2</sub> = 1.0 kΩ</li>
+          </ul>
+          <p>
+            V<sub>out</sub> = (1000 / (1000 + 1000)) × 6.0
+            = (1000 / 2000) × 6.0
+            = 0.5 × 6.0
+            = <strong>3.0 V</strong>
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Worked Example 2 – Unequal resistors</h3>
+          <ul>
+            <li>V<sub>s</sub> = 6.0 V</li>
+            <li>R<sub>1</sub> = 1.2 kΩ</li>
+            <li>R<sub>2</sub> = 150 Ω</li>
+          </ul>
+          <p>
+            Total = 1200 + 150 = 1350 Ω<br>
+            V<sub>out</sub> = (150 / 1350) × 6.0 = 0.111… × 6.0 = <strong>0.67 V</strong>
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Common mistakes (B2)</h3>
+          <ul>
+            <li>Using the wrong resistor in the numerator (remember: <strong>Vout across R2</strong>).</li>
+            <li>Mixing Ω and kΩ (convert or keep consistent).</li>
+            <li>Forgetting Vout must be <strong>less than Vs</strong> (sanity check).</li>
+          </ul>
+
+          <div class="task-row" aria-label="Potential divider quick check">
+            <button type="button" onclick="pdQuickCheck('R2')">Which resistor is in the numerator?</button>
+            <button type="button" onclick="pdQuickCheck('R1')">R1</button>
+            <button type="button" onclick="pdQuickCheck('wrong')">Both</button>
+          </div>
+          <div id="pdQuickFb" class="feedback" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="video-grid" aria-label="Potential divider videos">
+          <div class="video-card">
+            <div class="video-head">
+              <strong>Voltage Divider Theory</strong>
+              <span class="video-tag tag-core">CORE</span>
+            </div>
+            <div class="video-embed">
+              <iframe loading="lazy"
+                src="https://www.youtube.com/embed/mY2u8qhhYjY"
+                aria-label="Voltage Divider Theory video"></iframe>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:1.2rem;">🧮 Interactive Tools (Potential Divider)</h3>
+
+        <div class="tool-grid">
+          <!-- Divider calculator -->
+          <div class="tool-card" aria-label="Potential divider calculator">
+            <h3 style="margin-top:0;">Potential Divider Calculator</h3>
+
+            <div class="field">
+              <label for="pdVs">Supply voltage V<sub>s</sub> (V)</label>
+              <input id="pdVs" type="number" step="0.1" value="6.0" inputmode="decimal">
+            </div>
+
+            <div class="field">
+              <label for="pdR1">R<sub>1</sub> (Ω)</label>
+              <input id="pdR1" type="number" step="1" value="1000" inputmode="numeric">
+            </div>
+
+            <div class="field">
+              <label for="pdR2">R<sub>2</sub> (Ω)</label>
+              <input id="pdR2" type="number" step="1" value="1000" inputmode="numeric">
+            </div>
+
+            <div class="task-row">
+              <button type="button" onclick="calcDivider()">Calculate</button>
+              <button type="button" onclick="resetDivider()">Reset</button>
+            </div>
+
+            <div id="pdOut" class="result-box" role="status" aria-live="polite">
+              Enter values and press Calculate.
+            </div>
+
+            <p style="margin-top:0.7rem; font-size:0.95rem; opacity:0.95;">
+              <strong>B2 tip:</strong> after calculating, verify in <strong>Yenka</strong> then check with a meter in the practical.
+            </p>
+          </div>
+
+          <!-- Sensor divider explorer -->
+          <div class="tool-card" aria-label="Sensor divider explorer">
+            <h3 style="margin-top:0;">Sensor Divider Explorer (LDR / Thermistor)</h3>
+
+            <p style="margin-top:0;">
+              This models a divider where <strong>R<sub>sensor</sub> is R<sub>2</sub></strong> (Vout measured across the sensor).
+              Change the sensor resistance and see what happens to Vout.
+            </p>
+
+            <div class="field">
+              <label for="sdVs">Supply V<sub>s</sub> (V)</label>
+              <input id="sdVs" type="number" step="0.1" value="6.0" inputmode="decimal">
+            </div>
+
+            <div class="field">
+              <label for="sdRfixed">Fixed resistor R<sub>1</sub> (Ω)</label>
+              <input id="sdRfixed" type="number" step="1" value="1000" inputmode="numeric">
+            </div>
+
+            <div class="field">
+              <label for="sdRsensor">Sensor resistance R<sub>sensor</sub> (Ω)</label>
+              <input id="sdRsensor" type="range" min="100" max="20000" value="2000" step="100">
+              <div style="display:flex; justify-content:space-between; opacity:0.9;">
+                <span>100Ω</span><span id="sdRsensorLabel">2000Ω</span><span>20kΩ</span>
+              </div>
+            </div>
+
+            <div id="sdOut" class="result-box" role="status" aria-live="polite">
+              Adjust the slider to see Vout.
+            </div>
+
+            <p style="margin-top:0.7rem; font-size:0.95rem; opacity:0.95;">
+              <strong>B2 thinking:</strong> if a sensor is an LDR (light ↑ → resistance ↓), then Vout will move in the opposite direction.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </details>
+  </div>
+<!-- =========================
+     ELECTRICITY 2 — PART 3/4
+     (L4 → Stripboard + Fault finding + Interactives)
+========================= -->
+
+  <!-- ============================
+       L4 DIODES + LEDS
+  =============================== -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">💡</span>
+        <span class="summary-text">L4 Diodes & LEDs (worked examples + LED calculator)</span>
+      </summary>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">Core facts (B2)</h3>
+        <ul>
+          <li>A <strong>diode</strong> lets current flow in <strong>one direction only</strong>.</li>
+          <li>An <strong>LED</strong> is a diode that emits light when <strong>forward biased</strong>.</li>
+          <li>LEDs need a <strong>protective resistor</strong> or they can be damaged.</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>Worked Example – LED protective resistor</h3>
+        <ul>
+          <li>V<sub>s</sub> = 5.0 V</li>
+          <li>V<sub>LED</sub> = 2.0 V</li>
+          <li>I = 10 mA = 0.010 A</li>
+        </ul>
+        <p>
+          Voltage across resistor: V<sub>R</sub> = 5.0 − 2.0 = 3.0 V<br>
+          R = V / I = 3.0 / 0.010 = <strong>300 Ω</strong><br>
+          Choose the next sensible standard value: <strong>330 Ω</strong>
+        </p>
+      </div>
+
+      <div class="video-grid" aria-label="LED videos">
+        <div class="video-card">
+          <div class="video-head">
+            <strong>LEDs – Basic</strong>
+            <span class="video-tag tag-core">CORE</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/KKBkRJjYVr8"
+              aria-label="LEDs basic video"></iframe>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <div class="video-head">
+            <strong>LEDs – Advanced</strong>
+            <span class="video-tag tag-optional">OPTIONAL</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/xdD_3Q7f23M"
+              aria-label="LEDs advanced video"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.2rem;">🧮 Interactive Tool (LED Resistor)</h3>
+      <div class="tool-card" aria-label="LED resistor calculator">
+        <h3 style="margin-top:0;">LED Protective Resistor Calculator</h3>
+
+        <div class="tool-grid">
+          <div>
+            <div class="field">
+              <label for="ledVs">Supply V<sub>s</sub> (V)</label>
+              <input id="ledVs" type="number" step="0.1" value="5.0" inputmode="decimal">
+            </div>
+
+            <div class="field">
+              <label for="ledVf">LED voltage V<sub>LED</sub> (V)</label>
+              <input id="ledVf" type="number" step="0.1" value="2.0" inputmode="decimal">
+            </div>
+
+            <div class="field">
+              <label for="ledI">Desired LED current (mA)</label>
+              <input id="ledI" type="number" step="1" value="10" inputmode="numeric">
+            </div>
+
+            <div class="task-row">
+              <button type="button" onclick="calcLED()">Calculate</button>
+              <button type="button" onclick="resetLED()">Reset</button>
+            </div>
+          </div>
+
+          <div>
+            <div id="ledOut" class="result-box" role="status" aria-live="polite">
+              Enter values and press Calculate.
+            </div>
+
+            <div class="info-card" style="margin-top:1rem;">
+              <h3 style="margin-top:0;">B2 practical tip</h3>
+              <ul>
+                <li>Never connect an LED straight to a supply.</li>
+                <li>Choose a resistor that gives a safe current (often 5–15 mA for small LEDs).</li>
+                <li>If unsure: choose a slightly larger resistor (safer).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- ============================
+       L5 SENSORS
+  =============================== -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🌡️</span>
+        <span class="summary-text">L5 Special Components (LDRs, Thermistors, Capacitors)</span>
+      </summary>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">Sensor behaviour (B2)</h3>
+        <ul>
+          <li><strong>LDR:</strong> light ↑ → resistance ↓</li>
+          <li><strong>Thermistor (NTC):</strong> temperature ↑ → resistance ↓</li>
+          <li><strong>Capacitor:</strong> stores charge (often used for timing/delay in extension work)</li>
+        </ul>
+        <p>
+          In B2, sensors are usually used inside a <strong>potential divider</strong> to produce a changing voltage.
+        </p>
+      </div>
+
+      <div class="video-grid" aria-label="sensor videos">
+        <div class="video-card">
+          <div class="video-head">
+            <strong>Thermistors and LDRs</strong>
+            <span class="video-tag tag-core">CORE</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/xi4Bb1phEC8"
+              aria-label="Thermistors and LDRs video"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Quick check (B2)</h3>
+        <p>If the LDR is used as R<sub>2</sub> in a divider (Vout across the LDR):</p>
+        <div class="task-row">
+          <button type="button" onclick="sensorCheck('down')">More light → R goes down → Vout goes…?</button>
+          <button type="button" onclick="sensorCheck('down')">Down</button>
+          <button type="button" onclick="sensorCheck('up')">Up</button>
+        </div>
+        <div id="sensorFb" class="feedback" role="status" aria-live="polite"></div>
+        <p style="margin-top:0.7rem; opacity:0.95;">
+          <strong>Note:</strong> the direction depends on whether the sensor is R1 or R2. In B2 you must be able to explain that clearly.
+        </p>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- ============================
+       L6 CONTROL CIRCUITS (WAS MISSING)
+  =============================== -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🎛️</span>
+        <span class="summary-text">L6 Control Circuits (set a switching point)</span>
+      </summary>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">What “control” means (B2)</h3>
+        <ul>
+          <li>A sensor changes resistance → a divider produces a changing voltage.</li>
+          <li>A <strong>variable resistor</strong> is used to <strong>set the switching point</strong>.</li>
+          <li>The circuit output controls something: LED, buzzer, motor, relay (depending on build).</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>Exam-style explanation starter</h3>
+        <ul>
+          <li>When the sensor resistance changes, the <strong>output voltage changes</strong>.</li>
+          <li>If the output reaches the switching threshold, the transistor <strong>turns on</strong>.</li>
+          <li>This allows current to flow through the output device (e.g. LED), so it turns on.</li>
+        </ul>
+      </div>
+
+      <div class="tool-card" aria-label="Control circuit threshold checker">
+        <h3 style="margin-top:0;">Interactive: “Will it switch on?” (threshold check)</h3>
+        <p style="margin-top:0;">
+          In B2 you usually treat an NPN transistor as switching on when the <strong>base</strong> is roughly <strong>0.7 V</strong> above the emitter.
+          This tool is a simple check (real circuits depend on design + base resistor).
+        </p>
+
+        <div class="tool-grid">
+          <div>
+            <div class="field">
+              <label for="thVout">Divider output voltage V<sub>out</sub> (V)</label>
+              <input id="thVout" type="number" step="0.01" value="0.67" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="thThreshold">Switch threshold (V)</label>
+              <select id="thThreshold">
+                <option value="0.7" selected>0.70 V (typical NPN)</option>
+                <option value="0.6">0.60 V (low-ish)</option>
+                <option value="0.8">0.80 V (high-ish)</option>
+              </select>
+            </div>
+            <div class="task-row">
+              <button type="button" onclick="checkThreshold()">Check</button>
+            </div>
+          </div>
+
+          <div>
+            <div id="thOut" class="result-box" role="status" aria-live="polite">
+              Enter Vout and press Check.
+            </div>
+            <p style="margin-top:0.7rem; font-size:0.95rem; opacity:0.95;">
+              <strong>B2 mark getter:</strong> Always state what voltage is reaching the base and compare it to the switching threshold.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- ============================
+       L7 SWITCHING CIRCUITS
+  =============================== -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🔄</span>
+        <span class="summary-text">L7 Switching Circuits (NPN transistor as a switch)</span>
+      </summary>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">Core ideas (B2)</h3>
+        <ul>
+          <li>A transistor can be used as an <strong>electronic switch</strong>.</li>
+          <li>Small base current/voltage controls a larger collector current.</li>
+          <li>In B2 you must explain: <strong>what changes</strong> and <strong>why the output turns on/off</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="video-grid" aria-label="switching videos">
+        <div class="video-card">
+          <div class="video-head">
+            <strong>NPN Switch-on Voltage</strong>
+            <span class="video-tag tag-core">CORE</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/v7rWj2nsOyA"
+              aria-label="NPN switch-on voltage video"></iframe>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <div class="video-head">
+            <strong>Transistor Switching Circuits</strong>
+            <span class="video-tag tag-core">CORE</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/mUE8-4WaZ6w"
+              aria-label="Transistor switching circuits video"></iframe>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <div class="video-head">
+            <strong>Capacitor Time Delay Circuit</strong>
+            <span class="video-tag tag-optional">OPTIONAL</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/vbkY8TGadIk"
+              aria-label="Capacitor time delay circuit video"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Common mistakes (B2 build)</h3>
+        <ul>
+          <li>Transistor rotated the wrong way (check the flat side / pin order).</li>
+          <li>Missing base resistor (can cause wrong behaviour).</li>
+          <li>LED polarity wrong.</li>
+          <li>No shared 0 V (ground) reference between parts of the circuit.</li>
+        </ul>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- ============================
+       STRIPBOARD SCHEMATICS (UPGRADED)
+  =============================== -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🧾</span>
+        <span class="summary-text">Stripboard Schematics (assessment standard + video)</span>
+      </summary>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">What you must be able to draw (B2)</h3>
+        <ul>
+          <li>A <strong>stripboard layout</strong> shows <strong>component positions</strong>, not circuit symbols.</li>
+          <li>Label power rails: <strong>+V</strong> and <strong>0V</strong>.</li>
+          <li>Show: <strong>track cuts</strong> (very important), wire links, and transistor pin positions.</li>
+          <li>Tracks run in straight copper strips — a mistake here causes <strong>short circuits</strong>.</li>
+        </ul>
+
+        <h3>Stripboard “must-do” checklist</h3>
+        <ul>
+          <li>Mark every track cut clearly (and double-check them before soldering).</li>
+          <li>Keep components low and straight (neat = reliable).</li>
+          <li>Transistor legs must be on <strong>separate tracks</strong>.</li>
+          <li>Trim leads short (avoid accidental shorts).</li>
+        </ul>
+      </div>
+
+      <div class="video-grid" aria-label="stripboard video">
+        <div class="video-card">
+          <div class="video-head">
+            <strong>Stripboard Schematics</strong>
+            <span class="video-tag tag-core">CORE</span>
+          </div>
+          <div class="video-embed">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/SaUqKY-pq8g"
+              aria-label="Stripboard schematics video"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Mini task (stripboard)</h3>
+        <p>Which one is the most dangerous mistake on stripboard?</p>
+        <div class="task-row">
+          <button type="button" onclick="stripboardTask('cut')">Missing track cut</button>
+          <button type="button" onclick="stripboardTask('wobbly')">Resistor not flush</button>
+          <button type="button" onclick="stripboardTask('label')">Forgot to label rails</button>
+        </div>
+        <div id="stripFb" class="feedback" role="status" aria-live="polite"></div>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- ============================
+       FAULT FINDING (UPGRADED TO A PROCESS)
+  =============================== -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🔍</span>
+        <span class="summary-text">Fault Finding (B2 method: visual → power → signal → isolate)</span>
+      </summary>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">Golden rule</h3>
+        <p><strong>Change ONE thing at a time</strong> and re-test. Otherwise you never know what fixed it.</p>
+      </div>
+
+      <div class="info-card">
+        <h3>Step 1 — Visual checks (power OFF)</h3>
+        <ul>
+          <li>Component orientation correct? (LED, diode, transistor, electrolytic capacitor)</li>
+          <li>Solder bridges? (accidental joins between tracks)</li>
+          <li>Track cuts present where needed?</li>
+          <li>Loose wires / exposed copper / strands touching?</li>
+        </ul>
+
+        <h3>Step 2 — Power checks (power ON)</h3>
+        <ul>
+          <li>Is the correct supply voltage present at the board?</li>
+          <li>Is 0 V actually 0 V everywhere it should be?</li>
+          <li>Does the output device have a complete path (series resistor, correct polarity)?</li>
+        </ul>
+
+        <h3>Step 3 — Signal checks</h3>
+        <ul>
+          <li>Does the divider output voltage change when the sensor changes?</li>
+          <li>Is that voltage reaching the transistor base?</li>
+          <li>If the base voltage is low, the transistor will not switch on.</li>
+        </ul>
+
+        <h3>Step 4 — Isolate</h3>
+        <ul>
+          <li>Test parts separately (e.g., LED + resistor on its own).</li>
+          <li>Replace one suspect component and re-test.</li>
+        </ul>
+      </div>
+
+      <div class="tool-card" aria-label="Fault finding helper">
+        <h3 style="margin-top:0;">Interactive: Fault-finding helper</h3>
+        <p style="margin-top:0;">Pick a symptom and get the first checks to do (B2).</p>
+
+        <div class="field">
+          <label for="ffSymptom">Symptom</label>
+          <select id="ffSymptom">
+            <option value="none" selected>Choose one…</option>
+            <option value="dead">Nothing works (completely dead)</option>
+            <option value="alwayson">Output always on</option>
+            <option value="neveron">Output never on</option>
+            <option value="random">Works sometimes / random</option>
+          </select>
+        </div>
+
+        <div class="task-row">
+          <button type="button" onclick="faultHelp()">Show checks</button>
+        </div>
+
+        <div id="ffOut" class="result-box" role="status" aria-live="polite">
+          Choose a symptom and press “Show checks”.
+        </div>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- ============================
+       INTERACTIVE TOOLS SECTION HEADER
+  =============================== -->
+  <h2 style="margin-top:2rem; margin-bottom:1rem;">⚙️ Interactive Tools (Revision Practice)</h2>
+
+  <!-- V = IR style practice but adapted to B2 -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">🧠</span>
+        <span class="summary-text">Practice Generator: Divider + LED questions (auto-mark)</span>
+      </summary>
+
+      <div class="info-card">
+        <p><strong>Goal:</strong> quick practice with the two key B2 calculations:</p>
+        <ul>
+          <li>Potential divider output voltage</li>
+          <li>LED protective resistor</li>
+        </ul>
+
+        <div class="tool-card" style="margin-top:1rem;">
+          <h3 style="margin-top:0;">Random Question</h3>
+
+          <div id="qText" style="font-size:1.15rem; font-weight:900; margin:0.5rem 0;">
+            Press “New Question”.
+          </div>
+
+          <div class="field" style="max-width:260px;">
+            <label for="qAns">Your answer</label>
+            <input id="qAns" type="number" step="0.01" inputmode="decimal" placeholder="Enter a number">
+          </div>
+
+          <div class="task-row">
+            <button type="button" onclick="checkQuestion()">Check</button>
+            <button type="button" onclick="newQuestion()">New Question</button>
+          </div>
+
+          <div id="qFb" class="feedback" role="status" aria-live="polite"></div>
+
+          <p style="margin-top:0.7rem; opacity:0.95;">
+            <strong>Tip:</strong> give answers to 2 d.p. for voltage/current, and sensible whole Ω for resistors unless told otherwise.
+          </p>
+        </div>
+      </div>
+
+    </details>
+  </div>
+
+  <!-- SUCCESS CRITERIA (UPGRADED) -->
+  <div class="collapsible-panel">
+    <details>
+      <summary>
+        <span class="summary-icon">📝</span>
+        <span class="summary-text">Self-Check: Success Criteria (Electricity 2 / B2)</span>
+      </summary>
+
+      <div class="checklist-box">
+        <h3 style="margin-top:0;">Potential dividers</h3>
+        <ul>
+          <li>I can calculate Vout using the potential divider relationship.</li>
+          <li>I can explain how changing a resistor changes the output voltage.</li>
+          <li>I can use a sensor in a divider and predict whether Vout increases or decreases.</li>
+        </ul>
+
+        <h3>Diodes & LEDs</h3>
+        <ul>
+          <li>I can explain what a diode does and identify forward bias.</li>
+          <li>I can calculate a protective resistor for an LED and choose a safe standard value.</li>
+        </ul>
+
+        <h3>Control & switching</h3>
+        <ul>
+          <li>I can explain how a control circuit uses a sensor + variable resistor to set a switching point.</li>
+          <li>I can explain how an NPN transistor works as a switch and what voltage is needed to turn it on.</li>
+        </ul>
+
+        <h3>Stripboard & practical skills</h3>
+        <ul>
+          <li>I can draw a stripboard layout showing tracks, links, track cuts and component positions.</li>
+          <li>I can solder safely and neatly (no bridges, legs trimmed, components flush).</li>
+          <li>I can fault find using a logical process: visual → power → signal → isolate.</li>
+        </ul>
+      </div>
+
+    </details>
+  </div>
 
 </div> <!-- END topic-box -->
-
 </main>
+
+   <!-- =========================
+     ELECTRICITY 2 — PART 4/4
+     (Footer + ALL JS + close tags)
+========================= -->
 
 <footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
 
-<!-- ============================
-     JAVASCRIPT (MENU, TOOLS, LOGIC)
-=============================== -->
-
 <script>
-/* MOBILE SIDE MENU */
+/* ============================
+   MENU (MATCH E1 BEHAVIOUR)
+=============================== */
 function toggleMenu() {
   const menu = document.getElementById('sideMenu');
   const overlay = document.getElementById('menuOverlay');
   menu.classList.toggle('open');
   overlay.classList.toggle('show');
 }
-
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.getElementById('sideMenu').classList.remove('open');
     document.getElementById('menuOverlay').classList.remove('show');
   }
 });
-</script>
 
-<script>
-/* RESISTOR COLOUR CODE CALCULATOR */
-const digits = [
-  "Black (0)","Brown (1)","Red (2)","Orange (3)",
-  "Yellow (4)","Green (5)","Blue (6)",
-  "Violet (7)","Grey (8)","White (9)"
-];
-const multipliers = [
-  "Black (×1)","Brown (×10)","Red (×100)","Orange (×1k)",
-  "Yellow (×10k)","Green (×100k)","Blue (×1M)",
-  "Gold (×0.1)","Silver (×0.01)"
-];
-
-function populateSelect(id, arr) {
-  const sel = document.getElementById(id);
-  arr.forEach((t, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = t;
-    sel.appendChild(opt);
-  });
-}
-
-populateSelect("band1", digits);
-populateSelect("band2", digits);
-populateSelect("bandMult", multipliers);
-
-function updateResistor() {
-  const b1 = parseInt(document.getElementById("band1").value);
-  const b2 = parseInt(document.getElementById("band2").value);
-  const mult = parseInt(document.getElementById("bandMult").value);
-  const tol = document.getElementById("bandTol").value;
-
-  const multiplierValues = [1,10,100,1e3,1e4,1e5,1e6,0.1,0.01];
-
-  const base = b1 * 10 + b2;
-  const value = base * multiplierValues[mult];
-
-  let formatted = value + " Ω";
-  if (value >= 1e6) formatted = (value/1e6) + " MΩ";
-  else if (value >= 1e3) formatted = (value/1e3) + " kΩ";
-
-  document.getElementById("resVal").textContent = `${formatted}  ${tol}`;
-}
-
-["band1","band2","bandMult","bandTol"].forEach(id => {
-  document.getElementById(id).addEventListener("change", updateResistor);
+/* ============================
+   SAFE INIT AFTER DOM LOAD
+=============================== */
+document.addEventListener('DOMContentLoaded', () => {
+  // Sensor slider label + output
+  const slider = document.getElementById('sdRsensor');
+  const label = document.getElementById('sdRsensorLabel');
+  if (slider && label) {
+    label.textContent = `${slider.value}Ω`;
+    slider.addEventListener('input', () => {
+      label.textContent = `${slider.value}Ω`;
+      calcSensorDivider();
+    });
+  }
+  // Initialise sensor divider output
+  calcSensorDivider();
 });
-</script>
 
-<script>
-/* V = I R PRACTICE GENERATOR */
-let currentAnswer = 0;
+/* ============================
+   L1–L3 QUICK CHECK
+=============================== */
+function pdQuickCheck(choice) {
+  const fb = document.getElementById('pdQuickFb');
+  if (!fb) return;
 
-function newVIR() {
-  document.getElementById("vir-feedback").textContent = "";
-  const type = Math.floor(Math.random() * 3);
-
-  let V = (Math.random()*9 + 1).toFixed(1);
-  let I = (Math.random()*0.9 + 0.1).toFixed(2);
-  let R = (Math.random()*90 + 10).toFixed(0);
-
-  V = parseFloat(V);
-  I = parseFloat(I);
-  R = parseFloat(R);
-
-  let question = "";
-
-  if (type === 0) {
-    V = I * R;
-    currentAnswer = parseFloat(V.toFixed(2));
-    question = `Calculate V:  I = ${I} A,  R = ${R} Ω`;
+  if (choice === 'R2') {
+    fb.textContent = "✅ Correct — Vout is across R2, so R2 goes in the numerator.";
+    fb.style.color = "#00ffb3";
+  } else {
+    fb.textContent = "❌ Not quite — if Vout is across R2, then R2 is the one in the numerator.";
+    fb.style.color = "#ff6f6f";
   }
-  else if (type === 1) {
-    I = V / R;
-    currentAnswer = parseFloat(I.toFixed(2));
-    question = `Calculate I:  V = ${V} V,  R = ${R} Ω`;
-  }
-  else {
-    R = V / I;
-    currentAnswer = parseFloat(R.toFixed(2));
-    question = `Calculate R:  V = ${V} V,  I = ${I} A`;
-  }
-
-  document.getElementById("vir-question").textContent = question;
 }
 
-function checkVIR() {
-  const user = parseFloat(document.getElementById("vir-answer").value);
-  const fb = document.getElementById("vir-feedback");
+/* ============================
+   POTENTIAL DIVIDER CALCULATOR
+=============================== */
+function calcDivider() {
+  const out = document.getElementById('pdOut');
+  const Vs = parseFloat(document.getElementById('pdVs')?.value);
+  const R1 = parseFloat(document.getElementById('pdR1')?.value);
+  const R2 = parseFloat(document.getElementById('pdR2')?.value);
 
-  if (isNaN(user)) {
-    fb.textContent = "Please enter a number.";
-    fb.style.color = "#ffca6f";
+  if (!out) return;
+
+  if ([Vs, R1, R2].some(v => isNaN(v)) || R1 <= 0 || R2 <= 0) {
+    out.textContent = "Please enter valid positive numbers for Vs, R1 and R2.";
+    out.style.borderColor = "rgba(255,111,111,0.65)";
     return;
   }
 
-  if (Math.abs(user - currentAnswer) < 0.05) {
-    fb.textContent = "Correct!";
+  const Vout = (R2 / (R1 + R2)) * Vs;
+  const V1 = Vs - Vout;
+  const I = Vs / (R1 + R2); // current through series chain
+
+  out.innerHTML = `
+    V<sub>out</sub> (across R<sub>2</sub>) = <strong>${Vout.toFixed(2)} V</strong><br>
+    Voltage across R<sub>1</sub> = <strong>${V1.toFixed(2)} V</strong><br>
+    Divider current (approx.) = <strong>${I.toFixed(3)} A</strong> (${(I*1000).toFixed(1)} mA)
+    <div style="margin-top:0.6rem; opacity:0.95;">
+      Sanity check: Vout + V(R1) = ${Vs.toFixed(2)} V ✅
+    </div>
+  `;
+  out.style.borderColor = "rgba(0,255,200,0.55)";
+}
+function resetDivider() {
+  document.getElementById('pdVs').value = "6.0";
+  document.getElementById('pdR1').value = "1000";
+  document.getElementById('pdR2').value = "1000";
+  const out = document.getElementById('pdOut');
+  out.textContent = "Enter values and press Calculate.";
+  out.style.borderColor = "rgba(255,255,255,0.25)";
+}
+
+/* ============================
+   SENSOR DIVIDER EXPLORER
+=============================== */
+function calcSensorDivider() {
+  const out = document.getElementById('sdOut');
+  const Vs = parseFloat(document.getElementById('sdVs')?.value);
+  const Rfixed = parseFloat(document.getElementById('sdRfixed')?.value);
+  const Rsensor = parseFloat(document.getElementById('sdRsensor')?.value);
+
+  if (!out) return;
+
+  if ([Vs, Rfixed, Rsensor].some(v => isNaN(v)) || Rfixed <= 0 || Rsensor <= 0) {
+    out.textContent = "Please enter valid values (Vs > 0, resistances > 0).";
+    out.style.borderColor = "rgba(255,111,111,0.65)";
+    return;
+  }
+
+  const Vout = (Rsensor / (Rfixed + Rsensor)) * Vs;
+  out.innerHTML = `
+    R<sub>sensor</sub> = <strong>${Rsensor.toFixed(0)} Ω</strong><br>
+    V<sub>out</sub> (across sensor) = <strong>${Vout.toFixed(2)} V</strong>
+    <div style="margin-top:0.6rem; opacity:0.95;">
+      If sensor resistance increases, Vout increases (because sensor is R2 here).
+    </div>
+  `;
+  out.style.borderColor = "rgba(0,255,200,0.55)";
+}
+
+/* ============================
+   SENSOR QUICK CHECK
+=============================== */
+function sensorCheck(ans) {
+  const fb = document.getElementById('sensorFb');
+  if (!fb) return;
+
+  // In this page’s model: sensor is R2 (Vout across sensor).
+  // LDR: more light => resistance down => Vout down.
+  if (ans === 'down') {
+    fb.textContent = "✅ Correct (in this layout): more light → R decreases → Vout decreases.";
     fb.style.color = "#00ffb3";
   } else {
-    fb.textContent = `Not quite. Correct answer = ${currentAnswer}`;
+    fb.textContent = "❌ Not for this layout — here the sensor is R2, so lower resistance gives lower Vout.";
     fb.style.color = "#ff6f6f";
   }
+}
+
+/* ============================
+   LED RESISTOR CALCULATOR
+=============================== */
+const E12 = [100,120,150,180,220,270,330,390,470,560,680,820,1000,1200,1500,1800,2200,2700,3300,3900,4700];
+
+function nextE12(valueOhms) {
+  // Return the next higher E12 value scaled up (simple approach)
+  if (valueOhms <= 0) return null;
+  let decade = 1;
+  while (valueOhms > 1000) {
+    valueOhms /= 10;
+    decade *= 10;
+  }
+  // Find next in E12 after scaling into ~100–1000 range
+  let target = valueOhms * 100; // rough normalise
+  // Better: compare against E12 directly by bringing to same scale
+  // We'll use a simple method: compute across decades
+  const candidates = [];
+  for (let d = 1; d <= 1000000; d *= 10) {
+    for (const r of E12) candidates.push(r * d / 100); // map to real ohms
+  }
+  candidates.sort((a,b) => a-b);
+  for (const c of candidates) {
+    if (c >= valueOhms * decade) return c;
+  }
+  return candidates[candidates.length - 1];
+}
+
+function calcLED() {
+  const out = document.getElementById('ledOut');
+  const Vs = parseFloat(document.getElementById('ledVs')?.value);
+  const Vf = parseFloat(document.getElementById('ledVf')?.value);
+  const ImA = parseFloat(document.getElementById('ledI')?.value);
+
+  if (!out) return;
+
+  if ([Vs, Vf, ImA].some(v => isNaN(v)) || ImA <= 0) {
+    out.textContent = "Please enter valid numbers (current must be > 0 mA).";
+    out.style.borderColor = "rgba(255,111,111,0.65)";
+    return;
+  }
+
+  if (Vs <= Vf) {
+    out.innerHTML = `⚠️ V<sub>s</sub> must be greater than V<sub>LED</sub> for a series resistor calculation.<br>
+                     Your values give V<sub>R</sub> = ${ (Vs - Vf).toFixed(2) } V.`;
+    out.style.borderColor = "rgba(255,202,111,0.7)";
+    return;
+  }
+
+  const I = ImA / 1000;
+  const Vr = Vs - Vf;
+  const R = Vr / I;
+
+  // Suggest a safe next higher standard-ish value
+  const suggested = (() => {
+    const candidates = [100,120,150,180,220,270,330,390,470,560,680,820,1000,1200,1500,1800,2200,2700,3300,3900,4700,5600,6800,8200,10000];
+    for (const c of candidates) if (c >= R) return c;
+    return Math.ceil(R);
+  })();
+
+  out.innerHTML = `
+    V<sub>R</sub> = V<sub>s</sub> − V<sub>LED</sub> = ${Vs.toFixed(2)} − ${Vf.toFixed(2)} = <strong>${Vr.toFixed(2)} V</strong><br>
+    R = V / I = ${Vr.toFixed(2)} / ${I.toFixed(3)} = <strong>${R.toFixed(0)} Ω</strong><br>
+    Suggested safe value: <strong>${suggested} Ω</strong>
+    <div style="margin-top:0.6rem; opacity:0.95;">
+      Choosing the next higher value slightly reduces current (safer).
+    </div>
+  `;
+  out.style.borderColor = "rgba(0,255,200,0.55)";
+}
+
+function resetLED() {
+  document.getElementById('ledVs').value = "5.0";
+  document.getElementById('ledVf').value = "2.0";
+  document.getElementById('ledI').value = "10";
+  const out = document.getElementById('ledOut');
+  out.textContent = "Enter values and press Calculate.";
+  out.style.borderColor = "rgba(255,255,255,0.25)";
+}
+
+/* ============================
+   THRESHOLD CHECKER
+=============================== */
+function checkThreshold() {
+  const out = document.getElementById('thOut');
+  const Vout = parseFloat(document.getElementById('thVout')?.value);
+  const thr = parseFloat(document.getElementById('thThreshold')?.value);
+
+  if (!out) return;
+
+  if (isNaN(Vout) || isNaN(thr)) {
+    out.textContent = "Please enter a valid Vout and select a threshold.";
+    out.style.borderColor = "rgba(255,111,111,0.65)";
+    return;
+  }
+
+  if (Vout >= thr) {
+    out.innerHTML = `✅ Likely <strong>ON</strong>: V<sub>out</sub> (${Vout.toFixed(2)} V) ≥ threshold (${thr.toFixed(2)} V).<br>
+                     Expect transistor to conduct (depending on base resistor + design).`;
+    out.style.borderColor = "rgba(0,255,200,0.55)";
+    out.style.color = "#fff";
+  } else {
+    out.innerHTML = `❌ Likely <strong>OFF</strong>: V<sub>out</sub> (${Vout.toFixed(2)} V) < threshold (${thr.toFixed(2)} V).<br>
+                     Divider output is probably not high enough to switch.`;
+    out.style.borderColor = "rgba(255,111,111,0.65)";
+    out.style.color = "#fff";
+  }
+}
+
+/* ============================
+   STRIPBOARD MINI TASK
+=============================== */
+function stripboardTask(ans) {
+  const fb = document.getElementById('stripFb');
+  if (!fb) return;
+
+  if (ans === 'cut') {
+    fb.textContent = "✅ Correct — missing a track cut can short the circuit and stop everything working.";
+    fb.style.color = "#00ffb3";
+  } else {
+    fb.textContent = "⚠️ Important, but not the biggest danger. Missing track cuts cause shorts and total failure.";
+    fb.style.color = "#ffca6f";
+  }
+}
+
+/* ============================
+   FAULT FINDING HELPER
+=============================== */
+function faultHelp() {
+  const sel = document.getElementById('ffSymptom');
+  const out = document.getElementById('ffOut');
+  if (!sel || !out) return;
+
+  const v = sel.value;
+  if (v === "none") {
+    out.textContent = "Choose a symptom and press “Show checks”.";
+    out.style.borderColor = "rgba(255,255,255,0.25)";
+    return;
+  }
+
+  const blocks = {
+    dead: [
+      "1) Measure the supply at the board (is Vs present?)",
+      "2) Check 0V rail continuity (is ground actually connected?)",
+      "3) Look for a major short / solder bridge",
+      "4) Check obvious polarity parts (LED, transistor)",
+      "5) Confirm track cuts are in the right place"
+    ],
+    alwayson: [
+      "1) Measure the base voltage (is it always above ~0.7V?)",
+      "2) Check the divider wiring (is the sensor the wrong way round?)",
+      "3) Check for a short into the base track (bridge / wrong link)",
+      "4) Confirm the output device wiring (LED not bypassed?)"
+    ],
+    neveron: [
+      "1) Measure divider Vout and see if it changes",
+      "2) Measure base voltage (does it ever approach ~0.7V?)",
+      "3) Check sensor orientation / wiring in the divider",
+      "4) Test LED + resistor on their own",
+      "5) Check transistor pinout / orientation"
+    ],
+    random: [
+      "1) Wiggle test gently (loose wire / dry joint?)",
+      "2) Inspect for solder spikes / whiskers",
+      "3) Check exposed strands at terminals",
+      "4) Reflow suspicious joints (quick, clean solder)",
+      "5) Trim long component legs to prevent accidental contact"
+    ]
+  };
+
+  out.innerHTML = `
+    <strong>First checks:</strong>
+    <ol style="margin-top:0.6rem;">
+      ${blocks[v].map(x => `<li style="margin-bottom:0.6rem;">${x}</li>`).join("")}
+    </ol>
+    <div style="margin-top:0.5rem; opacity:0.95;">
+      Remember: change one thing, then re-test.
+    </div>
+  `;
+  out.style.borderColor = "rgba(0,255,200,0.55)";
+}
+
+/* ============================
+   PRACTICE GENERATOR (DIVIDER + LED)
+=============================== */
+let qType = "divider";
+let qAnswer = 0;
+
+function newQuestion() {
+  const qText = document.getElementById('qText');
+  const qFb = document.getElementById('qFb');
+  const qAns = document.getElementById('qAns');
+  if (!qText || !qFb || !qAns) return;
+
+  qFb.textContent = "";
+  qAns.value = "";
+
+  const pick = Math.random();
+  if (pick < 0.55) {
+    qType = "divider";
+    const Vs = randChoice([6.0, 9.0, 12.0]);
+    const R1 = randChoice([470, 680, 1000, 1200, 2200]);
+    const R2 = randChoice([220, 330, 470, 1000, 1500]);
+    const Vout = (R2 / (R1 + R2)) * Vs;
+    qAnswer = roundTo(Vout, 2);
+
+    qText.textContent = `Divider: Vs = ${Vs.toFixed(1)} V, R1 = ${R1} Ω, R2 = ${R2} Ω. Calculate Vout across R2. (2 d.p.)`;
+  } else {
+    qType = "led";
+    const Vs = randChoice([3.0, 5.0, 9.0]);
+    const Vf = randChoice([1.8, 2.0, 2.2]);
+    const ImA = randChoice([5, 10, 15]);
+    const I = ImA / 1000;
+    const R = (Vs - Vf) / I;
+    qAnswer = roundTo(R, 0); // ohms as whole number
+
+    qText.textContent = `LED: Vs = ${Vs.toFixed(1)} V, VLED = ${Vf.toFixed(1)} V, I = ${ImA} mA. Calculate R. (nearest whole Ω)`;
+  }
+}
+
+function checkQuestion() {
+  const qFb = document.getElementById('qFb');
+  const qAns = document.getElementById('qAns');
+  if (!qFb || !qAns) return;
+
+  const user = parseFloat(qAns.value);
+  if (isNaN(user)) {
+    qFb.textContent = "Please enter a number.";
+    qFb.style.color = "#ffca6f";
+    return;
+  }
+
+  // tolerance: divider 0.05V, led 5Ω
+  const tol = (qType === "divider") ? 0.05 : 5;
+
+  if (Math.abs(user - qAnswer) <= tol) {
+    qFb.textContent = `✅ Correct!`;
+    qFb.style.color = "#00ffb3";
+  } else {
+    qFb.textContent = `❌ Not quite. Correct answer = ${qAnswer}`;
+    qFb.style.color = "#ff6f6f";
+  }
+}
+
+function randChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function roundTo(x, dp) {
+  const p = Math.pow(10, dp);
+  return Math.round(x * p) / p;
 }
 </script>
 
