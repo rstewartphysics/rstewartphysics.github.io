@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark" />
-<title>S3 Physics – Electricity 2 (Core Notes)</title>
+<title>S3 Physics – Electricity 2 (Electronics &amp; Control)</title>
 
 <style>
 /* ============================
@@ -37,13 +37,13 @@
   --bg3: #082229;
   --accent: #00e6b3;
   --card: rgba(0,0,0,0.45);
-  --card2: rgba(0,0,0,0.35);
   --border: rgba(255,255,255,0.25);
   --warn: #ffca6f;
   --bad: #ff6f6f;
   --good: #00ffb3;
 }
 
+/* ------------------ PAGE BASE ------------------ */
 body{
   margin:0;
   background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
@@ -57,6 +57,11 @@ body{
   /* footer pinned */
   display:flex;
   flex-direction:column;
+}
+
+/* iPad/iOS performance: avoid fixed background attachment */
+@supports (-webkit-touch-callout: none){
+  body{ background-attachment: scroll; }
 }
 
 /* ============================
@@ -110,6 +115,8 @@ body{
   border-bottom: 1px solid rgba(255,255,255,0.07);
   display:flex;
   gap:0.7rem;
+  min-height: 44px; /* tap target */
+  align-items:center;
 }
 .side-menu a:hover,
 .side-menu a:focus-visible{
@@ -129,6 +136,7 @@ body{
   width:100%;
   max-height: 360px;
   object-fit: cover;
+  display:block;
 }
 .banner-tint{
   position:absolute; inset:0;
@@ -171,7 +179,7 @@ body{
   backdrop-filter: blur(10px);
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35); /* slightly reduced */
 }
 
 hr.soft{
@@ -194,7 +202,7 @@ hr.soft{
   text-decoration:none;
   cursor:pointer;
   backdrop-filter: blur(12px) saturate(180%);
-  box-shadow: 0 6px 18px rgba(0,255,200,0.25);
+  box-shadow: 0 5px 14px rgba(0,255,200,0.22); /* slightly reduced */
   transition: transform 0.2s ease, background 0.2s ease;
 }
 .btn:hover,.btn:focus-visible{
@@ -204,7 +212,7 @@ hr.soft{
 .btn.secondary{
   border-color: rgba(255,255,255,0.30);
   background: rgba(255,255,255,0.10);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.22);
 }
 .btn.disabled{
   opacity:0.55;
@@ -212,6 +220,35 @@ hr.soft{
   border-color: rgba(255,255,255,0.25);
   background: rgba(255,255,255,0.08);
   box-shadow:none;
+}
+
+/* ============================
+   FLOATING BACK BUTTON (like Electricity 1)
+=============================== */
+.back-float{
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 300;
+
+  background: rgba(0, 255, 200, 0.18);
+  padding: 0.75rem 1.2rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 2px solid rgba(0,255,200,0.35);
+  box-shadow: 0 4px 14px rgba(0,255,200,0.30);
+
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.back-float:hover,
+.back-float:focus-visible{
+  background: rgba(0, 255, 200, 0.32);
+  transform: scale(1.08);
 }
 
 /* ============================
@@ -243,15 +280,17 @@ hr.soft{
 /* ============================
    COLLAPSIBLES (low overload)
 =============================== */
-.notes details{
+.notes details,
+.block details{
   background: var(--card);
   border-radius: 0.9rem;
   border: 1px solid rgba(255,255,255,0.3);
   margin: 0 0 1rem;
   overflow:hidden;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.38); /* reduced */
 }
-.notes summary{
+.notes summary,
+.block summary{
   cursor:pointer;
   padding: 1rem 1.1rem;
   font-weight: 900;
@@ -266,15 +305,39 @@ hr.soft{
   gap:0.6rem;
 }
 details summary::-webkit-details-marker{ display:none; }
-.notes .inner{
+.notes .inner,
+.block .inner{
   padding: 1rem 1.1rem;
 }
-.notes ul{
+.notes ul,
+.block ul{
   margin:0.4rem 0 0.2rem;
   padding-left: 1.1rem;
   line-height: 1.75;
 }
-.notes li{ margin-bottom: 0.65rem; }
+.notes li,
+.block li{ margin-bottom: 0.65rem; }
+
+/* Open/Close all buttons */
+.controls-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6rem;
+  margin: 0.2rem 0 1rem;
+}
+.small-btn{
+  padding:0.55rem 0.8rem;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.10);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.small-btn:hover,
+.small-btn:focus-visible{
+  background: rgba(255,255,255,0.16);
+}
 
 /* ============================
    EQUATIONS (simple + clear)
@@ -287,16 +350,6 @@ details summary::-webkit-details-marker{ display:none; }
   border-radius: 14px;
   overflow-x:auto;
   white-space: nowrap;
-}
-
-/* ============================
-   BACK BUTTON
-=============================== */
-.back-to-s3{
-  display:inline-flex;
-  align-items:center;
-  gap:0.5rem;
-  margin-bottom: 0.9rem;
 }
 
 /* ============================
@@ -316,7 +369,7 @@ details summary::-webkit-details-marker{ display:none; }
   border: 1px solid rgba(255,255,255,0.22);
   border-radius: 0.9rem;
   padding: 1rem 1.1rem;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.30); /* reduced */
 }
 .video-card h4{ margin:0 0 0.35rem; }
 .video-card p{ margin:0 0 0.75rem; opacity:0.95; }
@@ -352,16 +405,41 @@ footer{
   outline: 3px solid rgba(0,230,179,0.80);
   outline-offset: 3px;
 }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ scroll-behavior:auto!important; transition:none!important; }
+}
+
+/* Mobile: reduce blur a touch for performance */
+@media (max-width: 480px){
+  .topic-box{ backdrop-filter: blur(8px); }
+  .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
+  .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
+}
 </style>
 </head>
 
 <body>
 <a class="skip-link" href="#mainContent">Skip to content</a>
 
-<button class="menu-btn" id="menuBtn" onclick="toggleMenu()" aria-label="Open menu" aria-expanded="false">☰</button>
+<!-- MENU BUTTON -->
+<button
+  class="menu-btn"
+  id="menuBtn"
+  type="button"
+  onclick="toggleMenu()"
+  aria-label="Open menu"
+  aria-expanded="false"
+  aria-controls="sideMenu"
+>
+  ☰
+</button>
+
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
 
 <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+  <a href="#" id="closeMenuLink">✖ Close</a>
   <a href="/">🏠 Home</a>
   <a href="/classes/science.html">🧪 Science</a>
   <a href="/classes/physics.html">⚡ Physics</a>
@@ -369,32 +447,38 @@ footer{
   <a href="/classes/engineering.html">🧰 Engineering</a>
 </nav>
 
+<!-- BANNER -->
 <div class="banner-wrap">
-  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
+  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="lazy">
   <div class="banner-tint"></div>
   <div class="banner-overlay-text">
     <h1>⚡ S3 Physics – Electricity 2: Electronics &amp; Control</h1>
   </div>
 </div>
 
+<!-- FLOATING BACK BUTTON -->
+<a class="back-float" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
+  ⬅ Back to S3 Physics
+</a>
+
 <main class="page-wrap" id="mainContent">
   <div class="topic-box">
 
-    <a class="btn secondary back-to-s3" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
-      ⬅ Back to S3 Physics
-    </a>
-
     <h2 style="margin:0.2rem 0 0.6rem;">Electricity 2 – Key Links + Core Notes (simple)</h2>
     <p style="margin:0;">
-      <strong>Use this page like a checklist:</strong> open one notes section at a time, then go back to the booklet questions.
+      <strong>Use this page like a checklist:</strong> do the Knowledge Organiser first, then videos, then past paper questions.
     </p>
 
     <div class="callout" style="margin-top:1rem;">
       <p style="margin:0;">
         <strong>Suggested routine (low overload):</strong><br>
-        1) Open <strong>one</strong> notes section below → 2) Do the matching questions in the booklet → 3) Use past papers at the end.
+        1) <strong>Knowledge Organiser</strong> → 2) <strong>Videos</strong> → 3) <strong>Past paper questions</strong> → (use notes only if stuck)
       </p>
     </div>
+
+    <p style="margin:0.9rem 0 0.2rem; opacity:0.9;">
+      <em>Last updated: 04 Jan 2026</em>
+    </p>
 
     <hr class="soft">
 
@@ -403,16 +487,18 @@ footer{
       <div class="card">
         <h4 style="margin:0 0 0.6rem;">📄 Class Files</h4>
         <p style="margin:0 0 0.8rem;">
-          These are the two things you’ll use most.
+          Start with the Knowledge Organiser, then use the booklet questions.
         </p>
+
         <p style="margin:0.2rem 0;">
-          <a class="btn" href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf" target="_blank" rel="noopener">
-            📘 Electricity 2 Booklet (B2)
+          <a class="btn" href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf" target="_blank" rel="noopener noreferrer">
+            🧠 Knowledge Organiser (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
         </p>
+
         <p style="margin:0.6rem 0 0;">
-          <a class="btn" href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf" target="_blank" rel="noopener">
-            🧠 Knowledge Organiser (B2)
+          <a class="btn" href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf" target="_blank" rel="noopener noreferrer">
+            📘 Electricity 2 Booklet (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
         </p>
       </div>
@@ -420,7 +506,7 @@ footer{
       <div class="card">
         <h4 style="margin:0 0 0.6rem;">📝 Past Paper Finders</h4>
         <p style="margin:0 0 0.8rem;">
-          Use these after you’ve done the booklet questions.
+          Use these after you’ve done the Knowledge Organiser and videos.
         </p>
 
         <div class="callout" style="margin:0 0 0.9rem;">
@@ -433,13 +519,13 @@ footer{
         </div>
 
         <p style="margin:0.2rem 0;">
-          <a class="btn secondary" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener">
-            ⚡ Physics Past Paper Finder
+          <a class="btn secondary" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer">
+            ⚡ Physics Past Paper Finder <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
         </p>
         <p style="margin:0.6rem 0 0;">
-          <a class="btn secondary" href="/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ.pdf" target="_blank" rel="noopener">
-            💡 Electronics Past Paper Questions (PPQ)
+          <a class="btn secondary" href="/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ.pdf" target="_blank" rel="noopener noreferrer">
+            💡 Electronics Past Paper Questions (PPQ) <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
         </p>
       </div>
@@ -457,22 +543,227 @@ footer{
 
     <hr class="soft">
 
+    <!-- VIDEOS MOVED INTO COLLAPSIBLE ABOVE NOTES -->
+    <div class="block" aria-label="Electricity 2 videos and notes blocks">
+      <details>
+        <summary>▶ Video revision (watch only what you need)</summary>
+        <div class="inner">
+          <p style="margin:0 0 0.8rem;">
+            Watch the ones you need, then go straight to past paper questions.
+          </p>
+
+          <div class="video-grid" aria-label="Embedded revision videos">
+
+            <div class="video-card">
+              <h4>Voltage Divider Theory</h4>
+              <p>How changing resistor values changes the output voltage.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
+                  title="Voltage Divider Theory"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>LEDs – Basic</h4>
+              <p>Why LEDs need a protective resistor.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
+                  title="LEDs - Basic"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>LEDs – Advanced</h4>
+              <p>Extra detail on current and brightness.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/xdD_3Q7f23M"
+                  title="LEDs - Advanced"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Thermistors and LDRs</h4>
+              <p>How sensors change resistance.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
+                  title="Thermistors and LDRs"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>NPN Switch on Voltage</h4>
+              <p>How base voltage controls switching.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/v7rWj2nsOyA"
+                  title="NPN Switch on Voltage"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Transistor Switching Circuits</h4>
+              <p>Using a transistor as a switch.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
+                  title="Transistor Switching Circuits"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Capacitor time delay circuit</h4>
+              <p>Extension: delaying a switching event.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/vbkY8TGadIk"
+                  title="Capacitor time delay circuit"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Stripboard Schematics</h4>
+              <p>Plan your stripboard layout and track cuts before soldering.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
+                  title="Stripboard Schematics"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <hr class="soft">
+
     <h3 style="margin:0 0 0.7rem;">✅ Core Notes (open only what you need)</h3>
 
-    <div class="notes" aria-label="Core Electricity 2 notes">
+    <!-- Open/Close all controls (7) -->
+    <div class="controls-row" aria-label="Notes controls">
+      <button class="small-btn" type="button" onclick="setAllNotes(true)">Open all notes</button>
+      <button class="small-btn" type="button" onclick="setAllNotes(false)">Close all notes</button>
+    </div>
 
+    <div class="notes" id="notesBlock" aria-label="Core Electricity 2 notes">
+
+      <!-- 8) Reordered to match workflow -->
       <details>
         <summary>🧾 Key Equations (the only ones you need here)</summary>
         <div class="inner">
           <p style="margin:0 0 0.7rem;">Learn these and you can do most of the calculations in this unit:</p>
-          <div class="eq" aria-label="Equations: V equals I R; Vout equals R2 over R1 plus R2 times Vs; R equals Vs minus Vf over I.">
+
+          <!-- 9) Proper subscripts -->
+          <div class="eq" aria-label="Equations: V equals I R; V out equals R2 over R1 plus R2 times V s; R LED equals V s minus V f over I.">
 V = I·R
-Vout = ( R2 / (R1 + R2) ) × Vs
-R(LED) = (Vs − Vf) / I   (I in amps)
+V<sub>out</sub> = ( R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ) × V<sub>s</sub>
+R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
           </div>
+
           <ul>
-            <li><strong>Vout</strong> is normally taken across <strong>R2</strong> in this unit.</li>
+            <li><strong>V<sub>out</sub></strong> is normally taken across <strong>R<sub>2</sub></strong> in this unit.</li>
             <li>For LEDs, use <strong>I</strong> in <strong>amps</strong> (e.g. 10 mA = 0.010 A).</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🔢 Potential Dividers (the core idea)</summary>
+        <div class="inner">
+          <ul>
+            <li>A potential divider uses <strong>two resistors in series</strong> to create a smaller output voltage.</li>
+            <li>We usually measure <strong>V<sub>out</sub> at the junction</strong> and treat it as the voltage <strong>across R<sub>2</sub></strong>.</li>
+            <li><strong>If R<sub>2</sub> increases</strong> (R<sub>1</sub> fixed), then <strong>V<sub>out</sub> increases</strong>.</li>
+            <li><strong>If R<sub>1</sub> increases</strong> (R<sub>2</sub> fixed), then <strong>V<sub>out</sub> decreases</strong>.</li>
+            <li>Dividers are used so a circuit can produce a control voltage (for example for a transistor base).</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>💡 Diodes &amp; LEDs (safe LED circuits)</summary>
+        <div class="inner">
+          <ul>
+            <li>LEDs and diodes only work in the <strong>forward direction</strong>.</li>
+            <li>An LED <strong>must</strong> have a <strong>series resistor</strong> to limit current and prevent damage.</li>
+            <li>Method: find voltage across resistor: <strong>V<sub>R</sub> = V<sub>s</sub> − V<sub>f</sub></strong>, then use <strong>R = V<sub>R</sub> / I</strong>.</li>
+            <li>In real builds, choose the <strong>next standard resistor value up</strong> for safety.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🌡️ Sensors (LDRs &amp; Thermistors)</summary>
+        <div class="inner">
+          <ul>
+            <li>Sensors are often used as one resistor in a potential divider.</li>
+            <li><strong>LDR:</strong> brighter light → <strong>lower</strong> resistance → divider output changes.</li>
+            <li><strong>NTC thermistor:</strong> higher temperature → <strong>lower</strong> resistance → divider output changes.</li>
+            <li>The key story: environment changes resistance → <strong>V<sub>out</sub> changes</strong> → circuit responds.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🔄 Switching &amp; Control (transistor as a switch)</summary>
+        <div class="inner">
+          <ul>
+            <li>A transistor can be used as an <strong>electronic switch</strong> to turn an output on/off.</li>
+            <li>In this course model: if the <strong>base voltage</strong> is high enough (≈ <strong>0.7 V</strong> idea), it switches on.</li>
+            <li>A <strong>divider + sensor</strong> can create the base voltage that controls switching.</li>
+            <li>Outputs might be an <strong>LED</strong>, <strong>buzzer</strong>, or other device (still needs correct resistors!).</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🔍 Fault Finding (what to do when it doesn’t work)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Golden rule:</strong> change <strong>one thing at a time</strong>, then test again.</li>
+            <li>Check the basics first: correct <strong>power rails</strong>, correct <strong>polarity</strong> (LED/diode), correct resistor present.</li>
+            <li>Look for stripboard issues: missing/wrong <strong>track cuts</strong>, <strong>solder bridges</strong>, untrimmed legs shorting tracks.</li>
+            <li>Use measurements: check supply voltage, then check divider output voltage, then check the switching point.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🧰 Practical Skills (stripboard &amp; soldering)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Stripboard tracks</strong> run in lines — you must add <strong>track cuts</strong> to stop unwanted connections.</li>
+            <li>Common tools: <strong>track cutter</strong>, <strong>solder sucker</strong>, <strong>heat sink</strong> (to protect components).</li>
+            <li><strong>Good solder joint:</strong> shiny, secure, not a blob, not a dry/dull joint.</li>
+            <li>Good practice: keep iron tip clean and tinned, heat the joint (not the solder), keep parts still while cooling.</li>
           </ul>
         </div>
       </details>
@@ -494,190 +785,6 @@ R(LED) = (Vs − Vf) / I   (I in amps)
         </div>
       </details>
 
-      <details>
-        <summary>🔢 Potential Dividers (the core idea)</summary>
-        <div class="inner">
-          <ul>
-            <li>A potential divider uses <strong>two resistors in series</strong> to create a smaller output voltage.</li>
-            <li>We usually measure <strong>Vout at the junction</strong> and treat it as the voltage <strong>across R2</strong>.</li>
-            <li><strong>If R2 increases</strong> (R1 fixed), then <strong>Vout increases</strong>.</li>
-            <li><strong>If R1 increases</strong> (R2 fixed), then <strong>Vout decreases</strong>.</li>
-            <li>Dividers are used so a circuit can produce a control voltage (for example for a transistor base).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>💡 Diodes &amp; LEDs (safe LED circuits)</summary>
-        <div class="inner">
-          <ul>
-            <li>LEDs and diodes only work in the <strong>forward direction</strong>.</li>
-            <li>An LED <strong>must</strong> have a <strong>series resistor</strong> to limit current and prevent damage.</li>
-            <li>Method: find voltage across resistor: <strong>VR = Vs − Vf</strong>, then use <strong>R = VR / I</strong>.</li>
-            <li>In real builds, choose the <strong>next standard resistor value up</strong> for safety.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🌡️ Sensors (LDRs &amp; Thermistors)</summary>
-        <div class="inner">
-          <ul>
-            <li>Sensors are often used as one resistor in a potential divider.</li>
-            <li><strong>LDR:</strong> brighter light → <strong>lower</strong> resistance → divider output changes.</li>
-            <li><strong>NTC thermistor:</strong> higher temperature → <strong>lower</strong> resistance → divider output changes.</li>
-            <li>The key story: environment changes resistance → <strong>Vout changes</strong> → circuit responds.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🔄 Switching &amp; Control (transistor as a switch)</summary>
-        <div class="inner">
-          <ul>
-            <li>A transistor can be used as an <strong>electronic switch</strong> to turn an output on/off.</li>
-            <li>In this course model: if the <strong>base voltage</strong> is high enough (≈ <strong>0.7 V</strong> idea), it switches on.</li>
-            <li>A <strong>divider + sensor</strong> can create the base voltage that controls switching.</li>
-            <li>Outputs might be an <strong>LED</strong>, <strong>buzzer</strong>, or other device (still needs correct resistors!).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🧰 Practical Skills (stripboard &amp; soldering)</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Stripboard tracks</strong> run in lines — you must add <strong>track cuts</strong> to stop unwanted connections.</li>
-            <li>Common tools: <strong>track cutter</strong>, <strong>solder sucker</strong>, <strong>heat sink</strong> (to protect components).</li>
-            <li><strong>Good solder joint:</strong> shiny, secure, not a blob, not a dry/dull joint.</li>
-            <li>Good practice: keep iron tip clean and tinned, heat the joint (not the solder), keep parts still while cooling.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🔍 Fault Finding (what to do when it doesn’t work)</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Golden rule:</strong> change <strong>one thing at a time</strong>, then test again.</li>
-            <li>Check the basics first: correct <strong>power rails</strong>, correct <strong>polarity</strong> (LED/diode), correct resistor present.</li>
-            <li>Look for stripboard issues: missing/wrong <strong>track cuts</strong>, <strong>solder bridges</strong>, untrimmed legs shorting tracks.</li>
-            <li>Use measurements: check supply voltage, then check divider output voltage, then check the switching point.</li>
-          </ul>
-        </div>
-      </details>
-
-    </div>
-
-    <hr class="soft">
-
-    <h3 style="margin:0 0 0.7rem;">▶ Video revision (watch only what you need)</h3>
-    <div class="video-grid" aria-label="Embedded revision videos">
-
-      <div class="video-card">
-        <h4>Voltage Divider Theory</h4>
-        <p>How changing resistor values changes the output voltage.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
-            title="Voltage Divider Theory"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>LEDs – Basic</h4>
-        <p>Why LEDs need a protective resistor.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
-            title="LEDs - Basic"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>LEDs – Advanced</h4>
-        <p>Extra detail on current and brightness.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/xdD_3Q7f23M"
-            title="LEDs - Advanced"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>Thermistors and LDRs</h4>
-        <p>How sensors change resistance.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
-            title="Thermistors and LDRs"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>NPN Switch on Voltage</h4>
-        <p>How base voltage controls switching.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/v7rWj2nsOyA"
-            title="NPN Switch on Voltage"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>Transistor Switching Circuits</h4>
-        <p>Using a transistor as a switch.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
-            title="Transistor Switching Circuits"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>Capacitor time delay circuit</h4>
-        <p>Extension: delaying a switching event.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/vbkY8TGadIk"
-            title="Capacitor time delay circuit"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <h4>Stripboard Schematics</h4>
-        <p>Plan your stripboard layout and track cuts before soldering.</p>
-        <div class="video-embed">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
-            title="Stripboard Schematics"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
-
     </div>
 
     <hr class="soft">
@@ -695,9 +802,16 @@ R(LED) = (Vs − Vf) / I   (I in amps)
 <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
 <script>
-/* Menu: ESC closes + focus-friendly */
+/* Menu: ESC closes + focus-friendly + focus trap */
 function $(id){ return document.getElementById(id); }
 let lastFocusEl = null;
+
+function getFocusableInMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return [];
+  return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+    .filter(el => !el.hasAttribute('disabled'));
+}
 
 function openMenu(){
   const menu = $("sideMenu");
@@ -714,8 +828,8 @@ function openMenu(){
   btn.setAttribute("aria-label","Close menu");
   overlay.setAttribute("aria-hidden","false");
 
-  const firstLink = menu.querySelector("a");
-  if(firstLink) firstLink.focus();
+  const focusables = getFocusableInMenu();
+  if(focusables.length) focusables[0].focus();
 }
 
 function closeMenu(){
@@ -747,17 +861,52 @@ function toggleMenu(){
   else openMenu();
 }
 
+/* Focus trap when menu open */
 document.addEventListener("keydown", (e) => {
-  if(e.key === "Escape"){
-    const menu = $("sideMenu");
-    if(menu && menu.classList.contains("open")) closeMenu();
+  const menu = $("sideMenu");
+  const isOpen = menu && menu.classList.contains("open");
+
+  if(e.key === "Escape" && isOpen){
+    e.preventDefault();
+    closeMenu();
+  }
+
+  if(e.key === "Tab" && isOpen){
+    const focusables = getFocusableInMenu();
+    if(!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
   }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   const overlay = $("menuOverlay");
   if(overlay) overlay.setAttribute("aria-hidden","true");
+
+  const closeLink = $("closeMenuLink");
+  if(closeLink){
+    closeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+  }
 });
+
+/* 7) Open/Close all notes */
+function setAllNotes(open){
+  const wrap = $("notesBlock");
+  if(!wrap) return;
+  wrap.querySelectorAll("details").forEach(d => d.open = !!open);
+}
 </script>
 
 </body>
