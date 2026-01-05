@@ -8,6 +8,13 @@
 
 <style>
 /* ============================
+   GLOBAL FIX: prevent mobile clipping (GLOBAL PROBLEM FIX)
+=============================== */
+*, *::before, *::after{ box-sizing: border-box; }
+html, body{ max-width: 100%; }
+img, iframe{ max-width: 100%; display:block; }
+
+/* ============================
    A11Y HELPERS
 =============================== */
 .visually-hidden{
@@ -52,6 +59,8 @@ body{
   color: var(--text-main);
   line-height: 1.6;
   min-height: 100vh;
+
+  /* Keep hidden, but now safe because we prevent overflow properly */
   overflow-x:hidden;
 
   /* footer pinned */
@@ -69,8 +78,8 @@ body{
 =============================== */
 .menu-btn{
   position: fixed;
-  top: 15px;
-  right: 20px;
+  top: max(15px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
   font-size: 1.8rem;
   background: rgba(255,255,255,0.15);
   border: 2px solid rgba(255,255,255,0.4);
@@ -115,7 +124,7 @@ body{
   border-bottom: 1px solid rgba(255,255,255,0.07);
   display:flex;
   gap:0.7rem;
-  min-height: 44px; /* tap target */
+  min-height: 44px;
   align-items:center;
 }
 .side-menu a:hover,
@@ -168,7 +177,7 @@ body{
 .page-wrap{
   max-width: 1100px;
   margin: 2rem auto;
-  padding: 0 1rem 6rem;
+  padding: 0 1rem 6rem; /* safe now because box-sizing border-box */
   flex:1;
   width:100%;
 }
@@ -179,7 +188,7 @@ body{
   backdrop-filter: blur(10px);
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 10px 18px rgba(0,0,0,0.35); /* slightly reduced */
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
 }
 
 hr.soft{
@@ -202,11 +211,11 @@ hr.soft{
   text-decoration:none;
   cursor:pointer;
   backdrop-filter: blur(12px) saturate(180%);
-  box-shadow: 0 5px 14px rgba(0,255,200,0.22); /* slightly reduced */
+  box-shadow: 0 5px 14px rgba(0,255,200,0.22);
   transition: transform 0.2s ease, background 0.2s ease;
 }
 .btn:hover,.btn:focus-visible{
-  transform: scale(1.03);
+  transform: scale(1.02);
   background: rgba(0,255,200,0.28);
 }
 .btn.secondary{
@@ -222,13 +231,16 @@ hr.soft{
   box-shadow:none;
 }
 
+/* Make “Key Links” buttons fill the card width (removes empty look) */
+.btn.wide{ display:block; width:100%; text-align:left; }
+
 /* ============================
-   FLOATING BACK BUTTON (like Electricity 1)
+   FLOATING BACK BUTTON
 =============================== */
 .back-float{
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: max(20px, env(safe-area-inset-left));
   z-index: 300;
 
   background: rgba(0, 255, 200, 0.18);
@@ -248,7 +260,7 @@ hr.soft{
 .back-float:hover,
 .back-float:focus-visible{
   background: rgba(0, 255, 200, 0.32);
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 /* ============================
@@ -258,6 +270,7 @@ hr.soft{
   display:grid;
   gap:0.9rem;
   grid-template-columns: 1fr;
+  align-items:start; /* prevents “stretch to same height” feel */
 }
 @media (min-width: 820px){
   .grid{ grid-template-columns: 1fr 1fr; }
@@ -268,6 +281,9 @@ hr.soft{
   border: 1px solid rgba(255,255,255,0.22);
   padding: 1rem 1.1rem;
 }
+.card h4{ margin:0 0 0.55rem; }
+.card p{ margin:0.25rem 0 0.65rem; opacity:0.95; }
+
 .callout{
   background: rgba(0,0,0,0.42);
   border-radius: 0.9rem;
@@ -278,92 +294,21 @@ hr.soft{
 .callout strong{ color:#b9fff0; }
 
 /* ============================
-   KEY LINKS DISPLAY FIXES
-   (prevents equal-height stretching + reduces clutter)
-=============================== */
-.keylinks-grid{
-  align-items: start; /* IMPORTANT: stops grid items stretching to same height */
-}
-
-.keylinks-grid .card{
-  display:flex;
-  flex-direction:column;
-  gap:0.6rem;
-}
-
-.keylinks-grid .card p{
-  margin:0;
-  opacity:0.95;
-}
-
-.btn-stack{
-  display:flex;
-  flex-direction:column;
-  gap:0.6rem;
-  margin-top:0.25rem;
-}
-
-/* Past paper “What to attempt” – compact collapsible */
-.attempts{
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(0,230,179,0.35);
-  border-radius: 0.9rem;
-  overflow:hidden;
-}
-
-.attempts summary{
-  padding: 0.85rem 1rem;
-  cursor:pointer;
-  font-weight:900;
-  list-style:none;
-  display:flex;
-  align-items:center;
-  gap:0.6rem;
-  background: rgba(0,230,179,0.10);
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-}
-details.attempts summary::-webkit-details-marker{ display:none; }
-
-.attempts summary::after{
-  content:"▾";
-  margin-left:auto;
-  opacity:0.85;
-}
-details.attempts[open] summary::after{ content:"▴"; }
-
-.attempts .inner{
-  padding: 0.9rem 1rem;
-}
-
-.tight-list{
-  margin: 0.35rem 0 0.7rem;
-  padding-left: 1.1rem;
-  line-height: 1.6;
-}
-.tight-list li{
-  margin: 0 0 0.35rem;
-}
-
-.note-small{
-  margin:0;
-  opacity:0.9;
-  font-size:0.95rem;
-}
-
-/* ============================
    COLLAPSIBLES (low overload)
 =============================== */
 .notes details,
-.block details{
+.block details,
+.mini details{
   background: var(--card);
   border-radius: 0.9rem;
   border: 1px solid rgba(255,255,255,0.3);
   margin: 0 0 1rem;
   overflow:hidden;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.38); /* reduced */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.38);
 }
 .notes summary,
-.block summary{
+.block summary,
+.mini summary{
   cursor:pointer;
   padding: 1rem 1.1rem;
   font-weight: 900;
@@ -378,18 +323,27 @@ details.attempts[open] summary::after{ content:"▴"; }
   gap:0.6rem;
 }
 details summary::-webkit-details-marker{ display:none; }
+
 .notes .inner,
-.block .inner{
+.block .inner,
+.mini .inner{
   padding: 1rem 1.1rem;
 }
 .notes ul,
-.block ul{
+.block ul,
+.mini ul{
   margin:0.4rem 0 0.2rem;
   padding-left: 1.1rem;
   line-height: 1.75;
 }
 .notes li,
-.block li{ margin-bottom: 0.65rem; }
+.block li,
+.mini li{ margin-bottom: 0.6rem; }
+
+/* “Mini” collapsible used inside cards so it feels less heavy */
+.mini details{ margin: 0.5rem 0 0; box-shadow:none; }
+.mini summary{ padding: 0.75rem 0.9rem; font-weight: 800; }
+.mini .inner{ padding: 0.85rem 0.95rem; }
 
 /* Open/Close all buttons */
 .controls-row{
@@ -413,7 +367,7 @@ details summary::-webkit-details-marker{ display:none; }
 }
 
 /* ============================
-   EQUATIONS (simple + clear)
+   EQUATIONS
 =============================== */
 .eq{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
@@ -442,7 +396,7 @@ details summary::-webkit-details-marker{ display:none; }
   border: 1px solid rgba(255,255,255,0.22);
   border-radius: 0.9rem;
   padding: 1rem 1.1rem;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.30); /* reduced */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.30);
 }
 .video-card h4{ margin:0 0 0.35rem; }
 .video-card p{ margin:0 0 0.75rem; opacity:0.95; }
@@ -484,11 +438,12 @@ footer{
   *{ scroll-behavior:auto!important; transition:none!important; }
 }
 
-/* Mobile: reduce blur a touch for performance */
+/* Mobile tweaks */
 @media (max-width: 480px){
-  .topic-box{ backdrop-filter: blur(8px); }
+  .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
   .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
   .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
+  .banner{ max-height: 280px; }
 }
 </style>
 </head>
@@ -556,77 +511,61 @@ footer{
     <hr class="soft">
 
     <h3 style="margin:0 0 0.7rem;">🔗 Key Links</h3>
-
-    <!-- IMPORTANT: keylinks-grid stops equal-height stretching -->
-    <div class="grid keylinks-grid">
+    <div class="grid">
 
       <div class="card">
-        <h4 style="margin:0;">📄 Class Files</h4>
+        <h4>📄 Class Files</h4>
         <p>Start with the Knowledge Organiser, then use the booklet questions.</p>
 
-        <div class="btn-stack" aria-label="Class files links">
-          <a class="btn" href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf" target="_blank" rel="noopener noreferrer">
+        <p style="margin:0.55rem 0 0;">
+          <a class="btn wide" href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf" target="_blank" rel="noopener noreferrer">
             🧠 Knowledge Organiser (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
+        </p>
 
-          <a class="btn" href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf" target="_blank" rel="noopener noreferrer">
+        <p style="margin:0.65rem 0 0;">
+          <a class="btn wide" href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf" target="_blank" rel="noopener noreferrer">
             📘 Electricity 2 Booklet (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
-        </div>
+        </p>
       </div>
 
       <div class="card">
-        <h4 style="margin:0;">📝 Past Paper Finders</h4>
-        <p>Use these after you’ve done the Knowledge Organiser and videos.</p>
+        <h4>📝 Past Paper Finders</h4>
+        <p>Do these after the Knowledge Organiser and videos.</p>
 
-        <!-- Replaces cluttered callout with a clean collapsible -->
-        <details class="attempts">
-          <summary>✅ What to attempt (tap to open)</summary>
-          <div class="inner">
-            <p style="margin:0 0 0.2rem;"><strong>Physics</strong></p>
-            <ul class="tight-list">
-              <li>Voltage</li>
-              <li>Ohm’s Law</li>
-              <li>Circuit rules</li>
-            </ul>
+        <!-- Cleaner: collapse the long guidance -->
+        <div class="mini" aria-label="Past paper guidance">
+          <details>
+            <summary>✅ What to attempt (tap to open)</summary>
+            <div class="inner">
+              <ul>
+                <li><strong>Physics:</strong> focus on <strong>Voltage</strong>, <strong>Ohm’s Law</strong>, <strong>Circuit rules</strong>.</li>
+                <li><strong>Electronics:</strong> <strong>symbols &amp; functions</strong>, <strong>resistor values</strong>, <strong>series/parallel</strong>, <strong>switching circuits</strong>, <strong>voltage dividers</strong>, <strong>simulation/testing</strong>, <strong>safety</strong>, <strong>errors</strong>, <strong>layout/diagrams</strong>.</li>
+                <li><strong>Note:</strong> you may see a few unfamiliar symbols (mix of S3 + N5 Electronics).</li>
+              </ul>
+            </div>
+          </details>
+        </div>
 
-            <p style="margin:0 0 0.2rem;"><strong>Electronics</strong></p>
-            <ul class="tight-list">
-              <li>Circuit symbols &amp; functions</li>
-              <li>Resistor values</li>
-              <li>Series / parallel</li>
-              <li>Switching circuits</li>
-              <li>Voltage dividers</li>
-              <li>Circuit simulation / testing</li>
-              <li>Safety</li>
-              <li>Circuit errors</li>
-              <li>Circuit layout / diagrams</li>
-            </ul>
-
-            <p class="note-small"><strong>Note:</strong> you may see unfamiliar symbols because these questions are a mix of S3 and N5 Electronics.</p>
-          </div>
-        </details>
-
-        <div class="btn-stack" style="margin-top:0.8rem;" aria-label="Past paper links">
-          <a class="btn secondary" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer">
+        <p style="margin:0.65rem 0 0;">
+          <a class="btn secondary wide" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer">
             ⚡ Physics Past Paper Finder <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
+        </p>
 
-          <a class="btn secondary"
-   href="https://rstewartphysics.github.io/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ%20Nov25%20Update-2.pdf"
-   target="_blank"
-   rel="noopener noreferrer">
+        <p style="margin:0.65rem 0 0;">
+          <a class="btn secondary wide" href="https://rstewartphysics.github.io/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ%20Nov25%20Update-2.pdf" target="_blank" rel="noopener noreferrer">
             💡 Electronics Past Paper Questions (PPQ) <span class="visually-hidden">(PDF, opens in a new tab)</span>
           </a>
-        </div>
+        </p>
       </div>
+
     </div>
 
     <div class="card" style="margin-top:0.9rem;">
-      <h4 style="margin:0 0 0.35rem;">🤖 AI Tutor (coming soon)</h4>
-      <p style="margin:0 0 0.8rem;">
-        This button will link to the AI tutor later.
-      </p>
+      <h4>🤖 AI Tutor (coming soon)</h4>
+      <p>This button will link to the AI tutor later.</p>
       <button class="btn disabled" type="button" disabled aria-disabled="true">
         🤖 Open AI Tutor (Coming Soon)
       </button>
@@ -634,7 +573,6 @@ footer{
 
     <hr class="soft">
 
-    <!-- VIDEOS MOVED INTO COLLAPSIBLE ABOVE NOTES -->
     <div class="block" aria-label="Electricity 2 videos and notes blocks">
       <details>
         <summary>▶ Video revision (watch only what you need)</summary>
@@ -778,7 +716,7 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
 
           <ul>
             <li><strong>V<sub>s</sub></strong> = supply voltage.</li>
-            <li><strong>V<sub>2</sub></strong> is the voltage <strong>across R<sub>2</sub></strong> (this is the same as your <strong>V<sub>out</sub></strong>).</li>
+            <li><strong>V<sub>2</sub></strong> is the voltage <strong>across R<sub>2</sub></strong> (same as <strong>V<sub>out</sub></strong>).</li>
             <li>For LEDs, use <strong>I</strong> in <strong>amps</strong> (e.g. 10 mA = 0.010 A).</li>
           </ul>
         </div>
@@ -788,9 +726,9 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🔁 Circuit Rules Recap (from Electricity 1)</summary>
         <div class="inner">
           <ul>
-            <li><strong>Series:</strong> current is the <strong>same</strong> everywhere, voltages <strong>add up</strong> across components.</li>
-            <li><strong>Parallel:</strong> voltage is the <strong>same</strong> across each branch, current <strong>splits</strong> between branches.</li>
-            <li>Use this unit mainly for <strong>divider</strong> and <strong>control</strong> circuits, but these rules still apply.</li>
+            <li><strong>Series:</strong> current is the <strong>same</strong> everywhere, voltages <strong>add up</strong>.</li>
+            <li><strong>Parallel:</strong> voltage is the <strong>same</strong> across each branch, current <strong>splits</strong>.</li>
+            <li>Used mainly for divider/control circuits here, but the rules still apply.</li>
           </ul>
         </div>
       </details>
@@ -800,9 +738,9 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <div class="inner">
           <ul>
             <li><strong>Ammeter:</strong> measure current → connect <strong>in series</strong>.</li>
-            <li><strong>Voltmeter:</strong> measure voltage → connect <strong>in parallel</strong> across the component.</li>
-            <li><strong>Ohmmeter:</strong> measure resistance → power <strong>OFF</strong> and measure across the component.</li>
-            <li>In divider questions, you’ll often measure <strong>V<sub>2</sub></strong> (across <strong>R<sub>2</sub></strong>).</li>
+            <li><strong>Voltmeter:</strong> measure voltage → connect <strong>in parallel</strong>.</li>
+            <li><strong>Ohmmeter:</strong> measure resistance → power <strong>OFF</strong>.</li>
+            <li>In divider questions, you’ll often measure <strong>V<sub>2</sub></strong> across <strong>R<sub>2</sub></strong>.</li>
           </ul>
         </div>
       </details>
@@ -811,11 +749,10 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🔢 Potential Dividers (the core idea)</summary>
         <div class="inner">
           <ul>
-            <li>A potential divider uses <strong>two resistors in series</strong> to create a smaller output voltage.</li>
-            <li>We usually take the output as <strong>V<sub>2</sub></strong> (the voltage <strong>across R<sub>2</sub></strong>).</li>
-            <li><strong>If R<sub>2</sub> increases</strong> (R<sub>1</sub> fixed), then <strong>V<sub>2</sub> increases</strong>.</li>
-            <li><strong>If R<sub>1</sub> increases</strong> (R<sub>2</sub> fixed), then <strong>V<sub>2</sub> decreases</strong>.</li>
-            <li>Dividers are used to create a <strong>control voltage</strong> (e.g. for a transistor / MOSFET control input).</li>
+            <li>Two resistors in series create a smaller output voltage.</li>
+            <li>Output is usually <strong>V<sub>2</sub></strong> (across <strong>R<sub>2</sub></strong>).</li>
+            <li>If <strong>R<sub>2</sub></strong> increases (R<sub>1</sub> fixed), then <strong>V<sub>2</sub></strong> increases.</li>
+            <li>If <strong>R<sub>1</sub></strong> increases (R<sub>2</sub> fixed), then <strong>V<sub>2</sub></strong> decreases.</li>
           </ul>
         </div>
       </details>
@@ -824,17 +761,17 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🔧 Components &amp; What They Do</summary>
         <div class="inner">
           <ul>
-            <li><strong>Voltage rails:</strong> +V and 0V lines that power the whole circuit.</li>
+            <li><strong>Voltage rails:</strong> +V and 0V lines that power the circuit.</li>
             <li><strong>Resistor:</strong> limits current / shares voltage.</li>
-            <li><strong>Variable resistor:</strong> resistance can be adjusted.</li>
-            <li><strong>SPDT switch:</strong> connects the middle contact to one of two outputs (select A or B).</li>
-            <li><strong>Diode:</strong> allows current in one direction only.</li>
-            <li><strong>LED:</strong> a diode that gives out light — needs a <strong>series resistor</strong>.</li>
-            <li><strong>Capacitor:</strong> stores charge — can be used with a resistor to make a <strong>time delay</strong> (timing circuit).</li>
+            <li><strong>Variable resistor:</strong> adjustable resistance.</li>
+            <li><strong>SPDT switch:</strong> middle contact connects to one of two outputs.</li>
+            <li><strong>Diode:</strong> current one direction only.</li>
+            <li><strong>LED:</strong> light-emitting diode — needs a <strong>series resistor</strong>.</li>
+            <li><strong>Capacitor:</strong> stores charge (used for timing/delay with a resistor).</li>
             <li><strong>LDR:</strong> more light → <strong>lower</strong> resistance.</li>
-            <li><strong>Thermistor (NTC):</strong> higher temperature → <strong>lower</strong> resistance.</li>
-            <li><strong>Transistor (NPN BJT):</strong> current-controlled device used as an <strong>electronic switch</strong>.</li>
-            <li><strong>MOSFET (n-channel enhancement):</strong> voltage-controlled device used as an <strong>electronic switch</strong> (gate voltage controls switching).</li>
+            <li><strong>Thermistor (NTC):</strong> higher temp → <strong>lower</strong> resistance.</li>
+            <li><strong>Transistor (NPN BJT):</strong> electronic switch (current-controlled).</li>
+            <li><strong>MOSFET (n-channel enhancement):</strong> electronic switch (voltage-controlled).</li>
           </ul>
         </div>
       </details>
@@ -843,10 +780,10 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🌡️ Sensors (LDRs &amp; Thermistors)</summary>
         <div class="inner">
           <ul>
-            <li>Sensors are often used as <strong>one resistor</strong> in a potential divider.</li>
-            <li><strong>LDR:</strong> brighter light → <strong>lower</strong> resistance.</li>
-            <li><strong>NTC thermistor:</strong> higher temperature → <strong>lower</strong> resistance.</li>
-            <li>The key story: environment changes resistance → <strong>V<sub>2</sub> changes</strong> → circuit responds.</li>
+            <li>Sensors are often one resistor in a potential divider.</li>
+            <li><strong>LDR:</strong> brighter → <strong>lower</strong> resistance.</li>
+            <li><strong>NTC thermistor:</strong> hotter → <strong>lower</strong> resistance.</li>
+            <li>Environment changes resistance → <strong>V<sub>2</sub></strong> changes → circuit responds.</li>
           </ul>
         </div>
       </details>
@@ -858,17 +795,12 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
             Aim: make <strong>V<sub>2</sub></strong> go <strong>high</strong> when you want the output to switch on.
             Remember: <strong>V<sub>2</sub> increases when R<sub>2</sub> increases</strong> (R<sub>1</sub> fixed).
           </p>
-
           <ul>
-            <li><strong>Low light (LDR):</strong> LDR is <strong>R<sub>2</sub></strong> → low light = high resistance → <strong>V<sub>2</sub> high</strong>.</li>
-            <li><strong>High light (LDR):</strong> LDR is <strong>R<sub>1</sub></strong> → high light = low resistance → <strong>V<sub>2</sub> high</strong>.</li>
-            <li><strong>Low temperature (NTC):</strong> NTC is <strong>R<sub>2</sub></strong> → low temp = high resistance → <strong>V<sub>2</sub> high</strong>.</li>
-            <li><strong>High temperature (NTC):</strong> NTC is <strong>R<sub>1</sub></strong> → high temp = low resistance → <strong>V<sub>2</sub> high</strong>.</li>
+            <li><strong>Low light (LDR):</strong> LDR is <strong>R<sub>2</sub></strong> → low light = high R → <strong>V<sub>2</sub> high</strong>.</li>
+            <li><strong>High light (LDR):</strong> LDR is <strong>R<sub>1</sub></strong> → high light = low R → <strong>V<sub>2</sub> high</strong>.</li>
+            <li><strong>Low temp (NTC):</strong> NTC is <strong>R<sub>2</sub></strong> → low temp = high R → <strong>V<sub>2</sub> high</strong>.</li>
+            <li><strong>High temp (NTC):</strong> NTC is <strong>R<sub>1</sub></strong> → high temp = low R → <strong>V<sub>2</sub> high</strong>.</li>
           </ul>
-
-          <p style="margin:0.7rem 0 0;">
-            In builds, <strong>V<sub>2</sub></strong> often drives a <strong>switch stage</strong> (BJT/MOSFET) to power an output.
-          </p>
         </div>
       </details>
 
@@ -876,11 +808,10 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🔄 Switching &amp; Control (BJT / MOSFET as a switch)</summary>
         <div class="inner">
           <ul>
-            <li><strong>NPN BJT switch:</strong> begins to turn on when <strong>V<sub>BE</sub> ≈ 0.7 V</strong> (between base and emitter).</li>
-            <li>Use a <strong>base resistor</strong> to limit base current and protect the transistor.</li>
-            <li><strong>MOSFET switch:</strong> gate voltage controls switching (very little gate current).</li>
-            <li>A <strong>divider + sensor</strong> can create the control voltage that turns the switch on/off.</li>
-            <li>Outputs might be an <strong>LED</strong>, <strong>buzzer</strong>, or lamp (still needs correct resistors!).</li>
+            <li><strong>NPN BJT:</strong> starts turning on when <strong>V<sub>BE</sub> ≈ 0.7 V</strong>.</li>
+            <li>Use a <strong>base resistor</strong> to limit base current.</li>
+            <li><strong>MOSFET:</strong> gate voltage controls switching (tiny gate current).</li>
+            <li>Divider + sensor creates the control voltage for switching.</li>
           </ul>
         </div>
       </details>
@@ -889,10 +820,9 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>💡 Diodes &amp; LEDs (safe LED circuits)</summary>
         <div class="inner">
           <ul>
-            <li>LEDs and diodes only work in the <strong>forward direction</strong>.</li>
-            <li>An LED <strong>must</strong> have a <strong>series resistor</strong> to limit current and prevent damage.</li>
-            <li>Method: find voltage across resistor: <strong>V<sub>R</sub> = V<sub>s</sub> − V<sub>f</sub></strong>, then use <strong>R = V<sub>R</sub> / I</strong>.</li>
-            <li>In real builds, choose the <strong>next standard resistor value up</strong> for safety.</li>
+            <li>Diodes/LEDs work in the <strong>forward direction</strong> only.</li>
+            <li>LED needs a <strong>series resistor</strong> to prevent damage.</li>
+            <li>Use: <strong>V<sub>R</sub> = V<sub>s</sub> − V<sub>f</sub></strong>, then <strong>R = V<sub>R</sub> / I</strong>.</li>
           </ul>
         </div>
       </details>
@@ -901,12 +831,10 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🧰 Practical Skills (stripboard &amp; soldering)</summary>
         <div class="inner">
           <ul>
-            <li><strong>Stripboard tracks</strong> run in lines — you must add <strong>track cuts</strong> to stop unwanted connections.</li>
-            <li><strong>Track cutter:</strong> breaks a copper track to isolate sections.</li>
-            <li><strong>Heat sink:</strong> clips on to protect heat-sensitive components while soldering.</li>
-            <li><strong>Solder sucker:</strong> removes molten solder to fix mistakes.</li>
-            <li><strong>Good solder joint:</strong> shiny, secure, not a blob, not a dry/dull joint.</li>
-            <li>Good practice: keep iron tip clean and tinned, heat the joint (not the solder), keep parts still while cooling.</li>
+            <li>Tracks run in lines — add <strong>track cuts</strong> to stop unwanted connections.</li>
+            <li><strong>Heat sink</strong> protects heat-sensitive parts.</li>
+            <li><strong>Solder sucker</strong> removes mistakes.</li>
+            <li>Good joint: shiny, secure, not a blob.</li>
           </ul>
         </div>
       </details>
@@ -915,10 +843,10 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
         <summary>🔍 Fault Finding (what to do when it doesn’t work)</summary>
         <div class="inner">
           <ul>
-            <li><strong>Golden rule:</strong> change <strong>one thing at a time</strong>, then test again.</li>
-            <li>Check basics first: correct <strong>power rails</strong>, correct <strong>polarity</strong> (LED/diode), correct resistor present.</li>
-            <li>Stripboard issues: missing/wrong <strong>track cuts</strong>, <strong>solder bridges</strong>, untrimmed legs shorting tracks.</li>
-            <li>Measure in order: <strong>V<sub>s</sub></strong> (supply) → <strong>V<sub>2</sub></strong> (divider output) → switching point/output.</li>
+            <li>Change <strong>one thing at a time</strong>, test again.</li>
+            <li>Check: rails, polarity, correct resistors.</li>
+            <li>Stripboard: track cuts, solder bridges, shorting legs.</li>
+            <li>Measure: <strong>V<sub>s</sub></strong> → <strong>V<sub>2</sub></strong> → output.</li>
           </ul>
         </div>
       </details>
@@ -937,7 +865,7 @@ R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
   </div>
 </main>
 
-<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering 2026</footer>
+<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
 <script>
 /* Menu: ESC closes + focus-friendly + focus trap */
