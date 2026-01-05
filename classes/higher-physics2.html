@@ -13,11 +13,11 @@ title: Higher Physics
 
 <style>
 /* ============================
-   GLOBAL FIX: prevent mobile clipping (GLOBAL SITE FIX)
+   GLOBAL FIX: prevent mobile clipping (site-wide guard)
 =============================== */
-*, *::before, *::after{ box-sizing: border-box; }
-html, body{ max-width: 100%; }
-img, iframe{ max-width: 100%; display:block; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { max-width: 100%; }
+img, iframe { max-width: 100%; height: auto; display: block; }
 
 /* ============================
    A11Y HELPERS
@@ -32,29 +32,29 @@ img, iframe{ max-width: 100%; display:block; }
 }
 .skip-link{
   position:absolute; left:-999px; top:10px;
-  background:#00e6b3; color:#001b1e;
+  background:#00e0ff; color:#00131a;
   padding:0.6rem 0.9rem; border-radius:12px;
   font-weight:900; z-index:1000;
 }
 .skip-link:focus{ left:10px; }
 
 /* ============================
-   GLOBAL STYLE SYSTEM (Higher palette)
+   GLOBAL STYLE SYSTEM
 =============================== */
 :root{
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
   --text-main: #ffffff;
 
+  /* Higher palette */
   --bg1: #0e1b38;
   --bg2: #152b63;
   --bg3: #0a1130;
 
-  --accent: #00e6b3;
-  --card: rgba(0,0,0,0.42);
+  --accent: #00d4ff;
+  --card: rgba(0,0,0,0.45);
   --border: rgba(255,255,255,0.25);
 
-  --radius: 1rem;
-  --shadow: 0 12px 24px rgba(0,0,0,0.55);
+  --shadow: 0 10px 18px rgba(0,0,0,0.35);
 }
 
 /* ------------------ PAGE BASE ------------------ */
@@ -67,7 +67,7 @@ body{
   line-height: 1.6;
   min-height: 100vh;
 
-  /* Keep hidden, but safe because we prevent overflow properly */
+  /* keep safe now that we prevent overflow properly */
   overflow-x:hidden;
 
   /* footer pinned */
@@ -80,8 +80,19 @@ body{
   body{ background-attachment: scroll; }
 }
 
+/* Strong keyboard focus */
+:focus-visible{
+  outline: 3px solid rgba(0,212,255,0.85);
+  outline-offset: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+}
+
 /* ============================
-   MENU BUTTON & SIDE MENU (Electricity 2 standard)
+   MENU BUTTON & SIDE MENU (Electricity 2 style)
 =============================== */
 .menu-btn{
   position: fixed;
@@ -114,7 +125,7 @@ body{
 .side-menu{
   position: fixed; top: 0; right: -290px;
   width: 290px; height: 100%;
-  background: rgba(20,20,35,0.85);
+  background: rgba(15,23,42,0.90);
   backdrop-filter: blur(16px) saturate(200%);
   box-shadow: -6px 0 25px rgba(0,0,0,0.6);
   padding-top: 4.5rem;
@@ -154,15 +165,14 @@ body{
   object-fit: cover;
   display:block;
 }
-@media (max-width: 768px){
-  .banner{ max-height: 260px; }
-}
+@media (max-width: 768px){ .banner{ max-height: 260px; } }
+
 .banner-tint{
   position:absolute; inset:0;
   background: linear-gradient(120deg,
-    rgba(0,230,179,0.25),
-    rgba(0,180,255,0.18),
-    rgba(80,120,255,0.16)
+    rgba(0,212,255,0.30),
+    rgba(33,150,243,0.22),
+    rgba(0,212,255,0.15)
   );
   mix-blend-mode: multiply;
 }
@@ -178,7 +188,7 @@ body{
 .banner-overlay-text h1{
   margin:0;
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 /* ============================
@@ -187,7 +197,7 @@ body{
 .page-wrap{
   max-width: 1200px;
   margin: 2rem auto;
-  padding: 0 1rem 5rem;
+  padding: 0 1rem 6rem;
   flex:1;
   width:100%;
 }
@@ -196,12 +206,10 @@ body{
   background: rgba(0,0,0,0.35);
   border: 1px solid var(--border);
   backdrop-filter: blur(10px);
-  border-radius: var(--radius);
+  border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: var(--shadow);
 }
-
-.muted{ opacity:0.9; }
 
 hr.soft{
   border:0;
@@ -209,48 +217,134 @@ hr.soft{
   margin: 1.2rem 0;
 }
 
+.muted{ opacity:0.9; }
+
 /* ============================
-   JUMP BUTTONS
+   GRID / CARDS / TILES
 =============================== */
-.jump-row{
+.grid{
+  display:grid;
+  gap:0.9rem;
+  grid-template-columns: 1fr;
+  align-items:start;
+}
+@media (min-width: 900px){
+  .grid{ grid-template-columns: 1fr 1fr; }
+}
+
+.card{
+  background: rgba(0,0,0,0.42);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 1rem 1.1rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.30);
+}
+.card h4{ margin:0 0 0.55rem; }
+.card p{ margin:0.25rem 0 0.65rem; opacity:0.95; }
+
+.tile-grid{
+  display:grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
+  align-items: stretch;
+}
+.class-tile{
+  display:block;
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  overflow:hidden;
+  text-decoration:none;
+  color:#fff;
+  background: rgba(0,0,0,0.25);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  min-height: 140px;
+}
+.class-tile:hover,
+.class-tile:focus-visible{
+  transform: translateY(-3px);
+  box-shadow: 0 18px 36px rgba(0,212,255,0.25);
+}
+.class-tile img{
+  width:100%;
+  height: 150px;
+  object-fit: cover;
+}
+.tile-label{
+  padding: 0.75rem 0.9rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(0,212,255,0.14), rgba(255,255,255,0.06));
+  border-top: 1px solid rgba(255,255,255,0.18);
+}
+
+/* ============================
+   BUTTONS
+=============================== */
+.btn{
+  display:inline-block;
+  padding:0.75rem 1.05rem;
+  border-radius:16px;
+  border:1px solid rgba(0,212,255,0.45);
+  background: rgba(0,212,255,0.16);
+  color:#fff;
+  font-weight:900;
+  text-decoration:none;
+  cursor:pointer;
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 5px 14px rgba(0,212,255,0.18);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.btn:hover,.btn:focus-visible{
+  transform: scale(1.02);
+  background: rgba(0,212,255,0.26);
+}
+.btn.secondary{
+  border-color: rgba(255,255,255,0.30);
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.22);
+}
+.btn.wide{ display:block; width:100%; text-align:left; }
+
+.controls-row{
   display:flex;
   flex-wrap:wrap;
   gap:0.6rem;
-  margin: 0.9rem 0 0.2rem;
+  margin: 0.6rem 0 1rem;
 }
-.jump-row a{
-  display:inline-block;
+.small-btn{
   padding:0.55rem 0.8rem;
   border-radius:12px;
   border:1px solid rgba(255,255,255,0.28);
   background: rgba(255,255,255,0.10);
   color:#fff;
   font-weight:800;
-  text-decoration:none;
+  cursor:pointer;
 }
-.jump-row a:hover,
-.jump-row a:focus-visible{
+.small-btn:hover,
+.small-btn:focus-visible{
   background: rgba(255,255,255,0.16);
 }
 
 /* ============================
    COLLAPSIBLES
 =============================== */
-details{
+.block details,
+.mini details{
   background: var(--card);
   border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.30);
+  border: 1px solid rgba(255,255,255,0.3);
   margin: 0 0 1rem;
   overflow:hidden;
   box-shadow: 0 8px 16px rgba(0,0,0,0.38);
 }
-summary{
+.block summary,
+.mini summary{
   cursor:pointer;
   padding: 1rem 1.1rem;
   font-weight: 900;
   background: linear-gradient(135deg,
-    rgba(0,255,200,0.14),
-    rgba(0,180,255,0.14)
+    rgba(0,212,255,0.14),
+    rgba(255,255,255,0.06)
   );
   border-bottom: 1px solid rgba(255,255,255,0.18);
   list-style:none;
@@ -259,93 +353,73 @@ summary{
   gap:0.6rem;
 }
 details summary::-webkit-details-marker{ display:none; }
+.block .inner,
+.mini .inner{ padding: 1rem 1.1rem; }
+.block ul, .mini ul{
+  margin:0.4rem 0 0.2rem;
+  padding-left: 1.1rem;
+  line-height: 1.75;
+}
+.block li, .mini li{ margin-bottom: 0.55rem; }
 
-.inner{ padding: 1rem 1.1rem; }
-.inner ul{ margin:0.4rem 0 0.2rem; padding-left: 1.1rem; line-height: 1.75; }
-.inner li{ margin-bottom: 0.6rem; }
-
-/* “Mini” collapsible style (lighter) */
-.mini details{ margin: 0.6rem 0 0; box-shadow:none; }
+/* mini inside cards */
+.mini details{ margin: 0.5rem 0 0; box-shadow:none; }
 .mini summary{ padding: 0.75rem 0.9rem; font-weight: 800; }
 .mini .inner{ padding: 0.85rem 0.95rem; }
 
 /* ============================
-   CALLOUT
+   TIMELINE (tickable)
 =============================== */
-.callout{
-  background: rgba(0,0,0,0.42);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.22);
-  padding: 1rem 1.1rem;
-  border-left: 6px solid rgba(0,230,179,0.65);
+.timeline{
+  list-style:none;
+  padding:0;
+  margin: 0.8rem 0 0;
+  display:flex;
+  flex-direction:column;
+  gap: 0.7rem;
 }
-.callout strong{ color:#b9fff0; }
-
-/* ============================
-   TAGS
-=============================== */
+.timeline li{
+  border: 1px solid rgba(255,255,255,0.20);
+  border-radius: 14px;
+  background: rgba(0,0,0,0.28);
+  padding: 0.75rem 0.85rem;
+}
+.tick-row{
+  display:flex;
+  gap: 0.75rem;
+  align-items:flex-start;
+}
+.tick-row input[type="checkbox"]{
+  margin-top: 0.25rem;
+  width: 20px;
+  height: 20px;
+}
+.tick-main{
+  flex: 1;
+  min-width: 0;
+}
+.tick-date{
+  font-weight: 900;
+  opacity: 0.95;
+}
+.tick-text{
+  margin-top: 0.2rem;
+  opacity: 0.95;
+}
+.tagrow{
+  margin-top: 0.35rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap: 0.35rem;
+}
 .tag{
   display:inline-block;
-  padding: 0.25rem 0.55rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  font-weight: 900;
-  font-size: 0.78rem;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.22);
   background: rgba(255,255,255,0.10);
-  margin-right: 0.35rem;
-}
-.tag-warn{
-  border-color: rgba(255,202,111,0.55);
-  background: rgba(255,202,111,0.14);
-}
-
-/* ============================
-   TILE GRID
-=============================== */
-.tile-grid{
-  display:grid;
-  gap: 1.1rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
-  justify-items: stretch;
-  align-items: stretch;
-  margin-top: 1rem;
-}
-.class-tile{
-  display:block;
-  position: relative;
-  border-radius: var(--radius);
-  border: 2px solid rgba(255,255,255,0.25);
-  outline: 2px solid rgba(255,255,255,0.10);
-  outline-offset: -4px;
-  color: #fff;
-  text-decoration: none;
-  overflow:hidden;
-  min-height: 140px;
-  aspect-ratio: 1.25 / 1;
-  box-shadow: 0 16px 30px rgba(0,0,0,0.7);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-.class-tile:hover,
-.class-tile:focus-visible{
-  transform: translateY(-3px);
-  box-shadow: 0 26px 50px rgba(0,255,255,0.35);
-  outline: 3px solid rgba(0,230,179,0.85);
-  outline-offset: 3px;
-}
-.class-tile img{
-  width:100%;
-  height:100%;
-  object-fit: cover;
-}
-.tile-label{
-  position:absolute;
-  bottom:0; left:0; right:0;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(10px);
-  padding: 0.65rem;
-  text-align:center;
   font-weight: 800;
-  border-top: 1px solid rgba(255,255,255,0.25);
+  font-size: 0.85rem;
 }
 
 /* ============================
@@ -360,23 +434,13 @@ footer{
   margin-top:auto;
 }
 
-/* Strong keyboard focus */
-:focus-visible{
-  outline: 3px solid rgba(0,230,179,0.80);
-  outline-offset: 3px;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce){
-  *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
-}
-
 /* Mobile tweaks */
 @media (max-width: 480px){
   .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
   .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
   .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
-  .banner{ max-height: 260px; }
+  .banner{ max-height: 280px; }
+  .class-tile img{ height: 135px; }
 }
 </style>
 </head>
@@ -413,252 +477,517 @@ footer{
   <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="lazy">
   <div class="banner-tint"></div>
   <div class="banner-overlay-text">
-    <h1>Explore resources and support for Higher Physics</h1>
+    <h1>Higher Physics — Resources, Support, and Course Plan</h1>
   </div>
 </div>
 
 <main class="page-wrap" id="mainContent">
   <div class="topic-box">
 
-    <h2 style="margin:0.2rem 0 0.6rem;">Higher Physics</h2>
-    <p class="muted" style="margin:0;">
-      Use the tiles for quick access. The <strong>Course overview</strong> and <strong>Timeline</strong> are kept clean and <strong>collapsed by default</strong>.
+    <h2 style="margin:0.2rem 0 0.6rem;">Welcome</h2>
+    <p style="margin:0;">
+      Use this page for <strong>everything Higher Physics</strong>: core links, course overview, and a <strong>tickable timeline</strong>.
     </p>
 
-    <div class="jump-row" aria-label="Jump links">
-      <a href="#resources">🔗 Resources</a>
-      <a href="#overview">📌 Course overview</a>
-      <a href="#timeline">🗓️ Timeline</a>
+    <div class="card" style="margin-top:0.9rem;">
+      <h4>✅ How to use this page</h4>
+      <div class="mini" aria-label="How to use guidance">
+        <details>
+          <summary>Tap to open</summary>
+          <div class="inner">
+            <ul>
+              <li>Start with <strong>Course overview</strong> so you know what’s coming.</li>
+              <li>Use the <strong>timeline</strong> to track progress (ticks save on this device).</li>
+              <li>When revising: learn the idea → then prove it using <strong>past paper questions</strong>.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <hr class="soft">
+
+    <h3 style="margin:0 0 0.7rem;">🔗 Key Links</h3>
+    <div class="tile-grid" aria-label="Higher Physics key links">
+
+      <a class="class-tile" href="https://student.magicschool.ai/s/join?joinCode=o6paYQ" target="_blank" rel="noopener noreferrer"
+         aria-label="AI Tutor – Mr Stewart’s Physics Helper (opens in new tab)">
+        <img src="/assets/higher/AI.png" alt="">
+        <div class="tile-label">AI Tutor</div>
+      </a>
+
+      <a class="class-tile" href="/classes/higher/Higher%20Physics%20Past%20Papers%20(September%202025%20Update).pdf" target="_blank" rel="noopener noreferrer"
+         aria-label="Higher Physics Past Papers by Topic Finder (opens in new tab)">
+        <img src="/assets/higher/higherpastpapers.png" alt="">
+        <div class="tile-label">Past Papers Finder</div>
+      </a>
+
+      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc"
+         target="_blank" rel="noopener noreferrer" aria-label="Mr Stewart’s Materials (opens in new tab)">
+        <img src="/assets/higher/mrstewartsmaterials.png" alt="">
+        <div class="tile-label">Mr Stewart’s Materials</div>
+      </a>
+
+      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EtlydMZL4qJMi6zQL_-a33kBoPsCdAu2vK8AFiurWKlraQ?e=eyZbIN"
+         target="_blank" rel="noopener noreferrer" aria-label="Practice Tests (opens in new tab)">
+        <img src="/assets/higher/practicetests.png" alt="">
+        <div class="tile-label">Practice Tests</div>
+      </a>
+
+      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/Eqbob1cLAspLihPfnlpwkoIB8XS8ilM10Fw4Nl6lwV6yTg?e=EormyU"
+         target="_blank" rel="noopener noreferrer" aria-label="Tricky Questions (opens in new tab)">
+        <img src="/assets/higher/tricky.png" alt="">
+        <div class="tile-label">Tricky Questions</div>
+      </a>
+
+      <a class="class-tile" href="/classes/higher/simulations.html" aria-label="Higher Physics Interactive Simulations">
+        <img src="/assets/higher/relativity.png" alt="">
+        <div class="tile-label">Interactive Simulations</div>
+      </a>
+
+      <a class="class-tile" href="https://physicsflashrepo.ovh/" target="_blank" rel="noopener noreferrer" aria-label="Flash Physics (opens in new tab)">
+        <img src="/assets/higher/flashphsyics.png" alt="">
+        <div class="tile-label">Flash Physics</div>
+      </a>
+
+      <a class="class-tile" href="https://sway.office.com/t01NVX6h5b8SiFmF?ref=Link&loc=play" target="_blank" rel="noopener noreferrer"
+         aria-label="Self-marking Multiple Choice (opens in new tab)">
+        <img src="/assets/higher/mc.png" alt="">
+        <div class="tile-label">Self-Marking Multiple Choice</div>
+      </a>
+
+      <a class="class-tile" href="https://quizlet.com/join/TetMQdg6Y" target="_blank" rel="noopener noreferrer" aria-label="Quizlets (opens in new tab)">
+        <img src="/assets/higher/quizlet.png" alt="">
+        <div class="tile-label">Quizlets</div>
+      </a>
+
+      <a class="class-tile" href="https://scholar.hw.ac.uk/courses/" target="_blank" rel="noopener noreferrer" aria-label="Scholar (opens in new tab)">
+        <img src="/assets/higher/scholar.png" alt="">
+        <div class="tile-label">Scholar</div>
+      </a>
+
+      <a class="class-tile" href="https://www.bbc.co.uk/bitesize/subjects/zpyb4wx" target="_blank" rel="noopener noreferrer"
+         aria-label="BBC Bitesize (opens in new tab)">
+        <img src="/assets/higher/bbc.png" alt="">
+        <div class="tile-label">BBC Bitesize</div>
+      </a>
+
     </div>
 
     <hr class="soft">
 
     <!-- COURSE OVERVIEW -->
-    <section class="topic-box" id="overview" aria-label="Higher Physics course overview">
-      <h3 style="margin:0 0 0.6rem;">📌 Course overview (Higher Physics)</h3>
+    <section aria-label="Higher Physics course overview">
+      <h3 style="margin:0 0 0.35rem;">📘 Course overview</h3>
       <p class="muted" style="margin:0 0 0.9rem;">
-        Higher Physics is split into <strong>two units</strong> (<strong>Our Dynamic Universe</strong> and <strong>Particles &amp; Waves</strong>) plus the <strong>Assignment</strong>.
-        Use the sections below for a quick “what’s in the course” refresher.
+        Built to match your <strong>Higher Physics success criteria</strong> and the structure you’ve taught before.
       </p>
 
-      <details>
-        <summary>📚 What you’ll study (tap to open)</summary>
-        <div class="inner">
+      <div class="block" aria-label="Course overview collapsibles">
 
-          <div class="mini">
-            <details>
-              <summary>⚡ Electricity &amp; Circuits</summary>
-              <div class="inner">
-                <ul>
-                  <li><strong>Electrical quantities:</strong> current, voltage, resistance, power (as needed), circuit symbols and measurement.</li>
-                  <li><strong>Sources &amp; internal resistance:</strong> emf vs terminal p.d., lost volts, internal resistance graphs.</li>
-                  <li><strong>Practical circuits:</strong> designing/testing circuits safely, interpreting diagrams and layouts.</li>
-                  <li><strong>Capacitors:</strong> charge storage, charge/discharge, time constant ideas and graph interpretation.</li>
-                  <li><strong>AC &amp; DC:</strong> mains vs battery supply, basic waveform ideas (where used in questions).</li>
-                </ul>
-              </div>
-            </details>
-          </div>
-
-          <div class="mini">
-            <details>
-              <summary>🪐 Our Dynamic Universe</summary>
-              <div class="inner">
-                <ul>
-                  <li><strong>Motion &amp; projectiles:</strong> vectors, component motion, projectile paths, graphs.</li>
-                  <li><strong>Forces:</strong> Newton’s laws, free-body diagrams, resultant force and acceleration.</li>
-                  <li><strong>Momentum:</strong> impulse, collisions/explosions (conservation), interpreting scenarios.</li>
-                  <li><strong>Gravitation:</strong> field strength, orbital motion, satellite ideas, inverse-square law.</li>
-                  <li><strong>Relativity:</strong> time dilation/length contraction (concept + simple calculations).</li>
-                  <li><strong>Expanding Universe:</strong> redshift, Hubble-style ideas, evidence for expansion.</li>
-                </ul>
-              </div>
-            </details>
-          </div>
-
-          <div class="mini">
-            <details>
-              <summary>🌊 Waves</summary>
-              <div class="inner">
-                <ul>
-                  <li><strong>Refraction:</strong> wave speed change, bending, ray diagrams and qualitative explanations.</li>
-                  <li><strong>Interference &amp; diffraction:</strong> path difference ideas, patterns, what affects fringes.</li>
-                  <li><strong>Spectra:</strong> emission/absorption lines, what spectra tell us about sources.</li>
-                </ul>
-              </div>
-            </details>
-          </div>
-
-          <div class="mini">
-            <details>
-              <summary>🧩 Particles</summary>
-              <div class="inner">
-                <ul>
-                  <li><strong>Motion/forces in fields:</strong> charged particles in electric/magnetic fields (direction + calculations).</li>
-                  <li><strong>Wave–particle duality:</strong> photons, photoelectric effect, evidence and key definitions.</li>
-                  <li><strong>Nuclear reactions:</strong> fission/fusion, energy changes, particle equations where used.</li>
-                  <li><strong>Standard Model:</strong> quarks/leptons/bosons, conservation ideas, interpreting particle diagrams.</li>
-                </ul>
-              </div>
-            </details>
-          </div>
-
-          <hr class="soft" style="margin-top:1rem;">
-
-          <div class="callout">
-            <p style="margin:0;">
-              <strong>Assessment skills that matter:</strong><br>
-              calculations (with units), explanations in words, interpreting graphs/data, and linking ideas across topics.
+        <details>
+          <summary>🧠 Big ideas & units (what you’ll learn)</summary>
+          <div class="inner">
+            <ul>
+              <li><strong>Our Dynamic Universe (ODU):</strong> motion, forces, energy, momentum, gravity/fields (as taught in your sequence).</li>
+              <li><strong>Particles & Waves:</strong> inverse square law, refraction, interference, spectra, photoelectric effect, the standard model, nuclear reactions.</li>
+              <li><strong>Electricity:</strong> circuit behaviour (including more advanced ideas like internal resistance / AC where appropriate), and using equations confidently.</li>
+              <li><strong>Researching Physics (assignment):</strong> planning, processing data, uncertainties, and communicating findings clearly.</li>
+            </ul>
+            <p class="muted" style="margin:0.7rem 0 0;">
+              <strong>Note:</strong> the exact order can change year-to-year — the timeline below is your 25–26 plan.
             </p>
           </div>
+        </details>
 
-        </div>
-      </details>
-    </section>
-
-    <!-- TIMELINE -->
-    <section class="topic-box" id="timeline" aria-label="Higher Physics timeline by term">
-      <h3 style="margin:0 0 0.6rem;">🗓️ Timeline (by term)</h3>
-      <p class="muted" style="margin:0 0 0.9rem;">
-        Aligned with your Success Criteria sheet and the 23–24 Higher timeline, then adjusted to match your current plan. Each term expands with the likely topic sequence and key milestones.
-        <span class="tag tag-warn">Default: collapsed</span>
-      </p>
-
-      <details>
-        <summary>Term 1 (Aug–Oct): Electricity + early Our Dynamic Universe</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Electricity &amp; circuits:</strong> quantities, components, internal resistance, practical circuits, capacitors, AC/DC foundations.</li>
-            <li><strong>Early ODU:</strong> motion skills (vectors, graphs) that you need for projectiles/forces.</li>
-            <li><strong>Skills focus:</strong> rearranging equations, clear working, units + significant figures.</li>
-          </ul>
-          <div class="callout" style="margin-top:0.8rem;">
-            <p style="margin:0;">
-              <strong>Good checkpoint idea:</strong> a short Electricity calculation check (graphs + internal resistance + capacitors).
+        <details>
+          <summary>📝 Assessment (how you’re graded)</summary>
+          <div class="inner">
+            <ul>
+              <li><strong>Question paper:</strong> sat in one sitting with two papers (Paper 1 + Paper 2).</li>
+              <li><strong>Assignment:</strong> Researching Physics report.</li>
+              <li><strong>Best revision strategy:</strong> learn the idea → then do questions until it feels automatic.</li>
+            </ul>
+            <p class="muted" style="margin:0.7rem 0 0;">
+              The timeline includes a prelim window and the final SQA exam date.
             </p>
           </div>
-        </div>
-      </details>
+        </details>
 
-      <details>
-        <summary>Term 2 (Oct–Dec): Our Dynamic Universe + 3-week pre-Christmas block</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>ODU main run:</strong> projectiles → forces → momentum → gravitation → relativity → expanding universe.</li>
-            <li><strong>Problem-solving:</strong> multi-step questions, selecting equations, explaining reasoning.</li>
-          </ul>
-
-          <hr class="soft">
-
-          <p style="margin:0 0 0.6rem;"><strong>Final 3 weeks before Christmas (1 week each):</strong></p>
-          <ul>
-            <li><span class="tag">Week 1</span> <strong>Inverse square law</strong> (gravitational/field strength style questions).</li>
-            <li><span class="tag">Week 2</span> <strong>Refraction</strong> (bending, speed changes, explanations/diagrams).</li>
-            <li><span class="tag">Week 3</span> <strong>Interference</strong> (patterns + conditions for clear fringes).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>Term 3 (Jan–Mar): Assignment + quantum/particles after February</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Early term:</strong> finish any remaining ODU content and start/complete <strong>Assignment</strong> work.</li>
-            <li><strong>Waves consolidation:</strong> strengthen explanations for refraction/interference and link to exam-style questions.</li>
-          </ul>
-
-          <hr class="soft">
-
-          <p style="margin:0 0 0.6rem;"><strong>After February (roughly 1 week each):</strong></p>
-          <ul>
-            <li><span class="tag">Week 1</span> <strong>Spectra</strong> (line spectra, what it tells you, exam interpretation).</li>
-            <li><span class="tag">Week 2</span> <strong>Photoelectric effect</strong> (threshold frequency, evidence for photons).</li>
-            <li><span class="tag">Week 3</span> <strong>Standard Model</strong> (particles + interactions, interpreting particle diagrams).</li>
-            <li><span class="tag">Week 4</span> <strong>Nuclear reactions</strong> (fission/fusion, energy changes, particle equations).</li>
-          </ul>
-
-          <div class="callout" style="margin-top:0.8rem;">
-            <p style="margin:0;">
-              <strong>Tip:</strong> after each “1-week block”, do a short mixed set of past-paper questions (3–6 questions) while it’s fresh.
-            </p>
+        <details>
+          <summary>🧰 Skills that matter all year</summary>
+          <div class="inner">
+            <ul>
+              <li>Using equations correctly (rearranging, units, significant figures).</li>
+              <li>Graph skills: gradient, intercepts, and what graphs mean physically.</li>
+              <li>Uncertainties: absolute/percentage uncertainty and sensible conclusions.</li>
+              <li>Explaining answers clearly (especially for written questions).</li>
+            </ul>
           </div>
-        </div>
-      </details>
+        </details>
 
-      <details>
-        <summary>Term 4 (Apr–May/Jun): consolidation + exam technique</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Mixed revision:</strong> rotate ODU ↔ Particles &amp; Waves so nothing fades.</li>
-            <li><strong>Past papers:</strong> timed sections, then full papers, then fix weak areas.</li>
-            <li><strong>Exam technique:</strong> show working, correct units, sensible rounding, and clear written explanations.</li>
-          </ul>
-        </div>
-      </details>
-
+      </div>
     </section>
 
     <hr class="soft">
 
-    <!-- RESOURCES -->
-    <h3 id="resources" style="margin:0 0 0.7rem;">🔗 Key Links</h3>
-    <section class="tile-grid" aria-label="Higher Physics key resources">
+    <!-- TIMELINE -->
+    <section id="timeline" aria-label="Higher Physics timeline">
+      <h3 style="margin:0 0 0.35rem;">🗓️ 25–26 Timeline (tickable)</h3>
+      <p class="muted" style="margin:0;">
+        <strong>Senior session:</strong> early June → end April. Dates below are <strong>indicative</strong> (you can adjust later).
+        Ticks save on this device.
+      </p>
 
-      <a class="class-tile" href="https://student.magicschool.ai/s/join?joinCode=o6paYQ" target="_blank" rel="noopener noreferrer" aria-label="AI Tutor – Mr Stewart’s Physics Helper">
-        <img src="/assets/higher/AI.png" alt="" loading="lazy">
-        <div class="tile-label">AI Tutor</div>
-      </a>
+      <div class="controls-row" aria-label="Timeline controls">
+        <button class="small-btn" type="button" onclick="setAllTerms(true)">Open all terms</button>
+        <button class="small-btn" type="button" onclick="setAllTerms(false)">Close all terms</button>
+        <button class="small-btn" type="button" onclick="resetTimelineTicks()">Reset ticks</button>
+      </div>
 
-      <a class="class-tile" href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer" aria-label="Higher Physics Past Papers by Topic Finder">
-        <img src="/assets/higher/higherpastpapers.png" alt="" loading="lazy">
-        <div class="tile-label">Past Papers Finder</div>
-      </a>
+      <p id="progressText" class="muted" style="margin:0 0 0.9rem;"></p>
 
-      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc" target="_blank" rel="noopener noreferrer" aria-label="Mr Stewart's Materials">
-        <img src="/assets/higher/mrstewartsmaterials.png" alt="" loading="lazy">
-        <div class="tile-label">Mr Stewart’s Materials</div>
-      </a>
+      <div class="block" aria-label="Term timeline blocks">
 
-      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EtlydMZL4qJMi6zQL_-a33kBoPsCdAu2vK8AFiurWKlraQ?e=eyZbIN" target="_blank" rel="noopener noreferrer" aria-label="Practice Tests">
-        <img src="/assets/higher/practicetests.png" alt="" loading="lazy">
-        <div class="tile-label">Practice Tests</div>
-      </a>
+        <!-- START-UP (JUNE) -->
+        <details class="term" data-term="startup">
+          <summary>Start-up (June 2025) — foundations before summer</summary>
+          <div class="inner">
+            <ul class="timeline">
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="startup-2025-06-02">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 02 Jun 2025</div>
+                    <div class="tick-text">Course launch + expectations + baseline skills check (algebra, units, sig figs).</div>
+                    <div class="tagrow"><span class="tag">Skills</span><span class="tag">Start-up</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="startup-2025-06-09">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 09 Jun 2025</div>
+                    <div class="tick-text">Uncertainties & data handling (absolute/percentage uncertainty, graphs, conclusions).</div>
+                    <div class="tagrow"><span class="tag">Researching Physics</span><span class="tag">Uncertainties</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="startup-2025-06-16">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 16 Jun 2025</div>
+                    <div class="tick-text">ODU warm-up: motion language (displacement/velocity/acceleration) + graph interpretation.</div>
+                    <div class="tagrow"><span class="tag">ODU</span><span class="tag">Kinematics</span></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </details>
 
-      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/Eqbob1cLAspLihPfnlpwkoIB8XS8ilM10Fw4Nl6lwV6yTg?e=EormyU" target="_blank" rel="noopener noreferrer" aria-label="Tricky Questions">
-        <img src="/assets/higher/tricky.png" alt="" loading="lazy">
-        <div class="tile-label">Tricky Questions</div>
-      </a>
+        <!-- TERM 1 -->
+        <details class="term" data-term="t1">
+          <summary>Term 1 (Aug–Oct 2025) — core ODU + Electricity build</summary>
+          <div class="inner">
+            <ul class="timeline">
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t1-2025-08-18">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 18 Aug 2025</div>
+                    <div class="tick-text">ODU: motion in 2D / projectile ideas (as per your usual sequence).</div>
+                    <div class="tagrow"><span class="tag">ODU</span><span class="tag">Motion</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t1-2025-08-25">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 25 Aug 2025</div>
+                    <div class="tick-text">ODU: forces & Newton’s laws (problem solving focus).</div>
+                    <div class="tagrow"><span class="tag">ODU</span><span class="tag">Forces</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t1-2025-09-01">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 01 Sep 2025</div>
+                    <div class="tick-text">ODU: work/energy/power + efficiency style questions.</div>
+                    <div class="tagrow"><span class="tag">ODU</span><span class="tag">Energy</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t1-2025-09-08">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 08 Sep 2025</div>
+                    <div class="tick-text">ODU: momentum/impulse + collisions (written explanation practice).</div>
+                    <div class="tagrow"><span class="tag">ODU</span><span class="tag">Momentum</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t1-2025-09-15">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 15 Sep 2025</div>
+                    <div class="tick-text">Electricity: core equations & circuit behaviour (build fluency early).</div>
+                    <div class="tagrow"><span class="tag">Electricity</span><span class="tag">Skills</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t1-2025-09-22">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 22 Sep 2025</div>
+                    <div class="tick-text">Researching Physics: choose/launch assignment investigation + planning + variables.</div>
+                    <div class="tagrow"><span class="tag">Assignment</span><span class="tag">Plan</span></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
 
-      <a class="class-tile" href="/classes/higher/simulations.html" aria-label="Higher Physics Interactive Simulations">
-        <img src="/assets/higher/relativity.png" alt="" loading="lazy">
-        <div class="tile-label">Interactive Simulations</div>
-      </a>
+            <div class="mini">
+              <details>
+                <summary>Suggested checkpoint</summary>
+                <div class="inner">
+                  <ul>
+                    <li>End of term: mixed ODU/electricity question set (timed) + quick skills recheck.</li>
+                  </ul>
+                </div>
+              </details>
+            </div>
 
-      <a class="class-tile" href="https://physicsflashrepo.ovh/" target="_blank" rel="noopener noreferrer" aria-label="Flash Physics">
-        <img src="/assets/higher/flashphsyics.png" alt="" loading="lazy">
-        <div class="tile-label">Flash Physics</div>
-      </a>
+          </div>
+        </details>
 
-      <a class="class-tile" href="https://sway.office.com/t01NVX6h5b8SiFmF?ref=Link&loc=play" target="_blank" rel="noopener noreferrer" aria-label="Self-Marking Multiple Choice">
-        <img src="/assets/higher/mc.png" alt="" loading="lazy">
-        <div class="tile-label">Self-Marking Multiple Choice</div>
-      </a>
+        <!-- TERM 2 -->
+        <details class="term" data-term="t2">
+          <summary>Term 2 (Oct–Dec 2025) — Electricity + Particles & Waves (pre-Christmas trio)</summary>
+          <div class="inner">
+            <ul class="timeline">
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-2025-10-27">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 27 Oct 2025</div>
+                    <div class="tick-text">Electricity: internal resistance / supply behaviour (where it fits your plan).</div>
+                    <div class="tagrow"><span class="tag">Electricity</span><span class="tag">Internal Resistance</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-2025-11-03">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 03 Nov 2025</div>
+                    <div class="tick-text">Electricity: AC ideas + measurements (as appropriate).</div>
+                    <div class="tagrow"><span class="tag">Electricity</span><span class="tag">AC</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-2025-11-10">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 10 Nov 2025</div>
+                    <div class="tick-text">Assignment: data collection / processing + uncertainties checkpoint.</div>
+                    <div class="tagrow"><span class="tag">Assignment</span><span class="tag">Data</span></div>
+                  </div>
+                </div>
+              </li>
 
-      <a class="class-tile" href="https://quizlet.com/join/TetMQdg6Y" target="_blank" rel="noopener noreferrer" aria-label="Quizlets">
-        <img src="/assets/higher/quizlet.png" alt="" loading="lazy">
-        <div class="tile-label">Quizlets</div>
-      </a>
+              <!-- Your specified 3 weeks pre-Christmas -->
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-2025-12-01">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 01 Dec 2025</div>
+                    <div class="tick-text"><strong>Inverse Square Law</strong> (1 week focus).</div>
+                    <div class="tagrow"><span class="tag">Particles & Waves</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-2025-12-08">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 08 Dec 2025</div>
+                    <div class="tick-text"><strong>Refraction</strong> (1 week focus).</div>
+                    <div class="tagrow"><span class="tag">Particles & Waves</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-2025-12-15">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 15 Dec 2025</div>
+                    <div class="tick-text"><strong>Interference</strong> (1 week focus) + wrap-up review.</div>
+                    <div class="tagrow"><span class="tag">Particles & Waves</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
 
-      <a class="class-tile" href="https://scholar.hw.ac.uk/courses/" target="_blank" rel="noopener noreferrer" aria-label="Scholar">
-        <img src="/assets/higher/scholar.png" alt="" loading="lazy">
-        <div class="tile-label">Scholar</div>
-      </a>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t2-prelim-window">
+                  <div class="tick-main">
+                    <div class="tick-date">Prelim window (indicative): W/C 08 Dec → W/C 19 Dec 2025</div>
+                    <div class="tick-text">Prelim(s), feedback, and targeted fix-ups.</div>
+                    <div class="tagrow"><span class="tag">Assessment</span><span class="tag">Prelim</span></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </details>
 
-      <a class="class-tile" href="https://www.bbc.co.uk/bitesize/subjects/zpyb4wx" target="_blank" rel="noopener noreferrer" aria-label="BBC Bitesize">
-        <img src="/assets/higher/bbc.png" alt="" loading="lazy">
-        <div class="tile-label">BBC Bitesize</div>
-      </a>
+        <!-- TERM 3 -->
+        <details class="term" data-term="t3">
+          <summary>Term 3 (Jan–Feb 2026) — consolidate + assignment completion</summary>
+          <div class="inner">
+            <ul class="timeline">
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t3-2026-01-05">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 05 Jan 2026</div>
+                    <div class="tick-text">Prelim review: common errors + “must-know” question types.</div>
+                    <div class="tagrow"><span class="tag">Fix-ups</span><span class="tag">Exam technique</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t3-2026-01-19">
+                  <div class="tick-main">
+                    <div class="tick-date">Mid-Jan → Early Feb</div>
+                    <div class="tick-text">Assignment writing: processing, uncertainty discussion, evaluation, clear communication.</div>
+                    <div class="tagrow"><span class="tag">Assignment</span><span class="tag">Write-up</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t3-2026-02-09">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 09 Feb 2026</div>
+                    <div class="tick-text">Mixed-topic practice: timed sections + marking strategy.</div>
+                    <div class="tagrow"><span class="tag">Practice</span><span class="tag">Timing</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t3-2026-02-23">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 23 Feb 2026</div>
+                    <div class="tick-text">Assignment final checks + submit (target week so March can be revision-heavy).</div>
+                    <div class="tagrow"><span class="tag">Milestone</span><span class="tag">Assignment</span></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </details>
 
+        <!-- TERM 4 -->
+        <details class="term" data-term="t4">
+          <summary>Term 4 (Mar–Apr 2026) — final content + revision (starts early March)</summary>
+          <div class="inner">
+            <ul class="timeline">
+
+              <!-- Your specified “after February” sequence -->
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-2026-03-02">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 02 Mar 2026</div>
+                    <div class="tick-text"><strong>Spectra</strong> (≈ 1 week).</div>
+                    <div class="tagrow"><span class="tag">Particles & Waves</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-2026-03-09">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 09 Mar 2026</div>
+                    <div class="tick-text"><strong>Photoelectric Effect</strong> (≈ 1 week).</div>
+                    <div class="tagrow"><span class="tag">Wave-Particle</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-2026-03-16">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 16 Mar 2026</div>
+                    <div class="tick-text"><strong>Standard Model</strong> (≈ 1 week).</div>
+                    <div class="tagrow"><span class="tag">Particles</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-2026-03-23">
+                  <div class="tick-main">
+                    <div class="tick-date">W/C 23 Mar 2026</div>
+                    <div class="tick-text"><strong>Nuclear Reactions</strong> (≈ 1 week).</div>
+                    <div class="tagrow"><span class="tag">Particles</span><span class="tag">1 week</span></div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- Revision from start of March (ongoing) -->
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-revision-march">
+                  <div class="tick-main">
+                    <div class="tick-date">From early March (ongoing)</div>
+                    <div class="tick-text">Revision routine: weekly mixed set + targeted weak areas + past paper marking practice.</div>
+                    <div class="tagrow"><span class="tag">Revision</span><span class="tag">Past papers</span></div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- Last 3 teaching weeks -->
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-last3">
+                  <div class="tick-main">
+                    <div class="tick-date">Last 3 teaching weeks (April 2026)</div>
+                    <div class="tick-text">Full paper drills, exam technique, and high-frequency question types.</div>
+                    <div class="tagrow"><span class="tag">Exam readiness</span><span class="tag">Timing</span></div>
+                  </div>
+                </div>
+              </li>
+
+              <li>
+                <div class="tick-row">
+                  <input type="checkbox" data-tick="t4-sqa-exam">
+                  <div class="tick-main">
+                    <div class="tick-date">SQA Exam (Higher Physics): Thu 21 May 2026 (Morning)</div>
+                    <div class="tick-text">Paper 1 then Paper 2 (same morning).</div>
+                    <div class="tagrow"><span class="tag">SQA</span><span class="tag">Final</span></div>
+                  </div>
+                </div>
+              </li>
+
+            </ul>
+          </div>
+        </details>
+
+      </div>
     </section>
 
   </div>
@@ -667,7 +996,7 @@ footer{
 <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
 <script>
-/* Menu: ESC closes + focus trap + overlay click + close link */
+/* ---------- Menu: overlay click + ESC close + close link + focus trap ---------- */
 function $(id){ return document.getElementById(id); }
 let lastFocusEl = null;
 
@@ -765,7 +1094,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+/* ---------- Timeline: tick saving + progress ---------- */
+const timelineKey = "hp_timeline_ticks_" + (location.pathname || "higher");
+
+function readTicks(){
+  try{
+    return JSON.parse(localStorage.getItem(timelineKey) || "{}");
+  } catch {
+    return {};
+  }
+}
+function writeTicks(obj){
+  localStorage.setItem(timelineKey, JSON.stringify(obj));
+}
+
+function updateProgress(){
+  const boxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-tick]'));
+  const done = boxes.filter(b => b.checked).length;
+  const total = boxes.length || 1;
+  const pct = Math.round((done/total)*100);
+  const el = document.getElementById("progressText");
+  if(el) el.textContent = `Progress: ${done} / ${total} (${pct}%) ticked.`;
+}
+
+function initTimelineTicks(){
+  const saved = readTicks();
+  const boxes = document.querySelectorAll('input[type="checkbox"][data-tick]');
+  boxes.forEach(box => {
+    const id = box.getAttribute("data-tick");
+    box.checked = !!saved[id];
+    box.addEventListener("change", () => {
+      const current = readTicks();
+      current[id] = box.checked;
+      writeTicks(current);
+      updateProgress();
+    });
+  });
+  updateProgress();
+}
+
+function resetTimelineTicks(){
+  if(!confirm("Reset all timeline ticks for this device?")) return;
+  localStorage.removeItem(timelineKey);
+  document.querySelectorAll('input[type="checkbox"][data-tick]').forEach(b => b.checked = false);
+  updateProgress();
+}
+
+/* ---------- Term open/close ---------- */
+function setAllTerms(open){
+  document.querySelectorAll("details.term").forEach(d => d.open = !!open);
+}
+
+document.addEventListener("DOMContentLoaded", initTimelineTicks);
 </script>
 
 </body>
 </html>
+
