@@ -20,7 +20,7 @@ img, iframe{ max-width: 100%; display:block; }
 .visually-hidden{
   position:absolute!important;
   width:1px;height:1px;
-  padding:0;margin:-999px;
+  padding:0;margin:-1px;
   overflow:hidden;
   clip:rect(0,0,0,0);
   white-space:nowrap;border:0;
@@ -246,16 +246,7 @@ hr.soft{
 
 /* ============================
    LAYOUT HELPERS (same as Electricity 2)
-=============================== */
-.grid{
-  display:grid;
-  gap:0.9rem;
-  grid-template-columns: 1fr;
-  align-items:start;
-}
-@media (min-width: 820px){
-  .grid{ grid-template-columns: 1fr 1fr; }
-}
+===============================_toggle update */
 .card{
   background: rgba(0,0,0,0.42);
   border-radius: 0.9rem;
@@ -325,7 +316,7 @@ details summary::-webkit-details-marker{ display:none; }
 .mini summary{ padding: 0.75rem 0.9rem; font-weight: 800; }
 .mini .inner{ padding: 0.85rem 0.95rem; }
 
-/* Open/Close all buttons (same as Electricity 2) */
+/* Controls row */
 .controls-row{
   display:flex;
   flex-wrap:wrap;
@@ -345,17 +336,18 @@ details summary::-webkit-details-marker{ display:none; }
 .small-btn:focus-visible{ background: rgba(255,255,255,0.16); }
 
 /* ============================
-   CHECKBOXES (match style, improve tap targets)
+   CHECKBOXES (bigger + more tappable)
 =============================== */
 .checklist label{
   display:flex;
-  gap:0.7rem;
+  gap:0.8rem;
   align-items:flex-start;
+  cursor:pointer;
 }
 .checklist input[type="checkbox"]{
-  width: 20px;
-  height: 20px;
-  margin-top: 0.2rem;
+  width: 24px;
+  height: 24px;
+  margin-top: 0.15rem;
   accent-color: var(--accent);
   flex: 0 0 auto;
 }
@@ -363,6 +355,106 @@ details summary::-webkit-details-marker{ display:none; }
   margin: 0.35rem 0 0.2rem;
   padding-left: 1.1rem;
   border-left: 2px solid rgba(255,255,255,0.14);
+}
+
+/* ============================
+   START GRID SPACING FIX (prevents empty space)
+=============================== */
+.start-grid{
+  display:grid;
+  gap:0.9rem;
+  grid-template-columns: 1fr;
+  align-items:start;
+}
+@media (min-width: 820px){
+  .start-grid{
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "routine timeline"
+      "ready   timeline"
+      "controls timeline";
+  }
+  .start-routine{ grid-area: routine; }
+  .start-timeline{ grid-area: timeline; }
+  .start-ready{ grid-area: ready; }
+  .start-controls{ grid-area: controls; }
+}
+
+/* ============================
+   PROGRESS + JUMPS
+=============================== */
+.progress-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:0.55rem;
+  margin: 0.2rem 0 0.9rem;
+}
+.progress-top{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem 0.8rem;
+  align-items:baseline;
+  justify-content:space-between;
+}
+.progress-top strong{ color:#b9fff0; }
+.progress-bar{
+  width:100%;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  background: rgba(0,230,179,0.70);
+  box-shadow: 0 0 18px rgba(0,230,179,0.35);
+  transition: width 180ms ease;
+}
+.jump-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  margin: 0.4rem 0 0.9rem;
+}
+.jump-row a{
+  display:inline-block;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.08);
+  color:#fff;
+  text-decoration:none;
+  font-weight:800;
+  font-size: 0.95rem;
+}
+.jump-row a:hover,
+.jump-row a:focus-visible{
+  background: rgba(255,255,255,0.14);
+}
+
+/* ============================
+   PHASE BUTTONS
+=============================== */
+.phase-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6rem;
+  margin: 0.2rem 0 1rem;
+}
+.phase-btn{
+  padding:0.55rem 0.8rem;
+  border-radius: 12px;
+  border:1px solid rgba(0,255,200,0.40);
+  background: rgba(0,255,200,0.14);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.phase-btn:hover,
+.phase-btn:focus-visible{
+  background: rgba(0,255,200,0.22);
 }
 
 /* Strong keyboard focus */
@@ -415,7 +507,6 @@ details summary::-webkit-details-marker{ display:none; }
 
 <!-- BANNER -->
 <div class="banner-wrap">
-  <!-- ✅ Correct banner path (case-sensitive on GitHub Pages) -->
   <img src="/assets/Electronicsbanner.png" alt="Practical Electronics banner" class="banner" loading="lazy">
   <div class="banner-tint"></div>
   <div class="banner-overlay-text">
@@ -424,7 +515,6 @@ details summary::-webkit-details-marker{ display:none; }
 </div>
 
 <!-- FLOATING BACK BUTTON -->
-<!-- ✅ Goes back to PrEl landing page (same folder as this file) -->
 <a class="back-float" href="./" aria-label="Back to Practical Electronics (PrEl landing page)">
   ⬅ Back to Practical Electronics
 </a>
@@ -449,9 +539,10 @@ details summary::-webkit-details-marker{ display:none; }
 
     <h3 style="margin:0 0 0.7rem;">✅ Start here (simple)</h3>
 
-    <div class="grid">
+    <!-- START GRID (spacing fix) -->
+    <div class="start-grid">
 
-      <div class="card">
+      <div class="card start-routine">
         <h4>✅ What you must do every lesson (2–3 minute routine)</h4>
         <ul>
           <li><strong>Date your work</strong> (logbook entry or section progress).</li>
@@ -474,7 +565,7 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </div>
 
-      <div class="card">
+      <div class="card start-timeline">
         <h4>🗓️ Timeline (Week Beginning targets)</h4>
         <ul>
           <li><strong>W/B (end of December):</strong> Read the brief + understand required behaviour (light/dark + flashing sequences).</li>
@@ -482,15 +573,15 @@ details summary::-webkit-details-marker{ display:none; }
           <li><strong>W/B 12 Jan:</strong> Get Yenka working + start the component list (IDs, values, quantities).</li>
           <li><strong>W/B 19 Jan:</strong> Complete stripboard layout diagram + add test points + colour wiring lines.</li>
           <li><strong>W/B 26 Jan:</strong> <strong>Deadline:</strong> Planning &amp; Analysis finished by end of January.</li>
-          <li><strong>W/B 02 Feb:</strong> <strong>Construction begins</strong> — build sub-systems + test as you go.</li>
+          <li><strong>W/B 02 Feb:</strong> <strong>Construction begins</strong> — build subsystems + test as you go.</li>
           <li><strong>W/B 09 Feb:</strong> Continue construction + pre power-up checks + early functionality tests.</li>
-          <li><strong>W/B 23 Feb onward:</strong> Connect sub-systems + wiring schedule + full testing + repairs.</li>
+          <li><strong>W/B 23 Feb onward:</strong> Connect subsystems + wiring schedule + full testing + repairs.</li>
           <li><strong>March:</strong> Finish build, fix faults, full system test evidence, logbook kept up to date.</li>
           <li><strong>Final week before Easter:</strong> Evaluation + final checks + submit.</li>
         </ul>
       </div>
 
-      <div class="card">
+      <div class="card start-ready">
         <h4>⭐ End-of-January “Ready to Build” checkpoint</h4>
         <ul>
           <li><strong>Block diagram</strong> complete + clearly labelled</li>
@@ -501,7 +592,7 @@ details summary::-webkit-details-marker{ display:none; }
         </ul>
       </div>
 
-      <div class="card">
+      <div class="card start-controls">
         <h4>🧼 Controls</h4>
         <p>Use these if the checklist feels too long on screen.</p>
 
@@ -520,11 +611,43 @@ details summary::-webkit-details-marker{ display:none; }
 
     <hr class="soft">
 
-    <h3 style="margin:0 0 0.7rem;">☑️ Full section checklist (tick these off in your booklet)</h3>
+    <h3 style="margin:0 0 0.35rem;">☑️ Full section checklist (tick these off in your booklet)</h3>
+
+    <!-- PROGRESS INDICATOR -->
+    <div class="progress-wrap" aria-label="Checklist progress">
+      <div class="progress-top">
+        <div><strong>Progress:</strong> <span id="progressText">0 / 0</span> (<span id="progressPct">0%</span>)</div>
+        <div style="opacity:0.9;"><em>Small wins = less stress</em></div>
+      </div>
+      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- PHASE BUTTONS (kinder than open all) -->
+    <div class="phase-row" aria-label="Phase buttons">
+      <button class="phase-btn" type="button" onclick="openPhase('planning')">Planning (1–4)</button>
+      <button class="phase-btn" type="button" onclick="openPhase('build')">Build (5–6)</button>
+      <button class="phase-btn" type="button" onclick="openPhase('test')">Test + logbook (7–8)</button>
+      <button class="phase-btn" type="button" onclick="openPhase('eval')">Evaluation (9)</button>
+    </div>
+
+    <!-- JUMP LINKS -->
+    <nav class="jump-row" aria-label="Jump to checklist section">
+      <a href="#sec1">1 Block Diagram</a>
+      <a href="#sec2">2 Components</a>
+      <a href="#sec3">3 Yenka</a>
+      <a href="#sec4">4 Stripboard</a>
+      <a href="#sec5">5 Construction</a>
+      <a href="#sec6">6 Wiring</a>
+      <a href="#sec7">7 Testing</a>
+      <a href="#sec8">8 Logbook</a>
+      <a href="#sec9">9 Evaluation</a>
+    </nav>
 
     <div class="notes checklist" id="checklistBlock" aria-label="PrEl checklist sections">
 
-      <details data-save="details">
+      <details data-save="details" id="sec1" data-phase="planning">
         <summary>1) Analysis &amp; Design — Block Diagram (Input / Process / Output)</summary>
         <div class="inner">
           <ul>
@@ -554,7 +677,7 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </details>
 
-      <details data-save="details">
+      <details data-save="details" id="sec2" data-phase="planning">
         <summary>2) Analysis &amp; Design — Component List (based on your Yenka simulation)</summary>
         <div class="inner">
           <ul>
@@ -570,7 +693,7 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </details>
 
-      <details data-save="details">
+      <details data-save="details" id="sec3" data-phase="planning">
         <summary>3) Design &amp; Simulation — Yenka (must behave correctly)</summary>
         <div class="inner">
           <ul>
@@ -579,13 +702,13 @@ details summary::-webkit-details-marker{ display:none; }
             <li><label><input type="checkbox" data-save="tick"> Two sets of LEDs flash in different sequences</label></li>
             <li><label><input type="checkbox" data-save="tick"> A switch is used to select separate flash sequences</label></li>
             <li><label><input type="checkbox" data-save="tick"> Have you labelled all components (for pricing, layout, testing and repair)?</label></li>
-            <li><label><input type="checkbox" data-save="tick"> Have you labelled each sub system?</label></li>
+            <li><label><input type="checkbox" data-save="tick"> Have you labelled each subsystem?</label></li>
             <li><label><input type="checkbox" data-save="tick"> Have you labelled test points?</label></li>
           </ul>
         </div>
       </details>
 
-      <details data-save="details">
+      <details data-save="details" id="sec4" data-phase="planning">
         <summary>4) Design &amp; Simulation — Stripboard Layout Diagram</summary>
         <div class="inner">
           <ul>
@@ -595,23 +718,23 @@ details summary::-webkit-details-marker{ display:none; }
             <li><strong>Did you add and number/label:</strong>
               <ul class="sub">
                 <li><label><input type="checkbox" data-save="tick"> Power rail points</label></li>
-                <li><label><input type="checkbox" data-save="tick"> Input sub system — input &amp; output points</label></li>
-                <li><label><input type="checkbox" data-save="tick"> Process sub system — input &amp; output points</label></li>
-                <li><label><input type="checkbox" data-save="tick"> Output sub system — input &amp; output points</label></li>
+                <li><label><input type="checkbox" data-save="tick"> Input subsystem — input &amp; output points</label></li>
+                <li><label><input type="checkbox" data-save="tick"> Process subsystem — input &amp; output points</label></li>
+                <li><label><input type="checkbox" data-save="tick"> Output subsystem — input &amp; output points</label></li>
               </ul>
             </li>
 
             <li><label><input type="checkbox" data-save="tick"> Did you add coloured lines for wires on the stripboard schematic layout?</label></li>
             <li><label><input type="checkbox" data-save="tick"> Did you identify the input, process and output boards?</label></li>
             <li><label><input type="checkbox" data-save="tick"> Did you label components to reflect the labelling on the Yenka simulation?</label></li>
-            <li><label><input type="checkbox" data-save="tick"> Did you include and label test points for each sub system’s input &amp; output points?</label></li>
+            <li><label><input type="checkbox" data-save="tick"> Did you include and label test points for each subsystem’s input &amp; output points?</label></li>
             <li><label><input type="checkbox" data-save="tick"> Did you include and label test points for major components (e.g. switches, LDR, AND gate, 555 timer, etc.)?</label></li>
           </ul>
         </div>
       </details>
 
-      <details data-save="details">
-        <summary>5) Construction (for each sub system: Input / Process / Output)</summary>
+      <details data-save="details" id="sec5" data-phase="build">
+        <summary>5) Construction (for each subsystem: Input / Process / Output)</summary>
         <div class="inner">
           <ul>
             <li><label><input type="checkbox" data-save="tick"> Are all components sitting on the plastic (non-copper) side?</label></li>
@@ -623,9 +746,9 @@ details summary::-webkit-details-marker{ display:none; }
             <li><label><input type="checkbox" data-save="tick"> Measure and record all resistor values prior to soldering</label></li>
             <li><label><input type="checkbox" data-save="tick"> Check and record all capacitor values</label></li>
             <li><label><input type="checkbox" data-save="tick"> All DIL sockets and ICs correctly orientated</label></li>
-            <li><label><input type="checkbox" data-save="tick"> All sub system wire colours mirror schematic layout wire colours</label></li>
+            <li><label><input type="checkbox" data-save="tick"> All subsystem wire colours mirror schematic layout wire colours</label></li>
             <li><label><input type="checkbox" data-save="tick"> All test point via pins mirror schematic layout test points</label></li>
-            <li><label><input type="checkbox" data-save="tick"> Pre Power-Up Testing recorded (see Testing section)</label></li>
+            <li><label><input type="checkbox" data-save="tick"> Pre power-up testing recorded (see Testing section)</label></li>
 
             <li><strong>Pre power-up checks (carry out + record):</strong>
               <ul class="sub">
@@ -654,7 +777,7 @@ details summary::-webkit-details-marker{ display:none; }
               </ul>
             </li>
 
-            <li><label><input type="checkbox" data-save="tick"> Were there any changes necessary to each sub system?</label></li>
+            <li><label><input type="checkbox" data-save="tick"> Were there any changes necessary to each subsystem?</label></li>
             <li><label><input type="checkbox" data-save="tick"> If changes were made, did you update the stripboard schematic layout and/or components list?</label></li>
 
             <li><strong>Soldering:</strong>
@@ -667,8 +790,8 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </details>
 
-      <details data-save="details">
-        <summary>6) Wiring &amp; Assembly (connections between sub systems)</summary>
+      <details data-save="details" id="sec6" data-phase="build">
+        <summary>6) Wiring &amp; Assembly (connections between subsystems)</summary>
         <div class="inner">
           <ul>
             <li><strong>Did you follow:</strong>
@@ -695,10 +818,10 @@ details summary::-webkit-details-marker{ display:none; }
               </ul>
             </li>
 
-            <li><label><input type="checkbox" data-save="tick"> Were there any changes between sub systems necessary?</label></li>
+            <li><label><input type="checkbox" data-save="tick"> Were there any changes between subsystems necessary?</label></li>
             <li><label><input type="checkbox" data-save="tick"> Were changes recorded in the schematic layout diagram, logbook, and testing &amp; repair table?</label></li>
 
-            <li><strong>Wiring Schedule — does it include:</strong>
+            <li><strong>Wiring schedule — does it include:</strong>
               <ul class="sub">
                 <li><label><input type="checkbox" data-save="tick"> Numbers</label></li>
                 <li><label><input type="checkbox" data-save="tick"> Colours</label></li>
@@ -709,11 +832,11 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </details>
 
-      <details data-save="details">
+      <details data-save="details" id="sec7" data-phase="test">
         <summary>7) Testing — Plan, Record &amp; Repair (tables must show evidence)</summary>
         <div class="inner">
           <ul>
-            <li><strong>For each sub system, is there evidence of:</strong>
+            <li><strong>For each subsystem, is there evidence of:</strong>
               <ul class="sub">
                 <li><label><input type="checkbox" data-save="tick"> Pre power-up testing table</label></li>
                 <li><label><input type="checkbox" data-save="tick"> Pre power-up test results</label></li>
@@ -730,7 +853,7 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </details>
 
-      <details data-save="details">
+      <details data-save="details" id="sec8" data-phase="test">
         <summary>8) Logbook — Record of progress</summary>
         <div class="inner">
           <ul>
@@ -741,7 +864,7 @@ details summary::-webkit-details-marker{ display:none; }
         </div>
       </details>
 
-      <details data-save="details">
+      <details data-save="details" id="sec9" data-phase="eval">
         <summary>9) Evaluation — Problems, fixes, next steps</summary>
         <div class="inner">
           <ul>
@@ -866,21 +989,6 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const overlay = $("menuOverlay");
-  if(overlay) overlay.setAttribute("aria-hidden","true");
-
-  const closeLink = $("closeMenuLink");
-  if(closeLink){
-    closeLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      closeMenu();
-    });
-  }
-
-  initChecklistPersistence();
-});
-
 /* Open/Close all checklist sections */
 function setAllChecklist(open){
   const wrap = $("checklistBlock");
@@ -889,8 +997,27 @@ function setAllChecklist(open){
   saveChecklistState();
 }
 
+/* Phase buttons: open relevant sections only */
+function openPhase(phase){
+  const wrap = $("checklistBlock");
+  if(!wrap) return;
+
+  // close all first
+  wrap.querySelectorAll('details[data-save="details"]').forEach(d => d.open = false);
+
+  // open matching
+  wrap.querySelectorAll('details[data-save="details"][data-phase="' + phase + '"]').forEach(d => d.open = true);
+
+  // scroll to first of that phase (nice for iPad)
+  const first = wrap.querySelector('details[data-save="details"][data-phase="' + phase + '"]');
+  if(first){
+    first.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  saveChecklistState();
+}
+
 /* ===== Save ticks + open/closed state (localStorage) ===== */
-const PREL_STORE_KEY = "prel_checklist_v1";
+const PREL_STORE_KEY = "prel_checklist_v2"; // bumped version due to structure changes
 
 function initChecklistPersistence(){
   const wrap = $("checklistBlock");
@@ -910,6 +1037,7 @@ function initChecklistPersistence(){
   wrap.addEventListener("change", (e) => {
     if(e.target && e.target.matches('input[type="checkbox"][data-save="tick"]')){
       saveChecklistState();
+      updateProgress();
     }
   });
   secs.forEach(d => d.addEventListener("toggle", saveChecklistState));
@@ -926,10 +1054,37 @@ function initChecklistPersistence(){
       secs.forEach(el => el.open = false);
 
       saveChecklistState();
+      updateProgress();
     });
   }
+
+  // Initial progress update
+  updateProgress();
 }
 
+/* Progress indicator */
+function updateProgress(){
+  const wrap = $("checklistBlock");
+  if(!wrap) return;
+
+  const ticks = Array.from(wrap.querySelectorAll('input[type="checkbox"][data-save="tick"]'));
+  const total = ticks.length;
+  const done  = ticks.filter(t => t.checked).length;
+
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  const text = $("progressText");
+  const pctEl = $("progressPct");
+  const fill = $("progressFill");
+  const bar = document.querySelector('.progress-bar[role="progressbar"]');
+
+  if(text) text.textContent = done + " / " + total;
+  if(pctEl) pctEl.textContent = pct + "%";
+  if(fill) fill.style.width = pct + "%";
+  if(bar) bar.setAttribute("aria-valuenow", String(pct));
+}
+
+/* Save / Load */
 function saveChecklistState(){
   try{
     const wrap = $("checklistBlock");
@@ -973,6 +1128,21 @@ function loadChecklistState(){
     });
   }catch(err){}
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = $("menuOverlay");
+  if(overlay) overlay.setAttribute("aria-hidden","true");
+
+  const closeLink = $("closeMenuLink");
+  if(closeLink){
+    closeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+  }
+
+  initChecklistPersistence();
+});
 </script>
 
 </body>
