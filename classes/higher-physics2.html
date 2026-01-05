@@ -1,0 +1,771 @@
+---
+layout: none
+title: Higher Physics
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>Higher Physics</title>
+
+<style>
+/* ============================
+   GLOBAL FIX: prevent mobile clipping (GLOBAL SITE FIX)
+=============================== */
+*, *::before, *::after{ box-sizing: border-box; }
+html, body{ max-width: 100%; }
+img, iframe{ max-width: 100%; display:block; }
+
+/* ============================
+   A11Y HELPERS
+=============================== */
+.visually-hidden{
+  position:absolute!important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+.skip-link{
+  position:absolute; left:-999px; top:10px;
+  background:#00e6b3; color:#001b1e;
+  padding:0.6rem 0.9rem; border-radius:12px;
+  font-weight:900; z-index:1000;
+}
+.skip-link:focus{ left:10px; }
+
+/* ============================
+   GLOBAL STYLE SYSTEM (Higher palette)
+=============================== */
+:root{
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --text-main: #ffffff;
+
+  --bg1: #0e1b38;
+  --bg2: #152b63;
+  --bg3: #0a1130;
+
+  --accent: #00e6b3;
+  --card: rgba(0,0,0,0.42);
+  --border: rgba(255,255,255,0.25);
+
+  --radius: 1rem;
+  --shadow: 0 12px 24px rgba(0,0,0,0.55);
+}
+
+/* ------------------ PAGE BASE ------------------ */
+body{
+  margin:0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+  background-attachment: fixed;
+  font-family: var(--font-stack);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+
+  /* Keep hidden, but safe because we prevent overflow properly */
+  overflow-x:hidden;
+
+  /* footer pinned */
+  display:flex;
+  flex-direction:column;
+}
+
+/* iPad/iOS performance: avoid fixed background attachment */
+@supports (-webkit-touch-callout: none){
+  body{ background-attachment: scroll; }
+}
+
+/* ============================
+   MENU BUTTON & SIDE MENU (Electricity 2 standard)
+=============================== */
+.menu-btn{
+  position: fixed;
+  top: max(15px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  cursor: pointer;
+  color: #fff;
+  z-index: 200;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.menu-btn:hover,
+.menu-btn:focus-visible{
+  transform: scale(1.08);
+}
+
+.menu-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display:none;
+  z-index:140;
+}
+.menu-overlay.show{ display:block; }
+
+.side-menu{
+  position: fixed; top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.85);
+  backdrop-filter: blur(16px) saturate(200%);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
+  transition: right 0.3s ease;
+  z-index:150;
+}
+.side-menu.open{ right: 0; }
+
+.side-menu a{
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  text-decoration:none;
+  color:#fff;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display:flex;
+  gap:0.7rem;
+  min-height: 44px;
+  align-items:center;
+}
+.side-menu a:hover,
+.side-menu a:focus-visible{
+  background: rgba(255,255,255,0.14);
+}
+
+/* ============================
+   BANNER
+=============================== */
+.banner-wrap{
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+}
+.banner{
+  width:100%;
+  max-height: 360px;
+  object-fit: cover;
+  display:block;
+}
+@media (max-width: 768px){
+  .banner{ max-height: 260px; }
+}
+.banner-tint{
+  position:absolute; inset:0;
+  background: linear-gradient(120deg,
+    rgba(0,230,179,0.25),
+    rgba(0,180,255,0.18),
+    rgba(80,120,255,0.16)
+  );
+  mix-blend-mode: multiply;
+}
+.banner-overlay-text{
+  position:absolute;
+  bottom:0; left:0; right:0;
+  background: rgba(0,0,0,0.48);
+  backdrop-filter: blur(8px);
+  text-align:center;
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.25);
+}
+.banner-overlay-text h1{
+  margin:0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+/* ============================
+   MAIN CONTENT
+=============================== */
+.page-wrap{
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem 5rem;
+  flex:1;
+  width:100%;
+}
+
+.topic-box{
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.muted{ opacity:0.9; }
+
+hr.soft{
+  border:0;
+  border-top: 1px solid rgba(255,255,255,0.22);
+  margin: 1.2rem 0;
+}
+
+/* ============================
+   JUMP BUTTONS
+=============================== */
+.jump-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6rem;
+  margin: 0.9rem 0 0.2rem;
+}
+.jump-row a{
+  display:inline-block;
+  padding:0.55rem 0.8rem;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.10);
+  color:#fff;
+  font-weight:800;
+  text-decoration:none;
+}
+.jump-row a:hover,
+.jump-row a:focus-visible{
+  background: rgba(255,255,255,0.16);
+}
+
+/* ============================
+   COLLAPSIBLES
+=============================== */
+details{
+  background: var(--card);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.30);
+  margin: 0 0 1rem;
+  overflow:hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.38);
+}
+summary{
+  cursor:pointer;
+  padding: 1rem 1.1rem;
+  font-weight: 900;
+  background: linear-gradient(135deg,
+    rgba(0,255,200,0.14),
+    rgba(0,180,255,0.14)
+  );
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+}
+details summary::-webkit-details-marker{ display:none; }
+
+.inner{ padding: 1rem 1.1rem; }
+.inner ul{ margin:0.4rem 0 0.2rem; padding-left: 1.1rem; line-height: 1.75; }
+.inner li{ margin-bottom: 0.6rem; }
+
+/* “Mini” collapsible style (lighter) */
+.mini details{ margin: 0.6rem 0 0; box-shadow:none; }
+.mini summary{ padding: 0.75rem 0.9rem; font-weight: 800; }
+.mini .inner{ padding: 0.85rem 0.95rem; }
+
+/* ============================
+   CALLOUT
+=============================== */
+.callout{
+  background: rgba(0,0,0,0.42);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 1rem 1.1rem;
+  border-left: 6px solid rgba(0,230,179,0.65);
+}
+.callout strong{ color:#b9fff0; }
+
+/* ============================
+   TAGS
+=============================== */
+.tag{
+  display:inline-block;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.78rem;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.10);
+  margin-right: 0.35rem;
+}
+.tag-warn{
+  border-color: rgba(255,202,111,0.55);
+  background: rgba(255,202,111,0.14);
+}
+
+/* ============================
+   TILE GRID
+=============================== */
+.tile-grid{
+  display:grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
+  justify-items: stretch;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+.class-tile{
+  display:block;
+  position: relative;
+  border-radius: var(--radius);
+  border: 2px solid rgba(255,255,255,0.25);
+  outline: 2px solid rgba(255,255,255,0.10);
+  outline-offset: -4px;
+  color: #fff;
+  text-decoration: none;
+  overflow:hidden;
+  min-height: 140px;
+  aspect-ratio: 1.25 / 1;
+  box-shadow: 0 16px 30px rgba(0,0,0,0.7);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.class-tile:hover,
+.class-tile:focus-visible{
+  transform: translateY(-3px);
+  box-shadow: 0 26px 50px rgba(0,255,255,0.35);
+  outline: 3px solid rgba(0,230,179,0.85);
+  outline-offset: 3px;
+}
+.class-tile img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+}
+.tile-label{
+  position:absolute;
+  bottom:0; left:0; right:0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+  padding: 0.65rem;
+  text-align:center;
+  font-weight: 800;
+  border-top: 1px solid rgba(255,255,255,0.25);
+}
+
+/* ============================
+   FOOTER
+=============================== */
+footer{
+  text-align:center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.35);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  font-size:0.92rem;
+  margin-top:auto;
+}
+
+/* Strong keyboard focus */
+:focus-visible{
+  outline: 3px solid rgba(0,230,179,0.80);
+  outline-offset: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px){
+  .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
+  .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
+  .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
+  .banner{ max-height: 260px; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#mainContent">Skip to content</a>
+
+<!-- MENU BUTTON -->
+<button
+  class="menu-btn"
+  id="menuBtn"
+  type="button"
+  onclick="toggleMenu()"
+  aria-label="Open menu"
+  aria-expanded="false"
+  aria-controls="sideMenu"
+>
+  ☰
+</button>
+
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+
+<nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+  <a href="#" id="closeMenuLink">✖ Close</a>
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
+<!-- BANNER -->
+<div class="banner-wrap">
+  <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="lazy">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>Explore resources and support for Higher Physics</h1>
+  </div>
+</div>
+
+<main class="page-wrap" id="mainContent">
+  <div class="topic-box">
+
+    <h2 style="margin:0.2rem 0 0.6rem;">Higher Physics</h2>
+    <p class="muted" style="margin:0;">
+      Use the tiles for quick access. The <strong>Course overview</strong> and <strong>Timeline</strong> are kept clean and <strong>collapsed by default</strong>.
+    </p>
+
+    <div class="jump-row" aria-label="Jump links">
+      <a href="#resources">🔗 Resources</a>
+      <a href="#overview">📌 Course overview</a>
+      <a href="#timeline">🗓️ Timeline</a>
+    </div>
+
+    <hr class="soft">
+
+    <!-- COURSE OVERVIEW -->
+    <section class="topic-box" id="overview" aria-label="Higher Physics course overview">
+      <h3 style="margin:0 0 0.6rem;">📌 Course overview (Higher Physics)</h3>
+      <p class="muted" style="margin:0 0 0.9rem;">
+        Higher Physics is split into <strong>two units</strong> (<strong>Our Dynamic Universe</strong> and <strong>Particles &amp; Waves</strong>) plus the <strong>Assignment</strong>.
+        Use the sections below for a quick “what’s in the course” refresher.
+      </p>
+
+      <details>
+        <summary>📚 What you’ll study (tap to open)</summary>
+        <div class="inner">
+
+          <div class="mini">
+            <details>
+              <summary>⚡ Electricity &amp; Circuits</summary>
+              <div class="inner">
+                <ul>
+                  <li><strong>Electrical quantities:</strong> current, voltage, resistance, power (as needed), circuit symbols and measurement.</li>
+                  <li><strong>Sources &amp; internal resistance:</strong> emf vs terminal p.d., lost volts, internal resistance graphs.</li>
+                  <li><strong>Practical circuits:</strong> designing/testing circuits safely, interpreting diagrams and layouts.</li>
+                  <li><strong>Capacitors:</strong> charge storage, charge/discharge, time constant ideas and graph interpretation.</li>
+                  <li><strong>AC &amp; DC:</strong> mains vs battery supply, basic waveform ideas (where used in questions).</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+
+          <div class="mini">
+            <details>
+              <summary>🪐 Our Dynamic Universe</summary>
+              <div class="inner">
+                <ul>
+                  <li><strong>Motion &amp; projectiles:</strong> vectors, component motion, projectile paths, graphs.</li>
+                  <li><strong>Forces:</strong> Newton’s laws, free-body diagrams, resultant force and acceleration.</li>
+                  <li><strong>Momentum:</strong> impulse, collisions/explosions (conservation), interpreting scenarios.</li>
+                  <li><strong>Gravitation:</strong> field strength, orbital motion, satellite ideas, inverse-square law.</li>
+                  <li><strong>Relativity:</strong> time dilation/length contraction (concept + simple calculations).</li>
+                  <li><strong>Expanding Universe:</strong> redshift, Hubble-style ideas, evidence for expansion.</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+
+          <div class="mini">
+            <details>
+              <summary>🌊 Waves</summary>
+              <div class="inner">
+                <ul>
+                  <li><strong>Refraction:</strong> wave speed change, bending, ray diagrams and qualitative explanations.</li>
+                  <li><strong>Interference &amp; diffraction:</strong> path difference ideas, patterns, what affects fringes.</li>
+                  <li><strong>Spectra:</strong> emission/absorption lines, what spectra tell us about sources.</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+
+          <div class="mini">
+            <details>
+              <summary>🧩 Particles</summary>
+              <div class="inner">
+                <ul>
+                  <li><strong>Motion/forces in fields:</strong> charged particles in electric/magnetic fields (direction + calculations).</li>
+                  <li><strong>Wave–particle duality:</strong> photons, photoelectric effect, evidence and key definitions.</li>
+                  <li><strong>Nuclear reactions:</strong> fission/fusion, energy changes, particle equations where used.</li>
+                  <li><strong>Standard Model:</strong> quarks/leptons/bosons, conservation ideas, interpreting particle diagrams.</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+
+          <hr class="soft" style="margin-top:1rem;">
+
+          <div class="callout">
+            <p style="margin:0;">
+              <strong>Assessment skills that matter:</strong><br>
+              calculations (with units), explanations in words, interpreting graphs/data, and linking ideas across topics.
+            </p>
+          </div>
+
+        </div>
+      </details>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="topic-box" id="timeline" aria-label="Higher Physics timeline by term">
+      <h3 style="margin:0 0 0.6rem;">🗓️ Timeline (by term)</h3>
+      <p class="muted" style="margin:0 0 0.9rem;">
+        Aligned with your Success Criteria sheet and the 23–24 Higher timeline, then adjusted to match your current plan. Each term expands with the likely topic sequence and key milestones.
+        <span class="tag tag-warn">Default: collapsed</span>
+      </p>
+
+      <details>
+        <summary>Term 1 (Aug–Oct): Electricity + early Our Dynamic Universe</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Electricity &amp; circuits:</strong> quantities, components, internal resistance, practical circuits, capacitors, AC/DC foundations.</li>
+            <li><strong>Early ODU:</strong> motion skills (vectors, graphs) that you need for projectiles/forces.</li>
+            <li><strong>Skills focus:</strong> rearranging equations, clear working, units + significant figures.</li>
+          </ul>
+          <div class="callout" style="margin-top:0.8rem;">
+            <p style="margin:0;">
+              <strong>Good checkpoint idea:</strong> a short Electricity calculation check (graphs + internal resistance + capacitors).
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Term 2 (Oct–Dec): Our Dynamic Universe + 3-week pre-Christmas block</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>ODU main run:</strong> projectiles → forces → momentum → gravitation → relativity → expanding universe.</li>
+            <li><strong>Problem-solving:</strong> multi-step questions, selecting equations, explaining reasoning.</li>
+          </ul>
+
+          <hr class="soft">
+
+          <p style="margin:0 0 0.6rem;"><strong>Final 3 weeks before Christmas (1 week each):</strong></p>
+          <ul>
+            <li><span class="tag">Week 1</span> <strong>Inverse square law</strong> (gravitational/field strength style questions).</li>
+            <li><span class="tag">Week 2</span> <strong>Refraction</strong> (bending, speed changes, explanations/diagrams).</li>
+            <li><span class="tag">Week 3</span> <strong>Interference</strong> (patterns + conditions for clear fringes).</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>Term 3 (Jan–Mar): Assignment + quantum/particles after February</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Early term:</strong> finish any remaining ODU content and start/complete <strong>Assignment</strong> work.</li>
+            <li><strong>Waves consolidation:</strong> strengthen explanations for refraction/interference and link to exam-style questions.</li>
+          </ul>
+
+          <hr class="soft">
+
+          <p style="margin:0 0 0.6rem;"><strong>After February (roughly 1 week each):</strong></p>
+          <ul>
+            <li><span class="tag">Week 1</span> <strong>Spectra</strong> (line spectra, what it tells you, exam interpretation).</li>
+            <li><span class="tag">Week 2</span> <strong>Photoelectric effect</strong> (threshold frequency, evidence for photons).</li>
+            <li><span class="tag">Week 3</span> <strong>Standard Model</strong> (particles + interactions, interpreting particle diagrams).</li>
+            <li><span class="tag">Week 4</span> <strong>Nuclear reactions</strong> (fission/fusion, energy changes, particle equations).</li>
+          </ul>
+
+          <div class="callout" style="margin-top:0.8rem;">
+            <p style="margin:0;">
+              <strong>Tip:</strong> after each “1-week block”, do a short mixed set of past-paper questions (3–6 questions) while it’s fresh.
+            </p>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Term 4 (Apr–May/Jun): consolidation + exam technique</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Mixed revision:</strong> rotate ODU ↔ Particles &amp; Waves so nothing fades.</li>
+            <li><strong>Past papers:</strong> timed sections, then full papers, then fix weak areas.</li>
+            <li><strong>Exam technique:</strong> show working, correct units, sensible rounding, and clear written explanations.</li>
+          </ul>
+        </div>
+      </details>
+
+    </section>
+
+    <hr class="soft">
+
+    <!-- RESOURCES -->
+    <h3 id="resources" style="margin:0 0 0.7rem;">🔗 Key Links</h3>
+    <section class="tile-grid" aria-label="Higher Physics key resources">
+
+      <a class="class-tile" href="https://student.magicschool.ai/s/join?joinCode=o6paYQ" target="_blank" rel="noopener noreferrer" aria-label="AI Tutor – Mr Stewart’s Physics Helper">
+        <img src="/assets/higher/AI.png" alt="" loading="lazy">
+        <div class="tile-label">AI Tutor</div>
+      </a>
+
+      <a class="class-tile" href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer" aria-label="Higher Physics Past Papers by Topic Finder">
+        <img src="/assets/higher/higherpastpapers.png" alt="" loading="lazy">
+        <div class="tile-label">Past Papers Finder</div>
+      </a>
+
+      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc" target="_blank" rel="noopener noreferrer" aria-label="Mr Stewart's Materials">
+        <img src="/assets/higher/mrstewartsmaterials.png" alt="" loading="lazy">
+        <div class="tile-label">Mr Stewart’s Materials</div>
+      </a>
+
+      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EtlydMZL4qJMi6zQL_-a33kBoPsCdAu2vK8AFiurWKlraQ?e=eyZbIN" target="_blank" rel="noopener noreferrer" aria-label="Practice Tests">
+        <img src="/assets/higher/practicetests.png" alt="" loading="lazy">
+        <div class="tile-label">Practice Tests</div>
+      </a>
+
+      <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/Eqbob1cLAspLihPfnlpwkoIB8XS8ilM10Fw4Nl6lwV6yTg?e=EormyU" target="_blank" rel="noopener noreferrer" aria-label="Tricky Questions">
+        <img src="/assets/higher/tricky.png" alt="" loading="lazy">
+        <div class="tile-label">Tricky Questions</div>
+      </a>
+
+      <a class="class-tile" href="/classes/higher/simulations.html" aria-label="Higher Physics Interactive Simulations">
+        <img src="/assets/higher/relativity.png" alt="" loading="lazy">
+        <div class="tile-label">Interactive Simulations</div>
+      </a>
+
+      <a class="class-tile" href="https://physicsflashrepo.ovh/" target="_blank" rel="noopener noreferrer" aria-label="Flash Physics">
+        <img src="/assets/higher/flashphsyics.png" alt="" loading="lazy">
+        <div class="tile-label">Flash Physics</div>
+      </a>
+
+      <a class="class-tile" href="https://sway.office.com/t01NVX6h5b8SiFmF?ref=Link&loc=play" target="_blank" rel="noopener noreferrer" aria-label="Self-Marking Multiple Choice">
+        <img src="/assets/higher/mc.png" alt="" loading="lazy">
+        <div class="tile-label">Self-Marking Multiple Choice</div>
+      </a>
+
+      <a class="class-tile" href="https://quizlet.com/join/TetMQdg6Y" target="_blank" rel="noopener noreferrer" aria-label="Quizlets">
+        <img src="/assets/higher/quizlet.png" alt="" loading="lazy">
+        <div class="tile-label">Quizlets</div>
+      </a>
+
+      <a class="class-tile" href="https://scholar.hw.ac.uk/courses/" target="_blank" rel="noopener noreferrer" aria-label="Scholar">
+        <img src="/assets/higher/scholar.png" alt="" loading="lazy">
+        <div class="tile-label">Scholar</div>
+      </a>
+
+      <a class="class-tile" href="https://www.bbc.co.uk/bitesize/subjects/zpyb4wx" target="_blank" rel="noopener noreferrer" aria-label="BBC Bitesize">
+        <img src="/assets/higher/bbc.png" alt="" loading="lazy">
+        <div class="tile-label">BBC Bitesize</div>
+      </a>
+
+    </section>
+
+  </div>
+</main>
+
+<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
+<script>
+/* Menu: ESC closes + focus trap + overlay click + close link */
+function $(id){ return document.getElementById(id); }
+let lastFocusEl = null;
+
+function getFocusableInMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return [];
+  return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+    .filter(el => !el.hasAttribute('disabled'));
+}
+
+function openMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  lastFocusEl = document.activeElement;
+
+  menu.classList.add("open");
+  overlay.classList.add("show");
+
+  btn.setAttribute("aria-expanded","true");
+  btn.setAttribute("aria-label","Close menu");
+  overlay.setAttribute("aria-hidden","false");
+
+  const focusables = getFocusableInMenu();
+  if(focusables.length) focusables[0].focus();
+}
+
+function closeMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  menu.classList.remove("open");
+  overlay.classList.remove("show");
+
+  btn.setAttribute("aria-expanded","false");
+  btn.setAttribute("aria-label","Open menu");
+  overlay.setAttribute("aria-hidden","true");
+
+  if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+    lastFocusEl.focus();
+  } else {
+    btn.focus();
+  }
+  lastFocusEl = null;
+}
+
+function toggleMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return;
+  const isOpen = menu.classList.contains("open");
+  if(isOpen) closeMenu();
+  else openMenu();
+}
+
+/* Focus trap when menu open */
+document.addEventListener("keydown", (e) => {
+  const menu = $("sideMenu");
+  const isOpen = menu && menu.classList.contains("open");
+
+  if(e.key === "Escape" && isOpen){
+    e.preventDefault();
+    closeMenu();
+  }
+
+  if(e.key === "Tab" && isOpen){
+    const focusables = getFocusableInMenu();
+    if(!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = $("menuOverlay");
+  if(overlay) overlay.setAttribute("aria-hidden","true");
+
+  const closeLink = $("closeMenuLink");
+  if(closeLink){
+    closeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+  }
+});
+</script>
+
+</body>
+</html>
