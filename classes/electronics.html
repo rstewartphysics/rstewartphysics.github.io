@@ -3,272 +3,337 @@ layout: none
 title: National 5 Electronics
 ---
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>National 5 Electronics</title>
 
 <style>
-:root {
+/* ============================
+   GLOBAL FIX: prevent mobile clipping (same as Electricity 2)
+=============================== */
+*, *::before, *::after{ box-sizing: border-box; }
+html, body{ max-width: 100%; }
+img, iframe{ max-width: 100%; display:block; }
+
+/* ============================
+   A11Y HELPERS
+=============================== */
+.visually-hidden{
+  position:absolute!important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+.skip-link{
+  position:absolute; left:-999px; top:10px;
+  background:#00e6b3; color:#001b1e;
+  padding:0.6rem 0.9rem; border-radius:12px;
+  font-weight:900; z-index:1000;
+}
+.skip-link:focus{ left:10px; }
+
+/* ============================
+   GLOBAL STYLE SYSTEM (Electricity 2 base, Electronics palette)
+=============================== */
+:root{
   --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --radius-card: 1rem;
-  --shadow-card: 0 24px 48px rgba(0,0,0,0.8);
   --text-main: #ffffff;
+
+  /* Electronics background palette */
   --bg1: #003c2e;
   --bg2: #005f47;
   --bg3: #052a1f;
+
+  --accent: #00e6b3;
+  --card: rgba(0,0,0,0.45);
+  --border: rgba(255,255,255,0.25);
 }
 
 /* ------------------ PAGE BASE ------------------ */
-body {
-  margin: 0;
-  background: radial-gradient(circle at 25% 30%, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 90%);
+body{
+  margin:0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
   background-attachment: fixed;
-  color: var(--text-main);
   font-family: var(--font-stack);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  overflow-x: hidden;
+  color: var(--text-main);
+  line-height: 1.6;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
 }
 
-/* ------------------ BANNER ------------------ */
-.banner-wrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-.banner {
-  width: 100%;
-  height: auto;
-  max-height: 360px;
-  object-fit: cover;
-  display: block;
-  opacity: 0;
-  animation: fadeIn 1.2s ease forwards;
-}
-@keyframes fadeIn { to { opacity: 1; } }
-@media (max-width: 768px) { .banner { max-height: 260px; } }
-
-.banner-tint {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(0,255,200,0.3), rgba(0,180,255,0.3));
-  mix-blend-mode: multiply;
-  animation: tintShift 20s ease-in-out infinite alternate;
-}
-@keyframes tintShift {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+/* iPad/iOS performance */
+@supports (-webkit-touch-callout: none){
+  body{ background-attachment: scroll; }
 }
 
-.banner-overlay-text {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  text-align: center;
-  padding: 1rem 0.5rem;
-  font-weight: 600;
-  font-size: 1.2rem;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  text-shadow: 0 0 10px rgba(0,255,200,0.5);
-}
-.banner-overlay-text h1 { margin: 0; }
-
-/* ------------------ MENU BUTTON ------------------ */
-.menu-btn {
+/* ============================
+   MENU BUTTON & SIDE MENU (Electricity 2 system)
+=============================== */
+.menu-btn{
   position: fixed;
-  top: 15px;
-  right: 20px;
-  font-size: 1.6rem;
-  background: none;
-  border: none;
-  color: #fff;
+  top: max(15px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px) saturate(160%);
   cursor: pointer;
+  color: #fff;
   z-index: 200;
-  transition: transform 0.2s ease;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 .menu-btn:hover,
-.menu-btn:focus {
-  transform: scale(1.1);
-  outline: none;
-}
+.menu-btn:focus-visible{ transform: scale(1.08); }
 
-/* ------------------ DRAWER MENU ------------------ */
-.menu-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: none;
-  z-index: 99;
+.menu-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display:none;
+  z-index:140;
 }
-.side-menu {
-  position: fixed;
-  top: 0; right: -270px;
-  height: 100%; width: 270px;
-  background: rgba(15,23,42,0.92);
-  backdrop-filter: blur(12px) saturate(160%);
-  box-shadow: -4px 0 25px rgba(0,0,0,0.6);
+.menu-overlay.show{ display:block; }
+
+.side-menu{
+  position: fixed; top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.85);
+  backdrop-filter: blur(16px) saturate(200%);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
   transition: right 0.3s ease;
-  z-index: 150;
-  display: flex;
-  flex-direction: column;
-  padding-top: 4rem;
+  z-index:150;
 }
-.side-menu.open { right: 0; }
-.menu-overlay.show { display: block; }
-.side-menu a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 1.1rem;
-  padding: 0.9rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  transition: background 0.2s ease;
+.side-menu.open{ right: 0; }
+
+.side-menu a{
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  text-decoration:none;
+  color:#fff;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display:flex;
+  gap:0.7rem;
+  min-height: 44px;
+  align-items:center;
 }
 .side-menu a:hover,
-.side-menu a:focus {
-  background: rgba(255,255,255,0.12);
-  outline: none;
-}
+.side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
 
-/* ------------------ PAGE WRAP ------------------ */
-.page-wrap {
-  flex: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem 4rem;
+/* ============================
+   BANNER (Electricity 2 system)
+=============================== */
+.banner-wrap{
   position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+}
+.banner{
+  width:100%;
+  max-height: 360px;
+  object-fit: cover;
+  display:block;
+}
+.banner-tint{
+  position:absolute; inset:0;
+  background: linear-gradient(120deg,
+    rgba(0,255,200,0.30),
+    rgba(0,180,255,0.22),
+    rgba(0,255,180,0.18)
+  );
+  mix-blend-mode: multiply;
+}
+.banner-overlay-text{
+  position:absolute;
+  bottom:0; left:0; right:0;
+  background: rgba(0,0,0,0.48);
+  backdrop-filter: blur(8px);
+  text-align:center;
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.25);
+}
+.banner-overlay-text h1{
+  margin:0;
+  font-size: 1.25rem;
+  font-weight: 800;
 }
 
-/* ------------------ GRID ------------------ */
-.tile-grid {
-  display: grid;
-  gap: 1.3rem;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  justify-items: center;
-  align-items: stretch;
+/* ============================
+   MAIN CONTENT
+=============================== */
+.page-wrap{
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem 6rem;
+  flex:1;
+  width:100%;
+}
+
+.topic-box{
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
+}
+
+hr.soft{
+  border:0;
+  border-top: 1px solid rgba(255,255,255,0.22);
+  margin: 1.2rem 0;
+}
+
+.callout{
+  background: rgba(0,0,0,0.42);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 1rem 1.1rem;
+  border-left: 6px solid rgba(0,230,179,0.65);
+}
+.callout strong{ color:#b9fff0; }
+
+/* ============================
+   TILES (updated to be consistent + no odd scaling)
+=============================== */
+.tile-grid{
+  display:grid;
+  gap:0.9rem;
+  grid-template-columns: 1fr;
   margin-top: 1rem;
 }
-
-/* ------------------ TILE ------------------ */
-.class-tile {
-  display: block;
-  position: relative;
-  border-radius: var(--radius-card);
-  box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.05),
-    0 16px 30px rgba(0,0,0,0.8);
-  border: 2px solid rgba(255,255,255,0.25);
-  outline: 2px solid rgba(255,255,255,0.1);
-  outline-offset: -4px;
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
-  transition: 0.18s ease;
-  overflow: hidden;
-  aspect-ratio: 1.1/1;
-  transform: scale(0.8);
+@media (min-width: 700px){
+  .tile-grid{ grid-template-columns: 1fr 1fr; }
 }
-.class-tile:hover {
-  transform: scale(0.84) translateY(-3px);
-  outline: 3px solid #0ff;
+@media (min-width: 980px){
+  .tile-grid{ grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* 140px tall, thumb-friendly tiles */
+.class-tile{
+  position: relative;
+  display:block;
+  height: 140px;
+  border-radius: 0.9rem;
+  overflow:hidden;
+  text-decoration:none;
+  color:#fff;
+
+  background: rgba(0,0,0,0.42);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.30);
+
+  transform: translateY(0);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+.class-tile:hover,
+.class-tile:focus-visible{
+  transform: translateY(-3px);
+  border-color: rgba(0,230,179,0.55);
+}
+
+/* Image tiles */
+.class-tile img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+/* Optional soft overlay so text-on-image PNGs stay readable (if any) */
+.class-tile::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(120deg, rgba(0,0,0,0.18), rgba(0,0,0,0.05));
+  pointer-events:none;
+}
+
+/* Plain (no image) tile for new PrEl link */
+.class-tile.plain{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding: 1rem 1.1rem;
+  gap: 0.35rem;
+  background: linear-gradient(135deg,
+    rgba(0,255,200,0.16),
+    rgba(0,180,255,0.12)
+  );
+}
+.class-tile.plain::after{ display:none; }
+.class-tile.plain .title{
+  font-weight: 900;
+  font-size: 1.05rem;
+}
+.class-tile.plain .sub{
+  opacity: 0.92;
+  font-size: 0.95rem;
+}
+
+/* Strong keyboard focus */
+:focus-visible{
+  outline: 3px solid rgba(0,230,179,0.80);
   outline-offset: 3px;
 }
-.class-tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+
+/* ============================
+   FOOTER
+=============================== */
+footer{
+  text-align:center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.35);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  font-size:0.92rem;
+  margin-top:auto;
 }
 
-/* ------------------ ACCESSIBILITY ------------------ */
-.visually-hidden {
-  position: absolute;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px,1px,1px,1px);
-  white-space: nowrap;
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ scroll-behavior:auto!important; transition:none!important; }
 }
 
-/* ------------------ FOOTER ------------------ */
-footer {
-  text-align: center;
-  color: #fff;
-  padding: 1rem 0.5rem;
-  font-size: 0.9rem;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255,255,255,0.2);
-  margin-top: auto;
-  width: 100%;
+/* Mobile tweaks */
+@media (max-width: 480px){
+  .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
+  .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
+  .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
+  .banner{ max-height: 280px; }
 }
 </style>
+</head>
+
+<body>
+<a class="skip-link" href="#mainContent">Skip to content</a>
 
 <!-- MENU BUTTON -->
-<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+<button
+  class="menu-btn"
+  id="menuBtn"
+  type="button"
+  onclick="toggleMenu()"
+  aria-label="Open menu"
+  aria-expanded="false"
+  aria-controls="sideMenu"
+>
+  ☰
+</button>
 
-<!-- BANNER -->
-<div class="banner-wrap">
-  <img src="/assets/Electronicsbanner.png" alt="National 5 Electronics banner" class="banner">
-  <div class="banner-tint"></div>
-  <div class="banner-overlay-text"><h1>Explore resources and materials for National 5 Electronics</h1></div>
-</div>
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
 
-<!-- CONTENT -->
-<main class="page-wrap">
-  <section class="tile-grid">
-
-    <a class="class-tile" href="/classes/electronics/notes.html" aria-label="Notes and Booklets">
-      <img src="/assets/electronics/notes.png" alt="">
-      <span class="visually-hidden">Notes and Booklets</span>
-    </a>
-
-    <a class="class-tile" href="/classes/electronics/videos.html" aria-label="Videos">
-      <img src="/assets/electronics/videos.png" alt="">
-      <span class="visually-hidden">Videos</span>
-    </a>
-
-    <a class="class-tile" href="/classes/electronics/revision.html" aria-label="Exam and Revision">
-      <img src="/assets/electronics/exam.png" alt="">
-      <span class="visually-hidden">Exam and Revision</span>
-    </a>
-
-    <a class="class-tile" href="https://electronicsclub.info" target="_blank" rel="noopener" aria-label="Electronics Club Website">
-      <img src="/assets/electronics/club.png" alt="">
-      <span class="visually-hidden">Electronics Club Website</span>
-    </a>
-    
-    <!-- NEW: 555 ASTABLE TILE -->
-    <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/555-astable.html" aria-label="555 Astable Simulator">
-      <img src="/assets/electronics/555logo.png" alt="">
-      <span class="visually-hidden">555 Astable Simulator</span>
-    </a>
-
-    <!-- NEW: STRIPBOARD BUILDER TILE -->
-    <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/stripboard-builder.html" aria-label="Stripboard Builder">
-      <img src="/assets/electronics/stripbuilder.png" alt="">
-      <span class="visually-hidden">Stripboard Builder</span>
-    </a>
-
-  </section>
-</main>
-
-<!-- FOOTER -->
-<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
-
-<!-- NAV -->
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<nav class="side-menu" id="sideMenu">
+<nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+  <a href="#" id="closeMenuLink">✖ Close</a>
   <a href="/">🏠 Home</a>
   <a href="/classes/science.html">🧪 Science</a>
   <a href="/classes/physics.html">⚡ Physics</a>
@@ -276,22 +341,173 @@ footer {
   <a href="/classes/engineering.html">🧰 Engineering</a>
 </nav>
 
+<!-- BANNER -->
+<div class="banner-wrap">
+  <img src="/assets/Electronicsbanner.png" alt="National 5 Electronics banner" class="banner" loading="lazy">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>💡 National 5 Electronics</h1>
+  </div>
+</div>
+
+<main class="page-wrap" id="mainContent">
+  <div class="topic-box">
+
+    <h2 style="margin:0.2rem 0 0.6rem;">Explore resources and tools</h2>
+
+    <div class="callout">
+      <p style="margin:0;">
+        <strong>Use this like a menu:</strong> pick what you need today (notes, videos, revision, or interactive tools).
+      </p>
+    </div>
+
+    <hr class="soft">
+
+    <section class="tile-grid" aria-label="National 5 Electronics tiles">
+
+      <!-- NEW: PrEl checklist/timeline (plain tile) -->
+      <a class="class-tile plain" href="./prel-checklist.html" aria-label="PrEl Assignment Timeline and Checklist">
+        <div class="title">✅ PrEl Assignment — Timeline &amp; Checklist</div>
+        <div class="sub">Week-by-week targets + checklist for your paper booklet</div>
+      </a>
+
+      <a class="class-tile" href="/classes/electronics/notes.html" aria-label="Notes and Booklets">
+        <img src="/assets/electronics/notes.png" alt="" loading="lazy">
+        <span class="visually-hidden">Notes and Booklets</span>
+      </a>
+
+      <a class="class-tile" href="/classes/electronics/videos.html" aria-label="Videos">
+        <img src="/assets/electronics/videos.png" alt="" loading="lazy">
+        <span class="visually-hidden">Videos</span>
+      </a>
+
+      <a class="class-tile" href="/classes/electronics/revision.html" aria-label="Exam and Revision">
+        <img src="/assets/electronics/exam.png" alt="" loading="lazy">
+        <span class="visually-hidden">Exam and Revision</span>
+      </a>
+
+      <a class="class-tile" href="https://electronicsclub.info" target="_blank" rel="noopener noreferrer" aria-label="Electronics Club Website (opens in a new tab)">
+        <img src="/assets/electronics/club.png" alt="" loading="lazy">
+        <span class="visually-hidden">Electronics Club Website</span>
+      </a>
+
+      <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/555-astable.html" aria-label="555 Astable Simulator">
+        <img src="/assets/electronics/555logo.png" alt="" loading="lazy">
+        <span class="visually-hidden">555 Astable Simulator</span>
+      </a>
+
+      <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/stripboard-builder.html" aria-label="Stripboard Builder">
+        <img src="/assets/electronics/stripbuilder.png" alt="" loading="lazy">
+        <span class="visually-hidden">Stripboard Builder</span>
+      </a>
+
+    </section>
+
+  </div>
+</main>
+
+<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
 <script>
-function toggleMenu(){
-  const menu=document.getElementById('sideMenu');
-  const overlay=document.getElementById('menuOverlay');
-  menu.classList.toggle('open');
-  overlay.classList.toggle('show');
+/* Menu: ESC closes + focus-friendly + focus trap (same as Electricity 2) */
+function $(id){ return document.getElementById(id); }
+let lastFocusEl = null;
+
+function getFocusableInMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return [];
+  return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+    .filter(el => !el.hasAttribute('disabled'));
 }
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    document.getElementById('sideMenu').classList.remove('open');
-    document.getElementById('menuOverlay').classList.remove('show');
+
+function openMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  lastFocusEl = document.activeElement;
+
+  menu.classList.add("open");
+  overlay.classList.add("show");
+
+  btn.setAttribute("aria-expanded","true");
+  btn.setAttribute("aria-label","Close menu");
+  overlay.setAttribute("aria-hidden","false");
+
+  const focusables = getFocusableInMenu();
+  if(focusables.length) focusables[0].focus();
+}
+
+function closeMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  menu.classList.remove("open");
+  overlay.classList.remove("show");
+
+  btn.setAttribute("aria-expanded","false");
+  btn.setAttribute("aria-label","Open menu");
+  overlay.setAttribute("aria-hidden","true");
+
+  if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+    lastFocusEl.focus();
+  } else {
+    btn.focus();
+  }
+  lastFocusEl = null;
+}
+
+function toggleMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return;
+  const isOpen = menu.classList.contains("open");
+  if(isOpen) closeMenu();
+  else openMenu();
+}
+
+/* Focus trap when menu open */
+document.addEventListener("keydown", (e) => {
+  const menu = $("sideMenu");
+  const isOpen = menu && menu.classList.contains("open");
+
+  if(e.key === "Escape" && isOpen){
+    e.preventDefault();
+    closeMenu();
+  }
+
+  if(e.key === "Tab" && isOpen){
+    const focusables = getFocusableInMenu();
+    if(!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
   }
 });
-window.addEventListener('scroll',()=>{
-  const banner=document.querySelector('.banner');
-  if(!banner)return;
-  banner.style.transform=`translateY(${window.scrollY*0.25}px)`;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = $("menuOverlay");
+  if(overlay) overlay.setAttribute("aria-hidden","true");
+
+  const closeLink = $("closeMenuLink");
+  if(closeLink){
+    closeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+  }
 });
 </script>
+
+</body>
+</html>
