@@ -93,7 +93,8 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
     }
 
     /* ============================
-       MENU BUTTON & SIDE MENU (Electricity 2 standard, LIGHT)
+       MENU BUTTON & SIDE MENU (LIGHT)
+       + prevent tabbing into closed menu (visibility/pointer-events)
     =============================== */
     .menu-btn{
       position: fixed;
@@ -135,8 +136,18 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       transition: right 0.25s ease;
       z-index:350;
       border-left: 1px solid rgba(10,60,35,0.14);
+
+      /* PATCH: prevent focus/tabbing when closed */
+      visibility: hidden;
+      pointer-events: none;
     }
-    .side-menu.open{ right: 0; }
+    .side-menu.open{
+      right: 0;
+
+      /* PATCH */
+      visibility: visible;
+      pointer-events: auto;
+    }
 
     .side-menu a{
       padding: 1rem 1.2rem;
@@ -154,7 +165,7 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
     .side-menu a:focus-visible{ background: rgba(11,191,106,0.10); }
 
     /* ============================
-       BANNER (NOT HUGE)
+       BANNER (PATCH: clamp height)
     =============================== */
     .banner-wrap{
       position: relative;
@@ -165,13 +176,10 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       background: #fff;
     }
     .banner{
-      width:100%;
-      max-height: 330px;           /* keeps it sensible on desktop */
+      width: 100%;
+      height: clamp(220px, 26vw, 330px);
       object-fit: cover;
-      display:block;
-    }
-    @media (max-width: 768px){
-      .banner{ max-height: 250px; }
+      display: block;
     }
     .banner-tint{
       position:absolute; inset:0;
@@ -205,77 +213,86 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       font-weight: 800;
     }
 
-   /* Modern sticky jump bar (no pills) */
-.subnav{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-top:10px;
+    /* ============================
+       STICKY JUMP BAR (PATCH: sticky + aligned to page width)
+    =============================== */
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
 
-  /* “glass strip” */
-  padding: 10px 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(20,80,50,0.18);
-  background: rgba(255,255,255,0.70);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-}
+      /* glass strip */
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(20,80,50,0.18);
+      background: rgba(255,255,255,0.70);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
 
-/* Scrollable tab row on small screens */
-.subnav-links{
-  display:flex;
-  gap:14px;
-  flex-wrap:nowrap;
-  overflow:auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width:none;
-}
-.subnav-links::-webkit-scrollbar{ display:none; }
+      /* PATCH: sticky + match page content width */
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      max-width: 1100px;
+      margin: 10px auto 0;
+      width: calc(100% - 24px);
+    }
 
-.subnav-link{
-  text-decoration:none;
-  font-weight:900;
-  color:#123b2a;
-  padding: 8px 2px;
-  border-bottom: 3px solid transparent;
-  white-space: nowrap;
-  opacity:0.92;
-}
-.subnav-link:hover{
-  opacity:1;
-  border-bottom-color: var(--accent, #2bb673);
-}
-.subnav-link:focus-visible{
-  outline: 3px solid rgba(0,160,110,0.35);
-  outline-offset: 3px;
-  border-radius: 10px;
-}
+    /* Scrollable tab row on small screens */
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
 
-/* Practice Pack button: “pops”, but not clunky */
-.subnav-cta{
-  margin-left:auto;
-  text-decoration:none;
-  font-weight:900;
-  white-space: nowrap;
+    .subnav-link{
+      text-decoration:none;
+      font-weight:900;
+      color:#123b2a;
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent, #2bb673);
+    }
+    .subnav-link:focus-visible{
+      outline: 3px solid rgba(0,160,110,0.35);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
 
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 2px solid rgba(38,170,110,0.35);
-  background: rgba(38,170,110,0.12);
-  color:#0f3a27;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
-}
-.subnav-cta:hover{ background: rgba(38,170,110,0.18); }
-.subnav-cta:active{ transform: translateY(1px); }
-.subnav-cta:focus-visible{
-  outline: 3px solid rgba(0,160,110,0.35);
-  outline-offset: 3px;
-}
+    /* Practice Pack button: “pops”, but not clunky */
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
 
-/* Make anchor jumps land nicely below sticky header/subnav */
-#overview, #howto, #resources, #extended, #checklist{
-  scroll-margin-top: 140px;
-}
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(38,170,110,0.35);
+      background: rgba(38,170,110,0.12);
+      color:#0f3a27;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+    .subnav-cta:hover{ background: rgba(38,170,110,0.18); }
+    .subnav-cta:active{ transform: translateY(1px); }
+    .subnav-cta:focus-visible{
+      outline: 3px solid rgba(0,160,110,0.35);
+      outline-offset: 3px;
+    }
+
+    /* Make anchor jumps land nicely below sticky header/subnav */
+    #overview, #howto, #resources, #extended, #checklist{
+      scroll-margin-top: 140px;
+    }
 
     /* ============================
        MAIN LAYOUT
@@ -580,20 +597,20 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
   </div>
 
   <nav class="subnav" aria-label="Jump to sections">
-  <div class="subnav-links">
-    <a class="subnav-link" href="#overview">Overview</a>
-    <a class="subnav-link" href="#howto">How to use</a>
-    <a class="subnav-link" href="#resources">Resources</a>
-    <a class="subnav-link" href="#extended">Perfect sentences</a>
-    <a class="subnav-link" href="#checklist">Checklist</a>
-  </div>
+    <div class="subnav-links">
+      <a class="subnav-link" href="#overview">Overview</a>
+      <a class="subnav-link" href="#howto">How to use</a>
+      <a class="subnav-link" href="#resources">Resources</a>
+      <a class="subnav-link" href="#extended">Perfect sentences</a>
+      <a class="subnav-link" href="#checklist">Checklist</a>
+    </div>
 
-  <a class="subnav-cta"
-     href="/classes/s2/S2%20Biology%20%E2%80%93%20Body%20Systems%20%26%20Reproduction_%20Practice%20Test%20Pack%20%28draft%29.pdf"
-     target="_blank" rel="noopener">
-    ⭐ Practice Pack ↗
-  </a>
-</nav>
+    <a class="subnav-cta"
+      href="/classes/s2/S2%20Biology%20%E2%80%93%20Body%20Systems%20%26%20Reproduction_%20Practice%20Test%20Pack%20%28draft%29.pdf"
+      target="_blank" rel="noopener">
+      ⭐ Practice Pack ↗
+    </a>
+  </nav>
 
   <main class="page-wrap" id="mainContent">
     <h1 class="visually-hidden">S2 Biology — Body Systems and Reproduction revision page</h1>
@@ -641,7 +658,7 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
           <ol style="margin:0.2rem 0 0; padding-left: 1.2rem; line-height:1.75;">
             <li><strong>10 mins:</strong> do a section of the <strong>Practice Test Pack</strong> (no notes).</li>
             <li><strong>5 mins:</strong> mark it and highlight missing key words.</li>
-            <li><strong>5 mins:</strong> use the KO / PowerPoint to fix the weak bits.</li>
+            <li><strong>5 mins:</strong> use KO/PowerPoint to fix the weak bits.</li>
             <li><strong>2–5 mins:</strong> rewrite <strong>2 “perfect sentences”</strong> for the topic you missed.</li>
           </ol>
         </div>
@@ -672,7 +689,6 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
         Start with the Practice Pack. Use the other links only to fix mistakes and learn key words.
       </p>
 
-      <!-- MAIN RESOURCE FIRST + BIG -->
       <div class="tile-grid" aria-label="Main resource tiles">
         <a class="tile main"
            href="/classes/s2/S2%20Biology%20%E2%80%93%20Body%20Systems%20%26%20Reproduction_%20Practice%20Test%20Pack%20%28draft%29.pdf"
@@ -710,7 +726,8 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
             </a>
 
             <a class="tile"
-                href="/classes/s2/S2%20Biology%20-%20Reproduction.pdf"               target="_blank" rel="noopener noreferrer"
+               href="/classes/s2/S2%20Biology%20-%20Reproduction.pdf"
+               target="_blank" rel="noopener noreferrer"
                aria-label="Open Reproduction PowerPoint in a new tab">
               <div class="tile-inner">
                 <p class="tile-title">PowerPoint: Reproduction <span class="badge">recap</span> <span class="ext" aria-hidden="true">↗</span></p>
@@ -853,6 +870,7 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
   <script>
     /* ============================
        MENU: ESC closes + overlay click + close link + focus trap
+       PATCH: aria-hidden + inert for closed menu
     =============================== */
     function $(id){ return document.getElementById(id); }
     let lastFocusEl = null;
@@ -879,6 +897,10 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       btn.setAttribute("aria-label","Close menu");
       overlay.setAttribute("aria-hidden","false");
 
+      /* PATCH */
+      menu.setAttribute("aria-hidden","false");
+      menu.inert = false;
+
       const focusables = getFocusableInMenu();
       if(focusables.length) focusables[0].focus();
     }
@@ -895,6 +917,10 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       btn.setAttribute("aria-expanded","false");
       btn.setAttribute("aria-label","Open menu");
       overlay.setAttribute("aria-hidden","true");
+
+      /* PATCH */
+      menu.setAttribute("aria-hidden","true");
+      menu.inert = true;
 
       if(lastFocusEl && typeof lastFocusEl.focus === "function"){
         lastFocusEl.focus();
@@ -942,6 +968,13 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       const overlay = $("menuOverlay");
       if(overlay) overlay.setAttribute("aria-hidden","true");
 
+      const menu = $("sideMenu");
+      if(menu){
+        /* PATCH: ensure closed state is truly non-focusable */
+        menu.setAttribute("aria-hidden","true");
+        menu.inert = true;
+      }
+
       const closeLink = $("closeMenuLink");
       if(closeLink){
         closeLink.addEventListener("click", (e) => {
@@ -953,7 +986,6 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
 
     /* ============================
        REVISION CHECKLIST + PROGRESS (localStorage)
-       - Practice pack is the main objective
     =============================== */
     const KEY = "s2bio_body_repro_revcheck_v2";
 
