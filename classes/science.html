@@ -3,298 +3,490 @@ layout: none
 title: Science
 ---
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Science</title>
 
-<style>
-:root {
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --radius-card: 1rem;
-  --shadow-card: 0 24px 48px rgba(0,0,0,0.8);
-  --text-main: #ffffff;
-  --bg-grad: radial-gradient(circle at 20% 30%, #00b894 0%, #0073ff 40%, #c00074 80%);
-}
+  <style>
+    /* ============================
+       GLOBAL FIX: prevent mobile clipping/overflow
+    =============================== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { max-width: 100%; }
+    body { margin: 0; overflow-x: hidden; }
+    img, iframe { max-width: 100%; height: auto; display: block; }
 
-/* PAGE BASE */
-body {
-  margin: 0;
-  background: var(--bg-grad);
-  background-attachment: fixed;
-  color: var(--text-main);
-  font-family: var(--font-stack);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background:#fff; color:#000;
+      padding:0.65rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.45);
+    }
+    .skip-link:focus{ left:10px; }
 
-/* BANNER */
-.banner-wrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-.banner {
-  width: 100%;
-  height: auto;
-  max-height: 420px;
-  object-fit: cover;
-  display: block;
-  opacity: 0;
-  animation: fadeIn 1.2s ease forwards;
-}
-@keyframes fadeIn { to { opacity: 1; } }
-@media (max-width: 768px) { .banner { max-height: 300px; } }
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
 
-/* TRANSLUCENT BANNER TEXT */
-.banner-overlay-text {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  text-align: center;
-  padding: 1rem 0.5rem;
-  font-family: var(--font-stack);
-  font-size: 1.2rem;
-  font-weight: 600;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-  border-top: 1px solid rgba(255,255,255,0.2);
-  z-index: 2;
-}
-@media (max-width: 768px) {
-  .banner-overlay-text h1 {
-    font-size: 1rem;
-    padding: 0.8rem 0.5rem;
-  }
-}
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-/* NAV BUTTON */
-.menu-btn {
-  position: fixed;
-  top: 15px;
-  right: 20px;
-  font-size: 1.6rem;
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  z-index: 200;
-  transition: transform 0.2s ease;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
-}
-.menu-btn:hover, .menu-btn:focus {
-  transform: scale(1.1);
-  outline: none;
-}
+      --radius-card: 1rem;
+      --tile-min: 140px;
 
-/* DRAWER MENU */
-.menu-overlay {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.5);
-  display:none; z-index:99;
-}
-.side-menu {
-  position: fixed; top:0; right:-270px;
-  height:100%; width:270px;
-  background: rgba(15,23,42,0.92);
-  backdrop-filter: blur(12px) saturate(160%);
-  box-shadow:-4px 0 25px rgba(0,0,0,0.6);
-  transition:right 0.3s ease;
-  z-index:150;
-  display:flex; flex-direction:column;
-  padding-top:4rem;
-}
-.side-menu.open { right:0; }
-.menu-overlay.show { display:block; }
-.side-menu a {
-  color:#fff;
-  text-decoration:none;
-  font-size:1.1rem;
-  padding:0.9rem 1.5rem;
-  display:flex; align-items:center; gap:0.8rem;
-  transition:background 0.2s ease;
-}
-.side-menu a:hover, .side-menu a:focus {
-  background:rgba(255,255,255,0.12);
-  outline:none;
-}
+      --text-main: #ffffff;
+      --muted: rgba(255,255,255,0.86);
 
-/* PAGE WRAP */
-.page-wrap {
-  width:100%;
-  max-width:1200px;
-  margin:2rem auto 4rem;
-  padding:0 1rem;
-}
+      --shadow-card: 0 24px 48px rgba(0,0,0,0.75);
+      --shadow-soft: 0 14px 30px rgba(0,0,0,0.55);
 
-/* SECTION BLOCK */
-.section-block {
-  margin-top:2rem;
-  background:rgba(0,0,0,0.25);
-  backdrop-filter:blur(6px);
-  border:1px solid rgba(255,255,255,0.15);
-  border-radius:var(--radius-card);
-  box-shadow:0 30px 60px rgba(0,0,0,0.6);
-  padding:1.25rem 1rem 1.5rem;
-}
-.section-title {
-  font-size:1.4rem;
-  font-weight:700;
-  color:#fff;
-  margin:0 0 1rem;
-  text-shadow:0 4px 10px rgba(0,0,0,0.8);
-}
+      --focus-ring: 3px solid rgba(255,255,255,0.95);
+      --focus-offset: 4px;
 
-/* GRID */
-.topic-grid {
-  display:grid;
-  gap:1rem;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-}
-@media (max-width:900px){.topic-grid{grid-template-columns:1fr;}}
+      --bg-grad: radial-gradient(circle at 20% 30%, #00b894 0%, #0073ff 40%, #c00074 80%);
+    }
 
-/* TILE BASE */
-.topic-tile {
-  display:block;
-  border-radius:var(--radius-card);
-  min-height:140px;
-  box-shadow:var(--shadow-card);
-  border:2px solid rgba(0,0,0,0.4);
-  outline:2px solid rgba(255,255,255,0.07);
-  outline-offset:-4px;
-  overflow:hidden;
-  position:relative;
-  transition:transform 0.18s ease, box-shadow 0.18s ease, filter 0.2s ease;
-  cursor:pointer;
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-}
-.topic-tile:hover, .topic-tile:focus {
-  transform:translateY(-4px) scale(1.02);
-  box-shadow:0 30px 60px rgba(0,0,0,0.9);
-  filter:brightness(1.08);
-  outline:3px solid #fff;
-  outline-offset:3px;
-}
+    body{
+      font-family: var(--font-stack);
+      color: var(--text-main);
+      background: var(--bg-grad);
+      /* iPad Safari can get janky with background-attachment: fixed; keep it smooth */
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      display:flex;
+      flex-direction:column;
+    }
 
-/* SUBTLE LABEL BELOW IMAGE */
-.tile-label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  color: #fff;
-  text-align: center;
-  font-family: var(--font-stack);
-  font-weight: 600;
-  font-size: 1rem;
-  padding: 0.6rem 0.4rem;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  text-shadow: 0 2px 5px rgba(0,0,0,0.6);
-  transition: background 0.3s ease;
-  pointer-events: none;
-}
-.topic-tile:hover .tile-label {
-  background: rgba(0,0,0,0.6);
-}
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
 
-/* ACCESSIBILITY HIDDEN LABELS */
-.visually-hidden {
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0 0 0 0);
-  white-space:nowrap;
-  border:0;
-}
+    /* ============================
+       MENU BUTTON & SIDE MENU (new standard)
+    =============================== */
+    .menu-btn{
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      font-size: 1.7rem;
 
-/* INDIVIDUAL BANNER BACKGROUNDS */
-.tile-waves        { background-image:url("/assets/Wavesbaner.png"); }
-.tile-energy       { background-image:url("/assets/Energybanner.png"); }
-.tile-cells        { background-image:url("/assets/cellsbanner.png"); }
-.tile-sampling     { background-image:url("/assets/samplingbanner.png"); }
-.tile-chemical     { background-image:url("/assets/chemicalbanner.png"); }
-.tile-periodic     { background-image:url("/assets/periodictable.png"); }
-.tile-electricity  { background-image:url("/assets/electricitybanner.png"); }
-.tile-forces       { background-image:url("/assets/forcesbanner.png"); }
-.tile-body         { background-image:url("/assets/bodybanner.png"); }
-.tile-health       { background-image:url("/assets/healthanddiseasebanner.png"); }
-.tile-acids        { background-image:url("/assets/acidsbanner.png"); }
-.tile-fuels        { background-image:url("/assets/fuelsbanner.png"); }
-</style>
+      background: rgba(0,0,0,0.40);
+      border: 2px solid rgba(255,255,255,0.28);
+      border-radius: 12px;
+      padding: 0.25rem 0.55rem;
 
-<!-- NAV + BANNER -->
-<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
-<div class="banner-wrap">
-  <img src="/assets/sciencebanner.png" alt="Science Banner" class="banner">
-  <div class="banner-overlay-text"><h1>Explore S1 and S2 Science Topics</h1></div>
-</div>
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
 
-<div class="page-wrap">
+      cursor: pointer;
+      color: #fff;
+      z-index: 400;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.06); }
 
-  <!-- S1 SCIENCE -->
-  <section class="section-block">
-    <h2 class="section-title">S1 Science</h2>
-    <div class="topic-grid">
-      <a class="topic-tile tile-waves" href="/classes/s1-waves.html"><div class="tile-label">Waves</div></a>
-      <a class="topic-tile tile-energy" href="/classes/s1-energy.html"><div class="tile-label">Energy</div></a>
-      <a class="topic-tile tile-cells" href="/classes/s1-cells.html"><div class="tile-label">Cells</div></a>
-      <a class="topic-tile tile-sampling" href="/classes/s1-sampling.html"><div class="tile-label">Sampling</div></a>
-      <a class="topic-tile tile-chemical" href="/classes/s1-chemical-reactions.html"><div class="tile-label">Chemical Reactions</div></a>
-      <a class="topic-tile tile-periodic" href="/classes/s1-periodic-table.html"><div class="tile-label">Periodic Table</div></a>
+    .menu-overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display:none;
+      z-index:340;
+    }
+    .menu-overlay.show{ display:block; }
+
+    .side-menu{
+      position: fixed; top: 0; right: -300px;
+      width: 300px; height: 100%;
+
+      background: rgba(15,23,42,0.86);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+
+      box-shadow: -10px 0 28px rgba(0,0,0,0.55);
+      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.25s ease;
+
+      z-index:350;
+      border-left: 1px solid rgba(255,255,255,0.12);
+    }
+    .side-menu.open{ right: 0; }
+
+    .side-menu a{
+      padding: 1rem 1.2rem;
+      font-size: 1.12rem;
+      text-decoration:none;
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      display:flex;
+      gap:0.7rem;
+      min-height: 46px;
+      align-items:center;
+      font-weight: 900;
+    }
+    .side-menu a:hover,
+    .side-menu a:focus-visible{ background: rgba(255,255,255,0.12); }
+
+    /* ============================
+       BANNER
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.20);
+    }
+    .banner{
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    @media (max-width: 768px) { .banner { max-height: 300px; } }
+    @media (prefers-reduced-motion: reduce){
+      .banner{ opacity: 1; animation: none; }
+    }
+
+    .banner-overlay-text{
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.52);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0.7rem;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      z-index: 2;
+    }
+    .banner-overlay-text h1{
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.75);
+    }
+
+    /* ============================
+       PAGE WRAP
+    =============================== */
+    main.page-wrap{
+      width:100%;
+      max-width:1200px;
+      margin: 1.25rem auto 3.5rem;
+      padding: 0 1rem 3rem;
+      flex:1;
+    }
+
+    .intro{
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .intro p{
+      margin: 0;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    /* ============================
+       SECTION BLOCK
+    =============================== */
+    .section-block{
+      margin-top: 1.25rem;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-card);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+      padding: 1.25rem 1rem 1.5rem;
+    }
+    .section-title{
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #fff;
+      margin: 0 0 1rem;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    }
+
+    /* ============================
+       GRID + TILES
+    =============================== */
+    .topic-grid{
+      display:grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    }
+
+    .topic-tile{
+      display:block;
+      border-radius: var(--radius-card);
+      min-height: var(--tile-min);
+
+      box-shadow: var(--shadow-card);
+      border: 2px solid rgba(0,0,0,0.40);
+      outline: 2px solid rgba(255,255,255,0.08);
+      outline-offset: -4px;
+
+      overflow:hidden;
+      position:relative;
+      cursor:pointer;
+
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .topic-tile:hover,
+    .topic-tile:focus-visible{
+      transform: translateY(-3px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+      filter: brightness(1.08);
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+    }
+
+    /* High-contrast label strip (good for low reading age) */
+    .tile-label{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(0,0,0,0.62);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+
+      color:#fff;
+      text-align:center;
+      font-weight: 900;
+      font-size: 1.05rem;
+      padding: 0.7rem 0.55rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.75);
+      pointer-events:none;
+    }
+
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.30);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* Topic images */
+    .tile-waves        { background-image:url("/assets/Wavesbaner.png"); }
+    .tile-energy       { background-image:url("/assets/Energybanner.png"); }
+    .tile-cells        { background-image:url("/assets/cellsbanner.png"); }
+    .tile-sampling     { background-image:url("/assets/samplingbanner.png"); }
+    .tile-chemical     { background-image:url("/assets/chemicalbanner.png"); }
+    .tile-periodic     { background-image:url("/assets/periodictable.png"); }
+    .tile-electricity  { background-image:url("/assets/electricitybanner.png"); }
+    .tile-forces       { background-image:url("/assets/forcesbanner.png"); }
+    .tile-body         { background-image:url("/assets/bodybanner.png"); }
+    .tile-health       { background-image:url("/assets/healthanddiseasebanner.png"); }
+    .tile-acids        { background-image:url("/assets/acidsbanner.png"); }
+    .tile-fuels        { background-image:url("/assets/fuelsbanner.png"); }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <!-- MENU BUTTON -->
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    onclick="toggleMenu()"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="sideMenu"
+  >☰</button>
+
+  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+    <a href="#" id="closeMenuLink">✖ Close</a>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
+
+  <!-- BANNER -->
+  <header class="banner-wrap">
+    <img src="/assets/sciencebanner.png" alt="Science banner" class="banner" loading="eager">
+    <div class="banner-overlay-text">
+      <h1>Explore S1 and S2 Science Topics</h1>
     </div>
-  </section>
+  </header>
 
-  <!-- S2 SCIENCE -->
-  <section class="section-block">
-    <h2 class="section-title">S2 Science</h2>
-    <div class="topic-grid">
-      <a class="topic-tile tile-electricity" href="/classes/s2-electricity.html"><div class="tile-label">Electricity</div></a>
-      <a class="topic-tile tile-forces" href="/classes/s2-forces.html"><div class="tile-label">Forces</div></a>
-      <a class="topic-tile tile-body" href="s2/bodysystems.html"><div class="tile-label">Body Systems</div></a>
-      <a class="topic-tile tile-health" href="/classes/s2-health-and-disease.html"><div class="tile-label">Health & Disease</div></a>
-      <a class="topic-tile tile-acids" href="/classes/s2-acids-and-alkalis.html"><div class="tile-label">Acids & Alkalis</div></a>
-      <a class="topic-tile tile-fuels" href="/classes/s2-fuels-and-metals.html"><div class="tile-label">Fuels & Metals</div></a>
-    </div>
-  </section>
-</div>
+  <main class="page-wrap" id="mainContent">
+    <p class="intro">
+      <strong>Tap a topic tile</strong> to open revision and class materials.
+    </p>
 
-<!-- DRAWER MENU -->
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<nav class="side-menu" id="sideMenu">
-  <a href="/">🏠 Home</a>
-  <a href="/classes/science.html">🧪 Science</a>
-  <a href="/classes/physics.html">⚡ Physics</a>
-  <a href="/classes/electronics.html">💡 Electronics</a>
-  <a href="/classes/engineering.html">🧰 Engineering</a>
-</nav>
+    <!-- S1 SCIENCE -->
+    <section class="section-block" aria-label="S1 Science topics">
+      <h2 class="section-title">S1 Science</h2>
+      <div class="topic-grid">
+        <a class="topic-tile tile-waves" href="/classes/s1-waves.html" aria-label="Open S1 Waves"><div class="tile-label">Waves</div></a>
+        <a class="topic-tile tile-energy" href="/classes/s1-energy.html" aria-label="Open S1 Energy"><div class="tile-label">Energy</div></a>
+        <a class="topic-tile tile-cells" href="/classes/s1-cells.html" aria-label="Open S1 Cells"><div class="tile-label">Cells</div></a>
+        <a class="topic-tile tile-sampling" href="/classes/s1-sampling.html" aria-label="Open S1 Sampling"><div class="tile-label">Sampling</div></a>
+        <a class="topic-tile tile-chemical" href="/classes/s1-chemical-reactions.html" aria-label="Open S1 Chemical Reactions"><div class="tile-label">Chemical Reactions</div></a>
+        <a class="topic-tile tile-periodic" href="/classes/s1-periodic-table.html" aria-label="Open S1 Periodic Table"><div class="tile-label">Periodic Table</div></a>
+      </div>
+    </section>
 
-<script>
-function toggleMenu(){
-  const menu=document.getElementById('sideMenu');
-  const overlay=document.getElementById('menuOverlay');
-  const isOpen=menu.classList.contains('open');
-  if(isOpen){
-    menu.classList.remove('open');
-    overlay.classList.remove('show');
-  } else {
-    menu.classList.add('open');
-    overlay.classList.add('show');
-  }
-}
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    document.getElementById('sideMenu').classList.remove('open');
-    document.getElementById('menuOverlay').classList.remove('show');
-  }
-});
-</script>
+    <!-- S2 SCIENCE -->
+    <section class="section-block" aria-label="S2 Science topics">
+      <h2 class="section-title">S2 Science</h2>
+      <div class="topic-grid">
+        <a class="topic-tile tile-electricity" href="/classes/s2-electricity.html" aria-label="Open S2 Electricity"><div class="tile-label">Electricity</div></a>
+        <a class="topic-tile tile-forces" href="/classes/s2-forces.html" aria-label="Open S2 Forces"><div class="tile-label">Forces</div></a>
+        <a class="topic-tile tile-body" href="/classes/s2/bodysystems.html" aria-label="Open S2 Body Systems"><div class="tile-label">Body Systems</div></a>
+        <a class="topic-tile tile-health" href="/classes/s2-health-and-disease.html" aria-label="Open S2 Health and Disease"><div class="tile-label">Health &amp; Disease</div></a>
+        <a class="topic-tile tile-acids" href="/classes/s2-acids-and-alkalis.html" aria-label="Open S2 Acids and Alkalis"><div class="tile-label">Acids &amp; Alkalis</div></a>
+        <a class="topic-tile tile-fuels" href="/classes/s2-fuels-and-metals.html" aria-label="Open S2 Fuels and Metals"><div class="tile-label">Fuels &amp; Metals</div></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © Mr Stewart’s Science
+  </footer>
+
+  <script>
+    /* ============================
+       MENU: overlay click + ESC close + close link + focus trap
+    =============================== */
+    function $(id){ return document.getElementById(id); }
+    let lastFocusEl = null;
+
+    function getFocusableInMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return [];
+      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
+    }
+
+    function openMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
+
+      lastFocusEl = document.activeElement;
+
+      menu.classList.add("open");
+      overlay.classList.add("show");
+
+      btn.setAttribute("aria-expanded","true");
+      btn.setAttribute("aria-label","Close menu");
+      overlay.setAttribute("aria-hidden","false");
+
+      const focusables = getFocusableInMenu();
+      if(focusables.length) focusables[0].focus();
+    }
+
+    function closeMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
+
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
+
+      btn.setAttribute("aria-expanded","false");
+      btn.setAttribute("aria-label","Open menu");
+      overlay.setAttribute("aria-hidden","true");
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
+    }
+
+    function toggleMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return;
+      const isOpen = menu.classList.contains("open");
+      if(isOpen) closeMenu();
+      else openMenu();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const menu = $("sideMenu");
+      const isOpen = menu && menu.classList.contains("open");
+
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
+      }
+
+      if(e.key === "Tab" && isOpen){
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = $("menuOverlay");
+      if(overlay) overlay.setAttribute("aria-hidden","true");
+
+      const closeLink = $("closeMenuLink");
+      if(closeLink){
+        closeLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeMenu();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
