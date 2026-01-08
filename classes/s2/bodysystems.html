@@ -1105,229 +1105,192 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       }
     });
 
-    /* ============================
-       G/A/R READINESS CHECKLIST (localStorage)
-    =============================== */
-    const GAR_KEY = "s2bio_body_repro_gar_v2";
+   /* ============================
+   G/A/R READINESS CHECKLIST (localStorage) — NO RE-RENDER (prevents page jumping)
+=============================== */
+const GAR_KEY = "s2bio_body_repro_gar_v2";
 
-    const garSections = [
-      { key:"A", title:"A. Skeleton & Movement", items:[
-        "I can state five functions of the skeleton: support, shape, muscle attachment, protection, making blood cells.",
-        "I can define tendon (connects muscle to bone) and ligament (connects bone to bone).",
-        "I can explain (in words) how muscles + tendons + bones work together to make movement at a joint.",
-        "I can name key bones if asked (e.g. skull, rib, femur, tibia, pelvis, humerus)."
-      ]},
-      { key:"B", title:"B. Breathing & Gas Exchange", items:[
-        "I can name and describe the main lung structures: trachea, bronchus, bronchioles, air sacs (alveoli), diaphragm.",
-        "I can explain breathing in using the diaphragm and rib cage/intercostal muscles.",
-        "I can explain breathing out using the diaphragm and rib cage/intercostal muscles.",
-        "I can describe features of air sacs that make gas exchange fast (large surface area, moist surface, close capillaries, thin wall).",
-        "I can describe what happens in a limewater test and what it shows."
-      ]},
-      { key:"C", title:"C. Circulatory System & Heart", items:[
-        "I can state the job of the heart: pumps blood around the body (and to the lungs).",
-        "I can name the four chambers: right atrium, right ventricle, left atrium, left ventricle.",
-        "I can describe the basic journey of blood: heart → lungs → heart → body (including the correct order through chambers).",
-        "I can explain why the breathing and circulatory systems must work together (oxygen to cells for respiration; carbon dioxide removed)."
-      ]},
-      { key:"D", title:"D. Blood Vessels & Structure → Function", items:[
-        "I can describe an artery (thick muscular wall, narrow cavity) and state it carries blood away from the heart.",
-        "I can describe a vein (thinner wall, wide cavity, valves) and state it carries blood back to the heart.",
-        "I can describe a capillary (very thin / one cell thick) and explain why this helps exchange.",
-        "I can match vessel type to a description in a question."
-      ]},
-      { key:"E", title:"E. Digestion (Organs, Journey, and What They Do)", items:[
-        "I can explain why digestion is needed: large insoluble molecules are broken into small soluble molecules so they can be absorbed into the blood.",
-        "I can put the digestive system in order: mouth → oesophagus → stomach → small intestine → large intestine.",
-        "I can state one function for each organ (mouth, oesophagus, stomach, small intestine, large intestine).",
-        "I can state what the liver and pancreas do (liver makes bile; pancreas makes enzymes)."
-      ]},
-      { key:"F", title:"F. Excretion (Removing Waste)", items:[
-        "I can define excretion as removing waste made by the body.",
-        "I can name excretory organs and what they remove (lungs, kidneys, skin, liver, bladder).",
-        "I can explain the kidneys’ job in simple terms: keeps the right amount of water, salts and sugar in the blood."
-      ]},
-      { key:"G", title:"G. Reproduction, Fertilisation, Pregnancy", items:[
-        "I can define reproduction and state the difference between sexual and asexual reproduction.",
-        "I can name the human sex cells: sperm (made in testes) and egg (made in ovaries).",
-        "I can describe sperm cell adaptations (tail, energy in middle, enzymes in head, DNA in nucleus).",
-        "I can describe egg cell adaptations (food store, DNA in nucleus).",
-        "I can define fertilisation as the fusion of the nuclei of sperm and egg to form a zygote.",
-        "I know where fertilisation usually happens: oviduct.",
-        "I can define implantation and describe it simply.",
-        "I can state the function of placenta, umbilical cord, and amniotic sac/fluid.",
-        "I can explain at least one risk to a developing baby (smoking / alcohol / drugs / poor diet) and how to reduce it."
-      ]},
-      { key:"H", title:"H. Skills for Test Questions (Data & Practical)", items:[
-        "I can calculate an average from repeated results.",
-        "I can suggest ways to make an investigation more reliable (repeat, average, control variables, same volumes/times/temperature).",
-        "I can draw a results table with headings and units.",
-        "I can draw a bar chart with labelled axes + units, sensible scale, accurate bars.",
-        "I can answer “show your working” calculation questions."
-      ]}
-    ];
+// (keep your garSections + readinessSections exactly as you have them)
 
-    // readiness rule uses B–G
-    const readinessSections = new Set(["B","C","D","E","F","G"]);
+function garLoad(){
+  try{
+    const raw = localStorage.getItem(GAR_KEY);
+    if(!raw) return {};
+    const obj = JSON.parse(raw);
+    return (obj && typeof obj === "object") ? obj : {};
+  }catch{ return {}; }
+}
+function garSave(state){
+  try{ localStorage.setItem(GAR_KEY, JSON.stringify(state)); }catch{}
+}
+function garId(secKey, index){
+  return `${secKey}_${index+1}`;
+}
 
-    function garLoad(){
-      try{
-        const raw = localStorage.getItem(GAR_KEY);
-        if(!raw) return {};
-        const obj = JSON.parse(raw);
-        return (obj && typeof obj === "object") ? obj : {};
-      }catch{ return {}; }
-    }
-    function garSave(state){
-      try{ localStorage.setItem(GAR_KEY, JSON.stringify(state)); }catch{}
-    }
-    function garId(secKey, index){
-      return `${secKey}_${index+1}`;
-    }
+/* Build the G/A/R UI ONCE */
+function buildGAR(){
+  const container = document.getElementById("garSections");
+  if(!container) return;
 
-    function renderGAR(){
-      const container = document.getElementById("garSections");
-      const summaryText = document.getElementById("garSummaryText");
-      const readyText = document.getElementById("garReadyText");
-      const topFixes = document.getElementById("garTopFixes");
-      if(!container || !summaryText || !readyText || !topFixes) return;
+  const state = garLoad();
+  container.innerHTML = "";
 
-      const state = garLoad();
-      container.innerHTML = "";
+  garSections.forEach(section => {
+    const det = document.createElement("details");
+    det.className = "block";
+    if(section.key === "A") det.open = true;
 
-      garSections.forEach(section => {
-        const det = document.createElement("details");
-        det.className = "block";
-        // default closed; open first section to reduce friction
-        if(section.key === "A") det.open = true;
+    const sum = document.createElement("summary");
+    const left = document.createElement("span");
+    left.textContent = section.title;
 
-        const sum = document.createElement("summary");
-        const left = document.createElement("span");
-        left.textContent = section.title;
+    const right = document.createElement("span");
+    right.className = "tag";
+    right.textContent = "tap G/A/R";
 
-        const right = document.createElement("span");
-        right.className = "tag";
-        right.textContent = "tap G/A/R";
+    sum.appendChild(left);
+    sum.appendChild(right);
 
-        sum.appendChild(left);
-        sum.appendChild(right);
+    const inner = document.createElement("div");
+    inner.className = "details-inner";
 
-        const inner = document.createElement("div");
-        inner.className = "details-inner";
+    section.items.forEach((text, idx) => {
+      const id = garId(section.key, idx);
+      const chosen = state[id] || "";
 
-        section.items.forEach((text, idx) => {
-          const id = garId(section.key, idx);
-          const chosen = state[id] || "";
+      const row = document.createElement("div");
+      row.className = "gar-item";
 
-          const row = document.createElement("div");
-          row.className = "gar-item";
+      const t = document.createElement("div");
+      t.className = "gar-text";
+      t.textContent = text;
 
-          const t = document.createElement("div");
-          t.className = "gar-text";
-          t.textContent = text;
+      const controls = document.createElement("div");
+      controls.className = "gar-controls";
+      controls.setAttribute("role","group");
+      controls.setAttribute("aria-label", `Confidence for ${section.title}, item ${idx+1}`);
+      controls.dataset.itemid = id; // handy reference
 
-          const controls = document.createElement("div");
-          controls.className = "gar-controls";
-          controls.setAttribute("role","group");
-          controls.setAttribute("aria-label", `Confidence for ${section.title}, item ${idx+1}`);
+      const mkOpt = (val) => {
+        const lab = document.createElement("label");
+        lab.className = "gar-opt";
+        lab.dataset.val = val;
 
-          const mkOpt = (val) => {
-            const lab = document.createElement("label");
-            lab.className = "gar-opt";
-            lab.dataset.val = val;
+        const inp = document.createElement("input");
+        inp.type = "radio";
+        inp.name = `gar_${id}`;
+        inp.value = val;
+        inp.checked = (chosen === val);
+        inp.dataset.itemid = id;
+        inp.dataset.seckey = section.key;
+        inp.dataset.index = String(idx);
+        inp.dataset.text = text;
 
-            const inp = document.createElement("input");
-            inp.type = "radio";
-            inp.name = `gar_${id}`;
-            inp.value = val;
-            inp.checked = (chosen === val);
+        // IMPORTANT: update in place (NO renderGAR())
+        inp.addEventListener("change", () => {
+          const next = garLoad();
+          next[id] = val;
+          garSave(next);
 
-            inp.addEventListener("change", () => {
-              const next = garLoad();
-              next[id] = val;
-              garSave(next);
-              renderGAR();
-            });
+          // update the selected button visuals in this one group
+          controls.querySelectorAll(".gar-opt").forEach(o => o.classList.remove("sel"));
+          lab.classList.add("sel");
 
-            const span = document.createElement("span");
-            span.textContent = val;
-
-            lab.appendChild(inp);
-            lab.appendChild(span);
-
-            if(chosen === val) lab.classList.add("sel");
-            return lab;
-          };
-
-          controls.appendChild(mkOpt("G"));
-          controls.appendChild(mkOpt("A"));
-          controls.appendChild(mkOpt("R"));
-
-          row.appendChild(t);
-          row.appendChild(controls);
-
-          inner.appendChild(row);
+          // update summary only
+          updateGARSummary(next);
         });
 
-        det.appendChild(sum);
-        det.appendChild(inner);
-        container.appendChild(det);
-      });
+        const span = document.createElement("span");
+        span.textContent = val;
 
-      // summary
-      let g=0,a=0,r=0,u=0;
-      const redsInBG = [];
-      const missingInBG = [];
+        lab.appendChild(inp);
+        lab.appendChild(span);
 
-      garSections.forEach(section => {
-        section.items.forEach((text, idx) => {
-          const id = garId(section.key, idx);
-          const v = state[id] || "";
+        if(chosen === val) lab.classList.add("sel");
+        return lab;
+      };
 
-          if(v === "G") g++;
-          else if(v === "A") a++;
-          else if(v === "R") r++;
-          else u++;
+      controls.appendChild(mkOpt("G"));
+      controls.appendChild(mkOpt("A"));
+      controls.appendChild(mkOpt("R"));
 
-          if(readinessSections.has(section.key)){
-            if(v === "R") redsInBG.push(`${section.key}.${idx+1} — ${text}`);
-            if(!v) missingInBG.push(`${section.key}.${idx+1}`);
-          }
-        });
-      });
+      row.appendChild(t);
+      row.appendChild(controls);
+      inner.appendChild(row);
+    });
 
-      summaryText.textContent = `Greens: ${g} • Ambers: ${a} • Reds: ${r} • Unanswered: ${u}`;
+    det.appendChild(sum);
+    det.appendChild(inner);
+    container.appendChild(det);
+  });
 
-      if(missingInBG.length){
-        readyText.innerHTML = `📝 <strong>Nearly there:</strong> finish rating sections <strong>B–G</strong> (some items are unanswered).`;
-      } else if(redsInBG.length){
-        readyText.innerHTML = `⚠️ <strong>Not ready yet:</strong> you have <strong>${redsInBG.length}</strong> Red item(s) in sections <strong>B–G</strong>. Fix your top 3 first (write next steps on paper).`;
-      } else {
-        readyText.innerHTML = `✅ <strong>Ready for the test:</strong> no Reds in sections <strong>B–G</strong>. Now do a timed 30-minute run from the Practice Pack.`;
+  updateGARSummary(state);
+}
+
+/* Only updates the summary area (fast + no jumping) */
+function updateGARSummary(state){
+  const summaryText = document.getElementById("garSummaryText");
+  const readyText = document.getElementById("garReadyText");
+  const topFixes = document.getElementById("garTopFixes");
+  if(!summaryText || !readyText || !topFixes) return;
+
+  let g=0,a=0,r=0,u=0;
+  const redsInBG = [];
+  const missingInBG = [];
+
+  garSections.forEach(section => {
+    section.items.forEach((text, idx) => {
+      const id = garId(section.key, idx);
+      const v = state[id] || "";
+
+      if(v === "G") g++;
+      else if(v === "A") a++;
+      else if(v === "R") r++;
+      else u++;
+
+      if(readinessSections.has(section.key)){
+        if(v === "R") redsInBG.push(`${section.key}.${idx+1} — ${text}`);
+        if(!v) missingInBG.push(`${section.key}.${idx+1}`);
       }
+    });
+  });
 
-      topFixes.innerHTML = "";
-      const show = redsInBG.slice(0,3);
-      if(show.length){
-        show.forEach(item => {
-          const li = document.createElement("li");
-          li.textContent = item;
-          topFixes.appendChild(li);
-        });
-      } else {
-        const li = document.createElement("li");
-        li.textContent = "If you do have Reds, they will appear here so you can choose your top 3 to fix (write next steps on paper).";
-        topFixes.appendChild(li);
-      }
-    }
+  summaryText.textContent = `Greens: ${g} • Ambers: ${a} • Reds: ${r} • Unanswered: ${u}`;
 
-    const garResetBtn = document.getElementById("garResetBtn");
-    if(garResetBtn){
-      garResetBtn.addEventListener("click", () => {
-        try{ localStorage.removeItem(GAR_KEY); }catch{}
-        renderGAR();
-      });
-    }
+  if(missingInBG.length){
+    readyText.innerHTML = `📝 <strong>Nearly there:</strong> finish rating sections <strong>B–G</strong> (some items are unanswered).`;
+  } else if(redsInBG.length){
+    readyText.innerHTML = `⚠️ <strong>Not ready yet:</strong> you have <strong>${redsInBG.length}</strong> Red item(s) in sections <strong>B–G</strong>. Fix your top 3 first (write next steps on paper).`;
+  } else {
+    readyText.innerHTML = `✅ <strong>Ready for the test:</strong> no Reds in sections <strong>B–G</strong>. Now do a timed 30-minute run from the Practice Pack.`;
+  }
+
+  topFixes.innerHTML = "";
+  const show = redsInBG.slice(0,3);
+  if(show.length){
+    show.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      topFixes.appendChild(li);
+    });
+  } else {
+    const li = document.createElement("li");
+    li.textContent = "If you do have Reds, they will appear here so you can choose your top 3 to fix (write next steps on paper).";
+    topFixes.appendChild(li);
+  }
+}
+
+/* Reset button */
+const garResetBtn = document.getElementById("garResetBtn");
+if(garResetBtn){
+  garResetBtn.addEventListener("click", () => {
+    try{ localStorage.removeItem(GAR_KEY); }catch{}
+    // clear UI selections without rebuilding layout jumpily
+    document.querySelectorAll('#garSections input[type="radio"]').forEach(inp => inp.checked = false);
+    document.querySelectorAll('#garSections .gar-opt.sel').forEach(el => el.classList.remove("sel"));
+    updateGARSummary({});
+  });
+}
 
     /* ============================
        REVISION TRACKER (localStorage)
@@ -1408,9 +1371,10 @@ title: S2 Biology – Body Systems & Reproduction (Revision)
       renderTracker();
     });
 
-    // Initial render
-    renderGAR();
-    renderTracker();
+  // Initial render
+  buildGAR();
+  renderTracker();
+
   </script>
 </body>
 </html>
