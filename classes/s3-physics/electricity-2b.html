@@ -1,0 +1,1807 @@
+---
+layout: none
+title: S3 Physics – Electricity 2 (Electronics & Control)
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>S3 Physics – Electricity 2 (Electronics &amp; Control)</title>
+
+<style>
+/* ============================
+   GLOBAL FIX: prevent mobile clipping
+=============================== */
+*, *::before, *::after{ box-sizing: border-box; }
+html, body{ max-width: 100%; }
+img, iframe{ max-width: 100%; display:block; }
+
+/* ============================
+   A11Y HELPERS
+=============================== */
+.visually-hidden{
+  position:absolute!important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+.skip-link{
+  position:absolute; left:-999px; top:10px;
+  background:#00e6b3; color:#001b1e;
+  padding:0.6rem 0.9rem; border-radius:12px;
+  font-weight:900; z-index:1000;
+}
+.skip-link:focus{ left:10px; }
+
+/* ============================
+   GLOBAL STYLE SYSTEM
+=============================== */
+:root{
+  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+  --text-main: #ffffff;
+  --bg1: #0c2f3c;
+  --bg2: #104b5c;
+  --bg3: #082229;
+  --accent: #00e6b3;
+  --card: rgba(0,0,0,0.45);
+  --border: rgba(255,255,255,0.25);
+  --warn: #ffca6f;
+  --bad: #ff6f6f;
+  --good: #00ffb3;
+  --muted: rgba(255,255,255,0.86);
+}
+
+/* ------------------ PAGE BASE ------------------ */
+body{
+  margin:0;
+  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+  background-attachment: fixed;
+  font-family: var(--font-stack);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+}
+@supports (-webkit-touch-callout: none){
+  body{ background-attachment: scroll; }
+}
+
+/* ============================
+   MENU BUTTON & SIDE MENU
+=============================== */
+.menu-btn{
+  position: fixed;
+  top: max(15px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  font-size: 1.8rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  cursor: pointer;
+  color: #fff;
+  z-index: 200;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.menu-btn:hover,
+.menu-btn:focus-visible{ transform: scale(1.08); }
+
+.menu-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display:none;
+  z-index:140;
+}
+.menu-overlay.show{ display:block; }
+
+.side-menu{
+  position: fixed; top: 0; right: -290px;
+  width: 290px; height: 100%;
+  background: rgba(20,20,35,0.85);
+  backdrop-filter: blur(16px) saturate(200%);
+  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
+  padding-top: 4.5rem;
+  transition: right 0.3s ease;
+  z-index:150;
+}
+.side-menu.open{ right: 0; }
+
+.side-menu a{
+  padding: 1rem 1.4rem;
+  font-size: 1.15rem;
+  text-decoration:none;
+  color:#fff;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display:flex;
+  gap:0.7rem;
+  min-height: 44px;
+  align-items:center;
+}
+.side-menu a:hover,
+.side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
+
+/* ============================
+   BANNER
+=============================== */
+.banner-wrap{
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+}
+.banner{
+  width:100%;
+  max-height: 360px;
+  object-fit: cover;
+  display:block;
+}
+.banner-tint{
+  position:absolute; inset:0;
+  background: linear-gradient(120deg,
+    rgba(0,255,200,0.30),
+    rgba(0,180,255,0.22),
+    rgba(0,255,180,0.18)
+  );
+  mix-blend-mode: multiply;
+}
+.banner-overlay-text{
+  position:absolute;
+  bottom:0; left:0; right:0;
+  background: rgba(0,0,0,0.48);
+  backdrop-filter: blur(8px);
+  text-align:center;
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.25);
+}
+.banner-overlay-text h1{
+  margin:0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+/* ============================
+   MAIN CONTENT
+=============================== */
+.page-wrap{
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem 6rem;
+  flex:1;
+  width:100%;
+}
+.topic-box{
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
+}
+hr.soft{
+  border:0;
+  border-top: 1px solid rgba(255,255,255,0.22);
+  margin: 1.2rem 0;
+}
+
+/* ============================
+   BUTTONS
+=============================== */
+.btn{
+  display:inline-block;
+  padding:0.75rem 1.05rem;
+  border-radius:16px;
+  border:1px solid rgba(0,255,200,0.45);
+  background: rgba(0,255,200,0.16);
+  color:#fff;
+  font-weight:900;
+  text-decoration:none;
+  cursor:pointer;
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 5px 14px rgba(0,255,200,0.22);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.btn:hover,.btn:focus-visible{
+  transform: scale(1.02);
+  background: rgba(0,255,200,0.28);
+}
+.btn.secondary{
+  border-color: rgba(255,255,255,0.30);
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.22);
+}
+.btn.disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  box-shadow:none;
+}
+.btn.wide{ display:block; width:100%; text-align:left; }
+
+/* ============================
+   FLOATING BACK BUTTON
+=============================== */
+.back-float{
+  position: fixed;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: max(20px, env(safe-area-inset-left));
+  z-index: 300;
+  background: rgba(0, 255, 200, 0.18);
+  padding: 0.75rem 1.2rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 2px solid rgba(0,255,200,0.35);
+  box-shadow: 0 4px 14px rgba(0,255,200,0.30);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.back-float:hover,
+.back-float:focus-visible{
+  background: rgba(0, 255, 200, 0.32);
+  transform: scale(1.06);
+}
+
+/* ============================
+   LAYOUT HELPERS
+=============================== */
+.grid{
+  display:grid;
+  gap:0.9rem;
+  grid-template-columns: 1fr;
+  align-items:start;
+}
+@media (min-width: 820px){
+  .grid{ grid-template-columns: 1fr 1fr; }
+}
+.card{
+  background: rgba(0,0,0,0.42);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 1rem 1.1rem;
+}
+.card h4{ margin:0 0 0.55rem; }
+.card p{ margin:0.25rem 0 0.65rem; opacity:0.95; }
+
+.callout{
+  background: rgba(0,0,0,0.42);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 1rem 1.1rem;
+  border-left: 6px solid rgba(0,230,179,0.65);
+}
+.callout strong{ color:#b9fff0; }
+.callout.warn{ border-left-color: rgba(255,202,111,0.85); }
+.callout.bad{ border-left-color: rgba(255,111,111,0.85); }
+.muted{ color: var(--muted); }
+
+/* ============================
+   COLLAPSIBLES
+=============================== */
+.notes details,
+.block details,
+.mini details{
+  background: var(--card);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  margin: 0 0 1rem;
+  overflow:hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.38);
+}
+.notes summary,
+.block summary,
+.mini summary{
+  cursor:pointer;
+  padding: 1rem 1.1rem;
+  font-weight: 900;
+  background: linear-gradient(135deg,
+    rgba(0,255,200,0.14),
+    rgba(0,180,255,0.16)
+  );
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+}
+details summary::-webkit-details-marker{ display:none; }
+
+.notes .inner,
+.block .inner,
+.mini .inner{ padding: 1rem 1.1rem; }
+.notes ul, .block ul, .mini ul{
+  margin:0.4rem 0 0.2rem;
+  padding-left: 1.1rem;
+  line-height: 1.75;
+}
+.notes li, .block li, .mini li{ margin-bottom: 0.6rem; }
+
+.mini details{ margin: 0.5rem 0 0; box-shadow:none; }
+.mini summary{ padding: 0.75rem 0.9rem; font-weight: 800; }
+.mini .inner{ padding: 0.85rem 0.95rem; }
+
+/* Open/Close all buttons */
+.controls-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6rem;
+  margin: 0.2rem 0 1rem;
+}
+.small-btn{
+  padding:0.55rem 0.8rem;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.10);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.small-btn:hover,
+.small-btn:focus-visible{ background: rgba(255,255,255,0.16); }
+
+/* ============================
+   EQUATIONS / METHOD BOXES
+=============================== */
+.eq{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  overflow-x:auto;
+  white-space: nowrap;
+}
+.method{
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  background: rgba(0,0,0,0.35);
+}
+.method h5{ margin:0 0 0.5rem; font-size:1.02rem; }
+.method ol{ margin:0.35rem 0 0; padding-left: 1.2rem; }
+.method li{ margin:0.35rem 0; }
+
+/* ============================
+   TABLES (responsive)
+=============================== */
+.table-wrap{
+  overflow-x:auto;
+  border-radius: 14px;
+  border:1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.28);
+}
+table{
+  border-collapse: collapse;
+  width:100%;
+  min-width: 760px;
+}
+th, td{
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding: 0.75rem 0.85rem;
+  text-align:left;
+  vertical-align: top;
+}
+th{
+  background: rgba(255,255,255,0.08);
+  font-weight: 900;
+}
+td small{ opacity:0.9; }
+.symbol{
+  width: 92px;
+  height: 42px;
+  display:inline-block;
+}
+.symbol svg{ width:100%; height:100%; }
+.code-pill{
+  display:inline-flex;
+  padding:0.15rem 0.55rem;
+  border-radius:999px;
+  background: rgba(0,255,200,0.14);
+  border:1px solid rgba(0,255,200,0.28);
+  font-weight:900;
+  margin-right:0.35rem;
+}
+
+/* ============================
+   QUICK JUMP BAR (sticky)
+=============================== */
+.jumpbar{
+  position: sticky;
+  top: 10px;
+  z-index: 60;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.75rem;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 16px;
+  backdrop-filter: blur(10px) saturate(170%);
+}
+.jumpbar .row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.45rem;
+  align-items:center;
+}
+.jumpbar a{
+  text-decoration:none;
+  color:#fff;
+  font-weight:900;
+  padding:0.35rem 0.6rem;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.08);
+}
+.jumpbar a:hover,
+.jumpbar a:focus-visible{ background: rgba(255,255,255,0.14); }
+
+/* ============================
+   PROGRESS TRACKER
+=============================== */
+.progress-wrap{
+  margin-top: 0.65rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(0,0,0,0.35);
+}
+.progress-line{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  align-items:baseline;
+  justify-content:space-between;
+}
+.progress-line strong{ color:#b9fff0; }
+.progress-bar{
+  width:100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.14);
+  overflow:hidden;
+  margin: 0.55rem 0 0.65rem;
+}
+.progress-bar > div{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, rgba(0,255,200,0.55), rgba(0,180,255,0.55));
+}
+.checklist{
+  list-style:none;
+  padding-left:0;
+  margin:0.3rem 0 0;
+}
+.checklist li{
+  display:flex;
+  gap:0.65rem;
+  align-items:flex-start;
+  padding: 0.55rem 0.2rem;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.checklist li:first-child{ border-top:0; }
+.checklist input[type="checkbox"]{
+  width: 24px; height: 24px;
+  margin-top: 0.1rem;
+}
+.checklist label{ cursor:pointer; font-weight: 800; }
+.checklist .sub{
+  font-weight: 600;
+  opacity:0.92;
+  margin-top:0.15rem;
+}
+.tracker-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6rem;
+  margin-top: 0.65rem;
+}
+
+/* ============================
+   VIDEOS
+=============================== */
+.video-grid{
+  display:grid;
+  gap:0.9rem;
+  grid-template-columns: 1fr;
+  margin-top: 0.5rem;
+}
+@media (min-width: 900px){
+  .video-grid{ grid-template-columns: 1fr 1fr; }
+}
+.video-card{
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.30);
+}
+.video-card h4{ margin:0 0 0.35rem; }
+.video-card p{ margin:0 0 0.75rem; opacity:0.95; }
+.video-embed{
+  position:relative;
+  width:100%;
+  padding-top:56.25%;
+  border-radius: 14px;
+  overflow:hidden;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.35);
+}
+.video-embed iframe{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  border:0;
+}
+
+/* ============================
+   FOOTER
+=============================== */
+footer{
+  text-align:center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.35);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  font-size:0.92rem;
+  margin-top:auto;
+}
+
+/* Strong keyboard focus */
+:focus-visible{
+  outline: 3px solid rgba(0,230,179,0.80);
+  outline-offset: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ scroll-behavior:auto!important; transition:none!important; }
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px){
+  .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
+  .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
+  .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
+  .banner{ max-height: 280px; }
+  table{ min-width: 680px; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#mainContent">Skip to content</a>
+
+<!-- MENU BUTTON -->
+<button
+  class="menu-btn"
+  id="menuBtn"
+  type="button"
+  onclick="toggleMenu()"
+  aria-label="Open menu"
+  aria-expanded="false"
+  aria-controls="sideMenu"
+>☰</button>
+
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+
+<nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+  <a href="#" id="closeMenuLink">✖ Close</a>
+  <a href="/">🏠 Home</a>
+  <a href="/classes/science.html">🧪 Science</a>
+  <a href="/classes/physics.html">⚡ Physics</a>
+  <a href="/classes/electronics.html">💡 Electronics</a>
+  <a href="/classes/engineering.html">🧰 Engineering</a>
+</nav>
+
+<!-- BANNER -->
+<div class="banner-wrap">
+  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="lazy">
+  <div class="banner-tint"></div>
+  <div class="banner-overlay-text">
+    <h1>⚡ S3 Physics – Electricity 2: Electronics &amp; Control</h1>
+  </div>
+</div>
+
+<!-- FLOATING BACK BUTTON -->
+<a class="back-float" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
+  ⬅ Back to S3 Physics
+</a>
+
+<main class="page-wrap" id="mainContent">
+  <div class="topic-box">
+
+    <h2 style="margin:0.2rem 0 0.6rem;">Electricity 2 – Revision + Assessment Prep Hub</h2>
+    <p style="margin:0;">
+      <strong>Use this page like a checklist:</strong> KO → Symbols → Methods → Practice Qs → Practical short answers → Assignment evidence.
+    </p>
+
+    <div class="callout" style="margin-top:1rem;">
+      <p style="margin:0;">
+        <strong>Suggested routine (low overload):</strong><br>
+        1) <strong>Knowledge Organiser</strong> → 2) <strong>Symbols</strong> → 3) <strong>Exam methods</strong> → 4) <strong>Practice questions</strong> → 5) <strong>Practical short answers</strong>
+      </p>
+    </div>
+
+    <!-- Q) Time-based revision routes -->
+    <div class="mini" aria-label="Time-based revision routes">
+      <details>
+        <summary>⏱️ Revision routes (10 / 30 / 60 minutes)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>10 minutes:</strong> Equations + divider quick rules + 5 symbol checks + 1 LED resistor question.</li>
+            <li><strong>30 minutes:</strong> Add: method boxes + 10 mixed practice questions + 5 practical short answers.</li>
+            <li><strong>60 minutes:</strong> Add: simulation checklist + 20 practice questions + full assignment evidence checklist self-check.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <p style="margin:0.9rem 0 0.2rem; opacity:0.9;">
+      <em>Last updated: 09 Jan 2026</em>
+    </p>
+
+    <hr class="soft">
+
+    <!-- O) Quick jump links -->
+    <div class="jumpbar" aria-label="Quick jump links">
+      <div class="row">
+        <strong class="muted" style="margin-right:0.25rem;">Jump to:</strong>
+        <a href="#links">Links</a>
+        <a href="#tracker">Progress</a>
+        <a href="#exammap">Exam map</a>
+        <a href="#symbols">Symbols</a>
+        <a href="#methods">Exam methods</a>
+        <a href="#notes">Core notes</a>
+        <a href="#practice">Practice</a>
+        <a href="#practical">Practical short answers</a>
+        <a href="#assignment">Assignment</a>
+      </div>
+    </div>
+
+    <!-- P) Progress tracker -->
+    <div class="card" id="tracker">
+      <h4 style="margin:0 0 0.35rem;">✅ Progress tracker</h4>
+      <p style="margin:0;">Tick items as you go (saved on your device).</p>
+
+      <div class="progress-wrap" aria-label="Progress tracking">
+        <div class="progress-line">
+          <div><strong id="progText">You’ve ticked 0 / 10 items (0%)</strong></div>
+          <div class="muted">Tip: aim for 6/10 before the test.</div>
+        </div>
+        <div class="progress-bar" aria-hidden="true"><div id="progFill"></div></div>
+
+        <ul class="checklist" id="checklist">
+          <li>
+            <input type="checkbox" id="t1">
+            <label for="t1">
+              KO skim + key rules highlighted
+              <div class="sub">Focus: quantities, equations, divider rules, tools/testing box.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t2">
+            <label for="t2">
+              Symbols drill (name + symbol + function)
+              <div class="sub">Aim: diode vs LED, capacitor, LDR, NTC, transistor, MOSFET.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t3">
+            <label for="t3">
+              Divider reasoning (what happens if R changes)
+              <div class="sub">Use Vout (V<sub>2</sub>) across R<sub>2</sub> logic.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t4">
+            <label for="t4">
+              LED protective resistor method practiced
+              <div class="sub">Convert mA → A, use V across resistor, calculate R.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t5">
+            <label for="t5">
+              Transistor/MOSFET switching explained (in your own words)
+              <div class="sub">Can you justify “on/off” from a control voltage?</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t6">
+            <label for="t6">
+              Simulation checklist practiced (advantages + spotting errors)
+              <div class="sub">Be ready for short answer questions in Section C.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t7">
+            <label for="t7">
+              Practical short answers (safety, checks, tools)
+              <div class="sub">Write answers in short bullet points.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t8">
+            <label for="t8">
+              10+ mixed practice questions completed
+              <div class="sub">A mix of MC + short written + calculations.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t9">
+            <label for="t9">
+              Assignment evidence checklist complete
+              <div class="sub">Know exactly what must be in your booklet.</div>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="t10">
+            <label for="t10">
+              Testing plan written (3 pre-power + 3 functionality)
+              <div class="sub">So you can fill the tables quickly and properly.</div>
+            </label>
+          </li>
+        </ul>
+
+        <div class="tracker-actions">
+          <button class="small-btn" type="button" onclick="trackerSetAll(true)">Tick all</button>
+          <button class="small-btn" type="button" onclick="trackerSetAll(false)">Untick all</button>
+          <button class="small-btn" type="button" onclick="trackerReset()">Reset (clears saved ticks)</button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="soft">
+
+    <!-- 🔗 Key Links -->
+    <h3 id="links" style="margin:0 0 0.7rem;">🔗 Key Links</h3>
+    <div class="grid">
+
+      <div class="card">
+        <h4>📄 Class Files</h4>
+        <p>Start with the Knowledge Organiser, then use the booklet questions.</p>
+
+        <p style="margin:0.55rem 0 0;">
+          <a class="btn wide" href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf" target="_blank" rel="noopener noreferrer">
+            🧠 Knowledge Organiser (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
+          </a>
+        </p>
+
+        <p style="margin:0.65rem 0 0;">
+          <a class="btn wide" href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf" target="_blank" rel="noopener noreferrer">
+            📘 Electricity 2 Booklet (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
+          </a>
+        </p>
+
+        <!-- T) Teacher check gates -->
+        <div class="callout warn" style="margin-top:0.9rem;">
+          <p style="margin:0;">
+            <strong>Teacher check gate:</strong><br>
+            After you finish one booklet section, get it checked before moving on.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>📝 Past Paper Finders</h4>
+        <p>Use after KO + methods. Aim for mixed questions, not just calculations.</p>
+
+        <div class="mini" aria-label="Past paper guidance">
+          <details>
+            <summary>✅ What to attempt (tap to open)</summary>
+            <div class="inner">
+              <ul>
+                <li><strong>Physics:</strong> voltage, Ohm’s law, circuit rules, interpreting graphs/data.</li>
+                <li><strong>Electronics:</strong> symbols &amp; functions, resistors, dividers, sensors, switching, simulation/testing, safety.</li>
+                <li><strong>Tip:</strong> if you hit unfamiliar items, use KO + notes, then return.</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+
+        <p style="margin:0.65rem 0 0;">
+          <a class="btn secondary wide" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer">
+            ⚡ Physics Past Paper Finder <span class="visually-hidden">(PDF, opens in a new tab)</span>
+          </a>
+        </p>
+
+        <p style="margin:0.65rem 0 0;">
+          <a class="btn secondary wide" href="https://rstewartphysics.github.io/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ%20Nov25%20Update-2.pdf" target="_blank" rel="noopener noreferrer">
+            💡 Electronics Past Paper Questions (PPQ) <span class="visually-hidden">(PDF, opens in a new tab)</span>
+          </a>
+        </p>
+
+        <!-- O) Quick jump within practice -->
+        <p style="margin:0.75rem 0 0;">
+          <a class="btn wide" href="#practice">➡ Jump to practice checklist</a>
+        </p>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:0.9rem;">
+      <h4>🤖 AI Tutor (coming soon)</h4>
+      <p>This button will link to the AI tutor later.</p>
+      <button class="btn disabled" type="button" disabled aria-disabled="true">
+        🤖 Open AI Tutor (Coming Soon)
+      </button>
+    </div>
+
+    <hr class="soft">
+
+    <!-- A) Exam map (mirrors test structure) -->
+    <div class="block" id="exammap" aria-label="Exam map">
+      <details>
+        <summary>🧭 Exam map (what to revise for each section)</summary>
+        <div class="inner">
+          <div class="grid">
+            <div class="card">
+              <h4>Section A – Multiple choice</h4>
+              <ul>
+                <li>Component ID + common confusions (cell/battery/PV cell, diode/LED).</li>
+                <li>Sensors (LDR/NTC), switching idea, basic circuit understanding.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Section B – Physics (written + calculations)</h4>
+              <ul>
+                <li>Name / symbol / function table.</li>
+                <li>LED protective resistor calculations.</li>
+                <li>Potential divider output voltage + “what happens if…”</li>
+                <li>Justifying on/off in switching circuits.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Section C – Practical Electronics (written)</h4>
+              <ul>
+                <li>Advantages of simulation + spotting errors in a simulation.</li>
+                <li>Safety when soldering + pre-power checks.</li>
+                <li>Functions of track cutter, heat sink, solder sucker.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- B) Component confusions -->
+    <div class="callout" style="margin-top:0.2rem;">
+      <p style="margin:0;">
+        <strong>Common confusions to fix early:</strong><br>
+        cell vs battery • photovoltaic cell vs battery • diode vs LED • NPN transistor vs MOSFET • Vout location in a divider
+      </p>
+    </div>
+
+    <hr class="soft">
+
+    <!-- C) Symbols drill -->
+    <h3 id="symbols" style="margin:0 0 0.7rem;">🔣 Symbols + name/function drill</h3>
+
+    <div class="card">
+      <h4 style="margin:0 0 0.4rem;">How to use this</h4>
+      <p style="margin:0;">
+        Cover the <strong>names</strong>, then try to say the <strong>function</strong> out loud.
+        If you can do this quickly, Section A/B feels much easier.
+      </p>
+    </div>
+
+    <div class="table-wrap" aria-label="Symbols table">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Symbol (simple)</th>
+            <th>Function / what it’s used for</th>
+            <th>Common mix-up</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="code-pill">Cell</span></td>
+            <td>
+              <span class="symbol" aria-label="Cell symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="25" y1="25" x2="55" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="55" y1="12" x2="55" y2="38" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="18" x2="70" y2="32" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="25" x2="95" y2="25" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>One source of potential difference (single cell).</td>
+            <td>Confused with <strong>battery</strong> (multiple cells).</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Battery</span></td>
+            <td>
+              <span class="symbol" aria-label="Battery symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="18" y1="25" x2="42" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="42" y1="10" x2="42" y2="40" stroke="white" stroke-width="3"/>
+                  <line x1="54" y1="15" x2="54" y2="35" stroke="white" stroke-width="3"/>
+                  <line x1="66" y1="10" x2="66" y2="40" stroke="white" stroke-width="3"/>
+                  <line x1="78" y1="15" x2="78" y2="35" stroke="white" stroke-width="3"/>
+                  <line x1="78" y1="25" x2="102" y2="25" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Two or more cells in series (higher supply voltage).</td>
+            <td>Confused with cell or PV cell.</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Photovoltaic cell</span></td>
+            <td>
+              <span class="symbol" aria-label="Photovoltaic cell symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <rect x="40" y="15" width="30" height="20" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="20" y1="25" x2="40" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="25" x2="95" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="32" y1="12" x2="42" y2="18" stroke="white" stroke-width="3"/>
+                  <line x1="32" y1="38" x2="42" y2="32" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Turns light into electrical energy (voltage output depends on light level).</td>
+            <td>Often mistaken for a battery/cell symbol.</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Resistor</span></td>
+            <td>
+              <span class="symbol" aria-label="Resistor symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="20" y1="25" x2="38" y2="25" stroke="white" stroke-width="3"/>
+                  <rect x="38" y="16" width="44" height="18" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="82" y1="25" x2="100" y2="25" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Limits current / shares voltage (including dividers).</td>
+            <td>Confused with variable resistor.</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Variable resistor</span></td>
+            <td>
+              <span class="symbol" aria-label="Variable resistor symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="18" y1="25" x2="35" y2="25" stroke="white" stroke-width="3"/>
+                  <rect x="35" y="16" width="45" height="18" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="80" y1="25" x2="102" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="40" y1="40" x2="76" y2="10" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Adjusts resistance (used to set sensitivity/threshold).</td>
+            <td>Often drawn incorrectly (arrow placement).</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Diode</span></td>
+            <td>
+              <span class="symbol" aria-label="Diode symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="18" y1="25" x2="40" y2="25" stroke="white" stroke-width="3"/>
+                  <polygon points="40,12 40,38 68,25" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="68" y1="12" x2="68" y2="38" stroke="white" stroke-width="3"/>
+                  <line x1="68" y1="25" x2="102" y2="25" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Allows current one direction only (forward bias conducts).</td>
+            <td>Confused with LED (extra arrows).</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">LED</span></td>
+            <td>
+              <span class="symbol" aria-label="LED symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="12" y1="25" x2="34" y2="25" stroke="white" stroke-width="3"/>
+                  <polygon points="34,12 34,38 62,25" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="62" y1="12" x2="62" y2="38" stroke="white" stroke-width="3"/>
+                  <line x1="62" y1="25" x2="98" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="18" x2="86" y2="10" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="32" x2="86" y2="40" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Emits light when forward-biased; needs a protective resistor.</td>
+            <td>Forgets series resistor / wrong polarity.</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Capacitor</span></td>
+            <td>
+              <span class="symbol" aria-label="Capacitor symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <line x1="18" y1="25" x2="50" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="50" y1="12" x2="50" y2="38" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="12" x2="70" y2="38" stroke="white" stroke-width="3"/>
+                  <line x1="70" y1="25" x2="102" y2="25" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Stores charge; used for timing/delay/smoothing.</td>
+            <td>Polarity ignored (for electrolytics).</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">LDR</span></td>
+            <td>
+              <span class="symbol" aria-label="LDR symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <rect x="45" y="16" width="30" height="18" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="18" y1="25" x2="45" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="75" y1="25" x2="102" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="30" y1="12" x2="44" y2="18" stroke="white" stroke-width="3"/>
+                  <line x1="30" y1="38" x2="44" y2="32" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>More light → lower resistance (typical).</td>
+            <td>Placed wrong way in divider for desired control.</td>
+          </tr>
+
+          <tr>
+            <td><span class="code-pill">Thermistor (NTC)</span></td>
+            <td>
+              <span class="symbol" aria-label="Thermistor symbol">
+                <svg viewBox="0 0 120 50" role="img" aria-hidden="true">
+                  <rect x="45" y="16" width="30" height="18" fill="none" stroke="white" stroke-width="3"/>
+                  <line x1="18" y1="25" x2="45" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="75" y1="25" x2="102" y2="25" stroke="white" stroke-width="3"/>
+                  <line x1="47" y1="38" x2="73" y2="12" stroke="white" stroke-width="3"/>
+                </svg>
+              </span>
+            </td>
+            <td>Higher temperature → lower resistance (NTC).</td>
+            <td>Confused with LDR.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mini" aria-label="Symbols tips">
+      <details>
+        <summary>⭐ Quick symbol tips (tap to open)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Cell vs battery:</strong> battery shows multiple long/short pairs.</li>
+            <li><strong>Diode vs LED:</strong> LED has extra arrows showing light.</li>
+            <li><strong>LDR/NTC:</strong> both are resistors, but diagram marks differ; don’t swap their rules.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <hr class="soft">
+
+    <!-- D) Exam methods -->
+    <h3 id="methods" style="margin:0 0 0.7rem;">🧠 Exam methods (the 3 that come up all the time)</h3>
+    <div class="grid">
+      <div class="method" aria-label="Thermistor graph method">
+        <h5>1) Thermistor graph → resistance → voltage</h5>
+        <ol>
+          <li>Read <strong>R</strong> from the graph at the given temperature.</li>
+          <li>Convert current: <strong>mA → A</strong> (divide by 1000).</li>
+          <li>Use <strong>V = I·R</strong>.</ी and check the answer is sensible for the circuit.</li>
+        </ol>
+      </div>
+
+      <div class="method" aria-label="LED protective resistor method">
+        <h5>2) LED protective resistor</h5>
+        <ol>
+          <li>Find voltage across resistor: <strong>V<sub>R</sub> = V<sub>s</sub> − V<sub>LED</sub></strong></li>
+          <li>Convert LED current to amps.</li>
+          <li>Use <strong>R = V<sub>R</sub> / I</strong></li>
+        </ol>
+      </div>
+
+      <div class="method" aria-label="Potential divider method">
+        <h5>3) Potential divider output</h5>
+        <ol>
+          <li>Define: <strong>Vout = V<sub>2</sub></strong> (voltage across <strong>R<sub>2</sub></strong>).</li>
+          <li>Use: <strong>Vout = ( R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ) × V<sub>s</sub></strong></li>
+          <li>Reason changes: if <strong>R<sub>2</sub></strong> increases → <strong>Vout increases</strong>; if <strong>R<sub>1</sub></strong> increases → <strong>Vout decreases</strong>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- E) Justify your answer prompts -->
+    <div class="mini" aria-label="Justification sentence stems">
+      <details>
+        <summary>🗣️ “Justify” sentence stems (2 marks style)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Switching (transistor):</strong> “The control voltage is (above/below) the switching voltage, so the switch stage is (on/off) and the output (turns on/stays off).”</li>
+            <li><strong>Divider reasoning:</strong> “When (R1/R2) increases, the fraction of the supply across R2 (increases/decreases), so Vout (increases/decreases).”</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <hr class="soft">
+
+    <!-- S) Consistency: Vout naming -->
+    <div class="callout">
+      <p style="margin:0;">
+        <strong>Consistency note:</strong> On this page, <strong>Vout = V<sub>2</sub></strong> (the voltage across <strong>R<sub>2</sub></strong> in a divider).
+      </p>
+    </div>
+
+    <hr class="soft">
+
+    <!-- Core notes + equation box -->
+    <h3 id="notes" style="margin:0 0 0.7rem;">✅ Core Notes (open only what you need)</h3>
+
+    <div class="controls-row" aria-label="Notes controls">
+      <button class="small-btn" type="button" onclick="setAllNotes(true)">Open all notes</button>
+      <button class="small-btn" type="button" onclick="setAllNotes(false)">Close all notes</button>
+    </div>
+
+    <div class="notes" id="notesBlock" aria-label="Core Electricity 2 notes">
+
+      <details>
+        <summary>🧾 Key Equations (core B2)</summary>
+        <div class="inner">
+          <div class="eq" aria-label="Equations">
+V = I·R
+Vout (V₂) = ( R₂ / (R₁ + R₂) ) × Vₛ
+R_LED = (Vₛ − V_LED) / I_LED   (I in amps)
+          </div>
+          <ul>
+            <li><strong>V<sub>s</sub></strong> = supply voltage.</li>
+            <li><strong>Vout = V<sub>2</sub></strong> is the voltage <strong>across R<sub>2</sub></strong>.</li>
+            <li>Convert: <strong>10 mA = 0.010 A</strong>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🔁 Circuit Rules Recap (from Electricity 1)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Series:</strong> current same everywhere; voltages add.</li>
+            <li><strong>Parallel:</strong> voltage same across branches; current splits.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>📏 Measuring in Circuits (meters)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Ammeter:</strong> series to measure current.</li>
+            <li><strong>Voltmeter:</strong> parallel to measure voltage.</li>
+            <li><strong>Ohmmeter:</strong> power OFF to measure resistance.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🔢 Potential Dividers (core idea)</summary>
+        <div class="inner">
+          <ul>
+            <li>Two resistors in series create a smaller output voltage.</li>
+            <li>Output is <strong>Vout = V<sub>2</sub></strong> (across <strong>R<sub>2</sub></strong>).</li>
+            <li>If <strong>R<sub>2</sub></strong> increases (R<sub>1</sub> fixed) → <strong>Vout increases</strong>.</li>
+            <li>If <strong>R<sub>1</sub></strong> increases (R<sub>2</sub> fixed) → <strong>Vout decreases</strong>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🌡️ Sensors (LDRs &amp; NTC thermistors)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>LDR:</strong> more light → <strong>lower</strong> resistance.</li>
+            <li><strong>NTC thermistor:</strong> higher temperature → <strong>lower</strong> resistance.</li>
+            <li>In dividers: environment changes resistance → <strong>Vout changes</strong> → output can switch.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🎛️ Control Circuits (recognise + explain)</summary>
+        <div class="inner">
+          <p style="margin:0 0 0.6rem;">
+            You should be able to <strong>recognise</strong> the goal (high/low temp or high/low light) and <strong>explain</strong>
+            how sensor resistance changes Vout.
+          </p>
+          <ul>
+            <li>High/low light control (LDR + divider + switch stage).</li>
+            <li>High/low temperature control (NTC + divider + switch stage).</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>🔄 Switching (NPN transistor / MOSFET)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>NPN BJT:</strong> small base current controls a larger collector current (used as a switch).</li>
+            <li><strong>MOSFET:</strong> gate voltage controls switching (very small gate current).</li>
+            <li>Divider + sensor produces the control voltage for switching.</li>
+          </ul>
+          <div class="mini">
+            <details>
+              <summary>MOSFET vs NPN — quick compare</summary>
+              <div class="inner">
+                <ul>
+                  <li><strong>NPN:</strong> current-controlled (base current matters).</li>
+                  <li><strong>MOSFET:</strong> voltage-controlled (gate voltage matters).</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>💡 Diodes &amp; LEDs (safe LED circuits)</summary>
+        <div class="inner">
+          <ul>
+            <li>Diode/LED conducts in forward direction only.</li>
+            <li>LED needs a <strong>series resistor</strong> to limit current.</li>
+            <li>Method: <strong>V<sub>R</sub> = V<sub>s</sub> − V<sub>LED</sub></strong>, then <strong>R = V<sub>R</sub> / I</strong>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- R) Common mistakes callout -->
+      <details>
+        <summary>⚠️ Common mistakes (quick fixes)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>LED reversed:</strong> won’t light → check diode direction.</li>
+            <li><strong>No protective resistor:</strong> LED can fail → add correct series resistor.</li>
+            <li><strong>Measuring wrong voltage:</strong> make sure you measure <strong>Vout across R<sub>2</sub></strong> (in parallel).</li>
+            <li><strong>Wrong rails / no 0 V reference:</strong> unpredictable behaviour → check V+ and 0 V continuity.</li>
+            <li><strong>Short circuit / solder bridge:</strong> supply drops/heats → inspect and rework.</li>
+            <li><strong>Transistor/MOSFET pins mixed:</strong> switch stage fails → re-check pinout before powering.</li>
+          </ul>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- T) Teacher check gate -->
+    <div class="callout warn">
+      <p style="margin:0;">
+        <strong>Teacher check gate:</strong><br>
+        If you’re unsure on symbols, Vout in a divider, or LED resistor calculations, get a quick check before doing lots of practice questions.
+      </p>
+    </div>
+
+    <hr class="soft">
+
+    <!-- Practice section -->
+    <h3 id="practice" style="margin:0 0 0.7rem;">🧩 Practice checklist (what to do next)</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>Minimum practice (before the test)</h4>
+        <ul>
+          <li>10 mixed questions (not all calculations).</li>
+          <li>At least 3 symbol/function questions.</li>
+          <li>At least 2 divider “what happens if…” questions.</li>
+          <li>At least 2 practical short answers (safety/checks/tools).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Stretch practice (to feel confident)</h4>
+        <ul>
+          <li>20 mixed questions + correct your mistakes.</li>
+          <li>Write 2 “justify” answers using the stems.</li>
+          <li>Do 1 simulation “spot the errors” using a checklist.</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="soft">
+
+    <!-- F) Simulation prep -->
+    <h3 id="practical" style="margin:0 0 0.7rem;">🧪 Practical Electronics short answers (Section C prep)</h3>
+
+    <div class="block" aria-label="Simulation preparation">
+      <details>
+        <summary>🧩 Simulation (Yenka): advantages + spotting errors</summary>
+        <div class="inner">
+          <div class="grid">
+            <div class="card">
+              <h4>Advantages (categories to remember)</h4>
+              <ul>
+                <li>Safety (no damage while learning).</li>
+                <li>Speed (change parts quickly, reset fast).</li>
+                <li>Cost (no wasted components).</li>
+                <li>Measurement (easy voltage/current readings).</li>
+                <li>Fault finding (compare to “normal” readings).</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Error spotting checklist</h4>
+              <ul>
+                <li>Rails: V+ and 0 V connected correctly?</li>
+                <li>Polarity: LED/diode/capacitor/transistor correct way?</li>
+                <li>Missing resistor (LED needs one)?</li>
+                <li>Wrong sensor position in divider (R1 vs R2)?</li>
+                <li>Wrong connections/loose wires/short circuits?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- G) Practical short answers -->
+    <div class="block" aria-label="Practical short answer prep">
+      <details>
+        <summary>🛠️ Safety, pre-power checks, tool functions (quick answers)</summary>
+        <div class="inner">
+          <div class="grid">
+            <div class="card">
+              <h4>Soldering safety (pick 2 quickly)</h4>
+              <ul>
+                <li>Keep iron in the stand when not in use.</li>
+                <li>Work in a tidy, clear area; keep leads short and controlled.</li>
+                <li>Don’t touch the metal tip; allow time to cool.</li>
+                <li>Ventilation / avoid breathing fumes.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4>Pre-power checks (pick 2 quickly)</h4>
+              <ul>
+                <li>Correct component values (especially resistors).</li>
+                <li>Correct orientation (LED/diode/capacitor/transistor/MOSFET).</li>
+                <li>No short circuits / no solder bridges.</li>
+                <li>Correct rails: V+ and 0 V connected properly.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4>Tool functions (know these)</h4>
+              <ul>
+                <li><strong>Track cutter:</strong> breaks copper track on stripboard.</li>
+                <li><strong>Heat sink:</strong> protects heat-sensitive components while soldering.</li>
+                <li><strong>Solder sucker:</strong> removes molten solder to fix mistakes/clear holes.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4>Short answer style tip</h4>
+              <ul>
+                <li>Answer in <strong>bullet points</strong>.</li>
+                <li>Give the <strong>minimum</strong> needed for marks (2 clear points = 2 marks).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <hr class="soft">
+
+    <!-- Video revision -->
+    <div class="block" aria-label="Electricity 2 videos">
+      <details>
+        <summary>▶ Video revision (watch only what you need)</summary>
+        <div class="inner">
+          <p style="margin:0 0 0.8rem;">Watch what you need, then go straight to practice questions.</p>
+
+          <div class="video-grid" aria-label="Embedded revision videos">
+
+            <div class="video-card">
+              <h4>Voltage Divider Theory</h4>
+              <p>How changing resistor values changes the output voltage.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
+                  title="Voltage Divider Theory"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>LEDs – Basic</h4>
+              <p>Why LEDs need a protective resistor.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
+                  title="LEDs - Basic"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Thermistors and LDRs</h4>
+              <p>How sensors change resistance.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
+                  title="Thermistors and LDRs"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Transistor Switching Circuits</h4>
+              <p>Using a transistor as a switch.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
+                  title="Transistor Switching Circuits"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <h4>Stripboard Schematics</h4>
+              <p>Plan track cuts and links before soldering.</p>
+              <div class="video-embed">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
+                  title="Stripboard Schematics"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <hr class="soft">
+
+    <!-- Assignment area -->
+    <h3 id="assignment" style="margin:0 0 0.7rem;">📌 Practical Electronics Assignment prep (overheating warning system)</h3>
+
+    <!-- H) Evidence checklist -->
+    <div class="card">
+      <h4>✅ Evidence checklist (what your booklet should contain)</h4>
+      <ul>
+        <li><strong>Logbook:</strong> dated entries, updated regularly.</li>
+        <li><strong>Simulation printout:</strong> working circuit + labels + brief annotations.</li>
+        <li><strong>Stripboard schematic:</strong> neat final diagram (track cuts + links clearly shown).</li>
+        <li><strong>Testing tables:</strong> at least <strong>3 pre-power</strong> tests + <strong>3 functionality</strong> tests with results.</li>
+        <li><strong>Evaluation:</strong> what went well + what was difficult + what you improved/fixed.</li>
+      </ul>
+    </div>
+
+    <!-- I) Logbook stems -->
+    <div class="mini" aria-label="Logbook sentence stems">
+      <details>
+        <summary>📝 Logbook sentence stems (makes your entries “mark-friendly”)</summary>
+        <div class="inner">
+          <ul>
+            <li><strong>Today I…</strong> (specific action: built / changed / measured / fixed).</li>
+            <li><strong>It worked / didn’t work because…</strong> (reason + evidence: reading/observation).</li>
+            <li><strong>Next lesson I will…</strong> (clear next step).</li>
+            <li><strong>Help received:</strong> note what was suggested and what you then did yourself.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <!-- J) Annotation checklist -->
+    <div class="mini" aria-label="Simulation annotation checklist">
+      <details>
+        <summary>🧷 Simulation printout: annotation checklist</summary>
+        <div class="inner">
+          <ul>
+            <li>Label: <strong>R1, R2, sensor, LED, transistor/MOSFET, rails (V+ and 0V)</strong>.</li>
+            <li>Label: <strong>Vout (V2)</strong> location (across R2).</li>
+            <li>One sentence: “The warning turns on when … because …”</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <!-- K) Layout diagram quality + colour coding -->
+    <div class="mini" aria-label="Layout and neatness expectations">
+      <details>
+        <summary>🎨 Layout diagram + build quality (easy marks)</summary>
+        <div class="inner">
+          <ul>
+            <li>Use consistent colour coding (example): <strong>Red = V+</strong>, <strong>Black = 0V</strong>, other colours for signal wires.</li>
+            <li>Keep wiring tidy and short; avoid crossings where possible.</li>
+            <li>Clearly mark track cuts and links on the stripboard diagram.</li>
+            <li>Double-check polarised parts (LED, diode, electrolytic capacitor, transistor pins).</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <!-- L) Testing plan template -->
+    <div class="block" aria-label="Testing plan template">
+      <details>
+        <summary>🧪 Testing plan template (fill this into your booklet tables)</summary>
+        <div class="inner">
+          <div class="grid">
+            <div class="card">
+              <h4>Pre-power tests (write at least 3)</h4>
+              <ul>
+                <li>Component values correct (especially resistors).</li>
+                <li>Orientation correct (LED/diode/capacitor/transistor/MOSFET).</li>
+                <li>No short circuits / no solder bridges.</li>
+                <li>Rails correct and continuous (V+ and 0V).</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4>Functionality tests (write at least 3)</h4>
+              <ul>
+                <li>Supply voltage measures correctly at rails.</li>
+                <li>Measure key node voltages (including Vout) and compare to expectation/simulation.</li>
+                <li>Output changes correctly in the target condition (overheating warning).</li>
+                <li>Current not excessive; components do not heat unexpectedly.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout warn" style="margin-top:0.9rem;">
+            <p style="margin:0;">
+              <strong>Testing mark protection:</strong> If something fails, record the fault + what you changed + the new result.
+            </p>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- M) Independence checklist -->
+    <div class="block" aria-label="Independence checklist">
+      <details>
+        <summary>🧠 Before you ask for help (quick independence checklist)</summary>
+        <div class="inner">
+          <ul>
+            <li>Check rails (V+ and 0V) are correct and continuous.</li>
+            <li>Check polarities (LED/diode/capacitor/transistor/MOSFET).</li>
+            <li>Check resistor values (use colour code or meter).</li>
+            <li>Take one measurement (Vs then Vout) and write it down.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <!-- N) Evaluation scaffold -->
+    <div class="block" aria-label="Evaluation scaffold">
+      <details>
+        <summary>🧾 Evaluation scaffold (write better evaluations faster)</summary>
+        <div class="inner">
+          <div class="grid">
+            <div class="card">
+              <h4>Simulation / planning</h4>
+              <ul>
+                <li>What went well:</li>
+                <li>What was difficult:</li>
+                <li>What you changed/improved:</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Construction</h4>
+              <ul>
+                <li>What went well:</li>
+                <li>What was difficult:</li>
+                <li>What you changed/improved:</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Testing / fault finding</h4>
+              <ul>
+                <li>What went well:</li>
+                <li>What was difficult:</li>
+                <li>How you fixed issues (or “no faults”):</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- T) Teacher check gate -->
+    <div class="callout warn">
+      <p style="margin:0;">
+        <strong>Teacher check gate:</strong><br>
+        Get a quick sign-off after (1) final simulation, (2) final stripboard diagram, and (3) your first full set of tests.
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
+<script>
+/* Menu: ESC closes + focus-friendly + focus trap */
+function $(id){ return document.getElementById(id); }
+let lastFocusEl = null;
+
+function getFocusableInMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return [];
+  return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+    .filter(el => !el.hasAttribute('disabled'));
+}
+
+function openMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  lastFocusEl = document.activeElement;
+
+  menu.classList.add("open");
+  overlay.classList.add("show");
+
+  btn.setAttribute("aria-expanded","true");
+  btn.setAttribute("aria-label","Close menu");
+  overlay.setAttribute("aria-hidden","false");
+
+  const focusables = getFocusableInMenu();
+  if(focusables.length) focusables[0].focus();
+}
+
+function closeMenu(){
+  const menu = $("sideMenu");
+  const overlay = $("menuOverlay");
+  const btn = $("menuBtn");
+  if(!menu || !overlay || !btn) return;
+
+  menu.classList.remove("open");
+  overlay.classList.remove("show");
+
+  btn.setAttribute("aria-expanded","false");
+  btn.setAttribute("aria-label","Open menu");
+  overlay.setAttribute("aria-hidden","true");
+
+  if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+    lastFocusEl.focus();
+  } else {
+    btn.focus();
+  }
+  lastFocusEl = null;
+}
+
+function toggleMenu(){
+  const menu = $("sideMenu");
+  if(!menu) return;
+  const isOpen = menu.classList.contains("open");
+  if(isOpen) closeMenu();
+  else openMenu();
+}
+
+/* Focus trap when menu open */
+document.addEventListener("keydown", (e) => {
+  const menu = $("sideMenu");
+  const isOpen = menu && menu.classList.contains("open");
+
+  if(e.key === "Escape" && isOpen){
+    e.preventDefault();
+    closeMenu();
+  }
+
+  if(e.key === "Tab" && isOpen){
+    const focusables = getFocusableInMenu();
+    if(!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = $("menuOverlay");
+  if(overlay) overlay.setAttribute("aria-hidden","true");
+
+  const closeLink = $("closeMenuLink");
+  if(closeLink){
+    closeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+  }
+
+  // Progress tracker init
+  trackerInit();
+});
+
+/* Open/Close all notes */
+function setAllNotes(open){
+  const wrap = $("notesBlock");
+  if(!wrap) return;
+  wrap.querySelectorAll("details").forEach(d => d.open = !!open);
+}
+
+/* ============================
+   PROGRESS TRACKER (localStorage)
+=============================== */
+const TRACK_KEY = "s3_e2_tracker_v1";
+const TRACK_IDS = ["t1","t2","t3","t4","t5","t6","t7","t8","t9","t10"];
+
+function trackerInit(){
+  const saved = safeParse(localStorage.getItem(TRACK_KEY)) || {};
+  TRACK_IDS.forEach(id => {
+    const el = $(id);
+    if(!el) return;
+    el.checked = !!saved[id];
+    el.addEventListener("change", trackerSave);
+  });
+  trackerUpdateUI();
+}
+
+function trackerSave(){
+  const obj = {};
+  TRACK_IDS.forEach(id => {
+    const el = $(id);
+    if(el) obj[id] = !!el.checked;
+  });
+  localStorage.setItem(TRACK_KEY, JSON.stringify(obj));
+  trackerUpdateUI();
+}
+
+function trackerUpdateUI(){
+  const obj = safeParse(localStorage.getItem(TRACK_KEY)) || {};
+  const total = TRACK_IDS.length;
+  let done = 0;
+  TRACK_IDS.forEach(id => { if(obj[id]) done++; });
+
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const txt = $("progText");
+  const fill = $("progFill");
+  if(txt) txt.textContent = `You’ve ticked ${done} / ${total} items (${pct}%)`;
+  if(fill) fill.style.width = pct + "%";
+}
+
+function trackerSetAll(state){
+  const obj = safeParse(localStorage.getItem(TRACK_KEY)) || {};
+  TRACK_IDS.forEach(id => {
+    obj[id] = !!state;
+    const el = $(id);
+    if(el) el.checked = !!state;
+  });
+  localStorage.setItem(TRACK_KEY, JSON.stringify(obj));
+  trackerUpdateUI();
+}
+
+function trackerReset(){
+  localStorage.removeItem(TRACK_KEY);
+  TRACK_IDS.forEach(id => { const el = $(id); if(el) el.checked = false; });
+  trackerUpdateUI();
+}
+
+function safeParse(str){
+  try{ return JSON.parse(str); } catch(e){ return null; }
+}
+</script>
+
+</body>
+</html>
