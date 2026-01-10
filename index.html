@@ -6,436 +6,690 @@ title: Home
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
-<title>Home</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Home</title>
 
-<style>
-:root{
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --radius-card: 1rem;
-  --shadow-card: 0 24px 48px rgba(0,0,0,0.7);
-  --text-main:#fff;
+  <style>
+    /* ============================
+       GLOBAL FIX: prevent clipping/overflow
+    =============================== */
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ max-width:100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width:100%; height:auto; display:block; }
 
-  --bg1:#1e2b88;
-  --bg2:#2b1462;
-  --bg3:#092d4d;
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background:#0aa8b5; color:#052a2f;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    }
+    .skip-link:focus{ left:10px; }
 
-  --focus-ring: 3px solid rgba(255,255,255,0.95);
-  --focus-offset: 4px;
-}
+    /* ============================
+       THEME (Light, S3-style)
+    =============================== */
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-/* ============================
-   GLOBAL FIX: prevent mobile clipping
-=============================== */
-*,*::before,*::after{ box-sizing:border-box; }
-html,body{ max-width:100%; }
-img,iframe{ max-width:100%; height:auto; display:block; }
+      --bg0:#f6fbfc;
+      --bg1:#eef8fb;
+      --bg2:#ffffff;
 
-/* A11Y */
-.visually-hidden{
-  position:absolute!important;
-  width:1px;height:1px;
-  padding:0;margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;border:0;
-}
-.skip-link{
-  position:absolute;
-  left:-999px; top:10px;
-  background:#00e6b3;
-  color:#001b16;
-  padding:.6rem .9rem;
-  border-radius:.75rem;
-  z-index:9999;
-}
-.skip-link:focus{ left:10px; outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+      --text:#0a2a30;
+      --muted:#2f5b63;
 
-/* PAGE BASE */
-body{
-  margin:0;
-  font-family:var(--font-stack);
-  color:var(--text-main);
-  background: radial-gradient(circle at 25% 30%, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 90%);
-  min-height:100vh;
-  overflow-x:hidden;
-  display:flex;
-  flex-direction:column;
-  /* avoid background-attachment:fixed for iPad performance */
-  animation:bgDrift 20s ease-in-out infinite alternate;
-}
-@keyframes bgDrift{
-  0%{background:radial-gradient(circle at 20% 30%, var(--bg1), var(--bg2), var(--bg3));}
-  100%{background:radial-gradient(circle at 70% 70%, #203c9f, #321d7a, #0c2e54);}
-}
+      --accent:#0aa8b5;
+      --accent-2:#128b9a;
 
-/* BANNER */
-.banner-wrap{
-  position:relative;
-  width:100%;
-  overflow:hidden;
-  flex-shrink:0;
-  box-shadow:0 6px 15px rgba(0,0,0,0.6);
-  z-index:1;
+      --card:#ffffff;
 
-  /* NEW: stop it being massive on desktop */
-  height: clamp(220px, 32vh, 420px);
-  background: rgba(0,0,0,0.18); /* looks nicer if object-fit:contain leaves bars */
-}
+      --border: rgba(8,50,58,0.16);
+      --border-soft: rgba(8,50,58,0.12);
 
-.banner{
-  width:100%;
-  height:100%;            /* NEW */
-  object-fit: contain;    /* NEW: keeps whole banner visible */
-  object-position: center;
-  display:block;
-  opacity:0;
-  animation:fadeIn 1.2s ease forwards;
-}
+      --shadow: 0 18px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
 
+      --radius: 18px;
 
-/* Banner tint animation */
-.banner-tint{
-  position:absolute;
-  inset:0;
-  background:linear-gradient(120deg, rgba(0,119,255,0.35), rgba(139,0,255,0.25), rgba(0,200,255,0.25));
-  mix-blend-mode:multiply;
-  background-size:200% 200%;
-  animation:tintShift 20s ease-in-out infinite alternate;
-  pointer-events:none;
-}
-@keyframes tintShift{
-  0%{background-position:0% 50%;}
-  100%{background-position:100% 50%;}
-}
+      --focus-ring: 3px solid rgba(10,168,181,0.75);
+      --focus-offset: 4px;
+    }
 
-/* Overlay text */
-.banner-overlay-text{
-  position:absolute;
-  bottom:0; left:0;
-  width:100%;
-  background:rgba(0,0,0,0.45);
-  backdrop-filter:blur(8px);
-  text-align:center;
-  padding:1rem .75rem;
-  font-weight:600;
-  font-size:1.2rem;
-  border-top:1px solid rgba(255,255,255,0.2);
-  text-shadow:0 2px 6px rgba(0,0,0,0.6);
-}
-.banner-overlay-text h1{margin:0;}
-@media(max-width:900px){
-  .banner-overlay-text{font-size:1rem;}
-  .banner-overlay-text h1{font-size:0.95rem; line-height:1.3;}
-}
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(10,168,181,0.14), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(18,139,154,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
 
-/* Separator */
-.banner-separator{
-  width:100%;
-  height:60px;
-  background:linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0));
-  margin-top:-3px;
-}
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
 
-/* MENU BUTTON (safe-area) */
-.menu-btn{
-  position:fixed;
-  top:calc(15px + env(safe-area-inset-top));
-  right:calc(20px + env(safe-area-inset-right));
-  font-size:1.6rem;
-  background:rgba(0,0,0,0.25);
-  backdrop-filter:blur(10px) saturate(160%);
-  border:1px solid rgba(255,255,255,0.18);
-  color:#fff;
-  cursor:pointer;
-  z-index:200;
-  transition:transform .2s ease;
-  text-shadow:0 4px 10px rgba(0,0,0,0.8);
-  border-radius:1rem;
-  padding:.45rem .75rem;
-}
-.menu-btn:hover{transform:scale(1.06);}
-.menu-btn:focus-visible{ outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
 
-/* DRAWER MENU */
-.menu-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.5);
-  display:none;
-  z-index:99;
-}
-.menu-overlay.show{ display:block; }
+    /* ============================
+       MENU BUTTON & SIDE MENU (LIGHT)
+    =============================== */
+    .menu-btn{
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      font-size: 1.7rem;
+      background: rgba(255,255,255,0.82);
+      border: 2px solid rgba(10,168,181,0.30);
+      border-radius: 12px;
+      padding: 0.25rem 0.55rem;
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      cursor: pointer;
+      color: #0a2a30;
+      z-index: 400;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.06); }
 
-.side-menu{
-  position:fixed;
-  top:0; right:-290px;
-  height:100%;
-  width:290px;
-  background:rgba(15,23,42,0.92);
-  backdrop-filter:blur(12px) saturate(160%);
-  box-shadow:-4px 0 25px rgba(0,0,0,0.6);
-  transition:right .3s ease;
-  z-index:150;
-  display:flex;
-  flex-direction:column;
-  padding-top:calc(1rem + env(safe-area-inset-top));
-}
-.side-menu.open{ right:0; }
+    .menu-overlay{
+      position: fixed; inset: 0;
+      background: rgba(5,20,24,0.22);
+      display:none;
+      z-index:340;
+    }
+    .menu-overlay.show{ display:block; }
 
-.menu-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:.75rem 1rem;
-  border-bottom:1px solid rgba(255,255,255,0.12);
-}
-.menu-title{
-  font-weight:700;
-  letter-spacing:.2px;
-}
-.menu-close{
-  font-size:1.4rem;
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.18);
-  color:#fff;
-  border-radius:.9rem;
-  padding:.25rem .6rem;
-  cursor:pointer;
-}
-.menu-close:focus-visible{ outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+    .side-menu{
+      position: fixed; top: 0; right: -300px;
+      width: 300px; height: 100%;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
+      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.25s ease;
+      z-index:350;
+      border-left: 1px solid rgba(8,50,58,0.14);
+    }
+    .side-menu.open{ right: 0; }
 
-.side-menu a{
-  color:#fff;
-  text-decoration:none;
-  font-size:1.1rem;
-  padding:0.9rem 1.5rem;
-  display:flex;
-  align-items:center;
-  gap:0.8rem;
-  transition:background .2s ease;
-}
-.side-menu a:hover{ background:rgba(255,255,255,0.12); }
-.side-menu a:focus-visible{ outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+    .side-menu a{
+      padding: 1rem 1.2rem;
+      font-size: 1.12rem;
+      text-decoration:none;
+      color: #0a2a30;
+      border-bottom: 1px solid rgba(8,50,58,0.08);
+      display:flex;
+      gap:0.7rem;
+      min-height: 46px;
+      align-items:center;
+      font-weight: 900;
+    }
+    .side-menu a:hover,
+    .side-menu a:focus-visible{ background: rgba(10,168,181,0.10); }
 
-/* MAIN CONTENT */
-.page-wrap{
-  flex:1;
-  width:100%;
-  max-width:1200px;
-  margin:2rem auto;
-  padding:0 1rem 4rem;
-  position:relative;
-  z-index:1;
-}
+    /* ============================
+       BANNER (keep your image)
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      border-bottom: 1px solid rgba(8,50,58,0.10);
+      background: #fff;
+      height: clamp(220px, 32vh, 420px);
+    }
+    .banner{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      object-position: center;
+      display:block;
+    }
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg,
+        rgba(10,168,181,0.10),
+        rgba(255,255,255,0.08)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+    .banner-overlay-text{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-align:center;
+      padding: 0.9rem 1rem;
+      border-top: 1px solid rgba(8,50,58,0.12);
+    }
+    .banner-overlay-text h1{
+      margin:0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #0a2a30;
+    }
+    .banner-overlay-text p{
+      margin: 0.25rem 0 0;
+      font-size: 0.95rem;
+      color: rgba(10,42,48,0.76);
+      font-weight: 800;
+    }
 
-/* TILE GRID */
-.tile-grid{
-  display:grid;
-  gap:1.2rem;
-  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
-  justify-items:center;
-  align-items:stretch;
-  margin-top:1rem;
-  padding:0 .5rem;
-}
-@media (max-width:700px){
-  .tile-grid{ gap:.9rem; }
-}
+    /* ============================
+       STICKY JUMP BAR (S3-style)
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(246,251,252,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border-bottom: 1px solid rgba(8,50,58,0.12);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(8,50,58,0.18);
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+    }
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
 
-/* TILE BASE */
-.class-tile{
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  border-radius:var(--radius-card);
-  width:100%;
-  min-height:140px;
-  box-shadow:var(--shadow-card);
-  border:2px solid rgba(0,0,0,0.4);
-  outline:2px solid rgba(255,255,255,0.07);
-  outline-offset:-4px;
-  overflow:hidden;
-  background-size:cover;
-  background-position:center;
-  text-decoration:none;
-  color:#fff;
-  transition:transform .18s ease, box-shadow .18s ease, filter .2s ease;
-}
-.class-tile:hover{ transform:translateY(-4px) scale(1.03); box-shadow:0 30px 60px rgba(0,0,0,0.9); filter:brightness(1.08); }
-.class-tile:focus-visible{ outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+    .subnav-link{
+      text-decoration:none;
+      font-weight:900;
+      color:#0a2a30;
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+    .subnav-link:focus-visible{
+      outline: 3px solid rgba(10,168,181,0.28);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
 
-/* LABEL */
-.tile-label{
-  width:100%;
-  background:rgba(0,0,0,0.45);
-  backdrop-filter:blur(6px);
-  text-align:center;
-  font-weight:600;
-  font-size:1rem;
-  padding:.5rem .4rem;
-  border-top:1px solid rgba(255,255,255,0.2);
-  text-shadow:0 2px 5px rgba(0,0,0,0.6);
-  border-radius:0 0 var(--radius-card) var(--radius-card);
-}
-.class-tile:hover .tile-label{ background:rgba(0,0,0,0.6); }
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(10,168,181,0.30);
+      background: rgba(10,168,181,0.12);
+      color:#08353b;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+    .subnav-cta:hover{ background: rgba(10,168,181,0.18); }
+    .subnav-cta:active{ transform: translateY(1px); }
 
-/* TILE IMAGES */
-.tile-science{ background-image:url("/assets/sciencebanner.png"); }
-.tile-physics{ background-image:url("/assets/physicsbanner.png"); }
-.tile-electronics{ background-image:url("/assets/Electronicsbanner.png"); }
-.tile-engineering{ background-image:url("/assets/Engeneringbanner.png"); } /* check spelling */
+    /* sticky offset for anchors */
+    #overview, #sections, #links { scroll-margin-top: 180px; }
 
-/* FOOTER */
-footer{
-  text-align:center;
-  color:#fff;
-  padding:1rem .5rem;
-  font-size:.9rem;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter:blur(8px);
-  border-top:1px solid rgba(255,255,255,0.2);
-  margin-top:auto;
-  width:100%;
-  box-shadow:0 -3px 10px rgba(0,0,0,0.4);
-}
+    /* ============================
+       MAIN LAYOUT
+    =============================== */
+    main.page-wrap{
+      max-width: 1100px;
+      margin: 1rem auto 2rem;
+      padding: 0 12px 4rem;
+      width:100%;
+      flex: 1;
+    }
 
-/* Reduce motion */
-@media (prefers-reduced-motion: reduce){
-  *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
-}
-</style>
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 1.15rem;
+      margin: 0.9rem 0;
+    }
+    .panel.soft{
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    h2{
+      margin: 0 0 0.55rem;
+      font-size: 1.18rem;
+      letter-spacing: 0.2px;
+    }
+    p{ margin: 0.45rem 0 0; line-height: 1.6; }
+    .muted{ color: rgba(47,91,99,0.92); }
+
+    /* ============================
+       DETAILS (collapsibles)
+    =============================== */
+    details.block{
+      border-radius: 16px;
+      border: 1px solid rgba(8,50,58,0.14);
+      background: rgba(255,255,255,0.88);
+      overflow:hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      margin-top: 12px;
+    }
+    details.block > summary{
+      cursor:pointer;
+      padding: 12px 12px;
+      font-weight: 900;
+      list-style: none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(10,168,181,0.10), rgba(255,255,255,0.78));
+      border-bottom: 1px solid rgba(8,50,58,0.10);
+    }
+    details.block > summary::-webkit-details-marker{ display:none; }
+    .details-inner{ padding: 12px 12px 14px; }
+
+    .tag{
+      display:inline-block;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(8,50,58,0.14);
+      background: rgba(255,255,255,0.82);
+      color: rgba(10,42,48,0.86);
+      white-space:nowrap;
+      font-weight: 900;
+    }
+
+    /* ============================
+       CARD TILES (S3-style) + KEEP YOUR BANNER IMAGES
+    =============================== */
+    .tile-grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 0.75rem;
+      align-items: stretch;
+    }
+
+    a.card{
+      display:flex;
+      flex-direction:column;
+      border-radius: 18px;
+      border: 1px solid rgba(8,50,58,0.14);
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow-soft);
+      text-decoration:none;
+      color: #0a2a30;
+      overflow:hidden;
+      min-height: 160px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    a.card:hover,
+    a.card:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(10,168,181,0.14);
+      border-color: rgba(10,168,181,0.28);
+    }
+    a.card:active{ transform: translateY(1px); }
+
+    .card-media{
+      width:100%;
+      height: 92px;
+      object-fit: cover;
+      display:block;
+      background:#fff;
+    }
+
+    .card-media.linkhead{
+      height: 92px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 2rem;
+      font-weight: 900;
+      background:
+        radial-gradient(420px 180px at 20% 0%, rgba(10,168,181,0.22), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.88));
+      border-bottom: 1px solid rgba(8,50,58,0.10);
+    }
+
+    .card-body{
+      padding: 12px 14px 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      flex: 1;
+      justify-content:space-between;
+    }
+
+    .card-title{
+      margin:0;
+      font-size: 1.03rem;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .card-desc{
+      margin:0;
+      color: rgba(47,91,99,0.95);
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.72);
+      border-top: 1px solid rgba(8,50,58,0.10);
+      font-size:0.92rem;
+      color: rgba(47,91,99,0.95);
+      margin-top:auto;
+    }
+  </style>
 </head>
 
 <body>
-<a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
 
-<button
-  class="menu-btn"
-  id="menuBtn"
-  type="button"
-  aria-label="Open menu"
-  aria-controls="sideMenu"
-  aria-expanded="false"
->
-  ☰
-</button>
+  <!-- MENU BUTTON -->
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="sideMenu"
+  >☰</button>
 
-<!-- BANNER -->
-<div class="banner-wrap">
-  <img src="/assets/homelogo.png" alt="Mr Stewart’s Science, Physics, Electronics and Engineering" class="banner">
-  <div class="banner-tint"></div>
-  <div class="banner-overlay-text">
-    <h1>Welcome — explore Physics, Science, Electronics &amp; Engineering</h1>
-  </div>
-</div>
-<div class="banner-separator"></div>
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
 
-<!-- MAIN CONTENT -->
-<main class="page-wrap" id="main">
-  <section class="tile-grid" aria-label="Main sections">
-    <a class="class-tile tile-science" href="/classes/science.html" aria-label="Go to Science page">
-      <div class="tile-label">S1 &amp; S2 Science</div>
-    </a>
-    <a class="class-tile tile-physics" href="/classes/physics.html" aria-label="Go to Physics page">
-      <div class="tile-label">S3+ Physics</div>
-    </a>
-    <a class="class-tile tile-electronics" href="/classes/electronics.html" aria-label="Go to Electronics page">
-      <div class="tile-label">S4+ Electronics</div>
-    </a>
-    <a class="class-tile tile-engineering" href="/classes/engineering.html" aria-label="Go to Engineering page">
-      <div class="tile-label">Engineering</div>
-    </a>
-  </section>
-</main>
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" aria-hidden="true" tabindex="-1">
+    <a href="#" id="closeMenuLink">✖ Close</a>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
 
-<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
-
-<!-- DRAWER MENU -->
-<div class="menu-overlay" id="menuOverlay" hidden></div>
-
-<nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
-  <div class="menu-head">
-    <div class="menu-title">Menu</div>
-    <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <img src="/assets/homelogo.png" alt="Mr Stewart’s Science, Physics, Electronics and Engineering" class="banner" loading="lazy">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Welcome</h1>
+      <p>Pick your area — everything is organised inside.</p>
+    </div>
   </div>
 
-  <a href="/">🏠 Home</a>
-  <a href="/classes/science.html">🧪 Science</a>
-  <a href="/classes/physics.html">⚡ Physics</a>
-  <a href="/classes/electronics.html">💡 Electronics</a>
-  <a href="/classes/engineering.html">🧰 Engineering</a>
-</nav>
+  <!-- STICKY JUMP BAR -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#sections">Sections</a>
+        <a class="subnav-link" href="#links">Quick links</a>
+      </div>
+      <a class="subnav-cta" href="#sections" aria-label="Jump to Sections">🧭 Sections</a>
+    </nav>
+  </div>
 
-<script>
-const menu = document.getElementById('sideMenu');
-const overlay = document.getElementById('menuOverlay');
-const btn = document.getElementById('menuBtn');
-const closeBtn = document.getElementById('menuClose');
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Mr Stewart’s website homepage</h1>
 
-let lastFocus = null;
+    <!-- OVERVIEW -->
+    <section class="panel soft" id="overview" aria-label="Website overview">
+      <h2>Overview</h2>
+      <p class="muted">
+        This site is your one-stop hub for <strong>Science</strong>, <strong>Physics</strong>, <strong>Electronics</strong> and <strong>Engineering</strong> —
+        with clear notes, practice, videos, and the exact resources we use in class.
+      </p>
+      <p class="muted">
+        The aim is simple: make learning feel <strong>doable</strong> and <strong>trackable</strong> — and help you go from “I don’t get it yet”
+        to “I can explain it.”
+      </p>
 
-function getFocusableInMenu(){
-  return menu.querySelectorAll('a[href], button:not([disabled])');
-}
+      <details class="block">
+        <summary><span>✅ What you’ll find here (tap to open)</span><span class="tag">organised</span></summary>
+        <div class="details-inner">
+          <ul style="margin:0.2rem 0 0; padding-left: 1.2rem; line-height:1.85; font-weight:800; color: rgba(10,42,48,0.92);">
+            <li><strong>Class pages</strong> with everything in one place (notes, links, key skills).</li>
+            <li><strong>Revision support</strong> (topic checklists, past-paper practice, quick explanations).</li>
+            <li><strong>Practical skills</strong> (build/test habits, safety, checking your work).</li>
+            <li><strong>Catch-up paths</strong> so you always know what to do next.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
 
-function openMenu(){
-  lastFocus = document.activeElement;
-  menu.classList.add('open');
-  overlay.hidden = false;
-  overlay.classList.add('show');
-  document.body.classList.add('menu-open');
-  btn.setAttribute('aria-expanded','true');
+    <!-- SECTIONS (CARD TILES with banner images) -->
+    <section class="panel" id="sections" aria-label="Main website sections">
+      <h2>Sections</h2>
+      <p class="muted">Pick your area — each one is organised like the S3 pages.</p>
 
-  // focus first link
-  const f = getFocusableInMenu();
-  (f[0] || menu).focus();
-}
+      <div class="tile-grid" aria-label="Main section cards">
 
-function closeMenu(){
-  menu.classList.remove('open');
-  overlay.classList.remove('show');
-  overlay.hidden = true;
-  document.body.classList.remove('menu-open');
-  btn.setAttribute('aria-expanded','false');
+        <a class="card" href="/classes/science.html" aria-label="Go to S1 and S2 Science">
+          <img class="card-media" src="/assets/sciencebanner.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="card-body">
+            <p class="card-title">🧪 S1 &amp; S2 Science</p>
+            <p class="card-desc">Biology • Chemistry • Physics foundations</p>
+          </div>
+        </a>
 
-  if(lastFocus && lastFocus.focus) lastFocus.focus();
-}
+        <a class="card" href="/classes/physics.html" aria-label="Go to S3+ Physics">
+          <img class="card-media" src="/assets/physicsbanner.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="card-body">
+            <p class="card-title">⚡ S3+ Physics</p>
+            <p class="card-desc">Units • practice • skills • revision</p>
+          </div>
+        </a>
 
-function toggleMenu(){
-  menu.classList.contains('open') ? closeMenu() : openMenu();
-}
+        <a class="card" href="/classes/electronics.html" aria-label="Go to S4+ Electronics">
+          <img class="card-media" src="/assets/Electronicsbanner.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="card-body">
+            <p class="card-title">💡 S4+ Electronics</p>
+            <p class="card-desc">Build • test • troubleshoot • document</p>
+          </div>
+        </a>
 
-btn.addEventListener('click', toggleMenu);
-closeBtn.addEventListener('click', closeMenu);
-overlay.addEventListener('click', closeMenu);
+        <a class="card" href="/classes/engineering.html" aria-label="Go to Engineering">
+          <img class="card-media" src="/assets/Engeneringbanner.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="card-body">
+            <p class="card-title">🧰 Engineering</p>
+            <p class="card-desc">Design • make • evaluate • improve</p>
+          </div>
+        </a>
 
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape' && menu.classList.contains('open')){
-    e.preventDefault();
-    closeMenu();
-    return;
-  }
+      </div>
+    </section>
 
-  // focus trap when open
-  if(e.key === 'Tab' && menu.classList.contains('open')){
-    const focusables = Array.from(getFocusableInMenu());
-    if(!focusables.length) return;
+    <!-- QUICK LINKS -->
+    <section class="panel" id="links" aria-label="Quick links">
+      <h2>Quick links</h2>
+      <p class="muted">Useful stuff in one tap (opens in a new tab).</p>
+      <p class="muted" style="margin-top:0.35rem;">
+        Also: yes, <strong>Mrs Physics was my Physics teacher</strong> at school… so if the explanation is *too* good, it’s definitely her influence 😄
+      </p>
 
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
+      <div class="tile-grid" aria-label="Quick link cards">
 
-    if(e.shiftKey && document.activeElement === first){
-      e.preventDefault();
-      last.focus();
-    } else if(!e.shiftKey && document.activeElement === last){
-      e.preventDefault();
-      first.focus();
+        <a class="card" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=3Xhkb1"
+           target="_blank" rel="noopener noreferrer" aria-label="Mr Stewart’s Materials (opens in a new tab)">
+          <div class="card-media linkhead" aria-hidden="true">📁</div>
+          <div class="card-body">
+            <p class="card-title">Mr Stewart’s Materials</p>
+            <p class="card-desc">Worksheets, booklets, and class resources.</p>
+          </div>
+        </a>
+
+        <a class="card" href="https://www.youtube.com/@mrstewartphysics/playlists"
+           target="_blank" rel="noopener noreferrer" aria-label="The other Mr Stewart’s YouTube (opens in a new tab)">
+          <div class="card-media linkhead" aria-hidden="true">▶️</div>
+          <div class="card-body">
+            <p class="card-title">The other Mr Stewart’s YouTube</p>
+            <p class="card-desc">Catch-up videos and walkthrough playlists.</p>
+          </div>
+        </a>
+
+        <a class="card" href="https://mrsphysics.co.uk/index.php/n5/"
+           target="_blank" rel="noopener noreferrer" aria-label="The FANTASTIC Mrs Physics (opens in a new tab)">
+          <div class="card-media linkhead" aria-hidden="true">👩‍🔬</div>
+          <div class="card-body">
+            <p class="card-title">The FANTASTIC Mrs Physics</p>
+            <p class="card-desc">Extra explanations and practice (legend status confirmed).</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+    /* ============================
+       MENU: overlay click + close link + ESC close + focus trap
+    =============================== */
+    function $(id){ return document.getElementById(id); }
+    let lastFocusEl = null;
+
+    function getFocusableInMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return [];
+      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
     }
-  }
-});
-</script>
+
+    function openMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
+
+      lastFocusEl = document.activeElement;
+
+      menu.classList.add("open");
+      overlay.classList.add("show");
+
+      btn.setAttribute("aria-expanded","true");
+      menu.setAttribute("aria-hidden","false");
+      overlay.setAttribute("aria-hidden","false");
+
+      const focusables = getFocusableInMenu();
+      if(focusables.length) focusables[0].focus();
+      else menu.focus();
+    }
+
+    function closeMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
+
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
+
+      btn.setAttribute("aria-expanded","false");
+      menu.setAttribute("aria-hidden","true");
+      overlay.setAttribute("aria-hidden","true");
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
+    }
+
+    function toggleMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return;
+      menu.classList.contains("open") ? closeMenu() : openMenu();
+    }
+
+    $("menuBtn").addEventListener("click", toggleMenu);
+    $("menuOverlay").addEventListener("click", closeMenu);
+
+    $("closeMenuLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const menu = $("sideMenu");
+      const isOpen = menu && menu.classList.contains("open");
+
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
+      }
+
+      if(e.key === "Tab" && isOpen){
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
