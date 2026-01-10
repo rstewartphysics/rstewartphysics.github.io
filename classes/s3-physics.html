@@ -8,60 +8,17 @@ title: S3 Physics
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="color-scheme" content="light" />
   <title>S3 Physics</title>
 
   <style>
     /* ============================
-       GLOBAL FIX: prevent mobile clipping + iOS quirks (site standard)
+       GLOBAL FIX: prevent clipping/overflow
     =============================== */
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { max-width: 100%; width: 100%; overflow-x: hidden; }
-    img, iframe, video { max-width: 100%; height: auto; display: block; }
-    :root { -webkit-tap-highlight-color: transparent; }
-
-    /* ============================
-       VARIABLES (S3 teal-blue)
-    =============================== */
-    :root{
-      --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-      --text-main: #ffffff;
-
-      --bg1:#0c2f3c;
-      --bg2:#104b5c;
-      --bg3:#082229;
-
-      --card-bg: rgba(0,0,0,0.40);
-      --card-border: rgba(255,255,255,0.18);
-      --tile-bg: rgba(255,255,255,0.08);
-      --tile-hover: rgba(255,255,255,0.16);
-
-      --accent: #00e6b3;
-      --shadow: 0 18px 42px rgba(0,0,0,0.60);
-      --radius: 1rem;
-
-      --focus-ring: 3px solid rgba(255,255,255,0.95);
-      --focus-offset: 4px;
-    }
-
-    body{
-      margin: 0;
-      font-family: var(--font-stack);
-      color: var(--text-main);
-      line-height: 1.55;
-      min-height: 100vh;
-      display:flex;
-      flex-direction:column;
-      background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
-      background-attachment: fixed;
-    }
-    body.menu-open{ overflow:hidden; }
-
-    a{ color: inherit; }
-    a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible{
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
-    }
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ max-width:100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width:100%; height:auto; display:block; }
 
     /* ============================
        A11Y HELPERS
@@ -75,492 +32,514 @@ title: S3 Physics
       white-space:nowrap;border:0;
     }
     .skip-link{
-      position:absolute; left:-9999px; top:0;
-      background:#000; color:#fff;
-      padding:0.8rem 1rem;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.25);
-      z-index: 9999;
+      position:absolute; left:-999px; top:10px;
+      background:#0aa8b5; color:#052a2f;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
     }
-    .skip-link:focus{
-      left: calc(env(safe-area-inset-left) + 12px);
-      top: calc(env(safe-area-inset-top) + 12px);
+    .skip-link:focus{ left:10px; }
+
+    /* ============================
+       THEME (Body Systems light style, Physics colours)
+    =============================== */
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+
+      --bg0:#f6fbfc;
+      --bg1:#eef8fb;
+      --bg2:#ffffff;
+
+      --text:#0a2a30;
+      --muted:#2f5b63;
+
+      --accent:#0aa8b5;
+      --accent-2:#128b9a;
+
+      --card:#ffffff;
+
+      --border: rgba(8,50,58,0.16);
+      --border-strong: rgba(10,168,181,0.38);
+
+      --shadow: 0 18px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
+
+      --radius: 18px;
+
+      --focus-ring: 3px solid rgba(10,168,181,0.75);
+      --focus-offset: 4px;
+    }
+
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(10,168,181,0.14), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(18,139,154,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
     }
 
     /* ============================
-       MENU BUTTON (safe-area)
+       MENU BUTTON & SIDE MENU (LIGHT)
     =============================== */
     .menu-btn{
       position: fixed;
-      top: calc(env(safe-area-inset-top) + 12px);
-      right: calc(env(safe-area-inset-right) + 16px);
-      font-size: 1.8rem;
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.35);
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      font-size: 1.7rem;
+      background: rgba(255,255,255,0.82);
+      border: 2px solid rgba(10,168,181,0.30);
       border-radius: 12px;
-      padding: 0.35rem 0.65rem;
-      backdrop-filter: blur(12px) saturate(180%);
+      padding: 0.25rem 0.55rem;
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
       cursor: pointer;
-      color: #fff;
-      z-index: 300;
-      transition: transform 0.2s ease;
+      color: #0a2a30;
+      z-index: 400;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s ease, background 0.18s ease;
     }
-    .menu-btn:hover{ transform: scale(1.06); }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.06); }
 
-    /* ============================
-       DRAWER MENU (blur, overlay click, ESC close, focus trap)
-    =============================== */
     .menu-overlay{
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
+      background: rgba(5,20,24,0.22);
       display:none;
-      z-index: 200;
+      z-index:340;
     }
     .menu-overlay.show{ display:block; }
 
     .side-menu{
-      position: fixed;
-      top:0;
-      right:-320px;
-      width:320px;
-      height:100%;
-      background: rgba(20,20,35,0.86);
-      backdrop-filter: blur(18px) saturate(200%);
-      box-shadow: -10px 0 34px rgba(0,0,0,0.65);
-      border-left: 1px solid rgba(255,255,255,0.10);
-
-      padding-top: calc(env(safe-area-inset-top) + 3.75rem);
-      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
-      padding-left: 0.9rem;
-      padding-right: calc(0.9rem + env(safe-area-inset-right));
-
-      display:flex;
-      flex-direction:column;
-      gap: 0.25rem;
-
-      transition: right 0.28s ease;
-      z-index: 260;
+      position: fixed; top: 0; right: -300px;
+      width: 300px; height: 100%;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
+      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.25s ease;
+      z-index:350;
+      border-left: 1px solid rgba(8,50,58,0.14);
     }
-    .side-menu.open{ right:0; }
-
-    .menu-close{
-      margin: 0 0.4rem 0.6rem;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.22);
-      color:#fff;
-      border-radius: 14px;
-      padding: 0.75rem 0.9rem;
-      font: inherit;
-      cursor:pointer;
-      text-align:left;
-    }
-    .menu-close:hover{ background: rgba(255,255,255,0.18); }
+    .side-menu.open{ right: 0; }
 
     .side-menu a{
-      padding: 0.95rem 0.9rem;
+      padding: 1rem 1.2rem;
       font-size: 1.12rem;
       text-decoration:none;
-      color:#fff;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.06);
+      color: #0a2a30;
+      border-bottom: 1px solid rgba(8,50,58,0.08);
       display:flex;
-      align-items:center;
       gap:0.7rem;
+      min-height: 46px;
+      align-items:center;
+      font-weight: 900;
     }
     .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
+    .side-menu a:focus-visible{ background: rgba(10,168,181,0.10); }
 
     /* ============================
-       BANNER (fully visible + not huge on desktop)
+       BANNER
     =============================== */
     .banner-wrap{
       position: relative;
       width: 100%;
-      overflow:hidden;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.65);
-      border-bottom: 1px solid rgba(255,255,255,0.10);
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      border-bottom: 1px solid rgba(8,50,58,0.10);
+      background: #fff;
     }
     .banner{
-      width: 100%;
-      height: auto;
-      max-height: min(360px, 40vh);
-      object-fit: contain;
-      background: rgba(0,0,0,0.25);
-      opacity: 0;
-      animation: fadeIn 1.0s ease forwards;
+      width:100%;
+      max-height: 330px;
+      object-fit: cover;
+      display:block;
     }
-    @keyframes fadeIn{ to{ opacity: 1; } }
-
+    @media (max-width: 768px){
+      .banner{ max-height: 250px; }
+    }
     .banner-tint{
       position:absolute; inset:0;
       background: linear-gradient(120deg,
-        rgba(0,255,200,0.26),
-        rgba(0,180,255,0.20),
-        rgba(0,255,180,0.16)
+        rgba(10,168,181,0.10),
+        rgba(255,255,255,0.08)
       );
       mix-blend-mode: multiply;
       pointer-events:none;
     }
     .banner-overlay-text{
       position:absolute;
-      left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.45);
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.82);
       backdrop-filter: blur(10px);
-      padding: 0.95rem 0.75rem;
-      border-top: 1px solid rgba(255,255,255,0.18);
+      -webkit-backdrop-filter: blur(10px);
+      text-align:center;
+      padding: 0.9rem 1rem;
+      border-top: 1px solid rgba(8,50,58,0.12);
     }
     .banner-overlay-text h1{
       margin:0;
-      text-align:center;
-      font-size: 1.12rem;
-      font-weight: 800;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #0a2a30;
     }
     .banner-overlay-text p{
-      margin: 0.35rem 0 0;
-      text-align:center;
+      margin: 0.25rem 0 0;
       font-size: 0.95rem;
-      opacity: 0.92;
+      color: rgba(10,42,48,0.76);
+      font-weight: 800;
     }
 
     /* ============================
-       LAYOUT SHELL
+       STICKY JUMP BAR
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(246,251,252,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border-bottom: 1px solid rgba(8,50,58,0.12);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(8,50,58,0.18);
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+    }
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
+
+    .subnav-link{
+      text-decoration:none;
+      font-weight:900;
+      color:#0a2a30;
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+    .subnav-link:focus-visible{
+      outline: 3px solid rgba(10,168,181,0.28);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(10,168,181,0.30);
+      background: rgba(10,168,181,0.12);
+      color:#08353b;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+    .subnav-cta:hover{ background: rgba(10,168,181,0.18); }
+    .subnav-cta:active{ transform: translateY(1px); }
+
+    /* sticky offset for anchors */
+    #overview, #topics, #progress, #links { scroll-margin-top: 180px; }
+
+    /* ============================
+       MAIN LAYOUT
     =============================== */
     main.page-wrap{
-      flex: 1;
-      width: 100%;
       max-width: 1100px;
-      margin: 1.4rem auto;
-      padding: 0 1rem 4rem;
+      margin: 1rem auto 2rem;
+      padding: 0 12px 4rem;
+      width:100%;
+      flex: 1;
     }
 
-    .section-title{
-      text-align:center;
-      margin: 0.6rem 0 1rem;
-      font-size: 1.05rem;
-      opacity: 0.96;
-    }
-
-    .grid{
-      display:grid;
-      gap: 1rem;
-    }
-
-    .card{
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+    .panel{
+      background: var(--card);
+      border: 1px solid rgba(8,50,58,0.14);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-soft);
       padding: 1.15rem;
+      margin: 0.9rem 0;
+    }
+    .panel.soft{
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
-    /* ============================
-       WIDE BUTTONS (site standard)
-    =============================== */
-    .wide-btns{
-      display:grid;
-      gap: 0.75rem;
-      grid-template-columns: 1fr;
-      margin-top: 0.8rem;
-    }
-    @media (min-width: 800px){
-      .wide-btns.two{ grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .wide-btn{
-      display:flex;
-      gap: 0.85rem;
-      align-items:flex-start;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 1rem;
-      padding: 0.95rem 1rem;
-      text-decoration:none;
-      color:#fff;
-      transition: transform 0.18s ease, background 0.18s ease;
-      cursor:pointer;
-      min-height: 92px;
-    }
-    .wide-btn:hover{
-      background: rgba(255,255,255,0.14);
-      transform: translateY(-2px);
-    }
-    .wide-btn:active{
-      transform: translateY(1px);
-      background: rgba(0,230,179,0.18);
-      border-color: rgba(0,230,179,0.45);
-    }
-    .wide-btn .icon{
-      font-size: 1.55rem;
-      line-height: 1;
-      margin-top: 0.1rem;
-    }
-    .wide-btn .txt strong{
-      display:block;
-      font-size: 1.02rem;
+    h2{
+      margin: 0 0 0.55rem;
+      font-size: 1.18rem;
       letter-spacing: 0.2px;
     }
-    .wide-btn .txt span{
-      display:block;
-      margin-top: 0.2rem;
-      opacity: 0.92;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
+    p{ margin: 0.45rem 0 0; line-height: 1.6; }
+    .muted{ color: rgba(47,91,99,0.92); }
 
     /* ============================
-       MINI DETAILS (Body Systems / Higher style)
-    =============================== */
-    details.mini{
-      margin-top: 0.9rem;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      overflow:hidden;
-    }
-    details.mini > summary{
-      cursor:pointer;
-      padding: 0.85rem 0.95rem;
-      font-weight: 800;
-      list-style:none;
-    }
-    details.mini > summary::-webkit-details-marker{ display:none; }
-    details.mini .mini-body{
-      padding: 0 0.95rem 0.95rem;
-      opacity: 0.95;
-    }
-    details.mini ul{ margin: 0.6rem 0 0.2rem 1.1rem; }
-    details.mini li{ margin: 0.25rem 0; }
-
-    /* ============================
-       TOPIC TILES (accent bar + pills + WIP styling)
+       TILES (Body Systems style)
     =============================== */
     .tile-grid{
       display:grid;
-      gap: 1rem;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 700px){
-      .tile-grid{ grid-template-columns: repeat(2, 1fr); }
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 0.75rem;
+      align-items: stretch;
     }
 
     .tile{
-      position: relative;
-      min-height: 140px;
-      background: var(--tile-bg);
-      border: 2px solid rgba(255,255,255,0.16);
-      border-radius: 1rem;
-      padding: 1.05rem 1.1rem 1rem 1.1rem;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.55);
+      display:block;
+      border-radius: 18px;
+      border: 1px solid rgba(8,50,58,0.14);
+      background:
+        radial-gradient(420px 180px at 20% 0%, rgba(10,168,181,0.16), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.92));
+      box-shadow: var(--shadow-soft);
       text-decoration:none;
-      color:#fff;
-      display:flex;
-      gap: 0.9rem;
-      align-items:flex-start;
-      transition: transform 0.18s ease, background 0.18s ease;
-      cursor:pointer;
+      color: #0a2a30;
       overflow:hidden;
+      min-height: 140px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position:relative;
     }
-    .tile::before{
-      content:"";
-      position:absolute;
-      left:0; top:0; bottom:0;
-      width: 8px;
-      background: var(--bar, var(--accent));
-      opacity: 0.95;
+    .tile:hover,
+    .tile:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(10,168,181,0.14);
+      border-color: rgba(10,168,181,0.28);
     }
-    .tile:hover{ background: var(--tile-hover); transform: translateY(-2px); }
-    .tile:active{
-      transform: translateY(1px);
-      background: rgba(0,230,179,0.18);
-      border-color: rgba(0,230,179,0.45);
-    }
+    .tile:active{ transform: translateY(1px); }
 
-    .tile .emoji{
-      font-size: 1.75rem;
-      line-height: 1;
-      margin-top: 0.1rem;
-      flex: 0 0 auto;
-      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));
-    }
-
-    .tile .content{ flex: 1 1 auto; }
-    .tile .title{
-      font-weight: 900;
-      letter-spacing: 0.2px;
-      font-size: 1.05rem;
-      margin: 0;
+    .tile-inner{
+      padding: 14px 14px 12px;
       display:flex;
-      flex-wrap: wrap;
-      align-items:center;
-      gap: 0.55rem;
+      flex-direction:column;
+      gap: 8px;
+      height:100%;
+      justify-content:space-between;
     }
-    .tile .desc{
-      margin: 0.35rem 0 0;
-      opacity: 0.92;
-      font-weight: 650;
-      font-size: 0.96rem;
-      line-height: 1.35;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 0.35rem;
-      padding: 0.18rem 0.55rem;
-      border-radius: 999px;
-      font-size: 0.84rem;
+    .tile-title{
+      margin:0;
+      font-size: 1.02rem;
       font-weight: 900;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.08);
-      opacity: 0.95;
-      white-space: nowrap;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
     }
-    .pill.core{ border-color: rgba(0,230,179,0.50); background: rgba(0,230,179,0.12); }
-    .pill.practical{ border-color: rgba(255,205,0,0.55); background: rgba(255,205,0,0.12); }
-    .pill.revision{ border-color: rgba(160,210,255,0.50); background: rgba(160,210,255,0.12); }
-    .pill.wip{ border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.06); opacity: 0.85; }
+    .tile-desc{
+      margin:0;
+      color: rgba(47,91,99,0.95);
+      font-weight: 750;
+      line-height: 1.45;
+    }
 
-    /* WIP tile styling */
-    .tile.is-wip{
-      opacity: 0.78;
+    .badge{
+      display:inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(8,50,58,0.16);
+      background: rgba(255,255,255,0.86);
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: rgba(10,42,48,0.92);
+      white-space:nowrap;
+    }
+    .badge.core{
+      border: 2px solid rgba(10,168,181,0.38);
+      background: rgba(10,168,181,0.14);
+    }
+    .badge.practical{
+      border: 2px solid rgba(255,176,32,0.40);
+      background: rgba(255,176,32,0.14);
+    }
+    .badge.wip{
+      border: 1px dashed rgba(8,50,58,0.22);
+      background: rgba(255,255,255,0.70);
+      opacity: 0.92;
+    }
+    .tile.wip{
+      opacity: 0.82;
       border-style: dashed;
     }
-    .tile.is-wip:hover{ transform: none; }
-    .tile.is-wip:active{ transform: none; background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.24); }
+    .tile.wip:hover{ transform:none; }
+    .ext{ font-weight: 900; opacity: 0.85; }
 
     /* ============================
-       PROGRESS (motivational, lightweight)
+       DETAILS (collapsibles)
     =============================== */
-    .progress-top{
+    details.block{
+      border-radius: 16px;
+      border: 1px solid rgba(8,50,58,0.14);
+      background: rgba(255,255,255,0.88);
+      overflow:hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      margin-top: 12px;
+    }
+    details.block > summary{
+      cursor:pointer;
+      padding: 12px 12px;
+      font-weight: 900;
+      list-style: none;
       display:flex;
-      gap: 0.75rem;
       align-items:center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      margin-bottom: 0.6rem;
+      justify-content:space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(10,168,181,0.10), rgba(255,255,255,0.78));
+      border-bottom: 1px solid rgba(8,50,58,0.10);
     }
-    .progress-top h2{
-      margin:0;
-      font-size: 1.1rem;
+    details.block > summary::-webkit-details-marker{ display:none; }
+    .details-inner{ padding: 12px 12px 14px; }
+
+    .tag{
+      display:inline-block;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(8,50,58,0.14);
+      background: rgba(255,255,255,0.82);
+      color: rgba(10,42,48,0.86);
+      white-space:nowrap;
+      font-weight: 900;
     }
-    .progress-meta{
-      margin: 0;
-      opacity: 0.92;
-      font-weight: 650;
-    }
+
+    /* ============================
+       PROGRESS (collapsed by default)
+    =============================== */
     .bar{
-      width:100%;
       height: 12px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(8,50,58,0.14);
       overflow:hidden;
-      margin: 0.6rem 0 0.9rem;
+      margin-top: 10px;
+      background: rgba(10,168,181,0.06);
     }
     .bar > div{
-      height:100%;
+      height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, rgba(0,230,179,0.75), rgba(0,180,255,0.65));
+      background: linear-gradient(90deg, var(--accent), rgba(18,139,154,0.70));
     }
 
     .checks{
       display:grid;
-      gap: 0.7rem;
+      gap: 10px;
       grid-template-columns: 1fr;
-      margin-top: 0.4rem;
+      margin-top: 12px;
     }
-    @media (min-width: 800px){
+    @media (min-width: 900px){
       .checks{ grid-template-columns: repeat(2, 1fr); }
     }
     .check{
       display:flex;
+      gap: 12px;
       align-items:flex-start;
-      gap: 0.75rem;
-      padding: 0.75rem 0.85rem;
-      border-radius: 1rem;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(8,50,58,0.10);
+      background: rgba(255,255,255,0.82);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.05);
     }
     .check input{
-      margin-top: 0.05rem;
-      width: 24px; height: 24px; /* iPad friendly */
+      width: 24px; height: 24px;
+      margin-top: 2px;
       accent-color: var(--accent);
       cursor:pointer;
       flex: 0 0 auto;
     }
     .check label{
       cursor:pointer;
-      font-weight: 800;
+      font-weight: 900;
       line-height: 1.25;
     }
     .check label span{
       display:block;
       margin-top: 0.25rem;
-      opacity: 0.92;
-      font-weight: 650;
+      color: rgba(47,91,99,0.95);
+      font-weight: 750;
       font-size: 0.95rem;
     }
 
-    .actions{
-      display:flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      margin-top: 0.9rem;
-    }
-    .btn{
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.18);
-      color:#fff;
+    .small-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 10px 12px;
       border-radius: 14px;
-      padding: 0.75rem 0.9rem;
-      font: inherit;
+      border: 1px solid rgba(8,50,58,0.16);
+      background: rgba(255,255,255,0.86);
+      color: rgba(10,42,48,0.92);
       font-weight: 900;
       cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+      margin-top: 10px;
+      width: 100%;
     }
-    .btn:hover{ background: rgba(255,255,255,0.16); }
-    .btn.danger{ border-color: rgba(255,120,120,0.45); background: rgba(255,120,120,0.10); }
-    .btn.danger:hover{ background: rgba(255,120,120,0.16); }
+    .small-btn:hover{ background: rgba(10,168,181,0.10); }
+    .small-btn:active{ transform: translateY(1px); }
 
-    /* ============================
-       FOOTER
-    =============================== */
     footer{
       text-align:center;
       padding: 1rem;
-      background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(255,255,255,0.12);
-      color:#fff;
-      font-size: 0.9rem;
-    }
-
-    /* ============================
-       REDUCE MOTION
-    =============================== */
-    @media (prefers-reduced-motion: reduce){
-      *{ animation:none !important; transition:none !important; }
-      html{ scroll-behavior:auto; }
-      body{ background-attachment: scroll; }
+      background: rgba(255,255,255,0.72);
+      border-top: 1px solid rgba(8,50,58,0.10);
+      font-size:0.92rem;
+      color: rgba(47,91,99,0.95);
+      margin-top:auto;
     }
   </style>
 </head>
 
 <body>
-  <a class="skip-link" href="#main">Skip to main content</a>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
 
   <!-- MENU BUTTON -->
-  <button class="menu-btn" id="menuBtn"
-    aria-label="Open menu" aria-controls="sideMenu" aria-expanded="false">☰</button>
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="sideMenu"
+  >☰</button>
 
-  <!-- OVERLAY -->
-  <div class="menu-overlay" id="menuOverlay"></div>
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
 
-  <!-- SIDE MENU -->
-  <nav class="side-menu" id="sideMenu" aria-label="Site menu" aria-hidden="true" tabindex="-1">
-    <button class="menu-close" type="button" id="menuClose" aria-label="Close menu">✕ Close</button>
-
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" aria-hidden="true" tabindex="-1">
+    <a href="#" id="closeMenuLink">✖ Close</a>
     <a href="/">🏠 Home</a>
     <a href="/classes/science.html">🧪 Science</a>
     <a href="/classes/physics.html">⚡ Physics</a>
@@ -569,351 +548,289 @@ title: S3 Physics
   </nav>
 
   <!-- BANNER -->
-  <header class="banner-wrap" aria-label="S3 Physics banner">
-    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
-    <div class="banner-tint" aria-hidden="true"></div>
+  <div class="banner-wrap">
+    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="lazy">
+    <div class="banner-tint"></div>
     <div class="banner-overlay-text">
       <h1>S3 Physics</h1>
-      <p>Tap your unit — notes, tasks, and quick links inside.</p>
+      <p>Tap a unit — everything you need is inside.</p>
     </div>
-  </header>
+  </div>
 
-  <!-- MAIN CONTENT -->
-  <main class="page-wrap" id="main">
+  <!-- STICKY JUMP BAR -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#topics">Topics</a>
+        <a class="subnav-link" href="#progress">Progress</a>
+        <a class="subnav-link" href="#links">Quick links</a>
+      </div>
 
-    <h2 class="section-title">📘 Choose your topic</h2>
+      <a class="subnav-cta" href="/classes/s3-physics/electricity-2.html">
+        ⭐ Go to Electricity 2
+      </a>
+    </nav>
+  </div>
 
-    <div class="grid">
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">S3 Physics landing page</h1>
 
-      <!-- START HERE (student guidance) -->
-      <section class="card" aria-label="Start here guidance">
-        <h2 style="margin:0; font-size:1.1rem;">🚀 Start here</h2>
+    <!-- OVERVIEW (replaces Start Here) -->
+    <section class="panel soft" id="overview" aria-label="Overview of S3 Physics">
+      <h2>Overview</h2>
+      <p class="muted">
+        In S3 Physics we explore three big ideas that shape the modern world:
+        <strong>Space</strong>, <strong>Electricity</strong> (including <strong>practical electronics</strong>), and <strong>Nuclear Radiation</strong>.
+      </p>
+      <p class="muted">
+        You’ll see how the same rules can explain everything from a satellite staying in orbit,
+        to an LED lighting safely in a circuit, to invisible radiation that can both <strong>save lives</strong> and require careful protection.
+      </p>
+      <p class="muted">
+        Physics is the story of turning “How is that possible?” into “Oh… that’s how it works.”
+        By the end of S3, you’ll be reading the hidden language of the universe — with diagrams, measurements, and real circuits you can build and test.
+      </p>
 
-        <div class="wide-btns two" style="margin-top:0.85rem;">
-          <a class="wide-btn" href="/classes/s3-physics/electricity1.html" aria-label="Start with Electricity 1">
-            <div class="icon">⚡</div>
-            <div class="txt">
-              <strong>New to S3 Physics?</strong>
-              <span>Start with <b>Electricity 1</b> (the core basics: V, I, R).</span>
-            </div>
-          </a>
-
-          <a class="wide-btn" href="/classes/s3-physics/electricity-2.html" aria-label="Go to Electricity 2 Electronics">
-            <div class="icon">💡</div>
-            <div class="txt">
-              <strong>Doing electronics in class?</strong>
-              <span>Go to <b>Electricity 2</b> (components + practical skills).</span>
-            </div>
-          </a>
-
-          <a class="wide-btn" href="https://rstewartphysics.github.io/classes/n5-physics/N5%20Physics%20Past%20Papers%20(September%202025%20Update).pdf"
-             target="_blank" rel="noopener noreferrer" aria-label="Open Past Paper Finder PDF in a new tab">
-            <div class="icon">📘</div>
-            <div class="txt">
-              <strong>Need revision questions?</strong>
-              <span>Open the <b>Past Paper Finder</b> PDF (new tab).</span>
-            </div>
-          </a>
-
-          <a class="wide-btn" href="https://www.youtube.com/@mrstewartphysics/playlists"
-             target="_blank" rel="noopener noreferrer" aria-label="Open YouTube playlists in a new tab">
-            <div class="icon">▶️</div>
-            <div class="txt">
-              <strong>Missed a lesson?</strong>
-              <span>Use the <b>playlist videos</b> to catch up quickly (new tab).</span>
-            </div>
-          </a>
+      <details class="block" style="margin-top:12px;">
+        <summary><span>✅ What you’ll learn this year (tap to open)</span><span class="tag">3 big units</span></summary>
+        <div class="details-inner">
+          <ul style="margin:0.2rem 0 0; padding-left: 1.2rem; line-height:1.85; font-weight:800; color: rgba(10,42,48,0.92);">
+            <li><strong>Space:</strong> gravity, motion in space, orbits, and how we study the universe.</li>
+            <li><strong>Electricity (+ Practical Electronics):</strong> core circuit rules, components, building/testing, and safe working.</li>
+            <li><strong>Nuclear Radiation:</strong> types of radiation, sources, uses, and safety/measurement ideas.</li>
+          </ul>
         </div>
+      </details>
+    </section>
 
-        <details class="mini">
-          <summary>✅ What should I click tonight? (tap to open)</summary>
-          <div class="mini-body">
-            <ul>
-              <li><b>Homework / basics:</b> Electricity 1.</li>
-              <li><b>Practical + building/testing:</b> Electricity 2.</li>
-              <li><b>Revision questions:</b> Past Paper Finder.</li>
-              <li><b>Missed work:</b> YouTube playlists + ask in class.</li>
-            </ul>
+    <!-- TOPICS -->
+    <section class="panel" id="topics" aria-label="S3 Physics topics">
+      <h2>Topics</h2>
+      <p class="muted">Pick your unit. “Coming soon” tiles are being built.</p>
+
+      <div class="tile-grid" aria-label="Topic tiles">
+
+        <a class="tile wip" href="/classes/workinprogress.html" aria-label="Space (coming soon)">
+          <div class="tile-inner">
+            <p class="tile-title">🌌 Space <span class="badge wip">⏳ Coming soon</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Gravity • Orbits • The Universe</p>
           </div>
-        </details>
-      </section>
+        </a>
 
-      <!-- TOPIC TILES -->
-      <section class="card" aria-label="S3 Physics topics">
-        <h2 style="margin:0; font-size:1.1rem;">🧭 Topics</h2>
-        <p style="margin:0.45rem 0 0; opacity:0.92; font-weight:650;">
-          Pick your unit. The “Coming soon” ones are being built.
-        </p>
-
-        <div class="tile-grid" style="margin-top:1rem;">
-
-          <a class="tile is-wip" href="/classes/workinprogress.html" style="--bar:#b78cff;"
-             aria-label="Space (coming soon)">
-            <div class="emoji">🌌</div>
-            <div class="content">
-              <div class="title">
-                Space
-                <span class="pill wip">⏳ Coming soon</span>
-              </div>
-              <p class="desc">Gravity • Orbits • The Universe</p>
-            </div>
-          </a>
-
-          <a class="tile" href="/classes/s3-physics/electricity1.html" style="--bar:#00e6b3;"
-             aria-label="Electricity 1 Voltage, Current and Resistance">
-            <div class="emoji">⚡</div>
-            <div class="content">
-              <div class="title">
-                Electricity 1
-                <span class="pill core">✅ Core</span>
-              </div>
-              <p class="desc">Voltage • Current • Resistance • Circuit rules</p>
-            </div>
-          </a>
-
-          <a class="tile" href="/classes/s3-physics/electricity-2.html" style="--bar:#ffcd00;"
-             aria-label="Electricity 2 Electronics">
-            <div class="emoji">💡</div>
-            <div class="content">
-              <div class="title">
-                Electricity 2 — Electronics
-                <span class="pill practical">🛠 Practical</span>
-              </div>
-              <p class="desc">Components • Circuits • Testing • Safety</p>
-            </div>
-          </a>
-
-          <a class="tile is-wip" href="/classes/workinprogress.html" style="--bar:#7fd1ff;"
-             aria-label="Electricity 3 Applications (coming soon)">
-            <div class="emoji">🔌</div>
-            <div class="content">
-              <div class="title">
-                Electricity 3 — Applications
-                <span class="pill wip">⏳ Coming soon</span>
-              </div>
-              <p class="desc">Real-world circuits • Sensors • Ideas that connect it all</p>
-            </div>
-          </a>
-
-          <a class="tile is-wip" href="/classes/workinprogress.html" style="--bar:#ff7a7a;"
-             aria-label="Nuclear Radiation (coming soon)">
-            <div class="emoji">☢️</div>
-            <div class="content">
-              <div class="title">
-                Nuclear Radiation
-                <span class="pill wip">⏳ Coming soon</span>
-              </div>
-              <p class="desc">Types • Safety • Uses • Background radiation</p>
-            </div>
-          </a>
-
-          <!-- Added to balance grid + reduce “odd last tile” feeling -->
-          <a class="tile is-wip" href="/classes/workinprogress.html" style="--bar:#5ad1ff;"
-             aria-label="Waves (coming soon)">
-            <div class="emoji">🌊</div>
-            <div class="content">
-              <div class="title">
-                Waves
-                <span class="pill wip">⏳ Coming soon</span>
-              </div>
-              <p class="desc">Speed • Frequency • Reflection/refraction</p>
-            </div>
-          </a>
-
-        </div>
-      </section>
-
-      <!-- PROGRESS (motivation + reduces overwhelm) -->
-      <section class="card" aria-label="My progress">
-        <div class="progress-top">
-          <h2>📈 My progress</h2>
-          <p class="progress-meta" id="progressText">You’ve ticked 0 / 6 (0%)</p>
-        </div>
-
-        <div class="bar" aria-label="Progress bar">
-          <div id="progressBar"></div>
-        </div>
-
-        <p style="margin:0; opacity:0.92; font-weight:650;">
-          Tick what you’ve completed. This saves on your device (iPad friendly).
-        </p>
-
-        <div class="checks" id="checks">
-          <!-- JS injects check items here -->
-        </div>
-
-        <div class="actions">
-          <button class="btn" type="button" id="checkAllBtn">✅ Tick all</button>
-          <button class="btn danger" type="button" id="resetBtn">↩ Reset ticks</button>
-        </div>
-
-        <details class="mini">
-          <summary>❓ Why bother ticking? (tap to open)</summary>
-          <div class="mini-body">
-            <ul>
-              <li>It makes your revision feel <b>finite</b> and manageable.</li>
-              <li>You can quickly see what’s <b>done</b> and what needs revisited.</li>
-              <li>If you’re stuck, show me what’s ticked and I can point you to the next step.</li>
-            </ul>
+        <a class="tile" href="/classes/s3-physics/electricity1.html" aria-label="Electricity 1">
+          <div class="tile-inner">
+            <p class="tile-title">⚡ Electricity 1 <span class="badge core">✅ Core</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Voltage • Current • Resistance • Circuit rules</p>
           </div>
-        </details>
-      </section>
+        </a>
 
-      <!-- QUICK LINKS (big cards) -->
-      <section class="card" aria-label="Quick links">
-        <h2 style="margin:0; font-size:1.1rem;">🔗 Quick links</h2>
-        <p style="margin:0.45rem 0 0; opacity:0.92; font-weight:650;">
-          Useful stuff in one tap (opens in a new tab).
-        </p>
+        <a class="tile" href="/classes/s3-physics/electricity-2.html" aria-label="Electricity 2 Electronics">
+          <div class="tile-inner">
+            <p class="tile-title">
+              💡 Electricity 2 — Electronics
+              <span class="badge core">✅ Core</span>
+              <span class="badge practical">🛠 Practical</span>
+              <span class="ext" aria-hidden="true">↗</span>
+            </p>
+            <p class="tile-desc">Components • Building circuits • Testing • Safety</p>
+          </div>
+        </a>
 
-        <div class="wide-btns two">
-          <a class="wide-btn"
-             href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=3Xhkb1"
-             target="_blank" rel="noopener noreferrer"
-             aria-label="Open Mr Stewart's Materials in a new tab">
-            <div class="icon">📁</div>
-            <div class="txt">
-              <strong>Mr Stewart’s Materials</strong>
-              <span>Worksheets, booklets, and class files.</span>
-            </div>
-          </a>
+        <a class="tile wip" href="/classes/workinprogress.html" aria-label="Nuclear Radiation (coming soon)">
+          <div class="tile-inner">
+            <p class="tile-title">☢️ Nuclear Radiation <span class="badge wip">⏳ Coming soon</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Types • Background radiation • Uses • Protection</p>
+          </div>
+        </a>
 
-          <a class="wide-btn"
-             href="https://mrsphysics.co.uk/index.php/n5/"
-             target="_blank" rel="noopener noreferrer"
-             aria-label="Open Mrs Physics website in a new tab">
-            <div class="icon">👩‍🔬</div>
-            <div class="txt">
-              <strong>Mrs Physics Website</strong>
-              <span>Extra explanations + practice.</span>
-            </div>
-          </a>
+      </div>
+    </section>
 
-          <a class="wide-btn"
-             href="https://www.youtube.com/@mrstewartphysics/playlists"
-             target="_blank" rel="noopener noreferrer"
-             aria-label="Open Mr Stewart's YouTube playlists in a new tab">
-            <div class="icon">🎬</div>
-            <div class="txt">
-              <strong>YouTube Playlists</strong>
-              <span>Catch-up videos and walkthroughs.</span>
-            </div>
-          </a>
+    <!-- PROGRESS (COLLAPSED BY DEFAULT) -->
+    <section class="panel" id="progress" aria-label="Progress tracker">
+      <h2>Progress</h2>
+      <p class="muted">This saves on the device (great for iPads).</p>
 
-          <a class="wide-btn"
-             href="https://rstewartphysics.github.io/classes/n5-physics/N5%20Physics%20Past%20Papers%20(September%202025%20Update).pdf"
-             target="_blank" rel="noopener noreferrer"
-             aria-label="Open Past Paper Finder PDF in a new tab">
-            <div class="icon">🧾</div>
-            <div class="txt">
-              <strong>Past Paper Finder (PDF)</strong>
-              <span>Revision questions organised by topic.</span>
-            </div>
-          </a>
+      <details class="block" id="progressDetails">
+        <summary>
+          <span>📈 My progress tracker (tap to open)</span>
+          <span class="tag" id="progressTag">0%</span>
+        </summary>
+        <div class="details-inner">
+          <div style="font-weight:900; color: rgba(10,42,48,0.92);" id="progressText">You’ve ticked 0 / 4 (0%).</div>
+          <div class="bar" aria-label="Progress bar"><div id="progressBar"></div></div>
+
+          <div class="checks" id="checks" aria-label="Progress checkboxes"></div>
+
+          <button class="small-btn" type="button" id="checkAllBtn">✅ Tick all</button>
+          <button class="small-btn" type="button" id="resetBtn">↩ Reset ticks</button>
+
+          <p class="muted" style="margin-top:10px;">
+            Tip: if you’re stuck, open your unit and look for one thing to fix: a definition, a diagram, or one calculation you can repeat confidently.
+          </p>
         </div>
-      </section>
+      </details>
+    </section>
 
-    </div>
+    <!-- QUICK LINKS -->
+    <section class="panel" id="links" aria-label="Quick links">
+      <h2>Quick links</h2>
+      <p class="muted">Useful stuff in one tap (opens in a new tab).</p>
+
+      <div class="tile-grid" aria-label="Quick link tiles">
+        <a class="tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=3Xhkb1"
+           target="_blank" rel="noopener noreferrer" aria-label="Mr Stewart’s Materials (new tab)">
+          <div class="tile-inner">
+            <p class="tile-title">📁 Mr Stewart’s Materials <span class="badge">worksheets</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Class files, booklets, and resources.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://mrsphysics.co.uk/index.php/n5/" target="_blank" rel="noopener noreferrer" aria-label="Mrs Physics website (new tab)">
+          <div class="tile-inner">
+            <p class="tile-title">👩‍🔬 Mrs Physics Website <span class="badge">extra help</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Extra explanations and practice.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://www.youtube.com/@mrstewartphysics/playlists" target="_blank" rel="noopener noreferrer" aria-label="YouTube playlists (new tab)">
+          <div class="tile-inner">
+            <p class="tile-title">▶️ YouTube Playlists <span class="badge">catch-up</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Quick catch-up and walkthrough videos.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://rstewartphysics.github.io/classes/n5-physics/N5%20Physics%20Past%20Papers%20(September%202025%20Update).pdf"
+           target="_blank" rel="noopener noreferrer" aria-label="Past Paper Finder PDF (new tab)">
+          <div class="tile-inner">
+            <p class="tile-title">📘 Past Paper Finder (PDF) <span class="badge">revision</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Revision questions organised by topic.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
   </main>
 
   <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
   <script>
-    // ============================
-    // Drawer menu: overlay click + ESC close + focus trap + aria updates
-    // ============================
-    const menu = document.getElementById('sideMenu');
-    const overlay = document.getElementById('menuOverlay');
-    const btn = document.getElementById('menuBtn');
-    const closeBtn = document.getElementById('menuClose');
+    /* ============================
+       MENU: overlay click + close link + ESC close + focus trap
+    =============================== */
+    function $(id){ return document.getElementById(id); }
+    let lastFocusEl = null;
 
-    let lastFocus = null;
-
-    function getMenuFocusables(){
-      return Array.from(menu.querySelectorAll('button, a[href]')).filter(el => !el.disabled);
+    function getFocusableInMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return [];
+      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
     }
 
     function openMenu(){
-      lastFocus = document.activeElement;
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
 
-      menu.classList.add('open');
-      overlay.classList.add('show');
-      document.body.classList.add('menu-open');
+      lastFocusEl = document.activeElement;
 
-      btn.setAttribute('aria-expanded','true');
-      menu.setAttribute('aria-hidden','false');
+      menu.classList.add("open");
+      overlay.classList.add("show");
 
-      const focusables = getMenuFocusables();
-      (focusables[0] || menu).focus();
+      btn.setAttribute("aria-expanded","true");
+      menu.setAttribute("aria-hidden","false");
+      overlay.setAttribute("aria-hidden","false");
+
+      const focusables = getFocusableInMenu();
+      if(focusables.length) focusables[0].focus();
+      else menu.focus();
     }
 
     function closeMenu(){
-      menu.classList.remove('open');
-      overlay.classList.remove('show');
-      document.body.classList.remove('menu-open');
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
 
-      btn.setAttribute('aria-expanded','false');
-      menu.setAttribute('aria-hidden','true');
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
 
-      if(lastFocus) lastFocus.focus();
+      btn.setAttribute("aria-expanded","false");
+      menu.setAttribute("aria-hidden","true");
+      overlay.setAttribute("aria-hidden","true");
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
     }
 
     function toggleMenu(){
-      menu.classList.contains('open') ? closeMenu() : openMenu();
+      const menu = $("sideMenu");
+      if(!menu) return;
+      menu.classList.contains("open") ? closeMenu() : openMenu();
     }
 
-    btn.addEventListener('click', toggleMenu);
-    closeBtn.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
+    $("menuBtn").addEventListener("click", toggleMenu);
+    $("menuOverlay").addEventListener("click", closeMenu);
 
-    menu.addEventListener('click', (e) => {
-      const link = e.target.closest('a[href]');
-      if(link) closeMenu();
+    $("closeMenuLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
     });
 
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape') closeMenu();
-    });
+    document.addEventListener("keydown", (e) => {
+      const menu = $("sideMenu");
+      const isOpen = menu && menu.classList.contains("open");
 
-    document.addEventListener('keydown', (e) => {
-      if(!menu.classList.contains('open') || e.key !== 'Tab') return;
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
+      }
 
-      const focusables = getMenuFocusables();
-      if(!focusables.length) return;
+      if(e.key === "Tab" && isOpen){
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
 
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
 
-      if(e.shiftKey && document.activeElement === first){
-        e.preventDefault(); last.focus();
-      }else if(!e.shiftKey && document.activeElement === last){
-        e.preventDefault(); first.focus();
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
       }
     });
 
-    // ============================
-    // Progress (localStorage): unit ticks + progress bar
-    // ============================
+    /* ============================
+       PROGRESS (localStorage) — collapsed by default
+    =============================== */
     const progressItems = [
-      { id: "s3_space", label: "🌌 Space", desc: "Gravity • Orbits • Universe" },
-      { id: "s3_elec1", label: "⚡ Electricity 1", desc: "V, I, R • circuit rules" },
-      { id: "s3_elec2", label: "💡 Electricity 2", desc: "components • practical skills" },
-      { id: "s3_elec3", label: "🔌 Electricity 3", desc: "applications • sensors" },
-      { id: "s3_rad",  label: "☢️ Nuclear Radiation", desc: "types • safety • uses" },
-      { id: "s3_waves", label: "🌊 Waves", desc: "speed • frequency • reflection" }
+      { id: "s3_space",  label: "🌌 Space",                   desc: "Gravity • Orbits • Universe" },
+      { id: "s3_elec1",  label: "⚡ Electricity 1",            desc: "Core basics: V, I, R" },
+      { id: "s3_elec2",  label: "💡 Electricity 2 (Practical)", desc: "Components • build • test" },
+      { id: "s3_rad",    label: "☢️ Nuclear Radiation",         desc: "Types • Uses • Safety" }
     ];
 
     const storageKey = (id) => `mrsp_s3_progress_${id}`;
 
-    const checksWrap = document.getElementById('checks');
-    const progressText = document.getElementById('progressText');
-    const progressBar = document.getElementById('progressBar');
-    const resetBtn = document.getElementById('resetBtn');
-    const checkAllBtn = document.getElementById('checkAllBtn');
+    const checksWrap   = $("checks");
+    const progressText = $("progressText");
+    const progressBar  = $("progressBar");
+    const progressTag  = $("progressTag");
+    const resetBtn     = $("resetBtn");
+    const checkAllBtn  = $("checkAllBtn");
 
     function renderChecks(){
       checksWrap.innerHTML = "";
-
       progressItems.forEach(item => {
         const checked = localStorage.getItem(storageKey(item.id)) === "1";
 
@@ -945,14 +862,14 @@ title: S3 Physics
     function updateProgress(){
       const total = progressItems.length;
       let done = 0;
-
       progressItems.forEach(item => {
         if(localStorage.getItem(storageKey(item.id)) === "1") done++;
       });
 
       const pct = total ? Math.round((done / total) * 100) : 0;
-      progressText.textContent = `You’ve ticked ${done} / ${total} (${pct}%)`;
+      progressText.textContent = `You’ve ticked ${done} / ${total} (${pct}%).`;
       progressBar.style.width = `${pct}%`;
+      progressTag.textContent = `${pct}%`;
     }
 
     resetBtn.addEventListener("click", () => {
@@ -965,6 +882,7 @@ title: S3 Physics
       renderChecks();
     });
 
+    // Start closed by default (no .open)
     renderChecks();
   </script>
 </body>
