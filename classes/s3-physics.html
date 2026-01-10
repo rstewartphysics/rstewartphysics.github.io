@@ -1,6 +1,6 @@
 ---
 layout: none
-title: Electricity 2 – Block 2
+title: S3 Physics
 ---
 
 <!DOCTYPE html>
@@ -9,842 +9,572 @@ title: Electricity 2 – Block 2
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>Electricity 2 – Block 2</title>
+  <title>S3 Physics</title>
 
   <style>
+    /* ============================
+       GLOBAL FIX: prevent mobile clipping + iOS quirks (site standard)
+    =============================== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { max-width: 100%; width: 100%; overflow-x: hidden; }
+    img, iframe, video { max-width: 100%; height: auto; display: block; }
+    :root { -webkit-tap-highlight-color: transparent; }
+
+    /* ============================
+       GLOBAL VARIABLES
+    =============================== */
     :root{
       --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
+      --text-main: #ffffff;
       --radius-card: 1rem;
-      --shadow-card: 0 24px 48px rgba(0,0,0,0.7);
+
+      /* S3 teal-blue colour scheme */
+      --bg1: #0c2f3c;
+      --bg2: #104b5c;
+      --bg3: #082229;
+
+      --tile-bg: rgba(255,255,255,0.08);
+      --tile-hover: rgba(255,255,255,0.16);
+      --tile-border: rgba(255,255,255,0.16);
+
+      --card-bg: rgba(0,0,0,0.40);
+      --card-border: rgba(255,255,255,0.18);
+
+      --accent: #00e6b3;
+      --shadow: 0 18px 42px rgba(0,0,0,0.60);
+
       --focus-ring: 3px solid rgba(255,255,255,0.95);
       --focus-offset: 4px;
-
-      --bg1:#083a63;
-      --bg2:#1a1556;
-      --bg3:#041b2e;
-
-      --card: rgba(0,0,0,0.38);
-      --card2: rgba(0,0,0,0.30);
-      --border: rgba(255,255,255,0.14);
-      --text:#ffffff;
-      --muted: rgba(255,255,255,0.78);
-
-      --btn: rgba(255,255,255,0.10);
-      --btnHover: rgba(255,255,255,0.16);
-      --btnActive: rgba(255,255,255,0.22);
-
-      --red:#ff4d4d;
-      --amber:#ffbf3f;
-      --green:#35d07f;
     }
-
-    /* ============================
-       GLOBAL FIX: prevent mobile clipping
-    =============================== */
-    *, *::before, *::after{ box-sizing:border-box; }
-    html, body{ max-width:100%; }
-    img, iframe{ max-width:100%; height:auto; display:block; }
 
     body{
-      margin:0;
+      margin: 0;
+      background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+      background-attachment: fixed;
       font-family: var(--font-stack);
-      color: var(--text);
-      background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,0.08), transparent 60%),
-        linear-gradient(135deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+      color: var(--text-main);
+      line-height: 1.55;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
-      overflow-x:hidden;
     }
 
-    /* A11Y helpers */
+    body.menu-open{ overflow: hidden; } /* stop background scroll when drawer open */
+
+    a{ color: inherit; }
+    a:focus-visible, button:focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+
+    /* ============================
+       A11Y HELPERS
+    =============================== */
     .visually-hidden{
       position:absolute!important;
-      width:1px;height:1px;
-      padding:0;margin:-1px;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
       overflow:hidden;
       clip:rect(0,0,0,0);
-      white-space:nowrap;border:0;
+      white-space:nowrap; border:0;
     }
     .skip-link{
-      position:absolute; left:-999px; top:0;
-      background:#fff; color:#000;
-      padding:10px 12px; border-radius:10px;
+      position:absolute;
+      left:-9999px;
+      top:0;
+      background:#000;
+      color:#fff;
+      padding:0.8rem 1rem;
       z-index:9999;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
     }
-    .skip-link:focus{ left:12px; top:12px; outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+    .skip-link:focus{
+      left: calc(env(safe-area-inset-left) + 12px);
+      top: calc(env(safe-area-inset-top) + 12px);
+    }
 
     /* ============================
-       TOP CONTROLS (safe area)
+       MENU BUTTON (safe-area)
     =============================== */
-    .top-controls{
+    .menu-btn{
       position: fixed;
-      top: calc(10px + env(safe-area-inset-top));
-      left: calc(10px + env(safe-area-inset-left));
-      right: calc(10px + env(safe-area-inset-right));
-      display:flex;
-      gap:10px;
-      align-items:center;
-      z-index: 50;
-      pointer-events:none;
+      top: calc(env(safe-area-inset-top) + 12px);
+      right: calc(env(safe-area-inset-right) + 16px);
+      font-size: 1.8rem;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.35);
+      border-radius: 12px;
+      padding: 0.35rem 0.65rem;
+      backdrop-filter: blur(12px) saturate(180%);
+      cursor: pointer;
+      color: #fff;
+      z-index: 300;
+      transition: transform 0.2s ease;
     }
-    .icon-btn{
-      pointer-events:auto;
-      appearance:none;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 10px 12px;
-      font-size: 16px;
-      cursor:pointer;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
-    }
-    .icon-btn:hover{ background: rgba(0,0,0,0.45); }
-    .icon-btn:active{ transform: translateY(1px); }
-    .icon-btn:focus{ outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+    .menu-btn:hover{ transform: scale(1.06); }
 
     /* ============================
-       DRAWER + OVERLAY
+       DRAWER MENU (blur, overlay click, ESC close, focus trap)
     =============================== */
-    .overlay{
+    .menu-overlay{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.55);
-      opacity: 0;
-      pointer-events:none;
-      transition: opacity .18s ease;
-      z-index: 60;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      z-index: 200;
     }
-    .overlay.show{ opacity:1; pointer-events:auto; }
+    .menu-overlay.show{ display:block; }
 
-    nav.drawer{
+    .side-menu{
       position: fixed;
-      top:0;
-      left:0;
+      top: 0;
+      right: -320px;
+      width: 320px;
       height: 100%;
-      width: min(340px, 86vw);
-      background: rgba(0,0,0,0.42);
-      border-right: 1px solid rgba(255,255,255,0.18);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      transform: translateX(-105%);
-      transition: transform .20s ease;
-      z-index: 70;
-      padding:
-        calc(14px + env(safe-area-inset-top))
-        14px
-        calc(14px + env(safe-area-inset-bottom))
-        calc(14px + env(safe-area-inset-left));
-      display:flex;
-      flex-direction:column;
-      gap: 12px;
-    }
-    nav.drawer.open{ transform: translateX(0); }
+      background: rgba(20,20,35,0.86);
+      backdrop-filter: blur(18px) saturate(200%);
+      box-shadow: -10px 0 34px rgba(0,0,0,0.65);
+      border-left: 1px solid rgba(255,255,255,0.10);
 
-    .drawer header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 8px 6px;
+      padding-top: calc(env(safe-area-inset-top) + 3.75rem);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+      padding-left: 0.9rem;
+      padding-right: calc(0.9rem + env(safe-area-inset-right));
+
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      transition: right 0.28s ease;
+      z-index: 260;
     }
-    .drawer-title{
-      font-weight: 800;
-      letter-spacing: .2px;
-      font-size: 16px;
-      opacity: .95;
-    }
-    .drawer a{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 12px 12px;
+    .side-menu.open{ right: 0; }
+
+    .menu-close{
+      margin: 0 0.4rem 0.6rem;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff;
       border-radius: 14px;
-      border:1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      text-decoration:none;
-      color: var(--text);
-      font-weight: 700;
+      padding: 0.75rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
     }
-    .drawer a:hover{ background: rgba(255,255,255,0.10); }
-    .drawer a:focus{ outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+    .menu-close:hover{ background: rgba(255,255,255,0.18); }
+
+    .side-menu a{
+      padding: 0.95rem 0.9rem;
+      font-size: 1.12rem;
+      text-decoration: none;
+      color: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .side-menu a:hover,
+    .side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
 
     /* ============================
-       LAYOUT
+       BANNER (fully visible, no “huge desktop”)
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.65);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    .banner{
+      width: 100%;
+      height: auto;
+      max-height: min(360px, 40vh);
+      object-fit: contain; /* keep full banner visible */
+      background: rgba(0,0,0,0.25);
+      opacity: 0;
+      animation: fadeIn 1.0s ease forwards;
+    }
+    @keyframes fadeIn{ to{ opacity: 1; } }
+
+    .banner-tint{
+      position: absolute; inset: 0;
+      background: linear-gradient(120deg,
+        rgba(0,255,200,0.28),
+        rgba(0,180,255,0.22),
+        rgba(0,255,180,0.18)
+      );
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+    .banner-overlay-text{
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(10px);
+      padding: 0.95rem 0.75rem;
+      border-top: 1px solid rgba(255,255,255,0.18);
+    }
+    .banner-overlay-text h1{
+      margin: 0;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    /* ============================
+       PAGE WRAPPER (site shell)
     =============================== */
     main.page-wrap{
-      width: min(1060px, calc(100% - 26px));
-      margin: 0 auto;
-      padding: calc(68px + env(safe-area-inset-top)) 0 28px;
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 1.6rem auto;
+      padding: 0 1rem 4rem;
     }
 
-    .banner{
-      width:100%;
-      border-radius: 18px;
-      overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: var(--shadow-card);
-      background: rgba(0,0,0,0.18);
+    .section-title{
+      text-align: center;
+      margin: 0.4rem 0 1.2rem;
+      font-size: 1.1rem;
+      opacity: 0.95;
     }
-    .banner img{
-      width:100%;
-      height:auto;
-      display:block;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 14px;
-    }
-
-    .card{
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-card);
-      padding: 14px;
-    }
-
-    h1,h2,h3{ margin: 0 0 10px; }
-    h1{ font-size: 22px; }
-    h2{ font-size: 18px; }
-    p{ margin: 0 0 10px; color: var(--muted); line-height: 1.45; }
-
-    .btn{
-      appearance:none;
-      border: 1px solid var(--border);
-      background: var(--btn);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-weight: 800;
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      user-select:none;
-    }
-    .btn:hover{ background: var(--btnHover); }
-    .btn:active{ background: var(--btnActive); transform: translateY(1px); }
-    .btn:focus{ outline: var(--focus-ring); outline-offset: var(--focus-offset); }
-    .btn.wide{ width: 100%; }
-
-    .links{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    @media (min-width: 760px){
-      .links{ grid-template-columns: 1fr 1fr; }
-    }
-
-    details.mini{
-      border: 1px solid rgba(255,255,255,0.12);
-      background: var(--card2);
-      border-radius: 14px;
-      padding: 10px 12px;
-    }
-    details.mini > summary{
-      cursor:pointer;
-      font-weight: 900;
-      list-style:none;
-      outline:none;
-    }
-    details.mini > summary::-webkit-details-marker{ display:none; }
 
     /* ============================
-       SUCCESS CRITERIA (RAG)
+       CARDS
     =============================== */
-    details.acc{
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(0,0,0,0.25);
-      border-radius: 16px;
-      overflow:hidden;
+    .card{
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      padding: 1.2rem;
     }
-    details.acc > summary{
-      cursor:pointer;
-      padding: 12px 12px;
-      font-weight: 900;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      list-style:none;
-    }
-    details.acc > summary::-webkit-details-marker{ display:none; }
-    .acc-body{ padding: 10px 12px 12px; border-top: 1px solid rgba(255,255,255,0.10); }
 
-    .pill{
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
+    /* “mini details” pattern used on newer pages */
+    details.mini{
+      margin-top: 0.9rem;
+      border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.14);
       background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.90);
-      white-space: nowrap;
+      overflow: hidden;
     }
-
-    .rag-row{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      margin-bottom: 10px;
-    }
-    .rag-text{
+    details.mini > summary{
+      cursor: pointer;
+      padding: 0.85rem 0.95rem;
       font-weight: 700;
-      line-height: 1.35;
-      color: rgba(255,255,255,0.92);
+      list-style: none;
     }
-    .rag-choices{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items:center;
+    details.mini > summary::-webkit-details-marker{ display:none; }
+    details.mini .mini-body{
+      padding: 0 0.95rem 0.95rem;
+      opacity: 0.95;
     }
-    .rag-choice{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.25);
-      cursor:pointer;
-      user-select:none;
-      font-weight: 900;
-      min-width: 92px;
-      justify-content:center;
-    }
-    .rag-choice input{ transform: scale(1.25); }
-    .dot{
-      width: 14px; height: 14px; border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.35);
-    }
-    .dot.red{ background: var(--red); }
-    .dot.amber{ background: var(--amber); }
-    .dot.green{ background: var(--green); }
+    details.mini ul{ margin: 0.6rem 0 0.2rem 1.1rem; }
 
-    .sc-tools{
-      display:grid;
+    /* ============================
+       TOPIC TILES (140px tall, wide-button feel)
+    =============================== */
+    .tile-grid{
+      display: grid;
+      gap: 1rem;
       grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 12px;
+      margin-top: 1rem;
     }
-    @media (min-width: 760px){
-      .sc-tools{ grid-template-columns: 1fr 1fr; }
+    @media (min-width: 700px){
+      .tile-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .tile{
+      min-height: 140px;
+      background: var(--tile-bg);
+      border: 2px solid var(--tile-border);
+      border-radius: 1rem;
+      padding: 1.1rem 1.15rem;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.55);
+      text-decoration: none;
+      color: #fff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .tile:hover{
+      background: var(--tile-hover);
+      transform: translateY(-2px);
+    }
+    .tile:active{
+      transform: translateY(1px);
+      background: rgba(0,230,179,0.22);
+      border-color: rgba(0,230,179,0.55);
+    }
+
+    .tile small{
+      display:block;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-top: 0.25rem;
     }
 
     /* ============================
-       LED CALC
+       QUICK LINKS (wide buttons)
     =============================== */
-    .form-grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
+    .quick-links{
+      margin-top: 1.2rem;
     }
-    @media (min-width: 760px){
-      .form-grid{ grid-template-columns: 1fr 1fr; }
+    .quick-links h2{
+      margin: 0 0 0.75rem;
+      font-size: 1.1rem;
     }
-    label.field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
+    .quick-links ul{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.75rem;
+    }
+    .quick-links a{
+      display: block;
+      padding: 0.95rem 1rem;
+      border-radius: 1rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      text-decoration: none;
+      color: #fff;
+      font-weight: 750;
+    }
+    .quick-links a:hover{ background: rgba(255,255,255,0.14); }
+    .quick-links a span{
+      color: var(--accent);
       font-weight: 800;
-      color: rgba(255,255,255,0.92);
     }
-    input[type="number"], input[type="text"]{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.30);
-      color: var(--text);
-      font-size: 16px;
-    }
-    input:focus{ outline: var(--focus-ring); outline-offset: var(--focus-offset); }
 
-    .note{
-      font-size: 14px;
-      color: rgba(255,255,255,0.78);
-      line-height: 1.4;
+    /* ============================
+       FOOTER
+    =============================== */
+    footer{
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 0.9rem;
     }
-    .result{
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.25);
-      margin-top: 10px;
+
+    /* ============================
+       REDUCE MOTION
+    =============================== */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
+      html{ scroll-behavior:auto; }
+      body{ background-attachment: scroll; }
     }
   </style>
 </head>
 
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
-  <div class="top-controls" aria-hidden="false">
-    <button class="icon-btn" id="menuBtn" type="button" aria-haspopup="dialog" aria-controls="drawer" aria-expanded="false">
-      ☰ <span class="visually-hidden">Open menu</span>
-    </button>
-  </div>
+  <!-- MENU BUTTON -->
+  <button class="menu-btn" id="menuBtn"
+    aria-label="Open menu" aria-controls="sideMenu" aria-expanded="false">
+    ☰
+  </button>
 
-  <div class="overlay" id="overlay" tabindex="-1" aria-hidden="true"></div>
+  <!-- OVERLAY -->
+  <div class="menu-overlay" id="menuOverlay"></div>
 
-  <!-- Drawer order: 🏠 Home → 🧪 Science → ⚡ Physics → 💡 Electronics → 🧰 Engineering -->
-  <nav class="drawer" id="drawer" aria-label="Site menu" role="dialog" aria-modal="true" aria-hidden="true">
-    <header>
-      <div class="drawer-title">Menu</div>
-      <button class="icon-btn" id="closeBtn" type="button">
-        ✕ <span class="visually-hidden">Close menu</span>
-      </button>
-    </header>
+  <!-- SIDE MENU -->
+  <nav class="side-menu" id="sideMenu" aria-label="Site menu" aria-hidden="true" tabindex="-1">
+    <button class="menu-close" type="button" id="menuClose" aria-label="Close menu">✕ Close</button>
 
-    <a href="/" aria-label="Home">🏠 Home</a>
-    <a href="/science/" aria-label="Science">🧪 Science</a>
-    <a href="/physics/" aria-label="Physics">⚡ Physics</a>
-    <a href="/electronics/" aria-label="Electronics">💡 Electronics</a>
-    <a href="/engineering/" aria-label="Engineering">🧰 Engineering</a>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
   </nav>
 
+  <!-- BANNER -->
+  <header class="banner-wrap" aria-label="S3 Physics banner">
+    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
+    <div class="banner-tint" aria-hidden="true"></div>
+    <div class="banner-overlay-text">
+      <h1>S3 Physics — Explore the Building Blocks of the Universe</h1>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
   <main class="page-wrap" id="main">
-    <div class="banner" aria-label="Electricity 2 banner">
-      <!-- Update this path to your real banner -->
-      <img src="/assets/banners/electricity2.png" alt="Electricity 2 – Block 2" />
-    </div>
+    <h2 class="section-title">📘 Choose Your Topic</h2>
 
-    <div class="grid">
-
-      <!-- 1) OVERVIEW (brief) -->
-      <section class="card" aria-label="Overview">
-        <h1>Electricity 2 – Block 2</h1>
-        <p>
-          Use this page to practise the key ideas and skills for Block 2 (Physics + Electronics crossover).
-          You’ll find quick links, success criteria you can self-check, and an LED protective-resistor practice tool.
-        </p>
-      </section>
-
-      <!-- 2) KEY LINKS + “WHAT TO ATTEMPT” -->
-      <section class="card" aria-label="Key links">
-        <h2>Key links</h2>
-
-        <details class="mini">
-          <summary>✅ What to attempt (tap to open)</summary>
-          <div class="note" style="margin-top:10px;">
-            <div><strong>Physics:</strong> focus on Voltage, Ohm’s Law, Circuit rules.</div>
-            <div style="margin-top:8px;">
-              <strong>Electronics:</strong> symbols &amp; functions, resistor values, series/parallel, switching circuits,
-              voltage dividers, simulation/testing, safety, errors, layout/diagrams.
-            </div>
-            <div style="margin-top:8px;">
-              <strong>Note:</strong> you may see a few unfamiliar symbols (mix of S3 + N5 Electronics).
-            </div>
+    <section class="card" aria-label="S3 Physics topics">
+      <div class="tile-grid">
+        <a class="tile" href="/classes/workinprogress.html" aria-label="Space">
+          <div>
+            🌌 Space
+            <small>Gravity • Orbits • The Universe</small>
           </div>
-        </details>
+        </a>
 
-        <div class="links" style="margin-top:12px;">
-          <!-- Replace these with your real links -->
-          <a class="btn wide" href="#success">🎯 Success criteria (RAG)</a>
-          <a class="btn wide" href="#led">💡 LED resistor practice</a>
-        </div>
-      </section>
-
-      <!-- 3) SUCCESS CRITERIA (RAG) -->
-      <section class="card" id="success" aria-label="Success criteria">
-        <h2>Success criteria (RAG)</h2>
-        <p>
-          For each statement, choose <strong>Red</strong> (not yet), <strong>Amber</strong> (getting there), or
-          <strong>Green</strong> (confident). Your choices save on this device.
-        </p>
-
-        <div id="scWrap" aria-live="polite"></div>
-
-        <div class="sc-tools">
-          <div class="result" id="scSummary" aria-live="polite">
-            <strong>Progress:</strong> <span id="scProgressText">0 / 0 green</span>
+        <a class="tile" href="/classes/s3-physics/electricity1.html" aria-label="Electricity 1">
+          <div>
+            ⚡ Electricity 1
+            <small>Voltage • Current • Resistance</small>
           </div>
-          <button class="btn wide" id="scReset" type="button">♻️ Reset all RAG selections</button>
-        </div>
-      </section>
+        </a>
 
-      <!-- 4) LED interactive (random + check my answer) -->
-      <section class="card" id="led" aria-label="LED protective resistor practice">
-        <h2>LED protective resistor practice</h2>
-        <p class="note">
-          Work out the protective resistor using: <strong>R = (V<sub>s</sub> − V<sub>f</sub>) / I</strong> (with I in <em>amps</em>).
-          Enter your resistor value in ohms, then press <strong>Check my answer</strong>.
-        </p>
-
-        <div class="form-grid" style="margin-top:10px;">
-          <label class="field">
-            Supply voltage V<sub>s</sub> (V)
-            <input id="vs" type="number" inputmode="decimal" min="0" step="0.1" value="9.0" />
-          </label>
-
-          <label class="field">
-            LED forward voltage V<sub>f</sub> (V)
-            <input id="vf" type="number" inputmode="decimal" min="0" step="0.1" value="2.0" />
-          </label>
-
-          <label class="field">
-            LED current I (mA)
-            <input id="imA" type="number" inputmode="decimal" min="0" step="1" value="20" />
-          </label>
-
-          <label class="field">
-            My resistor answer (Ω)
-            <input id="rStudent" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 330" />
-          </label>
-        </div>
-
-        <div class="sc-tools" style="margin-top:12px;">
-          <button class="btn wide" id="randomBtn" type="button">🎲 Random numbers</button>
-          <button class="btn wide" id="checkBtn" type="button">✅ Check my answer</button>
-        </div>
-
-        <div class="result" id="ledFeedback" style="display:none;" aria-live="polite"></div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary>Hints (tap to open)</summary>
-          <div class="note" style="margin-top:10px;">
-            <ul style="margin:0; padding-left:18px;">
-              <li>Convert mA to A: divide by 1000 (e.g. 20 mA = 0.020 A).</li>
-              <li>If V<sub>s</sub> ≤ V<sub>f</sub>, the LED won’t light correctly.</li>
-              <li>In real life you choose the nearest sensible standard resistor value.</li>
-            </ul>
+        <a class="tile" href="/classes/s3-physics/electricity-2.html" aria-label="Electricity 2 Electronics">
+          <div>
+            💡 Electricity 2 — Electronics
+            <small>Components • Circuits • Practical skills</small>
           </div>
-        </details>
-      </section>
+        </a>
 
-    </div>
+        <a class="tile" href="/classes/workinprogress.html" aria-label="Electricity 3 Concepts">
+          <div>
+            🔌 Electricity 3 — Concepts
+            <small>Deeper ideas • Real-world links</small>
+          </div>
+        </a>
+
+        <a class="tile" href="/classes/workinprogress.html" aria-label="Nuclear Radiation">
+          <div>
+            ☢️ Nuclear Radiation
+            <small>Types • Safety • Uses</small>
+          </div>
+        </a>
+      </div>
+
+      <!-- Mini help (Body Systems / Higher style) -->
+      <details class="mini">
+        <summary>✅ What to do on this page (tap to open)</summary>
+        <div class="mini-body">
+          <ul>
+            <li>Tap a topic tile to open the lesson page for that unit.</li>
+            <li>Use the menu (☰) to jump to other subjects quickly.</li>
+            <li>On iPad: everything is designed for big, thumb-friendly taps.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- QUICK LINKS -->
+    <section class="card quick-links" aria-label="Quick links">
+      <h2>🔗 Quick Links</h2>
+      <ul>
+        <li>
+          <a href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/IgA5CXJczuvKSJG6_0EgOpOuATbW_3xZkupZiLdhPVMUWGo?e=3Xhkb1"
+             target="_blank" rel="noopener noreferrer">
+            <span>📁</span> Mr Stewart’s Materials
+          </a>
+        </li>
+
+        <li>
+          <a href="https://mrsphysics.co.uk/index.php/n5/"
+             target="_blank" rel="noopener noreferrer">
+            <span>👩‍🔬</span> Mrs Physics Website
+          </a>
+        </li>
+
+        <li>
+          <a href="https://www.youtube.com/@mrstewartphysics/playlists"
+             target="_blank" rel="noopener noreferrer">
+            <span>▶️</span> Mr Stewart’s YouTube Channel
+          </a>
+        </li>
+
+        <li>
+          <a href="https://rstewartphysics.github.io/classes/n5-physics/N5%20Physics%20Past%20Papers%20(September%202025%20Update).pdf"
+             target="_blank" rel="noopener noreferrer">
+            <span>📘</span> Past Paper Finder (PDF)
+          </a>
+        </li>
+      </ul>
+    </section>
   </main>
 
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
   <script>
-    /* ============================
-       Drawer: open/close + ESC + focus trap
-    =============================== */
-    const menuBtn = document.getElementById('menuBtn');
-    const closeBtn = document.getElementById('closeBtn');
-    const drawer = document.getElementById('drawer');
-    const overlay = document.getElementById('overlay');
+    // Drawer menu: overlay click + ESC close + focus trap + aria updates
+    const menu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('menuOverlay');
+    const btn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('menuClose');
 
     let lastFocus = null;
 
-    function getFocusable(container){
-      return Array.from(container.querySelectorAll(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, select, textarea, summary'
-      ));
+    function getMenuFocusables(){
+      return Array.from(menu.querySelectorAll('button, a[href]')).filter(el => !el.disabled);
     }
 
-    function openDrawer(){
+    function openMenu(){
       lastFocus = document.activeElement;
-      drawer.classList.add('open');
+
+      menu.classList.add('open');
       overlay.classList.add('show');
-      drawer.setAttribute('aria-hidden','false');
-      overlay.setAttribute('aria-hidden','false');
-      menuBtn.setAttribute('aria-expanded','true');
+      document.body.classList.add('menu-open');
 
-      const focusables = getFocusable(drawer);
-      if(focusables.length) focusables[0].focus();
+      btn.setAttribute('aria-expanded','true');
+      menu.setAttribute('aria-hidden','false');
 
-      document.addEventListener('keydown', onKeydown);
+      const focusables = getMenuFocusables();
+      (focusables[0] || menu).focus();
     }
 
-    function closeDrawer(){
-      drawer.classList.remove('open');
+    function closeMenu(){
+      menu.classList.remove('open');
       overlay.classList.remove('show');
-      drawer.setAttribute('aria-hidden','true');
-      overlay.setAttribute('aria-hidden','true');
-      menuBtn.setAttribute('aria-expanded','false');
+      document.body.classList.remove('menu-open');
 
-      document.removeEventListener('keydown', onKeydown);
+      btn.setAttribute('aria-expanded','false');
+      menu.setAttribute('aria-hidden','true');
+
       if(lastFocus) lastFocus.focus();
     }
 
-    function onKeydown(e){
-      if(e.key === 'Escape'){ closeDrawer(); }
-      if(e.key === 'Tab' && drawer.classList.contains('open')){
-        const focusables = getFocusable(drawer);
-        if(!focusables.length) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if(e.shiftKey && document.activeElement === first){
-          e.preventDefault(); last.focus();
-        } else if(!e.shiftKey && document.activeElement === last){
-          e.preventDefault(); first.focus();
-        }
-      }
+    function toggleMenu(){
+      menu.classList.contains('open') ? closeMenu() : openMenu();
     }
 
-    menuBtn.addEventListener('click', openDrawer);
-    closeBtn.addEventListener('click', closeDrawer);
-    overlay.addEventListener('click', closeDrawer);
+    btn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
 
-    /* ============================
-       Success criteria (RAG) - from B2 booklet SC statements
-    =============================== */
-    const scData = [
-      { id:"L1", title:"L1 – Potential Divider Theory", items:[
-        "I can describe the purpose of a potential divider circuit",
-        "I can calculate the output voltage of a potential divider circuit",
-        "I can calculate and estimate values of resistance used in a potential divider circuit"
-      ]},
-      { id:"L2", title:"L2 – Potential Divider Simulation", items:[
-        "I can use a simulation to build and test potential divider circuits"
-      ]},
-      { id:"L3", title:"L3 – Potential Divider Construction", items:[
-        "I can compare, calculated, simulated and measured values of voltage in potential divider circuits",
-        "I can describe common pre-power up and functionality tests that should be carried out in electronics.",
-        "I can draw the circuit symbols for a diode and LED",
-        "I can describe the function of Diodes and LEDs",
-        "I can construct potential divider circuits on a breadboard",
-        "I can make measurements of voltage in potential divider circuits using a multimeter"
-      ]},
-      { id:"L4", title:"L4 – Diodes", items:[
-        "I can draw the circuit symbols for a diode and LED",
-        "I can describe the function of Diodes and LEDs",
-        "I can identify the anode and cathode of a diode",
-        "I can make calculations to determine the best value of protective resistor for an LED"
-      ]},
-      { id:"L5", title:"L5 – Special Components", items:[
-        "I can describe the function of a heat sensor.",
-        "I can describe the function of a light sensor.",
-        "I can describe the function of a variable resistor."
-      ]},
-      { id:"L6", title:"L6 – Control Circuits", items:[
-        "I can build and test circuits that include LDRs, thermistors and variable resistors",
-        "I can use potential dividers with LDRs and thermistors",
-        "I can describe the relationship between temperature and resistance for a thermistor",
-        "I can describe the relationship between light levels and resistance for an LDR"
-      ]},
-      { id:"L7", title:"L7 – Switching Circuits", items:[
-        "I can describe the function of a transistor",
-        "I can build and test switching circuits with transistors",
-        "I can describe how an electronic switching circuit works"
-      ]},
-      { id:"L8", title:"L8 – Soldering", items:[
-        "I can demonstrate safe soldering techniques.",
-        "I can solder electronic components into a strip board.",
-        "I can describe common soldering faults.",
-        "I can describe possible ways to remove solder."
-      ]}
-    ];
-
-    const scWrap = document.getElementById('scWrap');
-    const scProgressText = document.getElementById('scProgressText');
-    const scReset = document.getElementById('scReset');
-
-    function storageKey(lessonId, idx){
-      return `rag_${lessonId}_${idx}`;
-    }
-
-    function loadValue(lessonId, idx){
-      return localStorage.getItem(storageKey(lessonId, idx)) || "";
-    }
-
-    function saveValue(lessonId, idx, val){
-      localStorage.setItem(storageKey(lessonId, idx), val);
-      updateProgress();
-      updateLessonPills();
-    }
-
-    function makeChoice(labelText, dotClass, value, name, checked){
-      const lab = document.createElement('label');
-      lab.className = 'rag-choice';
-      lab.innerHTML = `
-        <input type="radio" name="${name}" value="${value}" ${checked ? "checked" : ""}/>
-        <span class="dot ${dotClass}" aria-hidden="true"></span>
-        <span>${labelText}</span>
-      `;
-      return lab;
-    }
-
-    function renderSC(){
-      scWrap.innerHTML = "";
-
-      scData.forEach(lesson => {
-        const det = document.createElement('details');
-        det.className = 'acc';
-
-        const sum = document.createElement('summary');
-        sum.innerHTML = `
-          <span>${lesson.title}</span>
-          <span class="pill" id="pill_${lesson.id}">0 / ${lesson.items.length} green</span>
-        `;
-
-        const body = document.createElement('div');
-        body.className = 'acc-body';
-
-        lesson.items.forEach((text, idx) => {
-          const row = document.createElement('div');
-          row.className = 'rag-row';
-
-          const t = document.createElement('div');
-          t.className = 'rag-text';
-          t.textContent = text;
-
-          const choices = document.createElement('div');
-          choices.className = 'rag-choices';
-
-          const name = `rag_${lesson.id}_${idx}`;
-          const existing = loadValue(lesson.id, idx);
-
-          const red = makeChoice("Red", "red", "R", name, existing==="R");
-          const amber = makeChoice("Amber", "amber", "A", name, existing==="A");
-          const green = makeChoice("Green", "green", "G", name, existing==="G");
-
-          [red, amber, green].forEach(lab => {
-            const input = lab.querySelector('input');
-            input.addEventListener('change', () => saveValue(lesson.id, idx, input.value));
-          });
-
-          choices.appendChild(red);
-          choices.appendChild(amber);
-          choices.appendChild(green);
-
-          row.appendChild(t);
-          row.appendChild(choices);
-          body.appendChild(row);
-        });
-
-        det.appendChild(sum);
-        det.appendChild(body);
-        scWrap.appendChild(det);
-      });
-
-      updateProgress();
-      updateLessonPills();
-    }
-
-    function updateLessonPills(){
-      scData.forEach(lesson => {
-        let greenCount = 0;
-        lesson.items.forEach((_, idx) => {
-          if(loadValue(lesson.id, idx) === "G") greenCount++;
-        });
-        const pill = document.getElementById(`pill_${lesson.id}`);
-        if(pill) pill.textContent = `${greenCount} / ${lesson.items.length} green`;
-      });
-    }
-
-    function updateProgress(){
-      let total = 0;
-      let greens = 0;
-      scData.forEach(lesson => {
-        lesson.items.forEach((_, idx) => {
-          total++;
-          if(loadValue(lesson.id, idx) === "G") greens++;
-        });
-      });
-      scProgressText.textContent = `${greens} / ${total} green`;
-    }
-
-    scReset.addEventListener('click', () => {
-      scData.forEach(lesson => {
-        lesson.items.forEach((_, idx) => {
-          localStorage.removeItem(storageKey(lesson.id, idx));
-        });
-      });
-      renderSC();
+    // Close menu when a menu link is clicked
+    menu.addEventListener('click', (e) => {
+      const link = e.target.closest('a[href]');
+      if(link) closeMenu();
     });
 
-    renderSC();
+    // ESC close
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') closeMenu();
+    });
 
-    /* ============================
-       LED resistor practice: random + check answer
-    =============================== */
-    const vs = document.getElementById('vs');
-    const vf = document.getElementById('vf');
-    const imA = document.getElementById('imA');
-    const rStudent = document.getElementById('rStudent');
-    const randomBtn = document.getElementById('randomBtn');
-    const checkBtn = document.getElementById('checkBtn');
-    const ledFeedback = document.getElementById('ledFeedback');
+    // Focus trap when open
+    document.addEventListener('keydown', (e) => {
+      if(!menu.classList.contains('open') || e.key !== 'Tab') return;
 
-    function clamp(n, lo, hi){ return Math.max(lo, Math.min(hi, n)); }
+      const focusables = getMenuFocusables();
+      if(!focusables.length) return;
 
-    function computeR(){
-      const Vs = Number(vs.value);
-      const Vf = Number(vf.value);
-      const I = Number(imA.value) / 1000; // mA -> A
-      if(!isFinite(Vs) || !isFinite(Vf) || !isFinite(I) || I <= 0) return null;
-      const vDrop = Vs - Vf;
-      if(vDrop <= 0) return { error: "Vs must be greater than Vf (otherwise the LED won’t run correctly)." };
-      return { r: vDrop / I };
-    }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
 
-    function randomExample(){
-      // Typical, realistic ranges (and ensure Vs > Vf)
-      const VsOptions = [3, 4.5, 5, 6, 9, 12];
-      const VfOptions = [1.8, 2.0, 2.1, 2.2, 2.8, 3.0, 3.2, 3.3];
-      const IOptions  = [5, 10, 15, 20];
-
-      let VsPick, VfPick;
-      for(let tries=0; tries<20; tries++){
-        VsPick = VsOptions[Math.floor(Math.random()*VsOptions.length)];
-        VfPick = VfOptions[Math.floor(Math.random()*VfOptions.length)];
-        if(VsPick > VfPick + 0.2) break;
+      if(e.shiftKey && document.activeElement === first){
+        e.preventDefault(); last.focus();
+      }else if(!e.shiftKey && document.activeElement === last){
+        e.preventDefault(); first.focus();
       }
-      const IPick = IOptions[Math.floor(Math.random()*IOptions.length)];
-
-      vs.value = VsPick.toFixed(1);
-      vf.value = VfPick.toFixed(1);
-      imA.value = IPick.toFixed(0);
-
-      rStudent.value = "";
-      ledFeedback.style.display = "none";
-      ledFeedback.innerHTML = "";
-    }
-
-    randomBtn.addEventListener('click', randomExample);
-
-    checkBtn.addEventListener('click', () => {
-      const calc = computeR();
-      ledFeedback.style.display = "block";
-
-      if(!calc){
-        ledFeedback.innerHTML = `<strong>Check:</strong> Please enter sensible numbers for Vs, Vf and current.`;
-        return;
-      }
-      if(calc.error){
-        ledFeedback.innerHTML = `<strong>Check:</strong> ${calc.error}`;
-        return;
-      }
-
-      const correct = calc.r; // ohms
-      const student = Number(rStudent.value);
-
-      const rounded = Math.round(correct); // nearest 1 Ω
-      const tol = 0.05; // ±5%
-      const low = correct * (1 - tol);
-      const high = correct * (1 + tol);
-
-      if(!isFinite(student) || student <= 0){
-        ledFeedback.innerHTML = `
-          <strong>Answer revealed:</strong> R ≈ <strong>${rounded} Ω</strong><br/>
-          <span class="note">Try entering your value first next time, then press “Check my answer”.</span>
-        `;
-        return;
-      }
-
-      const ok = (student >= low && student <= high);
-
-      ledFeedback.innerHTML = `
-        <strong>${ok ? "✅ Nice!" : "Not quite yet"}</strong><br/>
-        Correct calculation: R ≈ <strong>${rounded} Ω</strong> (about ${(correct).toFixed(1)} Ω).<br/>
-        Your answer: <strong>${student} Ω</strong> ${ok ? "is close enough (±5%)." : "is outside ±5%."}
-        <div class="note" style="margin-top:8px;">
-          Working: R = (V<sub>s</sub> − V<sub>f</sub>) / I.
-        </div>
-      `;
     });
   </script>
 </body>
