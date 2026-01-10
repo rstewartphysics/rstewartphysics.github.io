@@ -3,368 +3,826 @@ layout: none
 title: Advanced Higher Physics
 ---
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Advanced Higher Physics</title>
 
-<style>
-:root {
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --radius-card: 1rem;
-  --shadow-card: 0 24px 48px rgba(0,0,0,0.8);
-  --text-main: #ffffff;
-  --bg1: #4a3a00;
-  --bg2: #2c2200;
-  --bg3: #0f172a;
-}
+  <style>
+    /* ============================
+       GLOBAL FIX: prevent mobile clipping
+    =============================== */
+    *, *::before, *::after{ box-sizing: border-box; }
+    html, body{ max-width: 100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width: 100%; height:auto; display:block; }
 
-/* ------------------ MOBILE FIXES ------------------ */
-@media (max-width: 480px) {
-  .class-tile {
-    aspect-ratio: auto;
-    max-width: 340px;
-    width: 100%;
-    margin: 0 auto;
-    transform: none;
-  }
-  .class-tile img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    display: block;
-  }
-  .tile-label {
-    font-size: 0.95rem;
-    padding: 0.5rem;
-  }
-  .banner-overlay-text,
-  .banner-overlay-text h1 {
-    font-size: 1rem;
-    line-height: 1.35;
-  }
-}
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background:#111827; color:#fff;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+    }
+    .skip-link:focus{ left:10px; }
 
-/* ------------------ PAGE BASE ------------------ */
-body {
-  margin: 0;
-  background: radial-gradient(circle at 25% 30%, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 90%);
-  background-attachment: fixed;
-  color: var(--text-main);
-  font-family: var(--font-stack);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  overflow-x: hidden;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+    /* ============================
+       THEME (AH light + gold accent)
+    =============================== */
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 
-/* ------------------ BANNER ------------------ */
-.banner-wrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-.banner {
-  width: 100%;
-  height: auto;
-  max-height: 360px;
-  object-fit: cover;
-  display: block;
-  opacity: 0;
-  animation: fadeIn 1.2s ease forwards;
-}
-@keyframes fadeIn { to { opacity: 1; } }
-@media (max-width: 768px) { .banner { max-height: 260px; } }
+      --text-main: #1b1b1b;
+      --text-soft: rgba(27,27,27,0.82);
 
-.banner-tint {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(255,210,50,0.4), rgba(255,150,0,0.35), rgba(255,240,100,0.25));
-  mix-blend-mode: multiply;
-  animation: tintShift 20s ease-in-out infinite alternate;
-}
-@keyframes tintShift {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
+      --bg1: #fff6d6;   /* warm cream */
+      --bg2: #ffe08a;   /* soft gold */
+      --bg3: #ffffff;   /* white */
 
-.banner-overlay-text {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  text-align: center;
-  padding: 1rem 0.5rem;
-  font-weight: 600;
-  font-size: 1.2rem;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  text-shadow: 0 0 10px rgba(255,215,0,0.6);
-}
-.banner-overlay-text h1 { margin: 0; }
-@media (max-width: 900px) {
-  .banner-overlay-text { font-size: 1rem; }
-  .banner-overlay-text h1 { font-size: 0.95rem; line-height: 1.3; }
-}
+      --accent: #b8860b; /* dark-gold */
+      --panel: rgba(255,255,255,0.70);
+      --border: rgba(27,27,27,0.18);
 
-/* ------------------ MENU BUTTON ------------------ */
-.menu-btn {
-  position: fixed;
-  top: 15px;
-  right: 20px;
-  font-size: 1.6rem;
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  z-index: 200;
-  transition: transform 0.2s ease;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
-}
-.menu-btn:hover,
-.menu-btn:focus {
-  transform: scale(1.1);
-  outline: none;
-}
+      --shadow: 0 18px 28px rgba(0,0,0,0.14);
+      --shadow-strong: 0 24px 48px rgba(0,0,0,0.18);
 
-/* ------------------ DRAWER MENU ------------------ */
-.menu-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: none;
-  z-index: 99;
-}
-.side-menu {
-  position: fixed;
-  top: 0; right: -270px;
-  height: 100%; width: 270px;
-  background: rgba(15,23,42,0.92);
-  backdrop-filter: blur(12px) saturate(160%);
-  box-shadow: -4px 0 25px rgba(0,0,0,0.6);
-  transition: right 0.3s ease;
-  z-index: 150;
-  display: flex;
-  flex-direction: column;
-  padding-top: 4rem;
-}
-.side-menu.open { right: 0; }
-.menu-overlay.show { display: block; }
-.side-menu a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 1.1rem;
-  padding: 0.9rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  transition: background 0.2s ease;
-}
-.side-menu a:hover,
-.side-menu a:focus {
-  background: rgba(255,255,255,0.12);
-  outline: none;
-}
+      --focus: 3px solid rgba(184,134,11,0.85);
+      --focus-offset: 3px;
 
-/* ------------------ PAGE WRAP + GLOW ------------------ */
-.page-wrap {
-  flex: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem 4rem;
-  position: relative;
-  z-index: 1;
-}
-.page-wrap::before {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120%;
-  height: 120%;
-  background: radial-gradient(circle at center,
-    rgba(255,215,0,0.15) 0%,
-    rgba(255,215,0,0.05) 40%,
-    transparent 80%);
-  animation: glowPulse 6s ease-in-out infinite alternate;
-  z-index: -1;
-  pointer-events: none;
-}
-@keyframes glowPulse {
-  0% { opacity: 0.35; }
-  100% { opacity: 0.6; }
-}
+      --radius: 1rem;
+    }
 
-/* ------------------ GRID ------------------ */
-.tile-grid {
-  display: grid;
-  gap: 1.3rem;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  justify-items: center;
-  align-items: stretch;
-  margin-top: 1rem;
-}
-@media (max-width: 900px) {
-  .tile-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-}
-@media (max-width: 700px) {
-  .tile-grid { gap: 1rem; }
-}
+    body{
+      background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.6;
+      min-height: 100vh;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing: antialiased;
+    }
 
-/* ------------------ TILE ------------------ */
-.class-tile {
-  display: block;
-  position: relative;
-  border-radius: var(--radius-card);
-  box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.05),
-    0 16px 30px rgba(0,0,0,0.8);
-  border: 2px solid rgba(255,255,255,0.25);
-  outline: 2px solid rgba(255,255,255,0.1);
-  outline-offset: -4px;
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.2s ease;
-  overflow: hidden;
-  aspect-ratio: 1.1 / 1;
-  min-height: 112px;
-  transform: scale(0.8);
-  transform-origin: center;
-}
-.class-tile:hover,
-.class-tile:focus {
-  transform: scale(0.84) translateY(-3px);
-  box-shadow: 0 26px 50px rgba(255,215,0,0.5);
-  filter: brightness(1.1);
-  outline: 3px solid #ffd700;
-  outline-offset: 3px;
-}
-.class-tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+    :focus-visible{
+      outline: var(--focus);
+      outline-offset: var(--focus-offset);
+    }
 
-/* ------------------ TILE LABEL ------------------ */
-.tile-label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(10px);
-  padding: 0.6rem;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1rem;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
-  border-top: 1px solid rgba(255,255,255,0.25);
-}
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
 
-/* ------------------ FOOTER ------------------ */
-footer {
-  text-align: center;
-  color: #fff;
-  padding: 1rem 0.5rem;
-  font-size: 0.9rem;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255,255,255,0.2);
-  margin-top: auto;
-  width: 100%;
-  box-shadow: 0 -3px 10px rgba(0,0,0,0.4);
-}
+    /* ============================
+       MENU BUTTON & SIDE MENU (same behaviour as Higher)
+    =============================== */
+    .menu-btn{
+      position: fixed;
+      top: calc(15px + env(safe-area-inset-top));
+      right: calc(20px + env(safe-area-inset-right));
+      font-size: 1.8rem;
+      background: rgba(255,255,255,0.55);
+      border: 2px solid rgba(27,27,27,0.22);
+      border-radius: 12px;
+      padding: 0.3rem 0.6rem;
+      backdrop-filter: blur(10px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      cursor: pointer;
+      color: #111;
+      z-index: 400;
+      transition: transform 0.2s ease, background 0.2s ease;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.16);
+    }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.08); background: rgba(255,255,255,0.70); }
 
-/* ------------------ ACCESSIBILITY ------------------ */
-.visually-hidden {
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px,1px,1px,1px);
-  white-space: nowrap;
-}
-</style>
+    .menu-overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      display:none;
+      z-index:340;
+    }
+    .menu-overlay.show{ display:block; }
 
-<!-- MENU BUTTON -->
-<button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+    .side-menu{
+      position: fixed; top: 0; right: -290px;
+      width: 290px; height: 100%;
+      background: rgba(17,24,39,0.88);
+      backdrop-filter: blur(16px) saturate(200%);
+      -webkit-backdrop-filter: blur(16px) saturate(200%);
+      box-shadow: -6px 0 22px rgba(0,0,0,0.35);
+      padding-top: calc(4.5rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.3s ease;
+      z-index:350;
+    }
+    .side-menu.open{ right: 0; }
 
-<!-- BANNER -->
-<div class="banner-wrap">
-  <img src="/assets/advbanner.png" alt="Advanced Higher Physics banner" class="banner">
-  <div class="banner-tint"></div>
-  <div class="banner-overlay-text"><h1>Explore advanced topics and resources for Advanced Higher Physics</h1></div>
-</div>
+    .side-menu a{
+      padding: 1rem 1.4rem;
+      font-size: 1.12rem;
+      text-decoration:none;
+      color:#fff;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      display:flex;
+      gap:0.7rem;
+      min-height: 44px;
+      align-items:center;
+      font-weight: 900;
+    }
+    .side-menu a:hover,
+    .side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
 
-<!-- CONTENT -->
-<main class="page-wrap">
-  <section class="tile-grid">
+    /* ============================
+       BANNER (full width, like Home/Higher)
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.18);
+    }
+    .banner{
+      width:100%;
+      height: clamp(220px, 28vh, 380px);
+      object-fit: cover;          /* fills width */
+      object-position: center;
+      display:block;
+      opacity: 0;
+      animation: fadeIn 1.0s ease forwards;
+    }
+    @keyframes fadeIn{ to{ opacity:1; } }
 
-    <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:b:/g/personal/gw20stewartrobert1_glow_sch_uk/ETbRUqslNcJPrnr_WK7swW4BHTrqW4SXlYiPiP-ZYW650w?e=BpXC0q" target="_blank" aria-label="Past Paper Questions by Topic">
-      <img src="/assets/adv/ahpastpapers.png" alt="">
-      <div class="tile-label">Past Paper Questions</div>
-    </a>
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg,
+        rgba(255,210,50,0.18),
+        rgba(255,160,0,0.14),
+        rgba(255,240,120,0.10)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
 
-    <a class="class-tile" href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EsrN6PPS0HtMkclmwJPrEiEBBbTgPcjZuWg-_m0yP25E5A?e=QnwV3L" target="_blank" aria-label="Mr Stewart’s Files">
-      <img src="/assets/adv/ahnotes.png" alt="">
-      <div class="tile-label">Mr Stewart’s Files</div>
-    </a>
+    .banner-overlay-text{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-align:center;
+      padding: 1rem;
+      border-top: 1px solid rgba(27,27,27,0.12);
+      color: #111;
+    }
+    .banner-overlay-text h1{
+      margin:0;
+      font-size: 1.12rem;
+      font-weight: 900;
+    }
+    @media (max-width: 768px){
+      .banner{ height: clamp(200px, 26vh, 300px); }
+      .banner-overlay-text h1{ font-size: 1.02rem; line-height: 1.25; }
+    }
 
-    <a class="class-tile" href="https://scholar.hw.ac.uk/courses/" target="_blank" aria-label="Scholar">
-      <img src="/assets/adv/ahscholar.png" alt="">
-      <div class="tile-label">Scholar</div>
-    </a>
+    /* ============================
+       STICKY JUMP MENU
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(14px) saturate(170%);
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+      border-bottom: 1px solid rgba(27,27,27,0.12);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.10);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(27,27,27,0.14);
+      background: rgba(255,255,255,0.55);
+    }
 
-    <a class="class-tile" href="https://www.youtube.com/@mrstewartphysics/playlists" target="_blank" aria-label="AH Physics YouTube">
-      <img src="/assets/adv/ahyoutube.png" alt="">
-      <div class="tile-label">YouTube Channel</div>
-    </a>
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
 
-    <a class="class-tile" href="https://physicsflashrepo.ovh/" target="_blank" aria-label="Flash Physics Animations">
-      <img src="/assets/adv/ahflash.png" alt="">
-      <div class="tile-label">Flash Animations</div>
-    </a>
+    .subnav-link{
+      text-decoration:none;
+      font-weight:900;
+      color:#111;
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
 
-  </section>
-</main>
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(184,134,11,0.30);
+      background: rgba(184,134,11,0.12);
+      color:#111;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    }
+    .subnav-cta:hover{ background: rgba(184,134,11,0.18); }
+    .subnav-cta:active{ transform: translateY(1px); }
 
-<!-- FOOTER -->
-<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
+    /* jump spacing for sticky menu */
+    #overview, #resources, #timeline, #quicklinks{ scroll-margin-top: 190px; }
 
-<!-- DRAWER NAVIGATION -->
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<nav class="side-menu" id="sideMenu">
-  <a href="/">🏠 Home</a>
-  <a href="/classes/science.html">🧪 Science</a>
-  <a href="/classes/physics.html">⚡ Physics</a>
-  <a href="/classes/electronics.html">💡 Electronics</a>
-  <a href="/classes/engineering.html">🧰 Engineering</a>
-</nav>
+    /* ============================
+       MAIN LAYOUT
+    =============================== */
+    .page-wrap{
+      max-width: 1200px;
+      margin: 1.0rem auto 2rem;
+      padding: 0 1rem 4rem;
+      flex:1;
+      width:100%;
+    }
 
-<script>
-function toggleMenu(){
-  const menu=document.getElementById('sideMenu');
-  const overlay=document.getElementById('menuOverlay');
-  menu.classList.toggle('open');
-  overlay.classList.toggle('show');
-}
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    document.getElementById('sideMenu').classList.remove('open');
-    document.getElementById('menuOverlay').classList.remove('show');
-  }
-});
-window.addEventListener('scroll',()=>{
-  const banner=document.querySelector('.banner');
-  if(!banner)return;
-  const offset=window.scrollY*0.25;
-  banner.style.transform=`translateY(${offset}px)`;
-});
-</script>
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1rem;
+    }
+
+    .panel h2{
+      margin:0 0 0.4rem;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .panel p{ color: var(--text-soft); }
+
+    hr.soft{
+      border:0;
+      border-top: 1px solid rgba(27,27,27,0.14);
+      margin: 1.1rem 0;
+    }
+
+    /* ============================
+       TILE GRID (image tiles)
+    =============================== */
+    .tile-grid{
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
+      align-items: stretch;
+      margin-top: 0.9rem;
+    }
+
+    .class-tile{
+      display:block;
+      position:relative;
+      border-radius: 1rem;
+      border: 1px solid rgba(27,27,27,0.16);
+      overflow:hidden;
+      text-decoration:none;
+      color:#111;
+      background: rgba(255,255,255,0.60);
+      box-shadow: var(--shadow-strong);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      min-height: 140px;
+    }
+    .class-tile:hover,
+    .class-tile:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 26px 52px rgba(184,134,11,0.22);
+    }
+    .class-tile img{
+      width:100%;
+      height: 100%;
+      min-height: 140px;
+      object-fit: cover;
+    }
+    .tile-label{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 0.65rem 0.7rem;
+      text-align:center;
+      font-weight: 900;
+      border-top: 1px solid rgba(27,27,27,0.12);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:0.45rem;
+      color:#111;
+    }
+    .ext-mark{
+      font-weight: 900;
+      opacity: 0.85;
+      font-size: 0.95em;
+      line-height: 1;
+    }
+
+    /* ============================
+       DETAILS / ACCORDIONS
+    =============================== */
+    details{
+      background: rgba(255,255,255,0.68);
+      border-radius: 0.9rem;
+      border: 1px solid rgba(27,27,27,0.16);
+      overflow:hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.10);
+      margin: 0.8rem 0 0;
+    }
+    summary{
+      cursor:pointer;
+      padding: 0.95rem 1rem;
+      font-weight: 900;
+      background: linear-gradient(135deg,
+        rgba(184,134,11,0.14),
+        rgba(255,255,255,0.45)
+      );
+      border-bottom: 1px solid rgba(27,27,27,0.12);
+      list-style:none;
+      display:flex;
+      align-items:center;
+      gap:0.6rem;
+      color:#111;
+    }
+    details summary::-webkit-details-marker{ display:none; }
+    .details-inner{ padding: 0.95rem 1rem; color: var(--text-soft); }
+    .details-inner ul{ margin:0.25rem 0 0; padding-left: 1.1rem; line-height:1.75; }
+    .details-inner li{ margin:0.35rem 0; }
+
+    .mini-note{
+      margin: 0.5rem 0 0;
+      padding: 0.75rem 0.9rem;
+      border-radius: 0.9rem;
+      border: 1px dashed rgba(27,27,27,0.18);
+      background: rgba(255,255,255,0.55);
+      color: rgba(27,27,27,0.80);
+      font-weight: 800;
+    }
+
+    /* ============================
+       QUICK LINKS (card buttons)
+    =============================== */
+    .quick-grid{
+      display:grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 0.85rem;
+    }
+    .quick-card{
+      display:flex;
+      gap:0.85rem;
+      align-items:flex-start;
+      text-decoration:none;
+      color:#111;
+      background: rgba(255,255,255,0.70);
+      border: 1px solid rgba(27,27,27,0.16);
+      border-radius: 1rem;
+      padding: 0.95rem;
+      box-shadow: 0 14px 26px rgba(0,0,0,0.12);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      min-height: 88px;
+    }
+    .quick-card:hover,
+    .quick-card:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 22px 42px rgba(184,134,11,0.20);
+    }
+    .quick-ico{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      background: rgba(184,134,11,0.16);
+      border: 1px solid rgba(184,134,11,0.22);
+      flex: 0 0 auto;
+      font-size: 1.35rem;
+    }
+    .quick-title{
+      font-weight: 900;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .quick-sub{
+      margin: 0.15rem 0 0;
+      color: rgba(27,27,27,0.82);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    /* Footer */
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.72);
+      border-top: 1px solid rgba(27,27,27,0.12);
+      font-size:0.92rem;
+      margin-top:auto;
+      color:#111;
+    }
+
+    @media (max-width: 480px){
+      .panel{ padding: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <!-- MENU BUTTON -->
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="sideMenu"
+  >☰</button>
+
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
+
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
+    <a href="#" id="closeMenuLink">✖ Close</a>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
+
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <img src="/assets/advbanner.png" alt="Advanced Higher Physics banner" class="banner" loading="lazy">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Advanced Higher Physics — serious ideas, tidy maths, and the occasional “wait… that’s allowed?!”</h1>
+    </div>
+  </div>
+
+  <!-- STICKY JUMP MENU -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#resources">Resources</a>
+        <a class="subnav-link" href="#timeline">Timeline</a>
+        <a class="subnav-link" href="#quicklinks">Quick links</a>
+      </div>
+
+      <a class="subnav-cta"
+         href="https://glowscotland-my.sharepoint.com/:b:/g/personal/gw20stewartrobert1_glow_sch_uk/ETbRUqslNcJPrnr_WK7swW4BHTrqW4SXlYiPiP-ZYW650w?e=BpXC0q"
+         target="_blank" rel="noopener noreferrer">
+        ⭐ Past Papers ↗
+      </a>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <!-- OVERVIEW -->
+    <section class="panel" id="overview" aria-labelledby="overview-title">
+      <h2 id="overview-title">Overview</h2>
+      <p style="margin:0;">
+        Advanced Higher is where Physics turns the “big ideas” up to maximum power:
+        you’ll use elegant models to explain real behaviour — and occasionally discover that nature has a sense of humour (usually in the algebra).
+      </p>
+      <p style="margin:0.35rem 0 0;">
+        <strong>How to use this page:</strong> start with the essentials below, then use past papers early and often — AH rewards practice and precision.
+      </p>
+
+      <details class="accordion">
+        <summary>🧠 What we study (big picture)</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>Serious modelling:</strong> building explanations from assumptions, evidence, and maths that actually means something.</li>
+            <li><strong>Modern/advanced ideas:</strong> the kind of concepts that make you say “that’s weird… but it works.”</li>
+            <li><strong>Skills focus:</strong> clear derivations, tidy working, strong graphs, and explanations that don’t panic under pressure.</li>
+            <li><strong>Exam mindset:</strong> AH questions love structure — define, model, calculate, interpret.</li>
+          </ul>
+          <div class="mini-note">
+            Nerdy truth: AH is basically “be friends with the model” — once you trust it, the marks start appearing.
+          </div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>✅ A quick weekly routine that works</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>1)</strong> Learn the idea (notes/video) → <strong>2)</strong> do 2–3 worked examples → <strong>3)</strong> past-paper questions → <strong>4)</strong> check + fix mistakes.</li>
+            <li>When stuck: write the <strong>knowns</strong>, the <strong>model/assumption</strong>, and the <strong>equation</strong> before touching the calculator.</li>
+            <li>Use the <strong>Past Paper Questions</strong> tile as your main “training ground”.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="panel" id="resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Resources (essentials first)</h2>
+      <p style="margin:0;">
+        These are the four you’ll use constantly. Start here.
+      </p>
+
+      <div class="tile-grid" aria-label="Advanced Higher Physics essential resource tiles">
+        <a class="class-tile"
+           href="https://glowscotland-my.sharepoint.com/:b:/g/personal/gw20stewartrobert1_glow_sch_uk/ETbRUqslNcJPrnr_WK7swW4BHTrqW4SXlYiPiP-ZYW650w?e=BpXC0q"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Past Paper Questions by Topic (opens in a new tab)">
+          <img src="/assets/adv/ahpastpapers.png" alt="">
+          <div class="tile-label">Past Paper Questions <span class="ext-mark" aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="class-tile"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EsrN6PPS0HtMkclmwJPrEiEBBbTgPcjZuWg-_m0yP25E5A?e=QnwV3L"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mr Stewart’s Files (opens in a new tab)">
+          <img src="/assets/adv/ahnotes.png" alt="">
+          <div class="tile-label">Mr Stewart’s Files <span class="ext-mark" aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="class-tile"
+           href="https://scholar.hw.ac.uk/courses/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Scholar (opens in a new tab)">
+          <img src="/assets/adv/ahscholar.png" alt="">
+          <div class="tile-label">Scholar <span class="ext-mark" aria-hidden="true">↗</span></div>
+        </a>
+
+        <a class="class-tile"
+           href="https://physicsflashrepo.ovh/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Flash Physics Animations (opens in a new tab)">
+          <img src="/assets/adv/ahflash.png" alt="">
+          <div class="tile-label">Flash Animations <span class="ext-mark" aria-hidden="true">↗</span></div>
+        </a>
+      </div>
+
+      <details class="accordion">
+        <summary>➕ More links (use when needed)</summary>
+        <div class="details-inner">
+          <div class="tile-grid" aria-label="Additional Advanced Higher Physics resource tiles">
+            <a class="class-tile"
+               href="https://www.youtube.com/@mrstewartphysics/playlists"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="The other Mr Stewart’s YouTube (opens in a new tab)">
+              <img src="/assets/adv/ahyoutube.png" alt="">
+              <div class="tile-label">The other Mr Stewart’s YouTube <span class="ext-mark" aria-hidden="true">↗</span></div>
+            </a>
+
+            <a class="class-tile"
+               href="https://www.sqa.org.uk/pastpapers/findpastpaper.htm?level=NAH&subject=Physics"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="SQA Physics website (past papers and marking instructions) (opens in a new tab)">
+              <img src="/assets/adv/ahpastpapers.png" alt="">
+              <div class="tile-label">SQA Physics Website <span class="ext-mark" aria-hidden="true">↗</span></div>
+            </a>
+          </div>
+
+          <div class="mini-note">
+            Tip: If you ever think “I get it”… do a past paper question anyway. AH has a talent for revealing hidden gaps.
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- TIMELINE (WIP) -->
+    <section class="panel" id="timeline" aria-labelledby="timeline-title">
+      <h2 id="timeline-title">Timeline (WIP)</h2>
+      <p style="margin:0;">
+        This section is being built in the same style as Higher (weekly focus cards + tickable progress).
+        For now, use <strong>Resources</strong> + <strong>Past Paper Questions</strong> as your weekly anchor.
+      </p>
+
+      <details class="accordion" open>
+        <summary>🛠️ Coming soon: weekly focus + progress tracker</summary>
+        <div class="details-inner">
+          <ul>
+            <li>Weekly topic cards with a one-sentence goal (so it’s always obvious what to practise).</li>
+            <li>Big “Done” ticks that save on your device (so progress is real, not vibes).</li>
+            <li>A simple progress bar to reduce overwhelm (because AH is intense enough already).</li>
+          </ul>
+          <div class="mini-note">
+            Until the timeline lands: aim for <strong>1 solid set of past-paper questions per week</strong> (with corrections). That’s the AH superpower.
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- QUICK LINKS -->
+    <section class="panel" id="quicklinks" aria-labelledby="quicklinks-title">
+      <h2 id="quicklinks-title">Quick links</h2>
+      <p style="margin:0;">
+        Fast routes to the most-used external stuff.
+      </p>
+
+      <div class="quick-grid" aria-label="Quick links cards">
+        <a class="quick-card"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EsrN6PPS0HtMkclmwJPrEiEBBbTgPcjZuWg-_m0yP25E5A?e=QnwV3L"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mr Stewart’s Materials (opens in a new tab)">
+          <div class="quick-ico" aria-hidden="true">📁</div>
+          <div>
+            <p class="quick-title">Mr Stewart’s Materials</p>
+            <p class="quick-sub">Notes, tasks, and course files in one place.</p>
+          </div>
+        </a>
+
+        <a class="quick-card"
+           href="https://www.youtube.com/@mrstewartphysics/playlists"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="The other Mr Stewart’s YouTube (opens in a new tab)">
+          <div class="quick-ico" aria-hidden="true">🎥</div>
+          <div>
+            <p class="quick-title">The other Mr Stewart’s YouTube</p>
+            <p class="quick-sub">Videos + playlists to support revision and examples.</p>
+          </div>
+        </a>
+
+        <a class="quick-card"
+           href="https://www.youtube.com/@thephysicsacad"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="The FANTASTIC Mrs Physics (opens in a new tab)">
+          <div class="quick-ico" aria-hidden="true">✨</div>
+          <div>
+            <p class="quick-title">The FANTASTIC Mrs Physics</p>
+            <p class="quick-sub">Fun fact: she taught <em>me</em> at school — any unusually clear explanation is probably her fault 😄</p>
+          </div>
+        </a>
+
+        <a class="quick-card"
+           href="https://www.sqa.org.uk/pastpapers/findpastpaper.htm?level=NAH&subject=Physics"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="SQA Physics website (opens in a new tab)">
+          <div class="quick-ico" aria-hidden="true">🏛️</div>
+          <div>
+            <p class="quick-title">SQA Physics Website</p>
+            <p class="quick-sub">Official past papers + marking instructions.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+    /* ============================
+       MENU: ESC closes + overlay click + close link + focus trap
+    =============================== */
+    function $(id){ return document.getElementById(id); }
+
+    const menu = $("sideMenu");
+    const overlay = $("menuOverlay");
+    const btn = $("menuBtn");
+    const closeLink = $("closeMenuLink");
+
+    let lastFocusEl = null;
+
+    function getFocusableInMenu(){
+      if(!menu) return [];
+      return Array.from(menu.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
+    }
+
+    function openMenu(){
+      if(!menu || !overlay || !btn) return;
+
+      lastFocusEl = document.activeElement;
+
+      menu.classList.add("open");
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden","false");
+
+      btn.setAttribute("aria-expanded","true");
+      btn.setAttribute("aria-label","Close menu");
+
+      document.body.style.overflowY = "hidden";
+
+      const focusables = getFocusableInMenu();
+      (focusables[0] || menu).focus();
+    }
+
+    function closeMenu(){
+      if(!menu || !overlay || !btn) return;
+
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden","true");
+
+      btn.setAttribute("aria-expanded","false");
+      btn.setAttribute("aria-label","Open menu");
+
+      document.body.style.overflowY = "";
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
+    }
+
+    function toggleMenu(){
+      if(!menu) return;
+      const isOpen = menu.classList.contains("open");
+      if(isOpen) closeMenu();
+      else openMenu();
+    }
+
+    btn.addEventListener("click", toggleMenu);
+    overlay.addEventListener("click", closeMenu);
+
+    closeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const isOpen = menu && menu.classList.contains("open");
+
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
+      }
+
+      if(e.key === "Tab" && isOpen){
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    /* ============================
+       ACCORDION: only one open at a time (details.accordion)
+    =============================== */
+    function setupAccordion(selector){
+      const items = Array.from(document.querySelectorAll(selector));
+      if(!items.length) return;
+
+      items.forEach(d => {
+        d.addEventListener("toggle", () => {
+          if(!d.open) return;
+          items.forEach(other => {
+            if(other !== d) other.open = false;
+          });
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      overlay.setAttribute("aria-hidden","true");
+      setupAccordion("details.accordion");
+    });
+  </script>
+</body>
+</html>
