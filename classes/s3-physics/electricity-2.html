@@ -1,979 +1,2310 @@
+---
+layout: none
+title: S3 Physics – Electricity 2 (Electronics & Control)
+---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
-<title>S3 Physics – Electricity 2 (Electronics &amp; Control)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>S3 Physics – Electricity 2 (Electronics &amp; Control)</title>
 
-<style>
-/* ============================
-   GLOBAL FIX: prevent mobile clipping (GLOBAL PROBLEM FIX)
-=============================== */
-*, *::before, *::after{ box-sizing: border-box; }
-html, body{ max-width: 100%; }
-img, iframe{ max-width: 100%; display:block; }
+  <style>
+    /* ============================
+       GLOBAL FIX: prevent clipping/overflow
+    =============================== */
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ max-width:100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width:100%; height:auto; display:block; }
 
-/* ============================
-   A11Y HELPERS
-=============================== */
-.visually-hidden{
-  position:absolute!important;
-  width:1px;height:1px;
-  padding:0;margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;border:0;
-}
-.skip-link{
-  position:absolute; left:-999px; top:10px;
-  background:#00e6b3; color:#001b1e;
-  padding:0.6rem 0.9rem; border-radius:12px;
-  font-weight:900; z-index:1000;
-}
-.skip-link:focus{ left:10px; }
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background:#00bfa6; color:#042821;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1200;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    }
+    .skip-link:focus{ left:10px; }
 
-/* ============================
-   GLOBAL STYLE SYSTEM
-=============================== */
-:root{
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --text-main: #ffffff;
-  --bg1: #0c2f3c;
-  --bg2: #104b5c;
-  --bg3: #082229;
-  --accent: #00e6b3;
-  --card: rgba(0,0,0,0.45);
-  --border: rgba(255,255,255,0.25);
-  --warn: #ffca6f;
-  --bad: #ff6f6f;
-  --good: #00ffb3;
-}
+    /* ============================
+       THEME (TRUE LIGHT, ELECTRONICS TEAL)
+    =============================== */
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-/* ------------------ PAGE BASE ------------------ */
-body{
-  margin:0;
-  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
-  background-attachment: fixed;
-  font-family: var(--font-stack);
-  color: var(--text-main);
-  line-height: 1.6;
-  min-height: 100vh;
+      --bg0:#f6fbfa;
+      --bg1:#eef9f7;
+      --bg2:#ffffff;
 
-  /* Keep hidden, but now safe because we prevent overflow properly */
-  overflow-x:hidden;
+      --text:#0c2b24;
+      --muted:#2f5b52;
 
-  /* footer pinned */
-  display:flex;
-  flex-direction:column;
-}
+      --accent:#00bfa6;
+      --accent-2:#0aa08f;
 
-/* iPad/iOS performance: avoid fixed background attachment */
-@supports (-webkit-touch-callout: none){
-  body{ background-attachment: scroll; }
-}
+      --card:#ffffff;
 
-/* ============================
-   MENU BUTTON & SIDE MENU
-=============================== */
-.menu-btn{
-  position: fixed;
-  top: max(15px, env(safe-area-inset-top));
-  right: max(20px, env(safe-area-inset-right));
-  font-size: 1.8rem;
-  background: rgba(255,255,255,0.15);
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: 12px;
-  padding: 0.3rem 0.6rem;
-  backdrop-filter: blur(10px) saturate(160%);
-  cursor: pointer;
-  color: #fff;
-  z-index: 200;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-.menu-btn:hover,
-.menu-btn:focus-visible{
-  transform: scale(1.08);
-}
+      --border: rgba(12,60,52,0.16);
+      --border-strong: rgba(0,191,166,0.38);
 
-.menu-overlay{
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display:none;
-  z-index:140;
-}
-.menu-overlay.show{ display:block; }
+      --shadow: 0 18px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
 
-.side-menu{
-  position: fixed; top: 0; right: -290px;
-  width: 290px; height: 100%;
-  background: rgba(20,20,35,0.85);
-  backdrop-filter: blur(16px) saturate(200%);
-  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
-  padding-top: 4.5rem;
-  transition: right 0.3s ease;
-  z-index:150;
-}
-.side-menu.open{ right: 0; }
+      --radius: 18px;
 
-.side-menu a{
-  padding: 1rem 1.4rem;
-  font-size: 1.15rem;
-  text-decoration:none;
-  color:#fff;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  display:flex;
-  gap:0.7rem;
-  min-height: 44px;
-  align-items:center;
-}
-.side-menu a:hover,
-.side-menu a:focus-visible{
-  background: rgba(255,255,255,0.14);
-}
+      --focus-ring: 3px solid rgba(0,191,166,0.75);
+      --focus-offset: 4px;
 
-/* ============================
-   BANNER
-=============================== */
-.banner-wrap{
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
-}
-.banner{
-  width:100%;
-  max-height: 360px;
-  object-fit: cover;
-  display:block;
-}
-.banner-tint{
-  position:absolute; inset:0;
-  background: linear-gradient(120deg,
-    rgba(0,255,200,0.30),
-    rgba(0,180,255,0.22),
-    rgba(0,255,180,0.18)
-  );
-  mix-blend-mode: multiply;
-}
-.banner-overlay-text{
-  position:absolute;
-  bottom:0; left:0; right:0;
-  background: rgba(0,0,0,0.48);
-  backdrop-filter: blur(8px);
-  text-align:center;
-  padding: 1rem;
-  border-top: 1px solid rgba(255,255,255,0.25);
-}
-.banner-overlay-text h1{
-  margin:0;
-  font-size: 1.25rem;
-  font-weight: 800;
-}
+      /* G/A/R colours */
+      --g:#0bbf6a;
+      --a:#ffb020;
+      --r:#eb4343;
+    }
 
-/* ============================
-   MAIN CONTENT
-=============================== */
-.page-wrap{
-  max-width: 1100px;
-  margin: 2rem auto;
-  padding: 0 1rem 6rem; /* safe now because box-sizing border-box */
-  flex:1;
-  width:100%;
-}
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(0,191,166,0.12), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(10,160,143,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
 
-.topic-box{
-  background: rgba(0,0,0,0.35);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
-}
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
 
-hr.soft{
-  border:0;
-  border-top: 1px solid rgba(255,255,255,0.22);
-  margin: 1.2rem 0;
-}
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
 
-/* ============================
-   BUTTONS
-=============================== */
-.btn{
-  display:inline-block;
-  padding:0.75rem 1.05rem;
-  border-radius:16px;
-  border:1px solid rgba(0,255,200,0.45);
-  background: rgba(0,255,200,0.16);
-  color:#fff;
-  font-weight:900;
-  text-decoration:none;
-  cursor:pointer;
-  backdrop-filter: blur(12px) saturate(180%);
-  box-shadow: 0 5px 14px rgba(0,255,200,0.22);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-.btn:hover,.btn:focus-visible{
-  transform: scale(1.02);
-  background: rgba(0,255,200,0.28);
-}
-.btn.secondary{
-  border-color: rgba(255,255,255,0.30);
-  background: rgba(255,255,255,0.10);
-  box-shadow: 0 5px 14px rgba(0,0,0,0.22);
-}
-.btn.disabled{
-  opacity:0.55;
-  cursor:not-allowed;
-  border-color: rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.08);
-  box-shadow:none;
-}
+    /* ============================
+       MENU BUTTON & SIDE MENU (LIGHT)
+       - Safe-area insets
+       - Blur + -webkit-backdrop-filter
+       - Focus trap handled in JS
+    =============================== */
+    .menu-btn{
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      font-size: 1.7rem;
+      background: rgba(255,255,255,0.78);
+      border: 2px solid rgba(0,191,166,0.30);
+      border-radius: 12px;
+      padding: 0.25rem 0.55rem;
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      cursor: pointer;
+      color: var(--text);
+      z-index: 900;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.06); }
 
-/* Make “Key Links” buttons fill the card width (removes empty look) */
-.btn.wide{ display:block; width:100%; text-align:left; }
+    .menu-overlay{
+      position: fixed; inset: 0;
+      background: rgba(7,22,18,0.25);
+      display:none;
+      z-index:840;
+    }
+    .menu-overlay.show{ display:block; }
 
-/* ============================
-   FLOATING BACK BUTTON
-=============================== */
-.back-float{
-  position: fixed;
-  bottom: max(20px, env(safe-area-inset-bottom));
-  left: max(20px, env(safe-area-inset-left));
-  z-index: 300;
+    .side-menu{
+      position: fixed; top: 0; right: -300px;
+      width: 300px; height: 100%;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
+      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.25s ease;
+      z-index:860;
+      border-left: 1px solid rgba(12,60,52,0.12);
+    }
+    .side-menu.open{ right: 0; }
 
-  background: rgba(0, 255, 200, 0.18);
-  padding: 0.75rem 1.2rem;
-  border-radius: 12px;
-  color: white;
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.95rem;
+    .side-menu a{
+      padding: 1rem 1.2rem;
+      font-size: 1.12rem;
+      text-decoration:none;
+      color: var(--text);
+      border-bottom: 1px solid rgba(12,60,52,0.08);
+      display:flex;
+      gap:0.7rem;
+      min-height: 46px;
+      align-items:center;
+      font-weight: 900;
+    }
+    .side-menu a:hover,
+    .side-menu a:focus-visible{ background: rgba(0,191,166,0.10); }
 
-  backdrop-filter: blur(10px) saturate(160%);
-  border: 2px solid rgba(0,255,200,0.35);
-  box-shadow: 0 4px 14px rgba(0,255,200,0.30);
+    /* ============================
+       BANNER
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+      background: #fff;
+    }
+    .banner{
+      width:100%;
+      max-height: 330px;
+      object-fit: cover;
+      display:block;
+    }
+    @media (max-width: 768px){
+      .banner{ max-height: 250px; }
+    }
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg,
+        rgba(0,191,166,0.10),
+        rgba(255,255,255,0.08)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+    .banner-overlay-text{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.80);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-align:center;
+      padding: 0.9rem 1rem;
+      border-top: 1px solid rgba(12,60,52,0.12);
+    }
+    .banner-overlay-text h1{
+      margin:0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .banner-overlay-text p{
+      margin: 0.25rem 0 0;
+      font-size: 0.95rem;
+      color: rgba(12,43,36,0.78);
+      font-weight: 800;
+    }
 
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-.back-float:hover,
-.back-float:focus-visible{
-  background: rgba(0, 255, 200, 0.32);
-  transform: scale(1.06);
-}
+    /* ============================
+       STICKY SUBNAV
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 820;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(246,251,250,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border-bottom: 1px solid rgba(12,60,52,0.12);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.70);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+      flex-wrap: wrap;
+    }
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+      max-width: 100%;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
 
-/* ============================
-   LAYOUT HELPERS
-=============================== */
-.grid{
-  display:grid;
-  gap:0.9rem;
-  grid-template-columns: 1fr;
-  align-items:start; /* prevents “stretch to same height” feel */
-}
-@media (min-width: 820px){
-  .grid{ grid-template-columns: 1fr 1fr; }
-}
-.card{
-  background: rgba(0,0,0,0.42);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.22);
-  padding: 1rem 1.1rem;
-}
-.card h4{ margin:0 0 0.55rem; }
-.card p{ margin:0.25rem 0 0.65rem; opacity:0.95; }
+    .subnav-link{
+      text-decoration:none;
+      font-weight:900;
+      color:#123b33;
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+    .subnav-link:focus-visible{
+      outline: 3px solid rgba(0,191,166,0.30);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
 
-.callout{
-  background: rgba(0,0,0,0.42);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.22);
-  padding: 1rem 1.1rem;
-  border-left: 6px solid rgba(0,230,179,0.65);
-}
-.callout strong{ color:#b9fff0; }
+    .subnav-ctas{
+      margin-left:auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
 
-/* ============================
-   COLLAPSIBLES (low overload)
-=============================== */
-.notes details,
-.block details,
-.mini details{
-  background: var(--card);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.3);
-  margin: 0 0 1rem;
-  overflow:hidden;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.38);
-}
-.notes summary,
-.block summary,
-.mini summary{
-  cursor:pointer;
-  padding: 1rem 1.1rem;
-  font-weight: 900;
-  background: linear-gradient(135deg,
-    rgba(0,255,200,0.14),
-    rgba(0,180,255,0.16)
-  );
-  border-bottom: 1px solid rgba(255,255,255,0.18);
-  list-style:none;
-  display:flex;
-  align-items:center;
-  gap:0.6rem;
-}
-details summary::-webkit-details-marker{ display:none; }
+    .subnav-cta{
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(0,191,166,0.30);
+      background: rgba(0,191,166,0.12);
+      color:#0e3a33;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+    .subnav-cta:hover{ background: rgba(0,191,166,0.18); }
+    .subnav-cta:active{ transform: translateY(1px); }
+    .subnav-cta.secondary{
+      border-color: rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.78);
+      color: rgba(12,43,36,0.92);
+    }
 
-.notes .inner,
-.block .inner,
-.mini .inner{
-  padding: 1rem 1.1rem;
-}
-.notes ul,
-.block ul,
-.mini ul{
-  margin:0.4rem 0 0.2rem;
-  padding-left: 1.1rem;
-  line-height: 1.75;
-}
-.notes li,
-.block li,
-.mini li{ margin-bottom: 0.6rem; }
+    /* anchor offset so jumps land cleanly under sticky bar */
+    #overview, #resources, #videos, #testdetails, #success, #ledcalc, #switching, #skills, #assignment{
+      scroll-margin-top: 190px;
+    }
 
-/* “Mini” collapsible used inside cards so it feels less heavy */
-.mini details{ margin: 0.5rem 0 0; box-shadow:none; }
-.mini summary{ padding: 0.75rem 0.9rem; font-weight: 800; }
-.mini .inner{ padding: 0.85rem 0.95rem; }
+    /* ============================
+       MAIN LAYOUT
+    =============================== */
+    main.page-wrap{
+      max-width: 1100px;
+      margin: 1rem auto 2rem;
+      padding: 0 12px 4.8rem;
+      width:100%;
+      flex: 1;
+    }
 
-/* Open/Close all buttons */
-.controls-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.6rem;
-  margin: 0.2rem 0 1rem;
-}
-.small-btn{
-  padding:0.55rem 0.8rem;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,0.28);
-  background: rgba(255,255,255,0.10);
-  color:#fff;
-  font-weight:800;
-  cursor:pointer;
-}
-.small-btn:hover,
-.small-btn:focus-visible{
-  background: rgba(255,255,255,0.16);
-}
+    .panel{
+      background: var(--card);
+      border: 1px solid rgba(12,60,52,0.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 1.15rem;
+      margin: 0.9rem 0;
+    }
+    .panel.soft{
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
 
-/* ============================
-   EQUATIONS
-=============================== */
-.eq{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.18);
-  padding: 0.8rem 0.9rem;
-  border-radius: 14px;
-  overflow-x:auto;
-  white-space: nowrap;
-}
+    h2{
+      margin: 0 0 0.55rem;
+      font-size: 1.18rem;
+      letter-spacing: 0.2px;
+    }
+    h3{
+      margin: 0 0 0.45rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.2px;
+    }
+    p{ margin: 0.45rem 0 0; line-height: 1.6; }
+    ul{ margin: 0.35rem 0 0; padding-left: 1.2rem; }
+    li{ margin: 0.35rem 0; }
+    .muted{ color: rgba(47,91,82,0.92); }
 
-/* ============================
-   VIDEOS
-=============================== */
-.video-grid{
-  display:grid;
-  gap:0.9rem;
-  grid-template-columns: 1fr;
-  margin-top: 0.5rem;
-}
-@media (min-width: 900px){
-  .video-grid{ grid-template-columns: 1fr 1fr; }
-}
-.video-card{
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.22);
-  border-radius: 0.9rem;
-  padding: 1rem 1.1rem;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.30);
-}
-.video-card h4{ margin:0 0 0.35rem; }
-.video-card p{ margin:0 0 0.75rem; opacity:0.95; }
-.video-embed{
-  position:relative;
-  width:100%;
-  padding-top:56.25%;
-  border-radius: 14px;
-  overflow:hidden;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(0,0,0,0.35);
-}
-.video-embed iframe{
-  position:absolute; inset:0;
-  width:100%; height:100%;
-  border:0;
-}
+    .callout{
+      margin-top: 0.75rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.12);
+      background: rgba(0,191,166,0.08);
+      color: rgba(12,43,36,0.92);
+      font-weight: 800;
+    }
+    .callout strong{ color:#0a3b33; }
+    .callout.warn{
+      background: rgba(255,176,32,0.12);
+      border-color: rgba(255,176,32,0.25);
+    }
 
-/* ============================
-   FOOTER
-=============================== */
-footer{
-  text-align:center;
-  padding: 1rem;
-  background: rgba(0,0,0,0.35);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  font-size:0.92rem;
-  margin-top:auto;
-}
+    .wide-btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      width:100%;
+      text-decoration:none;
+      font-weight: 900;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 2px solid var(--border-strong);
+      background: rgba(0,191,166,0.14);
+      color: #0c2b24;
+      box-shadow: var(--shadow-soft);
+      margin-top: 0.8rem;
+      text-align:center;
+    }
+    .wide-btn:hover{ background: rgba(0,191,166,0.18); }
+    .wide-btn:active{ transform: translateY(1px); }
+    .wide-btn.secondary{
+      border-color: rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.78);
+    }
 
-/* Strong keyboard focus */
-:focus-visible{
-  outline: 3px solid rgba(0,230,179,0.80);
-  outline-offset: 3px;
-}
+    /* ============================
+       TILES
+    =============================== */
+    .tile-grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 0.75rem;
+      align-items: stretch;
+    }
+    .tile{
+      display:block;
+      border-radius: 18px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background:
+        radial-gradient(420px 180px at 20% 0%, rgba(0,191,166,0.12), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.90));
+      box-shadow: var(--shadow-soft);
+      text-decoration:none;
+      color: #0c2b24;
+      overflow:hidden;
+      min-height: 140px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position:relative;
+    }
+    .tile:hover,
+    .tile:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(0,191,166,0.14);
+      border-color: rgba(0,191,166,0.28);
+    }
+    .tile-inner{
+      padding: 14px 14px 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      height:100%;
+      justify-content:space-between;
+    }
+    .tile-title{
+      margin:0;
+      font-size: 1.02rem;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .tile-desc{
+      margin:0;
+      color: rgba(47,91,82,0.95);
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .badge{
+      display:inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(12,60,52,0.16);
+      background: rgba(255,255,255,0.82);
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: rgba(12,43,36,0.92);
+      white-space:nowrap;
+    }
+    .badge.main{
+      border: 2px solid rgba(0,191,166,0.42);
+      background: rgba(0,191,166,0.18);
+    }
+    .tile.main{
+      border: 2px solid rgba(0,191,166,0.50);
+      box-shadow: 0 20px 40px rgba(0,191,166,0.16);
+      background:
+        radial-gradient(520px 220px at 18% 0%, rgba(0,191,166,0.18), transparent 72%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.90));
+    }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce){
-  *{ scroll-behavior:auto!important; transition:none!important; }
-}
+    /* ============================
+       DETAILS (COLLAPSIBLES default CLOSED)
+    =============================== */
+    details.block{
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.86);
+      overflow:hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      margin-top: 12px;
+    }
+    details.block > summary{
+      cursor:pointer;
+      padding: 12px 12px;
+      font-weight: 900;
+      list-style: none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(0,191,166,0.10), rgba(255,255,255,0.78));
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+    }
+    details.block > summary::-webkit-details-marker{ display:none; }
+    details.block > summary:focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+      border-radius: 14px;
+    }
+    .details-inner{ padding: 12px 12px 14px; }
 
-/* Mobile tweaks */
-@media (max-width: 480px){
-  .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
-  .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
-  .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
-  .banner{ max-height: 280px; }
-}
-</style>
+    .tag{
+      display:inline-block;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.82);
+      color: rgba(12,43,36,0.86);
+      white-space:nowrap;
+      font-weight: 900;
+    }
+
+    /* ============================
+       GRID HELPERS
+    =============================== */
+    .grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(320px,100%), 1fr));
+      align-items: stretch;
+      margin-top: 0.75rem;
+    }
+    .card{
+      border: 1px solid rgba(12,60,52,0.14);
+      border-radius: 16px;
+      padding: 0.95rem 1rem;
+      background: rgba(255,255,255,0.90);
+      box-shadow: var(--shadow-soft);
+    }
+    .card h4{ margin:0 0 0.35rem; font-size: 1.02rem; }
+    .card p{ margin:0.25rem 0 0; }
+
+    /* ============================
+       SMALL BUTTON ROWS
+    =============================== */
+    .btn-row{
+      display:grid;
+      gap:10px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-top: 10px;
+    }
+    .small-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(12,60,52,0.16);
+      background: rgba(255,255,255,0.82);
+      color: rgba(12,43,36,0.92);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+      width: 100%;
+    }
+    .small-btn:hover{ background: rgba(0,191,166,0.10); }
+    .small-btn:active{ transform: translateY(1px); }
+    .small-btn.primary{
+      border: 2px solid rgba(0,191,166,0.32);
+      background: rgba(0,191,166,0.12);
+    }
+
+    /* ============================
+       SUCCESS CRITERIA (IMPROVED G/A/R TAPS + SUMMARY)
+    =============================== */
+    .sc-help{
+      margin-top: 0.35rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.12);
+      background: rgba(255,255,255,0.78);
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+    }
+
+    .sc-item{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items:center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+    }
+    .sc-item:last-child{ border-bottom:none; }
+
+    .sc-text{
+      font-weight: 850;
+      color: rgba(12,43,36,0.95);
+      line-height: 1.35;
+    }
+
+    .sc-controls{
+      display:inline-flex;
+      gap: 10px;
+      align-items:center;
+      padding: 8px;
+      border-radius: 18px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+
+    .sc-opt{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 56px;
+      height: 46px;
+      border-radius: 16px;
+      border: 2px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.70);
+      cursor:pointer;
+      font-weight: 1000;
+      font-size: 1.05rem;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.12s ease, filter 0.12s ease;
+      color: rgba(12,43,36,0.92);
+    }
+    .sc-opt:active{ transform: translateY(1px); }
+
+    .sc-opt input{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+
+    /* selected state */
+    .sc-opt.sel{
+      border-color: rgba(0,0,0,0.18);
+      box-shadow: 0 14px 26px rgba(0,0,0,0.10);
+    }
+    .sc-opt[data-val="G"].sel{ background: var(--g); color:#062015; border-color: rgba(11,191,106,0.45); }
+    .sc-opt[data-val="A"].sel{ background: var(--a); color:#2b1a00; border-color: rgba(255,176,32,0.45); }
+    .sc-opt[data-val="R"].sel{ background: var(--r); color:#2b0000; border-color: rgba(235,67,67,0.45); }
+
+    /* unselected hint tint */
+    .sc-opt[data-val="G"]{ color: rgba(11,191,106,0.95); }
+    .sc-opt[data-val="A"]{ color: rgba(255,176,32,0.95); }
+    .sc-opt[data-val="R"]{ color: rgba(235,67,67,0.95); }
+    .sc-opt.sel[data-val="G"],
+    .sc-opt.sel[data-val="A"],
+    .sc-opt.sel[data-val="R"]{ color:#000; }
+
+    .sc-summary{
+      margin-top: 12px;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .sc-mini{
+      margin-top: 0.55rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.12);
+      background: rgba(0,191,166,0.06);
+      color: rgba(12,43,36,0.92);
+      font-weight: 850;
+    }
+    .sc-reset{
+      display:inline-flex;
+      width:100%;
+      margin-top: 10px;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.82);
+      color: rgba(12,43,36,0.92);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .sc-reset:hover{ background: rgba(0,191,166,0.08); }
+    .sc-reset:active{ transform: translateY(1px); }
+
+    .sc-progress{
+      margin-top: 10px;
+      padding-top: 6px;
+    }
+    .sc-bar{
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(12,60,52,0.14);
+      overflow:hidden;
+      margin-top: 8px;
+      background: rgba(0,191,166,0.06);
+    }
+    .sc-bar > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), rgba(10,160,143,0.70));
+    }
+    @media (max-width: 560px){
+      .sc-item{ grid-template-columns: 1fr; }
+      .sc-controls{ justify-content:flex-start; }
+      .sc-opt{ width: 62px; height: 48px; }
+    }
+
+    /* ============================
+       LED TOOL FORMS
+    =============================== */
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:0.35rem;
+    }
+    .field label{ font-weight: 900; color: rgba(12,43,36,0.92); }
+    .field input, .field select{
+      width:100%;
+      padding:0.7rem 0.75rem;
+      border-radius: 12px;
+      border:1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.92);
+      color: rgba(12,43,36,0.92);
+      font-size:1rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+    .builder{
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
+      padding: 1rem;
+      margin-top: 0.75rem;
+    }
+    .calc-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+    }
+    .result-box{
+      border-radius: 14px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(0,191,166,0.06);
+      padding: 0.9rem 1rem;
+      margin-top: 12px;
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(12,60,52,0.14);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .inline-select{ display:inline-block; margin: 0 0.15rem; }
+    .inline-select select{
+      padding:0.35rem 0.45rem;
+      border-radius:10px;
+      border:1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.95);
+      font-weight: 900;
+      color: rgba(12,43,36,0.92);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.04);
+    }
+    .msg{
+      margin-top: 10px;
+      padding: 0.85rem 0.95rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.92);
+      font-weight: 900;
+    }
+    .msg.good{
+      border-left: 6px solid rgba(11,191,106,0.85);
+      background: rgba(11,191,106,0.08);
+    }
+    .msg.bad{
+      border-left: 6px solid rgba(235,67,67,0.85);
+      background: rgba(235,67,67,0.06);
+    }
+    .hidden{ display:none !important; }
+
+    /* ============================
+       LED PRACTICE BOX
+    =============================== */
+    .led-practice-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 10px;
+    }
+    .led-feedback{
+      margin-top: 10px;
+      padding: 0.9rem 1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.90);
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+      display:none;
+    }
+
+    /* ============================
+       CHECKLISTS + PROGRESS
+    =============================== */
+    .checklist{
+      list-style:none;
+      padding-left:0;
+      margin: 0.2rem 0 0;
+    }
+    .checklist li{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(12,60,52,0.08);
+    }
+    .checklist li:last-child{ border-bottom:0; }
+    .checklist input[type="checkbox"]{
+      width: 24px; height: 24px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+    .checklist label{ cursor:pointer; font-weight: 900; color: rgba(12,43,36,0.92); }
+    .sub{
+      display:block;
+      margin-top: 4px;
+      font-weight: 750;
+      color: rgba(47,91,82,0.95);
+      line-height: 1.45;
+    }
+
+    .progress{
+      margin-top: 12px;
+      padding-top: 6px;
+    }
+    .bar{
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(12,60,52,0.14);
+      overflow:hidden;
+      margin-top: 8px;
+      background: rgba(0,191,166,0.06);
+    }
+    .bar > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), rgba(10,160,143,0.70));
+    }
+
+    /* ============================
+       VIDEO (lazy load per details)
+    =============================== */
+    .video-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: 1fr;
+      margin-top: 0.5rem;
+    }
+    @media (min-width: 900px){
+      .video-grid{ grid-template-columns: 1fr 1fr; }
+    }
+    .video-card{
+      border: 1px solid rgba(12,60,52,0.14);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.90);
+      box-shadow: var(--shadow-soft);
+      padding: 1rem;
+    }
+    .video-card h4{ margin:0 0 0.35rem; font-size: 1.02rem; }
+    .video-card p{ margin:0 0 0.75rem; color: rgba(47,91,82,0.95); font-weight: 750; }
+    .video-embed{
+      position:relative;
+      width:100%;
+      padding-top:56.25%;
+      border-radius: 14px;
+      overflow:hidden;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(0,191,166,0.06);
+    }
+    .video-embed::after{
+      content: "Video loads when opened";
+      position:absolute;
+      inset: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 10px;
+      color: rgba(47,91,82,0.92);
+      font-weight: 900;
+    }
+    .video-embed.loaded::after{ content:""; display:none; }
+    .video-embed iframe{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      border:0;
+    }
+
+    /* ============================
+       BACK BUTTON
+    =============================== */
+    .back-float{
+      position: fixed;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left: max(16px, env(safe-area-inset-left));
+      z-index: 700;
+      text-decoration:none;
+      font-weight: 900;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 2px solid rgba(0,191,166,0.30);
+      background: rgba(255,255,255,0.78);
+      color: rgba(12,43,36,0.92);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+    }
+    .back-float:hover{ background: rgba(0,191,166,0.10); }
+
+    /* ============================
+       FOOTER
+    =============================== */
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.72);
+      border-top: 1px solid rgba(12,60,52,0.10);
+      font-size:0.92rem;
+      color: rgba(47,91,82,0.95);
+      margin-top:auto;
+    }
+  </style>
 </head>
 
 <body>
-<a class="skip-link" href="#mainContent">Skip to content</a>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
 
-<!-- MENU BUTTON -->
-<button
-  class="menu-btn"
-  id="menuBtn"
-  type="button"
-  onclick="toggleMenu()"
-  aria-label="Open menu"
-  aria-expanded="false"
-  aria-controls="sideMenu"
->
-  ☰
-</button>
+  <!-- MENU BUTTON -->
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    onclick="toggleMenu()"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="sideMenu"
+  >☰</button>
 
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
 
-<nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-  <a href="#" id="closeMenuLink">✖ Close</a>
-  <a href="/">🏠 Home</a>
-  <a href="/classes/science.html">🧪 Science</a>
-  <a href="/classes/physics.html">⚡ Physics</a>
-  <a href="/classes/electronics.html">💡 Electronics</a>
-  <a href="/classes/engineering.html">🧰 Engineering</a>
-</nav>
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+    <a href="#" id="closeMenuLink">✖ Close</a>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
 
-<!-- BANNER -->
-<div class="banner-wrap">
-  <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="lazy">
-  <div class="banner-tint"></div>
-  <div class="banner-overlay-text">
-    <h1>⚡ S3 Physics – Electricity 2: Electronics &amp; Control</h1>
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="lazy">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>⚡ S3 Physics – Electricity 2: Electronics &amp; Control</h1>
+      <p>Theory + practical + assignment hub (KO • booklet • switching explanations)</p>
+    </div>
   </div>
-</div>
 
-<!-- FLOATING BACK BUTTON -->
-<a class="back-float" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
-  ⬅ Back to S3 Physics
-</a>
+  <!-- STICKY SUBNAV (NO OVERVIEW LINK) -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#resources">Links</a>
+        <a class="subnav-link" href="#videos">Videos</a>
+        <a class="subnav-link" href="#testdetails">Test Details</a>
+        <a class="subnav-link" href="#success">SC</a>
+        <a class="subnav-link" href="#ledcalc">LEDs</a>
+        <a class="subnav-link" href="#switching">Switching Circuits</a>
+        <a class="subnav-link" href="#skills">Skills</a>
+        <a class="subnav-link" href="#assignment">Assignment</a>
+      </div>
 
-<main class="page-wrap" id="mainContent">
-  <div class="topic-box">
+      <div class="subnav-ctas">
+        <a class="subnav-cta"
+           href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf"
+           target="_blank" rel="noopener noreferrer">
+          🧠 KO ↗
+        </a>
+        <a class="subnav-cta secondary"
+           href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf"
+           target="_blank" rel="noopener noreferrer">
+          📘 Booklet ↗
+        </a>
+      </div>
+    </nav>
+  </div>
 
-    <h2 style="margin:0.2rem 0 0.6rem;">Electricity 2 – Key Links + Core Notes (simple)</h2>
-    <p style="margin:0;">
-      <strong>Use this page like a checklist:</strong> do the Knowledge Organiser first, then videos, then past paper questions.
-    </p>
+  <!-- BACK BUTTON -->
+  <a class="back-float" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
+    ⬅ Back to S3 Physics
+  </a>
 
-    <div class="callout" style="margin-top:1rem;">
-      <p style="margin:0;">
-        <strong>Suggested routine (low overload):</strong><br>
-        1) <strong>Knowledge Organiser</strong> → 2) <strong>Videos</strong> → 3) <strong>Past paper questions</strong> → (use notes only if stuck)
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">S3 Physics – Electricity 2: Electronics and Control</h1>
+
+    <!-- OVERVIEW (UPDATED STYLE + ELECTRICITY 2 FOCUS) -->
+    <section class="panel soft" id="overview" aria-label="Overview">
+      <h2>Overview</h2>
+      <p class="muted">
+        In <strong>Electricity 2</strong> we move from “just circuits” to <strong>electronics and control</strong>.
+        You’ll learn how a <strong>potential divider</strong> can turn changes in <strong>light</strong> or <strong>temperature</strong> into a useful output,
+        how to power an <strong>LED safely</strong>, and how a circuit can <strong>switch</strong> at the right moment.
       </p>
-    </div>
+      <p class="muted">
+        The same ideas keep coming back: <strong>resistance changes → voltages change → output changes</strong>.
+        By the end of this unit, you’ll be reading the hidden language of control circuits — using diagrams, measurements, and real builds you can test.
+      </p>
 
-    <p style="margin:0.9rem 0 0.2rem; opacity:0.9;">
-      <em>Last updated: 04 Jan 2026</em>
-    </p>
 
-    <hr class="soft">
+    </section>
 
-    <h3 style="margin:0 0 0.7rem;">🔗 Key Links</h3>
-    <div class="grid">
+    <!-- LINKS / RESOURCES -->
+    <section class="panel" id="resources" aria-label="Key links">
+      <h2>🔗 Key links</h2>
+      <p class="muted">Start with the Knowledge Organiser (symbols + rules), then use your booklet.</p>
 
-      <div class="card">
-        <h4>📄 Class Files</h4>
-        <p>Start with the Knowledge Organiser, then use the booklet questions.</p>
+      <div class="tile-grid" aria-label="Resource tiles">
+        <a class="tile main"
+           href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Knowledge Organiser in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">🧠 Knowledge Organiser (B2) <span class="badge main">MAIN</span></p>
+            <p class="tile-desc">Symbols, divider rules, tools/testing box — start here.</p>
+          </div>
+        </a>
 
-        <p style="margin:0.55rem 0 0;">
-          <a class="btn wide" href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf" target="_blank" rel="noopener noreferrer">
-            🧠 Knowledge Organiser (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
-          </a>
-        </p>
+        <a class="tile"
+           href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Electricity 2 Booklet in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">📘 Electricity 2 Booklet (B2) <span class="badge">practice</span></p>
+            <p class="tile-desc">Do sections, get checked, then move on.</p>
+          </div>
+        </a>
 
-        <p style="margin:0.65rem 0 0;">
-          <a class="btn wide" href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf" target="_blank" rel="noopener noreferrer">
-            📘 Electricity 2 Booklet (B2) <span class="visually-hidden">(PDF, opens in a new tab)</span>
-          </a>
-        </p>
+        <a class="tile"
+           href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Physics Past Paper Finder in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">⚡ Physics Past Paper Finder <span class="badge">mixed Qs</span></p>
+            <p class="tile-desc">Use after KO + methods (not just calculations).</p>
+          </div>
+        </a>
+
+        <a class="tile"
+           href="https://rstewartphysics.github.io/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ%20Nov25%20Update-2.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Electronics Past Paper Questions in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">💡 Electronics PPQ <span class="badge">Section C</span></p>
+            <p class="tile-desc">Great for symbols, switching, simulation, safety &amp; tools.</p>
+          </div>
+        </a>
       </div>
 
-      <div class="card">
-        <h4>📝 Past Paper Finders</h4>
-        <p>Do these after the Knowledge Organiser and videos.</p>
-
-        <!-- Cleaner: collapse the long guidance -->
-        <div class="mini" aria-label="Past paper guidance">
-          <details>
-            <summary>✅ What to attempt (tap to open)</summary>
-            <div class="inner">
-              <ul>
-                <li><strong>Physics:</strong> focus on <strong>Voltage</strong>, <strong>Ohm’s Law</strong>, <strong>Circuit rules</strong>.</li>
-                <li><strong>Electronics:</strong> <strong>symbols &amp; functions</strong>, <strong>resistor values</strong>, <strong>series/parallel</strong>, <strong>switching circuits</strong>, <strong>voltage dividers</strong>, <strong>simulation/testing</strong>, <strong>safety</strong>, <strong>errors</strong>, <strong>layout/diagrams</strong>.</li>
-                <li><strong>Note:</strong> you may see a few unfamiliar symbols (mix of S3 + N5 Electronics).</li>
-              </ul>
-            </div>
-          </details>
+      <details class="block" style="margin-top:12px;">
+        <summary><span>✅ What to attempt (tap to open)</span><span class="tag">tap to open</span></summary>
+        <div class="details-inner">
+          <ul style="line-height:1.75; font-weight:850; color:rgba(12,43,36,0.92);">
+            <li><strong>Physics:</strong> focus on Voltage, Ohm’s Law, Circuit rules.</li>
+            <li><strong>Electronics:</strong> symbols &amp; functions, resistor values, series/parallel, switching circuits, voltage dividers, simulation/testing, safety, errors, layout/diagrams.</li>
+            <li><strong>Note:</strong> you may see a few unfamiliar symbols (mix of S3 + N5 Electronics).</li>
+          </ul>
         </div>
+      </details>
+    </section>
 
-        <p style="margin:0.65rem 0 0;">
-          <a class="btn secondary wide" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf" target="_blank" rel="noopener noreferrer">
-            ⚡ Physics Past Paper Finder <span class="visually-hidden">(PDF, opens in a new tab)</span>
-          </a>
-        </p>
+    <!-- VIDEOS (MOVED UP TO MATCH MENU ORDER) -->
+    <section class="panel" id="videos" aria-label="Videos">
+      <h2>▶ Video revision (watch only what you need)</h2>
+      <p class="muted">Open a video to load it. Watch → then go straight to booklet questions.</p>
 
-        <p style="margin:0.65rem 0 0;">
-          <a class="btn secondary wide" href="https://rstewartphysics.github.io/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ%20Nov25%20Update-2.pdf" target="_blank" rel="noopener noreferrer">
-            💡 Electronics Past Paper Questions (PPQ) <span class="visually-hidden">(PDF, opens in a new tab)</span>
-          </a>
-        </p>
-      </div>
-
-    </div>
-
-    <div class="card" style="margin-top:0.9rem;">
-      <h4>🤖 AI Tutor (coming soon)</h4>
-      <p>This button will link to the AI tutor later.</p>
-      <button class="btn disabled" type="button" disabled aria-disabled="true">
-        🤖 Open AI Tutor (Coming Soon)
-      </button>
-    </div>
-
-    <hr class="soft">
-
-    <div class="block" aria-label="Electricity 2 videos and notes blocks">
-      <details>
-        <summary>▶ Video revision (watch only what you need)</summary>
-        <div class="inner">
-          <p style="margin:0 0 0.8rem;">
-            Watch the ones you need, then go straight to past paper questions.
-          </p>
-
-          <div class="video-grid" aria-label="Embedded revision videos">
-
+      <div class="video-grid" aria-label="Video list">
+        <details class="block video-item">
+          <summary><span>Voltage Divider Theory</span><span class="tag">tap to load</span></summary>
+          <div class="details-inner">
             <div class="video-card">
               <h4>Voltage Divider Theory</h4>
               <p>How changing resistor values changes the output voltage.</p>
               <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
-                  title="Voltage Divider Theory"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
+                <iframe data-src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
+                        title="Voltage Divider Theory"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
               </div>
             </div>
+          </div>
+        </details>
 
+        <details class="block video-item">
+          <summary><span>LEDs – Basic</span><span class="tag">tap to load</span></summary>
+          <div class="details-inner">
             <div class="video-card">
               <h4>LEDs – Basic</h4>
               <p>Why LEDs need a protective resistor.</p>
               <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
-                  title="LEDs - Basic"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
+                <iframe data-src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
+                        title="LEDs - Basic"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
               </div>
             </div>
+          </div>
+        </details>
 
-            <div class="video-card">
-              <h4>LEDs – Advanced</h4>
-              <p>Extra detail on current and brightness.</p>
-              <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/xdD_3Q7f23M"
-                  title="LEDs - Advanced"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
-              </div>
-            </div>
-
+        <details class="block video-item">
+          <summary><span>Thermistors and LDRs</span><span class="tag">tap to load</span></summary>
+          <div class="details-inner">
             <div class="video-card">
               <h4>Thermistors and LDRs</h4>
               <p>How sensors change resistance.</p>
               <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
-                  title="Thermistors and LDRs"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
+                <iframe data-src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
+                        title="Thermistors and LDRs"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
               </div>
             </div>
+          </div>
+        </details>
 
-            <div class="video-card">
-              <h4>NPN Switch on Voltage</h4>
-              <p>How base voltage controls switching.</p>
-              <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/v7rWj2nsOyA"
-                  title="NPN Switch on Voltage"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
-              </div>
-            </div>
-
+        <details class="block video-item">
+          <summary><span>Transistor Switching Circuits</span><span class="tag">tap to load</span></summary>
+          <div class="details-inner">
             <div class="video-card">
               <h4>Transistor Switching Circuits</h4>
               <p>Using a transistor as a switch.</p>
               <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
-                  title="Transistor Switching Circuits"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
+                <iframe data-src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
+                        title="Transistor Switching Circuits"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
               </div>
             </div>
+          </div>
+        </details>
 
-            <div class="video-card">
-              <h4>Capacitor time delay circuit</h4>
-              <p>Extension: delaying a switching event.</p>
-              <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/vbkY8TGadIk"
-                  title="Capacitor time delay circuit"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
-              </div>
-            </div>
-
+        <details class="block video-item">
+          <summary><span>Stripboard Schematics</span><span class="tag">tap to load</span></summary>
+          <div class="details-inner">
             <div class="video-card">
               <h4>Stripboard Schematics</h4>
-              <p>Plan your stripboard layout and track cuts before soldering.</p>
+              <p>Plan track cuts and links before soldering.</p>
               <div class="video-embed">
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
-                  title="Stripboard Schematics"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
+                <iframe data-src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
+                        title="Stripboard Schematics"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- TEST DETAILS -->
+    <section class="panel" id="testdetails" aria-label="Test details">
+      <h2>🧾 Test details (no spoilers)</h2>
+
+      <div class="grid" style="margin-top:10px;">
+                <div class="card">
+          <h4>What to expect</h4>
+          <ul>
+            <li><strong>3 sections</strong> in total.</li>
+            <li><strong>Section 1:</strong> 5 multiple choice questions.</li>
+            <li><strong>Section 2:</strong> Physics written questions — <strong>15 marks</strong>.</li>
+            <li><strong>Section 3:</strong> Electronics written questions — <strong>10 marks</strong>.</li>
+            <li><strong>Total time:</strong> <strong>45 minutes</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Time strategy</h4>
+          <ul>
+            <li>Do the easy marks first (build confidence).</li>
+            <li>If stuck: write what you <strong>do know</strong> (often earns marks).</li>
+            <li>Leave ~5 minutes at the end to check units, polarity and sensible answers.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:10px;">
+        <strong>General advice:</strong> Use the KO for symbols and rules, and practise explaining control/switching in full sentences.
+      </div>
+    </section>
+
+    <!-- SUCCESS CRITERIA (IMPROVED) -->
+    <section class="panel" id="success" aria-label="Success criteria">
+      <h2>🎯 Success criteria (G / A / R) — saved on this device</h2>
+      <p class="muted">Tap each statement and choose <strong>G</strong>, <strong>A</strong> or <strong>R</strong>. Use the summary to decide what to do next.</p>
+
+      <div class="sc-help">
+        <strong>Tip:</strong> If you mark something <strong style="color:var(--r)">Red</strong>, pick one action:
+        KO → worked example → practise → ask for help.
+      </div>
+
+      <div class="btn-row" aria-label="Success criteria controls" style="margin-top:10px;">
+        <button class="small-btn primary" type="button" onclick="scSetAllSections(true)">Open all success sections</button>
+        <button class="small-btn" type="button" onclick="scSetAllSections(false)">Close all success sections</button>
+      </div>
+
+      <div id="scSections" aria-label="Success criteria sections"></div>
+
+      <div class="sc-summary" aria-live="polite" aria-atomic="true">
+        <div id="scSummaryText" style="font-weight:900;"></div>
+
+        <div class="sc-progress" aria-label="Success criteria completion">
+          <div class="sc-bar" aria-hidden="true"><div id="scProgBar"></div></div>
+        </div>
+
+        <div class="sc-mini" id="scReadyText"></div>
+        <button class="sc-reset" type="button" onclick="scReset()">Reset G/A/R selections</button>
+      </div>
+    </section>
+
+    <!-- LEDs (MERGED TOOL: RESISTOR + CURRENT) -->
+    <section class="panel" id="ledcalc" aria-label="LED tool">
+      <h2>💡 LED tool (protective resistor ↔ current)</h2>
+      <p class="muted">
+        Use this to either:
+        <strong>(1)</strong> calculate the protective resistor for an LED, or
+        <strong>(2)</strong> calculate the current if you already know the resistor.
+      </p>
+
+      <div class="builder">
+        <div class="calc-grid">
+          <div class="field">
+            <label for="ledMode">Mode</label>
+            <select id="ledMode">
+              <option value="resistor" selected>Find resistor (given Vₛ, VLED, I)</option>
+              <option value="current">Find current (given Vₛ, VLED, R)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="ledVs">Supply voltage, V<sub>s</sub> (V)</label>
+            <input id="ledVs" type="number" inputmode="decimal" step="0.1" value="5">
+          </div>
+
+          <div class="field">
+            <label for="ledVf">LED forward voltage, V<sub>LED</sub> (V)</label>
+            <input id="ledVf" type="number" inputmode="decimal" step="0.1" value="2.0">
+          </div>
+
+          <div class="field" id="fieldImA">
+            <label for="ledImA">LED current, I (mA)</label>
+            <input id="ledImA" type="number" inputmode="decimal" step="0.1" value="10">
+          </div>
+
+          <div class="field hidden" id="fieldRKnown">
+            <label for="ledRKnown">Known resistor, R (Ω)</label>
+            <input id="ledRKnown" type="number" inputmode="decimal" step="1" value="330">
+          </div>
+
+          <div class="field" id="fieldSeries">
+            <label for="ledSeries">Resistor series (suggestion)</label>
+            <select id="ledSeries">
+              <option value="E12" selected>E12 (common at school)</option>
+              <option value="E24">E24 (more values)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result-box" aria-live="polite">
+          <div><strong>Step 1:</strong> V<sub>R</sub> = V<sub>s</sub> − V<sub>LED</sub> = <span class="kbd" id="ledVrOut">—</span></div>
+
+          <div id="modeResistorOut">
+            <div style="margin-top:6px;"><strong>Step 2:</strong> I (A) = I (mA) ÷ 1000 = <span class="kbd" id="ledIAOut">—</span></div>
+            <div style="margin-top:6px;"><strong>Step 3:</strong> R = V<sub>R</sub> ÷ I = <span class="kbd" id="ledROut">—</span></div>
+            <div style="margin-top:10px;"><strong>Suggested resistor:</strong> next highest available → <span class="kbd" id="ledSuggest">—</span></div>
+          </div>
+
+          <div class="hidden" id="modeCurrentOut">
+            <div style="margin-top:6px;"><strong>Step 2:</strong> I = V<sub>R</sub> ÷ R = <span class="kbd" id="ledIFromR_A">—</span></div>
+            <div style="margin-top:6px;"><strong>Step 3:</strong> I (mA) = I (A) × 1000 = <span class="kbd" id="ledIFromR_mA">—</span></div>
+          </div>
+
+          <div class="muted" style="margin-top:8px; font-weight:850;">If V<sub>s</sub> ≤ V<sub>LED</sub>, the LED won’t run properly from that supply.</div>
+        </div>
+
+        <details class="block" style="margin-top:12px;">
+          <summary><span>🎯 LED practice (random + check your answer)</span><span class="tag">tap to open</span></summary>
+          <div class="details-inner">
+            <p class="muted" style="margin-top:0;">
+              Try working it out yourself first, then check. (We accept ±5%.)
+            </p>
+
+            <div class="led-practice-grid">
+              <div class="field">
+                <label for="pracVs">Practice V<sub>s</sub> (V)</label>
+                <input id="pracVs" type="number" inputmode="decimal" step="0.1" value="9.0">
+              </div>
+              <div class="field">
+                <label for="pracVf">Practice V<sub>LED</sub> (V)</label>
+                <input id="pracVf" type="number" inputmode="decimal" step="0.1" value="2.0">
+              </div>
+              <div class="field">
+                <label for="pracImA">Practice I (mA)</label>
+                <input id="pracImA" type="number" inputmode="decimal" step="1" value="20">
+              </div>
+              <div class="field">
+                <label for="pracAnswer">My resistor answer (Ω)</label>
+                <input id="pracAnswer" type="number" inputmode="numeric" step="1" placeholder="e.g. 330">
+              </div>
+              <div class="field">
+                <label for="pracSeries">Series for suggestion</label>
+                <select id="pracSeries">
+                  <option value="E12" selected>E12</option>
+                  <option value="E24">E24</option>
+                </select>
               </div>
             </div>
 
+            <div class="btn-row" style="margin-top:10px;">
+              <button class="small-btn primary" type="button" onclick="ledPracticeRandom()">🎲 Random numbers</button>
+              <button class="small-btn" type="button" onclick="ledPracticeCheck()">✅ Check my answer</button>
+              <button class="small-btn" type="button" onclick="ledPracticeClear()">Reset</button>
+            </div>
+
+            <div class="led-feedback" id="pracFeedback" aria-live="polite"></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- SWITCHING BUILDER -->
+    <section class="panel" id="switching" aria-label="Switching circuits builder">
+      <h2>🎛️ Interactive switching circuits (4 types)</h2>
+      <p class="muted">Build a perfect cause → effect explanation. Choose a circuit type, then press <strong>Check</strong>.</p>
+
+      <details class="block">
+        <summary><span>✅ Switching sentence builder</span><span class="tag">tap to open</span></summary>
+        <div class="details-inner">
+
+          <div class="field" style="max-width:520px;">
+            <label for="cType">Circuit type</label>
+            <select id="cType">
+              <option value="highTemp">High temperature switching</option>
+              <option value="lowTemp">Low temperature switching</option>
+              <option value="highLight">High light switching</option>
+              <option value="lowLight">Low light switching</option>
+            </select>
+          </div>
+
+          <div class="builder" aria-label="Sentence builder">
+            <div style="font-weight:900; color:rgba(12,43,36,0.92); line-height:1.8;">
+              <div style="margin:8px 0;">
+                When the <span class="kbd" id="varName">temperature</span>
+                <span class="inline-select"><select id="s1"><option>increases</option><option>decreases</option></select></span>,
+                the resistance of the <span class="kbd" id="sensorName">thermistor</span>
+                <span class="inline-select"><select id="s2"><option>increases</option><option>decreases</option></select></span>.
+              </div>
+
+              <div style="margin:8px 0;">
+                The voltage across the <span class="kbd" id="sensorName2">thermistor</span>
+                <span class="inline-select"><select id="s3"><option>increases</option><option>decreases</option></select></span>,
+                and the voltage across the variable resistor
+                <span class="inline-select"><select id="s4"><option>increases</option><option>decreases</option></select></span>.
+              </div>
+
+              <div style="margin:8px 0;">
+                When this reaches the
+                <span class="inline-select"><select id="s5"><option>switching voltage</option><option>threshold voltage</option><option>maximum voltage</option></select></span>,
+                the transistor and LED
+                <span class="inline-select"><select id="s6"><option>switch on</option><option>switch off</option></select></span>.
+              </div>
+            </div>
+
+            <div class="btn-row" aria-label="Builder actions" style="margin-top:10px;">
+              <button class="small-btn primary" type="button" onclick="checkSentence()">Check</button>
+              <button class="small-btn" type="button" onclick="setPerfect()">Show perfect answer</button>
+              <button class="small-btn" type="button" onclick="resetBuilder()">Reset</button>
+            </div>
+
+            <div id="sentenceMsg" class="msg" role="status" aria-live="polite" style="display:none;"></div>
+
+            <details class="block" style="margin-top:12px;">
+              <summary><span>⭐ Quick science reminder</span><span class="tag">tap to open</span></summary>
+              <div class="details-inner">
+                <ul style="line-height:1.75; font-weight:850; color:rgba(12,43,36,0.92);">
+                  <li><strong>LDR:</strong> more light → <strong>lower</strong> resistance.</li>
+                  <li><strong>NTC thermistor:</strong> higher temperature → <strong>lower</strong> resistance.</li>
+                  <li>In a divider: if a component’s resistance decreases, the voltage across it decreases too (and the other part increases).</li>
+                </ul>
+              </div>
+            </details>
+
           </div>
         </div>
       </details>
-    </div>
+    </section>
 
-    <hr class="soft">
+    <!-- SKILLS & TESTING -->
+    <section class="panel" id="skills" aria-label="Electronics skills and testing">
+      <h2>🧰 Electronics skills &amp; testing (must-know)</h2>
+      <p class="muted">These are common written questions (short bullet points = full marks).</p>
 
-    <h3 style="margin:0 0 0.7rem;">✅ Core Notes (open only what you need)</h3>
+      <details class="block">
+        <summary><span>🧪 Testing, meters, safety, tools</span><span class="tag">tap to open</span></summary>
+        <div class="details-inner">
+          <div class="grid">
+            <div class="card">
+              <h4>Pre-power checks (examples)</h4>
+              <ul>
+                <li>Correct component values (especially resistors).</li>
+                <li>Correct polarity (LED/diode/capacitor/transistor/MOSFET).</li>
+                <li>No short circuits / no solder bridges.</li>
+                <li>Rails correct (V+ and 0V continuous).</li>
+              </ul>
+            </div>
 
-    <div class="controls-row" aria-label="Notes controls">
-      <button class="small-btn" type="button" onclick="setAllNotes(true)">Open all notes</button>
-      <button class="small-btn" type="button" onclick="setAllNotes(false)">Close all notes</button>
-    </div>
+            <div class="card">
+              <h4>Functionality tests (examples)</h4>
+              <ul>
+                <li>Supply voltage correct at rails.</li>
+                <li>Vout changes as expected with light/temp.</li>
+                <li>Output switches at the intended point.</li>
+                <li>Nothing heats unexpectedly; current not excessive.</li>
+              </ul>
+            </div>
 
-    <div class="notes" id="notesBlock" aria-label="Core Electricity 2 notes">
+            <div class="card">
+              <h4>Meter rules</h4>
+              <ul>
+                <li><strong>Voltmeter:</strong> in parallel (measures V across a component).</li>
+                <li><strong>Ammeter:</strong> in series (measures current through a circuit).</li>
+                <li><strong>Resistance:</strong> power OFF to measure.</li>
+              </ul>
+            </div>
 
-      <details>
-        <summary>🧾 Key Equations (the only ones you need here)</summary>
-        <div class="inner">
-          <p style="margin:0 0 0.7rem;">Learn these and you can do most of the calculations in this unit:</p>
-
-          <div class="eq" aria-label="Equations: V equals I R; V2 equals R2 over R1 plus R2 times Vs; R LED equals Vs minus Vf over I.">
-V = I·R
-V<sub>2</sub> = ( R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ) × V<sub>s</sub>
-R<sub>LED</sub> = (V<sub>s</sub> − V<sub>f</sub>) / I   (I in amps)
+            <div class="card">
+              <h4>Tool functions</h4>
+              <ul>
+                <li><strong>Track cutter:</strong> breaks copper track on stripboard.</li>
+                <li><strong>Heat sink:</strong> protects heat-sensitive parts while soldering.</li>
+                <li><strong>Solder sucker:</strong> removes molten solder to fix mistakes/clear holes.</li>
+              </ul>
+            </div>
           </div>
 
-          <ul>
-            <li><strong>V<sub>s</sub></strong> = supply voltage.</li>
-            <li><strong>V<sub>2</sub></strong> is the voltage <strong>across R<sub>2</sub></strong> (same as <strong>V<sub>out</sub></strong>).</li>
-            <li>For LEDs, use <strong>I</strong> in <strong>amps</strong> (e.g. 10 mA = 0.010 A).</li>
-          </ul>
+          <div class="callout warn" style="margin-top:10px;">
+            <strong>Mark-friendly writing:</strong> answer practical questions in short bullet points (2 clear points = full marks).
+          </div>
         </div>
       </details>
+    </section>
 
-      <details>
-        <summary>🔁 Circuit Rules Recap (from Electricity 1)</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Series:</strong> current is the <strong>same</strong> everywhere, voltages <strong>add up</strong>.</li>
-            <li><strong>Parallel:</strong> voltage is the <strong>same</strong> across each branch, current <strong>splits</strong>.</li>
-            <li>Used mainly for divider/control circuits here, but the rules still apply.</li>
-          </ul>
+    <!-- ASSIGNMENT (MOVED TO END TO MATCH MENU ORDER) -->
+    <section class="panel" id="assignment" aria-label="Assignment checklist">
+      <h2>📌 Practical Electronics Assignment — Overheating Warning System</h2>
+
+      <div class="callout warn">
+        <strong>This is your checklist hub.</strong> Tick items as you complete them. Ticks are saved on this device.
+      </div>
+
+      <div class="btn-row" aria-label="Phase buttons" style="margin-top:10px;">
+        <button class="small-btn primary" type="button" onclick="openAssignmentPhase('planning')">Planning (1–4)</button>
+        <button class="small-btn" type="button" onclick="openAssignmentPhase('build')">Build (5–7)</button>
+        <button class="small-btn" type="button" onclick="openAssignmentPhase('test')">Test + Logbook (8–13)</button>
+        <button class="small-btn" type="button" onclick="openAssignmentPhase('all')">Open all</button>
+      </div>
+
+      <details class="block" id="assignWrap">
+        <summary><span>🗂️ Assignment checklist (interactive)</span><span class="tag">tap to open</span></summary>
+        <div class="details-inner">
+
+          <div class="progress" aria-label="Assignment progress">
+            <div id="assignProgText" style="font-weight:900;"></div>
+            <div class="bar" aria-hidden="true"><div id="assignProgBar"></div></div>
+
+            <div class="btn-row" style="margin-top:10px;">
+              <button class="small-btn primary" type="button" onclick="assignmentSetAll(true)">Tick all</button>
+              <button class="small-btn" type="button" onclick="assignmentSetAll(false)">Untick all</button>
+              <button class="small-btn" type="button" onclick="assignmentReset()">Reset ticks</button>
+            </div>
+          </div>
+
+          <!-- Planning -->
+          <details class="block" id="phasePlanning">
+            <summary><span>🧠 Planning &amp; simulation</span><span class="tag">1–4</span></summary>
+            <div class="details-inner">
+              <ul class="checklist">
+                <li><input type="checkbox" id="a1"><label for="a1">My aim is clear<span class="sub">What does “overheating warning” mean in this context?</span></label></li>
+                <li><input type="checkbox" id="a2"><label for="a2">I chose the correct sensor<span class="sub">Thermistor (NTC) for temperature control.</span></label></li>
+                <li><input type="checkbox" id="a3"><label for="a3">Simulation works and is labelled<span class="sub">Label R1/R2, sensor, transistor/MOSFET, LED, rails, Vout.</span></label></li>
+                <li><input type="checkbox" id="a4"><label for="a4">I can explain how it works<span class="sub">Condition → resistance change → voltage change → switching voltage → output on.</span></label></li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Build -->
+          <details class="block" id="phaseBuild">
+            <summary><span>🔧 Build &amp; layout</span><span class="tag">5–7</span></summary>
+            <div class="details-inner">
+              <ul class="checklist">
+                <li><input type="checkbox" id="a5"><label for="a5">Stripboard plan is clear<span class="sub">Track cuts + links clearly marked (teacher check before soldering).</span></label></li>
+                <li><input type="checkbox" id="a6"><label for="a6">Polarity and pinouts checked<span class="sub">LED/diode/capacitor + transistor/MOSFET orientation confirmed.</span></label></li>
+                <li><input type="checkbox" id="a7"><label for="a7">Soldering is neat<span class="sub">No bridges, shiny joints, trimmed leads.</span></label></li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Testing -->
+          <details class="block" id="phaseTest">
+            <summary><span>🧪 Testing evidence</span><span class="tag">8–10</span></summary>
+            <div class="details-inner">
+              <ul class="checklist">
+                <li><input type="checkbox" id="a8"><label for="a8">At least 3 pre-power tests recorded<span class="sub">Values, polarity, shorts/continuity, rails.</span></label></li>
+                <li><input type="checkbox" id="a9"><label for="a9">At least 3 functionality tests recorded<span class="sub">Vout, output on/off conditions, expected vs measured.</span></label></li>
+                <li><input type="checkbox" id="a10"><label for="a10">Faults + fixes recorded (if any)<span class="sub">What was wrong, what you changed, new result.</span></label></li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Logbook -->
+          <details class="block" id="phaseLogbook">
+            <summary><span>📓 Logbook &amp; evaluation</span><span class="tag">11–13</span></summary>
+            <div class="details-inner">
+              <ul class="checklist">
+                <li><input type="checkbox" id="a11"><label for="a11">Dated logbook entries are regular<span class="sub">What you did + evidence (measurements/observations).</span></label></li>
+                <li><input type="checkbox" id="a12"><label for="a12">Evaluation is specific<span class="sub">What went well, difficulties, improvements, next steps.</span></label></li>
+                <li><input type="checkbox" id="a13"><label for="a13">Final teacher check points done<span class="sub">Simulation, stripboard plan, first full test set.</span></label></li>
+              </ul>
+            </div>
+          </details>
+
         </div>
       </details>
+    </section>
 
-      <details>
-        <summary>📏 Measuring in Circuits (meters)</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Ammeter:</strong> measure current → connect <strong>in series</strong>.</li>
-            <li><strong>Voltmeter:</strong> measure voltage → connect <strong>in parallel</strong>.</li>
-            <li><strong>Ohmmeter:</strong> measure resistance → power <strong>OFF</strong>.</li>
-            <li>In divider questions, you’ll often measure <strong>V<sub>2</sub></strong> across <strong>R<sub>2</sub></strong>.</li>
-          </ul>
-        </div>
-      </details>
+  </main>
 
-      <details>
-        <summary>🔢 Potential Dividers (the core idea)</summary>
-        <div class="inner">
-          <ul>
-            <li>Two resistors in series create a smaller output voltage.</li>
-            <li>Output is usually <strong>V<sub>2</sub></strong> (across <strong>R<sub>2</sub></strong>).</li>
-            <li>If <strong>R<sub>2</sub></strong> increases (R<sub>1</sub> fixed), then <strong>V<sub>2</sub></strong> increases.</li>
-            <li>If <strong>R<sub>1</sub></strong> increases (R<sub>2</sub> fixed), then <strong>V<sub>2</sub></strong> decreases.</li>
-          </ul>
-        </div>
-      </details>
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
-      <details>
-        <summary>🔧 Components &amp; What They Do</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>Voltage rails:</strong> +V and 0V lines that power the circuit.</li>
-            <li><strong>Resistor:</strong> limits current / shares voltage.</li>
-            <li><strong>Variable resistor:</strong> adjustable resistance.</li>
-            <li><strong>SPDT switch:</strong> middle contact connects to one of two outputs.</li>
-            <li><strong>Diode:</strong> current one direction only.</li>
-            <li><strong>LED:</strong> light-emitting diode — needs a <strong>series resistor</strong>.</li>
-            <li><strong>Capacitor:</strong> stores charge (used for timing/delay with a resistor).</li>
-            <li><strong>LDR:</strong> more light → <strong>lower</strong> resistance.</li>
-            <li><strong>Thermistor (NTC):</strong> higher temp → <strong>lower</strong> resistance.</li>
-            <li><strong>Transistor (NPN BJT):</strong> electronic switch (current-controlled).</li>
-            <li><strong>MOSFET (n-channel enhancement):</strong> electronic switch (voltage-controlled).</li>
-          </ul>
-        </div>
-      </details>
+  <script>
+    /* ============================
+       MENU: ESC closes + focus trap
+    =============================== */
+    function $(id){ return document.getElementById(id); }
+    let lastFocusEl = null;
 
-      <details>
-        <summary>🌡️ Sensors (LDRs &amp; Thermistors)</summary>
-        <div class="inner">
-          <ul>
-            <li>Sensors are often one resistor in a potential divider.</li>
-            <li><strong>LDR:</strong> brighter → <strong>lower</strong> resistance.</li>
-            <li><strong>NTC thermistor:</strong> hotter → <strong>lower</strong> resistance.</li>
-            <li>Environment changes resistance → <strong>V<sub>2</sub></strong> changes → circuit responds.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🎛️ Control Circuits (the 4 you must recognise)</summary>
-        <div class="inner">
-          <p style="margin:0 0 0.6rem;">
-            Aim: make <strong>V<sub>2</sub></strong> go <strong>high</strong> when you want the output to switch on.
-            Remember: <strong>V<sub>2</sub> increases when R<sub>2</sub> increases</strong> (R<sub>1</sub> fixed).
-          </p>
-          <ul>
-            <li><strong>Low light (LDR):</strong> LDR is <strong>R<sub>2</sub></strong> → low light = high R → <strong>V<sub>2</sub> high</strong>.</li>
-            <li><strong>High light (LDR):</strong> LDR is <strong>R<sub>1</sub></strong> → high light = low R → <strong>V<sub>2</sub> high</strong>.</li>
-            <li><strong>Low temp (NTC):</strong> NTC is <strong>R<sub>2</sub></strong> → low temp = high R → <strong>V<sub>2</sub> high</strong>.</li>
-            <li><strong>High temp (NTC):</strong> NTC is <strong>R<sub>1</sub></strong> → high temp = low R → <strong>V<sub>2</sub> high</strong>.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🔄 Switching &amp; Control (BJT / MOSFET as a switch)</summary>
-        <div class="inner">
-          <ul>
-            <li><strong>NPN BJT:</strong> starts turning on when <strong>V<sub>BE</sub> ≈ 0.7 V</strong>.</li>
-            <li>Use a <strong>base resistor</strong> to limit base current.</li>
-            <li><strong>MOSFET:</strong> gate voltage controls switching (tiny gate current).</li>
-            <li>Divider + sensor creates the control voltage for switching.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>💡 Diodes &amp; LEDs (safe LED circuits)</summary>
-        <div class="inner">
-          <ul>
-            <li>Diodes/LEDs work in the <strong>forward direction</strong> only.</li>
-            <li>LED needs a <strong>series resistor</strong> to prevent damage.</li>
-            <li>Use: <strong>V<sub>R</sub> = V<sub>s</sub> − V<sub>f</sub></strong>, then <strong>R = V<sub>R</sub> / I</strong>.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🧰 Practical Skills (stripboard &amp; soldering)</summary>
-        <div class="inner">
-          <ul>
-            <li>Tracks run in lines — add <strong>track cuts</strong> to stop unwanted connections.</li>
-            <li><strong>Heat sink</strong> protects heat-sensitive parts.</li>
-            <li><strong>Solder sucker</strong> removes mistakes.</li>
-            <li>Good joint: shiny, secure, not a blob.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>🔍 Fault Finding (what to do when it doesn’t work)</summary>
-        <div class="inner">
-          <ul>
-            <li>Change <strong>one thing at a time</strong>, test again.</li>
-            <li>Check: rails, polarity, correct resistors.</li>
-            <li>Stripboard: track cuts, solder bridges, shorting legs.</li>
-            <li>Measure: <strong>V<sub>s</sub></strong> → <strong>V<sub>2</sub></strong> → output.</li>
-          </ul>
-        </div>
-      </details>
-
-    </div>
-
-    <hr class="soft">
-
-    <div class="callout">
-      <p style="margin:0;">
-        <strong>Teacher check (recommended):</strong><br>
-        When you finish a booklet section, get your answers checked before moving on.
-      </p>
-    </div>
-
-  </div>
-</main>
-
-<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
-
-<script>
-/* Menu: ESC closes + focus-friendly + focus trap */
-function $(id){ return document.getElementById(id); }
-let lastFocusEl = null;
-
-function getFocusableInMenu(){
-  const menu = $("sideMenu");
-  if(!menu) return [];
-  return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-    .filter(el => !el.hasAttribute('disabled'));
-}
-
-function openMenu(){
-  const menu = $("sideMenu");
-  const overlay = $("menuOverlay");
-  const btn = $("menuBtn");
-  if(!menu || !overlay || !btn) return;
-
-  lastFocusEl = document.activeElement;
-
-  menu.classList.add("open");
-  overlay.classList.add("show");
-
-  btn.setAttribute("aria-expanded","true");
-  btn.setAttribute("aria-label","Close menu");
-  overlay.setAttribute("aria-hidden","false");
-
-  const focusables = getFocusableInMenu();
-  if(focusables.length) focusables[0].focus();
-}
-
-function closeMenu(){
-  const menu = $("sideMenu");
-  const overlay = $("menuOverlay");
-  const btn = $("menuBtn");
-  if(!menu || !overlay || !btn) return;
-
-  menu.classList.remove("open");
-  overlay.classList.remove("show");
-
-  btn.setAttribute("aria-expanded","false");
-  btn.setAttribute("aria-label","Open menu");
-  overlay.setAttribute("aria-hidden","true");
-
-  if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-    lastFocusEl.focus();
-  } else {
-    btn.focus();
-  }
-  lastFocusEl = null;
-}
-
-function toggleMenu(){
-  const menu = $("sideMenu");
-  if(!menu) return;
-  const isOpen = menu.classList.contains("open");
-  if(isOpen) closeMenu();
-  else openMenu();
-}
-
-/* Focus trap when menu open */
-document.addEventListener("keydown", (e) => {
-  const menu = $("sideMenu");
-  const isOpen = menu && menu.classList.contains("open");
-
-  if(e.key === "Escape" && isOpen){
-    e.preventDefault();
-    closeMenu();
-  }
-
-  if(e.key === "Tab" && isOpen){
-    const focusables = getFocusableInMenu();
-    if(!focusables.length) return;
-
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-
-    if(e.shiftKey && document.activeElement === first){
-      e.preventDefault();
-      last.focus();
-    } else if(!e.shiftKey && document.activeElement === last){
-      e.preventDefault();
-      first.focus();
+    function getFocusableInMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return [];
+      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
     }
-  }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-  const overlay = $("menuOverlay");
-  if(overlay) overlay.setAttribute("aria-hidden","true");
+    function openMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
 
-  const closeLink = $("closeMenuLink");
-  if(closeLink){
-    closeLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      closeMenu();
+      lastFocusEl = document.activeElement;
+
+      menu.classList.add("open");
+      overlay.classList.add("show");
+
+      btn.setAttribute("aria-expanded","true");
+      btn.setAttribute("aria-label","Close menu");
+      overlay.setAttribute("aria-hidden","false");
+
+      const focusables = getFocusableInMenu();
+      if(focusables.length) focusables[0].focus();
+    }
+
+    function closeMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
+
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
+
+      btn.setAttribute("aria-expanded","false");
+      btn.setAttribute("aria-label","Open menu");
+      overlay.setAttribute("aria-hidden","true");
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
+    }
+
+    function toggleMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return;
+      const isOpen = menu.classList.contains("open");
+      if(isOpen) closeMenu();
+      else openMenu();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const menu = $("sideMenu");
+      const isOpen = menu && menu.classList.contains("open");
+
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
+      }
+
+      if(e.key === "Tab" && isOpen){
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
     });
-  }
-});
 
-/* Open/Close all notes */
-function setAllNotes(open){
-  const wrap = $("notesBlock");
-  if(!wrap) return;
-  wrap.querySelectorAll("details").forEach(d => d.open = !!open);
-}
-</script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = $("menuOverlay");
+      if(overlay) overlay.setAttribute("aria-hidden","true");
 
+      const closeLink = $("closeMenuLink");
+      if(closeLink){
+        closeLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeMenu();
+        });
+      }
+    });
+
+    /* ============================
+       LED UTILITIES (shared)
+    =============================== */
+    const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
+    const E24 = [1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1];
+
+    function nextSeriesValue(valueOhms, series){
+      if(!isFinite(valueOhms) || valueOhms <= 0) return null;
+      const base = (series === "E24") ? E24 : E12;
+      const decade = Math.pow(10, Math.floor(Math.log10(valueOhms)));
+      const norm = valueOhms / decade;
+      for(const v of base){
+        if(v >= norm) return v * decade;
+      }
+      return base[0] * decade * 10;
+    }
+
+    function fmtOhms(x){
+      if(!isFinite(x)) return "—";
+      if(x >= 1e6) return (x/1e6).toFixed(2).replace(/\.00$/,'') + " MΩ";
+      if(x >= 1e3) return (x/1e3).toFixed(2).replace(/\.00$/,'') + " kΩ";
+      return Math.round(x) + " Ω";
+    }
+
+    function fmtA(x){
+      if(!isFinite(x)) return "—";
+      return x.toFixed(4).replace(/0+$/,'').replace(/\.$/,'') + " A";
+    }
+
+    /* ============================
+       LED TOOL (mode switch + live calculation)
+    =============================== */
+    function updateLedModeUI(){
+      const mode = $("ledMode") ? $("ledMode").value : "resistor";
+      const fieldImA = $("fieldImA");
+      const fieldR = $("fieldRKnown");
+      const fieldSeries = $("fieldSeries");
+
+      const outRes = $("modeResistorOut");
+      const outCur = $("modeCurrentOut");
+
+      const suggest = $("ledSuggest");
+
+      if(mode === "current"){
+        if(fieldImA) fieldImA.classList.add("hidden");
+        if(fieldR) fieldR.classList.remove("hidden");
+        if(fieldSeries) fieldSeries.classList.add("hidden");
+        if(outRes) outRes.classList.add("hidden");
+        if(outCur) outCur.classList.remove("hidden");
+        if(suggest) suggest.textContent = "—";
+      } else {
+        if(fieldImA) fieldImA.classList.remove("hidden");
+        if(fieldR) fieldR.classList.add("hidden");
+        if(fieldSeries) fieldSeries.classList.remove("hidden");
+        if(outRes) outRes.classList.remove("hidden");
+        if(outCur) outCur.classList.add("hidden");
+      }
+
+      calcLedTool();
+    }
+
+    function calcLedTool(){
+      const mode = $("ledMode") ? $("ledMode").value : "resistor";
+      const Vs = parseFloat($("ledVs").value);
+      const Vled = parseFloat($("ledVf").value);
+
+      const vrOut = $("ledVrOut");
+      const iAOut = $("ledIAOut");
+      const rOut = $("ledROut");
+      const rSuggest = $("ledSuggest");
+
+      const iFromR_A = $("ledIFromR_A");
+      const iFromR_mA = $("ledIFromR_mA");
+
+      if(!isFinite(Vs) || !isFinite(Vled)){
+        if(vrOut) vrOut.textContent = "—";
+        if(iAOut) iAOut.textContent = "—";
+        if(rOut) rOut.textContent = "—";
+        if(rSuggest) rSuggest.textContent = "—";
+        if(iFromR_A) iFromR_A.textContent = "—";
+        if(iFromR_mA) iFromR_mA.textContent = "—";
+        return;
+      }
+
+      const Vr = Vs - Vled;
+      if(vrOut) vrOut.textContent = Vr.toFixed(2).replace(/\.00$/,'') + " V";
+
+      if(Vr <= 0){
+        if(mode === "resistor"){
+          if(iAOut) iAOut.textContent = "—";
+          if(rOut) rOut.textContent = "Not possible (Vₛ ≤ VLED)";
+          if(rSuggest) rSuggest.textContent = "—";
+        } else {
+          if(iFromR_A) iFromR_A.textContent = "Not possible (Vₛ ≤ VLED)";
+          if(iFromR_mA) iFromR_mA.textContent = "—";
+        }
+        return;
+      }
+
+      if(mode === "current"){
+        const Rknown = parseFloat($("ledRKnown").value);
+        if(!isFinite(Rknown) || Rknown <= 0){
+          if(iFromR_A) iFromR_A.textContent = "—";
+          if(iFromR_mA) iFromR_mA.textContent = "—";
+          return;
+        }
+        const I = Vr / Rknown; // amps
+        if(iFromR_A) iFromR_A.textContent = fmtA(I);
+        if(iFromR_mA) iFromR_mA.textContent = Math.round(I * 1000) + " mA";
+        return;
+      }
+
+      // resistor mode
+      const I_mA = parseFloat($("ledImA").value);
+      const series = $("ledSeries").value;
+
+      if(!isFinite(I_mA) || I_mA <= 0){
+        if(iAOut) iAOut.textContent = "—";
+        if(rOut) rOut.textContent = "—";
+        if(rSuggest) rSuggest.textContent = "—";
+        return;
+      }
+
+      const I = I_mA / 1000;
+      if(iAOut) iAOut.textContent = fmtA(I);
+
+      const R = Vr / I;
+      if(rOut) rOut.textContent = fmtOhms(R);
+
+      const sugg = nextSeriesValue(R, series);
+      if(rSuggest) rSuggest.textContent = sugg ? fmtOhms(sugg) : "—";
+    }
+
+    /* ============================
+       LED PRACTICE (random + check)
+    =============================== */
+    function ledPracticeClear(){
+      $("pracAnswer").value = "";
+      const fb = $("pracFeedback");
+      fb.style.display = "none";
+      fb.innerHTML = "";
+    }
+
+    function ledPracticeRandom(){
+      const VsOptions = [3, 4.5, 5, 6, 9, 12];
+      const VfOptions = [1.8, 2.0, 2.1, 2.2, 2.8, 3.0, 3.2, 3.3];
+      const IOptions  = [5, 10, 15, 20];
+
+      let VsPick, VfPick;
+      for(let tries=0; tries<20; tries++){
+        VsPick = VsOptions[Math.floor(Math.random()*VsOptions.length)];
+        VfPick = VfOptions[Math.floor(Math.random()*VfOptions.length)];
+        if(VsPick > VfPick + 0.2) break;
+      }
+      const IPick = IOptions[Math.floor(Math.random()*IOptions.length)];
+
+      $("pracVs").value = VsPick.toFixed(1);
+      $("pracVf").value = VfPick.toFixed(1);
+      $("pracImA").value = IPick.toFixed(0);
+
+      ledPracticeClear();
+    }
+
+    function ledPracticeCheck(){
+      const Vs = parseFloat($("pracVs").value);
+      const Vf = parseFloat($("pracVf").value);
+      const I_mA = parseFloat($("pracImA").value);
+      const series = $("pracSeries").value;
+
+      const fb = $("pracFeedback");
+      fb.style.display = "block";
+
+      if(!isFinite(Vs) || !isFinite(Vf) || !isFinite(I_mA) || I_mA <= 0){
+        fb.innerHTML = "<strong>Check:</strong> Please enter sensible numbers for V<sub>s</sub>, V<sub>LED</sub> and current.";
+        return;
+      }
+      const Vr = Vs - Vf;
+      const I = I_mA / 1000;
+      if(Vr <= 0){
+        fb.innerHTML = "<strong>Check:</strong> V<sub>s</sub> must be greater than V<sub>LED</sub> (otherwise the LED won’t run correctly).";
+        return;
+      }
+
+      const correct = Vr / I; // ohms
+      const rounded = Math.round(correct);
+      const suggested = nextSeriesValue(correct, series);
+
+      const student = parseFloat($("pracAnswer").value);
+
+      if(!isFinite(student) || student <= 0){
+        fb.innerHTML = `
+          <strong>Answer revealed:</strong> R ≈ <strong>${rounded} Ω</strong>.<br>
+          <span class="muted" style="display:block; margin-top:6px; font-weight:850;">
+            Suggested standard value (${series}): <strong>${suggested ? fmtOhms(suggested) : "—"}</strong>
+          </span>
+          <div class="muted" style="margin-top:8px; font-weight:850;">
+            Working: R = (V<sub>s</sub> − V<sub>LED</sub>) / I, with I in amps.
+          </div>
+        `;
+        return;
+      }
+
+      const tol = 0.05;
+      const ok = (student >= correct*(1-tol) && student <= correct*(1+tol));
+
+      fb.innerHTML = `
+        <strong>${ok ? "✅ Nice!" : "Not quite yet"}</strong><br>
+        Correct calculation: R ≈ <strong>${rounded} Ω</strong> (about ${correct.toFixed(1)} Ω).<br>
+        Your answer: <strong>${Math.round(student)} Ω</strong> ${ok ? "is close enough (±5%)." : "is outside ±5%."}
+        <div class="muted" style="margin-top:8px; font-weight:850;">
+          Suggested standard value (${series}): <strong>${suggested ? fmtOhms(suggested) : "—"}</strong>
+        </div>
+        <div class="muted" style="margin-top:6px; font-weight:850;">
+          Working: R = (V<sub>s</sub> − V<sub>LED</sub>) / I.
+        </div>
+      `;
+    }
+
+    /* ============================
+       SWITCHING SENTENCE BUILDER
+    =============================== */
+    const circuitData = {
+      highTemp: {
+        varName: "temperature",
+        sensor: "thermistor",
+        correct: { s1:"increases", s2:"decreases", s3:"decreases", s4:"increases", s5:"switching voltage", s6:"switch on" }
+      },
+      lowTemp: {
+        varName: "temperature",
+        sensor: "thermistor",
+        correct: { s1:"decreases", s2:"increases", s3:"increases", s4:"decreases", s5:"switching voltage", s6:"switch on" }
+      },
+      highLight: {
+        varName: "light level",
+        sensor: "LDR",
+        correct: { s1:"increases", s2:"decreases", s3:"decreases", s4:"increases", s5:"switching voltage", s6:"switch on" }
+      },
+      lowLight: {
+        varName: "light level",
+        sensor: "LDR",
+        correct: { s1:"decreases", s2:"increases", s3:"increases", s4:"decreases", s5:"switching voltage", s6:"switch on" }
+      }
+    };
+
+    function applyCircuitUI(){
+      const type = $("cType").value;
+      const d = circuitData[type];
+
+      $("varName").textContent = d.varName;
+      $("sensorName").textContent = d.sensor;
+      $("sensorName2").textContent = d.sensor;
+
+      const msg = $("sentenceMsg");
+      msg.style.display = "none";
+      msg.className = "msg";
+      msg.textContent = "";
+    }
+
+    function currentSelections(){
+      return {
+        s1: $("s1").value,
+        s2: $("s2").value,
+        s3: $("s3").value,
+        s4: $("s4").value,
+        s5: $("s5").value,
+        s6: $("s6").value
+      };
+    }
+
+    function checkSentence(){
+      const type = $("cType").value;
+      const d = circuitData[type];
+      const sel = currentSelections();
+
+      let ok = true;
+      for(const k of Object.keys(d.correct)){
+        if(sel[k] !== d.correct[k]) ok = false;
+      }
+
+      const msg = $("sentenceMsg");
+      msg.style.display = "block";
+
+      if(ok){
+        msg.className = "msg good";
+        msg.textContent = "✅ Perfect — that’s a full-mark explanation chain.";
+      } else {
+        msg.className = "msg bad";
+        msg.textContent = "❌ Nearly — check the sensor rule (LDR/NTC) and remember: lower resistance means lower voltage across that component.";
+      }
+    }
+
+    function setPerfect(){
+      const type = $("cType").value;
+      const d = circuitData[type];
+      $("s1").value = d.correct.s1;
+      $("s2").value = d.correct.s2;
+      $("s3").value = d.correct.s3;
+      $("s4").value = d.correct.s4;
+      $("s5").value = d.correct.s5;
+      $("s6").value = d.correct.s6;
+      checkSentence();
+    }
+
+    function resetBuilder(){
+      $("s1").value = "increases";
+      $("s2").value = "increases";
+      $("s3").value = "increases";
+      $("s4").value = "increases";
+      $("s5").value = "switching voltage";
+      $("s6").value = "switch on";
+      const msg = $("sentenceMsg");
+      msg.style.display = "none";
+      msg.className = "msg";
+      msg.textContent = "";
+    }
+
+    /* ============================
+       SUCCESS CRITERIA (IMPROVED G/A/R)
+    =============================== */
+    const SC_KEY = "mrsp_s3_e2_successcriteria_gar_v3";
+
+    const scSections = [
+      { key:"L1", title:"L1 – Potential Divider Theory", items:[
+        "I can describe the purpose of a potential divider circuit.",
+        "I can calculate the output voltage of a potential divider circuit.",
+        "I can explain what happens to Vout when one resistance changes."
+      ]},
+      { key:"L2", title:"L2 – Potential Divider Simulation (Yenka)", items:[
+        "I can use a simulation to build and test potential divider circuits.",
+        "I can compare simulated readings to calculated values."
+      ]},
+      { key:"L3", title:"L3 – Construction + Testing", items:[
+        "I can compare calculated, simulated and measured values of voltage in a potential divider.",
+        "I can describe common pre-power and functionality tests in electronics.",
+        "I can use a multimeter correctly (voltage in parallel, current in series)."
+      ]},
+      { key:"L4", title:"L4 – Diodes & LEDs", items:[
+        "I can draw the circuit symbols for a diode and LED.",
+        "I can describe the function of diodes and LEDs.",
+        "I can identify the anode and cathode of a diode/LED.",
+        "I can calculate a protective resistor for an LED."
+      ]},
+      { key:"L5", title:"L5 – Special Components", items:[
+        "I can describe the function of a thermistor (NTC).",
+        "I can describe the function of an LDR.",
+        "I can describe the function of a variable resistor."
+      ]},
+      { key:"L6", title:"L6 – Control Circuits", items:[
+        "I can describe the relationship between temperature and resistance for an NTC thermistor.",
+        "I can describe the relationship between light level and resistance for an LDR.",
+        "I can explain control circuits using the chain: condition → resistance → voltage → output."
+      ]},
+      { key:"L7", title:"L7 – Switching Circuits", items:[
+        "I can describe the function of a transistor (switching).",
+        "I can describe what is meant by switching voltage / threshold.",
+        "I can explain how a switching circuit works in full sentences."
+      ]},
+      { key:"L8", title:"L8 – Soldering & Tools", items:[
+        "I can describe safe soldering techniques.",
+        "I can describe common soldering faults and how to fix them.",
+        "I can describe how a track cutter and solder sucker are used."
+      ]},
+      { key:"L9", title:"L9 – Design & Improvement", items:[
+        "I can design a simple switching circuit for a given situation.",
+        "I can justify design choices using test evidence (measurements/observations)."
+      ]}
+    ];
+
+    function scId(secKey, index){ return `${secKey}_${index+1}`; }
+
+    function scLoad(){
+      try{
+        const raw = localStorage.getItem(SC_KEY);
+        if(!raw) return {};
+        const obj = JSON.parse(raw);
+        return (obj && typeof obj === "object") ? obj : {};
+      }catch{ return {}; }
+    }
+    function scSave(state){
+      try{ localStorage.setItem(SC_KEY, JSON.stringify(state)); }catch{}
+    }
+
+    function scUpdateSummary(state){
+      const summaryText = $("scSummaryText");
+      const readyText = $("scReadyText");
+      const bar = $("scProgBar");
+      if(!summaryText || !readyText || !bar) return;
+
+      let g=0,a=0,r=0,u=0,total=0;
+
+      scSections.forEach(section => {
+        section.items.forEach((_, idx) => {
+          total++;
+          const id = scId(section.key, idx);
+          const v = state[id] || "";
+          if(v === "G") g++;
+          else if(v === "A") a++;
+          else if(v === "R") r++;
+          else u++;
+        });
+      });
+
+      summaryText.textContent = `Greens: ${g} • Ambers: ${a} • Reds: ${r} • Unanswered: ${u}`;
+
+      const done = total - u;
+      const pct = total ? Math.round((done/total)*100) : 0;
+      bar.style.width = `${pct}%`;
+
+      if(u){
+        readyText.innerHTML = `📝 <strong>Next step:</strong> finish rating the remaining statements (${done}/${total}).`;
+      } else if(r){
+        readyText.innerHTML = `⚠️ <strong>Focus:</strong> choose your top 3 Red items, then practise those first.`;
+      } else {
+        readyText.innerHTML = `✅ <strong>Strong:</strong> no Reds — now move to mixed exam-style questions / practical checks.`;
+      }
+    }
+
+    function scBuild(){
+      const container = $("scSections");
+      if(!container) return;
+
+      const state = scLoad();
+      container.innerHTML = "";
+
+      scSections.forEach((section, sIndex) => {
+        const det = document.createElement("details");
+        det.className = "block";
+        if(sIndex === 0) det.open = true;
+
+        const sum = document.createElement("summary");
+        const left = document.createElement("span");
+        left.textContent = section.title;
+
+        const right = document.createElement("span");
+        right.className = "tag";
+        right.textContent = "tap G/A/R";
+
+        sum.appendChild(left);
+        sum.appendChild(right);
+
+        const inner = document.createElement("div");
+        inner.className = "details-inner";
+
+        section.items.forEach((text, idx) => {
+          const id = scId(section.key, idx);
+          const chosen = state[id] || "";
+
+          const row = document.createElement("div");
+          row.className = "sc-item";
+
+          const t = document.createElement("div");
+          t.className = "sc-text";
+          t.textContent = text;
+
+          const controls = document.createElement("div");
+          controls.className = "sc-controls";
+          controls.setAttribute("role","group");
+          controls.setAttribute("aria-label", `Confidence for ${section.title}, item ${idx+1}`);
+
+          const mkOpt = (val) => {
+            const lab = document.createElement("label");
+            lab.className = "sc-opt";
+            lab.dataset.val = val;
+
+            const inp = document.createElement("input");
+            inp.type = "radio";
+            inp.name = `sc_${id}`;
+            inp.value = val;
+            inp.checked = (chosen === val);
+
+            inp.addEventListener("change", () => {
+              const next = scLoad();
+              next[id] = val;
+              scSave(next);
+
+              controls.querySelectorAll(".sc-opt").forEach(o => o.classList.remove("sel"));
+              lab.classList.add("sel");
+
+              scUpdateSummary(next);
+            });
+
+            const span = document.createElement("span");
+            span.textContent = val;
+
+            lab.appendChild(inp);
+            lab.appendChild(span);
+
+            if(chosen === val) lab.classList.add("sel");
+            return lab;
+          };
+
+          controls.appendChild(mkOpt("G"));
+          controls.appendChild(mkOpt("A"));
+          controls.appendChild(mkOpt("R"));
+
+          row.appendChild(t);
+          row.appendChild(controls);
+          inner.appendChild(row);
+        });
+
+        det.appendChild(sum);
+        det.appendChild(inner);
+        container.appendChild(det);
+      });
+
+      // Accordion behaviour: only one open at a time
+      container.querySelectorAll("details.block").forEach(d => {
+        d.addEventListener("toggle", () => {
+          if(!d.open) return;
+          container.querySelectorAll("details.block").forEach(other => {
+            if(other !== d) other.open = false;
+          });
+        });
+      });
+
+      scUpdateSummary(state);
+    }
+
+    function scReset(){
+      try{ localStorage.removeItem(SC_KEY); }catch{}
+      document.querySelectorAll('#scSections input[type="radio"]').forEach(inp => inp.checked = false);
+      document.querySelectorAll('#scSections .sc-opt.sel').forEach(el => el.classList.remove("sel"));
+      scUpdateSummary({});
+    }
+
+    function scSetAllSections(open){
+      const wrap = $("scSections");
+      if(!wrap) return;
+      wrap.querySelectorAll("details").forEach(d => d.open = !!open);
+    }
+
+    /* ============================
+       ASSIGNMENT CHECKLIST (localStorage + progress)
+    =============================== */
+    const ASSIGN_KEY = "mrsp_s3_e2_assignment_v2";
+    const ASSIGN_IDS = ["a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11","a12","a13"];
+
+    function safeParse(str){
+      try{ return JSON.parse(str); } catch(e){ return null; }
+    }
+
+    function assignmentSave(){
+      const obj = {};
+      ASSIGN_IDS.forEach(id => {
+        const el = $(id);
+        if(el) obj[id] = !!el.checked;
+      });
+      localStorage.setItem(ASSIGN_KEY, JSON.stringify(obj));
+      assignmentUpdateProgress();
+    }
+
+    function assignmentInit(){
+      const saved = safeParse(localStorage.getItem(ASSIGN_KEY)) || {};
+      ASSIGN_IDS.forEach(id => {
+        const el = $(id);
+        if(!el) return;
+        el.checked = !!saved[id];
+        el.addEventListener("change", assignmentSave);
+      });
+      assignmentUpdateProgress();
+    }
+
+    function assignmentUpdateProgress(){
+      const saved = safeParse(localStorage.getItem(ASSIGN_KEY)) || {};
+      const done = ASSIGN_IDS.filter(id => saved[id]).length;
+      const total = ASSIGN_IDS.length;
+      const pct = total ? Math.round((done/total)*100) : 0;
+
+      const t = $("assignProgText");
+      const b = $("assignProgBar");
+      if(t) t.textContent = `You’ve ticked ${done} / ${total} items (${pct}%).`;
+      if(b) b.style.width = `${pct}%`;
+    }
+
+    function assignmentSetAll(state){
+      const obj = {};
+      ASSIGN_IDS.forEach(id => {
+        obj[id] = !!state;
+        const el = $(id);
+        if(el) el.checked = !!state;
+      });
+      localStorage.setItem(ASSIGN_KEY, JSON.stringify(obj));
+      assignmentUpdateProgress();
+    }
+
+    function assignmentReset(){
+      localStorage.removeItem(ASSIGN_KEY);
+      ASSIGN_IDS.forEach(id => { const el = $(id); if(el) el.checked = false; });
+      assignmentUpdateProgress();
+    }
+
+    function openAssignmentPhase(which){
+      const wrap = $("assignWrap");
+      const p1 = $("phasePlanning");
+      const p2 = $("phaseBuild");
+      const p3 = $("phaseTest");
+      const p4 = $("phaseLogbook");
+
+      if(!wrap || !p1 || !p2 || !p3 || !p4) return;
+
+      wrap.open = true;
+
+      const closeAll = () => { p1.open = false; p2.open = false; p3.open = false; p4.open = false; };
+
+      if(which === "planning"){ closeAll(); p1.open = true; p1.scrollIntoView({behavior:"smooth", block:"start"}); }
+      else if(which === "build"){ closeAll(); p2.open = true; p2.scrollIntoView({behavior:"smooth", block:"start"}); }
+      else if(which === "test"){ closeAll(); p3.open = true; p4.open = true; p3.scrollIntoView({behavior:"smooth", block:"start"}); }
+      else { p1.open = true; p2.open = true; p3.open = true; p4.open = true; }
+    }
+
+    /* ============================
+       VIDEO LAZY LOAD PER DETAILS
+    =============================== */
+    function initVideoLazy(){
+      document.querySelectorAll("details.video-item").forEach(d => {
+        d.addEventListener("toggle", () => {
+          if(!d.open) return;
+          const embed = d.querySelector(".video-embed");
+          const iframe = d.querySelector("iframe[data-src]");
+          if(embed && iframe && !iframe.getAttribute("src")){
+            iframe.setAttribute("src", iframe.getAttribute("data-src"));
+            embed.classList.add("loaded");
+          }
+        });
+      });
+    }
+
+    /* ============================
+       INIT
+    =============================== */
+    document.addEventListener("DOMContentLoaded", () => {
+      // LED tool live update
+      ["ledMode","ledVs","ledVf","ledImA","ledRKnown","ledSeries"].forEach(id => {
+        const el = $(id);
+        if(!el) return;
+        el.addEventListener("input", () => {
+          if(id === "ledMode") updateLedModeUI();
+          else calcLedTool();
+        });
+        el.addEventListener("change", () => {
+          if(id === "ledMode") updateLedModeUI();
+          else calcLedTool();
+        });
+      });
+      updateLedModeUI(); // also calculates
+
+      // Switching builder
+      const cType = $("cType");
+      if(cType) cType.addEventListener("change", applyCircuitUI);
+      applyCircuitUI();
+
+      // Success criteria
+      scBuild();
+
+      // Assignment
+      assignmentInit();
+
+      // Videos
+      initVideoLazy();
+    });
+  </script>
 </body>
 </html>
