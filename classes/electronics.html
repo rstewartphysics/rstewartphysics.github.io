@@ -6,554 +6,782 @@ title: National 5 Electronics
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
-<title>National 5 Electronics</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>National 5 Electronics</title>
 
-<style>
-/* ============================
-   GLOBAL FIX: prevent mobile clipping (same as Electricity 2)
-=============================== */
-*, *::before, *::after{ box-sizing: border-box; }
-html, body{ max-width: 100%; }
-img, iframe{ max-width: 100%; display:block; }
+  <style>
+    /* ============================
+       GLOBAL FIX: prevent clipping/overflow (site standard)
+    =============================== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { max-width: 100%; }
+    body { margin: 0; overflow-x: hidden; }
+    img, iframe { max-width: 100%; height: auto; display: block; }
 
-/* ============================
-   A11Y HELPERS
-=============================== */
-.visually-hidden{
-  position:absolute!important;
-  width:1px;height:1px;
-  padding:0;margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;border:0;
-}
-.skip-link{
-  position:absolute; left:-999px; top:10px;
-  background:#00e6b3; color:#001b1e;
-  padding:0.6rem 0.9rem; border-radius:12px;
-  font-weight:900; z-index:1000;
-}
-.skip-link:focus{ left:10px; }
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background:#00e6b3; color:#001b1e;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1200;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.35);
+    }
+    .skip-link:focus{ left:10px; }
 
-/* ============================
-   GLOBAL STYLE SYSTEM (Electricity 2 base, Electronics palette)
-=============================== */
-:root{
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --text-main: #ffffff;
+    /* ============================
+       THEME (DARK — Electronics)
+    =============================== */
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-  /* Electronics background palette */
-  --bg1: #003c2e;
-  --bg2: #005f47;
-  --bg3: #052a1f;
+      --bg0:#041410;
+      --bg1:#06251d;
+      --bg2:#03110d;
 
-  --accent: #00e6b3;
-  --card: rgba(0,0,0,0.45);
-  --border: rgba(255,255,255,0.25);
-}
+      --text:#ffffff;
+      --muted: rgba(255,255,255,0.84);
 
-/* ------------------ PAGE BASE ------------------ */
-body{
-  margin:0;
-  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
-  background-attachment: fixed;
-  font-family: var(--font-stack);
-  color: var(--text-main);
-  line-height: 1.6;
-  min-height: 100vh;
-  overflow-x:hidden;
-  display:flex;
-  flex-direction:column;
-}
+      --accent:#00e6b3;
+      --accent-2:#00bfa6;
 
-/* iPad/iOS performance */
-@supports (-webkit-touch-callout: none){
-  body{ background-attachment: scroll; }
-}
+      --card: rgba(0,0,0,0.38);
+      --card-2: rgba(255,255,255,0.06);
 
-/* ============================
-   MENU BUTTON & SIDE MENU (Electricity 2 system)
-=============================== */
-.menu-btn{
-  position: fixed;
-  top: max(15px, env(safe-area-inset-top));
-  right: max(20px, env(safe-area-inset-right));
-  font-size: 1.8rem;
-  background: rgba(255,255,255,0.15);
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: 12px;
-  padding: 0.3rem 0.6rem;
-  backdrop-filter: blur(10px) saturate(160%);
-  cursor: pointer;
-  color: #fff;
-  z-index: 200;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-.menu-btn:hover,
-.menu-btn:focus-visible{ transform: scale(1.08); }
+      --border: rgba(255,255,255,0.16);
+      --border-strong: rgba(0,230,179,0.42);
 
-.menu-overlay{
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display:none;
-  z-index:140;
-}
-.menu-overlay.show{ display:block; }
+      --shadow: 0 18px 40px rgba(0,0,0,0.40);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.32);
 
-.side-menu{
-  position: fixed; top: 0; right: -290px;
-  width: 290px; height: 100%;
-  background: rgba(20,20,35,0.85);
-  backdrop-filter: blur(16px) saturate(200%);
-  box-shadow: -6px 0 25px rgba(0,0,0,0.6);
-  padding-top: 4.5rem;
-  transition: right 0.3s ease;
-  z-index:150;
-}
-.side-menu.open{ right: 0; }
+      --radius: 18px;
 
-.side-menu a{
-  padding: 1rem 1.4rem;
-  font-size: 1.15rem;
-  text-decoration:none;
-  color:#fff;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  display:flex;
-  gap:0.7rem;
-  min-height: 44px;
-  align-items:center;
-}
-.side-menu a:hover,
-.side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
+      --focus-ring: 3px solid rgba(0,230,179,0.85);
+      --focus-offset: 4px;
+    }
 
-/* ============================
-   BANNER (Electricity 2 system)
-=============================== */
-.banner-wrap{
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
-}
-.banner{
-  width:100%;
-  max-height: 360px;
-  object-fit: cover;
-  display:block;
-}
-.banner-tint{
-  position:absolute; inset:0;
-  background: linear-gradient(120deg,
-    rgba(0,255,200,0.30),
-    rgba(0,180,255,0.22),
-    rgba(0,255,180,0.18)
-  );
-  mix-blend-mode: multiply;
-}
-.banner-overlay-text{
-  position:absolute;
-  bottom:0; left:0; right:0;
-  background: rgba(0,0,0,0.48);
-  backdrop-filter: blur(8px);
-  text-align:center;
-  padding: 1rem;
-  border-top: 1px solid rgba(255,255,255,0.25);
-}
-.banner-overlay-text h1{
-  margin:0;
-  font-size: 1.25rem;
-  font-weight: 800;
-}
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(0,230,179,0.14), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(0,180,255,0.10), transparent 58%),
+        radial-gradient(900px 520px at 35% 95%, rgba(0,230,179,0.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
 
-/* ============================
-   MAIN CONTENT
-=============================== */
-.page-wrap{
-  max-width: 1100px;
-  margin: 2rem auto;
-  padding: 0 1rem 6rem;
-  flex:1;
-  width:100%;
-}
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
 
-.topic-box{
-  background: rgba(0,0,0,0.35);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
-}
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
 
-hr.soft{
-  border:0;
-  border-top: 1px solid rgba(255,255,255,0.22);
-  margin: 1.2rem 0;
-}
+    /* iPad/iOS performance */
+    @supports (-webkit-touch-callout: none){
+      body{ background-attachment: scroll; }
+    }
 
-.callout{
-  background: rgba(0,0,0,0.42);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.22);
-  padding: 1rem 1.1rem;
-  border-left: 6px solid rgba(0,230,179,0.65);
-}
-.callout strong{ color:#b9fff0; }
+    /* ============================
+       MENU BUTTON & SIDE MENU (blur drawer + safe areas)
+    =============================== */
+    .menu-btn{
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      font-size: 1.7rem;
+      background: rgba(255,255,255,0.10);
+      border: 2px solid rgba(255,255,255,0.22);
+      border-radius: 12px;
+      padding: 0.25rem 0.55rem;
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      cursor: pointer;
+      color: var(--text);
+      z-index: 900;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.06); }
 
-/* ============================
-   TILES (consistent + readable captions)
-=============================== */
-.tile-grid{
-  display:grid;
-  gap:0.9rem;
-  grid-template-columns: 1fr;
-  margin-top: 1rem;
-}
-@media (min-width: 700px){
-  .tile-grid{ grid-template-columns: 1fr 1fr; }
-}
-@media (min-width: 980px){
-  .tile-grid{ grid-template-columns: 1fr 1fr 1fr; }
-}
+    .menu-overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display:none;
+      z-index:840;
+    }
+    .menu-overlay.show{ display:block; }
 
-/* 140px tall, thumb-friendly tiles */
-.class-tile{
-  position: relative;
-  display:block;
-  height: 140px;
-  border-radius: 0.9rem;
-  overflow:hidden;
-  text-decoration:none;
-  color:#fff;
+    .side-menu{
+      position: fixed; top: 0; right: -300px;
+      width: 300px; height: 100%;
+      background: rgba(12,18,18,0.78);
+      backdrop-filter: blur(18px) saturate(185%);
+      -webkit-backdrop-filter: blur(18px) saturate(185%);
+      box-shadow: -10px 0 28px rgba(0,0,0,0.55);
+      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.25s ease;
+      z-index:860;
+      border-left: 1px solid rgba(255,255,255,0.10);
+    }
+    .side-menu.open{ right: 0; }
 
-  background: rgba(0,0,0,0.42);
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.30);
+    .side-menu a{
+      padding: 1rem 1.2rem;
+      font-size: 1.12rem;
+      text-decoration:none;
+      color: var(--text);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display:flex;
+      gap:0.7rem;
+      min-height: 46px;
+      align-items:center;
+      font-weight: 900;
+    }
+    .side-menu a:hover,
+    .side-menu a:focus-visible{ background: rgba(255,255,255,0.10); }
 
-  transform: translateY(0);
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-}
-.class-tile:hover,
-.class-tile:focus-visible{
-  transform: translateY(-3px);
-  border-color: rgba(0,230,179,0.55);
-}
+    /* ============================
+       BANNER
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.25);
+    }
+    .banner{
+      width:100%;
+      max-height: 340px;
+      object-fit: cover;
+      display:block;
+    }
+    @media (max-width: 768px){
+      .banner{ max-height: 260px; }
+    }
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg,
+        rgba(0,230,179,0.18),
+        rgba(0,0,0,0.18)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+    .banner-overlay-text{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(0,0,0,0.46);
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+      text-align:center;
+      padding: 0.95rem 1rem;
+      border-top: 1px solid rgba(255,255,255,0.16);
+    }
+    .banner-overlay-text h1{
+      margin:0;
+      font-size: 1.08rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .banner-overlay-text p{
+      margin: 0.25rem 0 0;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.86);
+      font-weight: 800;
+    }
 
-/* Image tiles */
-.class-tile img{
-  width:100%;
-  height:100%;
-  object-fit: cover;
-  display:block;
-  filter: saturate(1.05) contrast(1.02);
-}
+    /* ============================
+       STICKY SUBNAV (YES)
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 820;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(4,20,16,0.62);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.26);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      box-shadow: var(--shadow-soft);
+      flex-wrap: wrap;
+    }
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+      max-width: 100%;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
 
-/* Soft overlay above image (but below caption) */
-.class-tile::after{
-  content:"";
-  position:absolute; inset:0;
-  background: linear-gradient(120deg, rgba(0,0,0,0.18), rgba(0,0,0,0.05));
-  pointer-events:none;
-  z-index: 1;
-}
+    .subnav-link{
+      text-decoration:none;
+      font-weight:900;
+      color: rgba(255,255,255,0.92);
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+    .subnav-link:focus-visible{
+      outline: 3px solid rgba(0,230,179,0.35);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
 
-/* Caption bar (NEW) */
-.tile-caption{
-  position:absolute;
-  left:0; right:0; bottom:0;
-  padding: 0.55rem 0.75rem;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(10px) saturate(160%);
-  border-top: 1px solid rgba(255,255,255,0.18);
-  text-shadow: 0 6px 18px rgba(0,0,0,0.85);
-  z-index: 2;
-  line-height: 1.15;
-}
-.tile-caption .cap-title{
-  font-weight: 900;
-  font-size: 0.98rem;
-}
-.tile-caption .cap-sub{
-  display:block;
-  opacity: 0.92;
-  font-weight: 700;
-  font-size: 0.86rem;
-  margin-top: 0.15rem;
-}
+    .subnav-ctas{
+      margin-left:auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .subnav-cta{
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(0,230,179,0.30);
+      background: rgba(0,230,179,0.14);
+      color: rgba(255,255,255,0.95);
+      box-shadow: var(--shadow-soft);
+    }
+    .subnav-cta:hover{ background: rgba(0,230,179,0.20); }
+    .subnav-cta:active{ transform: translateY(1px); }
+    .subnav-cta.secondary{
+      border-color: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.92);
+    }
 
-/* Plain tile */
-.class-tile.plain{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding: 1rem 1.1rem;
-  gap: 0.35rem;
-  background: linear-gradient(135deg,
-    rgba(0,255,200,0.16),
-    rgba(0,180,255,0.12)
-  );
-}
-.class-tile.plain::after{ display:none; }
+    /* anchor offset so jumps land cleanly under sticky bar */
+    #overview, #core, #tools { scroll-margin-top: 190px; }
 
-/* Strong keyboard focus */
-:focus-visible{
-  outline: 3px solid rgba(0,230,179,0.80);
-  outline-offset: 3px;
-}
+    /* ============================
+       MAIN LAYOUT
+    =============================== */
+    main.page-wrap{
+      max-width: 1100px;
+      margin: 1rem auto 2rem;
+      padding: 0 12px calc(4.8rem + env(safe-area-inset-bottom));
+      width:100%;
+      flex: 1;
+    }
 
-/* ============================
-   FOOTER
-=============================== */
-footer{
-  text-align:center;
-  padding: 1rem;
-  background: rgba(0,0,0,0.35);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  font-size:0.92rem;
-  margin-top:auto;
-}
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 1.15rem;
+      margin: 0.9rem 0;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .panel.soft{
+      background: rgba(255,255,255,0.06);
+    }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce){
-  *{ scroll-behavior:auto!important; transition:none!important; }
-}
+    h2{
+      margin: 0 0 0.55rem;
+      font-size: 1.18rem;
+      letter-spacing: 0.2px;
+    }
+    p{ margin: 0.45rem 0 0; line-height: 1.6; }
+    .muted{ color: var(--muted); font-weight: 750; }
 
-/* Mobile tweaks */
-@media (max-width: 480px){
-  .topic-box{ backdrop-filter: blur(8px); padding: 1.1rem; }
-  .menu-btn{ backdrop-filter: blur(8px) saturate(150%); }
-  .side-menu{ backdrop-filter: blur(12px) saturate(170%); }
-  .banner{ max-height: 280px; }
-  .tile-caption .cap-title{ font-size: 0.95rem; }
-  .tile-caption .cap-sub{ font-size: 0.84rem; }
-}
-</style>
+    .callout{
+      margin-top: 0.75rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,230,179,0.10);
+      color: rgba(255,255,255,0.92);
+      font-weight: 850;
+    }
+    .callout strong{ color:#b9fff0; }
+
+    /* wide buttons inside panels (site standard) */
+    .wide-btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      width:100%;
+      text-decoration:none;
+      font-weight: 900;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 2px solid var(--border-strong);
+      background: rgba(0,230,179,0.14);
+      color: rgba(255,255,255,0.95);
+      box-shadow: var(--shadow-soft);
+      margin-top: 0.8rem;
+      text-align:center;
+    }
+    .wide-btn:hover{ background: rgba(0,230,179,0.20); }
+    .wide-btn:active{ transform: translateY(1px); }
+    .wide-btn.secondary{
+      border-color: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.92);
+    }
+
+    /* ============================
+       MINI DETAILS (collapsed by default)
+    =============================== */
+    details.mini{
+      margin-top: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      overflow:hidden;
+      box-shadow: var(--shadow-soft);
+    }
+    details.mini > summary{
+      cursor:pointer;
+      padding: 12px 12px;
+      font-weight: 900;
+      list-style: none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(0,230,179,0.10), rgba(255,255,255,0.05));
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    details.mini > summary::-webkit-details-marker{ display:none; }
+    details.mini > summary:focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+      border-radius: 14px;
+    }
+    .mini-inner{ padding: 12px 12px 14px; }
+
+    /* ============================
+       TILES (140px tall, consistent)
+    =============================== */
+    .tile-grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 0.75rem;
+      align-items: stretch;
+    }
+
+    .class-tile{
+      position: relative;
+      display:block;
+      height: 140px;
+      border-radius: 18px;
+      overflow:hidden;
+      text-decoration:none;
+      color:#fff;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.30);
+      box-shadow: var(--shadow-soft);
+      transform: translateY(0);
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .class-tile:hover,
+    .class-tile:focus-visible{
+      transform: translateY(-2px);
+      border-color: rgba(0,230,179,0.38);
+      box-shadow: 0 18px 34px rgba(0,230,179,0.18);
+    }
+
+    /* image tile */
+    .class-tile img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.05) contrast(1.02);
+    }
+
+    /* soft overlay above image (but below caption) */
+    .class-tile::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(120deg, rgba(0,0,0,0.22), rgba(0,0,0,0.06));
+      pointer-events:none;
+      z-index: 1;
+    }
+
+    /* caption bar */
+    .tile-caption{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      padding: 0.55rem 0.75rem;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border-top: 1px solid rgba(255,255,255,0.14);
+      text-shadow: 0 6px 18px rgba(0,0,0,0.85);
+      z-index: 2;
+      line-height: 1.15;
+    }
+    .tile-caption .cap-title{
+      font-weight: 900;
+      font-size: 0.98rem;
+    }
+    .tile-caption .cap-sub{
+      display:block;
+      opacity: 0.92;
+      font-weight: 750;
+      font-size: 0.86rem;
+      margin-top: 0.15rem;
+    }
+
+    /* plain tile (no image) */
+    .class-tile.plain{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 1rem 1.1rem;
+      background:
+        radial-gradient(520px 220px at 18% 0%, rgba(0,230,179,0.22), transparent 72%),
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(0,0,0,0.10));
+    }
+    .class-tile.plain::after{ display:none; }
+
+    /* ============================
+       FOOTER
+    =============================== */
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.25);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size:0.92rem;
+      color: rgba(255,255,255,0.84);
+      margin-top:auto;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 480px){
+      .banner{ max-height: 240px; }
+      .tile-caption .cap-title{ font-size: 0.95rem; }
+      .tile-caption .cap-sub{ font-size: 0.84rem; }
+      .menu-btn{ backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%); }
+      .side-menu{ backdrop-filter: blur(16px) saturate(170%); -webkit-backdrop-filter: blur(16px) saturate(170%); }
+    }
+  </style>
 </head>
 
 <body>
-<a class="skip-link" href="#mainContent">Skip to content</a>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
 
-<!-- MENU BUTTON -->
-<button
-  class="menu-btn"
-  id="menuBtn"
-  type="button"
-  onclick="toggleMenu()"
-  aria-label="Open menu"
-  aria-expanded="false"
-  aria-controls="sideMenu"
->
-  ☰
-</button>
+  <!-- MENU BUTTON -->
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    onclick="toggleMenu()"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="sideMenu"
+  >☰</button>
 
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
 
-<nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-  <a href="#" id="closeMenuLink">✖ Close</a>
-  <a href="/">🏠 Home</a>
-  <a href="/classes/science.html">🧪 Science</a>
-  <a href="/classes/physics.html">⚡ Physics</a>
-  <a href="/classes/electronics.html">💡 Electronics</a>
-  <a href="/classes/engineering.html">🧰 Engineering</a>
-</nav>
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+    <a href="#" id="closeMenuLink">✖ Close</a>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
 
-<!-- BANNER -->
-<div class="banner-wrap">
-  <img src="/assets/Electronicsbanner.png" alt="National 5 Electronics banner" class="banner" loading="lazy">
-  <div class="banner-tint"></div>
-  <div class="banner-overlay-text">
-    <h1>💡 National 5 Electronics</h1>
-  </div>
-</div>
-
-<main class="page-wrap" id="mainContent">
-  <div class="topic-box">
-
-    <h2 style="margin:0.2rem 0 0.6rem;">Explore resources and tools</h2>
-
-    <div class="callout">
-      <p style="margin:0;">
-        <strong>Use this like a menu:</strong> pick what you need today (notes, videos, revision, or interactive tools).
-      </p>
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <img src="/assets/Electronicsbanner.png" alt="National 5 Electronics banner" class="banner" loading="lazy">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>💡 National 5 Electronics</h1>
+      <p>Resources • revision • interactive tools</p>
     </div>
+  </div>
 
-    <hr class="soft">
+  <!-- STICKY SUBNAV -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#core">Core resources</a>
+        <a class="subnav-link" href="#tools">Interactive tools</a>
+      </div>
 
-    <section class="tile-grid" aria-label="National 5 Electronics tiles">
+      <div class="subnav-ctas">
+        <a class="subnav-cta" href="/classes/electronics/prel-checklist.html" aria-label="Open PrEl checklist page">
+          ✅ PrEl checklist
+        </a>
+        <a class="subnav-cta secondary" href="/classes/electronics/revision.html" aria-label="Open exam and revision page">
+          📝 Revision
+        </a>
+      </div>
+    </nav>
+  </div>
 
-      <!-- PrEl checklist -->
-      <a class="class-tile plain" href="/classes/electronics/prel-checklist.html" aria-label="PrEl Assignment Timeline and Checklist">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">✅ PrEl Assignment</span>
-          <span class="cap-sub">Timeline + checklist (paper booklet)</span>
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">National 5 Electronics</h1>
+
+    <!-- OVERVIEW -->
+    <section class="panel soft" id="overview" aria-label="Overview">
+      <h2>Overview</h2>
+      <p class="muted">
+        Use this page like a <strong>menu</strong> — pick what you need today (notes, videos, revision, or interactive tools).
+        Keep it simple: <strong>read → practise → check</strong>.
+      </p>
+
+      <div class="callout">
+        <strong>Quick plan:</strong> Notes/Booklet → a few practice questions → fix mistakes → repeat.
+      </div>
+
+      <div class="tile-grid" aria-label="Quick actions" style="margin-top:12px;">
+        <a class="wide-btn" href="/classes/electronics/notes.html">📄 Go to Notes &amp; Booklets</a>
+        <a class="wide-btn secondary" href="/classes/electronics/revision.html">📝 Go to Exam &amp; Revision</a>
+      </div>
+
+      <details class="mini">
+        <summary><span>⭐ How to use this page (tap to open)</span><span style="opacity:0.9; font-weight:900;">tap</span></summary>
+        <div class="mini-inner">
+          <ul style="margin:0; padding-left:1.2rem; line-height:1.75; font-weight:850;">
+            <li>Start with <strong>Notes &amp; Booklets</strong> for the method.</li>
+            <li>Use <strong>Videos</strong> only if you need a quick reset.</li>
+            <li>Use <strong>Exam &amp; Revision</strong> to practise exam-style questions.</li>
+            <li>Use <strong>Tools</strong> to plan builds and test ideas.</li>
+          </ul>
         </div>
-        <span class="visually-hidden">PrEl Assignment — Timeline and Checklist</span>
-      </a>
-
-      <a class="class-tile" href="/classes/electronics/notes.html" aria-label="Notes and Booklets">
-        <img src="/assets/electronics/notes.png" alt="" loading="lazy">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">📄 Notes &amp; Booklets</span>
-          <span class="cap-sub">Core class materials</span>
-        </div>
-        <span class="visually-hidden">Notes and Booklets</span>
-      </a>
-
-      <a class="class-tile" href="/classes/electronics/videos.html" aria-label="Videos">
-        <img src="/assets/electronics/videos.png" alt="" loading="lazy">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">▶ Videos</span>
-          <span class="cap-sub">Short revision clips</span>
-        </div>
-        <span class="visually-hidden">Videos</span>
-      </a>
-
-      <a class="class-tile" href="/classes/electronics/revision.html" aria-label="Exam and Revision">
-        <img src="/assets/electronics/exam.png" alt="" loading="lazy">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">📝 Exam &amp; Revision</span>
-          <span class="cap-sub">PPQs + exam practice</span>
-        </div>
-        <span class="visually-hidden">Exam and Revision</span>
-      </a>
-
-      <a class="class-tile" href="https://electronicsclub.info" target="_blank" rel="noopener noreferrer" aria-label="Electronics Club Website (opens in a new tab)">
-        <img src="/assets/electronics/club.png" alt="" loading="lazy">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">🧩 Electronics Club</span>
-          <span class="cap-sub">External site (opens new tab)</span>
-        </div>
-        <span class="visually-hidden">Electronics Club Website</span>
-      </a>
-
-      <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/555-astable.html" aria-label="555 Astable Simulator">
-        <img src="/assets/electronics/555logo.png" alt="" loading="lazy">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">⏱ 555 Astable Simulator</span>
-          <span class="cap-sub">Build + test timing circuits</span>
-        </div>
-        <span class="visually-hidden">555 Astable Simulator</span>
-      </a>
-
-      <a class="class-tile" href="https://rstewartphysics.github.io/classes/electronics/stripboard-builder.html" aria-label="Stripboard Builder">
-        <img src="/assets/electronics/stripbuilder.png" alt="" loading="lazy">
-        <div class="tile-caption" aria-hidden="true">
-          <span class="cap-title">🧰 Stripboard Builder</span>
-          <span class="cap-sub">Plan layouts + track cuts</span>
-        </div>
-        <span class="visually-hidden">Stripboard Builder</span>
-      </a>
-
+      </details>
     </section>
 
-  </div>
-</main>
+    <!-- CORE RESOURCES -->
+    <section class="panel" id="core" aria-label="Core resources">
+      <h2>Core resources</h2>
+      <p class="muted">Everything you need for class and revision.</p>
 
-<footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+      <div class="tile-grid" aria-label="Core resource tiles">
+        <!-- PrEl checklist -->
+        <a class="class-tile plain" href="/classes/electronics/prel-checklist.html" aria-label="PrEl Assignment Timeline and Checklist">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">✅ PrEl Assignment</span>
+            <span class="cap-sub">Timeline + checklist (paper booklet)</span>
+          </div>
+          <span class="visually-hidden">PrEl Assignment — Timeline and Checklist</span>
+        </a>
 
-<script>
-/* Menu: ESC closes + focus trap (same as Electricity 2) */
-function $(id){ return document.getElementById(id); }
-let lastFocusEl = null;
+        <a class="class-tile" href="/classes/electronics/notes.html" aria-label="Notes and Booklets">
+          <img src="/assets/electronics/notes.png" alt="" loading="lazy">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">📄 Notes &amp; Booklets</span>
+            <span class="cap-sub">Core class materials</span>
+          </div>
+          <span class="visually-hidden">Notes and Booklets</span>
+        </a>
 
-function getFocusableInMenu(){
-  const menu = $("sideMenu");
-  if(!menu) return [];
-  return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-    .filter(el => !el.hasAttribute('disabled'));
-}
+        <a class="class-tile" href="/classes/electronics/videos.html" aria-label="Videos">
+          <img src="/assets/electronics/videos.png" alt="" loading="lazy">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">▶ Videos</span>
+            <span class="cap-sub">Short revision clips</span>
+          </div>
+          <span class="visually-hidden">Videos</span>
+        </a>
 
-function openMenu(){
-  const menu = $("sideMenu");
-  const overlay = $("menuOverlay");
-  const btn = $("menuBtn");
-  if(!menu || !overlay || !btn) return;
+        <a class="class-tile" href="/classes/electronics/revision.html" aria-label="Exam and Revision">
+          <img src="/assets/electronics/exam.png" alt="" loading="lazy">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">📝 Exam &amp; Revision</span>
+            <span class="cap-sub">PPQs + exam practice</span>
+          </div>
+          <span class="visually-hidden">Exam and Revision</span>
+        </a>
+      </div>
+    </section>
 
-  lastFocusEl = document.activeElement;
+    <!-- TOOLS -->
+    <section class="panel" id="tools" aria-label="Interactive tools">
+      <h2>Interactive tools</h2>
+      <p class="muted">Use these to plan, test and understand circuits.</p>
 
-  menu.classList.add("open");
-  overlay.classList.add("show");
+      <div class="tile-grid" aria-label="Tool tiles">
+        <a class="class-tile" href="https://electronicsclub.info" target="_blank" rel="noopener noreferrer"
+           aria-label="Electronics Club Website (opens in a new tab)">
+          <img src="/assets/electronics/club.png" alt="" loading="lazy">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">🧩 Electronics Club</span>
+            <span class="cap-sub">External site (opens new tab)</span>
+          </div>
+          <span class="visually-hidden">Electronics Club Website</span>
+        </a>
 
-  btn.setAttribute("aria-expanded","true");
-  btn.setAttribute("aria-label","Close menu");
-  overlay.setAttribute("aria-hidden","false");
+        <a class="class-tile" href="/classes/electronics/555-astable.html" aria-label="555 Astable Simulator">
+          <img src="/assets/electronics/555logo.png" alt="" loading="lazy">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">⏱ 555 Astable Simulator</span>
+            <span class="cap-sub">Build + test timing circuits</span>
+          </div>
+          <span class="visually-hidden">555 Astable Simulator</span>
+        </a>
 
-  const focusables = getFocusableInMenu();
-  if(focusables.length) focusables[0].focus();
-}
+        <a class="class-tile" href="/classes/electronics/stripboard-builder.html" aria-label="Stripboard Builder">
+          <img src="/assets/electronics/stripbuilder.png" alt="" loading="lazy">
+          <div class="tile-caption" aria-hidden="true">
+            <span class="cap-title">🧰 Stripboard Builder</span>
+            <span class="cap-sub">Plan layouts + track cuts</span>
+          </div>
+          <span class="visually-hidden">Stripboard Builder</span>
+        </a>
+      </div>
+    </section>
+  </main>
 
-function closeMenu(){
-  const menu = $("sideMenu");
-  const overlay = $("menuOverlay");
-  const btn = $("menuBtn");
-  if(!menu || !overlay || !btn) return;
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
-  menu.classList.remove("open");
-  overlay.classList.remove("show");
+  <script>
+    /* ============================
+       MENU: ESC closes + focus trap + overlay click closes
+    =============================== */
+    function $(id){ return document.getElementById(id); }
+    let lastFocusEl = null;
 
-  btn.setAttribute("aria-expanded","false");
-  btn.setAttribute("aria-label","Open menu");
-  overlay.setAttribute("aria-hidden","true");
-
-  if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-    lastFocusEl.focus();
-  } else {
-    btn.focus();
-  }
-  lastFocusEl = null;
-}
-
-function toggleMenu(){
-  const menu = $("sideMenu");
-  if(!menu) return;
-  const isOpen = menu.classList.contains("open");
-  if(isOpen) closeMenu();
-  else openMenu();
-}
-
-/* Focus trap when menu open */
-document.addEventListener("keydown", (e) => {
-  const menu = $("sideMenu");
-  const isOpen = menu && menu.classList.contains("open");
-
-  if(e.key === "Escape" && isOpen){
-    e.preventDefault();
-    closeMenu();
-  }
-
-  if(e.key === "Tab" && isOpen){
-    const focusables = getFocusableInMenu();
-    if(!focusables.length) return;
-
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-
-    if(e.shiftKey && document.activeElement === first){
-      e.preventDefault();
-      last.focus();
-    } else if(!e.shiftKey && document.activeElement === last){
-      e.preventDefault();
-      first.focus();
+    function getFocusableInMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return [];
+      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
     }
-  }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-  const overlay = $("menuOverlay");
-  if(overlay) overlay.setAttribute("aria-hidden","true");
+    function openMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
 
-  const closeLink = $("closeMenuLink");
-  if(closeLink){
-    closeLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      closeMenu();
+      lastFocusEl = document.activeElement;
+
+      menu.classList.add("open");
+      overlay.classList.add("show");
+
+      btn.setAttribute("aria-expanded","true");
+      btn.setAttribute("aria-label","Close menu");
+      overlay.setAttribute("aria-hidden","false");
+
+      const focusables = getFocusableInMenu();
+      if(focusables.length) focusables[0].focus();
+    }
+
+    function closeMenu(){
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
+
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
+
+      btn.setAttribute("aria-expanded","false");
+      btn.setAttribute("aria-label","Open menu");
+      overlay.setAttribute("aria-hidden","true");
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
+    }
+
+    function toggleMenu(){
+      const menu = $("sideMenu");
+      if(!menu) return;
+      const isOpen = menu.classList.contains("open");
+      if(isOpen) closeMenu();
+      else openMenu();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const menu = $("sideMenu");
+      const isOpen = menu && menu.classList.contains("open");
+
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
+      }
+
+      if(e.key === "Tab" && isOpen){
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
     });
-  }
-});
-</script>
 
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = $("menuOverlay");
+      if(overlay){
+        overlay.setAttribute("aria-hidden","true");
+        overlay.addEventListener("click", () => closeMenu());
+      }
+
+      const closeLink = $("closeMenuLink");
+      if(closeLink){
+        closeLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeMenu();
+        });
+      }
+    });
+  </script>
 </body>
 </html>
