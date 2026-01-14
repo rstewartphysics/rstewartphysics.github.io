@@ -8,16 +8,17 @@ title: Higher Physics
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="color-scheme" content="light" />
   <title>Higher Physics</title>
 
   <style>
     /* ============================
-       GLOBAL FIX: prevent mobile clipping
+       GLOBAL FIX: prevent clipping/overflow
     =============================== */
-    *, *::before, *::after{ box-sizing: border-box; }
-    html, body{ max-width: 100%; }
-    img, iframe{ max-width: 100%; display:block; }
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ max-width:100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width:100%; height:auto; display:block; }
 
     /* ============================
        A11Y HELPERS
@@ -32,309 +33,449 @@ title: Higher Physics
     }
     .skip-link{
       position:absolute; left:-999px; top:10px;
-      background:#00e6b3; color:#001b1e;
+      background:#2b59ff; color:#ffffff;
       padding:0.6rem 0.9rem; border-radius:12px;
       font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.14);
     }
-    .skip-link:focus{ left:10px; }
+    .skip-link:focus{ left:10px; outline: 3px solid rgba(255,255,255,0.9); outline-offset: 3px; }
 
     /* ============================
-       THEME
+       THEME (Light + Higher blue accent)
     =============================== */
     :root{
-      --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-      --text-main: #ffffff;
-      --bg1: #0e1b38;
-      --bg2: #152b63;
-      --bg3: #0a1130;
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-      --accent: #00e6b3;
-      --card: rgba(0,0,0,0.45);
-      --border: rgba(255,255,255,0.22);
+      --bg0:#f6f8ff;
+      --bg1:#eef2ff;
+      --bg2:#ffffff;
+
+      --text:#0b1630;
+      --muted:#2c466a;
+
+      --accent:#2b59ff;      /* Higher blue */
+      --accent-2:#1636b8;
+
+      --card:#ffffff;
+
+      --border: rgba(11,22,48,0.14);
+      --border-strong: rgba(43,89,255,0.28);
+
+      --shadow: 0 18px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
+
+      --radius: 18px;
+
+      --focus-ring: 3px solid rgba(43,89,255,0.55);
+      --focus-offset: 4px;
     }
 
     body{
-      margin:0;
-      background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
-      background-attachment: fixed;
       font-family: var(--font-stack);
-      color: var(--text-main);
-      line-height: 1.6;
-      min-height: 100vh;
-      overflow-x:hidden;
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(43,89,255,0.14), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(22,54,184,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
       display:flex;
       flex-direction:column;
     }
 
-    /* iPad/iOS performance */
-    @supports (-webkit-touch-callout: none){
-      body{ background-attachment: scroll; }
-    }
-
-    /* Strong keyboard focus */
     :focus-visible{
-      outline: 3px solid rgba(0,230,179,0.85);
-      outline-offset: 3px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
 
-    /* Reduced motion */
     @media (prefers-reduced-motion: reduce){
       *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
     }
 
     /* ============================
-       MENU BUTTON & SIDE MENU (Electricity 2 standard)
+       MENU BUTTON + DRAWER (site-wide)
     =============================== */
     .menu-btn{
-      position: fixed;
-      top: max(15px, env(safe-area-inset-top));
-      right: max(20px, env(safe-area-inset-right));
-      font-size: 1.8rem;
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.4);
-      border-radius: 12px;
-      padding: 0.3rem 0.6rem;
-      backdrop-filter: blur(10px) saturate(160%);
-      cursor: pointer;
-      color: #fff;
-      z-index: 400;
-      transition: transform 0.2s ease, background 0.2s ease;
+      position:fixed;
+      top:calc(14px + env(safe-area-inset-top));
+      right:calc(14px + env(safe-area-inset-right));
+      font-size:1.65rem;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(12px) saturate(170%);
+      -webkit-backdrop-filter: blur(12px) saturate(170%);
+      border: 2px solid rgba(43,89,255,0.22);
+      border-radius: 14px;
+      padding: .42rem .70rem;
+      cursor:pointer;
+      color: var(--accent-2);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+      z-index: 500;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
     }
-    .menu-btn:hover,
-    .menu-btn:focus-visible{ transform: scale(1.08); }
+    .menu-btn:hover{ transform: scale(1.05); border-color: rgba(43,89,255,0.30); }
+    .menu-btn:active{ transform: scale(1.02); }
 
     .menu-overlay{
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
+      position:fixed; inset:0;
+      background: rgba(0,0,0,0.32);
       display:none;
-      z-index:340;
+      z-index: 440;
     }
     .menu-overlay.show{ display:block; }
 
     .side-menu{
-      position: fixed; top: 0; right: -290px;
-      width: 290px; height: 100%;
-      background: rgba(20,20,35,0.85);
-      backdrop-filter: blur(16px) saturate(200%);
-      box-shadow: -6px 0 22px rgba(0,0,0,0.55);
-      padding-top: 4.5rem;
-      transition: right 0.3s ease;
-      z-index:350;
+      position:fixed;
+      top:0; right:-310px;
+      width:310px; height:100%;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.18);
+      border-left: 1px solid rgba(11,22,48,0.10);
+      padding-top: calc(1rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      z-index: 460;
+      transition: right .28s ease;
+      display:flex;
+      flex-direction:column;
     }
-    .side-menu.open{ right: 0; }
+    .side-menu.open{ right:0; }
+
+    .menu-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: .8rem 1rem;
+      border-bottom: 1px solid rgba(11,22,48,0.10);
+    }
+    .menu-title{
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: .2px;
+    }
+    .menu-close{
+      font-size:1.35rem;
+      background: rgba(43,89,255,0.10);
+      border: 1px solid rgba(43,89,255,0.22);
+      color: var(--accent-2);
+      border-radius: 12px;
+      padding: .25rem .55rem;
+      cursor:pointer;
+      font-weight: 900;
+    }
 
     .side-menu a{
-      padding: 1rem 1.4rem;
-      font-size: 1.15rem;
+      padding: 1rem 1.2rem;
+      font-size: 1.08rem;
       text-decoration:none;
-      color:#fff;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      color: var(--text);
       display:flex;
-      gap:0.7rem;
-      min-height: 44px;
       align-items:center;
+      gap:.7rem;
+      border-bottom: 1px solid rgba(11,22,48,0.06);
+      font-weight: 900;
+      min-height: 44px;
     }
-    .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
+    .side-menu a:hover{ background: rgba(43,89,255,0.08); }
 
     /* ============================
-       BANNER
+       BANNER (Home style: full width)
     =============================== */
     .banner-wrap{
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.65);
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      flex-shrink:0;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      z-index: 2;
+
+      height: clamp(220px, 32vh, 420px);
+      background: rgba(255,255,255,0.35);
     }
     .banner{
       width:100%;
-      max-height: 360px;
-      object-fit: cover;
-      display:block;
+      height:100%;
+      object-fit: cover; /* fill width nicely */
+      object-position: center;
+      opacity:0;
+      animation: fadeIn 1.0s ease forwards;
     }
-    @media (max-width: 768px){
-      .banner{ max-height: 260px; }
-    }
+    @keyframes fadeIn{ to{ opacity:1; } }
+
     .banner-tint{
       position:absolute; inset:0;
       background: linear-gradient(120deg,
-        rgba(0,255,200,0.22),
-        rgba(33,150,243,0.22),
-        rgba(0,180,255,0.15)
+        rgba(43,89,255,0.20),
+        rgba(22,54,184,0.14),
+        rgba(255,255,255,0.00)
       );
       mix-blend-mode: multiply;
+      pointer-events:none;
     }
+
     .banner-overlay-text{
       position:absolute;
       bottom:0; left:0; right:0;
-      background: rgba(0,0,0,0.46);
-      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border-top: 1px solid rgba(11,22,48,0.10);
+      padding: .95rem .9rem;
       text-align:center;
-      padding: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.22);
     }
     .banner-overlay-text h1{
       margin:0;
-      font-size: 1.10rem;
+      font-size: 1.12rem;
       font-weight: 900;
+      color: var(--text);
     }
+    .banner-overlay-text p{
+      margin:.25rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .95rem;
+    }
+
+    /* ============================
+       STICKY JUMP MENU (no Sections button)
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(246,248,255,0.80);
+      backdrop-filter: blur(14px) saturate(170%);
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+      border-bottom: 1px solid rgba(11,22,48,0.10);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(43,89,255,0.18);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
+    }
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
+
+    .subnav-link{
+      text-decoration:none;
+      font-weight: 900;
+      color: var(--text);
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.95;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight: 900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(43,89,255,0.28);
+      background: rgba(43,89,255,0.10);
+      color: var(--text);
+      box-shadow: var(--shadow-soft);
+    }
+    .subnav-cta:hover{ background: rgba(43,89,255,0.14); }
+    .subnav-cta:active{ transform: translateY(1px); }
+
+    /* Anchor offset so sticky nav doesn't cover headings */
+    #overview, #resources, #timeline, #quicklinks{ scroll-margin-top: 190px; }
 
     /* ============================
        MAIN LAYOUT
     =============================== */
     .page-wrap{
       max-width: 1200px;
-      margin: 1.4rem auto 2rem;
+      margin: 1.0rem auto 2rem;
       padding: 0 1rem 4rem;
       flex:1;
       width:100%;
     }
 
-    /* Slightly calmer panels (visual load reduction) */
     .panel{
-      background: rgba(0,0,0,0.32);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(11,22,48,0.10);
       backdrop-filter: blur(10px);
-      border-radius: 1rem;
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--radius);
       padding: 1.2rem;
-      box-shadow: 0 8px 14px rgba(0,0,0,0.30);
+      box-shadow: var(--shadow-soft);
       margin-bottom: 1rem;
     }
 
-    hr.soft{
-      border:0;
-      border-top: 1px solid rgba(255,255,255,0.20);
-      margin: 1.1rem 0;
+    .panel h2{
+      margin: 0 0 .35rem;
+      font-size: 1.12rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .panel p{
+      margin: .25rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.55;
     }
 
+    .soft-hr{
+      border:0;
+      border-top: 1px solid rgba(11,22,48,0.10);
+      margin: 1rem 0;
+    }
+
+    /* Mini details (compact) */
+    details.mini{
+      margin-top: .8rem;
+      border-radius: 16px;
+      border: 1px solid rgba(43,89,255,0.18);
+      background: rgba(43,89,255,0.05);
+      overflow:hidden;
+    }
+    details.mini summary{
+      cursor:pointer;
+      padding: .85rem 1rem;
+      font-weight: 900;
+      color: var(--text);
+      list-style:none;
+      display:flex;
+      gap:.55rem;
+      align-items:center;
+      border-bottom: 1px solid rgba(11,22,48,0.08);
+      background: rgba(255,255,255,0.70);
+    }
+    details.mini summary::-webkit-details-marker{ display:none; }
+    .details-inner{
+      padding: .9rem 1rem;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .details-inner ul{
+      margin: .35rem 0 0;
+      padding-left: 1.1rem;
+      line-height: 1.75;
+    }
+    .details-inner li{ margin: .35rem 0; }
+
     /* ============================
-       TILE GRID
+       CARD TILES
     =============================== */
     .tile-grid{
-      display: grid;
+      display:grid;
       gap: 1rem;
       grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
       align-items: stretch;
-      margin-top: 0.9rem;
+      margin-top: .9rem;
     }
 
-    /* Slightly calmer tiles (visual load reduction) */
     .class-tile{
       display:block;
       position:relative;
-      border-radius: 1rem;
-      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: var(--radius);
+      border: 1px solid rgba(11,22,48,0.12);
       overflow:hidden;
       text-decoration:none;
-      color:#fff;
-      background: rgba(0,0,0,0.22);
-      box-shadow: 0 10px 18px rgba(0,0,0,0.45);
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-      min-height: 140px;
+      color: var(--text);
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow-soft);
+      transition: transform .18s ease, box-shadow .18s ease;
+      min-height: 150px;
     }
     .class-tile:hover,
     .class-tile:focus-visible{
       transform: translateY(-2px);
-      box-shadow: 0 18px 30px rgba(0,255,255,0.18);
+      box-shadow: 0 18px 34px rgba(43,89,255,0.16);
     }
     .class-tile img{
       width:100%;
       height: 100%;
-      min-height: 140px;
+      min-height: 150px;
       object-fit: cover;
+      filter: saturate(1.02) contrast(1.03);
     }
+
+    /* ✅ PATCH: emoji “banner” for tiles where images don’t exist / aren’t wanted */
+    .tile-emoji{
+      width:100%;
+      min-height:150px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 3rem;
+      line-height:1;
+      background:
+        radial-gradient(520px 320px at 20% 20%, rgba(43,89,255,0.22), transparent 60%),
+        radial-gradient(520px 320px at 80% 30%, rgba(22,54,184,0.16), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(238,242,255,0.92));
+    }
+    .tile-emoji span{ filter: drop-shadow(0 8px 14px rgba(0,0,0,0.12)); }
+
     .tile-label{
       position:absolute;
       bottom:0; left:0; right:0;
-      background: rgba(0,0,0,0.44);
-      backdrop-filter: blur(10px);
-      padding: 0.65rem 0.7rem;
-      text-align:center;
-      font-weight: 900;
-      border-top: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: .65rem .75rem;
+      border-top: 1px solid rgba(11,22,48,0.10);
       display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:0.45rem;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:.6rem;
     }
+
+    .tile-text{
+      display:flex;
+      flex-direction:column;
+      gap:.18rem;
+      min-width: 0;
+    }
+    .tile-title{
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.15;
+    }
+    .tile-sub{
+      font-weight: 800;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.2;
+    }
+
     .ext-mark{
       font-weight: 900;
-      opacity: 0.95;
-      font-size: 0.95em;
-      line-height: 1;
+      color: var(--accent-2);
+      opacity: .95;
+      flex-shrink: 0;
+      margin-top: .05rem;
     }
 
     /* ============================
-       COLLAPSIBLES
-    =============================== */
-    details{
-      background: var(--card);
-      border-radius: 0.9rem;
-      border: 1px solid rgba(255,255,255,0.26);
-      overflow:hidden;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.28);
-      margin: 0.8rem 0 0;
-    }
-    summary{
-      cursor:pointer;
-      padding: 0.95rem 1rem;
-      font-weight: 900;
-      background: linear-gradient(135deg,
-        rgba(0,255,200,0.12),
-        rgba(0,180,255,0.14)
-      );
-      border-bottom: 1px solid rgba(255,255,255,0.16);
-      list-style:none;
-      display:flex;
-      align-items:center;
-      gap:0.6rem;
-    }
-    details summary::-webkit-details-marker{ display:none; }
-    .details-inner{ padding: 0.95rem 1rem; }
-    .details-inner ul{ margin:0.25rem 0 0; padding-left: 1.1rem; line-height:1.75; }
-    .details-inner li{ margin:0.35rem 0; }
-
-    /* Controls row */
-    .controls-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.6rem;
-      margin: 0.6rem 0 0.2rem;
-    }
-    .small-btn{
-      padding:0.55rem 0.8rem;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.26);
-      background: rgba(255,255,255,0.10);
-      color:#fff;
-      font-weight:800;
-      cursor:pointer;
-    }
-    .small-btn:hover,
-    .small-btn:focus-visible{ background: rgba(255,255,255,0.16); }
-
-    .tag{
-      display:inline-block;
-      padding: 0.12rem 0.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.20);
-      background: rgba(255,255,255,0.07);
-      font-size: 0.82rem;
-      margin-right: 0.4rem;
-    }
-
-    /* ============================
-       TIMELINE (topic cards)
-       - each card = the weekly focus topic
-       - one-sentence overview
-       - no homework/assessment references
+       TIMELINE
     =============================== */
     .progress-wrap{
-      margin: 0.75rem 0 0.35rem;
-      padding: 0.75rem 0.85rem;
-      border-radius: 0.95rem;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(0,0,0,0.20);
+      margin: 0.9rem 0 0.35rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(11,22,48,0.10);
+      background: rgba(43,89,255,0.06);
     }
     .progress-top{
       display:flex;
@@ -346,10 +487,12 @@ title: Higher Physics
     .progress-text{
       margin:0;
       font-weight: 900;
+      color: var(--text);
     }
     .progress-sub{
       margin:0.15rem 0 0;
-      opacity:0.92;
+      color: var(--muted);
+      font-weight: 800;
       font-size:0.95rem;
     }
     progress{
@@ -359,11 +502,66 @@ title: Higher Physics
       border-radius: 999px;
       overflow:hidden;
     }
+    progress::-webkit-progress-bar{ background: rgba(11,22,48,0.08); border-radius:999px; }
+    progress::-webkit-progress-value{ background: rgba(43,89,255,0.60); border-radius:999px; }
+    progress::-moz-progress-bar{ background: rgba(43,89,255,0.60); border-radius:999px; }
+
+    .controls-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.6rem;
+      margin: 0.65rem 0 0.2rem;
+    }
+    .small-btn{
+      padding:0.58rem 0.85rem;
+      border-radius: 14px;
+      border:1px solid rgba(43,89,255,0.22);
+      background: rgba(255,255,255,0.78);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .small-btn:hover{ background: rgba(43,89,255,0.10); }
+
+    details.term{
+      margin-top: .9rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(11,22,48,0.10);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
+      overflow:hidden;
+    }
+    details.term summary{
+      cursor:pointer;
+      padding: .95rem 1rem;
+      font-weight: 900;
+      color: var(--text);
+      list-style:none;
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+      background: linear-gradient(135deg, rgba(43,89,255,0.12), rgba(22,54,184,0.08));
+      border-bottom: 1px solid rgba(11,22,48,0.08);
+    }
+    details.term summary::-webkit-details-marker{ display:none; }
 
     .term-goal{
-      margin: 0 0 0.65rem;
-      opacity:0.95;
-      line-height:1.5;
+      margin: 0 0 0.75rem;
+      color: var(--muted);
+      font-weight: 800;
+      line-height:1.55;
+    }
+    .tag{
+      display:inline-block;
+      padding: 0.12rem 0.52rem;
+      border-radius: 999px;
+      border: 1px solid rgba(43,89,255,0.22);
+      background: rgba(43,89,255,0.08);
+      color: var(--text);
+      font-size: 0.82rem;
+      margin-right: 0.4rem;
+      font-weight: 900;
     }
 
     .topic-grid{
@@ -374,10 +572,11 @@ title: Higher Physics
       gap:0.75rem;
     }
     .topic-card{
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 1rem;
-      background: rgba(0,0,0,0.20);
-      padding: 0.85rem;
+      border: 1px solid rgba(11,22,48,0.10);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.92);
+      padding: 0.95rem;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.05);
     }
     .topic-head{
       display:flex;
@@ -390,19 +589,33 @@ title: Higher Physics
       font-weight: 900;
       font-size: 1.05rem;
       line-height: 1.25;
+      color: var(--text);
+    }
+    .topic-when{
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+    .topic-blurb{
+      margin: 0.55rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.55;
     }
     .topic-done{
       display:flex;
       align-items:center;
       gap:0.5rem;
-      padding: 0.35rem 0.55rem;
+      padding: 0.38rem 0.58rem;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.20);
-      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(43,89,255,0.22);
+      background: rgba(43,89,255,0.08);
       cursor:pointer;
       user-select:none;
       font-weight: 900;
-      font-size: 0.9rem;
+      color: var(--text);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.05);
     }
     .topic-done input{
       width:24px;
@@ -410,33 +623,23 @@ title: Higher Physics
       accent-color: var(--accent);
       margin:0;
     }
-    .topic-when{
-      margin: 0.35rem 0 0;
-      opacity:0.92;
-      font-weight: 800;
-      font-size: 0.92rem;
-    }
-    .topic-blurb{
-      margin: 0.45rem 0 0;
-      opacity:0.96;
-      line-height: 1.55;
-    }
 
-    /* Footer */
     footer{
       text-align:center;
       padding: 1rem;
-      background: rgba(0,0,0,0.32);
-      border-top: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.80);
+      border-top: 1px solid rgba(11,22,48,0.10);
       font-size:0.92rem;
       margin-top:auto;
+      color: var(--muted);
+      font-weight: 800;
     }
 
-    /* Mobile tweaks */
     @media (max-width: 480px){
       .panel{ padding: 1rem; }
-      .banner{ max-height: 240px; }
-      .topic-card{ padding: 0.8rem; }
+      .topic-card{ padding: 0.85rem; }
+      .banner-overlay-text h1{ font-size: 1.05rem; }
+      .banner-overlay-text p{ font-size: .92rem; }
     }
   </style>
 </head>
@@ -449,16 +652,19 @@ title: Higher Physics
     class="menu-btn"
     id="menuBtn"
     type="button"
-    onclick="toggleMenu()"
     aria-label="Open menu"
-    aria-expanded="false"
     aria-controls="sideMenu"
+    aria-expanded="false"
   >☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
 
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-    <a href="#" id="closeMenuLink">✖ Close</a>
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
+    <div class="menu-head">
+      <div class="menu-title">Menu</div>
+      <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
+    </div>
+
     <a href="/">🏠 Home</a>
     <a href="/classes/science.html">🧪 Science</a>
     <a href="/classes/physics.html">⚡ Physics</a>
@@ -468,28 +674,117 @@ title: Higher Physics
 
   <!-- BANNER -->
   <div class="banner-wrap">
-    <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="lazy">
+    <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="eager">
     <div class="banner-tint"></div>
     <div class="banner-overlay-text">
       <h1>Higher Physics — key links + weekly focus timeline</h1>
+      <p>Big ideas, sharp skills, and that “ohhh… so that’s how it works” feeling.</p>
     </div>
+  </div>
+
+  <!-- STICKY JUMP MENU -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#resources">Resources</a>
+        <a class="subnav-link" href="#timeline">Timeline</a>
+        <a class="subnav-link" href="#quicklinks">Quick links</a>
+      </div>
+
+      <a class="subnav-cta"
+         href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
+         target="_blank" rel="noopener noreferrer">
+        ⭐ Past Papers ↗
+      </a>
+    </nav>
   </div>
 
   <main class="page-wrap" id="mainContent">
 
-    <!-- RESOURCES FIRST -->
-    <section class="panel" aria-labelledby="start-here-title">
-      <h2 id="start-here-title" style="margin:0 0 0.4rem;">Start here (weekly essentials)</h2>
-   
+    <!-- OVERVIEW -->
+    <section class="panel" id="overview" aria-labelledby="overview-title">
+      <h2 id="overview-title">Overview</h2>
+      <p>
+        Higher Physics is where everyday rules turn into powerful models: we explain circuits that *really* behave,
+        motion that *actually* matches the universe, and modern physics where light and matter stop being “obvious”.
+        It’s the course that turns “that’s weird” into “that’s predictable”.
+      </p>
+      <p>
+        <strong>How to use this page:</strong> start with the essentials, follow the weekly focus, and tick off topics as you complete them.
       </p>
 
-      <div class="tile-grid" aria-label="Higher Physics weekly essential resource tiles">
+      <details class="mini accordion">
+        <summary>🧠 What we study (big picture)</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>Electricity</strong>: measurement uncertainty, I–V characteristics, internal resistance, capacitors, AC/DC, semiconductors and band theory.</li>
+            <li><strong>Our Dynamic Universe</strong>: vectors, motion, forces, momentum, gravitation, special relativity, expanding universe.</li>
+            <li><strong>Particles &amp; Waves</strong>: refraction/interference, spectra, photoelectric effect, nuclear reactions, and the Standard Model.</li>
+            <li><strong>Assignment</strong>: planning a fair test, collecting quality data, analysing, and justifying a conclusion.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="mini accordion">
+        <summary>✅ A simple weekly routine that works</summary>
+        <div class="details-inner">
+          <ul>
+
+            <li><strong>Learn</strong> the idea → <strong>practise</strong> examples → <strong>apply</strong> to <strong>2 past paper questions</strong> (check the marking scheme).</li>
+            <li>Use <strong>Past Papers Finder + Scholar + Flash Physics + Mr Stewart’s Materials</strong> as your core four.</li>
+            <li><strong>“Done” means:</strong> you can answer <strong>2 past paper questions</strong> on that focus <em>without hints</em> and with correct units / structure. If not, leave it unticked.</li>
+          </ul>
+        </div>
+      </details>
+
+
+      <details class="mini accordion">
+        <summary>📝 How you earn marks (SQA marking principles)</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>Calculations (often 3 marks):</strong> write the relationship → substitute with units → final answer with a unit (and sensible s.f.).</li>
+            <li><strong>“Show” questions:</strong> you must show the steps (even the “obvious” ones), not just the final number.</li>
+            <li><strong>Explain / justify:</strong> use directly relevant physics and link cause → effect. Keep it precise (no waffle).</li>
+            <li><strong>“You must justify”:</strong> the statement only gets credit if the justification is correct and sufficient.</li>
+            <li><strong>If it asks for 1/2 points:</strong> don’t give extras — a wrong extra point can cancel a correct one.</li>
+            <li><strong>Graphs:</strong> label axes with quantity + unit, use a linear scale, plot accurately, and draw a single best‑fit line/curve.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="mini accordion">
+        <summary>🆘 When you’re stuck</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>Do 2 minutes of “something”:</strong> write down the knowns, the target, and one relevant relationship.</li>
+            <li><strong>Check one worked example</strong> (notes / Scholar / Past Papers Finder) and then try again from scratch.</li>
+            <li><strong>Ask your teacher</strong> with: your attempt, where it went wrong, and one specific question you want answered.</li>
+            <li>If you use the AI Tutor link, use it like a coach: ask for the <strong>next step or a hint</strong> first, not a full solution.</li>
+          </ul>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="panel" id="resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Resources (essentials first)</h2>
+      <p>These are the go-to links for weekly progress. Start here before anything else.</p>
+
+      <div class="tile-grid" aria-label="Higher Physics essential resource tiles">
         <a class="class-tile"
            href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
            target="_blank" rel="noopener noreferrer"
            aria-label="Higher Physics Past Papers by Topic Finder (PDF opens in a new tab)">
           <img src="/assets/higher/higherpastpapers.png" alt="">
-          <div class="tile-label">Past Papers Finder <span class="ext-mark" aria-hidden="true">↗</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Past Papers Finder</div>
+              <div class="tile-sub">By topic — use it every week</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
         </a>
 
         <a class="class-tile"
@@ -497,7 +792,13 @@ title: Higher Physics
            target="_blank" rel="noopener noreferrer"
            aria-label="Mr Stewart’s Materials (opens in a new tab)">
           <img src="/assets/higher/mrstewartsmaterials.png" alt="">
-          <div class="tile-label">Mr Stewart’s Materials <span class="ext-mark" aria-hidden="true">↗</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mr Stewart’s Materials</div>
+              <div class="tile-sub">Class notes, worksheets, summaries</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
         </a>
 
         <a class="class-tile"
@@ -505,7 +806,13 @@ title: Higher Physics
            target="_blank" rel="noopener noreferrer"
            aria-label="Scholar (opens in a new tab)">
           <img src="/assets/higher/scholar.png" alt="">
-          <div class="tile-label">Scholar <span class="ext-mark" aria-hidden="true">↗</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Scholar</div>
+              <div class="tile-sub">Solid explanations + practice</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
         </a>
 
         <a class="class-tile"
@@ -513,11 +820,17 @@ title: Higher Physics
            target="_blank" rel="noopener noreferrer"
            aria-label="Flash Physics (opens in a new tab)">
           <img src="/assets/higher/flashphsyics.png" alt="">
-          <div class="tile-label">Flash Physics <span class="ext-mark" aria-hidden="true">↗</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Flash Physics</div>
+              <div class="tile-sub">Quick recall + short practice</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
         </a>
       </div>
 
-      <details>
+      <details class="mini accordion">
         <summary>➕ More links (use when needed)</summary>
         <div class="details-inner">
           <div class="tile-grid" aria-label="Additional Higher Physics resource tiles">
@@ -527,7 +840,13 @@ title: Higher Physics
                target="_blank" rel="noopener noreferrer"
                aria-label="AI Tutor – Mr Stewart’s Physics Helper (opens in a new tab)">
               <img src="/assets/higher/AI.png" alt="">
-              <div class="tile-label">AI Tutor <span class="ext-mark" aria-hidden="true">↗</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">AI Tutor</div>
+                  <div class="tile-sub">Hints, feedback, and “next steps”</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
             </a>
 
             <a class="class-tile"
@@ -535,7 +854,13 @@ title: Higher Physics
                target="_blank" rel="noopener noreferrer"
                aria-label="Practice Tests (opens in a new tab)">
               <img src="/assets/higher/practicetests.png" alt="">
-              <div class="tile-label">Practice Tests <span class="ext-mark" aria-hidden="true">↗</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Practice Tests</div>
+                  <div class="tile-sub">Timed practice with answers</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
             </a>
 
             <a class="class-tile"
@@ -543,14 +868,26 @@ title: Higher Physics
                target="_blank" rel="noopener noreferrer"
                aria-label="Tricky Questions (opens in a new tab)">
               <img src="/assets/higher/tricky.png" alt="">
-              <div class="tile-label">Tricky Questions <span class="ext-mark" aria-hidden="true">↗</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Tricky Questions</div>
+                  <div class="tile-sub">The ones that make you better</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
             </a>
 
+            <!-- ✅ PATCH: image replaced with emoji (no banner exists) -->
             <a class="class-tile"
                href="/classes/higher/simulations.html"
                aria-label="Higher Physics Interactive Simulations">
-              <img src="/assets/higher/relativity.png" alt="">
-              <div class="tile-label">Interactive Simulations</div>
+              <div class="tile-emoji" aria-hidden="true"><span>🧩</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Interactive Simulations</div>
+                  <div class="tile-sub">Visualise the hard bits</div>
+                </div>
+              </div>
             </a>
 
             <a class="class-tile"
@@ -558,7 +895,13 @@ title: Higher Physics
                target="_blank" rel="noopener noreferrer"
                aria-label="Self-Marking Multiple Choice (opens in a new tab)">
               <img src="/assets/higher/mc.png" alt="">
-              <div class="tile-label">Self-Marking Multiple Choice <span class="ext-mark" aria-hidden="true">↗</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Self-Marking Multiple Choice</div>
+                  <div class="tile-sub">Fast feedback</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
             </a>
 
             <a class="class-tile"
@@ -566,7 +909,13 @@ title: Higher Physics
                target="_blank" rel="noopener noreferrer"
                aria-label="Quizlets (opens in a new tab)">
               <img src="/assets/higher/quizlet.png" alt="">
-              <div class="tile-label">Quizlets <span class="ext-mark" aria-hidden="true">↗</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Quizlets</div>
+                  <div class="tile-sub">Key words + quick checks</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
             </a>
 
             <a class="class-tile"
@@ -574,7 +923,13 @@ title: Higher Physics
                target="_blank" rel="noopener noreferrer"
                aria-label="BBC Bitesize (opens in a new tab)">
               <img src="/assets/higher/bbc.png" alt="">
-              <div class="tile-label">BBC Bitesize <span class="ext-mark" aria-hidden="true">↗</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">BBC Bitesize</div>
+                  <div class="tile-sub">Extra explanations</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
             </a>
 
           </div>
@@ -582,45 +937,11 @@ title: Higher Physics
       </details>
     </section>
 
-    <!-- COURSE OVERVIEW -->
-    <section class="panel" aria-labelledby="overview-title">
-      <h2 id="overview-title" style="margin:0 0 0.4rem;">Course overview (tap to open)</h2>
-      <p style="margin:0; opacity:0.95;">
-        Use the weekly timeline to see the current focus topic — the “Done” ticks help you stay on track.
-      </p>
-
-      <details>
-        <summary>📚 What we study (big picture)</summary>
-        <div class="details-inner">
-          <ul>
-            <li><strong>Electricity</strong>: uncertainties, I–V–R relationships, internal resistance, AC/DC, capacitors, forces in charged particles, band theory / semiconductors.</li>
-            <li><strong>Our Dynamic Universe</strong>: motion, projectile motion, forces, momentum, gravitation, special relativity, expanding universe.</li>
-            <li><strong>Particles &amp; Waves</strong>: inverse square law links, refraction, interference, spectra, photoelectric effect, nuclear reactions, standard model.</li>
-            <li><strong>Assignment</strong>: completed in school (evidence + analysis).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details>
-        <summary>✅ How to use this page effectively</summary>
-        <div class="details-inner">
-          <ul>
-            <li><strong>Weekly routine:</strong> learn the idea → try examples → practise questions → quick self-check.</li>
-            <li><strong>Use the essentials:</strong> Past Papers Finder + Scholar + Flash Physics + Mr Stewart’s Materials.</li>
-            <li><strong>Tick the timeline</strong> when you finish that week’s focus topic.</li>
-          </ul>
-        </div>
-      </details>
-    </section>
-
     <!-- TIMELINE -->
-    <section class="panel" aria-labelledby="timeline-title">
-      <h2 id="timeline-title" style="margin:0 0 0.4rem;">Timeline 2025–26 (weekly focus topics)</h2>
-      <p style="margin:0; opacity:0.95;">
-        Each card is the <strong>main topic for that week</strong> with a one-sentence overview — tick when complete.
-      </p>
+    <section class="panel" id="timeline" aria-labelledby="timeline-title">
+      <h2 id="timeline-title">Timeline 2025–26 (weekly focus topics)</h2>
+      <p>Each card is the <strong>main focus for that week</strong>. Tick it when you’ve understood it and practised questions.</p>
 
-      <!-- Progress indicator (applied) -->
       <div class="progress-wrap" aria-label="Timeline progress">
         <div class="progress-top">
           <p class="progress-text" id="progressText" aria-live="polite">Progress: 0 / 0 topics (0%)</p>
@@ -635,11 +956,11 @@ title: Higher Physics
         <button class="small-btn" type="button" onclick="resetTicks()">Reset ticks</button>
       </div>
 
-      <!-- START-UP -->
-      <details class="term">
+      <!-- START-UP (open by default) -->
+      <details class="term" open>
         <summary>🌿 June 2025 — Start-up</summary>
         <div class="details-inner">
-          <p class="term-goal"><span class="tag">Goal</span>Build confidence with measurement uncertainty and core circuit relationships.</p>
+          <p class="term-goal"><span class="tag">Goal</span>Build confidence with uncertainty and core circuit relationships.</p>
 
           <ul class="topic-grid">
             <li class="topic-card">
@@ -649,11 +970,11 @@ title: Higher Physics
                   <div class="topic-when">W/C Mon 02 Jun 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-06-02-uncertainties">
+                  <input type="checkbox" data-tick="hp-2025-06-02-uncertainties">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to estimate and combine measurement uncertainties so results are stated with a justified final value.</p>
+              <p class="topic-blurb">Estimate and combine uncertainties so final answers are stated with sensible bounds and justification. ⚠️ Watch out: don’t mix absolute and % uncertainty, and match your final decimal places to the uncertainty.</p>
             </li>
 
             <li class="topic-card">
@@ -663,11 +984,11 @@ title: Higher Physics
                   <div class="topic-when">W/C Mon 09 Jun 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-06-09-pivr">
+                  <input type="checkbox" data-tick="hp-2025-06-09-pivr">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to connect current, voltage and resistance and apply the core circuit equations confidently.</p>
+              <p class="topic-blurb">Connect current, voltage, resistance and power using the relationships sheet and clear problem-solving steps. ⚠️ Watch out: convert mA→A and kΩ→Ω before substituting.</p>
             </li>
 
             <li class="topic-card">
@@ -677,11 +998,11 @@ title: Higher Physics
                   <div class="topic-when">W/C Mon 16 Jun 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-06-16-pivr-consolidation">
+                  <input type="checkbox" data-tick="hp-2025-06-16-pivr-consolidation">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to solve mixed problems and explain which quantities are measured, calculated, and inferred.</p>
+              <p class="topic-blurb">Solve mixed problems confidently and explain which quantities are measured, calculated, and inferred. ⚠️ Watch out: write the relationship first, then substitute, then give the final answer with the correct unit.</p>
             </li>
 
             <li class="topic-card">
@@ -691,11 +1012,11 @@ title: Higher Physics
                   <div class="topic-when">W/C Mon 23 Jun 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-06-23-internal-resistance-intro">
+                  <input type="checkbox" data-tick="hp-2025-06-23-internal-resistance-intro">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to model sources with internal resistance and explain why terminal voltage drops as current increases.</p>
+              <p class="topic-blurb">Model a source with internal resistance and explain why terminal voltage drops as current increases. ⚠️ Watch out: emf is not the same as terminal p.d.; internal resistance is in series with the source.</p>
             </li>
           </ul>
         </div>
@@ -711,99 +1032,85 @@ title: Higher Physics
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Internal resistance</div>
+                  <div class="topic-title">I–V characteristics (resistor, filament, diode)</div>
                   <div class="topic-when">W/C Mon 18 Aug 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-08-18-internal-resistance">
+                  <input type="checkbox" data-tick="hp-2025-08-18-iv-characteristics">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use emf and internal resistance to link current and terminal voltage in real sources.</p>
+              <p class="topic-blurb">Read and sketch I–V graphs, describe behaviour, and explain why components are non-ohmic. ⚠️ Watch out: label axes properly (quantity + unit) and don’t confuse gradient with ‘resistance at a point’.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">AC / DC</div>
+                  <div class="topic-title">Internal resistance (graphs + calculations)</div>
                   <div class="topic-when">W/C Mon 25 Aug 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-08-25-acdc">
+                  <input type="checkbox" data-tick="hp-2025-08-25-internal-resistance">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to compare alternating and direct current and describe key features of AC waveforms.</p>
+              <p class="topic-blurb">Use V–I graphs to find emf and internal resistance and link the model to real battery behaviour. ⚠️ Watch out: for V = ε − Ir, the intercept is ε and the gradient is −r (sign matters).</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Capacitors</div>
+                  <div class="topic-title">Power + energy in circuits (with uncertainty)</div>
                   <div class="topic-when">W/C Mon 01 Sep 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-09-01-capacitors">
+                  <input type="checkbox" data-tick="hp-2025-09-01-power-energy">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to describe charge storage and how capacitor voltage changes during charging and discharging.</p>
+              <p class="topic-blurb">Apply P = IV and energy ideas to real circuit contexts, including consistent units and sensible rounding. ⚠️ Watch out: energy often needs E = Pt with time in seconds (and kWh is a different unit).</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Forces on charged particles</div>
+                  <div class="topic-title">Capacitors (charge, discharge, time constant)</div>
                   <div class="topic-when">W/C Mon 08 Sep 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-09-08-forces-charged-particles">
+                  <input type="checkbox" data-tick="hp-2025-09-08-capacitors">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use electric and magnetic fields to predict forces and motion of charged particles.</p>
+              <p class="topic-blurb">Describe exponential change and use key capacitor relationships to solve structured and unseen questions. ⚠️ Watch out: τ = RC is in seconds; at 1τ discharge falls to ~37% (charge rises to ~63%).</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Band theory &amp; semiconductors</div>
+                  <div class="topic-title">AC basics (rms + interpreting waveforms)</div>
                   <div class="topic-when">W/C Mon 15 Sep 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-09-15-band-theory">
+                  <input type="checkbox" data-tick="hp-2025-09-15-ac-basics">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to explain conductors, insulators and semiconductors using bands and p–n junction ideas.</p>
+              <p class="topic-blurb">Connect rms values to practical measurements and interpret what an AC signal means in context. ⚠️ Watch out: rms is not peak; V_rms = V_peak/√2 for a sine wave.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Motion (ODU start)</div>
+                  <div class="topic-title">Vectors + scalars (ODU start)</div>
                   <div class="topic-when">W/C Mon 22 Sep 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-09-22-motion">
+                  <input type="checkbox" data-tick="hp-2025-09-22-vectors-scalars">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use graphs and equations to describe motion accurately in one and two dimensions.</p>
-            </li>
-
-            <li class="topic-card">
-              <div class="topic-head">
-                <div>
-                  <div class="topic-title">Projectile motion</div>
-                  <div class="topic-when">W/C Mon 29 Sep 2025</div>
-                </div>
-                <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-09-29-projectile">
-                  <span>Done</span>
-                </label>
-              </div>
-              <p class="topic-blurb">We learn to resolve motion into components to predict time of flight, range and maximum height.</p>
+              <p class="topic-blurb">Use vector diagrams and components to set up motion problems correctly from the start. ⚠️ Watch out: include direction (sign) and resolve into components before using equations.</p>
             </li>
           </ul>
         </div>
@@ -819,127 +1126,141 @@ title: Higher Physics
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Forces (ODU)</div>
+                  <div class="topic-title">Forces + Newton’s laws (modelling motion)</div>
                   <div class="topic-when">W/C Mon 06 Oct 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-10-06-forces">
+                  <input type="checkbox" data-tick="hp-2025-10-06-newton">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to apply Newton’s laws using clear free-body diagrams to link forces and motion.</p>
+              <p class="topic-blurb">Build clear force diagrams, choose directions, and solve problems using consistent modelling steps. ⚠️ Watch out: draw all forces (especially weight/normal/tension) and keep signs consistent.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Momentum</div>
+                  <div class="topic-title">Energy, work and power (ODU)</div>
+                  <div class="topic-when">W/C Mon 13 Oct 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-10-13-energy-work">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use energy methods to solve motion problems efficiently and explain where energy transfers happen. ⚠️ Watch out: work done uses the force component along the displacement; power is rate of energy transfer.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Momentum + impulse</div>
+                  <div class="topic-when">W/C Mon 20 Oct 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-10-20-momentum">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Apply conservation of momentum and interpret impulse as “change in momentum” in real contexts. ⚠️ Watch out: momentum is a vector; Ns is the same as kg·m/s; check directions.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Projectile motion (linking components)</div>
                   <div class="topic-when">W/C Mon 27 Oct 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-10-27-momentum">
+                  <input type="checkbox" data-tick="hp-2025-10-27-projectiles">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use conservation of momentum and impulse ideas to solve collision and explosion problems.</p>
+              <p class="topic-blurb">Separate horizontal/vertical motion cleanly and solve for time, range, height, and velocity. ⚠️ Watch out: time links both directions; choose a sign convention for g and stick to it.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Projectile motion (consolidation)</div>
+                  <div class="topic-title">Gravitation (fields, potential and orbits)</div>
                   <div class="topic-when">W/C Mon 03 Nov 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-11-03-projectiles-consolidation">
+                  <input type="checkbox" data-tick="hp-2025-11-03-gravitation">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to link diagrams, equations and graphs to model projectile scenarios clearly and efficiently.</p>
+              <p class="topic-blurb">Explain gravitational fields and use the inverse-square model to solve orbit and energy questions. ⚠️ Watch out: r is from the centre of the Earth; gravitational potential is negative; don’t mix g and G.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Gravitation</div>
+                  <div class="topic-title">Special relativity (time dilation + length contraction)</div>
                   <div class="topic-when">W/C Mon 10 Nov 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-11-10-gravitation">
+                  <input type="checkbox" data-tick="hp-2025-11-10-relativity">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to apply Newton’s law of gravitation to fields and orbits and explain gravity at distance.</p>
+              <p class="topic-blurb">Use relativistic equations correctly and interpret what changes between different frames of reference. ⚠️ Watch out: identify the proper time/length and use c = 3.0×10^8 m/s with units.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Special relativity</div>
+                  <div class="topic-title">Expanding universe (redshift + Hubble)</div>
                   <div class="topic-when">W/C Mon 17 Nov 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-11-17-relativity">
+                  <input type="checkbox" data-tick="hp-2025-11-17-expanding-universe">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to describe time dilation and length contraction and interpret events in different frames.</p>
+              <p class="topic-blurb">Link evidence (redshift) to model (expansion) and apply Hubble’s law with clear interpretation. ⚠️ Watch out: convert Mpc to m when needed and show what your gradient/intercept means.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Expanding universe</div>
+                  <div class="topic-title">Waves: refraction + critical angle</div>
                   <div class="topic-when">W/C Mon 24 Nov 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-11-24-expanding-universe">
+                  <input type="checkbox" data-tick="hp-2025-11-24-refraction">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use redshift to describe an expanding universe and connect observations to key models.</p>
+              <p class="topic-blurb">Use refractive index ideas and explain what happens to speed, wavelength, and direction at boundaries. ⚠️ Watch out: critical angle only applies when going from higher n to lower n.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Inverse square law</div>
+                  <div class="topic-title">Waves: interference + fringe spacing</div>
                   <div class="topic-when">W/C Mon 01 Dec 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-12-01-inverse-square">
+                  <input type="checkbox" data-tick="hp-2025-12-01-interference">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to model how intensity falls with distance and apply inverse square relationships confidently.</p>
+              <p class="topic-blurb">Apply path difference and interference conditions and connect wave models to experimental evidence. ⚠️ Watch out: keep units consistent in y = λD/s (convert mm→m).</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Refraction</div>
+                  <div class="topic-title">Consolidation + mixed past paper practice</div>
                   <div class="topic-when">W/C Mon 08 Dec 2025</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-12-08-refraction">
+                  <input type="checkbox" data-tick="hp-2025-12-08-consolidation">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use refractive index and Snell’s law to predict bending and total internal reflection.</p>
-            </li>
-
-            <li class="topic-card">
-              <div class="topic-head">
-                <div>
-                  <div class="topic-title">Interference</div>
-                  <div class="topic-when">W/C Mon 15 Dec 2025</div>
-                </div>
-                <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2025-12-15-interference">
-                  <span>Done</span>
-                </label>
-              </div>
-              <p class="topic-blurb">We learn to use superposition and path difference to explain constructive and destructive interference.</p>
+              <p class="topic-blurb">Combine topics across the course, practise structure/technique, and tighten up explanation marks. ⚠️ Watch out: match the command word (state/describe/explain/show) and avoid extra ‘bonus’ points that can cost marks.</p>
             </li>
           </ul>
         </div>
@@ -949,49 +1270,63 @@ title: Higher Physics
       <details class="term">
         <summary>🧪 Term 3 (Jan–Feb 2026) — Assignment block</summary>
         <div class="details-inner">
-          <p class="term-goal"><span class="tag">Goal</span>Produce a clear, fair investigation with reliable data and justified conclusions.</p>
+          <p class="term-goal"><span class="tag">Goal</span>Produce a fair, reliable investigation with justified analysis and conclusion.</p>
 
           <ul class="topic-grid">
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Assignment — planning &amp; method</div>
+                  <div class="topic-title">Choose aim + background research</div>
+                  <div class="topic-when">W/C Mon 05 Jan 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-01-05-assignment-research">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Turn a big idea into a testable question and gather the science you’ll need to justify it. ⚠️ Watch out: your aim must be measurable (clear IV and DV) — avoid vague wording.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Plan method + identify variables</div>
+                  <div class="topic-when">W/C Mon 12 Jan 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-01-12-assignment-plan">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Write a method that someone else could follow and justify how you will control variables. ⚠️ Watch out: include repeats, control variables, and how you’ll measure uncertainty.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Data collection + repeatability</div>
                   <div class="topic-when">W/C Mon 19 Jan 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-01-19-assignment-planning">
+                  <input type="checkbox" data-tick="hp-2026-01-19-assignment-data">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to define aim, variables and method so the investigation is fair, repeatable and clearly recorded.</p>
+              <p class="topic-blurb">Collect enough data for a clear trend and use repeats to improve reliability and confidence. ⚠️ Watch out: plan a sensible range and interval; record units and uncertainty for every measurement.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Assignment — data &amp; processing</div>
+                  <div class="topic-title">Processing + uncertainty + conclusion</div>
                   <div class="topic-when">W/C Mon 26 Jan 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-01-26-assignment-data">
+                  <input type="checkbox" data-tick="hp-2026-01-26-assignment-analysis">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to collect reliable measurements and present results with correct graphs, units and significant figures.</p>
-            </li>
-
-            <li class="topic-card">
-              <div class="topic-head">
-                <div>
-                  <div class="topic-title">Assignment — analysis &amp; evaluation</div>
-                  <div class="topic-when">W/C Mon 02 Feb 2026</div>
-                </div>
-                <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-02-02-assignment-analysis">
-                  <span>Done</span>
-                </label>
-              </div>
-              <p class="topic-blurb">We learn to interpret patterns, link to physics ideas and evaluate limitations to justify improvements.</p>
+              <p class="topic-blurb">Process data properly, handle uncertainty honestly, and write a conclusion that matches evidence. ⚠️ Watch out: conclusions must reference processed results; comment on uncertainty and improvements.</p>
             </li>
           </ul>
         </div>
@@ -1001,161 +1336,217 @@ title: Higher Physics
       <details class="term">
         <summary>⚛️ Term 4 (Feb–Mar 2026) — Particles &amp; Waves</summary>
         <div class="details-inner">
-          <p class="term-goal"><span class="tag">Goal</span>Explain modern physics evidence using photons, spectra and particle reaction ideas.</p>
+          <p class="term-goal"><span class="tag">Goal</span>Explain modern physics evidence using photons, spectra, and nuclear reaction ideas.</p>
 
           <ul class="topic-grid">
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Photoelectric effect</div>
+                  <div class="topic-title">Spectra + line formation</div>
                   <div class="topic-when">W/C Mon 23 Feb 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-02-23-photoelectric">
+                  <input type="checkbox" data-tick="hp-2026-02-23-spectra">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to explain electron emission using photons, threshold frequency and the work function.</p>
+              <p class="topic-blurb">Explain how absorption/emission spectra form and connect evidence to energy level models. ⚠️ Watch out: don’t mix up emission vs absorption, and link lines to transitions between energy levels.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Spectra</div>
+                  <div class="topic-title">Photoelectric effect (evidence for photons)</div>
                   <div class="topic-when">W/C Mon 02 Mar 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-03-02-spectra">
+                  <input type="checkbox" data-tick="hp-2026-03-02-photoelectric">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to use line spectra to identify elements and link spectral lines to energy changes in atoms.</p>
+              <p class="topic-blurb">Use the key features of photoelectric evidence to support quantisation and photon behaviour. ⚠️ Watch out: intensity affects number of electrons; frequency affects max kinetic energy (threshold matters).</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Nuclear reactions</div>
+                  <div class="topic-title">Nuclear reactions + binding energy</div>
                   <div class="topic-when">W/C Mon 09 Mar 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-03-09-nuclear-reactions">
+                  <input type="checkbox" data-tick="hp-2026-03-09-nuclear">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to describe particle reactions using conservation laws and explain energy changes in fission and fusion.</p>
+              <p class="topic-blurb">Interpret nuclear equations and explain energy release using mass defect and binding energy ideas. ⚠️ Watch out: balance nucleon number and charge, and be careful with MeV vs J conversions.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">The Standard Model</div>
+                  <div class="topic-title">Standard Model overview</div>
                   <div class="topic-when">W/C Mon 16 Mar 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-03-16-standard-model">
+                  <input type="checkbox" data-tick="hp-2026-03-16-standard-model">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to classify matter and interactions using quarks, leptons, bosons and the fundamental forces.</p>
+              <p class="topic-blurb">Classify particles, describe interactions, and connect the model to the evidence it explains. ⚠️ Watch out: know leptons vs hadrons (baryons/mesons) and which force is involved.</p>
             </li>
 
             <li class="topic-card">
               <div class="topic-head">
                 <div>
-                  <div class="topic-title">Particles &amp; Waves consolidation</div>
+                  <div class="topic-title">Particles &amp; Waves consolidation (mixed practice)</div>
                   <div class="topic-when">W/C Mon 23 Mar 2026</div>
                 </div>
                 <label class="topic-done">
-                  <input type="checkbox" data-tick="topic-2026-03-23-pw-consolidation">
+                  <input type="checkbox" data-tick="hp-2026-03-23-pw-consolidation">
                   <span>Done</span>
                 </label>
               </div>
-              <p class="topic-blurb">We learn to connect big ideas and switch between explanations, calculations and graphs smoothly.</p>
+              <p class="topic-blurb">Combine explanations and calculations with exam-style phrasing and clean use of the relationship sheet. ⚠️ Watch out: write a complete final answer (unit + sensible s.f.) and keep explanations ‘physics-first’.</p>
             </li>
           </ul>
         </div>
       </details>
 
     </section>
+
+    <!-- QUICK LINKS -->
+    <section class="panel" id="quicklinks" aria-labelledby="quicklinks-title">
+      <h2 id="quicklinks-title">Quick links</h2>
+      <p>Useful extras and official references — handy when you need a second explanation or the “official version”.</p>
+
+      <div class="tile-grid" aria-label="Higher Physics quick links">
+        <!-- ✅ PATCH: no banner photos in quick links (emoji tiles instead) -->
+        <a class="class-tile"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mr Stewart’s Materials (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🗂️</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mr Stewart’s Materials</div>
+              <div class="tile-sub">The home base</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.youtube.com/@mrstewartphysics/playlists"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="The other Mr Stewart’s YouTube (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🎥</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">The other Mr Stewart’s YouTube</div>
+              <div class="tile-sub">Video explanations + playlists</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- ✅ PATCH: Mrs Physics link corrected -->
+        <a class="class-tile"
+           href="https://mrsphysics.co.uk/index.php/higher/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mrs Physics Higher Physics website (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🌟</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mrs Physics (Higher)</div>
+      
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.sqa.org.uk/sqa/47916.html"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="SQA Higher Physics course overview and resources (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🏛️</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">SQA Higher Physics website</div>
+              <div class="tile-sub">Official course docs + papers</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
   </main>
 
-  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering 2026</footer>
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
   <script>
     /* ============================
-       MENU: ESC closes + overlay click + close link + focus trap
+       MENU: overlay click + ESC close + focus trap
     =============================== */
-    function $(id){ return document.getElementById(id); }
-    let lastFocusEl = null;
+    const menu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('menuOverlay');
+    const btn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('menuClose');
+
+    let lastFocus = null;
 
     function getFocusableInMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return [];
-      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled'));
+      return menu.querySelectorAll('a[href], button:not([disabled])');
     }
 
     function openMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
+      lastFocus = document.activeElement;
 
-      lastFocusEl = document.activeElement;
+      menu.classList.add('open');
+      overlay.hidden = false;
+      overlay.classList.add('show');
 
-      menu.classList.add("open");
-      overlay.classList.add("show");
+      btn.setAttribute('aria-expanded','true');
 
-      btn.setAttribute("aria-expanded","true");
-      btn.setAttribute("aria-label","Close menu");
-      overlay.setAttribute("aria-hidden","false");
+      // stop background scroll (iPad-friendly)
+      document.body.style.overflowY = 'hidden';
 
-      const focusables = getFocusableInMenu();
-      if(focusables.length) focusables[0].focus();
+      const f = getFocusableInMenu();
+      (f[0] || menu).focus();
     }
 
     function closeMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
+      menu.classList.remove('open');
+      overlay.classList.remove('show');
+      overlay.hidden = true;
 
-      menu.classList.remove("open");
-      overlay.classList.remove("show");
+      btn.setAttribute('aria-expanded','false');
 
-      btn.setAttribute("aria-expanded","false");
-      btn.setAttribute("aria-label","Open menu");
-      overlay.setAttribute("aria-hidden","true");
+      document.body.style.overflowY = '';
 
-      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-        lastFocusEl.focus();
-      } else {
-        btn.focus();
-      }
-      lastFocusEl = null;
+      if(lastFocus && lastFocus.focus) lastFocus.focus();
+      lastFocus = null;
     }
 
     function toggleMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return;
-      const isOpen = menu.classList.contains("open");
-      if(isOpen) closeMenu();
-      else openMenu();
+      menu.classList.contains('open') ? closeMenu() : openMenu();
     }
 
-    /* Focus trap when menu open */
-    document.addEventListener("keydown", (e) => {
-      const menu = $("sideMenu");
-      const isOpen = menu && menu.classList.contains("open");
+    btn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
 
-      if(e.key === "Escape" && isOpen){
+    document.addEventListener('keydown', (e) => {
+      const isOpen = menu.classList.contains('open');
+
+      if(e.key === 'Escape' && isOpen){
         e.preventDefault();
         closeMenu();
+        return;
       }
 
-      if(e.key === "Tab" && isOpen){
-        const focusables = getFocusableInMenu();
+      if(e.key === 'Tab' && isOpen){
+        const focusables = Array.from(getFocusableInMenu());
         if(!focusables.length) return;
 
         const first = focusables[0];
@@ -1171,37 +1562,40 @@ title: Higher Physics
       }
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const overlay = $("menuOverlay");
-      if(overlay) overlay.setAttribute("aria-hidden","true");
-
-      const closeLink = $("closeMenuLink");
-      if(closeLink){
-        closeLink.addEventListener("click", (e) => {
-          e.preventDefault();
-          closeMenu();
-        });
-      }
-    });
-
     /* ============================
-       TIMELINE: open/close terms
+       ACCORDION: only one open at a time
+       - details.term (timeline) and details.accordion (mini blocks)
+       - open/close-all terms still works (suppresses accordion during bulk ops)
     =============================== */
+    let suppressAccordion = false;
+
+    function setupAccordion(selector){
+      const items = Array.from(document.querySelectorAll(selector));
+      if(!items.length) return;
+
+      items.forEach(d => {
+        d.addEventListener('toggle', () => {
+          if(suppressAccordion) return;
+          if(!d.open) return;
+          items.forEach(other => { if(other !== d) other.open = false; });
+        });
+      });
+    }
+
     function setAllTerms(open){
-      document.querySelectorAll("details.term").forEach(d => d.open = !!open);
+      suppressAccordion = true;
+      document.querySelectorAll('details.term').forEach(d => d.open = !!open);
+      suppressAccordion = false;
     }
 
     /* ============================
-       TICKS: persistent (timeline) + progress indicator
+       TICKS: persistent + progress indicator
     =============================== */
-    const TICK_KEY = "hp_timeline_ticks_v4";
+    const TICK_KEY = "hp_timeline_ticks_light_v1";
 
     function loadTicks(){
-      try{
-        return JSON.parse(localStorage.getItem(TICK_KEY) || "{}");
-      }catch(e){
-        return {};
-      }
+      try{ return JSON.parse(localStorage.getItem(TICK_KEY) || "{}"); }
+      catch(e){ return {}; }
     }
     function saveTicks(state){
       localStorage.setItem(TICK_KEY, JSON.stringify(state));
@@ -1211,11 +1605,10 @@ title: Higher Physics
       const boxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-tick]'));
       const total = boxes.length;
       const done = boxes.filter(b => b.checked).length;
-
       const pct = total ? Math.round((done / total) * 100) : 0;
 
-      const text = $("progressText");
-      const bar = $("progressBar");
+      const text = document.getElementById('progressText');
+      const bar = document.getElementById('progressBar');
 
       if(text) text.textContent = `Progress: ${done} / ${total} topics (${pct}%)`;
       if(bar){
@@ -1227,10 +1620,10 @@ title: Higher Physics
     function initTicks(){
       const state = loadTicks();
       document.querySelectorAll('input[type="checkbox"][data-tick]').forEach(cb=>{
-        const key = cb.getAttribute("data-tick");
+        const key = cb.getAttribute('data-tick');
         cb.checked = !!state[key];
 
-        cb.addEventListener("change", ()=>{
+        cb.addEventListener('change', ()=>{
           const s = loadTicks();
           s[key] = cb.checked;
           saveTicks(s);
@@ -1248,7 +1641,11 @@ title: Higher Physics
       updateProgress();
     }
 
-    document.addEventListener("DOMContentLoaded", initTicks);
+    document.addEventListener('DOMContentLoaded', () => {
+      setupAccordion('details.term');
+      setupAccordion('details.accordion');
+      initTicks();
+    });
   </script>
 </body>
 </html>
