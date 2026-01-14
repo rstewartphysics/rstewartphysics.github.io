@@ -1,217 +1,611 @@
 ---
 layout: none
-title: Engineering (Work in Progress)
+title: Engineering
 ---
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Engineering</title>
 
-<style>
-:root {
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --radius-card: 1rem;
-  --shadow-card: 0 24px 48px rgba(0,0,0,0.8);
-  --text-main: #fff;
-  --bg-grad: radial-gradient(circle at 20% 30%, #2b1a00 0%, #5c3a00 40%, #0f172a 90%);
-}
+  <style>
+    /* ============================
+       GLOBAL FIX: prevent clipping/overflow (site standard)
+    =============================== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { max-width: 100%; }
+    body { margin: 0; overflow-x: hidden; }
+    img, iframe { max-width: 100%; height: auto; display: block; }
 
-/* BASE */
-body {
-  margin: 0;
-  background: var(--bg-grad);
-  color: var(--text-main);
-  font-family: var(--font-stack);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
+    :root{
+      --font: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-/* BANNER */
-.banner-wrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-.banner {
-  width: 100%;
-  height: auto;
-  max-height: 340px;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  opacity: 0;
-  animation: fadeIn 1.2s ease forwards;
-}
-@keyframes fadeIn { to { opacity: 1; } }
-@media (max-width: 768px) {.banner { max-height: 260px; }}
+      /* Standard light look + Engineering warm accents */
+      --bg0:#f6f8ff;
+      --bg1:#eef3ff;
+      --card:#ffffff;
+      --text:#12203a;
+      --muted:#4a5a78;
+      --line: rgba(18,32,58,0.14);
 
-/* Animated warm tint */
-.banner-tint {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(255,165,0,0.3), rgba(255,80,0,0.35), rgba(0,150,255,0.25));
-  mix-blend-mode: multiply;
-  animation: tintShift 12s ease-in-out infinite alternate;
-}
-@keyframes tintShift {
-  0% {background-position: 0% 50%;}
-  100% {background-position: 100% 50%;}
-}
+      --engA: rgba(255,170,0,0.18);
+      --engB: rgba(255,80,0,0.12);
+      --engC: rgba(0,150,255,0.10);
 
-/* Fade separator */
-.banner-separator {
-  width: 100%;
-  height: 50px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
-}
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(0,0,0,0.12);
 
-/* MENU BUTTON */
-.menu-btn {
-  position: fixed;
-  top: 15px;
-  right: 20px;
-  font-size: 1.6rem;
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  z-index: 200;
-  transition: transform 0.2s ease;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
-}
-.menu-btn:hover, .menu-btn:focus {
-  transform: scale(1.1);
-  outline: none;
-}
+      --tileH: 140px;
+      --focus: 0 0 0 3px rgba(0,150,255,0.35);
+    }
 
-/* DRAWER MENU */
-.menu-overlay {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.5);
-  display:none; z-index:99;
-}
-.side-menu {
-  position: fixed; top:0; right:-270px;
-  height:100%; width:270px;
-  background: rgba(15,23,42,0.92);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  box-shadow:-4px 0 25px rgba(0,0,0,0.6);
-  transition:right 0.3s ease;
-  z-index:150;
-  display:flex; flex-direction:column;
-  padding-top:4rem;
-}
-.side-menu.open { right:0; }
-.menu-overlay.show { display:block; }
-.side-menu a {
-  color:#fff;
-  text-decoration:none;
-  font-size:1.1rem;
-  padding:0.9rem 1.5rem;
-  display:flex; align-items:center; gap:0.8rem;
-  transition:background 0.2s ease;
-}
-.side-menu a:hover, .side-menu a:focus {
-  background:rgba(255,255,255,0.12);
-  outline:none;
-}
+    body{
+      font-family: var(--font);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 20%, var(--engA) 0%, transparent 55%),
+        radial-gradient(circle at 80% 30%, var(--engC) 0%, transparent 60%),
+        radial-gradient(circle at 45% 105%, var(--engB) 0%, transparent 65%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
-/* PAGE WRAP */
-.page-wrap {
-  width:100%;
-  max-width:900px;
-  margin:2rem auto 4rem;
-  padding:0 1rem;
-  text-align:center;
-}
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:auto;
+      width:1px;height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left: 12px;
+      top: calc(12px + env(safe-area-inset-top));
+      width:auto;height:auto;
+      padding:.6rem .9rem;
+      border-radius: 999px;
+      background: #ffffff;
+      color:#081022;
+      z-index: 5000;
+      outline:none;
+      box-shadow: var(--focus);
+    }
 
-/* CARD */
-.wip-card {
-  display:inline-block;
-  background: rgba(90,60,0,0.4);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 2rem 1.5rem;
-  border: 2px solid rgba(0,0,0,0.4);
-  outline: 2px solid rgba(255,255,255,0.1);
-  outline-offset: -4px;
-  backdrop-filter: blur(10px) saturate(160%);
-  -webkit-backdrop-filter: blur(10px) saturate(160%);
-  animation: pulseGlow 3s ease-in-out infinite alternate;
-}
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 20px rgba(255,180,0,0.3); }
-  100% { box-shadow: 0 0 40px rgba(255,180,0,0.6); }
-}
-.wip-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  display:block;
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
-}
-.wip-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-.wip-text {
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
+    /* ============================
+       BANNER
+    =============================== */
+    .banner-wrap{
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+      border-bottom: 1px solid rgba(18,32,58,0.10);
+      background: #000; /* helps if image loads slowly */
+    }
+    .banner{
+      width:100%;
+      height:auto;
+      max-height: 340px;
+      object-fit: cover;
+      object-position: center;
+      display:block;
+    }
+    @media (max-width: 768px){
+      .banner{ max-height: 260px; }
+    }
+    .banner-tint{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(120deg,
+        rgba(255,165,0,0.16),
+        rgba(255,80,0,0.14),
+        rgba(0,150,255,0.10)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+    .banner-separator{
+      width:100%;
+      height: 22px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0));
+    }
 
-/* RESPONSIVE TWEAK */
-@media (max-width: 600px) {
-  .wip-card {padding:1.5rem 1rem;}
-  .wip-title {font-size:1.3rem;}
-  .wip-text {font-size:1rem;}
-}
-</style>
+    /* ============================
+       PAGE WRAP
+    =============================== */
+    main.page-wrap{
+      width:100%;
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0 1rem 4rem;
+    }
 
-<!-- MENU BUTTON -->
-<button class="menu-btn" type="button" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+    .hero{
+      margin: 1.1rem auto 1.2rem;
+      padding: 1.25rem;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .hero h1{
+      margin: 0 0 .35rem;
+      font-size: clamp(1.4rem, 2.6vw, 2rem);
+      letter-spacing: .2px;
+    }
+    .hero p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
 
-<!-- BANNER -->
-<div class="banner-wrap">
-  <img src="/assets/Engeneringbanner.png" alt="Engineering Banner" class="banner">
-  <div class="banner-tint"></div>
-</div>
+    .section{
+      margin-top: 1.1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .section h2{
+      margin: 0 0 .75rem;
+      font-size: 1.15rem;
+      letter-spacing: .15px;
+    }
 
-<div class="banner-separator"></div>
+    .tile-grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 980px){
+      .tile-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px){
+      .tile-grid{ grid-template-columns: 1fr; }
+    }
 
-<!-- CONTENT -->
-<main class="page-wrap">
-  <div class="wip-card" role="status" aria-live="polite">
-    <div class="wip-icon">🛠️</div>
-    <div class="wip-title">Work in Progress</div>
-    <div class="wip-text">The Engineering section is currently under development.<br>
-    New project materials, tools, and resources will appear here soon!</div>
+    .tile{
+      min-height: var(--tileH);
+      border-radius: 18px;
+      border: 1px solid rgba(18,32,58,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.86));
+      box-shadow: 0 14px 28px rgba(0,0,0,0.10);
+      padding: 14px 14px 12px;
+      text-decoration:none;
+      color: var(--text);
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tile:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(0,0,0,0.14);
+    }
+    .tile:focus{
+      outline:none;
+      box-shadow: var(--focus), 0 18px 34px rgba(0,0,0,0.14);
+    }
+
+    .tile .icon{
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      font-size: 1.55rem;
+      background: rgba(255,170,0,0.14);
+      border: 1px solid rgba(18,32,58,0.12);
+      flex: 0 0 auto;
+    }
+    .tile .t-title{
+      margin: 2px 0 4px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: .1px;
+    }
+    .tile .t-sub{
+      margin: 0;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+
+    /* Placeholder links: keep normal look, but avoid 404 */
+    .tile--placeholder .t-sub::after{
+      content: " (link placeholder)";
+      font-style: italic;
+      opacity: .85;
+    }
+
+    /* Disabled tile (Higher) */
+    .tile--disabled{
+      opacity: 0.65;
+      filter: saturate(0.9);
+      cursor: not-allowed;
+    }
+    .tile--disabled:hover{ transform:none; }
+    .tile--disabled .icon{ background: rgba(18,32,58,0.08); }
+
+    /* Wide button */
+    .wide-btn{
+      display:block;
+      width:100%;
+      text-align:center;
+      margin-top: .85rem;
+      padding: .9rem 1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(18,32,58,0.14);
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      text-decoration:none;
+      font-weight: 800;
+    }
+    .wide-btn:hover{ box-shadow: 0 10px 22px rgba(0,0,0,0.10); }
+    .wide-btn:focus{ outline:none; box-shadow: var(--focus); }
+
+    /* Mini collapsible */
+    details.mini{
+      margin-top: .85rem;
+      border-radius: 14px;
+      border: 1px solid rgba(18,32,58,0.12);
+      background: rgba(255,255,255,0.80);
+      padding: .6rem .75rem;
+    }
+    details.mini > summary{
+      cursor:pointer;
+      font-weight: 800;
+      list-style:none;
+    }
+    details.mini > summary::-webkit-details-marker{ display:none; }
+    details.mini p{
+      margin:.6rem 0 0;
+      color: var(--muted);
+    }
+
+    footer{
+      opacity: .8;
+      font-size: .95rem;
+      text-align:center;
+      padding: 1.2rem 1rem 2.4rem;
+      color: var(--muted);
+    }
+
+    /* ============================
+       MENU BUTTON (safe-area)
+    =============================== */
+    .menu-btn{
+      position: fixed;
+      top: calc(12px + env(safe-area-inset-top));
+      right: calc(12px + env(safe-area-inset-right));
+      z-index: 1000;
+
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid rgba(18,32,58,0.14);
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(10px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      color: var(--text);
+
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      box-shadow: 0 12px 22px rgba(0,0,0,0.12);
+    }
+    .menu-btn:focus{ outline:none; box-shadow: var(--focus), 0 12px 22px rgba(0,0,0,0.12); }
+
+    /* ============================
+       DRAWER MENU (blur + overlay + ESC + focus trap)
+    =============================== */
+    .menu-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: none;
+      z-index: 900;
+    }
+    .menu-overlay.show{ display:block; }
+
+    .side-menu{
+      position: fixed;
+      top: 0;
+      right: -320px;
+      height: 100%;
+      width: min(320px, 88vw);
+      z-index: 950;
+
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(14px) saturate(165%);
+      -webkit-backdrop-filter: blur(14px) saturate(165%);
+      border-left: 1px solid rgba(18,32,58,0.14);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.18);
+
+      transition: right 0.28s ease;
+      padding: calc(14px + env(safe-area-inset-top)) 12px 14px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .side-menu.open{ right: 0; }
+
+    .side-menu .menu-top{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 6px 10px;
+      border-bottom: 1px solid rgba(18,32,58,0.12);
+    }
+    .side-menu .menu-title{
+      font-weight: 900;
+      letter-spacing: .2px;
+      color: var(--text);
+    }
+    .side-menu .menu-close{
+      border: 1px solid rgba(18,32,58,0.14);
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+    }
+    .side-menu .menu-close:focus{ outline:none; box-shadow: var(--focus); }
+
+    .side-menu a{
+      color: var(--text);
+      text-decoration:none;
+      font-size: 1.05rem;
+      padding: 0.95rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(18,32,58,0.12);
+      background: rgba(255,255,255,0.92);
+      display:flex;
+      align-items:center;
+      gap: .75rem;
+    }
+    .side-menu a:hover{ box-shadow: 0 10px 22px rgba(0,0,0,0.10); }
+    .side-menu a:focus{ outline:none; box-shadow: var(--focus); }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- MENU BUTTON -->
+  <button class="menu-btn" type="button"
+          aria-label="Open menu"
+          aria-controls="sideMenu"
+          aria-expanded="false"
+          id="menuBtn">☰</button>
+
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <img src="/assets/Engeneringbanner.png" alt="Engineering" class="banner">
+    <div class="banner-tint" aria-hidden="true"></div>
   </div>
-</main>
+  <div class="banner-separator" aria-hidden="true"></div>
 
-<!-- DRAWER NAVIGATION -->
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<nav class="side-menu" id="sideMenu">
-  <a href="/">🏠 Home</a>
-  <a href="/classes/science.html">🧪 Science</a>
-  <a href="/classes/physics.html">⚡ Physics</a>
-  <a href="/classes/electronics.html">💡 Electronics</a>
-  <a href="/classes/engineering.html">🧰 Engineering</a>
-</nav>
+  <!-- CONTENT -->
+  <main class="page-wrap" id="main">
+    <section class="hero" aria-label="Engineering overview">
+      <h1>Engineering Science</h1>
+      <p>Launching June 2026 • S3 (N4-style) and National 5 • Higher planned for June 2027</p>
 
-<script>
-function toggleMenu(){
-  const menu=document.getElementById('sideMenu');
-  const overlay=document.getElementById('menuOverlay');
-  const isOpen=menu.classList.contains('open');
-  if(isOpen){menu.classList.remove('open');overlay.classList.remove('show');}
-  else{menu.classList.add('open');overlay.classList.add('show');}
-}
-document.addEventListener('keydown',(e)=>{
-  if(e.key==='Escape'){
-    document.getElementById('sideMenu').classList.remove('open');
-    document.getElementById('menuOverlay').classList.remove('show');
-  }
-});
-</script>
+      <details class="mini">
+        <summary>How to use this section</summary>
+        <p>
+          1) Pick your course page → 2) Use the notes/examples → 3) Do practice → 4) Check fixes and try again.
+        </p>
+      </details>
+    </section>
+
+    <section class="section" aria-label="Courses">
+      <h2>Courses</h2>
+
+      <div class="tile-grid" role="list">
+        <!-- Placeholder links: no 404 -->
+        <a class="tile tile--placeholder" role="listitem" href="#"
+           onclick="return false;"
+           aria-label="S3 Engineering Science course page (placeholder)">
+          <div class="icon" aria-hidden="true">🧰</div>
+          <div>
+            <div class="t-title">S3 Engineering Science</div>
+            <p class="t-sub">Largely following National 4. Core skills, systems thinking, and practical problem solving.</p>
+          </div>
+        </a>
+
+        <a class="tile tile--placeholder" role="listitem" href="#"
+           onclick="return false;"
+           aria-label="National 5 Engineering Science course page (placeholder)">
+          <div class="icon" aria-hidden="true">⚙️</div>
+          <div>
+            <div class="t-title">National 5 Engineering Science</div>
+            <p class="t-sub">Course resources, revision, and exam-style practice.</p>
+          </div>
+        </a>
+
+        <!-- Higher visible but disabled -->
+        <div class="tile tile--disabled" role="listitem" aria-disabled="true" tabindex="0"
+             aria-label="Higher Engineering Science planned for June 2027 (not available yet)">
+          <div class="icon" aria-hidden="true">🏗️</div>
+          <div>
+            <div class="t-title">Higher Engineering Science</div>
+            <p class="t-sub">Planned for June 2027. This will go live if the course runs.</p>
+          </div>
+        </div>
+      </div>
+
+      <details class="mini">
+        <summary>Dates (so students know what’s coming)</summary>
+        <p>
+          • June 2026: S3 (N4-style) + National 5 start.<br>
+          • June 2027: Higher Engineering Science (hopefully).
+        </p>
+      </details>
+    </section>
+
+    <section class="section" aria-label="Quick links">
+      <h2>Quick links</h2>
+
+      <div class="tile-grid" role="list">
+        <a class="tile tile--placeholder" role="listitem" href="#"
+           onclick="return false;"
+           aria-label="SQA Engineering Science page (placeholder)">
+          <div class="icon" aria-hidden="true">📄</div>
+          <div>
+            <div class="t-title">SQA</div>
+            <p class="t-sub">Course specification, assessment info, and official documents.</p>
+          </div>
+        </a>
+
+        <a class="tile tile--placeholder" role="listitem" href="#"
+           onclick="return false;"
+           aria-label="BBC Bitesize Engineering Science (placeholder)">
+          <div class="icon" aria-hidden="true">📚</div>
+          <div>
+            <div class="t-title">Bitesize</div>
+            <p class="t-sub">Extra explanations, quick examples, and recap reading.</p>
+          </div>
+        </a>
+
+        <a class="tile tile--placeholder" role="listitem" href="#"
+           onclick="return false;"
+           aria-label="Engineering archive (placeholder)">
+          <div class="icon" aria-hidden="true">🗂️</div>
+          <div>
+            <div class="t-title">Archive</div>
+            <p class="t-sub">Older materials, previous versions, and extra practice.</p>
+          </div>
+        </a>
+      </div>
+
+      <details class="mini">
+        <summary>Teacher note (easy edit)</summary>
+        <p>
+          When you’re ready, replace the three “Quick links” href="#" placeholders with the real URLs.
+        </p>
+      </details>
+
+      <a class="wide-btn" href="/classes/engineering.html" aria-label="Reload Engineering landing page">
+        🔁 Refresh this page
+      </a>
+    </section>
+
+    <footer aria-label="Footer">
+      🧰 Engineering • mrstewartphysics.co.uk
+    </footer>
+  </main>
+
+  <!-- DRAWER NAVIGATION -->
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+
+  <nav class="side-menu" id="sideMenu" aria-label="Site menu" aria-hidden="true">
+    <div class="menu-top">
+      <div class="menu-title">Menu</div>
+      <button class="menu-close" type="button" id="menuClose" aria-label="Close menu">✕</button>
+    </div>
+
+    <!-- Drawer order is fixed site-wide -->
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('menuBtn');
+      const menu = document.getElementById('sideMenu');
+      const overlay = document.getElementById('menuOverlay');
+      const closeBtn = document.getElementById('menuClose');
+
+      let lastFocus = null;
+
+      function getFocusable(container){
+        return Array.from(container.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+          .filter(el => !el.hasAttribute('disabled') && el.getAttribute('aria-disabled') !== 'true');
+      }
+
+      function openMenu(){
+        lastFocus = document.activeElement;
+
+        menu.classList.add('open');
+        overlay.classList.add('show');
+        overlay.hidden = false;
+
+        menu.setAttribute('aria-hidden','false');
+        btn.setAttribute('aria-expanded','true');
+
+        const focusables = getFocusable(menu);
+        (focusables[1] || focusables[0] || closeBtn).focus();
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu(){
+        menu.classList.remove('open');
+        overlay.classList.remove('show');
+        overlay.hidden = true;
+
+        menu.setAttribute('aria-hidden','true');
+        btn.setAttribute('aria-expanded','false');
+
+        document.body.style.overflow = '';
+        if(lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+
+      function isOpen(){
+        return menu.classList.contains('open');
+      }
+
+      btn.addEventListener('click', () => isOpen() ? closeMenu() : openMenu());
+      closeBtn.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+
+      document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape' && isOpen()){
+          e.preventDefault();
+          closeMenu();
+        }
+
+        // Focus trap
+        if(e.key === 'Tab' && isOpen()){
+          const focusables = getFocusable(menu);
+          if(!focusables.length) return;
+
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+
+          if(e.shiftKey && document.activeElement === first){
+            e.preventDefault();
+            last.focus();
+          } else if(!e.shiftKey && document.activeElement === last){
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
