@@ -521,6 +521,48 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
     .card p{ margin:0.25rem 0 0; }
 
     /* ============================
+   SWITCHING: DUAL CODING DIAGRAM + BUILDER GRID
+=============================== */
+.switch-grid{
+  display:grid;
+  gap:12px;
+  grid-template-columns: minmax(240px, 1fr) minmax(320px, 1.3fr);
+  align-items:start;
+  margin-top:12px;
+}
+@media (max-width: 860px){
+  .switch-grid{ grid-template-columns: 1fr; }
+}
+.switch-figure{
+  margin:0;
+  border: 1px solid rgba(12,60,52,0.14);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.92);
+  box-shadow: var(--shadow-soft);
+  overflow:hidden;
+}
+.switch-crop{
+  width:100%;
+  aspect-ratio: 1 / 1; /* each circuit half is almost square */
+  background:#fff;
+}
+.switch-crop img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  object-position: 0% 50%; /* JS updates this to left/right half */
+  display:block;
+}
+.switch-caption{
+  padding: 10px 12px 12px;
+  font-weight: 850;
+  color: rgba(12,43,36,0.92);
+  line-height: 1.4;
+  border-top: 1px solid rgba(12,60,52,0.10);
+}
+
+    
+    /* ============================
        SMALL BUTTON ROWS
     =============================== */
     .btn-row{
@@ -1350,6 +1392,29 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
   <p class="muted" style="margin-top:10px;">
     Use the sentence builder to practise the exact cause → effect style the marking instructions reward.
   </p>
+<details class="block" style="margin-top:12px;">
+  <summary><span>🧠 Practice workflow (Circuit 1 → 4)</span><span class="tag">tap to open</span></summary>
+  <div class="details-inner">
+    <ol style="margin:0.35rem 0 0; padding-left:1.2rem; line-height:1.7; font-weight:850; color:rgba(12,43,36,0.92);">
+      <li><strong>Pick a circuit type</strong> (Circuit 1–4) in the dropdown.</li>
+      <li><strong>Dual code:</strong> look at the diagram (left) and point to the <strong>sensor</strong> and the <strong>junction (Vout)</strong>.</li>
+      <li><strong>Yenka:</strong> simulate the circuit and change the condition:
+        <ul>
+          <li><strong>Low/High temperature:</strong> change the temperature slider.</li>
+          <li><strong>Low/High light:</strong> change the light level.</li>
+        </ul>
+      </li>
+      <li><strong>Say it out loud</strong> using the chain: <strong>condition → resistance → Vout → switching/threshold → output</strong>.</li>
+      <li><strong>Sentence builder:</strong> complete the 3 lines, then press <strong>Check</strong>.</li>
+      <li><strong>Build it (physical):</strong> reproduce the same layout on breadboard/stripboard and confirm the switching point.</li>
+    </ol>
+
+    <div class="callout" style="margin-top:12px;">
+      <strong>Remember:</strong> in these circuits, <strong>Vout is the junction voltage</strong> (what the base/gate “sees”).  
+      For a transistor, switching is about <strong>~0.7 V</strong> (base–emitter).
+    </div>
+  </div>
+</details>
 
   <details class="block">
     <summary><span>✅ Switching sentence builder (SQA-friendly)</span><span class="tag">tap to open</span></summary>
@@ -1384,7 +1449,24 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
         </div>
       </div>
 
-      <div class="builder" aria-label="Sentence builder">
+<div class="switch-grid" aria-label="Switching builder with diagram">
+
+  <figure class="switch-figure" aria-label="Circuit diagram for selected switching type">
+    <div class="switch-crop">
+      <img
+        id="switchDiagramImg"
+        src="/classes/s3-physics/TempSwitch.png"
+        alt="Switching circuit diagram (temperature or light) for the selected circuit"
+        loading="lazy"
+      />
+    </div>
+    <figcaption class="switch-caption" id="switchDiagramCap">
+      <strong>Circuit diagram</strong> — choose a circuit type to view Circuit 1–4.
+    </figcaption>
+  </figure>
+
+  <div class="builder" aria-label="Sentence builder">
+
         <div style="font-weight:900; color:rgba(12,43,36,0.92); line-height:1.8;">
           <div style="margin:8px 0;">
             <strong>1.</strong> When the <span class="kbd" id="varName">temperature</span>
@@ -1476,9 +1558,10 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
             </div>
 
           </div>
-        </details>
+                </details>
 
-      </div>
+      </div><!-- /.builder -->
+    </div><!-- /.switch-grid -->
     </div>
   </details>
 </section>
@@ -2261,26 +2344,50 @@ const circuitData = {
     // NTC: temp ↑ → R ↓ → Vout (junction/base/gate) ↑ → output ON
     correct: { s1:"increases", s2:"decreases", s3:"increases", s5:"switching voltage", s6:"on" }
   },
-  lowTemp: {
-    varName: "temperature",
-    sensor: "thermistor",
-    // temp ↓ → R ↑ → Vout ↓ → output ON (low-temp switch)
-    correct: { s1:"decreases", s2:"increases", s3:"decreases", s5:"switching voltage", s6:"on" }
-  },
+lowTemp: {
+  varName: "temperature",
+  sensor: "thermistor",
+  // low temp (cold) → R increases → Vout increases → output ON
+  correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
+},
   highLight: {
     varName: "light level",
     sensor: "LDR",
     // light ↑ → R ↓ → Vout ↑ → output ON
     correct: { s1:"increases", s2:"decreases", s3:"increases", s5:"switching voltage", s6:"on" }
-  },
-  lowLight: {
-    varName: "light level",
-    sensor: "LDR",
-    // light ↓ → R ↑ → Vout ↓ → output ON (low-light switch)
-    correct: { s1:"decreases", s2:"increases", s3:"decreases", s5:"switching voltage", s6:"on" }
-  }
+lowLight: {
+  varName: "light level",
+  sensor: "LDR",
+  // low light (dark) → R increases → Vout increases → output ON
+  correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
+}
 };
 
+const switchDiagramMap = {
+  lowTemp:  { src: "/classes/s3-physics/TempSwitch.png",  pos: "0% 50%",   title: "Circuit 1 – Low temperature switching",  desc: "Low temperature (cold) → higher thermistor resistance → Vout rises." },
+  highTemp: { src: "/classes/s3-physics/TempSwitch.png",  pos: "100% 50%", title: "Circuit 2 – High temperature switching", desc: "High temperature (hot) → lower thermistor resistance → Vout rises." },
+  lowLight: { src: "/classes/s3-physics/LightSwitch.png", pos: "0% 50%",   title: "Circuit 3 – Low light switching",        desc: "Low light (dark) → higher LDR resistance → Vout rises." },
+  highLight:{ src: "/classes/s3-physics/LightSwitch.png", pos: "100% 50%", title: "Circuit 4 – High light switching",       desc: "High light (bright) → lower LDR resistance → Vout rises." }
+};
+
+function updateSwitchDiagram(){
+  const type = $("cType")?.value || "highTemp";
+  const img  = $("switchDiagramImg");
+  const cap  = $("switchDiagramCap");
+  if(!img || !cap) return;
+
+  const m = switchDiagramMap[type] || switchDiagramMap.highTemp;
+  img.setAttribute("src", m.src);
+  img.style.objectPosition = m.pos;
+  cap.innerHTML = `<strong>${m.title}</strong> — ${m.desc}`;
+}
+
+function expectedVoltageTerm(){
+  const sw = $("swTrans");
+  return (sw && sw.value === "mosfet") ? "threshold voltage" : "switching voltage";
+}
+
+    
 function syncSwitchEcho(){
   const s6 = $("s6");
   const echo = $("s6Echo");
@@ -2333,6 +2440,8 @@ function applyCircuitUI(){
   msg.textContent = "";
 
   syncSwitchLabels();
+    updateSwitchDiagram();
+
 }
 
 function currentSelections(){
@@ -2350,10 +2459,13 @@ function checkSentence(){
   const d = circuitData[type];
   const sel = currentSelections();
 
+  const expected = { ...d.correct, s5: expectedVoltageTerm() };
+
   let ok = true;
-  for(const k of Object.keys(d.correct)){
-    if(sel[k] !== d.correct[k]) ok = false;
+  for(const k of Object.keys(expected)){
+    if(sel[k] !== expected[k]) ok = false;
   }
+
 
   const msg = $("sentenceMsg");
   msg.style.display = "block";
@@ -2376,7 +2488,7 @@ function setPerfect(){
   $("s1").value = d.correct.s1;
   $("s2").value = d.correct.s2;
   $("s3").value = d.correct.s3;
-  $("s5").value = d.correct.s5;
+  $("s5").value = expectedVoltageTerm();
   $("s6").value = d.correct.s6;
 
   checkSentence();
@@ -2386,7 +2498,7 @@ function resetBuilder(){
   $("s1").value = "increases";
   $("s2").value = "increases";
   $("s3").value = "increases";
-  $("s5").value = "switching voltage";
+  $("s5").value = expectedVoltageTerm();
   $("s6").value = "on";
 
   const msg = $("sentenceMsg");
