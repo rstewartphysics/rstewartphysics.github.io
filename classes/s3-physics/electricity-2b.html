@@ -1484,20 +1484,7 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
       <strong>Circuit diagram</strong> — choose a circuit type to view Circuit 1–4.
     </figcaption>
   </figure>
-  <figure class="sw-figure" aria-label="Switching circuit diagram">
-  <div class="sw-frame">
-    <img
-      id="swDiagram"
-      class="sw-diagram"
-      src="/classes/s3-physics/TempSwitch.png"
-      alt="Circuit diagram for the selected switching circuit"
-      loading="lazy"
-    />
-  </div>
-  <figcaption class="muted" id="swDiagramCap" style="font-weight:850; margin-top:6px;">
-    Circuit 1 – Low temperature switching
-  </figcaption>
-</figure>
+ 
 
   <div class="builder" aria-label="Sentence builder">
 
@@ -2375,27 +2362,32 @@ const circuitData = {
   highTemp: {
     varName: "temperature",
     sensor: "thermistor",
-    // NTC: temp ↑ → R ↓ → Vout (junction/base/gate) ↑ → output ON
+    // NTC: temp ↑ → R ↓ → Vout ↑ → output ON
     correct: { s1:"increases", s2:"decreases", s3:"increases", s5:"switching voltage", s6:"on" }
   },
-lowTemp: {
-  varName: "temperature",
-  sensor: "thermistor",
-  // low temp (cold) → R increases → Vout increases → output ON
-  correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
-},
+
+  lowTemp: {
+    varName: "temperature",
+    sensor: "thermistor",
+    // cold → R increases → Vout increases → output ON
+    correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
+  },
+
   highLight: {
     varName: "light level",
     sensor: "LDR",
-    // light ↑ → R ↓ → Vout ↑ → output ON
+    // bright → R decreases → Vout increases → output ON
     correct: { s1:"increases", s2:"decreases", s3:"increases", s5:"switching voltage", s6:"on" }
-lowLight: {
-  varName: "light level",
-  sensor: "LDR",
-  // low light (dark) → R increases → Vout increases → output ON
-  correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
-}
+  },
+
+  lowLight: {
+    varName: "light level",
+    sensor: "LDR",
+    // dark → R increases → Vout increases → output ON
+    correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
+  }
 };
+
 
 const switchDiagramMap = {
   lowTemp:  { src: "/classes/s3-physics/TempSwitch.png",  pos: "0% 50%",   title: "Circuit 1 – Low temperature switching",  desc: "Low temperature (cold) → higher thermistor resistance → Vout rises." },
@@ -2477,31 +2469,7 @@ function applyCircuitUI(){
     updateSwitchDiagram();
 
 }
-function updateSwitchDiagram(){
-  const typeEl = $("cType");
-  const img = $("swDiagram");
-  const cap = $("swDiagramCap");
-  if(!typeEl || !img || !cap) return;
 
-  const type = typeEl.value;
-
-  // Map circuit type -> image file + which half to show
-  const map = {
-    lowTemp:  { file:"TempSwitch.png",  pos:"left center",  label:"Circuit 1 – Low temperature switching" },
-    highTemp: { file:"TempSwitch.png",  pos:"right center", label:"Circuit 2 – High temperature switching" },
-    lowLight: { file:"LightSwitch.png", pos:"left center",  label:"Circuit 3 – Low light switching" },
-    highLight:{ file:"LightSwitch.png", pos:"right center", label:"Circuit 4 – High light switching" }
-  };
-
-  const d = map[type];
-  if(!d) return;
-
-  // Path assumes images are in /classes/s3-physics/
-  img.src = `/classes/s3-physics/${d.file}`;
-  img.style.objectPosition = d.pos;
-  img.alt = d.label;
-  cap.textContent = d.label;
-}
 
 function currentSelections(){
   return {
@@ -2962,18 +2930,39 @@ function solderingReset(){
       });
       updateLedModeUI(); // also calculates
 
-      // Switching builder
-      const cType = $("cType");
-if(cType){
-  cType.addEventListener("change", applyCircuitUI);
-  applyCircuitUI();
-}
-      const swTrans = $("swTrans");
+  // Switching builder
+const cType = $("cType");
+const swTrans = $("swTrans");
 const swLoad  = $("swLoad");
 const s6 = $("s6");
-if(swTrans) swTrans.addEventListener("change", syncSwitchLabels);
-if(swLoad)  swLoad.addEventListener("change", syncSwitchLabels);
-if(s6)      s6.addEventListener("change", syncSwitchLabels);
+const s5 = $("s5");
+
+// when circuit type changes: update text + diagram
+if(cType){
+  cType.addEventListener("change", () => {
+    applyCircuitUI();
+    updateSwitchDiagram();
+  });
+}
+
+// when device changes: keep wording correct (switching vs threshold)
+if(swTrans){
+  swTrans.addEventListener("change", () => {
+    if(s5) s5.value = expectedVoltageTerm();
+    syncSwitchLabels();
+  });
+}
+
+if(swLoad) swLoad.addEventListener("change", syncSwitchLabels);
+if(s6)     s6.addEventListener("change", syncSwitchLabels);
+
+// run once on load (only if the builder exists on the page)
+if(cType){
+  applyCircuitUI();
+  if(s5) s5.value = expectedVoltageTerm();
+  syncSwitchLabels();
+  updateSwitchDiagram();
+}
 
       // Success criteria
       scBuild();
