@@ -820,6 +820,36 @@ title: S2 Acids & Alkalis
   }
 }
 
+/* ============================
+   PATCH: QUICK CHECK — show which questions are wrong
+=============================== */
+.quiz-card{ scroll-margin-top: var(--anchor-offset); }
+
+.quiz-card.correct{
+  border-color: rgba(11,191,106,0.45);
+  box-shadow: 0 18px 34px rgba(11,191,106,0.10);
+}
+
+.quiz-card.wrong{
+  border-color: rgba(235,67,67,0.40);
+  box-shadow: 0 18px 34px rgba(235,67,67,0.10);
+}
+
+.quiz-feedback.good{
+  background: rgba(11,191,106,0.10);
+  border-color: rgba(11,191,106,0.35);
+}
+
+.quiz-feedback.bad{
+  background: rgba(235,67,67,0.10);
+  border-color: rgba(235,67,67,0.35);
+}
+
+.quiz-wronglist a{
+  font-weight: 950;
+  color: var(--accent-2);
+  text-decoration: underline;
+}
 
 
   </style>
@@ -2002,105 +2032,183 @@ title: S2 Acids & Alkalis
     ];
 
     function buildQuiz(){
-      const box = $("quizBox");
-      if(!box) return;
-      box.innerHTML = "";
+  const box = $("quizBox");
+  if(!box) return;
+  box.innerHTML = "";
 
-      quiz.forEach((item, idx) => {
-        const wrap = document.createElement("div");
-        wrap.className = "card";
-        wrap.style.marginTop = "10px";
+  quiz.forEach((item, idx) => {
+    const wrap = document.createElement("div");
+    wrap.className = "card quiz-card";
+    wrap.id = `quiz_q${idx+1}`;
+    wrap.style.marginTop = "10px";
 
-        const h = document.createElement("h3");
-        h.textContent = `Q${idx+1}. ${item.q}`;
-        wrap.appendChild(h);
+    const h = document.createElement("h3");
+    h.textContent = `Q${idx+1}. ${item.q}`;
+    wrap.appendChild(h);
 
-        item.options.forEach((opt, j) => {
-          const row = document.createElement("div");
-          row.className = "field";
-          row.style.marginTop = "8px";
+    item.options.forEach((opt, j) => {
+      const row = document.createElement("div");
+      row.className = "field";
+      row.style.marginTop = "8px";
 
-          const lab = document.createElement("label");
-          lab.style.fontWeight = "900";
-          lab.style.display = "flex";
-          lab.style.gap = "10px";
-          lab.style.alignItems = "center";
+      const lab = document.createElement("label");
+      lab.style.fontWeight = "900";
+      lab.style.display = "flex";
+      lab.style.gap = "10px";
+      lab.style.alignItems = "center";
 
-          const inp = document.createElement("input");
-          inp.type = "radio";
-          inp.name = `q_${idx}`;
-          inp.value = String(j);
-          inp.style.width = "20px";
-          inp.style.height = "20px";
-          inp.style.accentColor = "var(--accent)";
+      const inp = document.createElement("input");
+      inp.type = "radio";
+      inp.name = `q_${idx}`;
+      inp.value = String(j);
+      inp.style.width = "20px";
+      inp.style.height = "20px";
+      inp.style.accentColor = "var(--accent)";
 
-          const span = document.createElement("span");
-          span.textContent = opt;
+      const span = document.createElement("span");
+      span.textContent = opt;
 
-          lab.appendChild(inp);
-          lab.appendChild(span);
-          row.appendChild(lab);
-          wrap.appendChild(row);
-        });
+      lab.appendChild(inp);
+      lab.appendChild(span);
+      row.appendChild(lab);
+      wrap.appendChild(row);
+    });
 
-        box.appendChild(wrap);
-      });
+    // Per-question feedback (hidden until marked)
+    const fb = document.createElement("div");
+    fb.className = "result-box quiz-feedback";
+    fb.id = `quizFb_${idx}`;
+    fb.style.display = "none";
+    fb.setAttribute("aria-live","polite");
+    wrap.appendChild(fb);
+
+    box.appendChild(wrap);
+  });
+}
+
+function gradeQuiz(){
+  const out = $("quizOut");
+  if(!out) return;
+
+  // Clear previous highlights + feedback
+  quiz.forEach((_, idx) => {
+    const card = document.getElementById(`quiz_q${idx+1}`);
+    if(card) card.classList.remove("correct","wrong");
+
+    const fb = document.getElementById(`quizFb_${idx}`);
+    if(fb){
+      fb.style.display = "none";
+      fb.classList.remove("good","bad");
+      fb.innerHTML = "";
     }
+  });
 
-    function gradeQuiz(){
-      const out = $("quizOut");
-      if(!out) return;
+  let score = 0;
+  let answered = 0;
+  const wrongNums = [];
+  const unansweredNums = [];
 
-      let score = 0;
-      let answered = 0;
+  quiz.forEach((item, idx) => {
+    const picked = document.querySelector(`input[name="q_${idx}"]:checked`);
+    if(picked){
+      answered++;
+      const pickedVal = Number(picked.value);
+      const correctVal = item.a;
 
-      quiz.forEach((item, idx) => {
-        const picked = document.querySelector(`input[name="q_${idx}"]:checked`);
-        if(picked){
-          answered++;
-          if(Number(picked.value) === item.a) score++;
+      const card = document.getElementById(`quiz_q${idx+1}`);
+      const fb = document.getElementById(`quizFb_${idx}`);
+
+      if(pickedVal === correctVal){
+        score++;
+        if(card) card.classList.add("correct");
+        if(fb){
+          fb.style.display = "block";
+          fb.classList.add("good");
+          fb.innerHTML = `✅ <strong>Correct.</strong>`;
         }
-      });
-
-      out.style.display = "block";
-
-      if(answered < quiz.length){
-        out.innerHTML = ` You answered <strong>${answered}</strong> / ${quiz.length}. Finish them all, then mark again.`;
-        return;
+      } else {
+        wrongNums.push(idx+1);
+        if(card) card.classList.add("wrong");
+        if(fb){
+          fb.style.display = "block";
+          fb.classList.add("bad");
+          const chosenText = item.options[pickedVal];
+          const correctText = item.options[correctVal];
+          fb.innerHTML =
+            `❌ <strong>Not quite.</strong><br>
+             You chose: <strong>${chosenText}</strong><br>
+             Correct: <strong>${correctText}</strong>`;
+        }
       }
-
-      const pct = Math.round((score/quiz.length)*100);
-
-      // save best
-      try{
-        const bestRaw = localStorage.getItem(QUIZ_KEY);
-        const best = bestRaw ? Number(bestRaw) : 0;
-        if(pct > best) localStorage.setItem(QUIZ_KEY, String(pct));
-      }catch{}
-
-      let msg = "";
-      if(pct >= 90) msg = "✅ Strong. Now do a practice paper and mark it carefully.";
-      else if(pct >= 70) msg = "👍 Good. Fix your wrong answers using the Knowledge Organiser, then re-try.";
-      else msg = "⚠️ Open the Knowledge Organiser and practise oxides + acid rain calculations, then re-try.";
-
-      const bestNow = (() => {
-        try{ return Number(localStorage.getItem(QUIZ_KEY) || "0"); }catch{ return 0; }
-      })();
-
-      out.innerHTML =
-        `Score: <strong>${score}</strong> / ${quiz.length} (<strong>${pct}%</strong>)<br>
-         <span class="muted" style="font-weight:900;">Best on this device: ${bestNow}%</span><br>
-         ${msg}`;
+    } else {
+      unansweredNums.push(idx+1);
     }
+  });
 
-    function resetQuiz(){
-      document.querySelectorAll('#quizBox input[type="radio"]').forEach(inp => inp.checked = false);
-      const out = $("quizOut");
-      if(out){
-        out.style.display = "none";
-        out.textContent = "";
-      }
+  out.style.display = "block";
+
+  // Not finished: show which are unanswered
+  if(answered < quiz.length){
+    const list = unansweredNums.map(n => `Q${n}`).join(", ");
+    out.innerHTML =
+      `You answered <strong>${answered}</strong> / ${quiz.length}.<br>
+       <span class="muted" style="font-weight:900;">Unanswered: ${list}</span>`;
+    return;
+  }
+
+  const pct = Math.round((score/quiz.length)*100);
+
+  // save best
+  try{
+    const bestRaw = localStorage.getItem(QUIZ_KEY);
+    const best = bestRaw ? Number(bestRaw) : 0;
+    if(pct > best) localStorage.setItem(QUIZ_KEY, String(pct));
+  }catch{}
+
+  let msg = "";
+  if(pct >= 90) msg = "Now do a practice paper and mark it carefully.";
+  else if(pct >= 70) msg = "Fix the ones you missed using the Knowledge Organiser, then re-try.";
+  else msg = "Open the Knowledge Organiser and practise the weak areas, then re-try.";
+
+  const bestNow = (() => {
+    try{ return Number(localStorage.getItem(QUIZ_KEY) || "0"); }catch{ return 0; }
+  })();
+
+  const wrongLinks = wrongNums.length
+    ? `<div class="quiz-wronglist" style="margin-top:8px;">
+         <strong>Wrong:</strong> ${wrongNums.map(n => `<a href="#quiz_q${n}">Q${n}</a>`).join(" • ")}
+       </div>`
+    : `<div style="margin-top:8px;"><strong>No wrong answers.</strong></div>`;
+
+  out.innerHTML =
+    `Score: <strong>${score}</strong> / ${quiz.length} (<strong>${pct}%</strong>)<br>
+     <span class="muted" style="font-weight:900;">Best on this device: ${bestNow}%</span><br>
+     ${wrongLinks}
+     <div style="margin-top:8px;">${msg}</div>`;
+}
+
+function resetQuiz(){
+  document.querySelectorAll('#quizBox input[type="radio"]').forEach(inp => inp.checked = false);
+
+  // Clear highlights + per-question feedback
+  quiz.forEach((_, idx) => {
+    const card = document.getElementById(`quiz_q${idx+1}`);
+    if(card) card.classList.remove("correct","wrong");
+
+    const fb = document.getElementById(`quizFb_${idx}`);
+    if(fb){
+      fb.style.display = "none";
+      fb.classList.remove("good","bad");
+      fb.innerHTML = "";
     }
+  });
+
+  const out = $("quizOut");
+  if(out){
+    out.style.display = "none";
+    out.textContent = "";
+  }
+}
 
     /* ============================
        EXTRA RANDOM QUESTIONS
