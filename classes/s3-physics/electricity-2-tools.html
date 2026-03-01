@@ -1,0 +1,1476 @@
+---
+layout: none
+title: S3 Physics – Electricity 2 Tools
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#00bfa6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="E2 Tools" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <title>S3 Physics – Electricity 2 Tools</title>
+
+  <style>
+    /* ---- Same base as hub (trimmed) ---- */
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ max-width:100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width:100%; height:auto; display:block; }
+
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background:#00bfa6; color:#05211b;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.14);
+    }
+    .skip-link:focus{ left:10px; outline: 3px solid rgba(255,255,255,0.9); outline-offset: 3px; }
+
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+      --bg0:#f6fbfa; --bg1:#eef9f7; --bg2:#ffffff;
+      --text:#0c2b24; --muted:#2f5b52;
+      --accent:#00bfa6; --accent-2:#0aa08f;
+      --border: rgba(12,60,52,0.14);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
+      --radius: 18px;
+      --focus-ring: 3px solid rgba(0,191,166,0.55);
+      --focus-offset: 4px;
+
+      --g:#0bbf6a;
+      --a:#ffb020;
+      --r:#eb4343;
+    }
+
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(0,191,166,0.12), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(10,160,143,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    :focus-visible{ outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
+
+    /* MENU (Higher behaviour) */
+    .menu-btn{
+      position:fixed;
+      top:calc(14px + env(safe-area-inset-top));
+      right:calc(14px + env(safe-area-inset-right));
+      font-size:1.55rem;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(12px) saturate(170%);
+      -webkit-backdrop-filter: blur(12px) saturate(170%);
+      border: 2px solid rgba(0,191,166,0.22);
+      border-radius: 14px;
+      padding: .38rem .62rem;
+      cursor:pointer;
+      color: var(--accent-2);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+      z-index: 500;
+    }
+    .menu-overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,0.32);
+      display:none;
+      z-index: 440;
+    }
+    .menu-overlay.show{ display:block; }
+    .side-menu{
+      position:fixed;
+      top:0; right:-310px;
+      width:310px; height:100%;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.18);
+      border-left: 1px solid rgba(12,60,52,0.10);
+      padding-top: calc(1rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      z-index: 460;
+      transition: right .28s ease;
+      display:flex;
+      flex-direction:column;
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    .side-menu.open{ right:0; }
+    .menu-head{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: .8rem 1rem;
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+      position: sticky; top: 0;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      z-index: 1;
+    }
+    .menu-title{ font-weight: 900; }
+    .menu-close{
+      font-size:1.35rem;
+      background: rgba(0,191,166,0.10);
+      border: 1px solid rgba(0,191,166,0.22);
+      color: var(--accent-2);
+      border-radius: 12px;
+      padding: .25rem .55rem;
+      cursor:pointer;
+      font-weight: 900;
+    }
+    .side-menu a{
+      padding: 1rem 1.2rem;
+      font-size: 1.06rem;
+      text-decoration:none;
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      gap:.7rem;
+      border-bottom: 1px solid rgba(12,60,52,0.06);
+      font-weight: 900;
+      min-height: 44px;
+    }
+    .side-menu a:hover{ background: rgba(0,191,166,0.08); }
+
+    /* Banner (simple) */
+    .banner-wrap{
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      flex-shrink:0;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      height: clamp(170px, 22vh, 260px);
+      background: rgba(255,255,255,0.35);
+    }
+    .banner{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg, rgba(0,191,166,0.18), rgba(255,255,255,0.00));
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+    .banner-overlay-text{
+      position:absolute; bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border-top: 1px solid rgba(12,60,52,0.10);
+      padding: .85rem .9rem;
+      text-align:center;
+    }
+    .banner-overlay-text h1{
+      margin:0; font-size: 1.08rem; font-weight: 900;
+    }
+
+    /* Sticky Jump (always button here) */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+      background: rgba(246,251,250,0.80);
+      backdrop-filter: blur(14px) saturate(170%);
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+    }
+    details.jump{
+      border-radius: 14px;
+      border: 1px solid rgba(0,191,166,0.22);
+      background: rgba(255,255,255,0.86);
+      overflow:hidden;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    details.jump summary{
+      cursor:pointer;
+      list-style:none;
+      padding: .55rem .75rem;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap:.55rem;
+    }
+    details.jump summary::-webkit-details-marker{ display:none; }
+    details.jump summary::after{
+      content:"▾";
+      margin-left:auto;
+      opacity:.8;
+      transition: transform .18s ease;
+      font-weight: 900;
+    }
+    details.jump[open] summary::after{ transform: rotate(180deg); }
+    .jump-links{
+      padding: .6rem .75rem .75rem;
+      display:grid;
+      gap:.35rem;
+      border-top: 1px solid rgba(12,60,52,0.08);
+    }
+    .jump-links a{
+      text-decoration:none;
+      font-weight:900;
+      color: var(--text);
+      padding: .5rem .55rem;
+      border-radius: 12px;
+    }
+    .jump-links a:hover{ background: rgba(0,191,166,0.08); }
+
+    main.page-wrap{
+      max-width: 1100px;
+      margin: 1.0rem auto 2rem;
+      padding: 0 1rem 4rem;
+      flex:1;
+      width:100%;
+    }
+    .panel{
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(12,60,52,0.10);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 1.15rem;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 1rem;
+    }
+    .panel h2{ margin: 0 0 .35rem; font-size: 1.12rem; font-weight: 900; }
+    .panel p{ margin: .25rem 0 0; color: var(--muted); font-weight: 800; line-height: 1.55; }
+
+    /* Shared small buttons */
+    .btn-row{
+      display:flex;
+      gap:0.6rem;
+      flex-wrap:wrap;
+      margin-top: 0.7rem;
+    }
+    .small-btn{
+      padding:0.58rem 0.85rem;
+      border-radius: 14px;
+      border:1px solid rgba(0,191,166,0.22);
+      background: rgba(255,255,255,0.78);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .small-btn:hover{ background: rgba(0,191,166,0.10); }
+    .small-btn.primary{
+      border: 2px solid rgba(0,191,166,0.28);
+      background: rgba(0,191,166,0.10);
+    }
+
+    /* ============================
+       DETAILS blocks (default closed)
+    =============================== */
+    details.block{
+      margin-top: .75rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.12);
+      background: rgba(255,255,255,0.86);
+      overflow:hidden;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    details.block summary{
+      cursor:pointer;
+      padding: .8rem .9rem;
+      font-weight: 900;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(0,191,166,0.06);
+      border-bottom: 1px solid rgba(12,60,52,0.08);
+    }
+    details.block summary::-webkit-details-marker{ display:none; }
+    details.block summary::after{
+      content:"▾";
+      opacity:.8;
+      transition: transform .18s ease;
+      font-weight: 900;
+    }
+    details.block[open] summary::after{ transform: rotate(180deg); }
+    .details-inner{ padding: .85rem .9rem; }
+
+    /* ============================
+       SUCCESS CRITERIA (your existing UI)
+    =============================== */
+    .sc-help{
+      margin-top: 0.35rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.12);
+      background: rgba(255,255,255,0.78);
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+    }
+    .sc-item{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items:center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+    }
+    .sc-item:last-child{ border-bottom:none; }
+    .sc-text{ font-weight: 850; color: rgba(12,43,36,0.95); line-height: 1.35; }
+
+    .sc-controls{
+      display:inline-flex;
+      gap: 10px;
+      align-items:center;
+      padding: 8px;
+      border-radius: 18px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .sc-opt{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 56px;
+      height: 46px;
+      border-radius: 16px;
+      border: 2px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.70);
+      cursor:pointer;
+      font-weight: 1000;
+      font-size: 1.05rem;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.12s ease, filter 0.12s ease;
+      color: rgba(12,43,36,0.92);
+    }
+    .sc-opt:active{ transform: translateY(1px); }
+    .sc-opt input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .sc-opt.sel{ border-color: rgba(0,0,0,0.18); box-shadow: 0 14px 26px rgba(0,0,0,0.10); }
+    .sc-opt[data-val="G"].sel{ background: var(--g); color:#062015; border-color: rgba(11,191,106,0.45); }
+    .sc-opt[data-val="A"].sel{ background: var(--a); color:#2b1a00; border-color: rgba(255,176,32,0.45); }
+    .sc-opt[data-val="R"].sel{ background: var(--r); color:#2b0000; border-color: rgba(235,67,67,0.45); }
+    .sc-opt[data-val="G"]{ color: rgba(11,191,106,0.95); }
+    .sc-opt[data-val="A"]{ color: rgba(255,176,32,0.95); }
+    .sc-opt[data-val="R"]{ color: rgba(235,67,67,0.95); }
+
+    .sc-summary{
+      margin-top: 12px;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .sc-mini{
+      margin-top: 0.55rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.12);
+      background: rgba(0,191,166,0.06);
+      color: rgba(12,43,36,0.92);
+      font-weight: 850;
+    }
+    .sc-reset{
+      display:inline-flex;
+      width:100%;
+      margin-top: 10px;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.82);
+      color: rgba(12,43,36,0.92);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .sc-reset:hover{ background: rgba(0,191,166,0.08); }
+
+    .sc-bar{
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(12,60,52,0.14);
+      overflow:hidden;
+      margin-top: 8px;
+      background: rgba(0,191,166,0.06);
+    }
+    .sc-bar > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), rgba(10,160,143,0.70));
+    }
+    @media (max-width: 560px){
+      .sc-item{ grid-template-columns: 1fr; }
+      .sc-controls{ justify-content:flex-start; }
+      .sc-opt{ width: 62px; height: 48px; }
+    }
+
+    /* ============================
+       LED TOOL (your existing UI)
+    =============================== */
+    .calc-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+    }
+    .field{ display:flex; flex-direction:column; gap:0.35rem; }
+    .field label{ font-weight: 900; color: rgba(12,43,36,0.92); }
+    .field input, .field select{
+      width:100%;
+      padding:0.7rem 0.75rem;
+      border-radius: 12px;
+      border:1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.92);
+      color: rgba(12,43,36,0.92);
+      font-size:1rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+    .builder{
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
+      padding: 1rem;
+      margin-top: 0.75rem;
+    }
+    .result-box{
+      border-radius: 14px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(0,191,166,0.06);
+      padding: 0.9rem 1rem;
+      margin-top: 12px;
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(12,60,52,0.14);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .hidden{ display:none !important; }
+
+    /* Practice */
+    .led-practice-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 10px;
+    }
+    .led-feedback{
+      margin-top: 10px;
+      padding: 0.9rem 1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.90);
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+      display:none;
+    }
+
+    /* ============================
+       SWITCHING BUILDER (your existing UI)
+    =============================== */
+    .switch-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: minmax(240px, 1fr) minmax(320px, 1.3fr);
+      align-items:start;
+      margin-top:12px;
+    }
+    @media (max-width: 860px){
+      .switch-grid{ grid-template-columns: 1fr; }
+    }
+    .switch-figure{
+      margin:0;
+      border: 1px solid rgba(12,60,52,0.14);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow-soft);
+      overflow:hidden;
+    }
+    .switch-crop{
+      width:100%;
+      aspect-ratio: 1 / 1;
+      background:#fff;
+    }
+    .switch-crop img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      object-position: 0% 50%;
+      display:block;
+    }
+    .switch-caption{
+      padding: 10px 12px 12px;
+      font-weight: 850;
+      color: rgba(12,43,36,0.92);
+      line-height: 1.4;
+      border-top: 1px solid rgba(12,60,52,0.10);
+    }
+    .inline-select{ display:inline-block; margin: 0 0.15rem; }
+    .inline-select select{
+      padding:0.35rem 0.45rem;
+      border-radius:10px;
+      border:1px solid rgba(12,60,52,0.18);
+      background: rgba(255,255,255,0.95);
+      font-weight: 900;
+      color: rgba(12,43,36,0.92);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.04);
+    }
+    .msg{
+      margin-top: 10px;
+      padding: 0.85rem 0.95rem;
+      border-radius: 16px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.92);
+      font-weight: 900;
+      display:none;
+    }
+    .msg.good{ border-left: 6px solid rgba(11,191,106,0.85); background: rgba(11,191,106,0.08); }
+    .msg.bad{ border-left: 6px solid rgba(235,67,67,0.85); background: rgba(235,67,67,0.06); }
+
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.80);
+      border-top: 1px solid rgba(12,60,52,0.10);
+      font-size:0.92rem;
+      margin-top:auto;
+      color: var(--muted);
+      font-weight: 800;
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <button class="menu-btn" id="menuBtn" type="button"
+          aria-label="Open menu" aria-controls="sideMenu" aria-expanded="false">☰</button>
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
+    <div class="menu-head">
+      <div class="menu-title">Menu</div>
+      <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
+    </div>
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
+
+  <div class="banner-wrap">
+    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Electricity 2 – Practice tools</h1>
+    </div>
+  </div>
+
+  <div class="subnav-wrap">
+    <details class="jump" id="jumpMenu">
+      <summary>Jump</summary>
+      <div class="jump-links">
+        <a href="#sc">Success Criteria</a>
+        <a href="#led">LED tool</a>
+        <a href="#sw">Switching</a>
+        <a href="/classes/s3-physics/electricity-2.html">Back to hub</a>
+      </div>
+    </details>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <section class="panel" aria-label="Back and guidance">
+      <h2>Use this page when you’re stuck</h2>
+      <p>Then return to the booklet questions.</p>
+      <div class="btn-row">
+        <a class="small-btn primary" href="/classes/s3-physics/electricity-2.html">Back to hub</a>
+        <a class="small-btn" href="/classes/s3-physics/electricity-2-practical.html">Practical + assignment</a>
+      </div>
+    </section>
+
+    <!-- SUCCESS CRITERIA -->
+    <section class="panel" id="sc" aria-label="Success criteria">
+      <h2>Success criteria (G / A / R)</h2>
+      <p>Saved on this device.</p>
+
+      <div class="btn-row">
+        <button class="small-btn primary" type="button" onclick="scJumpTo('R')">Go to first Red</button>
+        <button class="small-btn" type="button" onclick="scJumpTo('')">Go to first Unrated</button>
+      </div>
+
+      <details class="block">
+        <summary>Open success criteria</summary>
+        <div class="details-inner">
+          <div class="sc-help">
+            If something is <strong style="color:var(--r)">Red</strong>: KO → example → practise → ask for help.
+          </div>
+
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="small-btn primary" type="button" onclick="scSetAllSections(true)">Open all sections</button>
+            <button class="small-btn" type="button" onclick="scSetAllSections(false)">Close all sections</button>
+          </div>
+
+          <div id="scSections" aria-label="Success criteria sections"></div>
+
+          <div class="sc-summary" aria-live="polite" aria-atomic="true">
+            <div id="scSummaryText" style="font-weight:900;"></div>
+            <div class="sc-bar" aria-hidden="true"><div id="scProgBar"></div></div>
+            <div class="sc-mini" id="scReadyText"></div>
+            <button class="sc-reset" type="button" onclick="scReset()">Reset G/A/R selections</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- LED TOOL -->
+    <section class="panel" id="led" aria-label="LED tool">
+      <h2>LED tool</h2>
+      <p>Protective resistor ↔ current.</p>
+
+      <details class="block">
+        <summary>Open LED tool</summary>
+        <div class="details-inner">
+          <div class="builder">
+            <div class="calc-grid">
+              <div class="field">
+                <label for="ledMode">Mode</label>
+                <select id="ledMode">
+                  <option value="resistor" selected>Find resistor (Vₛ, VLED, I)</option>
+                  <option value="current">Find current (Vₛ, VLED, R)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="ledVs">Supply voltage, V<sub>s</sub> (V)</label>
+                <input id="ledVs" type="number" inputmode="decimal" step="0.1" value="5">
+              </div>
+
+              <div class="field">
+                <label for="ledVf">LED forward voltage, V<sub>LED</sub> (V)</label>
+                <input id="ledVf" type="number" inputmode="decimal" step="0.1" value="2.0">
+              </div>
+
+              <div class="field" id="fieldImA">
+                <label for="ledImA">LED current, I (mA)</label>
+                <input id="ledImA" type="number" inputmode="decimal" step="0.1" value="10">
+              </div>
+
+              <div class="field hidden" id="fieldRKnown">
+                <label for="ledRKnown">Known resistor, R (Ω)</label>
+                <input id="ledRKnown" type="number" inputmode="decimal" step="1" value="330">
+              </div>
+
+              <div class="field" id="fieldSeries">
+                <label for="ledSeries">Resistor series (suggestion)</label>
+                <select id="ledSeries">
+                  <option value="E12" selected>E12 (common)</option>
+                  <option value="E24">E24</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="result-box" aria-live="polite">
+              <div><strong>Step 1:</strong> V<sub>R</sub> = V<sub>s</sub> − V<sub>LED</sub> = <span class="kbd" id="ledVrOut">—</span></div>
+
+              <div id="modeResistorOut">
+                <div style="margin-top:6px;"><strong>Step 2:</strong> I (A) = I (mA) ÷ 1000 = <span class="kbd" id="ledIAOut">—</span></div>
+                <div style="margin-top:6px;"><strong>Step 3:</strong> R = V<sub>R</sub> ÷ I = <span class="kbd" id="ledROut">—</span></div>
+                <div style="margin-top:10px;"><strong>Suggested resistor:</strong> next highest → <span class="kbd" id="ledSuggest">—</span></div>
+              </div>
+
+              <div class="hidden" id="modeCurrentOut">
+                <div style="margin-top:6px;"><strong>Step 2:</strong> I = V<sub>R</sub> ÷ R = <span class="kbd" id="ledIFromR_A">—</span></div>
+                <div style="margin-top:6px;"><strong>Step 3:</strong> I (mA) = I (A) × 1000 = <span class="kbd" id="ledIFromR_mA">—</span></div>
+              </div>
+
+              <div style="margin-top:8px; font-weight:850; color:rgba(47,91,82,0.95);">
+                If V<sub>s</sub> ≤ V<sub>LED</sub>, the LED won’t run properly from that supply.
+              </div>
+            </div>
+
+            <details class="block">
+              <summary>LED practice</summary>
+              <div class="details-inner">
+                <div class="led-practice-grid">
+                  <div class="field">
+                    <label for="pracVs">Practice V<sub>s</sub> (V)</label>
+                    <input id="pracVs" type="number" inputmode="decimal" step="0.1" value="9.0">
+                  </div>
+                  <div class="field">
+                    <label for="pracVf">Practice V<sub>LED</sub> (V)</label>
+                    <input id="pracVf" type="number" inputmode="decimal" step="0.1" value="2.0">
+                  </div>
+                  <div class="field">
+                    <label for="pracImA">Practice I (mA)</label>
+                    <input id="pracImA" type="number" inputmode="decimal" step="1" value="20">
+                  </div>
+                  <div class="field">
+                    <label for="pracAnswer">My resistor answer (Ω)</label>
+                    <input id="pracAnswer" type="number" inputmode="numeric" step="1" placeholder="e.g. 330">
+                  </div>
+                  <div class="field">
+                    <label for="pracSeries">Series</label>
+                    <select id="pracSeries">
+                      <option value="E12" selected>E12</option>
+                      <option value="E24">E24</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="btn-row">
+                  <button class="small-btn primary" type="button" onclick="ledPracticeRandom()">Random numbers</button>
+                  <button class="small-btn" type="button" onclick="ledPracticeCheck()">Check my answer</button>
+                  <button class="small-btn" type="button" onclick="ledPracticeClear()">Reset</button>
+                </div>
+
+                <div class="led-feedback" id="pracFeedback" aria-live="polite"></div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- SWITCHING -->
+    <section class="panel" id="sw" aria-label="Switching circuits">
+      <h2>Switching sentence builder</h2>
+      <p>Use the chain: condition → resistance → Vout → switching/threshold → output.</p>
+
+      <details class="block">
+        <summary>Open switching builder</summary>
+        <div class="details-inner">
+
+          <div class="calc-grid" style="margin-top:0;">
+            <div class="field">
+              <label for="cType">Circuit type</label>
+              <select id="cType">
+                <option value="highTemp">High temperature switching</option>
+                <option value="lowTemp">Low temperature switching</option>
+                <option value="highLight">High light switching</option>
+                <option value="lowLight">Low light switching</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="swTrans">Switch device</label>
+              <select id="swTrans">
+                <option value="transistor" selected>Transistor (BJT)</option>
+                <option value="mosfet">MOSFET</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="swLoad">Output being controlled</label>
+              <select id="swLoad">
+                <option value="LED" selected>LED</option>
+                <option value="motor">Motor</option>
+                <option value="relay">Relay</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="switch-grid" aria-label="Switching builder with diagram">
+
+            <figure class="switch-figure" aria-label="Circuit diagram for selected switching type">
+              <div class="switch-crop">
+                <img id="switchDiagramImg"
+                     src="/classes/s3-physics/TempSwitch.png"
+                     alt="Switching circuit diagram"
+                     loading="lazy"/>
+              </div>
+              <figcaption class="switch-caption" id="switchDiagramCap">
+                <strong>Circuit diagram</strong> — choose a circuit type.
+              </figcaption>
+            </figure>
+
+            <div class="builder" aria-label="Sentence builder">
+              <div style="font-weight:900; color:rgba(12,43,36,0.92); line-height:1.8;">
+                <div style="margin:8px 0;">
+                  <strong>1.</strong> When the <span class="kbd" id="varName">temperature</span>
+                  <span class="inline-select"><select id="s1"><option>increases</option><option>decreases</option></select></span>,
+                  the resistance of the <span class="kbd" id="sensorName">thermistor</span>
+                  <span class="inline-select"><select id="s2"><option>increases</option><option>decreases</option></select></span>.
+                </div>
+
+                <div style="margin:8px 0;">
+                  <strong>2.</strong> This means <strong>V<sub>out</sub></strong> (junction / base or gate voltage)
+                  <span class="inline-select"><select id="s3"><option>increases</option><option>decreases</option></select></span>.
+                </div>
+
+                <div style="margin:8px 0;">
+                  <strong>3.</strong> When <strong>V<sub>out</sub></strong> reaches the
+                  <span class="inline-select"><select id="s5"><option>switching voltage</option><option>threshold voltage</option></select></span>,
+                  the <span class="kbd" id="swTransTxt">transistor</span> switches
+                  <span class="inline-select"><select id="s6"><option>on</option><option>off</option></select></span>,
+                  so the <span class="kbd" id="swLoadTxt">LED</span> switches <span class="kbd" id="s6Echo">on</span>.
+                </div>
+
+                <div id="relayClause" style="margin-top:8px; font-weight:850; color:rgba(47,91,82,0.95); display:none;"></div>
+              </div>
+
+              <div class="btn-row">
+                <button class="small-btn primary" type="button" onclick="checkSentence()">Check</button>
+                <button class="small-btn" type="button" onclick="setPerfect()">Show perfect</button>
+                <button class="small-btn" type="button" onclick="resetBuilder()">Reset</button>
+              </div>
+
+              <div id="sentenceMsg" class="msg" role="status" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+  </main>
+
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+    /* ============================
+       MENU
+    =============================== */
+    const menu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('menuOverlay');
+    const btn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('menuClose');
+    let lastFocus = null;
+
+    function getFocusableInMenu(){ return menu.querySelectorAll('a[href], button:not([disabled])'); }
+    function openMenu(){
+      lastFocus = document.activeElement;
+      menu.classList.add('open');
+      overlay.hidden = false; overlay.classList.add('show');
+      btn.setAttribute('aria-expanded','true');
+      document.body.style.overflowY = 'hidden';
+      const f = getFocusableInMenu(); (f[0] || menu).focus();
+    }
+    function closeMenu(){
+      menu.classList.remove('open');
+      overlay.classList.remove('show'); overlay.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+      document.body.style.overflowY = '';
+      if(lastFocus && lastFocus.focus) lastFocus.focus();
+      lastFocus = null;
+    }
+    function toggleMenu(){ menu.classList.contains('open') ? closeMenu() : openMenu(); }
+    btn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (e) => {
+      const isOpen = menu.classList.contains('open');
+      if(e.key === 'Escape' && isOpen){ e.preventDefault(); closeMenu(); return; }
+      if(e.key === 'Tab' && isOpen){
+        const focusables = Array.from(getFocusableInMenu());
+        if(!focusables.length) return;
+        const first = focusables[0], last = focusables[focusables.length - 1];
+        if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+      }
+    });
+
+    function $(id){ return document.getElementById(id); }
+
+    /* ============================
+       SUCCESS CRITERIA (same data as old page)
+    =============================== */
+    const SC_KEY = "mrsp_s3_e2_successcriteria_gar_v3";
+
+    const scSections = [
+      { key:"L1", title:"L1 – Potential Divider Theory", items:[
+        "I can describe the purpose of a potential divider circuit.",
+        "I can calculate the output voltage of a potential divider circuit.",
+        "I can explain what happens to Vout when one resistance changes."
+      ]},
+      { key:"L2", title:"L2 – Potential Divider Simulation (Yenka)", items:[
+        "I can use a simulation to build and test potential divider circuits.",
+        "I can compare simulated readings to calculated values."
+      ]},
+      { key:"L3", title:"L3 – Construction + Testing", items:[
+        "I can compare calculated, simulated and measured values of voltage in a potential divider.",
+        "I can describe common pre-power and functionality tests in electronics.",
+        "I can use a multimeter correctly (voltage in parallel, current in series)."
+      ]},
+      { key:"L4", title:"L4 – Diodes & LEDs", items:[
+        "I can draw the circuit symbols for a diode and LED.",
+        "I can describe the function of diodes and LEDs.",
+        "I can identify the anode and cathode of a diode/LED.",
+        "I can calculate a protective resistor for an LED."
+      ]},
+      { key:"L5", title:"L5 – Special Components", items:[
+        "I can describe the function of a thermistor (NTC).",
+        "I can describe the function of an LDR.",
+        "I can describe the function of a variable resistor."
+      ]},
+      { key:"L6", title:"L6 – Control Circuits", items:[
+        "I can describe the relationship between temperature and resistance for an NTC thermistor.",
+        "I can describe the relationship between light level and resistance for an LDR.",
+        "I can explain control circuits using the chain: condition → resistance → voltage → output."
+      ]},
+      { key:"L7", title:"L7 – Switching Circuits", items:[
+        "I can describe the function of a transistor or MOSFET used as a switch.",
+        "I can describe what is meant by switching voltage / threshold voltage.",
+        "I can explain switching using: condition → resistance → Vout (junction / base or gate voltage) → switching voltage → output."
+      ]},
+      { key:"L8", title:"L8 – Soldering & Tools", items:[
+        "I can describe safe soldering techniques.",
+        "I can describe common soldering faults and how to fix them.",
+        "I can describe how a track cutter and solder sucker are used."
+      ]},
+      { key:"L9", title:"L9 – Design & Improvement", items:[
+        "I can design a simple switching circuit for a given situation.",
+        "I can justify design choices using test evidence (measurements/observations)."
+      ]}
+    ];
+
+    function scId(secKey, index){ return `${secKey}_${index+1}`; }
+    function scLoad(){
+      try{
+        const raw = localStorage.getItem(SC_KEY);
+        if(!raw) return {};
+        const obj = JSON.parse(raw);
+        return (obj && typeof obj === "object") ? obj : {};
+      }catch{ return {}; }
+    }
+    function scSave(state){ try{ localStorage.setItem(SC_KEY, JSON.stringify(state)); }catch{} }
+
+    function scUpdateSummary(state){
+      const summaryText = $("scSummaryText");
+      const readyText = $("scReadyText");
+      const bar = $("scProgBar");
+      if(!summaryText || !readyText || !bar) return;
+
+      let g=0,a=0,r=0,u=0,total=0;
+
+      scSections.forEach(section => {
+        section.items.forEach((_, idx) => {
+          total++;
+          const id = scId(section.key, idx);
+          const v = state[id] || "";
+          if(v === "G") g++;
+          else if(v === "A") a++;
+          else if(v === "R") r++;
+          else u++;
+        });
+      });
+
+      summaryText.textContent = `Greens: ${g} • Ambers: ${a} • Reds: ${r} • Unrated: ${u}`;
+
+      const done = total - u;
+      const pct = total ? Math.round((done/total)*100) : 0;
+      bar.style.width = `${pct}%`;
+
+      if(u){
+        readyText.innerHTML = `Next: rate the remaining statements (${done}/${total}).`;
+      } else if(r){
+        readyText.innerHTML = `Focus: pick your top 3 Red items, then practise those first.`;
+      } else {
+        readyText.innerHTML = `Strong: no Reds — move to mixed exam-style questions.`;
+      }
+    }
+
+    function scBuild(){
+      const container = $("scSections");
+      if(!container) return;
+
+      const state = scLoad();
+      container.innerHTML = "";
+
+      scSections.forEach((section, sIndex) => {
+        const det = document.createElement("details");
+        det.className = "block";
+        det.dataset.key = section.key;
+        if(sIndex === 0) det.open = true;
+
+        const sum = document.createElement("summary");
+        sum.textContent = section.title;
+
+        const inner = document.createElement("div");
+        inner.className = "details-inner";
+
+        section.items.forEach((text, idx) => {
+          const id = scId(section.key, idx);
+          const chosen = state[id] || "";
+
+          const row = document.createElement("div");
+          row.className = "sc-item";
+          row.id = `sc_${id}`;
+
+          const t = document.createElement("div");
+          t.className = "sc-text";
+          t.textContent = text;
+
+          const controls = document.createElement("div");
+          controls.className = "sc-controls";
+          controls.setAttribute("role","group");
+          controls.setAttribute("aria-label", `Confidence for ${section.title}, item ${idx+1}`);
+
+          const mkOpt = (val) => {
+            const lab = document.createElement("label");
+            lab.className = "sc-opt";
+            lab.dataset.val = val;
+
+            const inp = document.createElement("input");
+            inp.type = "radio";
+            inp.name = `sc_${id}`;
+            inp.value = val;
+            inp.checked = (chosen === val);
+
+            inp.addEventListener("change", () => {
+              const next = scLoad();
+              next[id] = val;
+              scSave(next);
+
+              controls.querySelectorAll(".sc-opt").forEach(o => o.classList.remove("sel"));
+              lab.classList.add("sel");
+
+              scUpdateSummary(next);
+            });
+
+            const span = document.createElement("span");
+            span.textContent = val;
+
+            lab.appendChild(inp);
+            lab.appendChild(span);
+
+            if(chosen === val) lab.classList.add("sel");
+            return lab;
+          };
+
+          controls.appendChild(mkOpt("G"));
+          controls.appendChild(mkOpt("A"));
+          controls.appendChild(mkOpt("R"));
+
+          row.appendChild(t);
+          row.appendChild(controls);
+          inner.appendChild(row);
+        });
+
+        det.appendChild(sum);
+        det.appendChild(inner);
+        container.appendChild(det);
+      });
+
+      // Accordion behaviour: only one open at a time
+      container.querySelectorAll("details.block").forEach(d => {
+        d.addEventListener("toggle", () => {
+          if(!d.open) return;
+          container.querySelectorAll("details.block").forEach(other => {
+            if(other !== d) other.open = false;
+          });
+        });
+      });
+
+      scUpdateSummary(state);
+    }
+
+    function scReset(){
+      try{ localStorage.removeItem(SC_KEY); }catch{}
+      document.querySelectorAll('#scSections input[type="radio"]').forEach(inp => inp.checked = false);
+      document.querySelectorAll('#scSections .sc-opt.sel').forEach(el => el.classList.remove("sel"));
+      scUpdateSummary({});
+    }
+
+    function scSetAllSections(open){
+      const wrap = $("scSections");
+      if(!wrap) return;
+      wrap.querySelectorAll("details").forEach(d => d.open = !!open);
+    }
+
+    /* Jump helper: first Red or first Unrated */
+    function scJumpTo(val){
+      const state = scLoad();
+      for(const section of scSections){
+        for(let i=0; i<section.items.length; i++){
+          const id = scId(section.key, i);
+          const v = state[id] || "";
+          const match = (val === "R") ? (v === "R") : (v === "");
+          if(match){
+            const det = document.querySelector(`#scSections details[data-key="${section.key}"]`);
+            if(det) det.open = true;
+            const row = document.getElementById(`sc_${id}`);
+            if(row){
+              row.scrollIntoView({behavior:"smooth", block:"center"});
+              return;
+            }
+          }
+        }
+      }
+      alert(val === "R" ? "No Reds found." : "Everything is rated.");
+    }
+
+    /* ============================
+       LED UTILITIES + TOOL (from your original)
+    =============================== */
+    const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
+    const E24 = [1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1];
+
+    function nextSeriesValue(valueOhms, series){
+      if(!isFinite(valueOhms) || valueOhms <= 0) return null;
+      const base = (series === "E24") ? E24 : E12;
+      const decade = Math.pow(10, Math.floor(Math.log10(valueOhms)));
+      const norm = valueOhms / decade;
+      for(const v of base){ if(v >= norm) return v * decade; }
+      return base[0] * decade * 10;
+    }
+    function fmtOhms(x){
+      if(!isFinite(x)) return "—";
+      if(x >= 1e6) return (x/1e6).toFixed(2).replace(/\.00$/,'') + " MΩ";
+      if(x >= 1e3) return (x/1e3).toFixed(2).replace(/\.00$/,'') + " kΩ";
+      return Math.round(x) + " Ω";
+    }
+    function fmtA(x){
+      if(!isFinite(x)) return "—";
+      return x.toFixed(4).replace(/0+$/,'').replace(/\.$/,'') + " A";
+    }
+
+    function updateLedModeUI(){
+      const mode = $("ledMode") ? $("ledMode").value : "resistor";
+      const fieldImA = $("fieldImA");
+      const fieldR = $("fieldRKnown");
+      const fieldSeries = $("fieldSeries");
+      const outRes = $("modeResistorOut");
+      const outCur = $("modeCurrentOut");
+      const suggest = $("ledSuggest");
+
+      if(mode === "current"){
+        if(fieldImA) fieldImA.classList.add("hidden");
+        if(fieldR) fieldR.classList.remove("hidden");
+        if(fieldSeries) fieldSeries.classList.add("hidden");
+        if(outRes) outRes.classList.add("hidden");
+        if(outCur) outCur.classList.remove("hidden");
+        if(suggest) suggest.textContent = "—";
+      } else {
+        if(fieldImA) fieldImA.classList.remove("hidden");
+        if(fieldR) fieldR.classList.add("hidden");
+        if(fieldSeries) fieldSeries.classList.remove("hidden");
+        if(outRes) outRes.classList.remove("hidden");
+        if(outCur) outCur.classList.add("hidden");
+      }
+      calcLedTool();
+    }
+
+    function calcLedTool(){
+      const mode = $("ledMode") ? $("ledMode").value : "resistor";
+      const Vs = parseFloat($("ledVs").value);
+      const Vled = parseFloat($("ledVf").value);
+
+      const vrOut = $("ledVrOut");
+      const iAOut = $("ledIAOut");
+      const rOut = $("ledROut");
+      const rSuggest = $("ledSuggest");
+
+      const iFromR_A = $("ledIFromR_A");
+      const iFromR_mA = $("ledIFromR_mA");
+
+      if(!isFinite(Vs) || !isFinite(Vled)){
+        if(vrOut) vrOut.textContent = "—";
+        if(iAOut) iAOut.textContent = "—";
+        if(rOut) rOut.textContent = "—";
+        if(rSuggest) rSuggest.textContent = "—";
+        if(iFromR_A) iFromR_A.textContent = "—";
+        if(iFromR_mA) iFromR_mA.textContent = "—";
+        return;
+      }
+
+      const Vr = Vs - Vled;
+      if(vrOut) vrOut.textContent = Vr.toFixed(2).replace(/\.00$/,'') + " V";
+
+      if(Vr <= 0){
+        if(mode === "resistor"){
+          if(iAOut) iAOut.textContent = "—";
+          if(rOut) rOut.textContent = "Not possible (Vₛ ≤ VLED)";
+          if(rSuggest) rSuggest.textContent = "—";
+        } else {
+          if(iFromR_A) iFromR_A.textContent = "Not possible (Vₛ ≤ VLED)";
+          if(iFromR_mA) iFromR_mA.textContent = "—";
+        }
+        return;
+      }
+
+      if(mode === "current"){
+        const Rknown = parseFloat($("ledRKnown").value);
+        if(!isFinite(Rknown) || Rknown <= 0){
+          if(iFromR_A) iFromR_A.textContent = "—";
+          if(iFromR_mA) iFromR_mA.textContent = "—";
+          return;
+        }
+        const I = Vr / Rknown;
+        if(iFromR_A) iFromR_A.textContent = fmtA(I);
+        if(iFromR_mA) iFromR_mA.textContent = Math.round(I * 1000) + " mA";
+        return;
+      }
+
+      const I_mA = parseFloat($("ledImA").value);
+      const series = $("ledSeries").value;
+
+      if(!isFinite(I_mA) || I_mA <= 0){
+        if(iAOut) iAOut.textContent = "—";
+        if(rOut) rOut.textContent = "—";
+        if(rSuggest) rSuggest.textContent = "—";
+        return;
+      }
+
+      const I = I_mA / 1000;
+      if(iAOut) iAOut.textContent = fmtA(I);
+
+      const R = Vr / I;
+      if(rOut) rOut.textContent = fmtOhms(R);
+
+      const sugg = nextSeriesValue(R, series);
+      if(rSuggest) rSuggest.textContent = sugg ? fmtOhms(sugg) : "—";
+    }
+
+    function ledPracticeClear(){
+      $("pracAnswer").value = "";
+      const fb = $("pracFeedback");
+      fb.style.display = "none";
+      fb.innerHTML = "";
+    }
+
+    function ledPracticeRandom(){
+      const VsOptions = [3, 4.5, 5, 6, 9, 12];
+      const VfOptions = [1.8, 2.0, 2.1, 2.2, 2.8, 3.0, 3.2, 3.3];
+      const IOptions  = [5, 10, 15, 20];
+
+      let VsPick, VfPick;
+      for(let tries=0; tries<20; tries++){
+        VsPick = VsOptions[Math.floor(Math.random()*VsOptions.length)];
+        VfPick = VfOptions[Math.floor(Math.random()*VfOptions.length)];
+        if(VsPick > VfPick + 0.2) break;
+      }
+      const IPick = IOptions[Math.floor(Math.random()*IOptions.length)];
+
+      $("pracVs").value = VsPick.toFixed(1);
+      $("pracVf").value = VfPick.toFixed(1);
+      $("pracImA").value = IPick.toFixed(0);
+
+      ledPracticeClear();
+    }
+
+    function ledPracticeCheck(){
+      const Vs = parseFloat($("pracVs").value);
+      const Vf = parseFloat($("pracVf").value);
+      const I_mA = parseFloat($("pracImA").value);
+      const series = $("pracSeries").value;
+
+      const fb = $("pracFeedback");
+      fb.style.display = "block";
+
+      if(!isFinite(Vs) || !isFinite(Vf) || !isFinite(I_mA) || I_mA <= 0){
+        fb.innerHTML = "<strong>Check:</strong> Please enter sensible numbers for V<sub>s</sub>, V<sub>LED</sub> and current.";
+        return;
+      }
+      const Vr = Vs - Vf;
+      const I = I_mA / 1000;
+      if(Vr <= 0){
+        fb.innerHTML = "<strong>Check:</strong> V<sub>s</sub> must be greater than V<sub>LED</sub>.";
+        return;
+      }
+
+      const correct = Vr / I;
+      const rounded = Math.round(correct);
+      const suggested = nextSeriesValue(correct, series);
+      const student = parseFloat($("pracAnswer").value);
+
+      if(!isFinite(student) || student <= 0){
+        fb.innerHTML = `
+          <strong>Answer:</strong> R ≈ <strong>${rounded} Ω</strong>.<br>
+          <span style="display:block; margin-top:6px; font-weight:850; color:rgba(47,91,82,0.95);">
+            Suggested (${series}): <strong>${suggested ? fmtOhms(suggested) : "—"}</strong>
+          </span>
+        `;
+        return;
+      }
+
+      const tol = 0.05;
+      const ok = (student >= correct*(1-tol) && student <= correct*(1+tol));
+
+      fb.innerHTML = `
+        <strong>${ok ? "✅ Good" : "Not quite"}</strong><br>
+        Correct: R ≈ <strong>${rounded} Ω</strong>.<br>
+        Your answer: <strong>${Math.round(student)} Ω</strong> ${ok ? "(within ±5%)." : "(outside ±5%)."}
+        <div style="margin-top:8px; font-weight:850; color:rgba(47,91,82,0.95);">
+          Suggested (${series}): <strong>${suggested ? fmtOhms(suggested) : "—"}</strong>
+        </div>
+      `;
+    }
+
+    /* ============================
+       SWITCHING BUILDER (from your original, slightly tightened)
+    =============================== */
+    const circuitData = {
+      highTemp: { varName:"temperature", sensor:"thermistor", correct:{ s1:"increases", s2:"decreases", s3:"increases", s6:"on" } },
+      lowTemp:  { varName:"temperature", sensor:"thermistor", correct:{ s1:"decreases", s2:"increases", s3:"increases", s6:"on" } },
+      highLight:{ varName:"light level", sensor:"LDR",       correct:{ s1:"increases", s2:"decreases", s3:"increases", s6:"on" } },
+      lowLight: { varName:"light level", sensor:"LDR",       correct:{ s1:"decreases", s2:"increases", s3:"increases", s6:"on" } }
+    };
+
+    const switchDiagramMap = {
+      lowTemp:  { src:"/classes/s3-physics/TempSwitch.png",  pos:"0% 50%",   title:"Circuit 1 – Low temperature",  desc:"Cold → higher thermistor resistance → Vout rises." },
+      highTemp: { src:"/classes/s3-physics/TempSwitch.png",  pos:"100% 50%", title:"Circuit 2 – High temperature", desc:"Hot → lower thermistor resistance → Vout rises." },
+      lowLight: { src:"/classes/s3-physics/LightSwitch.png", pos:"0% 50%",   title:"Circuit 3 – Low light",        desc:"Dark → higher LDR resistance → Vout rises." },
+      highLight:{ src:"/classes/s3-physics/LightSwitch.png", pos:"100% 50%", title:"Circuit 4 – High light",       desc:"Bright → lower LDR resistance → Vout rises." }
+    };
+
+    function expectedVoltageTerm(){
+      return ($("swTrans") && $("swTrans").value === "mosfet") ? "threshold voltage" : "switching voltage";
+    }
+
+    function updateSwitchDiagram(){
+      const type = $("cType")?.value || "highTemp";
+      const img  = $("switchDiagramImg");
+      const cap  = $("switchDiagramCap");
+      if(!img || !cap) return;
+
+      const m = switchDiagramMap[type] || switchDiagramMap.highTemp;
+      img.setAttribute("src", m.src);
+      img.style.objectPosition = m.pos;
+      cap.innerHTML = `<strong>${m.title}</strong> — ${m.desc}`;
+    }
+
+    function syncSwitchEcho(){
+      const s6 = $("s6");
+      const echo = $("s6Echo");
+      if(s6 && echo) echo.textContent = s6.value;
+    }
+
+    function syncSwitchLabels(){
+      const swTrans = $("swTrans");
+      const swLoad  = $("swLoad");
+      const tTxt = $("swTransTxt");
+      const lTxt = $("swLoadTxt");
+      const clause = $("relayClause");
+      if(!swTrans || !swLoad || !tTxt || !lTxt || !clause) return;
+
+      tTxt.textContent = (swTrans.value === "mosfet") ? "MOSFET" : "transistor";
+      const load = swLoad.value;
+      lTxt.textContent = (load === "relay") ? "relay" : load;
+
+      if(load === "relay"){
+        clause.style.display = "block";
+        const state = ($("s6") && $("s6").value === "off") ? "off" : "on";
+        clause.textContent = (state === "on")
+          ? "Relay note: coil energised and contacts close."
+          : "Relay note: coil de-energised and contacts open.";
+      } else {
+        clause.style.display = "none";
+        clause.textContent = "";
+      }
+
+      syncSwitchEcho();
+    }
+
+    function applyCircuitUI(){
+      const type = $("cType").value;
+      const d = circuitData[type];
+      $("varName").textContent = d.varName;
+      $("sensorName").textContent = d.sensor;
+      $("s5").value = expectedVoltageTerm();
+      syncSwitchLabels();
+      updateSwitchDiagram();
+      const msg = $("sentenceMsg");
+      if(msg){ msg.style.display="none"; msg.className="msg"; msg.textContent=""; }
+    }
+
+    function currentSelections(){
+      return { s1:$("s1").value, s2:$("s2").value, s3:$("s3").value, s5:$("s5").value, s6:$("s6").value };
+    }
+
+    function checkSentence(){
+      const type = $("cType").value;
+      const d = circuitData[type];
+      const sel = currentSelections();
+
+      const expected = { ...d.correct, s5: expectedVoltageTerm() };
+      let ok = true;
+      for(const k of Object.keys(expected)){ if(sel[k] !== expected[k]) ok = false; }
+
+      const msg = $("sentenceMsg");
+      msg.style.display = "block";
+      msg.className = ok ? "msg good" : "msg bad";
+      msg.textContent = ok
+        ? "✅ Correct chain: condition → resistance → Vout → switching/threshold → output."
+        : "❌ Check the resistance change and Vout direction, then switching/threshold wording.";
+
+      syncSwitchLabels();
+    }
+
+    function setPerfect(){
+      const type = $("cType").value;
+      const d = circuitData[type];
+      $("s1").value = d.correct.s1;
+      $("s2").value = d.correct.s2;
+      $("s3").value = d.correct.s3;
+      $("s5").value = expectedVoltageTerm();
+      $("s6").value = d.correct.s6;
+      checkSentence();
+    }
+
+    function resetBuilder(){
+      $("s1").value = "increases";
+      $("s2").value = "increases";
+      $("s3").value = "increases";
+      $("s5").value = expectedVoltageTerm();
+      $("s6").value = "on";
+      const msg = $("sentenceMsg");
+      msg.style.display = "none";
+      msg.className = "msg";
+      msg.textContent = "";
+      syncSwitchLabels();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      scBuild();
+
+      ["ledMode","ledVs","ledVf","ledImA","ledRKnown","ledSeries"].forEach(id => {
+        const el = $(id);
+        if(!el) return;
+        el.addEventListener("input", () => { id === "ledMode" ? updateLedModeUI() : calcLedTool(); });
+        el.addEventListener("change", () => { id === "ledMode" ? updateLedModeUI() : calcLedTool(); });
+      });
+      updateLedModeUI();
+
+      const cType = $("cType");
+      const swTrans = $("swTrans");
+      const swLoad  = $("swLoad");
+      const s6 = $("s6");
+      if(cType) cType.addEventListener("change", applyCircuitUI);
+      if(swTrans) swTrans.addEventListener("change", () => { $("s5").value = expectedVoltageTerm(); syncSwitchLabels(); });
+      if(swLoad) swLoad.addEventListener("change", syncSwitchLabels);
+      if(s6) s6.addEventListener("change", syncSwitchLabels);
+      if(cType) applyCircuitUI();
+    });
+  </script>
+</body>
+</html>
