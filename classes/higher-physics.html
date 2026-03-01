@@ -7,8 +7,18 @@ title: Higher Physics
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#2b59ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Higher Physics" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <!-- PWA polish (self-contained manifest is injected by JS) -->
+  <link rel="manifest" id="manifestLink" href="">
+  <link rel="apple-touch-icon" href="/assets/higher/Delta.png" />
+  <link rel="icon" type="image/png" href="/assets/higher/Delta.png" />
+
   <title>Higher Physics</title>
 
   <style>
@@ -35,6 +45,1946 @@ title: Higher Physics
       position:absolute; left:-999px; top:10px;
       background:#2b59ff; color:#ffffff;
       padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.14);
+    }
+    .skip-link:focus{ left:10px; outline: 3px solid rgba(255,255,255,0.9); outline-offset: 3px; }
+
+    /* ============================
+       THEME (Light + Higher blue accent)
+    =============================== */
+    :root{
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+
+      --bg0:#f6f8ff;
+      --bg1:#eef2ff;
+      --bg2:#ffffff;
+
+      --text:#0b1630;
+      --muted:#2c466a;
+
+      --accent:#2b59ff;      /* Higher blue */
+      --accent-2:#1636b8;
+
+      --card:#ffffff;
+
+      --border: rgba(11,22,48,0.14);
+      --border-strong: rgba(43,89,255,0.28);
+
+      --shadow: 0 18px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
+
+      --radius: 18px;
+
+      --focus-ring: 3px solid rgba(43,89,255,0.55);
+      --focus-offset: 4px;
+    }
+
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(43,89,255,0.14), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(22,54,184,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
+
+    /* ============================
+       MENU BUTTON + DRAWER (site-wide)
+    =============================== */
+    .menu-btn{
+      position:fixed;
+      top:calc(14px + env(safe-area-inset-top));
+      right:calc(14px + env(safe-area-inset-right));
+      font-size:1.65rem;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(12px) saturate(170%);
+      -webkit-backdrop-filter: blur(12px) saturate(170%);
+      border: 2px solid rgba(43,89,255,0.22);
+      border-radius: 14px;
+      padding: .42rem .70rem;
+      cursor:pointer;
+      color: var(--accent-2);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+      z-index: 500;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .menu-btn:hover{ transform: scale(1.05); border-color: rgba(43,89,255,0.30); }
+    .menu-btn:active{ transform: scale(1.02); }
+
+    .menu-overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,0.32);
+      display:none;
+      z-index: 440;
+    }
+    .menu-overlay.show{ display:block; }
+
+    .side-menu{
+      position:fixed;
+      top:0; right:-310px;
+      width:310px; height:100%;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.18);
+      border-left: 1px solid rgba(11,22,48,0.10);
+      padding-top: calc(1rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      z-index: 460;
+      transition: right .28s ease;
+      display:flex;
+      flex-direction:column;
+
+      /* ✅ Update 5: allow internal scrolling */
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    .side-menu.open{ right:0; }
+
+    .menu-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: .8rem 1rem;
+      border-bottom: 1px solid rgba(11,22,48,0.10);
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      z-index: 1;
+    }
+    .menu-title{
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: .2px;
+    }
+    .menu-close{
+      font-size:1.35rem;
+      background: rgba(43,89,255,0.10);
+      border: 1px solid rgba(43,89,255,0.22);
+      color: var(--accent-2);
+      border-radius: 12px;
+      padding: .25rem .55rem;
+      cursor:pointer;
+      font-weight: 900;
+    }
+
+    .side-menu a{
+      padding: 1rem 1.2rem;
+      font-size: 1.08rem;
+      text-decoration:none;
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      gap:.7rem;
+      border-bottom: 1px solid rgba(11,22,48,0.06);
+      font-weight: 900;
+      min-height: 44px;
+    }
+    .side-menu a:hover{ background: rgba(43,89,255,0.08); }
+
+    /* ============================
+       BANNER (Home style: full width)
+    =============================== */
+    .banner-wrap{
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      flex-shrink:0;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      z-index: 2;
+
+      height: clamp(220px, 32vh, 420px);
+      background: rgba(255,255,255,0.35);
+    }
+    .banner{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      object-position: center;
+      opacity:0;
+      animation: fadeIn 1.0s ease forwards;
+    }
+    @keyframes fadeIn{ to{ opacity:1; } }
+
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg,
+        rgba(43,89,255,0.20),
+        rgba(22,54,184,0.14),
+        rgba(255,255,255,0.00)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+
+    .banner-overlay-text{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border-top: 1px solid rgba(11,22,48,0.10);
+      padding: .95rem .9rem;
+      text-align:center;
+    }
+    .banner-overlay-text h1{
+      margin:0;
+      font-size: 1.12rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .banner-overlay-text p{
+      margin:.25rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .95rem;
+    }
+
+    /* ============================
+       STICKY JUMP MENU (Update 1)
+    =============================== */
+    .subnav-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(246,248,255,0.80);
+      backdrop-filter: blur(14px) saturate(170%);
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+      border-bottom: 1px solid rgba(11,22,48,0.10);
+    }
+    .subnav{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(43,89,255,0.18);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
+    }
+    .subnav-links{
+      display:flex;
+      gap:14px;
+      flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .subnav-links::-webkit-scrollbar{ display:none; }
+
+    .subnav-link{
+      text-decoration:none;
+      font-weight: 900;
+      color: var(--text);
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.95;
+    }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight: 900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(43,89,255,0.28);
+      background: rgba(43,89,255,0.10);
+      color: var(--text);
+      box-shadow: var(--shadow-soft);
+
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .subnav-cta:hover{ background: rgba(43,89,255,0.14); }
+    .subnav-cta:active{ transform: translateY(1px); }
+
+    @media (max-width: 520px){
+      .subnav-cta{ padding: 10px 12px; }
+      .subnav-cta .cta-text{ display:none; } /* icon-only CTA on phones */
+    }
+
+    /* Anchor offset so sticky nav doesn't cover headings */
+    #overview, #resources, #timeline, #quicklinks{ scroll-margin-top: 190px; }
+
+    /* ============================
+       MAIN LAYOUT
+    =============================== */
+    .page-wrap{
+      max-width: 1200px;
+      margin: 1.0rem auto 2rem;
+      padding: 0 1rem 4rem;
+      flex:1;
+      width:100%;
+    }
+
+    .panel{
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(11,22,48,0.10);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 1rem;
+    }
+
+    .panel h2{
+      margin: 0 0 .35rem;
+      font-size: 1.12rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .panel p{
+      margin: .25rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .soft-hr{
+      border:0;
+      border-top: 1px solid rgba(11,22,48,0.10);
+      margin: 1rem 0;
+    }
+
+    /* Mini details (compact) */
+    details.mini{
+      margin-top: .8rem;
+      border-radius: 16px;
+      border: 1px solid rgba(43,89,255,0.18);
+      background: rgba(43,89,255,0.05);
+      overflow:hidden;
+    }
+    details.mini summary{
+      cursor:pointer;
+      padding: .85rem 1rem;
+      font-weight: 900;
+      color: var(--text);
+      list-style:none;
+      display:flex;
+      gap:.55rem;
+      align-items:center;
+      border-bottom: 1px solid rgba(11,22,48,0.08);
+      background: rgba(255,255,255,0.70);
+    }
+    details.mini summary::-webkit-details-marker{ display:none; }
+
+    /* ✅ Update 4: chevrons */
+    details.mini summary::after,
+    details.term summary::after{
+      content: "▾";
+      margin-left:auto;
+      font-weight: 900;
+      opacity: 0.8;
+      transition: transform .18s ease;
+    }
+    details[open].mini summary::after,
+    details[open].term summary::after{
+      transform: rotate(180deg);
+    }
+
+    .details-inner{
+      padding: .9rem 1rem;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .details-inner ul{
+      margin: .35rem 0 0;
+      padding-left: 1.1rem;
+      line-height: 1.75;
+    }
+    .details-inner li{ margin: .35rem 0; }
+
+    /* ============================
+       CARD TILES
+    =============================== */
+    .tile-grid{
+      display:grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
+      align-items: stretch;
+      margin-top: .9rem;
+    }
+
+    .class-tile{
+      display:block;
+      position:relative;
+      border-radius: var(--radius);
+      border: 1px solid rgba(11,22,48,0.12);
+      overflow:hidden;
+      text-decoration:none;
+      color: var(--text);
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow-soft);
+      transition: transform .18s ease, box-shadow .18s ease;
+      min-height: 150px;
+    }
+    .class-tile:hover,
+    .class-tile:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(43,89,255,0.16);
+    }
+    .class-tile img{
+      width:100%;
+      height: 100%;
+      min-height: 150px;
+      object-fit: cover;
+      filter: saturate(1.02) contrast(1.03);
+    }
+
+    .tile-emoji{
+      width:100%;
+      min-height:150px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 3rem;
+      line-height:1;
+      background:
+        radial-gradient(520px 320px at 20% 20%, rgba(43,89,255,0.22), transparent 60%),
+        radial-gradient(520px 320px at 80% 30%, rgba(22,54,184,0.16), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(238,242,255,0.92));
+    }
+    .tile-emoji span{ filter: drop-shadow(0 8px 14px rgba(0,0,0,0.12)); }
+
+    .tile-label{
+      position:absolute;
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: .65rem .75rem;
+      border-top: 1px solid rgba(11,22,48,0.10);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:.6rem;
+    }
+
+    .tile-text{
+      display:flex;
+      flex-direction:column;
+      gap:.18rem;
+      min-width: 0;
+    }
+
+    /* ✅ Update 2: reduce visible tile text (clamp) */
+    .tile-title{
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.15;
+
+      display:-webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    .tile-sub{
+      font-weight: 800;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.2;
+
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    @media (max-width: 480px){
+      .tile-sub{ -webkit-line-clamp: 1; }
+    }
+
+    .ext-mark{
+      font-weight: 900;
+      color: var(--accent-2);
+      opacity: .95;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+
+    /* ============================
+       TIMELINE
+    =============================== */
+    .timeline-tools{
+      display:flex;
+      gap:0.6rem;
+      flex-wrap:wrap;
+      align-items:center;
+      margin: 0.75rem 0 0.35rem;
+    }
+    .topic-search{
+      flex:1 1 260px;
+      min-height: 44px;
+      padding: 0.65rem 0.85rem;
+      border-radius: 14px;
+      border: 1px solid rgba(43,89,255,0.22);
+      background: rgba(255,255,255,0.85);
+      font-weight: 800;
+      color: var(--text);
+    }
+    .search-status{
+      margin: 0.15rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .progress-wrap{
+      margin: 0.9rem 0 0.35rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(11,22,48,0.10);
+      background: rgba(43,89,255,0.06);
+    }
+    .progress-top{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:0.8rem;
+      flex-wrap:wrap;
+    }
+    .progress-text{
+      margin:0;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .progress-sub{
+      margin:0.15rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      font-size:0.95rem;
+    }
+    progress{
+      width:100%;
+      height: 14px;
+      margin-top: 0.55rem;
+      border-radius: 999px;
+      overflow:hidden;
+    }
+    progress::-webkit-progress-bar{ background: rgba(11,22,48,0.08); border-radius:999px; }
+    progress::-webkit-progress-value{ background: rgba(43,89,255,0.60); border-radius:999px; }
+    progress::-moz-progress-bar{ background: rgba(43,89,255,0.60); border-radius:999px; }
+
+    .controls-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.6rem;
+      margin: 0.65rem 0 0.2rem;
+    }
+    .small-btn{
+      padding:0.58rem 0.85rem;
+      border-radius: 14px;
+      border:1px solid rgba(43,89,255,0.22);
+      background: rgba(255,255,255,0.78);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .small-btn:hover{ background: rgba(43,89,255,0.10); }
+
+    details.term{
+      margin-top: .9rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(11,22,48,0.10);
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
+      overflow:hidden;
+    }
+    details.term summary{
+      cursor:pointer;
+      padding: .95rem 1rem;
+      font-weight: 900;
+      color: var(--text);
+      list-style:none;
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+      background: linear-gradient(135deg, rgba(43,89,255,0.12), rgba(22,54,184,0.08));
+      border-bottom: 1px solid rgba(11,22,48,0.08);
+    }
+    details.term summary::-webkit-details-marker{ display:none; }
+
+    .term-goal{
+      margin: 0 0 0.75rem;
+      color: var(--muted);
+      font-weight: 800;
+      line-height:1.55;
+    }
+    .tag{
+      display:inline-block;
+      padding: 0.12rem 0.52rem;
+      border-radius: 999px;
+      border: 1px solid rgba(43,89,255,0.22);
+      background: rgba(43,89,255,0.08);
+      color: var(--text);
+      font-size: 0.82rem;
+      margin-right: 0.4rem;
+      font-weight: 900;
+    }
+
+    .topic-grid{
+      list-style:none;
+      padding:0;
+      margin: 0.55rem 0 0;
+      display:grid;
+      gap:0.75rem;
+    }
+    .topic-card{
+      border: 1px solid rgba(11,22,48,0.10);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.92);
+      padding: 0.95rem;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.05);
+      scroll-margin-top: 190px;
+    }
+    .topic-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:0.7rem;
+      flex-wrap:wrap;
+    }
+    .topic-title{
+      font-weight: 900;
+      font-size: 1.05rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .topic-when{
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+
+    /* ✅ Update 3: split "watch out" into callout */
+    .topic-blurb{
+      margin: 0.55rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.55;
+    }
+    .topic-main{ display:block; }
+    .topic-watch{
+      margin: 0.6rem 0 0;
+      padding: 0.6rem 0.7rem;
+      border-radius: 14px;
+      border: 1px solid rgba(43,89,255,0.18);
+      background: rgba(43,89,255,0.06);
+      font-weight: 900;
+    }
+
+    .topic-done{
+      display:flex;
+      align-items:center;
+      gap:0.5rem;
+      padding: 0.38rem 0.58rem;
+      border-radius: 999px;
+      border: 1px solid rgba(43,89,255,0.22);
+      background: rgba(43,89,255,0.08);
+      cursor:pointer;
+      user-select:none;
+      font-weight: 900;
+      color: var(--text);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.05);
+    }
+    .topic-done input{
+      width:24px;
+      height:24px;
+      accent-color: var(--accent);
+      margin:0;
+    }
+
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.80);
+      border-top: 1px solid rgba(11,22,48,0.10);
+      font-size:0.92rem;
+      margin-top:auto;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    @media (max-width: 480px){
+      .panel{ padding: 1rem; }
+      .topic-card{ padding: 0.85rem; }
+      .banner-overlay-text h1{ font-size: 1.05rem; }
+      .banner-overlay-text p{ font-size: .92rem; }
+    }
+
+    /* ============================
+   DECLUTTER PATCH (iPad/mobile)
+=============================== */
+
+/* Slimmer sticky jump bar */
+.subnav-wrap{
+  padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+}
+.subnav{
+  padding: 8px 10px;
+  border-radius: 16px;
+  box-shadow: none; /* big declutter win */
+  background: rgba(255,255,255,0.78);
+}
+.subnav-links{ gap: 12px; }
+.subnav-link{
+  padding: 6px 2px;
+  font-size: 1rem;
+}
+
+/* Banner: reduce header stack on small screens */
+.banner-overlay-text{ padding: .7rem .85rem; }
+@media (max-width: 720px){
+  .banner-overlay-text p{ display:none; }
+  .banner-wrap{ height: clamp(170px, 22vh, 260px); }
+}
+@media (max-width: 560px){
+  .banner-overlay-text h1{ font-size: 1.02rem; }
+}
+
+/* Menu button: slightly smaller on phones */
+@media (max-width: 560px){
+  .menu-btn{ font-size: 1.35rem; padding: .34rem .56rem; }
+}
+
+/* Tiles: less text, calmer overlays */
+.tile-sub{ display:none; }                 /* includes DELTA */
+.tile-label{
+  padding: .55rem .65rem;
+  align-items: center;
+}
+.ext-mark{ margin-top: 0; }
+
+/* iPad: 2 columns; phone: 1 column */
+@media (max-width: 1100px){
+  .tile-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px){
+  .tile-grid{ grid-template-columns: 1fr; }
+}
+
+/* Slightly shorter tiles to reduce vertical bulk */
+.class-tile{ min-height: 140px; }
+.class-tile img{ min-height: 140px; }
+
+/* Overview accordions: smaller bars */
+details.mini summary{
+  padding: .7rem .9rem;
+  font-size: 1rem;
+}
+.details-inner{ padding: .75rem .9rem; }
+
+    /* ============================
+   TILE MODE: image has baked-in title
+   - hide the bottom overlay label
+   - show a small corner ↗ badge instead
+=============================== */
+
+.class-tile.no-overlay .tile-label{
+  display:none;
+}
+
+/* Small corner badge (external/open affordance) */
+.class-tile.no-overlay::after{
+  content:"↗";
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+
+  border-radius: 12px;
+  border: 1px solid rgba(11,22,48,0.14);
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.08);
+
+  color: var(--accent-2);
+  font-weight: 900;
+
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+/* Show on hover/focus (desktop + keyboard) */
+.class-tile.no-overlay:hover::after,
+.class-tile.no-overlay:focus-visible::after{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* On touch devices, show it by default (no hover) */
+@media (pointer: coarse){
+  .class-tile.no-overlay::after{
+    opacity: .92;
+    transform: none;
+  }
+}
+    
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <!-- MENU BUTTON -->
+  <button
+    class="menu-btn"
+    id="menuBtn"
+    type="button"
+    aria-label="Open menu"
+    aria-controls="sideMenu"
+    aria-expanded="false"
+  >☰</button>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
+    <div class="menu-head">
+      <div class="menu-title">Menu</div>
+      <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
+    </div>
+
+    <a href="/">🏠 Home</a>
+    <a href="/classes/science.html">🧪 Science</a>
+    <a href="/classes/physics.html">⚡ Physics</a>
+    <a href="/classes/electronics.html">💡 Electronics</a>
+    <a href="/classes/engineering.html">🧰 Engineering</a>
+  </nav>
+
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Higher Physics</h1>
+    </div>
+  </div>
+
+  <!-- STICKY JUMP MENU -->
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#resources">Resources</a>
+        <a class="subnav-link" href="#timeline">Timeline</a>
+        <a class="subnav-link" href="#quicklinks">Quick links</a>
+      </div>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+
+    <!-- OVERVIEW -->
+    <section class="panel" id="overview" aria-labelledby="overview-title">
+      <h2 id="overview-title">Overview</h2>
+      
+      <details class="mini accordion">
+        <summary>Higher Physics Outline</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>Electricity</strong>: measurement uncertainty, I–V characteristics, internal resistance, capacitors, AC/DC, semiconductors and band theory.</li>
+            <li><strong>Our Dynamic Universe</strong>: vectors, motion, forces, momentum, gravitation, special relativity, expanding universe.</li>
+            <li><strong>Particles &amp; Waves</strong>: refraction/interference, spectra, photoelectric effect, nuclear reactions, and the Standard Model.</li>
+            <li><strong>Assignment</strong>: planning a fair test, collecting quality data, analysing, and justifying a conclusion.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="mini accordion">
+        <summary>SQA marking principles</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>Calculations (often 3 marks):</strong> write the relationship → substitute with units → final answer with a unit (and sensible s.f.).</li>
+            <li><strong>“Show” questions:</strong> show the steps, not just the final number.</li>
+            <li><strong>Explain / justify:</strong> link cause → effect. Keep it precise.</li>
+            <li><strong>“You must justify”:</strong> the statement only gets credit if the justification is correct and sufficient.</li>
+            <li><strong>If it asks for 1/2 points:</strong> don’t add extras — a wrong extra point can cancel a correct one.</li>
+            <li><strong>Graphs:</strong> axes labelled (quantity + unit), sensible scale, accurate plotting, single best-fit line/curve.</li>
+          </ul>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="panel" id="resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Resources</h2>
+
+      <div class="tile-grid" aria-label="Higher Physics essential resource tiles">
+        <a class="class-tile no-overlay"
+           href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Higher Physics Past Papers by Topic Finder (PDF opens in a new tab)">
+          <img src="/assets/higher/higherpastpapers.png" alt="">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Past Papers Finder</div>
+              <div class="tile-sub">By topic — use it every week</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile no-overlay"
+           href="https://www.taylorwebapps.site/mc%20physics%20higher/index.html"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="DELTA Physics Higher multiple choice practice (opens in a new tab)">
+          <img src="/assets/higher/Delta.png" alt="">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">DELTA (Higher MC)</div>
+              <div class="tile-sub">Filter Unit/Topic/Year → Start. Bottom-right: Info/Stats/Data/Relationships.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile no-overlay"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mr Stewart’s Materials (opens in a new tab)">
+          <img src="/assets/higher/mrstewartsmaterials.png" alt="">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mr Stewart’s Materials</div>
+              <div class="tile-sub">Class notes, worksheets, summaries</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile no-overlay"
+           href="https://physicsflashrepo.ovh/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Flash Physics (opens in a new tab)">
+          <img src="/assets/higher/flashphsyics.png" alt="">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Flash Physics</div>
+              <div class="tile-sub">Quick recall + short practice</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
+
+      <details class="mini accordion">
+        <summary>➕ More links</summary>
+        <div class="details-inner">
+          <div class="tile-grid" aria-label="Additional Higher Physics resource tiles">
+
+            <!-- ✅ Update 2: Scholar moved here -->
+            <a class="class-tile no-overlay"
+               href="https://scholar.hw.ac.uk/courses/"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Scholar (opens in a new tab)">
+              <img src="/assets/higher/scholar.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Scholar</div>
+                  <div class="tile-sub">Clear explanations + practice</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+            <a class="class-tile no-overlay"
+               href="https://student.magicschool.ai/s/join?joinCode=o6paYQ"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="AI Tutor – Mr Stewart’s Physics Helper (opens in a new tab)">
+              <img src="/assets/higher/AI.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">AI Tutor</div>
+                  <div class="tile-sub">Hints, feedback, and next steps</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+            <a class="class-tile no-overlay"
+               href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EtlydMZL4qJMi6zQL_-a33kBoPsCdAu2vK8AFiurWKlraQ?e=eyZbIN"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Practice Tests (opens in a new tab)">
+              <img src="/assets/higher/practicetests.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Practice Tests</div>
+                  <div class="tile-sub">Timed practice with answers</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+            <a class="class-tile no-overlay"
+               href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/Eqbob1cLAspLihPfnlpwkoIB8XS8ilM10Fw4Nl6lwV6yTg?e=EormyU"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Tricky Questions (opens in a new tab)">
+              <img src="/assets/higher/tricky.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Tricky Questions</div>
+                  <div class="tile-sub">The ones that make you better</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+            <a class="class-tile"
+               href="/classes/higher/simulations.html"
+               aria-label="Higher Physics Interactive Simulations">
+              <div class="tile-emoji" aria-hidden="true"><span>🧩</span></div>
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Interactive Simulations</div>
+                  <div class="tile-sub">Visualise the hard bits</div>
+                </div>
+              </div>
+            </a>
+
+            <a class="class-tile no-overlay"
+               href="https://sway.office.com/t01NVX6h5b8SiFmF?ref=Link&loc=play"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Self-Marking Multiple Choice (opens in a new tab)">
+              <img src="/assets/higher/mc.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Self-Marking Multiple Choice</div>
+                  <div class="tile-sub">Fast feedback</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+            <a class="class-tile no-overlay"
+               href="https://quizlet.com/join/TetMQdg6Y"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Quizlets (opens in a new tab)">
+              <img src="/assets/higher/quizlet.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">Quizlets</div>
+                  <div class="tile-sub">Key words + quick checks</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+            <a class="class-tile no-overlay"
+               href="https://www.bbc.co.uk/bitesize/subjects/zpyb4wx"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="BBC Bitesize (opens in a new tab)">
+              <img src="/assets/higher/bbc.png" alt="">
+              <div class="tile-label">
+                <div class="tile-text">
+                  <div class="tile-title">BBC Bitesize</div>
+                  <div class="tile-sub">Extra explanations</div>
+                </div>
+                <span class="ext-mark" aria-hidden="true">↗</span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="panel" id="timeline" aria-labelledby="timeline-title">
+      <h2 id="timeline-title">Timeline 2025–26</h2>
+      <p>Each card is the <strong>main focus for that week</strong>. Tick it when you’ve understood it and practised questions.</p>
+
+      <!-- ✅ Update 3: search + next-unticked tools -->
+<details class="mini">
+  <summary>Timeline tools</summary>
+  <div class="details-inner">
+    <div class="timeline-tools" role="search" aria-label="Timeline search tools">
+      <label class="visually-hidden" for="topicSearch">Search timeline topics</label>
+      <input id="topicSearch" class="topic-search" type="search"
+             placeholder="Search topics (e.g. capacitor, uncertainty)…"
+             autocomplete="off" inputmode="search">
+      <button class="small-btn" type="button" onclick="clearTopicSearch()">Clear</button>
+      <button class="small-btn" type="button" onclick="jumpToNextUnticked()">Next unticked</button>
+    </div>
+    <p class="search-status" id="searchStatus" aria-live="polite"></p>
+  </div>
+</details>
+
+      <div class="progress-wrap" aria-label="Timeline progress">
+        <div class="progress-top">
+          <p class="progress-text" id="progressText" aria-live="polite">Progress: 0 / 0 topics (0%)</p>
+          <p class="progress-sub" id="progressHint">Tip: aim for 1 tick per week.</p>
+        </div>
+        <progress id="progressBar" value="0" max="0">0%</progress>
+      </div>
+
+      <div class="controls-row" aria-label="Timeline controls">
+        <button class="small-btn" type="button" onclick="setAllTerms(true)">Open all terms</button>
+        <button class="small-btn" type="button" onclick="setAllTerms(false)">Close all terms</button>
+        <button class="small-btn" type="button" onclick="resetTicks()">Reset ticks</button>
+      </div>
+
+      <!-- START-UP (open by default) -->
+      <details class="term" open>
+        <summary>June — Start-up</summary>
+        <div class="details-inner">
+          <p class="term-goal"><span class="tag">Goal</span>Build confidence with uncertainty and core circuit relationships.</p>
+
+          <ul class="topic-grid">
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">0.1 Uncertainties</div>
+                  <div class="topic-when">W/C Mon 02 Jun 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-06-02-uncertainties">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Estimate and combine uncertainties so final answers are stated with sensible bounds and justification. ⚠️ Watch out: don’t mix absolute and % uncertainty, and match your final decimal places to the uncertainty.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">P, I, V, R relationships</div>
+                  <div class="topic-when">W/C Mon 09 Jun 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-06-09-pivr">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Connect current, voltage, resistance and power using the relationships sheet and clear problem-solving steps. ⚠️ Watch out: convert mA→A and kΩ→Ω before substituting.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">PIVR consolidation</div>
+                  <div class="topic-when">W/C Mon 16 Jun 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-06-16-pivr-consolidation">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Solve mixed problems confidently and explain which quantities are measured, calculated, and inferred. ⚠️ Watch out: write the relationship first, then substitute, then give the final answer with the correct unit.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Internal resistance (intro)</div>
+                  <div class="topic-when">W/C Mon 23 Jun 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-06-23-internal-resistance-intro">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Model a source with internal resistance and explain why terminal voltage drops as current increases. ⚠️ Watch out: emf is not the same as terminal p.d.; internal resistance is in series with the source.</p>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- TERM 1 -->
+      <details class="term">
+        <summary>Aug–Sep 2025 — Electricity core + start ODU</summary>
+        <div class="details-inner">
+          <p class="term-goal"><span class="tag">Goal</span>Secure Electricity fundamentals and start modelling motion in ODU.</p>
+
+          <ul class="topic-grid">
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">I–V characteristics (resistor, filament, diode)</div>
+                  <div class="topic-when">W/C Mon 18 Aug 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-08-18-iv-characteristics">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Read and sketch I–V graphs, describe behaviour, and explain why components are non-ohmic. ⚠️ Watch out: label axes properly (quantity + unit) and don’t confuse gradient with ‘resistance at a point’.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Internal resistance (graphs + calculations)</div>
+                  <div class="topic-when">W/C Mon 25 Aug 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-08-25-internal-resistance">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use V–I graphs to find emf and internal resistance and link the model to real battery behaviour. ⚠️ Watch out: for V = ε − Ir, the intercept is ε and the gradient is −r (sign matters).</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Power + energy in circuits (with uncertainty)</div>
+                  <div class="topic-when">W/C Mon 01 Sep 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-09-01-power-energy">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Apply P = IV and energy ideas to real circuit contexts, including consistent units and sensible rounding. ⚠️ Watch out: energy often needs E = Pt with time in seconds (and kWh is a different unit).</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Capacitors (charge, discharge, time constant)</div>
+                  <div class="topic-when">W/C Mon 08 Sep 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-09-08-capacitors">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Describe exponential change and use key capacitor relationships to solve structured and unseen questions. ⚠️ Watch out: τ = RC is in seconds; at 1τ discharge falls to ~37% (charge rises to ~63%).</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">AC basics (rms + interpreting waveforms)</div>
+                  <div class="topic-when">W/C Mon 15 Sep 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-09-15-ac-basics">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Connect rms values to practical measurements and interpret what an AC signal means in context. ⚠️ Watch out: rms is not peak; V_rms = V_peak/√2 for a sine wave.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Vectors + scalars (ODU start)</div>
+                  <div class="topic-when">W/C Mon 22 Sep 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-09-22-vectors-scalars">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use vector diagrams and components to set up motion problems correctly from the start. ⚠️ Watch out: include direction (sign) and resolve into components before using equations.</p>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- TERM 2 -->
+      <details class="term">
+        <summary>Oct–Dec — ODU + Waves focus</summary>
+        <div class="details-inner">
+          <p class="term-goal"><span class="tag">Goal</span>Develop strong mechanics modelling and build core waves ideas before Christmas.</p>
+
+          <ul class="topic-grid">
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Forces + Newton’s laws (modelling motion)</div>
+                  <div class="topic-when">W/C Mon 06 Oct 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-10-06-newton">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Build clear force diagrams, choose directions, and solve problems using consistent modelling steps. ⚠️ Watch out: draw all forces (especially weight/normal/tension) and keep signs consistent.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Energy, work and power (ODU)</div>
+                  <div class="topic-when">W/C Mon 13 Oct 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-10-13-energy-work">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use energy methods to solve motion problems efficiently and explain where energy transfers happen. ⚠️ Watch out: work done uses the force component along the displacement; power is rate of energy transfer.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Momentum + impulse</div>
+                  <div class="topic-when">W/C Mon 20 Oct 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-10-20-momentum">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Apply conservation of momentum and interpret impulse as “change in momentum” in real contexts. ⚠️ Watch out: momentum is a vector; Ns is the same as kg·m/s; check directions.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Projectile motion (linking components)</div>
+                  <div class="topic-when">W/C Mon 27 Oct 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-10-27-projectiles">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Separate horizontal/vertical motion cleanly and solve for time, range, height, and velocity. ⚠️ Watch out: time links both directions; choose a sign convention for g and stick to it.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Gravitation (fields, potential and orbits)</div>
+                  <div class="topic-when">W/C Mon 03 Nov 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-11-03-gravitation">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Explain gravitational fields and use the inverse-square model to solve orbit and energy questions. ⚠️ Watch out: r is from the centre of the Earth; gravitational potential is negative; don’t mix g and G.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Special relativity (time dilation + length contraction)</div>
+                  <div class="topic-when">W/C Mon 10 Nov 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-11-10-relativity">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use relativistic equations correctly and interpret what changes between different frames of reference. ⚠️ Watch out: identify the proper time/length and use c = 3.0×10^8 m/s with units.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Expanding universe (redshift + Hubble)</div>
+                  <div class="topic-when">W/C Mon 17 Nov 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-11-17-expanding-universe">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Link evidence (redshift) to model (expansion) and apply Hubble’s law with clear interpretation. ⚠️ Watch out: convert Mpc to m when needed and show what your gradient/intercept means.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Waves: refraction + critical angle</div>
+                  <div class="topic-when">W/C Mon 24 Nov 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-11-24-refraction">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use refractive index ideas and explain what happens to speed, wavelength, and direction at boundaries. ⚠️ Watch out: critical angle only applies when going from higher n to lower n.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Waves: interference + fringe spacing</div>
+                  <div class="topic-when">W/C Mon 01 Dec 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-12-01-interference">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Apply path difference and interference conditions and connect wave models to experimental evidence. ⚠️ Watch out: keep units consistent in y = λD/s (convert mm→m).</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Consolidation + mixed past paper practice</div>
+                  <div class="topic-when">W/C Mon 08 Dec 2025</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2025-12-08-consolidation">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Combine topics across the course, practise structure/technique, and tighten up explanation marks. ⚠️ Watch out: match the command word and avoid extra points that can cost marks.</p>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- TERM 3 -->
+      <details class="term">
+        <summary>Jan–Feb — Assignment block</summary>
+        <div class="details-inner">
+          <p class="term-goal"><span class="tag">Goal</span>Produce a fair, reliable investigation with justified analysis and conclusion.</p>
+
+          <ul class="topic-grid">
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Choose aim + background research</div>
+                  <div class="topic-when">W/C Mon 05 Jan 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-01-05-assignment-research">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Turn a big idea into a testable question and gather the science you’ll need to justify it. ⚠️ Watch out: your aim must be measurable (clear IV and DV).</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Plan method + identify variables</div>
+                  <div class="topic-when">W/C Mon 12 Jan 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-01-12-assignment-plan">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Write a method that someone else could follow and justify how you will control variables. ⚠️ Watch out: include repeats, control variables, and how you’ll measure uncertainty.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Data collection + repeatability</div>
+                  <div class="topic-when">W/C Mon 19 Jan 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-01-19-assignment-data">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Collect enough data for a clear trend and use repeats to improve reliability and confidence. ⚠️ Watch out: record units and uncertainty for every measurement.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Processing + uncertainty + conclusion</div>
+                  <div class="topic-when">W/C Mon 26 Jan 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-01-26-assignment-analysis">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Process data properly, handle uncertainty honestly, and write a conclusion that matches evidence. ⚠️ Watch out: conclusions must reference processed results.</p>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- TERM 4 -->
+      <details class="term">
+        <summary>Feb–Mar 2026 — Particles &amp; Waves</summary>
+        <div class="details-inner">
+          <p class="term-goal"><span class="tag">Goal</span>Explain modern physics evidence using photons, spectra, and nuclear reaction ideas.</p>
+
+          <ul class="topic-grid">
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Spectra + line formation</div>
+                  <div class="topic-when">W/C Mon 23 Feb 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-02-23-spectra">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Explain how absorption/emission spectra form and connect evidence to energy level models. ⚠️ Watch out: link lines to transitions between energy levels.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Photoelectric effect (evidence for photons)</div>
+                  <div class="topic-when">W/C Mon 02 Mar 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-03-02-photoelectric">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Use the key features of photoelectric evidence to support quantisation and photon behaviour. ⚠️ Watch out: intensity affects number; frequency affects max KE.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Nuclear reactions + binding energy</div>
+                  <div class="topic-when">W/C Mon 09 Mar 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-03-09-nuclear">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Interpret nuclear equations and explain energy release using mass defect and binding energy ideas. ⚠️ Watch out: balance nucleon number and charge; MeV vs J.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Standard Model overview</div>
+                  <div class="topic-when">W/C Mon 16 Mar 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-03-16-standard-model">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Classify particles, describe interactions, and connect the model to the evidence it explains. ⚠️ Watch out: leptons vs hadrons; which force is involved.</p>
+            </li>
+
+            <li class="topic-card">
+              <div class="topic-head">
+                <div>
+                  <div class="topic-title">Particles &amp; Waves consolidation (mixed practice)</div>
+                  <div class="topic-when">W/C Mon 23 Mar 2026</div>
+                </div>
+                <label class="topic-done">
+                  <input type="checkbox" data-tick="hp-2026-03-23-pw-consolidation">
+                  <span>Done</span>
+                </label>
+              </div>
+              <p class="topic-blurb">Combine explanations and calculations with exam-style phrasing and clean use of the relationship sheet. ⚠️ Watch out: complete final answers (unit + sensible s.f.).</p>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- QUICK LINKS -->
+    <section class="panel" id="quicklinks" aria-labelledby="quicklinks-title">
+      <h2 id="quicklinks-title">Quick links</h2>
+    
+
+      <div class="tile-grid" aria-label="Higher Physics quick links">
+        <a class="class-tile"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mr Stewart’s Materials (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🗂️</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mr Stewart’s Materials</div>
+              <div class="tile-sub">The home base</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.youtube.com/@mrstewartphysics/playlists"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="The other Mr Stewart’s YouTube (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🎥</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">The other Mr Stewart’s YouTube</div>
+              <div class="tile-sub">Video explanations + playlists</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://mrsphysics.co.uk/index.php/higher/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mrs Physics Higher Physics website (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🌟</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mrs Physics (Higher)</div>
+              <div class="tile-sub">Extra notes + questions</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.sqa.org.uk/sqa/47916.html"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="SQA Higher Physics course overview and resources (opens in a new tab)">
+          <div class="tile-emoji" aria-hidden="true"><span>🏛️</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">SQA Higher Physics website</div>
+              <div class="tile-sub">Official course docs + papers</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+    /* ============================
+       MENU: overlay click + ESC close + focus trap
+    =============================== */
+    const menu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('menuOverlay');
+    const btn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('menuClose');
+
+    let lastFocus = null;
+
+    function getFocusableInMenu(){
+      return menu.querySelectorAll('a[href], button:not([disabled])');
+    }
+
+    function openMenu(){
+      lastFocus = document.activeElement;
+
+      menu.classList.add('open');
+      overlay.hidden = false;
+      overlay.classList.add('show');
+
+      btn.setAttribute('aria-expanded','true');
+
+      // stop background scroll (iPad-friendly)
+      document.body.style.overflowY = 'hidden';
+
+      const f = getFocusableInMenu();
+      (f[0] || menu).focus();
+    }
+
+    function closeMenu(){
+      menu.classList.remove('open');
+      overlay.classList.remove('show');
+      overlay.hidden = true;
+
+      btn.setAttribute('aria-expanded','false');
+
+      document.body.style.overflowY = '';
+
+      if(lastFocus && lastFocus.focus) lastFocus.focus();
+      lastFocus = null;
+    }
+
+    function toggleMenu(){
+      menu.classList.contains('open') ? closeMenu() : openMenu();
+    }
+
+    btn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+      const isOpen = menu.classList.contains('open');
+
+      if(e.key === 'Escape' && isOpen){
+        e.preventDefault();
+        closeMenu();
+        return;
+      }
+
+      if(e.key === 'Tab' && isOpen){
+        const focusables = Array.from(getFocusableInMenu());
+        if(!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    /* ============================
+       ACCORDION: only one open at a time
+       - details.term (timeline) and details.accordion (mini blocks)
+       - open/close-all terms still works (suppresses accordion during bulk ops)
+    =============================== */
+    let suppressAccordion = false;
+
+    function setupAccordion(selector){
+      const items = Array.from(document.querySelectorAll(selector));
+      if(!items.length) return;
+
+      items.forEach(d => {
+        d.addEventListener('toggle', () => {
+          if(suppressAccordion) return;
+          if(!d.open) return;
+          items.forEach(other => { if(other !== d) other.open = false; });
+        });
+      });
+    }
+
+    function setAllTerms(open){
+      suppressAccordion = true;
+      document.querySelectorAll('details.term').forEach(d => d.open = !!open);
+      suppressAccordion = false;
+    }
+
+    /* ============================
+       Update 6: perf hints for tile images (keep PNG paths)
+    =============================== */
+    function applyTileImagePerformanceHints(){
+      const imgs = Array.from(document.querySelectorAll('.class-tile img'));
+      imgs.forEach((img, i) => {
+        img.setAttribute('decoding', 'async');
+        img.setAttribute('loading', i < 2 ? 'eager' : 'lazy'); // first couple load immediately
+      });
+    }
+
+    /* ============================
+       Update 7: self-contained manifest via Blob URL
+       (uses existing PNG at /assets/higher/Delta.png as icon)
+    =============================== */
+    function injectManifest(){
+      const link = document.getElementById('manifestLink');
+      if(!link || !('Blob' in window) || !('URL' in window)) return;
+
+      const manifest = {
+        name: "Higher Physics",
+        short_name: "Higher Physics",
+        start_url: "/classes/higher-physics.html",
+        display: "standalone",
+        background_color: "#eef2ff",
+        theme_color: "#2b59ff",
+        icons: [
+          { src: "/assets/higher/Delta.png", sizes: "1024x1024", type: "image/png" }
+        ]
+      };
+
+      try{
+        const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+      }catch(e){}
+    }
+
+    /* ============================
+       Update 3: split "⚠️ Watch out:" into callout
+    =============================== */
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function splitWatchouts(){
+      const marker = "⚠️ Watch out:";
+      document.querySelectorAll('.topic-blurb').forEach(p => {
+        const txt = (p.textContent || "").trim();
+        if(!txt.includes(marker)) return;
+
+        const parts = txt.split(marker);
+        const main = (parts[0] || "").trim();
+        const watch = (parts.slice(1).join(marker) || "").trim();
+
+        p.innerHTML =
+          `<span class="topic-main">${escapeHtml(main)}</span>` +
+          `<span class="topic-watch"><span aria-hidden="true">⚠️</span> ${escapeHtml(watch)}</span>`;
+      });
+    }
+
+    /* ============================
+       Update 3: timeline search + term hiding
+    =============================== */
+    function initTopicSearch(){
+      const input = document.getElementById('topicSearch');
+      const status = document.getElementById('searchStatus');
+      if(!input) return;
+
+      const cards = Array.from(document.querySelectorAll('.topic-card'));
+      const terms = Array.from(document.querySelectorAll('details.term'));
+
+      function apply(){
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+
+        if(q){
+          suppressAccordion = true;
+          terms.forEach(d => d.open = true);
+          suppressAccordion = false;
+        }
+
+        cards.forEach(card => {
+          const hay = card.innerText.toLowerCase();
+          const match = !q || hay.includes(q);
+          card.style.display = match ? "" : "none";
+          if(match) shown++;
+        });
+
+        // hide entire terms when no visible cards inside (only when searching)
+        terms.forEach(term => {
+          if(!q){
+            term.style.display = "";
+            return;
+          }
+          const anyVisible = !!term.querySelector('.topic-card:not([style*="display: none"])');
+          term.style.display = anyVisible ? "" : "none";
+        });
+
+        if(status){
+          status.textContent = q ? `Showing ${shown} matching topics.` : "";
+        }
+      }
+
+      input.addEventListener('input', apply);
+      apply();
+    }
+
+    function clearTopicSearch(){
+      const input = document.getElementById('topicSearch');
+      if(!input) return;
+      input.value = "";
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    }
+
+    function jumpToNextUnticked(){
+      const next = document.querySelector('input[type="checkbox"][data-tick]:not(:checked)');
+      if(!next){
+        alert("All timeline topics are ticked.");
+        return;
+      }
+      const term = next.closest('details.term');
+      if(term) term.open = true;
+
+      const card = next.closest('.topic-card');
+      if(card){
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        next.focus({ preventScroll: true });
+      } else {
+        next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        next.focus({ preventScroll: true });
+      }
+    }
+
+    /* ============================
+       TICKS: persistent + progress indicator
+    =============================== */
+    const TICK_KEY = "hp_timeline_ticks_light_v1";
+
+    function loadTicks(){
+      try{ return JSON.parse(localStorage.getItem(TICK_KEY) || "{}"); }
+      catch(e){ return {}; }
+    }
+    function saveTicks(state){
+      localStorage.setItem(TICK_KEY, JSON.stringify(state));
+    }
+
+    function updateProgress(){
+      const boxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-tick]'));
+      const total = boxes.length;
+      const done = boxes.filter(b => b.checked).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+
+      const text = document.getElementById('progressText');
+      const bar = document.getElementById('progressBar');
+
+      if(text) text.textContent = `Progress: ${done} / ${total} topics (${pct}%)`;
+      if(bar){
+        bar.max = total || 0;
+        bar.value = done || 0;
+      }
+    }
+
+    function initTicks(){
+      const state = loadTicks();
+      document.querySelectorAll('input[type="checkbox"][data-tick]').forEach(cb=>{
+        const key = cb.getAttribute('data-tick');
+        cb.checked = !!state[key];
+
+        cb.addEventListener('change', ()=>{
+          const s = loadTicks();
+          s[key] = cb.checked;
+          saveTicks(s);
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function resetTicks(){
+      if(!confirm("Reset all timeline ticks?")) return;
+      localStorage.removeItem(TICK_KEY);
+      document.querySelectorAll('input[type="checkbox"][data-tick]').forEach(cb=> cb.checked = false);
+      updateProgress();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      injectManifest();
+      setupAccordion('details.term');
+      setupAccordion('details.accordion');
+      splitWatchouts();
+      initTopicSearch();
+      applyTileImagePerformanceHints();
+      initTicks();
+    });
+  </script>
+</body>
+</html>      padding:0.6rem 0.9rem; border-radius:12px;
       font-weight:900; z-index:1000;
       box-shadow: 0 12px 24px rgba(0,0,0,0.14);
     }
