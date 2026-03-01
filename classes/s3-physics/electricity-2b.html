@@ -7,9 +7,14 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
-  <title>S3 Physics – Electricity 2 (Electronics &amp; Control)</title>
+  <meta name="theme-color" content="#00bfa6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Electricity 2" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <title>S3 Physics – Electricity 2</title>
 
   <style>
     /* ============================
@@ -33,15 +38,15 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
     }
     .skip-link{
       position:absolute; left:-999px; top:10px;
-      background:#00bfa6; color:#042821;
+      background:#00bfa6; color:#05211b;
       padding:0.6rem 0.9rem; border-radius:12px;
-      font-weight:900; z-index:1200;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.14);
     }
-    .skip-link:focus{ left:10px; }
+    .skip-link:focus{ left:10px; outline: 3px solid rgba(255,255,255,0.9); outline-offset: 3px; }
 
     /* ============================
-       THEME (TRUE LIGHT, ELECTRONICS TEAL)
+       THEME (Light + S3 teal)
     =============================== */
     :root{
       --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
@@ -58,21 +63,14 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
 
       --card:#ffffff;
 
-      --border: rgba(12,60,52,0.16);
-      --border-strong: rgba(0,191,166,0.38);
+      --border: rgba(12,60,52,0.14);
+      --border-strong: rgba(0,191,166,0.28);
 
-      --shadow: 0 18px 40px rgba(0,0,0,0.10);
       --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
-
       --radius: 18px;
 
-      --focus-ring: 3px solid rgba(0,191,166,0.75);
+      --focus-ring: 3px solid rgba(0,191,166,0.55);
       --focus-offset: 4px;
-
-      /* G/A/R colours */
-      --g:#0bbf6a;
-      --a:#ffb020;
-      --r:#eb4343;
     }
 
     body{
@@ -97,94 +95,123 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
     }
 
     /* ============================
-       MENU BUTTON & SIDE MENU (LIGHT)
-       - Safe-area insets
-       - Blur + -webkit-backdrop-filter
-       - Focus trap handled in JS
+       MENU BUTTON + DRAWER (Higher behaviour)
     =============================== */
     .menu-btn{
-      position: fixed;
-      top: max(14px, env(safe-area-inset-top));
-      right: max(16px, env(safe-area-inset-right));
-      font-size: 1.7rem;
-      background: rgba(255,255,255,0.78);
-      border: 2px solid rgba(0,191,166,0.30);
-      border-radius: 12px;
-      padding: 0.25rem 0.55rem;
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-      cursor: pointer;
-      color: var(--text);
-      z-index: 900;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.18s ease, background 0.18s ease;
+      position:fixed;
+      top:calc(14px + env(safe-area-inset-top));
+      right:calc(14px + env(safe-area-inset-right));
+      font-size:1.55rem;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(12px) saturate(170%);
+      -webkit-backdrop-filter: blur(12px) saturate(170%);
+      border: 2px solid rgba(0,191,166,0.22);
+      border-radius: 14px;
+      padding: .38rem .62rem;
+      cursor:pointer;
+      color: var(--accent-2);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+      z-index: 500;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
     }
-    .menu-btn:hover,
-    .menu-btn:focus-visible{ transform: scale(1.06); }
+    .menu-btn:hover{ transform: scale(1.05); border-color: rgba(0,191,166,0.30); }
+    .menu-btn:active{ transform: scale(1.02); }
 
     .menu-overlay{
-      position: fixed; inset: 0;
-      background: rgba(7,22,18,0.25);
+      position:fixed; inset:0;
+      background: rgba(0,0,0,0.32);
       display:none;
-      z-index:840;
+      z-index: 440;
     }
     .menu-overlay.show{ display:block; }
 
     .side-menu{
-      position: fixed; top: 0; right: -300px;
-      width: 300px; height: 100%;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(18px) saturate(170%);
-      -webkit-backdrop-filter: blur(18px) saturate(170%);
-      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
-      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      position:fixed;
+      top:0; right:-310px;
+      width:310px; height:100%;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.18);
+      border-left: 1px solid rgba(12,60,52,0.10);
+      padding-top: calc(1rem + env(safe-area-inset-top));
       padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-      transition: right 0.25s ease;
-      z-index:860;
-      border-left: 1px solid rgba(12,60,52,0.12);
+      z-index: 460;
+      transition: right .28s ease;
+      display:flex;
+      flex-direction:column;
+
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
-    .side-menu.open{ right: 0; }
+    .side-menu.open{ right:0; }
+
+    .menu-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: .8rem 1rem;
+      border-bottom: 1px solid rgba(12,60,52,0.10);
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      z-index: 1;
+    }
+    .menu-title{ font-weight: 900; color: var(--text); letter-spacing: .2px; }
+    .menu-close{
+      font-size:1.35rem;
+      background: rgba(0,191,166,0.10);
+      border: 1px solid rgba(0,191,166,0.22);
+      color: var(--accent-2);
+      border-radius: 12px;
+      padding: .25rem .55rem;
+      cursor:pointer;
+      font-weight: 900;
+    }
 
     .side-menu a{
       padding: 1rem 1.2rem;
-      font-size: 1.12rem;
+      font-size: 1.06rem;
       text-decoration:none;
       color: var(--text);
-      border-bottom: 1px solid rgba(12,60,52,0.08);
       display:flex;
-      gap:0.7rem;
-      min-height: 46px;
       align-items:center;
+      gap:.7rem;
+      border-bottom: 1px solid rgba(12,60,52,0.06);
       font-weight: 900;
+      min-height: 44px;
     }
-    .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(0,191,166,0.10); }
+    .side-menu a:hover{ background: rgba(0,191,166,0.08); }
 
     /* ============================
        BANNER
     =============================== */
     .banner-wrap{
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
-      border-bottom: 1px solid rgba(12,60,52,0.10);
-      background: #fff;
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      flex-shrink:0;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      z-index: 2;
+
+      height: clamp(200px, 28vh, 360px);
+      background: rgba(255,255,255,0.35);
     }
     .banner{
       width:100%;
-      max-height: 330px;
+      height:100%;
       object-fit: cover;
-      display:block;
-    }
-    @media (max-width: 768px){
-      .banner{ max-height: 250px; }
+      object-position: center;
     }
     .banner-tint{
       position:absolute; inset:0;
       background: linear-gradient(120deg,
-        rgba(0,191,166,0.10),
-        rgba(255,255,255,0.08)
+        rgba(0,191,166,0.18),
+        rgba(10,160,143,0.12),
+        rgba(255,255,255,0.00)
       );
       mix-blend-mode: multiply;
       pointer-events:none;
@@ -192,51 +219,52 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
     .banner-overlay-text{
       position:absolute;
       bottom:0; left:0; right:0;
-      background: rgba(255,255,255,0.80);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border-top: 1px solid rgba(12,60,52,0.10);
+      padding: .9rem .9rem;
       text-align:center;
-      padding: 0.9rem 1rem;
-      border-top: 1px solid rgba(12,60,52,0.12);
     }
     .banner-overlay-text h1{
       margin:0;
-      font-size: 1.05rem;
+      font-size: 1.10rem;
       font-weight: 900;
       color: var(--text);
     }
     .banner-overlay-text p{
-      margin: 0.25rem 0 0;
-      font-size: 0.95rem;
-      color: rgba(12,43,36,0.78);
+      margin:.25rem 0 0;
+      color: var(--muted);
       font-weight: 800;
+      font-size: .95rem;
+    }
+    @media (max-width: 720px){
+      .banner-overlay-text p{ display:none; }
+      .banner-wrap{ height: clamp(170px, 22vh, 260px); }
     }
 
     /* ============================
-       STICKY SUBNAV
+       STICKY JUMP BAR (mobile Jump button)
     =============================== */
     .subnav-wrap{
       position: sticky;
       top: 0;
-      z-index: 820;
-      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
-      background: rgba(246,251,250,0.72);
-      backdrop-filter: blur(14px) saturate(160%);
-      -webkit-backdrop-filter: blur(14px) saturate(160%);
-      border-bottom: 1px solid rgba(12,60,52,0.12);
+      z-index: 320;
+      padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+      background: rgba(246,251,250,0.80);
+      backdrop-filter: blur(14px) saturate(170%);
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+      border-bottom: 1px solid rgba(12,60,52,0.10);
     }
     .subnav{
       display:flex;
       align-items:center;
       gap:12px;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.18);
-      background: rgba(255,255,255,0.70);
-      backdrop-filter: blur(14px) saturate(160%);
-      -webkit-backdrop-filter: blur(14px) saturate(160%);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
-      flex-wrap: wrap;
+      border: 1px solid rgba(0,191,166,0.18);
+      background: rgba(255,255,255,0.78);
+      box-shadow: none; /* declutter */
     }
     .subnav-links{
       display:flex;
@@ -245,117 +273,231 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
       overflow:auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width:none;
-      max-width: 100%;
     }
     .subnav-links::-webkit-scrollbar{ display:none; }
-
     .subnav-link{
       text-decoration:none;
-      font-weight:900;
-      color:#123b33;
-      padding: 8px 2px;
+      font-weight: 900;
+      color: var(--text);
+      padding: 6px 2px;
       border-bottom: 3px solid transparent;
       white-space: nowrap;
-      opacity:0.92;
+      opacity:0.95;
     }
-    .subnav-link:hover{
-      opacity:1;
-      border-bottom-color: var(--accent);
-    }
-    .subnav-link:focus-visible{
-      outline: 3px solid rgba(0,191,166,0.30);
-      outline-offset: 3px;
-      border-radius: 10px;
-    }
+    .subnav-link:hover{ opacity:1; border-bottom-color: var(--accent); }
 
-    .subnav-ctas{
-      margin-left:auto;
+    details.jump{
+      display:none;
+      border-radius: 14px;
+      border: 1px solid rgba(0,191,166,0.22);
+      background: rgba(255,255,255,0.86);
+      overflow:hidden;
+      min-width: 150px;
+    }
+    details.jump summary{
+      cursor:pointer;
+      list-style:none;
+      padding: .55rem .75rem;
+      font-weight: 900;
       display:flex;
-      gap:10px;
-      flex-wrap:wrap;
       align-items:center;
+      gap:.55rem;
     }
-
-    .subnav-cta{
+    details.jump summary::-webkit-details-marker{ display:none; }
+    details.jump summary::after{
+      content:"▾";
+      margin-left:auto;
+      opacity:.8;
+      transition: transform .18s ease;
+      font-weight: 900;
+    }
+    details.jump[open] summary::after{ transform: rotate(180deg); }
+    .jump-links{
+      padding: .6rem .75rem .75rem;
+      display:grid;
+      gap:.35rem;
+      border-top: 1px solid rgba(12,60,52,0.08);
+    }
+    .jump-links a{
       text-decoration:none;
       font-weight:900;
-      white-space: nowrap;
-      padding: 10px 14px;
-      border-radius: 14px;
-      border: 2px solid rgba(0,191,166,0.30);
-      background: rgba(0,191,166,0.12);
-      color:#0e3a33;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+      color: var(--text);
+      padding: .5rem .55rem;
+      border-radius: 12px;
     }
-    .subnav-cta:hover{ background: rgba(0,191,166,0.18); }
-    .subnav-cta:active{ transform: translateY(1px); }
-    .subnav-cta.secondary{
-      border-color: rgba(12,60,52,0.18);
-      background: rgba(255,255,255,0.78);
-      color: rgba(12,43,36,0.92);
+    .jump-links a:hover{ background: rgba(0,191,166,0.08); }
+
+    @media (max-width: 720px){
+      .subnav-links{ display:none; }
+      details.jump{ display:block; }
     }
 
-    /* anchor offset so jumps land cleanly under sticky bar */
-    #overview, #resources, #videos, #testdetails, #success, #ledcalc, #switching, #soldering, #skills, #assignment{
-      scroll-margin-top: 190px;
-    }
-
+    /* Anchor offset */
+    #start, #videos, #test, #morelinks { scroll-margin-top: 190px; }
+    /* legacy anchors (from old one-page) */
+    #success, #ledcalc, #switching, #soldering, #skills, #assignment { scroll-margin-top: 190px; }
 
     /* ============================
-       MAIN LAYOUT
+       MAIN
     =============================== */
     main.page-wrap{
       max-width: 1100px;
-      margin: 1rem auto 2rem;
-      padding: 0 12px 4.8rem;
+      margin: 1.0rem auto 2rem;
+      padding: 0 1rem 4rem;
+      flex:1;
       width:100%;
-      flex: 1;
     }
-
     .panel{
-      background: var(--card);
-      border: 1px solid rgba(12,60,52,0.14);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-soft);
-      padding: 1.15rem;
-      margin: 0.9rem 0;
-    }
-    .panel.soft{
-      background: rgba(255,255,255,0.78);
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(12,60,52,0.10);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 1.15rem;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 1rem;
+    }
+    .panel h2{
+      margin: 0 0 .35rem;
+      font-size: 1.12rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .panel p{
+      margin: .25rem 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.55;
     }
 
-    h2{
-      margin: 0 0 0.55rem;
-      font-size: 1.18rem;
-      letter-spacing: 0.2px;
-    }
-    h3{
-      margin: 0 0 0.45rem;
-      font-size: 1.05rem;
-      letter-spacing: 0.2px;
-    }
-    p{ margin: 0.45rem 0 0; line-height: 1.6; }
-    ul{ margin: 0.35rem 0 0; padding-left: 1.2rem; }
-    li{ margin: 0.35rem 0; }
-    .muted{ color: rgba(47,91,82,0.92); }
-
-    .callout{
-      margin-top: 0.75rem;
-      padding: 0.85rem 0.95rem;
+    /* Mini details */
+    details.mini{
+      margin-top: .8rem;
       border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.12);
-      background: rgba(0,191,166,0.08);
-      color: rgba(12,43,36,0.92);
+      border: 1px solid rgba(0,191,166,0.18);
+      background: rgba(0,191,166,0.05);
+      overflow:hidden;
+    }
+    details.mini summary{
+      cursor:pointer;
+      padding: .75rem .9rem;
+      font-weight: 900;
+      color: var(--text);
+      list-style:none;
+      display:flex;
+      gap:.55rem;
+      align-items:center;
+      background: rgba(255,255,255,0.70);
+      border-bottom: 1px solid rgba(12,60,52,0.08);
+    }
+    details.mini summary::-webkit-details-marker{ display:none; }
+    details.mini summary::after{
+      content:"▾";
+      margin-left:auto;
+      font-weight: 900;
+      opacity: 0.8;
+      transition: transform .18s ease;
+    }
+    details.mini[open] summary::after{ transform: rotate(180deg); }
+    .details-inner{
+      padding: .8rem .9rem;
+      color: var(--muted);
       font-weight: 800;
     }
-    .callout strong{ color:#0a3b33; }
-    .callout.warn{
-      background: rgba(255,176,32,0.12);
-      border-color: rgba(255,176,32,0.25);
+    .details-inner ul{
+      margin: .35rem 0 0;
+      padding-left: 1.1rem;
+      line-height: 1.75;
+    }
+    .details-inner li{ margin: .35rem 0; }
+
+    /* ============================
+       IMAGE TILES (baked titles)
+    =============================== */
+    .tile-grid{
+      display:grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
+      align-items: stretch;
+      margin-top: .9rem;
+    }
+    .class-tile{
+      display:block;
+      position:relative;
+      border-radius: var(--radius);
+      border: 1px solid rgba(12,60,52,0.12);
+      overflow:hidden;
+      text-decoration:none;
+      color: var(--text);
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow-soft);
+      transition: transform .18s ease, box-shadow .18s ease;
+      min-height: 150px;
+    }
+    .class-tile:hover,
+    .class-tile:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(0,191,166,0.16);
+    }
+    .class-tile img{
+      width:100%;
+      height: 100%;
+      min-height: 150px;
+      object-fit: cover;
+      filter: saturate(1.02) contrast(1.03);
     }
 
+    /* Hide overlay label (titles baked into PNG) */
+    .class-tile.no-overlay .tile-label{ display:none; }
+
+    /* Corner ↗ badge */
+    .class-tile.no-overlay::after{
+      content:"↗";
+      position:absolute;
+      right:10px;
+      bottom:10px;
+      width:40px;
+      height:40px;
+      display:grid;
+      place-items:center;
+
+      border-radius: 12px;
+      border: 1px solid rgba(12,60,52,0.14);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.08);
+
+      color: var(--accent-2);
+      font-weight: 900;
+
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .class-tile.no-overlay:hover::after,
+    .class-tile.no-overlay:focus-visible::after{
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (pointer: coarse){
+      .class-tile.no-overlay::after{ opacity: .92; transform: none; }
+    }
+
+    /* iPad: 2 cols; phone: 1 col */
+    @media (max-width: 1100px){
+      .tile-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px){
+      .tile-grid{ grid-template-columns: 1fr; }
+      .class-tile{ min-height: 140px; }
+      .class-tile img{ min-height: 140px; }
+      .menu-btn{ font-size: 1.35rem; padding: .34rem .56rem; }
+    }
+
+    /* ============================
+       WIDE BUTTONS (internal pages)
+    =============================== */
     .wide-btn{
       display:flex;
       align-items:center;
@@ -366,564 +508,54 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
       font-weight: 900;
       padding: 14px 14px;
       border-radius: 16px;
-      border: 2px solid var(--border-strong);
-      background: rgba(0,191,166,0.14);
-      color: #0c2b24;
+      border: 2px solid rgba(0,191,166,0.28);
+      background: rgba(0,191,166,0.10);
+      color: var(--text);
       box-shadow: var(--shadow-soft);
       margin-top: 0.8rem;
       text-align:center;
     }
-    .wide-btn:hover{ background: rgba(0,191,166,0.18); }
-    .wide-btn:active{ transform: translateY(1px); }
+    .wide-btn:hover{ background: rgba(0,191,166,0.14); }
     .wide-btn.secondary{
-      border-color: rgba(12,60,52,0.18);
+      border-color: rgba(12,60,52,0.16);
       background: rgba(255,255,255,0.78);
-    }
-
-    /* ============================
-       TILES
-    =============================== */
-    .tile-grid{
-      display:grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
-      margin-top: 0.75rem;
-      align-items: stretch;
-    }
-    .tile{
-      display:block;
-      border-radius: 18px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background:
-        radial-gradient(420px 180px at 20% 0%, rgba(0,191,166,0.12), transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.90));
-      box-shadow: var(--shadow-soft);
-      text-decoration:none;
-      color: #0c2b24;
-      overflow:hidden;
-      min-height: 140px;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-      position:relative;
-    }
-    .tile:hover,
-    .tile:focus-visible{
-      transform: translateY(-2px);
-      box-shadow: 0 18px 34px rgba(0,191,166,0.14);
-      border-color: rgba(0,191,166,0.28);
-    }
-    .tile-inner{
-      padding: 14px 14px 12px;
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-      height:100%;
-      justify-content:space-between;
-    }
-    .tile-title{
-      margin:0;
-      font-size: 1.02rem;
-      font-weight: 900;
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .tile-desc{
-      margin:0;
-      color: rgba(47,91,82,0.95);
-      font-weight: 700;
-      line-height: 1.45;
-    }
-    .badge{
-      display:inline-block;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(12,60,52,0.16);
-      background: rgba(255,255,255,0.82);
-      font-size: 0.82rem;
-      font-weight: 900;
       color: rgba(12,43,36,0.92);
-      white-space:nowrap;
-    }
-    .badge.main{
-      border: 2px solid rgba(0,191,166,0.42);
-      background: rgba(0,191,166,0.18);
-    }
-    .tile.main{
-      border: 2px solid rgba(0,191,166,0.50);
-      box-shadow: 0 20px 40px rgba(0,191,166,0.16);
-      background:
-        radial-gradient(520px 220px at 18% 0%, rgba(0,191,166,0.18), transparent 72%),
-        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.90));
     }
 
     /* ============================
-       DETAILS (COLLAPSIBLES default CLOSED)
+       VIDEOS (lazy load in details)
     =============================== */
-    details.block{
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.86);
-      overflow:hidden;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
-      margin-top: 12px;
-    }
-    details.block > summary{
-      cursor:pointer;
-      padding: 12px 12px;
-      font-weight: 900;
-      list-style: none;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      background: linear-gradient(135deg, rgba(0,191,166,0.10), rgba(255,255,255,0.78));
-      border-bottom: 1px solid rgba(12,60,52,0.10);
-    }
-    details.block > summary::-webkit-details-marker{ display:none; }
-    details.block > summary:focus-visible{
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
-      border-radius: 14px;
-    }
-    .details-inner{ padding: 12px 12px 14px; }
-
-    .tag{
-      display:inline-block;
-      font-size: 0.85rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.82);
-      color: rgba(12,43,36,0.86);
-      white-space:nowrap;
-      font-weight: 900;
-    }
-
-    /* ============================
-       GRID HELPERS
-    =============================== */
-    .grid{
-      display:grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(min(320px,100%), 1fr));
-      align-items: stretch;
-      margin-top: 0.75rem;
-    }
-    .card{
-      border: 1px solid rgba(12,60,52,0.14);
-      border-radius: 16px;
-      padding: 0.95rem 1rem;
-      background: rgba(255,255,255,0.90);
-      box-shadow: var(--shadow-soft);
-    }
-    .card h4{ margin:0 0 0.35rem; font-size: 1.02rem; }
-    .card p{ margin:0.25rem 0 0; }
-
-    /* ============================
-   SWITCHING: DUAL CODING DIAGRAM + BUILDER GRID
-=============================== */
-.switch-grid{
-  display:grid;
-  gap:12px;
-  grid-template-columns: minmax(240px, 1fr) minmax(320px, 1.3fr);
-  align-items:start;
-  margin-top:12px;
-}
-@media (max-width: 860px){
-  .switch-grid{ grid-template-columns: 1fr; }
-}
-.switch-figure{
-  margin:0;
-  border: 1px solid rgba(12,60,52,0.14);
-  border-radius: 16px;
-  background: rgba(255,255,255,0.92);
-  box-shadow: var(--shadow-soft);
-  overflow:hidden;
-}
-.switch-crop{
-  width:100%;
-  aspect-ratio: 1 / 1; /* each circuit half is almost square */
-  background:#fff;
-}
-.switch-crop img{
-  width:100%;
-  height:100%;
-  object-fit: cover;
-  object-position: 0% 50%; /* JS updates this to left/right half */
-  display:block;
-}
-.switch-caption{
-  padding: 10px 12px 12px;
-  font-weight: 850;
-  color: rgba(12,43,36,0.92);
-  line-height: 1.4;
-  border-top: 1px solid rgba(12,60,52,0.10);
-}
-
-    
-    /* ============================
-       SMALL BUTTON ROWS
-    =============================== */
-    .btn-row{
-      display:grid;
-      gap:10px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      margin-top: 10px;
-    }
-    .small-btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(12,60,52,0.16);
-      background: rgba(255,255,255,0.82);
-      color: rgba(12,43,36,0.92);
-      font-weight: 900;
-      cursor:pointer;
-      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
-      width: 100%;
-    }
-    .small-btn:hover{ background: rgba(0,191,166,0.10); }
-    .small-btn:active{ transform: translateY(1px); }
-    .small-btn.primary{
-      border: 2px solid rgba(0,191,166,0.32);
-      background: rgba(0,191,166,0.12);
-    }
-
-    /* ============================
-       SUCCESS CRITERIA (IMPROVED G/A/R TAPS + SUMMARY)
-    =============================== */
-    .sc-help{
-      margin-top: 0.35rem;
-      padding: 0.75rem 0.9rem;
+    details.video-item{
+      margin-top: .75rem;
       border-radius: 16px;
       border: 1px solid rgba(12,60,52,0.12);
-      background: rgba(255,255,255,0.78);
-      font-weight: 850;
-      color: rgba(12,43,36,0.92);
-    }
-
-    .sc-item{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items:center;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(12,60,52,0.10);
-    }
-    .sc-item:last-child{ border-bottom:none; }
-
-    .sc-text{
-      font-weight: 850;
-      color: rgba(12,43,36,0.95);
-      line-height: 1.35;
-    }
-
-    .sc-controls{
-      display:inline-flex;
-      gap: 10px;
-      align-items:center;
-      padding: 8px;
-      border-radius: 18px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.78);
-      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
-    }
-
-    .sc-opt{
-      position:relative;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width: 56px;
-      height: 46px;
-      border-radius: 16px;
-      border: 2px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.70);
-      cursor:pointer;
-      font-weight: 1000;
-      font-size: 1.05rem;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform 0.12s ease, filter 0.12s ease;
-      color: rgba(12,43,36,0.92);
-    }
-    .sc-opt:active{ transform: translateY(1px); }
-
-    .sc-opt input{
-      position:absolute;
-      inset:0;
-      opacity:0;
-      cursor:pointer;
-    }
-
-    /* selected state */
-    .sc-opt.sel{
-      border-color: rgba(0,0,0,0.18);
-      box-shadow: 0 14px 26px rgba(0,0,0,0.10);
-    }
-    .sc-opt[data-val="G"].sel{ background: var(--g); color:#062015; border-color: rgba(11,191,106,0.45); }
-    .sc-opt[data-val="A"].sel{ background: var(--a); color:#2b1a00; border-color: rgba(255,176,32,0.45); }
-    .sc-opt[data-val="R"].sel{ background: var(--r); color:#2b0000; border-color: rgba(235,67,67,0.45); }
-
-    /* unselected hint tint */
-    .sc-opt[data-val="G"]{ color: rgba(11,191,106,0.95); }
-    .sc-opt[data-val="A"]{ color: rgba(255,176,32,0.95); }
-    .sc-opt[data-val="R"]{ color: rgba(235,67,67,0.95); }
-    .sc-opt.sel[data-val="G"],
-    .sc-opt.sel[data-val="A"],
-    .sc-opt.sel[data-val="R"]{ color:#000; }
-
-    .sc-summary{
-      margin-top: 12px;
-      padding: 0.95rem 1rem;
-      border-radius: 18px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.78);
-      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
-    }
-    .sc-mini{
-      margin-top: 0.55rem;
-      padding: 0.7rem 0.85rem;
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.12);
-      background: rgba(0,191,166,0.06);
-      color: rgba(12,43,36,0.92);
-      font-weight: 850;
-    }
-    .sc-reset{
-      display:inline-flex;
-      width:100%;
-      margin-top: 10px;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 12px 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.18);
-      background: rgba(255,255,255,0.82);
-      color: rgba(12,43,36,0.92);
-      font-weight: 900;
-      cursor:pointer;
-      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
-    }
-    .sc-reset:hover{ background: rgba(0,191,166,0.08); }
-    .sc-reset:active{ transform: translateY(1px); }
-
-    .sc-progress{
-      margin-top: 10px;
-      padding-top: 6px;
-    }
-    .sc-bar{
-      height: 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(12,60,52,0.14);
-      overflow:hidden;
-      margin-top: 8px;
-      background: rgba(0,191,166,0.06);
-    }
-    .sc-bar > div{
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), rgba(10,160,143,0.70));
-    }
-    @media (max-width: 560px){
-      .sc-item{ grid-template-columns: 1fr; }
-      .sc-controls{ justify-content:flex-start; }
-      .sc-opt{ width: 62px; height: 48px; }
-    }
-
-    /* ============================
-       LED TOOL FORMS
-    =============================== */
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:0.35rem;
-    }
-    .field label{ font-weight: 900; color: rgba(12,43,36,0.92); }
-    .field input, .field select{
-      width:100%;
-      padding:0.7rem 0.75rem;
-      border-radius: 12px;
-      border:1px solid rgba(12,60,52,0.18);
-      background: rgba(255,255,255,0.92);
-      color: rgba(12,43,36,0.92);
-      font-size:1rem;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-    }
-    .builder{
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.14);
       background: rgba(255,255,255,0.86);
-      box-shadow: var(--shadow-soft);
-      padding: 1rem;
-      margin-top: 0.75rem;
+      overflow:hidden;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
     }
-    /* Switching dual-coding diagram */
-.sw-figure{ margin: 12px 0 0; }
-.sw-frame{
-  border-radius: 16px;
-  border: 1px solid rgba(12,60,52,0.14);
-  background: rgba(255,255,255,0.92);
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-
-  /* Shows ONE circuit (left or right half) */
-  aspect-ratio: 4 / 3;
-}
-.sw-diagram{
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  object-position: left center; /* JS will switch left/right */
-}
-
-    .calc-grid{
-      display:grid;
-      gap:12px;
-      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
-    }
-    .result-box{
-      border-radius: 14px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(0,191,166,0.06);
-      padding: 0.9rem 1rem;
-      margin-top: 12px;
-      font-weight: 850;
-      color: rgba(12,43,36,0.92);
-    }
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      background: rgba(0,0,0,0.04);
-      border: 1px solid rgba(12,60,52,0.14);
-      padding: 2px 8px;
-      border-radius: 999px;
+    details.video-item summary{
+      cursor:pointer;
+      padding: .8rem .9rem;
       font-weight: 900;
-      white-space: nowrap;
-    }
-    .inline-select{ display:inline-block; margin: 0 0.15rem; }
-    .inline-select select{
-      padding:0.35rem 0.45rem;
-      border-radius:10px;
-      border:1px solid rgba(12,60,52,0.18);
-      background: rgba(255,255,255,0.95);
-      font-weight: 900;
-      color: rgba(12,43,36,0.92);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.04);
-    }
-    .msg{
-      margin-top: 10px;
-      padding: 0.85rem 0.95rem;
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.92);
-      font-weight: 900;
-    }
-    .msg.good{
-      border-left: 6px solid rgba(11,191,106,0.85);
-      background: rgba(11,191,106,0.08);
-    }
-    .msg.bad{
-      border-left: 6px solid rgba(235,67,67,0.85);
-      background: rgba(235,67,67,0.06);
-    }
-    .hidden{ display:none !important; }
-
-    /* ============================
-       LED PRACTICE BOX
-    =============================== */
-    .led-practice-grid{
-      display:grid;
-      gap:12px;
-      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
-      margin-top: 10px;
-    }
-    .led-feedback{
-      margin-top: 10px;
-      padding: 0.9rem 1rem;
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(255,255,255,0.90);
-      font-weight: 850;
-      color: rgba(12,43,36,0.92);
-      display:none;
-    }
-
-    /* ============================
-       CHECKLISTS + PROGRESS
-    =============================== */
-    .checklist{
       list-style:none;
-      padding-left:0;
-      margin: 0.2rem 0 0;
-    }
-    .checklist li{
       display:flex;
-      gap:12px;
-      align-items:flex-start;
-      padding: 10px 0;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(0,191,166,0.06);
       border-bottom: 1px solid rgba(12,60,52,0.08);
     }
-    .checklist li:last-child{ border-bottom:0; }
-    .checklist input[type="checkbox"]{
-      width: 24px; height: 24px;
-      margin-top: 2px;
-      accent-color: var(--accent);
-      flex: 0 0 auto;
+    details.video-item summary::-webkit-details-marker{ display:none; }
+    details.video-item summary::after{
+      content:"▾";
+      opacity:.8;
+      transition: transform .18s ease;
+      font-weight: 900;
     }
-    .checklist label{ cursor:pointer; font-weight: 900; color: rgba(12,43,36,0.92); }
-    .sub{
-      display:block;
-      margin-top: 4px;
-      font-weight: 750;
-      color: rgba(47,91,82,0.95);
-      line-height: 1.45;
-    }
+    details.video-item[open] summary::after{ transform: rotate(180deg); }
 
-    .progress{
-      margin-top: 12px;
-      padding-top: 6px;
-    }
-    .bar{
-      height: 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(12,60,52,0.14);
-      overflow:hidden;
-      margin-top: 8px;
-      background: rgba(0,191,166,0.06);
-    }
-    .bar > div{
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), rgba(10,160,143,0.70));
-    }
-
-    /* ============================
-       VIDEO (lazy load per details)
-    =============================== */
-    .video-grid{
-      display:grid;
-      gap:12px;
-      grid-template-columns: 1fr;
-      margin-top: 0.5rem;
-    }
-    @media (min-width: 900px){
-      .video-grid{ grid-template-columns: 1fr 1fr; }
-    }
-    .video-card{
-      border: 1px solid rgba(12,60,52,0.14);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.90);
-      box-shadow: var(--shadow-soft);
-      padding: 1rem;
-    }
-    .video-card h4{ margin:0 0 0.35rem; font-size: 1.02rem; }
-    .video-card p{ margin:0 0 0.75rem; color: rgba(47,91,82,0.95); font-weight: 750; }
+    .video-inner{ padding: .85rem .9rem; }
+    .video-inner p{ margin:0 0 .75rem; }
     .video-embed{
       position:relative;
       width:100%;
@@ -931,12 +563,12 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
       border-radius: 14px;
       overflow:hidden;
       border: 1px solid rgba(12,60,52,0.14);
-      background: rgba(0,191,166,0.06);
+      background: rgba(0,191,166,0.05);
     }
     .video-embed::after{
       content: "Video loads when opened";
       position:absolute;
-      inset: 0;
+      inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -952,38 +584,15 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
       border:0;
     }
 
-    /* ============================
-       BACK BUTTON
-    =============================== */
-    .back-float{
-      position: fixed;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      left: max(16px, env(safe-area-inset-left));
-      z-index: 700;
-      text-decoration:none;
-      font-weight: 900;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 2px solid rgba(0,191,166,0.30);
-      background: rgba(255,255,255,0.78);
-      color: rgba(12,43,36,0.92);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-    }
-    .back-float:hover{ background: rgba(0,191,166,0.10); }
-
-    /* ============================
-       FOOTER
-    =============================== */
     footer{
       text-align:center;
       padding: 1rem;
-      background: rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.80);
       border-top: 1px solid rgba(12,60,52,0.10);
       font-size:0.92rem;
-      color: rgba(47,91,82,0.95);
       margin-top:auto;
+      color: var(--muted);
+      font-weight: 800;
     }
   </style>
 </head>
@@ -992,20 +601,16 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
   <!-- MENU BUTTON -->
-  <button
-    class="menu-btn"
-    id="menuBtn"
-    type="button"
-    onclick="toggleMenu()"
-    aria-label="Open menu"
-    aria-expanded="false"
-    aria-controls="sideMenu"
-  >☰</button>
+  <button class="menu-btn" id="menuBtn" type="button"
+          aria-label="Open menu" aria-controls="sideMenu" aria-expanded="false">☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
 
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-    <a href="#" id="closeMenuLink">✖ Close</a>
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
+    <div class="menu-head">
+      <div class="menu-title">Menu</div>
+      <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
+    </div>
     <a href="/">🏠 Home</a>
     <a href="/classes/science.html">🧪 Science</a>
     <a href="/classes/physics.html">⚡ Physics</a>
@@ -1015,1020 +620,232 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
 
   <!-- BANNER -->
   <div class="banner-wrap">
-    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="lazy">
+    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="eager" decoding="async">
     <div class="banner-tint"></div>
     <div class="banner-overlay-text">
-      <h1>⚡ S3 Physics – Electricity 2: Electronics &amp; Control</h1>
-      <p>Theory + practical + assignment hub (KO • booklet • switching explanations)</p>
+      <h1>S3 Physics – Electricity 2 (Electronics &amp; Control)</h1>
+      <p>Revision hub: key links, help videos, test outline</p>
     </div>
   </div>
 
-  <!-- STICKY SUBNAV (NO OVERVIEW LINK) -->
+  <!-- STICKY JUMP -->
   <div class="subnav-wrap">
     <nav class="subnav" aria-label="Jump to sections">
-      <div class="subnav-links">
-        <a class="subnav-link" href="#resources">Links</a>
+      <div class="subnav-links" aria-label="Jump links">
+        <a class="subnav-link" href="#start">Start</a>
         <a class="subnav-link" href="#videos">Videos</a>
-        <a class="subnav-link" href="#testdetails">Test Details</a>
-        <a class="subnav-link" href="#success">SC</a>
-        <a class="subnav-link" href="#ledcalc">LEDs</a>
-        <a class="subnav-link" href="#switching">Switching Circuits</a>
-        <a class="subnav-link" href="#soldering">Soldering</a>
-        <a class="subnav-link" href="#skills">Skills</a>
-        <a class="subnav-link" href="#assignment">Assignment</a>
-
+        <a class="subnav-link" href="#test">Test</a>
+        <a class="subnav-link" href="#morelinks">More</a>
       </div>
 
-      <div class="subnav-ctas">
-        <a class="subnav-cta"
-           href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf"
-           target="_blank" rel="noopener noreferrer">
-          🧠 KO ↗
-        </a>
-        <a class="subnav-cta secondary"
-           href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf"
-           target="_blank" rel="noopener noreferrer">
-          📘 Booklet ↗
-        </a>
-      </div>
+      <details class="jump" id="jumpMenu">
+        <summary>Jump</summary>
+        <div class="jump-links">
+          <a href="#start">Start</a>
+          <a href="#videos">Videos</a>
+          <a href="#test">Test</a>
+          <a href="#morelinks">More links</a>
+        </div>
+      </details>
     </nav>
   </div>
 
-  <!-- BACK BUTTON -->
-  <a class="back-float" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
-    ⬅ Back to S3 Physics
-  </a>
-
   <main class="page-wrap" id="mainContent">
-    <h1 class="visually-hidden">S3 Physics – Electricity 2: Electronics and Control</h1>
+    <h1 class="visually-hidden">S3 Physics – Electricity 2</h1>
 
-    <!-- OVERVIEW (UPDATED STYLE + ELECTRICITY 2 FOCUS) -->
-    <section class="panel soft" id="overview" aria-label="Overview">
-      <h2>Overview</h2>
-      <p class="muted">
-        In <strong>Electricity 2</strong> we move from “just circuits” to <strong>electronics and control</strong>.
-        You’ll learn how a <strong>potential divider</strong> can turn changes in <strong>light</strong> or <strong>temperature</strong> into a useful output,
-        how to power an <strong>LED safely</strong>, and how a circuit can <strong>switch</strong> at the right moment.
-      </p>
-      <p class="muted">
-        The same ideas keep coming back: <strong>resistance changes → voltages change → output changes</strong>.
-        By the end of this unit, you’ll be reading the hidden language of control circuits — using diagrams, measurements, and real builds you can test.
-      </p>
+    <!-- START -->
+    <section class="panel" id="start" aria-labelledby="start-title">
+      <h2 id="start-title">Start</h2>
+      <p>Use the first two links every time. Everything else is optional support.</p>
 
+      <details class="mini">
+        <summary>Revision routine (2–3 steps)</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>KO:</strong> symbols + rules (2–3 minutes).</li>
+            <li><strong>Booklet:</strong> do a section, then get it checked.</li>
+            <li>If stuck, watch <strong>one</strong> video, then return to questions.</li>
+          </ul>
+        </div>
+      </details>
 
-    </section>
-
-    <!-- LINKS / RESOURCES -->
-    <section class="panel" id="resources" aria-label="Key links">
-      <h2>🔗 Key links</h2>
-      <p class="muted">Start with the Knowledge Organiser (symbols + rules), then use your booklet.</p>
-
-      <div class="tile-grid" aria-label="Resource tiles">
-        <a class="tile main"
+      <div class="tile-grid" aria-label="Key links">
+        <a class="class-tile no-overlay"
            href="/assets/S3/Electricity%20B2%20(s3_n5)%20%E2%80%94%20Knowledge%20Organiser.pdf"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Open Knowledge Organiser in a new tab">
-          <div class="tile-inner">
-            <p class="tile-title">🧠 Knowledge Organiser (B2) <span class="badge main">MAIN</span></p>
-            <p class="tile-desc">Symbols, divider rules, tools/testing box — start here.</p>
-          </div>
+           aria-label="Knowledge Organiser (PDF opens in a new tab)">
+          <span class="visually-hidden">Knowledge Organiser</span>
+          <img src="/assets/S3/Electricity2/ko.png" alt="">
         </a>
 
-        <a class="tile"
+        <a class="class-tile no-overlay"
            href="/classes/s3-physics/RS%20Electricity%20B2%20N5%202025.pdf"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Open Electricity 2 Booklet in a new tab">
-          <div class="tile-inner">
-            <p class="tile-title">📘 Electricity 2 Booklet (B2) <span class="badge">practice</span></p>
-            <p class="tile-desc">Do sections, get checked, then move on.</p>
-          </div>
+           aria-label="Electricity 2 Booklet (PDF opens in a new tab)">
+          <span class="visually-hidden">Electricity 2 Booklet</span>
+          <img src="/assets/S3/Electricity2/booklet.png" alt="">
         </a>
 
-        <a class="tile"
+        <a class="class-tile no-overlay"
            href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Open Physics Past Paper Finder in a new tab">
-          <div class="tile-inner">
-            <p class="tile-title">⚡ Physics Past Paper Finder <span class="badge">mixed Qs</span></p>
-            <p class="tile-desc">Use after KO + methods (not just calculations).</p>
-          </div>
+           aria-label="Physics Past Paper Finder (PDF opens in a new tab)">
+          <span class="visually-hidden">Physics Past Paper Finder</span>
+          <img src="/assets/S3/Electricity2/physicsPPQ.png" alt="">
         </a>
 
-        <a class="tile"
+        <a class="class-tile no-overlay"
            href="https://rstewartphysics.github.io/assets/electronics/revision/N5%20Practical%20Electronics%20PPQ%20Nov25%20Update-2.pdf"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Open Electronics Past Paper Questions in a new tab">
-          <div class="tile-inner">
-            <p class="tile-title">💡 Electronics PPQ <span class="badge">Section C</span></p>
-            <p class="tile-desc">Great for symbols, switching, simulation, safety &amp; tools.</p>
-          </div>
+           aria-label="Electronics Past Paper Finder (PDF opens in a new tab)">
+          <span class="visually-hidden">Electronics Past Paper Finder</span>
+          <img src="/assets/S3/Electricity2/electronicsPPQ.png" alt="">
         </a>
       </div>
 
-      <details class="block" style="margin-top:12px;">
-        <summary><span>✅ What to attempt (tap to open)</span><span class="tag">tap to open</span></summary>
-        <div class="details-inner">
-          <ul style="line-height:1.75; font-weight:850; color:rgba(12,43,36,0.92);">
-            <li><strong>Physics:</strong> focus on Voltage, Ohm’s Law, Circuit rules.</li>
-            <li><strong>Electronics:</strong> symbols &amp; functions, resistor values, series/parallel, switching circuits, voltage dividers, simulation/testing, safety, errors, layout/diagrams.</li>
-            <li><strong>Note:</strong> you may see a few unfamiliar symbols (mix of S3 + N5 Electronics).</li>
-          </ul>
+      <a class="wide-btn" href="/classes/s3-physics/electricity-2-tools.html" aria-label="Open practice tools page">
+        Practice tools (Success Criteria • LED tool • Switching)
+      </a>
+      <a class="wide-btn secondary" href="/classes/s3-physics/electricity-2-practical.html" aria-label="Open practical and assignment page">
+        Practical + assignment (Soldering • Skills • Checklist)
+      </a>
+    </section>
+
+    <!-- VIDEOS -->
+    <section class="panel" id="videos" aria-labelledby="videos-title">
+      <h2 id="videos-title">Videos</h2>
+      <p>Only use these if you’re stuck. Open a video to load it.</p>
+
+      <details class="video-item">
+        <summary><span>Voltage Divider Theory</span></summary>
+        <div class="video-inner">
+          <p>How changing resistor values changes the output voltage.</p>
+          <div class="video-embed">
+            <iframe data-src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
+                    title="Voltage Divider Theory"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+      </details>
+
+      <details class="video-item">
+        <summary><span>LEDs – Basic</span></summary>
+        <div class="video-inner">
+          <p>Why LEDs need a protective resistor.</p>
+          <div class="video-embed">
+            <iframe data-src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
+                    title="LEDs - Basic"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+      </details>
+
+      <details class="video-item">
+        <summary><span>Thermistors and LDRs</span></summary>
+        <div class="video-inner">
+          <p>How sensors change resistance.</p>
+          <div class="video-embed">
+            <iframe data-src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
+                    title="Thermistors and LDRs"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+      </details>
+
+      <details class="video-item">
+        <summary><span>Transistor Switching Circuits</span></summary>
+        <div class="video-inner">
+          <p>Using a transistor as a switch.</p>
+          <div class="video-embed">
+            <iframe data-src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
+                    title="Transistor Switching Circuits"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+      </details>
+
+      <details class="video-item">
+        <summary><span>Stripboard Schematics</span></summary>
+        <div class="video-inner">
+          <p>Plan track cuts and links before soldering.</p>
+          <div class="video-embed">
+            <iframe data-src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
+                    title="Stripboard Schematics"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+          </div>
         </div>
       </details>
     </section>
 
-    <!-- VIDEOS (MOVED UP TO MATCH MENU ORDER) -->
-    <section class="panel" id="videos" aria-label="Videos">
-      <h2>▶ Video revision (watch only what you need)</h2>
-      <p class="muted">Open a video to load it. Watch → then go straight to booklet questions.</p>
+    <!-- TEST -->
+    <section class="panel" id="test" aria-labelledby="test-title">
+      <h2 id="test-title">Test outline</h2>
 
-      <div class="video-grid" aria-label="Video list">
-        <details class="block video-item">
-          <summary><span>Voltage Divider Theory</span><span class="tag">tap to load</span></summary>
-          <div class="details-inner">
-            <div class="video-card">
-              <h4>Voltage Divider Theory</h4>
-              <p>How changing resistor values changes the output voltage.</p>
-              <div class="video-embed">
-                <iframe data-src="https://www.youtube-nocookie.com/embed/mY2u8qhhYjY"
-                        title="Voltage Divider Theory"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="block video-item">
-          <summary><span>LEDs – Basic</span><span class="tag">tap to load</span></summary>
-          <div class="details-inner">
-            <div class="video-card">
-              <h4>LEDs – Basic</h4>
-              <p>Why LEDs need a protective resistor.</p>
-              <div class="video-embed">
-                <iframe data-src="https://www.youtube-nocookie.com/embed/KKBkRJjYVr8"
-                        title="LEDs - Basic"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="block video-item">
-          <summary><span>Thermistors and LDRs</span><span class="tag">tap to load</span></summary>
-          <div class="details-inner">
-            <div class="video-card">
-              <h4>Thermistors and LDRs</h4>
-              <p>How sensors change resistance.</p>
-              <div class="video-embed">
-                <iframe data-src="https://www.youtube-nocookie.com/embed/xi4Bb1phEC8"
-                        title="Thermistors and LDRs"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="block video-item">
-          <summary><span>Transistor Switching Circuits</span><span class="tag">tap to load</span></summary>
-          <div class="details-inner">
-            <div class="video-card">
-              <h4>Transistor Switching Circuits</h4>
-              <p>Using a transistor as a switch.</p>
-              <div class="video-embed">
-                <iframe data-src="https://www.youtube-nocookie.com/embed/mUE8-4WaZ6w"
-                        title="Transistor Switching Circuits"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="block video-item">
-          <summary><span>Stripboard Schematics</span><span class="tag">tap to load</span></summary>
-          <div class="details-inner">
-            <div class="video-card">
-              <h4>Stripboard Schematics</h4>
-              <p>Plan track cuts and links before soldering.</p>
-              <div class="video-embed">
-                <iframe data-src="https://www.youtube-nocookie.com/embed/SaUqKY-pq8g"
-                        title="Stripboard Schematics"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-              </div>
-            </div>
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <!-- TEST DETAILS -->
-    <section class="panel" id="testdetails" aria-label="Test details">
-      <h2>🧾 Test details (no spoilers)</h2>
-
-      <div class="grid" style="margin-top:10px;">
-                <div class="card">
-          <h4>What to expect</h4>
+      <details class="mini">
+        <summary>What to expect</summary>
+        <div class="details-inner">
           <ul>
-            <li><strong>3 sections</strong> in total.</li>
-            <li><strong>Section 1:</strong> 5 multiple choice questions.</li>
-            <li><strong>Section 2:</strong> Physics written questions — <strong>15 marks</strong>.</li>
-            <li><strong>Section 3:</strong> Electronics written questions — <strong>10 marks</strong>.</li>
+            <li><strong>3 sections</strong> total.</li>
+            <li><strong>Section 1:</strong> 5 multiple choice.</li>
+            <li><strong>Section 2:</strong> Physics written — <strong>15 marks</strong>.</li>
+            <li><strong>Section 3:</strong> Electronics written — <strong>10 marks</strong>.</li>
             <li><strong>Total time:</strong> <strong>45 minutes</strong>.</li>
           </ul>
         </div>
+      </details>
 
-        <div class="card">
-          <h4>Time strategy</h4>
+      <details class="mini">
+        <summary>Time strategy</summary>
+        <div class="details-inner">
           <ul>
-            <li>Do the easy marks first (build confidence).</li>
+            <li>Do easy marks first.</li>
             <li>If stuck: write what you <strong>do know</strong> (often earns marks).</li>
-            <li>Leave ~5 minutes at the end to check units, polarity and sensible answers.</li>
+            <li>Final check: units, polarity, sensible answers.</li>
           </ul>
-        </div>
-      </div>
-
-      <div class="callout" style="margin-top:10px;">
-        <strong>General advice:</strong> Use the KO for symbols and rules, and practise explaining control/switching in full sentences.
-      </div>
-    </section>
-
-    <!-- SUCCESS CRITERIA (IMPROVED) -->
-    <section class="panel" id="success" aria-label="Success criteria">
-      <h2>🎯 Success criteria (G / A / R) — saved on this device</h2>
-      <p class="muted">Tap each statement and choose <strong>G</strong>, <strong>A</strong> or <strong>R</strong>. Use the summary to decide what to do next.</p>
-
-      <div class="sc-help">
-        <strong>Tip:</strong> If you mark something <strong style="color:var(--r)">Red</strong>, pick one action:
-        KO → worked example → practise → ask for help.
-      </div>
-
-      <div class="btn-row" aria-label="Success criteria controls" style="margin-top:10px;">
-        <button class="small-btn primary" type="button" onclick="scSetAllSections(true)">Open all success sections</button>
-        <button class="small-btn" type="button" onclick="scSetAllSections(false)">Close all success sections</button>
-      </div>
-
-      <div id="scSections" aria-label="Success criteria sections"></div>
-
-      <div class="sc-summary" aria-live="polite" aria-atomic="true">
-        <div id="scSummaryText" style="font-weight:900;"></div>
-
-        <div class="sc-progress" aria-label="Success criteria completion">
-          <div class="sc-bar" aria-hidden="true"><div id="scProgBar"></div></div>
-        </div>
-
-        <div class="sc-mini" id="scReadyText"></div>
-        <button class="sc-reset" type="button" onclick="scReset()">Reset G/A/R selections</button>
-      </div>
-    </section>
-
-    <!-- LEDs (MERGED TOOL: RESISTOR + CURRENT) -->
-    <section class="panel" id="ledcalc" aria-label="LED tool">
-      <h2>💡 LED tool (protective resistor ↔ current)</h2>
-      <p class="muted">
-        Use this to either:
-        <strong>(1)</strong> calculate the protective resistor for an LED, or
-        <strong>(2)</strong> calculate the current if you already know the resistor.
-      </p>
-
-      <div class="builder">
-        <div class="calc-grid">
-          <div class="field">
-            <label for="ledMode">Mode</label>
-            <select id="ledMode">
-              <option value="resistor" selected>Find resistor (given Vₛ, VLED, I)</option>
-              <option value="current">Find current (given Vₛ, VLED, R)</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="ledVs">Supply voltage, V<sub>s</sub> (V)</label>
-            <input id="ledVs" type="number" inputmode="decimal" step="0.1" value="5">
-          </div>
-
-          <div class="field">
-            <label for="ledVf">LED forward voltage, V<sub>LED</sub> (V)</label>
-            <input id="ledVf" type="number" inputmode="decimal" step="0.1" value="2.0">
-          </div>
-
-          <div class="field" id="fieldImA">
-            <label for="ledImA">LED current, I (mA)</label>
-            <input id="ledImA" type="number" inputmode="decimal" step="0.1" value="10">
-          </div>
-
-          <div class="field hidden" id="fieldRKnown">
-            <label for="ledRKnown">Known resistor, R (Ω)</label>
-            <input id="ledRKnown" type="number" inputmode="decimal" step="1" value="330">
-          </div>
-
-          <div class="field" id="fieldSeries">
-            <label for="ledSeries">Resistor series (suggestion)</label>
-            <select id="ledSeries">
-              <option value="E12" selected>E12 (common at school)</option>
-              <option value="E24">E24 (more values)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="result-box" aria-live="polite">
-          <div><strong>Step 1:</strong> V<sub>R</sub> = V<sub>s</sub> − V<sub>LED</sub> = <span class="kbd" id="ledVrOut">—</span></div>
-
-          <div id="modeResistorOut">
-            <div style="margin-top:6px;"><strong>Step 2:</strong> I (A) = I (mA) ÷ 1000 = <span class="kbd" id="ledIAOut">—</span></div>
-            <div style="margin-top:6px;"><strong>Step 3:</strong> R = V<sub>R</sub> ÷ I = <span class="kbd" id="ledROut">—</span></div>
-            <div style="margin-top:10px;"><strong>Suggested resistor:</strong> next highest available → <span class="kbd" id="ledSuggest">—</span></div>
-          </div>
-
-          <div class="hidden" id="modeCurrentOut">
-            <div style="margin-top:6px;"><strong>Step 2:</strong> I = V<sub>R</sub> ÷ R = <span class="kbd" id="ledIFromR_A">—</span></div>
-            <div style="margin-top:6px;"><strong>Step 3:</strong> I (mA) = I (A) × 1000 = <span class="kbd" id="ledIFromR_mA">—</span></div>
-          </div>
-
-          <div class="muted" style="margin-top:8px; font-weight:850;">If V<sub>s</sub> ≤ V<sub>LED</sub>, the LED won’t run properly from that supply.</div>
-        </div>
-
-        <details class="block" style="margin-top:12px;">
-          <summary><span>🎯 LED practice (random + check your answer)</span><span class="tag">tap to open</span></summary>
-          <div class="details-inner">
-            <p class="muted" style="margin-top:0;">
-              Try working it out yourself first, then check. (We accept ±5%.)
-            </p>
-
-            <div class="led-practice-grid">
-              <div class="field">
-                <label for="pracVs">Practice V<sub>s</sub> (V)</label>
-                <input id="pracVs" type="number" inputmode="decimal" step="0.1" value="9.0">
-              </div>
-              <div class="field">
-                <label for="pracVf">Practice V<sub>LED</sub> (V)</label>
-                <input id="pracVf" type="number" inputmode="decimal" step="0.1" value="2.0">
-              </div>
-              <div class="field">
-                <label for="pracImA">Practice I (mA)</label>
-                <input id="pracImA" type="number" inputmode="decimal" step="1" value="20">
-              </div>
-              <div class="field">
-                <label for="pracAnswer">My resistor answer (Ω)</label>
-                <input id="pracAnswer" type="number" inputmode="numeric" step="1" placeholder="e.g. 330">
-              </div>
-              <div class="field">
-                <label for="pracSeries">Series for suggestion</label>
-                <select id="pracSeries">
-                  <option value="E12" selected>E12</option>
-                  <option value="E24">E24</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="btn-row" style="margin-top:10px;">
-              <button class="small-btn primary" type="button" onclick="ledPracticeRandom()">🎲 Random numbers</button>
-              <button class="small-btn" type="button" onclick="ledPracticeCheck()">✅ Check my answer</button>
-              <button class="small-btn" type="button" onclick="ledPracticeClear()">Reset</button>
-            </div>
-
-            <div class="led-feedback" id="pracFeedback" aria-live="polite"></div>
-          </div>
-        </details>
-      </div>
-    </section>
-
-<section id="switching">
-  <h2>🎛️ Switching circuits (transistor + MOSFET)</h2>
-
-  <div class="callout">
-    <strong>SQA wording tip:</strong> in explanations, talk about
-    <strong>V<sub>out</sub> at the junction</strong>
-    (the <strong>base voltage</strong> for a transistor, or <strong>gate voltage</strong> for a MOSFET).
-    Aim for the chain:
-    <strong>condition → resistance → V<sub>out</sub> → switching/threshold voltage → output</strong>.
-  </div>
-
-  <p class="muted" style="margin-top:10px;">
-    Use the sentence builder to practise the exact cause → effect style the marking instructions reward.
-  </p>
-
-  <details class="block">
-    <summary><span>✅ Switching sentence builder (SQA-friendly)</span><span class="tag">tap to open</span></summary>
-    <div class="details-inner">
-
-      <div class="calc-grid" style="margin-top:0;">
-        <div class="field">
-          <label for="cType">Circuit type</label>
-          <select id="cType">
-            <option value="highTemp">High temperature switching</option>
-            <option value="lowTemp">Low temperature switching</option>
-            <option value="highLight">High light switching</option>
-            <option value="lowLight">Low light switching</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="swTrans">Switch device</label>
-          <select id="swTrans">
-            <option value="transistor" selected>Transistor (BJT)</option>
-            <option value="mosfet">MOSFET</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="swLoad">Output being controlled</label>
-          <select id="swLoad">
-            <option value="LED" selected>LED</option>
-            <option value="motor">Motor</option>
-            <option value="relay">Relay</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Practice workflow INSIDE the builder (not a separate tab) -->
-      <div class="callout" style="margin-top:12px;">
-        <strong>Practice workflow (Circuit 1 → 4)</strong>
-        <ol style="margin:0.45rem 0 0; padding-left:1.2rem; line-height:1.8; font-weight:850; color:rgba(12,43,36,0.92);">
-          <li>Select one of the 4 circuits.</li>
-          <li>Simulate it on Yenka.</li>
-          <li>Use Yenka to help fill out the sentence builder.</li>
-          <li>Check answer.</li>
-          <li>Copy correct answer.</li>
-          <li>Repeat for another type.</li>
-        </ol>
-      </div>
-
-      <div class="switch-grid" aria-label="Switching builder with diagram">
-
-        <figure class="switch-figure" aria-label="Circuit diagram for selected switching type">
-          <div class="switch-crop">
-            <img
-              id="switchDiagramImg"
-              src="/classes/s3-physics/TempSwitch.png"
-              alt="Switching circuit diagram (temperature or light) for the selected circuit"
-              loading="lazy"
-            />
-          </div>
-          <figcaption class="switch-caption" id="switchDiagramCap">
-            <strong>Circuit diagram</strong> — choose a circuit type to view Circuit 1–4.
-          </figcaption>
-        </figure>
-
-        <div class="builder" aria-label="Sentence builder">
-
-          <div style="font-weight:900; color:rgba(12,43,36,0.92); line-height:1.8;">
-
-            <div style="margin:8px 0;">
-              <strong>1.</strong> When the <span class="kbd" id="varName">temperature</span>
-              <span class="inline-select"><select id="s1"><option>increases</option><option>decreases</option></select></span>,
-              the resistance of the <span class="kbd" id="sensorName">thermistor</span>
-              <span class="inline-select"><select id="s2"><option>increases</option><option>decreases</option></select></span>.
-            </div>
-
-            <div style="margin:8px 0;">
-              <strong>2.</strong> This means <strong>V<sub>out</sub></strong>
-              <span class="muted" style="font-weight:850;">
-                (the <strong>output voltage</strong> — the voltage across the <strong>bottom resistor/sensor</strong> in the left-hand potential divider;
-                i.e. the voltage at the junction / <strong>base</strong> (or <strong>gate</strong>) voltage)
-              </span>
-              <span class="inline-select"><select id="s3"><option>increases</option><option>decreases</option></select></span>.
-            </div>
-
-            <div style="margin:8px 0;">
-              <strong>3.</strong> When <strong>V<sub>out</sub></strong> reaches the
-              <span class="inline-select"><select id="s5"><option>switching voltage</option><option>threshold voltage</option></select></span>,
-              the <span class="kbd" id="swTransTxt">transistor</span> switches
-              <span class="inline-select"><select id="s6"><option>on</option><option>off</option></select></span>,
-              so the <span class="kbd" id="swLoadTxt">LED</span> switches <span class="kbd" id="s6Echo">on</span>.
-            </div>
-
-            <div id="relayClause" class="muted" style="margin-top:8px; font-weight:850; display:none;"></div>
-          </div>
-
-          <div class="btn-row" aria-label="Builder actions" style="margin-top:10px;">
-            <button class="small-btn primary" type="button" onclick="checkSentence()">Check</button>
-            <button class="small-btn" type="button" onclick="setPerfect()">Show perfect answer</button>
-            <button class="small-btn" type="button" onclick="resetBuilder()">Reset</button>
-          </div>
-
-          <div id="sentenceMsg" class="msg" role="status" aria-live="polite" style="display:none;"></div>
-
-        </div><!-- /.builder -->
-      </div><!-- /.switch-grid -->
-
-    </div>
-  </details>
-
-  <!-- These sit OUTSIDE the builder, but still inside Switching circuits -->
-  <details class="block" style="margin-top:12px;">
-    <summary><span>⭐ Quick science reminder</span><span class="tag">tap to open</span></summary>
-    <div class="details-inner">
-      <ul style="line-height:1.75; font-weight:850; color:rgba(12,43,36,0.92);">
-        <li><strong>LDR:</strong> more light → <strong>lower</strong> resistance.</li>
-        <li><strong>NTC thermistor:</strong> higher temperature → <strong>lower</strong> resistance.</li>
-        <li><strong>Exam wording:</strong> say <strong>V<sub>out</sub> at the junction</strong> (base/gate voltage) changes — that’s what the transistor/MOSFET “sees”.</li>
-        <li><strong>Voltage word:</strong> BJT uses <strong>switching voltage</strong>; MOSFET uses <strong>threshold voltage</strong>.</li>
-      </ul>
-    </div>
-  </details>
-
-  <details class="block" style="margin-top:12px;">
-    <summary><span>🧾 Copy-paste model answers (SQA style)</span><span class="tag">tap to open</span></summary>
-    <div class="details-inner">
-
-      <div class="card" style="margin-top:0;">
-        <h4>3-mark template (switch <strong>ON</strong>)</h4>
-        <ol style="margin:0.35rem 0 0; padding-left:1.2rem; line-height:1.7; font-weight:850; color:rgba(12,43,36,0.92);">
-          <li>When <strong>[condition]</strong> <strong>[increases/decreases]</strong>, the resistance of the <strong>[LDR/thermistor]</strong> <strong>[decreases/increases]</strong>.</li>
-          <li>This means <strong>V<sub>out</sub></strong> (output voltage at the junction / base (or gate) voltage) <strong>[increases/decreases]</strong>.</li>
-          <li>When <strong>V<sub>out</sub></strong> reaches the <strong>switching voltage (BJT) / threshold voltage (MOSFET)</strong>, the <strong>transistor/MOSFET switches on</strong>, so the <strong>[LED/motor/relay]</strong> switches on.</li>
-        </ol>
-        <p class="muted" style="font-weight:850; margin-top:8px;">
-          If relay present: “the relay coil is energised and the contacts close, switching on the device.”
-        </p>
-      </div>
-
-      <div class="card" style="margin-top:12px;">
-        <h4>3-mark template (switch <strong>OFF</strong>)</h4>
-        <ol style="margin:0.35rem 0 0; padding-left:1.2rem; line-height:1.7; font-weight:850; color:rgba(12,43,36,0.92);">
-          <li>When <strong>[condition]</strong> <strong>[increases/decreases]</strong>, the resistance of the <strong>[LDR/thermistor]</strong> <strong>[decreases/increases]</strong>.</li>
-          <li>This means <strong>V<sub>out</sub></strong> (output voltage at the junction / base (or gate) voltage) <strong>[increases/decreases]</strong>.</li>
-          <li>When <strong>V<sub>out</sub></strong> falls below the <strong>switching voltage (BJT) / threshold voltage (MOSFET)</strong>, the <strong>transistor/MOSFET switches off</strong>, so the <strong>[LED/motor/relay]</strong> switches off.</li>
-        </ol>
-        <p class="muted" style="font-weight:850; margin-top:8px;">
-          If relay present: “the relay coil is de-energised and the contacts open, switching off the device.”
-        </p>
-      </div>
-
-      <div class="card" style="margin-top:12px;">
-        <h4>Do / Don’t (mark-friendly wording)</h4>
-        <ul style="margin:0.35rem 0 0; line-height:1.7; font-weight:850; color:rgba(12,43,36,0.92);">
-          <li>✅ Do say: <strong>“V<sub>out</sub> at the junction (base/gate voltage) increases/decreases.”</strong></li>
-          <li>✅ Do say: <strong>“When V<sub>out</sub> reaches the switching/threshold voltage → switches on.”</strong></li>
-          <li>✅ Do say (relay): <strong>energised/de-energised; contacts close/open</strong>.</li>
-          <li>❌ Don’t say: “voltage through the resistor/sensor”</li>
-          <li>❌ Don’t rely on: “current increases so it turns on” unless asked about current.</li>
-        </ul>
-      </div>
-
-      <div class="callout" style="margin-top:12px;">
-        <strong>Variable resistor purpose (1 marker):</strong>
-        The variable resistor is used to <strong>set the light level/temperature at which the circuit switches</strong>
-        (the switching point / sensitivity).
-      </div>
-
-    </div>
-  </details>
-
-</section>
-
-
-<!-- SOLDERING GUIDE + CHECKLIST (SAVED) -->
-<section class="panel" id="soldering" aria-label="Soldering guide and checklist">
-  <h2>🧯 Soldering guide + checklist (saved on this device)</h2>
-  <p class="muted">
-    Use this before you build on <strong>PCB</strong> or <strong>stripboard</strong>. Tick items as you go — ticks are saved on this device.
-  </p>
-
-  <div class="callout warn">
-    <strong>Big rule:</strong> never solder a circuit while it is powered. Power off / unplug before changing anything.
-    If you’re using a <strong>230 V plug-in supply</strong>: dry hands, switch off at the socket before adjustments, and never open/modify the supply.
-  </div>
-
-  <details class="block" id="solderWrap">
-    <summary><span>✅ Open the soldering checklist</span><span class="tag">tap to open</span></summary>
-    <div class="details-inner">
-
-      <div class="progress" aria-label="Soldering checklist progress">
-        <div id="solProgText" style="font-weight:900;"></div>
-        <div class="bar" aria-hidden="true"><div id="solProgBar"></div></div>
-
-        <div class="btn-row" style="margin-top:10px;">
-          <button class="small-btn primary" type="button" onclick="solderingSetAll(true)">Tick all</button>
-          <button class="small-btn" type="button" onclick="solderingSetAll(false)">Untick all</button>
-          <button class="small-btn" type="button" onclick="solderingReset()">Reset ticks</button>
-        </div>
-      </div>
-
-      <details class="block" id="solSafety">
-        <summary><span>1) Safety + setup (before you start)</span><span class="tag">must-do</span></summary>
-        <div class="details-inner">
-          <ul class="checklist">
-            <li>
-              <input type="checkbox" id="sol1">
-              <label for="sol1">Eye protection on, sleeves safe, hair tied back
-                <span class="sub">No loose sleeves near the iron. Clear bench space.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol2">
-              <label for="sol2">Iron goes in the stand every time
-                <span class="sub">Never put it on the bench “for a second”.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol3">
-              <label for="sol3">Cable is routed safely
-                <span class="sub">Keep the cable away from the hot tip and off the edge of the bench.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol4">
-              <label for="sol4">Ventilation checked (windows open)
-                <span class="sub">Open windows / use ventilation so fumes don’t build up.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol5">
-              <label for="sol5">Hands washed after soldering
-                <span class="sub">Especially important if your solder contains lead.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol6">
-              <label for="sol6">Power source type identified
-                <span class="sub">We may use 12V adjustable, 24V wall adapters, or 230V plug-in supplies. Check voltage + polarity before powering.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol7">
-              <label for="sol7">Sponge damp + tip cleaned + tip “tinned”
-                <span class="sub">Wipe tip on damp sponge, then melt a tiny bit of solder on the tip to help heat flow.</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="block" id="solTechnique">
-        <summary><span>2) Soldering technique (perfect joints)</span><span class="tag">how-to</span></summary>
-        <div class="details-inner">
-          <div class="grid">
-            <div class="card">
-              <h4>What you do (every joint)</h4>
-              <ul>
-                <li><strong>Heat the joint</strong>: tip touches <strong>pad/track + component lead</strong> together.</li>
-                <li><strong>Feed solder to the joint</strong> (not to the iron).</li>
-                <li>Remove <strong>solder first</strong>, then remove the <strong>iron</strong>.</li>
-                <li>Keep it still for a few seconds while it cools.</li>
-              </ul>
-            </div>
-            <div class="card">
-              <h4>What it should look like</h4>
-              <ul>
-                <li><strong>Shiny</strong> joint.</li>
-                <li>Small “<strong>volcano</strong>” shape (not a blob).</li>
-                <li>No spikes, no cracks, no bridges.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="callout" style="margin-top:10px;">
-            <strong>Croc clip heat sink (for transistors/LEDs if you’re slow):</strong>
-            clip the crocodile clip onto the <strong>component lead</strong> between the <strong>component body</strong> and the <strong>solder joint</strong>.
-            Solder the joint, then leave it still for a moment so heat flows into the clip instead of the component.
-          </div>
-
-          <ul class="checklist" style="margin-top:10px;">
-            <li>
-              <input type="checkbox" id="sol8">
-              <label for="sol8">Component seated + legs bent slightly to hold
-                <span class="sub">Stops parts falling out when you flip the board.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol9">
-              <label for="sol9">I heat lead + pad together before adding solder
-                <span class="sub">If solder won’t flow, you’re not heating the joint properly.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol10">
-              <label for="sol10">I used only a small amount of solder
-                <span class="sub">Enough to cover the pad and lead — not a blob.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol11">
-              <label for="sol11">Leads trimmed + board inspected for bridges
-                <span class="sub">Trim close (but safe). Check between adjacent pads/tracks.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol12">
-              <label for="sol12">I protected heat-sensitive parts (worked quickly or used a croc clip heat sink)
-                <span class="sub">Clip onto the lead between component and joint, solder, then pause so heat flows into the clip.</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="block" id="solStripPcb">
-        <summary><span>3) PCB vs stripboard (key differences)</span><span class="tag">build</span></summary>
-        <div class="details-inner">
-
-          <div class="callout" style="margin-top:0;">
-            <strong>Polarity = direction/orientation matters.</strong>
-            <strong>LED:</strong> current flows from <strong>anode (+)</strong> to <strong>cathode (−)</strong>. Backwards LED won’t light.
-            <strong>Transistor:</strong> the pins have specific roles (e.g. <strong>base/collector/emitter</strong>) — wrong orientation/pinout means it won’t switch correctly.
-          </div>
-
-          <ul class="checklist" style="margin-top:10px;">
-            <li>
-              <input type="checkbox" id="sol13">
-              <label for="sol13">PCB: I matched values + polarity to the printed labels
-                <span class="sub"><strong>LED:</strong> long leg usually anode (+); flat edge/short leg is cathode (−). <strong>Transistor:</strong> match the shape/pin labels exactly (don’t assume).</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol14">
-              <label for="sol14">Stripboard: I double-checked the stripboard schematic for placement
-                <span class="sub">Count rows/holes, check the copper side, and confirm every part sits on the intended strip.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol15">
-              <label for="sol15">Stripboard: I heated joints slightly longer (bigger holes)
-                <span class="sub">Stripboard holes are larger, so it may take a little longer for solder to flow nicely into the hole and around the lead.</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="block" id="solOrder">
-        <summary><span>4) Component order (S3 Electronics &amp; Control)</span><span class="tag">sequence</span></summary>
-        <div class="details-inner">
-          <p class="muted" style="margin-top:0;">
-            General rule: <strong>smallest/lowest parts first</strong>, then taller parts, then wires. For stripboard, tidy planning reduces mistakes.
-          </p>
-
-          <ol style="line-height:1.75; font-weight:850; color:rgba(12,43,36,0.92); padding-left:1.2rem; margin: 0.4rem 0 0;">
-            <li><strong>Resistors</strong> + <strong>thermistor</strong> (and LDR/variable resistor if your design includes them).</li>
-            <li><strong>LED(s)</strong> (check polarity).</li>
-            <li><strong>Transistor</strong> (check pinout/orientation; solder quickly / use heat sink if needed).</li>
-            <li><strong>Wire links</strong> (single core or tinned copper where safe).</li>
-            <li><strong>External wiring</strong> (use stranded wire for anything that moves).</li>
-          </ol>
-
-          <ul class="checklist" style="margin-top:10px;">
-            <li>
-              <input type="checkbox" id="sol16">
-              <label for="sol16">I followed the component order above
-                <span class="sub">Low parts first → wires last makes soldering easier and neater.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol17">
-              <label for="sol17">I double-checked polarity + transistor pinout before soldering
-                <span class="sub"><strong>LED:</strong> anode/cathode the right way. <strong>Transistor:</strong> correct orientation and correct pins (B/C/E) as shown in the diagram.</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="block" id="solDesolder">
-        <summary><span>5) How to desolder (fix mistakes safely)</span><span class="tag">repair</span></summary>
-        <div class="details-inner">
-          <div class="callout warn" style="margin-top:0;">
-            <strong>Before desoldering:</strong> power OFF, let parts cool, and wear eye protection.
-          </div>
-
-          <div class="grid" style="margin-top:10px;">
-            <div class="card">
-              <h4>Desoldering pump (solder sucker)</h4>
-              <ol style="margin:0.35rem 0 0; padding-left:1.2rem; line-height:1.7;">
-                <li><strong>Prepare the pump:</strong> push the plunger down until it locks.</li>
-                <li>Heat the joint until solder melts.</li>
-                <li>Bring the pump nozzle to the molten solder and press the release button.</li>
-                <li>Repeat if needed to clear the hole.</li>
-              </ol>
-            </div>
-
-            <div class="card">
-              <h4>Solder braid (wick)</h4>
-              <ol style="margin:0.35rem 0 0; padding-left:1.2rem; line-height:1.7;">
-                <li>Place braid on the joint.</li>
-                <li>Press iron on top until solder flows into braid.</li>
-                <li>Remove braid first, then iron.</li>
-                <li>Cut off the used braid end.</li>
-              </ol>
-            </div>
-          </div>
-
-          <ul class="checklist" style="margin-top:10px;">
-            <li>
-              <input type="checkbox" id="sol18">
-              <label for="sol18">I can use a pump or braid to remove solder
-                <span class="sub">Heat → remove solder → then gently remove/adjust the component (don’t force).</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="block" id="solBurns">
-        <summary><span>6) If you burn yourself (class procedure)</span><span class="tag">first aid</span></summary>
-        <div class="details-inner">
-          <div class="callout warn" style="margin-top:0;">
-            <strong>If burned:</strong> put the iron in the holder, go straight to the sink, run the burn under cold water, then tell the teacher.
-          </div>
-
-          <ul style="line-height:1.75; font-weight:850; color:rgba(12,43,36,0.92); margin:0.4rem 0 0; padding-left:1.2rem;">
-            <li>Cool under gently running cold water for <strong>at least 5 minutes</strong> (longer is even better).</li>
-            <li><strong>Do not</strong> apply creams/ointments.</li>
-            <li>Teacher will decide next steps / medical help if needed.</li>
-          </ul>
-
-          <ul class="checklist" style="margin-top:10px;">
-            <li>
-              <input type="checkbox" id="sol19">
-              <label for="sol19">I know the burn procedure
-                <span class="sub">Iron in stand → cold running water → tell teacher.</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="block" id="solPower">
-        <summary><span>7) Quick pre-power checks (before switching on)</span><span class="tag">check</span></summary>
-        <div class="details-inner">
-          <ul class="checklist">
-            <li>
-              <input type="checkbox" id="sol20">
-              <label for="sol20">Correct values + correct parts in the correct places
-                <span class="sub">Resistor values checked (bands), sensor/VR correct, nothing missing.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol21">
-              <label for="sol21">Polarity + orientation checked
-                <span class="sub">LED direction correct; transistor orientation/pinout correct; electrolytic capacitors (if used) correct.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol22">
-              <label for="sol22">No shorts / bridges (quick inspection + meter if needed)
-                <span class="sub">Look for solder bridges; on stripboard check track cuts and unintended connections.</span>
-              </label>
-            </li>
-            <li>
-              <input type="checkbox" id="sol23">
-              <label for="sol23">Power-up is safe
-                <span class="sub">Dry hands, cable not trailing, switch off at socket before changes, and report damaged plugs/cables immediately.</span>
-              </label>
-            </li>
-          </ul>
-        </div>
-      </details>
-
-    </div>
-  </details>
-</section>
-
-    <!-- SKILLS & TESTING -->
-    <section class="panel" id="skills" aria-label="Electronics skills and testing">
-      <h2>🧰 Electronics skills &amp; testing (must-know)</h2>
-      <p class="muted">These are common written questions (short bullet points = full marks).</p>
-
-      <details class="block">
-        <summary><span>🧪 Testing, meters, safety, tools</span><span class="tag">tap to open</span></summary>
-        <div class="details-inner">
-          <div class="grid">
-            <div class="card">
-              <h4>Pre-power checks (examples)</h4>
-              <ul>
-                <li>Correct component values (especially resistors).</li>
-                <li>Correct polarity (LED/diode/capacitor/transistor/MOSFET).</li>
-                <li>No short circuits / no solder bridges.</li>
-                <li>Rails correct (V+ and 0V continuous).</li>
-              </ul>
-            </div>
-
-            <div class="card">
-              <h4>Functionality tests (examples)</h4>
-              <ul>
-                <li>Supply voltage correct at rails.</li>
-                <li>Vout changes as expected with light/temp.</li>
-                <li>Output switches at the intended point.</li>
-                <li>Nothing heats unexpectedly; current not excessive.</li>
-              </ul>
-            </div>
-
-            <div class="card">
-              <h4>Meter rules</h4>
-              <ul>
-                <li><strong>Voltmeter:</strong> in parallel (measures V across a component).</li>
-                <li><strong>Ammeter:</strong> in series (measures current through a circuit).</li>
-                <li><strong>Resistance:</strong> power OFF to measure.</li>
-              </ul>
-            </div>
-
-            <div class="card">
-              <h4>Tool functions</h4>
-              <ul>
-                <li><strong>Track cutter:</strong> breaks copper track on stripboard.</li>
-                <li><strong>Heat sink:</strong> protects heat-sensitive parts while soldering.</li>
-                <li><strong>Solder sucker:</strong> removes molten solder to fix mistakes/clear holes.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="callout warn" style="margin-top:10px;">
-            <strong>Mark-friendly writing:</strong> answer practical questions in short bullet points (2 clear points = full marks).
-          </div>
         </div>
       </details>
     </section>
 
-    <!-- ASSIGNMENT (MOVED TO END TO MATCH MENU ORDER) -->
-    <section class="panel" id="assignment" aria-label="Assignment checklist">
-      <h2>📌 Practical Electronics Assignment — Overheating Warning System</h2>
+    <!-- MORE LINKS -->
+    <section class="panel" id="morelinks" aria-labelledby="morelinks-title">
+      <h2 id="morelinks-title">More</h2>
+      <p>Extra support pages (use only if needed).</p>
 
-      <div class="callout warn">
-        <strong>This is your checklist hub.</strong> Tick items as you complete them. Ticks are saved on this device.
-      </div>
-
-      <div class="btn-row" aria-label="Phase buttons" style="margin-top:10px;">
-        <button class="small-btn primary" type="button" onclick="openAssignmentPhase('planning')">Planning (1–4)</button>
-        <button class="small-btn" type="button" onclick="openAssignmentPhase('build')">Build (5–7)</button>
-        <button class="small-btn" type="button" onclick="openAssignmentPhase('test')">Test + Logbook (8–13)</button>
-        <button class="small-btn" type="button" onclick="openAssignmentPhase('all')">Open all</button>
-      </div>
-
-      <details class="block" id="assignWrap">
-        <summary><span>🗂️ Assignment checklist (interactive)</span><span class="tag">tap to open</span></summary>
+      <details class="mini">
+        <summary>Practice tools + practical pages</summary>
         <div class="details-inner">
-
-          <div class="progress" aria-label="Assignment progress">
-            <div id="assignProgText" style="font-weight:900;"></div>
-            <div class="bar" aria-hidden="true"><div id="assignProgBar"></div></div>
-
-            <div class="btn-row" style="margin-top:10px;">
-              <button class="small-btn primary" type="button" onclick="assignmentSetAll(true)">Tick all</button>
-              <button class="small-btn" type="button" onclick="assignmentSetAll(false)">Untick all</button>
-              <button class="small-btn" type="button" onclick="assignmentReset()">Reset ticks</button>
-            </div>
-          </div>
-
-          <!-- Planning -->
-          <details class="block" id="phasePlanning">
-            <summary><span>🧠 Planning &amp; simulation</span><span class="tag">1–4</span></summary>
-            <div class="details-inner">
-              <ul class="checklist">
-                <li><input type="checkbox" id="a1"><label for="a1">My aim is clear<span class="sub">What does “overheating warning” mean in this context?</span></label></li>
-                <li><input type="checkbox" id="a2"><label for="a2">I chose the correct sensor<span class="sub">Thermistor (NTC) for temperature control.</span></label></li>
-                <li><input type="checkbox" id="a3"><label for="a3">Simulation works and is labelled<span class="sub">Label R1/R2, sensor, transistor/MOSFET, LED, rails, Vout.</span></label></li>
-                <li><input type="checkbox" id="a4"><label for="a4">I can explain how it works<span class="sub">Condition → resistance change → voltage change → switching voltage → output on.</span></label></li>
-              </ul>
-            </div>
-          </details>
-
-          <!-- Build -->
-          <details class="block" id="phaseBuild">
-            <summary><span>🔧 Build &amp; layout</span><span class="tag">5–7</span></summary>
-            <div class="details-inner">
-              <ul class="checklist">
-                <li><input type="checkbox" id="a5"><label for="a5">Stripboard plan is clear<span class="sub">Track cuts + links clearly marked (teacher check before soldering).</span></label></li>
-                <li><input type="checkbox" id="a6"><label for="a6">Polarity and pinouts checked<span class="sub">LED/diode/capacitor + transistor/MOSFET orientation confirmed.</span></label></li>
-                <li><input type="checkbox" id="a7"><label for="a7">Soldering is neat<span class="sub">No bridges, shiny joints, trimmed leads.</span></label></li>
-              </ul>
-            </div>
-          </details>
-
-          <!-- Testing -->
-          <details class="block" id="phaseTest">
-            <summary><span>🧪 Testing evidence</span><span class="tag">8–10</span></summary>
-            <div class="details-inner">
-              <ul class="checklist">
-                <li><input type="checkbox" id="a8"><label for="a8">At least 3 pre-power tests recorded<span class="sub">Values, polarity, shorts/continuity, rails.</span></label></li>
-                <li><input type="checkbox" id="a9"><label for="a9">At least 3 functionality tests recorded<span class="sub">Vout, output on/off conditions, expected vs measured.</span></label></li>
-                <li><input type="checkbox" id="a10"><label for="a10">Faults + fixes recorded (if any)<span class="sub">What was wrong, what you changed, new result.</span></label></li>
-              </ul>
-            </div>
-          </details>
-
-          <!-- Logbook -->
-          <details class="block" id="phaseLogbook">
-            <summary><span>📓 Logbook &amp; evaluation</span><span class="tag">11–13</span></summary>
-            <div class="details-inner">
-              <ul class="checklist">
-                <li><input type="checkbox" id="a11"><label for="a11">Dated logbook entries are regular<span class="sub">What you did + evidence (measurements/observations).</span></label></li>
-                <li><input type="checkbox" id="a12"><label for="a12">Evaluation is specific<span class="sub">What went well, difficulties, improvements, next steps.</span></label></li>
-                <li><input type="checkbox" id="a13"><label for="a13">Final teacher check points done<span class="sub">Simulation, stripboard plan, first full test set.</span></label></li>
-              </ul>
-            </div>
-          </details>
-
+          <ul>
+            <li><a href="/classes/s3-physics/electricity-2-tools.html">Practice tools page</a> (Success Criteria, LED tool, Switching builder)</li>
+            <li><a href="/classes/s3-physics/electricity-2-practical.html">Practical + assignment page</a> (Soldering, skills, assignment checklist)</li>
+          </ul>
         </div>
       </details>
     </section>
+
+    <!-- Legacy anchors (keep old bookmarks working) -->
+    <section class="panel" id="success" aria-label="Moved: success criteria">
+      <h2>Moved</h2>
+      <p>Success Criteria, LED tool, and Switching are now on the <a href="/classes/s3-physics/electricity-2-tools.html">Practice tools page</a>.</p>
+    </section>
+    <div id="ledcalc"></div>
+    <div id="switching"></div>
+
+    <section class="panel" id="soldering" aria-label="Moved: soldering">
+      <h2>Moved</h2>
+      <p>Soldering, skills, and assignment are now on the <a href="/classes/s3-physics/electricity-2-practical.html">Practical + assignment page</a>.</p>
+    </section>
+    <div id="skills"></div>
+    <div id="assignment"></div>
 
   </main>
 
@@ -2036,944 +853,84 @@ title: S3 Physics – Electricity 2 (Electronics & Control)
 
   <script>
     /* ============================
-       MENU: ESC closes + focus trap
+       MENU: overlay click + ESC close + focus trap
     =============================== */
-    function $(id){ return document.getElementById(id); }
-    let lastFocusEl = null;
+    const menu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('menuOverlay');
+    const btn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('menuClose');
+    let lastFocus = null;
 
     function getFocusableInMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return [];
-      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled'));
+      return menu.querySelectorAll('a[href], button:not([disabled])');
     }
-
     function openMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      lastFocusEl = document.activeElement;
-
-      menu.classList.add("open");
-      overlay.classList.add("show");
-
-      btn.setAttribute("aria-expanded","true");
-      btn.setAttribute("aria-label","Close menu");
-      overlay.setAttribute("aria-hidden","false");
-
-      const focusables = getFocusableInMenu();
-      if(focusables.length) focusables[0].focus();
+      lastFocus = document.activeElement;
+      menu.classList.add('open');
+      overlay.hidden = false;
+      overlay.classList.add('show');
+      btn.setAttribute('aria-expanded','true');
+      document.body.style.overflowY = 'hidden';
+      const f = getFocusableInMenu();
+      (f[0] || menu).focus();
     }
-
     function closeMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      menu.classList.remove("open");
-      overlay.classList.remove("show");
-
-      btn.setAttribute("aria-expanded","false");
-      btn.setAttribute("aria-label","Open menu");
-      overlay.setAttribute("aria-hidden","true");
-
-      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-        lastFocusEl.focus();
-      } else {
-        btn.focus();
-      }
-      lastFocusEl = null;
+      menu.classList.remove('open');
+      overlay.classList.remove('show');
+      overlay.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+      document.body.style.overflowY = '';
+      if(lastFocus && lastFocus.focus) lastFocus.focus();
+      lastFocus = null;
     }
+    function toggleMenu(){ menu.classList.contains('open') ? closeMenu() : openMenu(); }
 
-    function toggleMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return;
-      const isOpen = menu.classList.contains("open");
-      if(isOpen) closeMenu();
-      else openMenu();
-    }
+    btn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
 
-    document.addEventListener("keydown", (e) => {
-      const menu = $("sideMenu");
-      const isOpen = menu && menu.classList.contains("open");
-
-      if(e.key === "Escape" && isOpen){
-        e.preventDefault();
-        closeMenu();
-      }
-
-      if(e.key === "Tab" && isOpen){
-        const focusables = getFocusableInMenu();
+    document.addEventListener('keydown', (e) => {
+      const isOpen = menu.classList.contains('open');
+      if(e.key === 'Escape' && isOpen){ e.preventDefault(); closeMenu(); return; }
+      if(e.key === 'Tab' && isOpen){
+        const focusables = Array.from(getFocusableInMenu());
         if(!focusables.length) return;
-
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
-
-        if(e.shiftKey && document.activeElement === first){
-          e.preventDefault();
-          last.focus();
-        } else if(!e.shiftKey && document.activeElement === last){
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const overlay = $("menuOverlay");
-      if(overlay) overlay.setAttribute("aria-hidden","true");
-
-      const closeLink = $("closeMenuLink");
-      if(closeLink){
-        closeLink.addEventListener("click", (e) => {
-          e.preventDefault();
-          closeMenu();
-        });
+        if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
       }
     });
 
     /* ============================
-       LED UTILITIES (shared)
-    =============================== */
-    const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
-    const E24 = [1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1];
-
-    function nextSeriesValue(valueOhms, series){
-      if(!isFinite(valueOhms) || valueOhms <= 0) return null;
-      const base = (series === "E24") ? E24 : E12;
-      const decade = Math.pow(10, Math.floor(Math.log10(valueOhms)));
-      const norm = valueOhms / decade;
-      for(const v of base){
-        if(v >= norm) return v * decade;
-      }
-      return base[0] * decade * 10;
-    }
-
-    function fmtOhms(x){
-      if(!isFinite(x)) return "—";
-      if(x >= 1e6) return (x/1e6).toFixed(2).replace(/\.00$/,'') + " MΩ";
-      if(x >= 1e3) return (x/1e3).toFixed(2).replace(/\.00$/,'') + " kΩ";
-      return Math.round(x) + " Ω";
-    }
-
-    function fmtA(x){
-      if(!isFinite(x)) return "—";
-      return x.toFixed(4).replace(/0+$/,'').replace(/\.$/,'') + " A";
-    }
-
-    /* ============================
-       LED TOOL (mode switch + live calculation)
-    =============================== */
-    function updateLedModeUI(){
-      const mode = $("ledMode") ? $("ledMode").value : "resistor";
-      const fieldImA = $("fieldImA");
-      const fieldR = $("fieldRKnown");
-      const fieldSeries = $("fieldSeries");
-
-      const outRes = $("modeResistorOut");
-      const outCur = $("modeCurrentOut");
-
-      const suggest = $("ledSuggest");
-
-      if(mode === "current"){
-        if(fieldImA) fieldImA.classList.add("hidden");
-        if(fieldR) fieldR.classList.remove("hidden");
-        if(fieldSeries) fieldSeries.classList.add("hidden");
-        if(outRes) outRes.classList.add("hidden");
-        if(outCur) outCur.classList.remove("hidden");
-        if(suggest) suggest.textContent = "—";
-      } else {
-        if(fieldImA) fieldImA.classList.remove("hidden");
-        if(fieldR) fieldR.classList.add("hidden");
-        if(fieldSeries) fieldSeries.classList.remove("hidden");
-        if(outRes) outRes.classList.remove("hidden");
-        if(outCur) outCur.classList.add("hidden");
-      }
-
-      calcLedTool();
-    }
-
-    function calcLedTool(){
-      const mode = $("ledMode") ? $("ledMode").value : "resistor";
-      const Vs = parseFloat($("ledVs").value);
-      const Vled = parseFloat($("ledVf").value);
-
-      const vrOut = $("ledVrOut");
-      const iAOut = $("ledIAOut");
-      const rOut = $("ledROut");
-      const rSuggest = $("ledSuggest");
-
-      const iFromR_A = $("ledIFromR_A");
-      const iFromR_mA = $("ledIFromR_mA");
-
-      if(!isFinite(Vs) || !isFinite(Vled)){
-        if(vrOut) vrOut.textContent = "—";
-        if(iAOut) iAOut.textContent = "—";
-        if(rOut) rOut.textContent = "—";
-        if(rSuggest) rSuggest.textContent = "—";
-        if(iFromR_A) iFromR_A.textContent = "—";
-        if(iFromR_mA) iFromR_mA.textContent = "—";
-        return;
-      }
-
-      const Vr = Vs - Vled;
-      if(vrOut) vrOut.textContent = Vr.toFixed(2).replace(/\.00$/,'') + " V";
-
-      if(Vr <= 0){
-        if(mode === "resistor"){
-          if(iAOut) iAOut.textContent = "—";
-          if(rOut) rOut.textContent = "Not possible (Vₛ ≤ VLED)";
-          if(rSuggest) rSuggest.textContent = "—";
-        } else {
-          if(iFromR_A) iFromR_A.textContent = "Not possible (Vₛ ≤ VLED)";
-          if(iFromR_mA) iFromR_mA.textContent = "—";
-        }
-        return;
-      }
-
-      if(mode === "current"){
-        const Rknown = parseFloat($("ledRKnown").value);
-        if(!isFinite(Rknown) || Rknown <= 0){
-          if(iFromR_A) iFromR_A.textContent = "—";
-          if(iFromR_mA) iFromR_mA.textContent = "—";
-          return;
-        }
-        const I = Vr / Rknown; // amps
-        if(iFromR_A) iFromR_A.textContent = fmtA(I);
-        if(iFromR_mA) iFromR_mA.textContent = Math.round(I * 1000) + " mA";
-        return;
-      }
-
-      // resistor mode
-      const I_mA = parseFloat($("ledImA").value);
-      const series = $("ledSeries").value;
-
-      if(!isFinite(I_mA) || I_mA <= 0){
-        if(iAOut) iAOut.textContent = "—";
-        if(rOut) rOut.textContent = "—";
-        if(rSuggest) rSuggest.textContent = "—";
-        return;
-      }
-
-      const I = I_mA / 1000;
-      if(iAOut) iAOut.textContent = fmtA(I);
-
-      const R = Vr / I;
-      if(rOut) rOut.textContent = fmtOhms(R);
-
-      const sugg = nextSeriesValue(R, series);
-      if(rSuggest) rSuggest.textContent = sugg ? fmtOhms(sugg) : "—";
-    }
-
-    /* ============================
-       LED PRACTICE (random + check)
-    =============================== */
-    function ledPracticeClear(){
-      $("pracAnswer").value = "";
-      const fb = $("pracFeedback");
-      fb.style.display = "none";
-      fb.innerHTML = "";
-    }
-
-    function ledPracticeRandom(){
-      const VsOptions = [3, 4.5, 5, 6, 9, 12];
-      const VfOptions = [1.8, 2.0, 2.1, 2.2, 2.8, 3.0, 3.2, 3.3];
-      const IOptions  = [5, 10, 15, 20];
-
-      let VsPick, VfPick;
-      for(let tries=0; tries<20; tries++){
-        VsPick = VsOptions[Math.floor(Math.random()*VsOptions.length)];
-        VfPick = VfOptions[Math.floor(Math.random()*VfOptions.length)];
-        if(VsPick > VfPick + 0.2) break;
-      }
-      const IPick = IOptions[Math.floor(Math.random()*IOptions.length)];
-
-      $("pracVs").value = VsPick.toFixed(1);
-      $("pracVf").value = VfPick.toFixed(1);
-      $("pracImA").value = IPick.toFixed(0);
-
-      ledPracticeClear();
-    }
-
-    function ledPracticeCheck(){
-      const Vs = parseFloat($("pracVs").value);
-      const Vf = parseFloat($("pracVf").value);
-      const I_mA = parseFloat($("pracImA").value);
-      const series = $("pracSeries").value;
-
-      const fb = $("pracFeedback");
-      fb.style.display = "block";
-
-      if(!isFinite(Vs) || !isFinite(Vf) || !isFinite(I_mA) || I_mA <= 0){
-        fb.innerHTML = "<strong>Check:</strong> Please enter sensible numbers for V<sub>s</sub>, V<sub>LED</sub> and current.";
-        return;
-      }
-      const Vr = Vs - Vf;
-      const I = I_mA / 1000;
-      if(Vr <= 0){
-        fb.innerHTML = "<strong>Check:</strong> V<sub>s</sub> must be greater than V<sub>LED</sub> (otherwise the LED won’t run correctly).";
-        return;
-      }
-
-      const correct = Vr / I; // ohms
-      const rounded = Math.round(correct);
-      const suggested = nextSeriesValue(correct, series);
-
-      const student = parseFloat($("pracAnswer").value);
-
-      if(!isFinite(student) || student <= 0){
-        fb.innerHTML = `
-          <strong>Answer revealed:</strong> R ≈ <strong>${rounded} Ω</strong>.<br>
-          <span class="muted" style="display:block; margin-top:6px; font-weight:850;">
-            Suggested standard value (${series}): <strong>${suggested ? fmtOhms(suggested) : "—"}</strong>
-          </span>
-          <div class="muted" style="margin-top:8px; font-weight:850;">
-            Working: R = (V<sub>s</sub> − V<sub>LED</sub>) / I, with I in amps.
-          </div>
-        `;
-        return;
-      }
-
-      const tol = 0.05;
-      const ok = (student >= correct*(1-tol) && student <= correct*(1+tol));
-
-      fb.innerHTML = `
-        <strong>${ok ? "✅ Nice!" : "Not quite yet"}</strong><br>
-        Correct calculation: R ≈ <strong>${rounded} Ω</strong> (about ${correct.toFixed(1)} Ω).<br>
-        Your answer: <strong>${Math.round(student)} Ω</strong> ${ok ? "is close enough (±5%)." : "is outside ±5%."}
-        <div class="muted" style="margin-top:8px; font-weight:850;">
-          Suggested standard value (${series}): <strong>${suggested ? fmtOhms(suggested) : "—"}</strong>
-        </div>
-        <div class="muted" style="margin-top:6px; font-weight:850;">
-          Working: R = (V<sub>s</sub> − V<sub>LED</sub>) / I.
-        </div>
-      `;
-    }
-
-/* ============================
-   SWITCHING SENTENCE BUILDER (SQA-FRIENDLY: Vout wording)
-=============================== */
-const circuitData = {
-  highTemp: {
-    varName: "temperature",
-    sensor: "thermistor",
-    // NTC: temp ↑ → R ↓ → Vout ↑ → output ON
-    correct: { s1:"increases", s2:"decreases", s3:"increases", s5:"switching voltage", s6:"on" }
-  },
-
-  lowTemp: {
-    varName: "temperature",
-    sensor: "thermistor",
-    // cold → R increases → Vout increases → output ON
-    correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
-  },
-
-  highLight: {
-    varName: "light level",
-    sensor: "LDR",
-    // bright → R decreases → Vout increases → output ON
-    correct: { s1:"increases", s2:"decreases", s3:"increases", s5:"switching voltage", s6:"on" }
-  },
-
-  lowLight: {
-    varName: "light level",
-    sensor: "LDR",
-    // dark → R increases → Vout increases → output ON
-    correct: { s1:"decreases", s2:"increases", s3:"increases", s5:"switching voltage", s6:"on" }
-  }
-};
-
-
-const switchDiagramMap = {
-  lowTemp:  { src: "/classes/s3-physics/TempSwitch.png",  pos: "0% 50%",   title: "Circuit 1 – Low temperature switching",  desc: "Low temperature (cold) → higher thermistor resistance → Vout rises." },
-  highTemp: { src: "/classes/s3-physics/TempSwitch.png",  pos: "100% 50%", title: "Circuit 2 – High temperature switching", desc: "High temperature (hot) → lower thermistor resistance → Vout rises." },
-  lowLight: { src: "/classes/s3-physics/LightSwitch.png", pos: "0% 50%",   title: "Circuit 3 – Low light switching",        desc: "Low light (dark) → higher LDR resistance → Vout rises." },
-  highLight:{ src: "/classes/s3-physics/LightSwitch.png", pos: "100% 50%", title: "Circuit 4 – High light switching",       desc: "High light (bright) → lower LDR resistance → Vout rises." }
-};
-
-function updateSwitchDiagram(){
-  const type = $("cType")?.value || "highTemp";
-  const img  = $("switchDiagramImg");
-  const cap  = $("switchDiagramCap");
-  if(!img || !cap) return;
-
-  const m = switchDiagramMap[type] || switchDiagramMap.highTemp;
-  img.setAttribute("src", m.src);
-  img.style.objectPosition = m.pos;
-  cap.innerHTML = `<strong>${m.title}</strong> — ${m.desc}`;
-}
-
-function expectedVoltageTerm(){
-  const sw = $("swTrans");
-  return (sw && sw.value === "mosfet") ? "threshold voltage" : "switching voltage";
-}
-
-    
-function syncSwitchEcho(){
-  const s6 = $("s6");
-  const echo = $("s6Echo");
-  if(!s6 || !echo) return;
-  echo.textContent = s6.value; // "on" / "off"
-}
-
-function syncSwitchLabels(){
-  const swTrans = $("swTrans");
-  const swLoad  = $("swLoad");
-  const tTxt = $("swTransTxt");
-  const lTxt = $("swLoadTxt");
-  const clause = $("relayClause");
-  if(!swTrans || !swLoad || !tTxt || !lTxt || !clause) return;
-
-  // Transistor wording
-  tTxt.textContent = (swTrans.value === "mosfet") ? "MOSFET" : "transistor";
-
-  // Load wording
-  const load = swLoad.value;
-  lTxt.textContent = (load === "relay") ? "relay" : load;
-
-  // Relay clause (only show when relay chosen)
-  if(load === "relay"){
-    clause.style.display = "block";
-    const state = ($("s6") && $("s6").value === "off") ? "off" : "on";
-    if(state === "on"){
-      clause.textContent = "Relay note: the relay coil is energised and the contacts close, switching on the device.";
-    } else {
-      clause.textContent = "Relay note: the relay coil is de-energised and the contacts open, switching off the device.";
-    }
-  } else {
-    clause.style.display = "none";
-    clause.textContent = "";
-  }
-
-  syncSwitchEcho();
-}
-
-function applyCircuitUI(){
-  const type = $("cType").value;
-  const d = circuitData[type];
-
-  $("varName").textContent = d.varName;
-  $("sensorName").textContent = d.sensor;
-
-  const msg = $("sentenceMsg");
-  msg.style.display = "none";
-  msg.className = "msg";
-  msg.textContent = "";
-
-  syncSwitchLabels();
-    updateSwitchDiagram();
-
-}
-
-
-function currentSelections(){
-  return {
-    s1: $("s1").value,
-    s2: $("s2").value,
-    s3: $("s3").value,
-    s5: $("s5").value,
-    s6: $("s6").value
-  };
-}
-
-function checkSentence(){
-  const type = $("cType").value;
-  const d = circuitData[type];
-  const sel = currentSelections();
-
-  const expected = { ...d.correct, s5: expectedVoltageTerm() };
-
-  let ok = true;
-  for(const k of Object.keys(expected)){
-    if(sel[k] !== expected[k]) ok = false;
-  }
-
-
-  const msg = $("sentenceMsg");
-  msg.style.display = "block";
-
-  if(ok){
-    msg.className = "msg good";
-    msg.textContent = "✅ Perfect — SQA-style chain: condition → resistance → Vout (junction/base/gate) → switching voltage → output.";
-  } else {
-    msg.className = "msg bad";
-    msg.textContent = "❌ Nearly — use Vout wording (junction/base/gate voltage), then decide if it reaches the switching/threshold voltage.";
-  }
-
-  syncSwitchLabels();
-}
-
-function setPerfect(){
-  const type = $("cType").value;
-  const d = circuitData[type];
-
-  $("s1").value = d.correct.s1;
-  $("s2").value = d.correct.s2;
-  $("s3").value = d.correct.s3;
-  $("s5").value = expectedVoltageTerm();
-  $("s6").value = d.correct.s6;
-
-  checkSentence();
-}
-
-function resetBuilder(){
-  $("s1").value = "increases";
-  $("s2").value = "increases";
-  $("s3").value = "increases";
-  $("s5").value = expectedVoltageTerm();
-  $("s6").value = "on";
-
-  const msg = $("sentenceMsg");
-  msg.style.display = "none";
-  msg.className = "msg";
-  msg.textContent = "";
-
-  syncSwitchLabels();
-}
-
-    /* ============================
-       SUCCESS CRITERIA (IMPROVED G/A/R)
-    =============================== */
-    const SC_KEY = "mrsp_s3_e2_successcriteria_gar_v3";
-
-    const scSections = [
-      { key:"L1", title:"L1 – Potential Divider Theory", items:[
-        "I can describe the purpose of a potential divider circuit.",
-        "I can calculate the output voltage of a potential divider circuit.",
-        "I can explain what happens to Vout when one resistance changes."
-      ]},
-      { key:"L2", title:"L2 – Potential Divider Simulation (Yenka)", items:[
-        "I can use a simulation to build and test potential divider circuits.",
-        "I can compare simulated readings to calculated values."
-      ]},
-      { key:"L3", title:"L3 – Construction + Testing", items:[
-        "I can compare calculated, simulated and measured values of voltage in a potential divider.",
-        "I can describe common pre-power and functionality tests in electronics.",
-        "I can use a multimeter correctly (voltage in parallel, current in series)."
-      ]},
-      { key:"L4", title:"L4 – Diodes & LEDs", items:[
-        "I can draw the circuit symbols for a diode and LED.",
-        "I can describe the function of diodes and LEDs.",
-        "I can identify the anode and cathode of a diode/LED.",
-        "I can calculate a protective resistor for an LED."
-      ]},
-      { key:"L5", title:"L5 – Special Components", items:[
-        "I can describe the function of a thermistor (NTC).",
-        "I can describe the function of an LDR.",
-        "I can describe the function of a variable resistor."
-      ]},
-      { key:"L6", title:"L6 – Control Circuits", items:[
-        "I can describe the relationship between temperature and resistance for an NTC thermistor.",
-        "I can describe the relationship between light level and resistance for an LDR.",
-        "I can explain control circuits using the chain: condition → resistance → voltage → output."
-      ]},
-{ key:"L7", title:"L7 – Switching Circuits", items:[
-  "I can describe the function of a transistor or MOSFET used as a switch.",
-  "I can describe what is meant by switching voltage / threshold voltage.",
-  "I can explain switching using: condition → resistance → Vout (junction / base or gate voltage) → switching voltage → output."
-]},
-      { key:"L8", title:"L8 – Soldering & Tools", items:[
-        "I can describe safe soldering techniques.",
-        "I can describe common soldering faults and how to fix them.",
-        "I can describe how a track cutter and solder sucker are used."
-      ]},
-      { key:"L9", title:"L9 – Design & Improvement", items:[
-        "I can design a simple switching circuit for a given situation.",
-        "I can justify design choices using test evidence (measurements/observations)."
-      ]}
-    ];
-
-    function scId(secKey, index){ return `${secKey}_${index+1}`; }
-
-    function scLoad(){
-      try{
-        const raw = localStorage.getItem(SC_KEY);
-        if(!raw) return {};
-        const obj = JSON.parse(raw);
-        return (obj && typeof obj === "object") ? obj : {};
-      }catch{ return {}; }
-    }
-    function scSave(state){
-      try{ localStorage.setItem(SC_KEY, JSON.stringify(state)); }catch{}
-    }
-
-    function scUpdateSummary(state){
-      const summaryText = $("scSummaryText");
-      const readyText = $("scReadyText");
-      const bar = $("scProgBar");
-      if(!summaryText || !readyText || !bar) return;
-
-      let g=0,a=0,r=0,u=0,total=0;
-
-      scSections.forEach(section => {
-        section.items.forEach((_, idx) => {
-          total++;
-          const id = scId(section.key, idx);
-          const v = state[id] || "";
-          if(v === "G") g++;
-          else if(v === "A") a++;
-          else if(v === "R") r++;
-          else u++;
-        });
-      });
-
-      summaryText.textContent = `Greens: ${g} • Ambers: ${a} • Reds: ${r} • Unanswered: ${u}`;
-
-      const done = total - u;
-      const pct = total ? Math.round((done/total)*100) : 0;
-      bar.style.width = `${pct}%`;
-
-      if(u){
-        readyText.innerHTML = `📝 <strong>Next step:</strong> finish rating the remaining statements (${done}/${total}).`;
-      } else if(r){
-        readyText.innerHTML = `⚠️ <strong>Focus:</strong> choose your top 3 Red items, then practise those first.`;
-      } else {
-        readyText.innerHTML = `✅ <strong>Strong:</strong> no Reds — now move to mixed exam-style questions / practical checks.`;
-      }
-    }
-
-    function scBuild(){
-      const container = $("scSections");
-      if(!container) return;
-
-      const state = scLoad();
-      container.innerHTML = "";
-
-      scSections.forEach((section, sIndex) => {
-        const det = document.createElement("details");
-        det.className = "block";
-        if(sIndex === 0) det.open = true;
-
-        const sum = document.createElement("summary");
-        const left = document.createElement("span");
-        left.textContent = section.title;
-
-        const right = document.createElement("span");
-        right.className = "tag";
-        right.textContent = "tap G/A/R";
-
-        sum.appendChild(left);
-        sum.appendChild(right);
-
-        const inner = document.createElement("div");
-        inner.className = "details-inner";
-
-        section.items.forEach((text, idx) => {
-          const id = scId(section.key, idx);
-          const chosen = state[id] || "";
-
-          const row = document.createElement("div");
-          row.className = "sc-item";
-
-          const t = document.createElement("div");
-          t.className = "sc-text";
-          t.textContent = text;
-
-          const controls = document.createElement("div");
-          controls.className = "sc-controls";
-          controls.setAttribute("role","group");
-          controls.setAttribute("aria-label", `Confidence for ${section.title}, item ${idx+1}`);
-
-          const mkOpt = (val) => {
-            const lab = document.createElement("label");
-            lab.className = "sc-opt";
-            lab.dataset.val = val;
-
-            const inp = document.createElement("input");
-            inp.type = "radio";
-            inp.name = `sc_${id}`;
-            inp.value = val;
-            inp.checked = (chosen === val);
-
-            inp.addEventListener("change", () => {
-              const next = scLoad();
-              next[id] = val;
-              scSave(next);
-
-              controls.querySelectorAll(".sc-opt").forEach(o => o.classList.remove("sel"));
-              lab.classList.add("sel");
-
-              scUpdateSummary(next);
-            });
-
-            const span = document.createElement("span");
-            span.textContent = val;
-
-            lab.appendChild(inp);
-            lab.appendChild(span);
-
-            if(chosen === val) lab.classList.add("sel");
-            return lab;
-          };
-
-          controls.appendChild(mkOpt("G"));
-          controls.appendChild(mkOpt("A"));
-          controls.appendChild(mkOpt("R"));
-
-          row.appendChild(t);
-          row.appendChild(controls);
-          inner.appendChild(row);
-        });
-
-        det.appendChild(sum);
-        det.appendChild(inner);
-        container.appendChild(det);
-      });
-
-      // Accordion behaviour: only one open at a time
-      container.querySelectorAll("details.block").forEach(d => {
-        d.addEventListener("toggle", () => {
-          if(!d.open) return;
-          container.querySelectorAll("details.block").forEach(other => {
-            if(other !== d) other.open = false;
-          });
-        });
-      });
-
-      scUpdateSummary(state);
-    }
-
-    function scReset(){
-      try{ localStorage.removeItem(SC_KEY); }catch{}
-      document.querySelectorAll('#scSections input[type="radio"]').forEach(inp => inp.checked = false);
-      document.querySelectorAll('#scSections .sc-opt.sel').forEach(el => el.classList.remove("sel"));
-      scUpdateSummary({});
-    }
-
-    function scSetAllSections(open){
-      const wrap = $("scSections");
-      if(!wrap) return;
-      wrap.querySelectorAll("details").forEach(d => d.open = !!open);
-    }
-
-/* ============================
-   SOLDERING CHECKLIST (localStorage + progress)
-=============================== */
-const SOL_KEY = "mrsp_s3_e2_soldering_v1";
-const SOL_IDS = [
-  "sol1","sol2","sol3","sol4","sol5","sol6","sol7",
-  "sol8","sol9","sol10","sol11","sol12",
-  "sol13","sol14","sol15",
-  "sol16","sol17",
-  "sol18","sol19",
-  "sol20","sol21","sol22","sol23"
-];
-
-function solderingSave(){
-  const obj = {};
-  SOL_IDS.forEach(id => {
-    const el = $(id);
-    if(el) obj[id] = !!el.checked;
-  });
-  localStorage.setItem(SOL_KEY, JSON.stringify(obj));
-  solderingUpdateProgress();
-}
-
-function solderingInit(){
-  const saved = safeParse(localStorage.getItem(SOL_KEY)) || {};
-  SOL_IDS.forEach(id => {
-    const el = $(id);
-    if(!el) return;
-    el.checked = !!saved[id];
-    el.addEventListener("change", solderingSave);
-  });
-  solderingUpdateProgress();
-}
-
-function solderingUpdateProgress(){
-  const saved = safeParse(localStorage.getItem(SOL_KEY)) || {};
-  const done = SOL_IDS.filter(id => saved[id]).length;
-  const total = SOL_IDS.length;
-  const pct = total ? Math.round((done/total)*100) : 0;
-
-  const t = $("solProgText");
-  const b = $("solProgBar");
-  if(t) t.textContent = `You’ve ticked ${done} / ${total} items (${pct}%).`;
-  if(b) b.style.width = `${pct}%`;
-}
-
-function solderingSetAll(state){
-  const obj = {};
-  SOL_IDS.forEach(id => {
-    obj[id] = !!state;
-    const el = $(id);
-    if(el) el.checked = !!state;
-  });
-  localStorage.setItem(SOL_KEY, JSON.stringify(obj));
-  solderingUpdateProgress();
-}
-
-function solderingReset(){
-  localStorage.removeItem(SOL_KEY);
-  SOL_IDS.forEach(id => { const el = $(id); if(el) el.checked = false; });
-  solderingUpdateProgress();
-}
-
-    
-    /* ============================
-       ASSIGNMENT CHECKLIST (localStorage + progress)
-    =============================== */
-    const ASSIGN_KEY = "mrsp_s3_e2_assignment_v2";
-    const ASSIGN_IDS = ["a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11","a12","a13"];
-
-    function safeParse(str){
-      try{ return JSON.parse(str); } catch(e){ return null; }
-    }
-
-    function assignmentSave(){
-      const obj = {};
-      ASSIGN_IDS.forEach(id => {
-        const el = $(id);
-        if(el) obj[id] = !!el.checked;
-      });
-      localStorage.setItem(ASSIGN_KEY, JSON.stringify(obj));
-      assignmentUpdateProgress();
-    }
-
-    function assignmentInit(){
-      const saved = safeParse(localStorage.getItem(ASSIGN_KEY)) || {};
-      ASSIGN_IDS.forEach(id => {
-        const el = $(id);
-        if(!el) return;
-        el.checked = !!saved[id];
-        el.addEventListener("change", assignmentSave);
-      });
-      assignmentUpdateProgress();
-    }
-
-    function assignmentUpdateProgress(){
-      const saved = safeParse(localStorage.getItem(ASSIGN_KEY)) || {};
-      const done = ASSIGN_IDS.filter(id => saved[id]).length;
-      const total = ASSIGN_IDS.length;
-      const pct = total ? Math.round((done/total)*100) : 0;
-
-      const t = $("assignProgText");
-      const b = $("assignProgBar");
-      if(t) t.textContent = `You’ve ticked ${done} / ${total} items (${pct}%).`;
-      if(b) b.style.width = `${pct}%`;
-    }
-
-    function assignmentSetAll(state){
-      const obj = {};
-      ASSIGN_IDS.forEach(id => {
-        obj[id] = !!state;
-        const el = $(id);
-        if(el) el.checked = !!state;
-      });
-      localStorage.setItem(ASSIGN_KEY, JSON.stringify(obj));
-      assignmentUpdateProgress();
-    }
-
-    function assignmentReset(){
-      localStorage.removeItem(ASSIGN_KEY);
-      ASSIGN_IDS.forEach(id => { const el = $(id); if(el) el.checked = false; });
-      assignmentUpdateProgress();
-    }
-
-    function openAssignmentPhase(which){
-      const wrap = $("assignWrap");
-      const p1 = $("phasePlanning");
-      const p2 = $("phaseBuild");
-      const p3 = $("phaseTest");
-      const p4 = $("phaseLogbook");
-
-      if(!wrap || !p1 || !p2 || !p3 || !p4) return;
-
-      wrap.open = true;
-
-      const closeAll = () => { p1.open = false; p2.open = false; p3.open = false; p4.open = false; };
-
-      if(which === "planning"){ closeAll(); p1.open = true; p1.scrollIntoView({behavior:"smooth", block:"start"}); }
-      else if(which === "build"){ closeAll(); p2.open = true; p2.scrollIntoView({behavior:"smooth", block:"start"}); }
-      else if(which === "test"){ closeAll(); p3.open = true; p4.open = true; p3.scrollIntoView({behavior:"smooth", block:"start"}); }
-      else { p1.open = true; p2.open = true; p3.open = true; p4.open = true; }
-    }
-
-    /* ============================
-       VIDEO LAZY LOAD PER DETAILS
+       Video lazy-load (per details)
     =============================== */
     function initVideoLazy(){
-      document.querySelectorAll("details.video-item").forEach(d => {
-        d.addEventListener("toggle", () => {
+      document.querySelectorAll('details.video-item').forEach(d => {
+        d.addEventListener('toggle', () => {
           if(!d.open) return;
-          const embed = d.querySelector(".video-embed");
-          const iframe = d.querySelector("iframe[data-src]");
-          if(embed && iframe && !iframe.getAttribute("src")){
-            iframe.setAttribute("src", iframe.getAttribute("data-src"));
-            embed.classList.add("loaded");
+          const embed = d.querySelector('.video-embed');
+          const iframe = d.querySelector('iframe[data-src]');
+          if(embed && iframe && !iframe.getAttribute('src')){
+            iframe.setAttribute('src', iframe.getAttribute('data-src'));
+            embed.classList.add('loaded');
           }
         });
       });
     }
 
-    /* ============================
-       INIT
-    =============================== */
-    document.addEventListener("DOMContentLoaded", () => {
-      // LED tool live update
-      ["ledMode","ledVs","ledVf","ledImA","ledRKnown","ledSeries"].forEach(id => {
-        const el = $(id);
-        if(!el) return;
-        el.addEventListener("input", () => {
-          if(id === "ledMode") updateLedModeUI();
-          else calcLedTool();
-        });
-        el.addEventListener("change", () => {
-          if(id === "ledMode") updateLedModeUI();
-          else calcLedTool();
-        });
+    /* Perf hints for tile images */
+    function applyTileImagePerformanceHints(){
+      const imgs = Array.from(document.querySelectorAll('.class-tile img'));
+      imgs.forEach((img, i) => {
+        img.setAttribute('decoding', 'async');
+        img.setAttribute('loading', i < 2 ? 'eager' : 'lazy');
       });
-      updateLedModeUI(); // also calculates
+    }
 
-  // Switching builder
-const cType = $("cType");
-const swTrans = $("swTrans");
-const swLoad  = $("swLoad");
-const s6 = $("s6");
-const s5 = $("s5");
-
-// when circuit type changes: update text + diagram
-if(cType){
-  cType.addEventListener("change", () => {
-    applyCircuitUI();
-    updateSwitchDiagram();
-  });
-}
-
-// when device changes: keep wording correct (switching vs threshold)
-if(swTrans){
-  swTrans.addEventListener("change", () => {
-    if(s5) s5.value = expectedVoltageTerm();
-    syncSwitchLabels();
-  });
-}
-
-if(swLoad) swLoad.addEventListener("change", syncSwitchLabels);
-if(s6)     s6.addEventListener("change", syncSwitchLabels);
-
-// run once on load (only if the builder exists on the page)
-if(cType){
-  applyCircuitUI();
-  if(s5) s5.value = expectedVoltageTerm();
-  syncSwitchLabels();
-  updateSwitchDiagram();
-}
-
-      // Success criteria
-      scBuild();
-
-      // Assignment
-      assignmentInit();
-      
-      // Soldering checklist
-      solderingInit();
-      
-      // Videos
+    document.addEventListener('DOMContentLoaded', () => {
       initVideoLazy();
-
+      applyTileImagePerformanceHints();
     });
   </script>
 </body>
