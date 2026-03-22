@@ -1,656 +1,605 @@
 ---
 layout: none
-title: S3 Physics – Electricity 3: Power and Concepts
+title: S2 Physics – Transport & Forces (Revision)
 ---
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
-  <meta name="theme-color" content="#00b3a4" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Electricity 3" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-
-  <title>S3 Physics – Electricity 3: Power and Concepts</title>
+  <meta name="theme-color" content="#eef3ff" />
+  <title>S2 Physics – Transport &amp; Forces (Revision)</title>
 
   <style>
     /* ============================
-       GLOBAL FIXES
+       GLOBAL SAFETY / MOBILE
     =============================== */
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { max-width: 100%; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      overflow-x: hidden;
-      font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
-      color: #0c2b24;
-      background:
-        radial-gradient(circle at top, rgba(0,179,164,0.08), transparent 32%),
-        linear-gradient(180deg, #f4fbfa 0%, #eef8f7 100%);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    img, iframe { max-width: 100%; height: auto; display: block; }
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ max-width:100%; }
+    body{ margin:0; overflow-x:hidden; }
+    img, iframe{ max-width:100%; height:auto; display:block; }
 
     :root{
-      --bg: #f4fbfa;
-      --panel: rgba(255,255,255,0.88);
-      --panel-strong: #ffffff;
-      --text: #0c2b24;
-      --muted: #2f5b52;
+      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
-      --accent: #00b3a4;
-      --accent-2: #00897d;
-      --accent-3: #dff7f3;
+      --bg0:#f6f8ff;
+      --bg1:#eef3ff;
+      --bg2:#ffffff;
 
-      --line: rgba(12,60,52,0.12);
-      --line-strong: rgba(0,179,164,0.25);
+      --text:#14213d;
+      --muted:#53627f;
 
-      --shadow: 0 18px 40px rgba(0,0,0,0.10);
-      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
+      --accent:#2c63ff;
+      --accent-soft:#eaf1ff;
+      --accent-line:rgba(44,99,255,0.22);
 
-      --radius: 20px;
-      --focus-ring: 3px solid rgba(0,179,164,0.45);
-      --focus-offset: 4px;
+      --card:#ffffff;
+      --border:rgba(16,32,64,0.14);
+      --border-strong:rgba(44,99,255,0.34);
+
+      --shadow:0 10px 24px rgba(15,23,42,0.08);
+      --shadow-soft:0 6px 16px rgba(15,23,42,0.06);
+
+      --radius:18px;
+
+      --g:#17a866;
+      --a:#f2a315;
+      --r:#dd4747;
+
+      --focus-ring:3px solid rgba(44,99,255,0.85);
+      --focus-offset:4px;
     }
 
-    /* ============================
-       ACCESSIBILITY
-    =============================== */
+    body{
+      font-family: var(--font-stack);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 12% 0%, rgba(44,99,255,0.11), transparent 62%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 52%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    body.menu-open{ overflow:hidden; }
+
+    :focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+    }
+
     .visually-hidden{
-      position:absolute !important;
-      width:1px; height:1px;
-      padding:0; margin:-1px;
-      overflow:hidden; clip:rect(0,0,0,0);
-      white-space:nowrap; border:0;
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
     }
+
     .skip-link{
       position:absolute;
       left:-999px;
       top:10px;
-      z-index:1000;
-      background:#00b3a4;
+      background: var(--accent);
       color:#fff;
       padding:0.65rem 0.95rem;
       border-radius:12px;
-      font-weight:900;
-      box-shadow: var(--shadow-soft);
+      font-weight:800;
+      z-index:1000;
+      box-shadow: var(--shadow);
     }
-    .skip-link:focus{
-      left:10px;
-      outline: 3px solid rgba(255,255,255,0.95);
-      outline-offset: 3px;
-    }
-
-    a:focus-visible,
-    button:focus-visible,
-    summary:focus-visible{
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
-      border-radius: 12px;
-    }
+    .skip-link:focus{ left:10px; }
 
     /* ============================
-       MENU BUTTON
+       MENU / DRAWER
     =============================== */
     .menu-btn{
-      position: fixed;
-      top: max(14px, env(safe-area-inset-top));
-      left: max(14px, env(safe-area-inset-left));
-      z-index: 950;
-      border: 1px solid rgba(255,255,255,0.28);
-      background: rgba(255,255,255,0.68);
-      color: #08332c;
-      backdrop-filter: blur(18px) saturate(180%);
-      -webkit-backdrop-filter: blur(18px) saturate(180%);
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-size: 1.1rem;
-      font-weight: 900;
-      cursor: pointer;
+      position:fixed;
+      top:max(14px, env(safe-area-inset-top));
+      right:max(16px, env(safe-area-inset-right));
+      z-index:450;
+      border:1px solid var(--border-strong);
+      background:rgba(255,255,255,0.92);
+      color:var(--text);
+      border-radius:14px;
+      min-width:48px;
+      min-height:48px;
+      padding:0 0.75rem;
+      font-size:1.45rem;
+      line-height:1;
+      cursor:pointer;
       box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .menu-overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(7,22,18,0.28);
-      z-index: 910;
-      opacity: 0;
-      transition: opacity 0.2s ease;
+      position:fixed;
+      inset:0;
+      background:rgba(10,20,40,0.28);
+      opacity:0;
+      visibility:hidden;
+      transition:opacity 0.2s ease, visibility 0.2s ease;
+      z-index:390;
     }
-    .menu-overlay.show{ opacity: 1; }
+    .menu-overlay.show{
+      opacity:1;
+      visibility:visible;
+    }
 
     .side-menu{
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100dvh;
-      width: min(82vw, 340px);
-      z-index: 920;
-      padding: max(18px, env(safe-area-inset-top)) 16px 18px 16px;
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(22px) saturate(180%);
-      -webkit-backdrop-filter: blur(22px) saturate(180%);
-      border-right: 1px solid rgba(255,255,255,0.35);
-      box-shadow: 20px 0 50px rgba(0,0,0,0.14);
-      transform: translateX(-105%);
-      transition: transform 0.24s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
+      position:fixed;
+      top:0;
+      right:-320px;
+      width:min(320px, 86vw);
+      height:100dvh;
+      z-index:400;
+      padding:
+        calc(4.4rem + env(safe-area-inset-top))
+        0
+        calc(1rem + env(safe-area-inset-bottom));
+      background:rgba(255,255,255,0.94);
+      border-left:1px solid var(--border);
+      box-shadow:-12px 0 24px rgba(15,23,42,0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      overflow:auto;
+      transition:right 0.24s ease;
     }
-    .side-menu.open{ transform: translateX(0); }
-
-    .menu-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 6px 2px 12px;
-      margin-bottom: 2px;
-      border-bottom: 1px solid rgba(12,60,52,0.10);
-    }
-    .menu-title{
-      font-size: 1.05rem;
-      font-weight: 900;
-      color: #0c2b24;
-    }
-    .menu-close{
-      border: 0;
-      background: rgba(0,179,164,0.12);
-      color: #0c2b24;
-      border-radius: 14px;
-      width: 42px;
-      height: 42px;
-      font-size: 1.4rem;
-      line-height: 1;
-      cursor: pointer;
-      font-weight: 900;
-    }
+    .side-menu.open{ right:0; }
 
     .side-menu a{
+      display:flex;
+      align-items:center;
+      gap:0.7rem;
+      min-height:52px;
+      padding:0.95rem 1.2rem;
+      color:var(--text);
       text-decoration:none;
-      color:#08332c;
-      font-weight: 850;
-      padding: 14px 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.55);
-      border: 1px solid rgba(12,60,52,0.08);
+      font-weight:800;
+      border-bottom:1px solid rgba(16,32,64,0.07);
     }
-    .side-menu a:hover{
-      background: rgba(0,179,164,0.10);
+    .side-menu a:hover,
+    .side-menu a:focus-visible{
+      background:rgba(44,99,255,0.08);
     }
 
     /* ============================
        BANNER
     =============================== */
     .banner-wrap{
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      border-bottom: 1px solid rgba(12,60,52,0.08);
-      background: #dff7f3;
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      border-bottom:1px solid rgba(16,32,64,0.10);
+      box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+      background:#fff;
     }
+
     .banner{
-      width: 100%;
-      max-height: 420px;
-      object-fit: cover;
-      object-position: center;
+      width:100%;
+      max-height:300px;
+      object-fit:cover;
+      display:block;
     }
-    .banner-tint{
+
+    @media (max-width:768px){
+      .banner{ max-height:220px; }
+    }
+
+    .title-strip{
       position:absolute;
-      inset:0;
-      background:
-        linear-gradient(180deg, rgba(3,24,22,0.10) 0%, rgba(3,24,22,0.34) 100%);
-      pointer-events:none;
+      left:0;
+      right:0;
+      bottom:0;
+      padding:0.9rem 1rem;
+      background:rgba(255,255,255,0.90);
+      border-top:1px solid rgba(16,32,64,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-align:center;
     }
-    .banner-overlay-text{
-      position:absolute;
-      inset:auto 0 0 0;
-      padding:
-        18px
-        max(18px, env(safe-area-inset-right))
-        20px
-        max(18px, env(safe-area-inset-left));
-      color:#fff;
-      text-shadow: 0 3px 18px rgba(0,0,0,0.34);
-    }
-    .banner-overlay-text h1{
+
+    .title-strip h1{
       margin:0;
-      font-size: clamp(1.5rem, 3.8vw, 2.6rem);
-      line-height:1.08;
-      font-weight: 900;
+      font-size:1.08rem;
+      font-weight:900;
+      letter-spacing:0.2px;
     }
 
     /* ============================
-       SUBNAV
+       JUMP NAV
     =============================== */
     .subnav-wrap{
-      position: sticky;
-      top: 0;
-      z-index: 800;
-      padding: 10px max(10px, env(safe-area-inset-right)) 10px max(10px, env(safe-area-inset-left));
-      background: linear-gradient(180deg, rgba(244,251,250,0.96), rgba(244,251,250,0.78));
+      position:sticky;
+      top:0;
+      z-index:320;
+      padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+      background:rgba(246,248,255,0.84);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(12,60,52,0.08);
+      border-bottom:1px solid rgba(16,32,64,0.10);
     }
+
     .subnav{
-      max-width: 1120px;
-      margin: 0 auto;
       display:flex;
+      gap:12px;
       align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+      padding:8px 12px;
+      border-radius:16px;
+      border:1px solid rgba(16,32,64,0.12);
+      background:rgba(255,255,255,0.86);
+      box-shadow: var(--shadow-soft);
     }
+
     .subnav-links{
       display:flex;
-      gap: 8px;
-      overflow-x:auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      min-width: 0;
-      flex: 1 1 520px;
+      gap:14px;
+      overflow:auto;
+      flex-wrap:nowrap;
+      scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;
     }
     .subnav-links::-webkit-scrollbar{ display:none; }
 
-    .subnav-link,
-    .subnav-cta{
-      white-space: nowrap;
-      text-decoration:none;
-      border-radius: 999px;
-      padding: 11px 14px;
-      font-weight: 850;
-      font-size: 0.95rem;
-      border: 1px solid rgba(12,60,52,0.10);
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-    }
     .subnav-link{
-      color:#18473f;
-      background: rgba(255,255,255,0.82);
-    }
-    .subnav-link:hover{
-      background: rgba(0,179,164,0.10);
-      transform: translateY(-1px);
-    }
-
-    .subnav-ctas{
-      display:flex;
-      gap: 8px;
-      flex: 0 0 auto;
-    }
-    .subnav-cta{
-      color:#ffffff;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      border-color: rgba(0,179,164,0.20);
-      box-shadow: var(--shadow-soft);
-    }
-    .subnav-cta.secondary{
-      background: #ffffff;
-      color:#0c2b24;
-    }
-    .subnav-cta:hover{
-      transform: translateY(-1px);
-    }
-
-    /* ============================
-       BACK BUTTON
-    =============================== */
-    .back-float{
-      position: fixed;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      left: max(16px, env(safe-area-inset-left));
-      z-index: 700;
       text-decoration:none;
-      font-weight: 900;
-      padding: 11px 13px;
-      border-radius: 14px;
-      border: 2px solid rgba(0,179,164,0.24);
-      background: rgba(255,255,255,0.80);
-      color: #0c2b24;
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      color:var(--text);
+      white-space:nowrap;
+      font-weight:800;
+      padding:8px 2px;
+      border-bottom:3px solid transparent;
     }
-    .back-float:hover{
-      background: rgba(0,179,164,0.10);
+    .subnav-link:hover{ border-bottom-color: var(--accent); }
+
+    #overview, #resources, #topics, #selfcheck, #links{
+      scroll-margin-top: 120px;
     }
 
     /* ============================
-       PAGE LAYOUT
+       LAYOUT
     =============================== */
-    .page-wrap{
-      width: min(1120px, calc(100% - 24px));
-      margin: 18px auto 96px;
-      display: grid;
-      gap: 18px;
+    main.page-wrap{
+      width:100%;
+      max-width:1100px;
+      margin:1rem auto 2rem;
+      padding:0 12px 4rem;
+      flex:1;
     }
 
     .panel{
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
+      background:rgba(255,255,255,0.92);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
       box-shadow: var(--shadow-soft);
-      padding: 18px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .panel.soft{
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,255,253,0.92));
+      padding:1.1rem;
+      margin:0.95rem 0;
     }
 
-    .panel h2{
-      margin: 0 0 10px;
-      font-size: clamp(1.15rem, 2.4vw, 1.45rem);
-      line-height: 1.15;
-      color: #0c2b24;
-    }
-    .panel h3{
-      margin: 0 0 8px;
-      font-size: 1.05rem;
-      color: #0d3a32;
-    }
-    .muted{
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.6;
-      font-size: 1rem;
+    h2{
+      margin:0 0 0.45rem;
+      font-size:1.16rem;
+      letter-spacing:0.2px;
     }
 
-    .intro-grid,
-    .equation-grid,
-    .tile-grid,
-    .mistake-grid{
+    h3{
+      margin:0 0 0.45rem;
+      font-size:1rem;
+    }
+
+    p{
+      margin:0.4rem 0 0;
+      line-height:1.58;
+    }
+
+    .muted{ color:var(--muted); }
+
+    .lead{
+      font-size:1rem;
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    .actions{
       display:grid;
-      gap: 12px;
+      grid-template-columns:repeat(auto-fit, minmax(min(210px,100%), 1fr));
+      gap:10px;
+      margin-top:0.95rem;
     }
 
-    .intro-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 14px;
-    }
-
-    .intro-card,
-    .equation-card,
-    .mistake-card{
-      background: rgba(255,255,255,0.82);
-      border: 1px solid rgba(12,60,52,0.10);
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 140px;
-    }
-
-    .intro-card strong,
-    .equation-card strong,
-    .mistake-card strong{
-      display:block;
-      margin-bottom: 6px;
-      color:#0b312a;
-      font-size: 1rem;
-    }
-
-    .tile-grid{
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      margin-top: 14px;
-    }
-    .tile{
-      display:block;
-      text-decoration:none;
-      color:inherit;
-      border-radius: 20px;
-      background: linear-gradient(180deg, #ffffff, #f7fffd);
-      border: 1px solid rgba(12,60,52,0.10);
-      box-shadow: var(--shadow-soft);
-      min-height: 140px;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    }
-    .tile:hover{
-      transform: translateY(-2px);
-      border-color: var(--line-strong);
-      box-shadow: var(--shadow);
-    }
-    .tile.main{
-      background:
-        linear-gradient(135deg, rgba(0,179,164,0.12), rgba(255,255,255,1));
-      border-color: rgba(0,179,164,0.24);
-    }
-    .tile-inner{
-      height:100%;
-      padding: 16px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .tile-title{
-      margin:0;
-      font-size: 1.02rem;
-      line-height:1.25;
-      font-weight: 900;
-      color:#0c2b24;
-    }
-    .tile-desc{
-      margin:0;
-      color:#315f56;
-      line-height:1.5;
-      font-size:0.96rem;
-    }
-    .badge,
-    .tag{
+    .btn{
       display:inline-flex;
       align-items:center;
-      gap: 6px;
-      border-radius:999px;
-      padding: 4px 9px;
-      font-size: 0.78rem;
-      font-weight: 900;
-      background: rgba(12,60,52,0.08);
-      color:#0d3a32;
-      vertical-align:middle;
-    }
-    .badge.main{
-      background: rgba(0,179,164,0.14);
-      color:#0a5a51;
-    }
-
-    /* ============================
-       TABLES
-    =============================== */
-    .table-wrap{
-      overflow-x: auto;
-      margin-top: 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.10);
-      background: #ffffff;
-    }
-    table{
+      justify-content:center;
+      gap:10px;
       width:100%;
-      border-collapse: collapse;
-      min-width: 620px;
+      min-height:52px;
+      padding:0.9rem 1rem;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      text-decoration:none;
+      font-weight:800;
+      box-shadow: var(--shadow-soft);
+      text-align:center;
     }
-    th, td{
-      padding: 12px 12px;
-      text-align:left;
-      border-bottom: 1px solid rgba(12,60,52,0.08);
-      vertical-align: top;
-      line-height: 1.45;
+
+    .btn:hover{ background:#f9fbff; }
+
+    .btn.primary{
+      border:2px solid var(--border-strong);
+      background:var(--accent-soft);
     }
-    th{
-      background: rgba(0,179,164,0.08);
-      color:#0a433a;
-      font-size: 0.95rem;
+
+    .btn-row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      gap:10px;
+      margin-top:0.85rem;
     }
-    tr:last-child td{ border-bottom: 0; }
+
+    button.btn{
+      cursor:pointer;
+      font-family:inherit;
+      font-size:1rem;
+    }
 
     /* ============================
-       DETAILS / ACCORDIONS
+       DETAILS / COLLAPSIBLES
     =============================== */
-    details{
-      border-radius: 18px;
-      border: 1px solid rgba(12,60,52,0.10);
-      background: rgba(255,255,255,0.84);
+    details.block{
+      margin-top:12px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:#fff;
+      overflow:hidden;
     }
-    details + details{ margin-top: 10px; }
 
-    details.block summary,
-    details.mini summary{
+    details.block > summary{
       list-style:none;
       cursor:pointer;
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      gap: 12px;
-      padding: 14px 16px;
-      font-weight: 900;
-      color:#0c2b24;
+      align-items:center;
+      gap:10px;
+      padding:0.95rem 1rem;
+      font-weight:800;
+      background:linear-gradient(180deg, #fafdff, #f3f7ff);
+      border-bottom:1px solid rgba(16,32,64,0.08);
     }
-    details summary::-webkit-details-marker{ display:none; }
 
-    details.block summary::after,
-    details.mini summary::after{
-      content:"+";
-      flex: 0 0 auto;
-      width: 28px;
-      height: 28px;
-      display:grid;
-      place-items:center;
-      border-radius: 999px;
-      background: rgba(0,179,164,0.12);
-      color:#0b5148;
-      font-size: 1rem;
-      line-height:1;
-      font-weight: 900;
-    }
-    details[open] summary::after{
-      content:"–";
-    }
+    details.block > summary::-webkit-details-marker{ display:none; }
 
     .details-inner{
-      padding: 0 16px 16px;
-      color:#2f5b52;
-      line-height: 1.6;
+      padding:1rem;
     }
-    .details-inner > :first-child{ margin-top: 0; }
-    .details-inner > :last-child{ margin-bottom: 0; }
 
-    .stack{
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0.22rem 0.6rem;
+      border-radius:999px;
+      border:1px solid rgba(16,32,64,0.12);
+      background:#fff;
+      color:var(--muted);
+      font-size:0.84rem;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    /* ============================
+       RESOURCE CARDS
+    =============================== */
+    .resource-grid{
       display:grid;
-      gap: 10px;
-      margin-top: 12px;
+      grid-template-columns:repeat(auto-fit, minmax(min(230px,100%), 1fr));
+      gap:12px;
+      margin-top:0.9rem;
+    }
+
+    .resource{
+      display:block;
+      min-height:132px;
+      text-decoration:none;
+      color:var(--text);
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow: var(--shadow-soft);
+      padding:1rem;
+      transition:transform 0.16s ease, border-color 0.16s ease;
+    }
+
+    .resource:hover,
+    .resource:focus-visible{
+      transform:translateY(-2px);
+      border-color:var(--border-strong);
+    }
+
+    .resource-title{
+      margin:0;
+      font-size:1rem;
+      font-weight:900;
+    }
+
+    .resource-desc{
+      margin-top:0.5rem;
+      color:var(--muted);
+      font-weight:700;
+      line-height:1.5;
+    }
+
+    /* ============================
+       TOPIC CARDS
+    =============================== */
+    .topic-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(min(230px,100%), 1fr));
+      gap:12px;
+    }
+
+    .mini-card{
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:#fff;
+      padding:0.95rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mini-card p,
+    .mini-card ul{
+      margin-top:0.4rem;
+      color:var(--muted);
+      line-height:1.6;
+      font-weight:700;
+    }
+
+    .mini-card ul{
+      padding-left:1.05rem;
+      margin-bottom:0;
     }
 
     .formula{
       display:inline-block;
-      margin: 6px 0 8px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(0,179,164,0.10);
-      border: 1px solid rgba(0,179,164,0.18);
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      color:#08433c;
+      margin-top:0.3rem;
+      padding:0.35rem 0.7rem;
+      border-radius:12px;
+      background:var(--accent-soft);
+      border:1px solid var(--accent-line);
+      font-weight:900;
+      color:var(--text);
     }
 
     .callout{
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(223,247,243,0.72);
-      border: 1px solid rgba(0,179,164,0.18);
-      color:#17453d;
+      margin-top:0.8rem;
+      padding:0.8rem 0.9rem;
+      border-radius:14px;
+      border:1px solid rgba(16,32,64,0.10);
+      background:#f8fbff;
+      color:var(--text);
+      font-weight:700;
       line-height:1.55;
-    }
-
-    .equation-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 14px;
-    }
-
-    .question-list{
-      display:grid;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .question{
-      padding: 12px 13px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.92);
-      border: 1px solid rgba(12,60,52,0.08);
-      color:#1e4f46;
-      line-height:1.55;
-    }
-    .question strong{
-      color:#0d3a32;
-    }
-
-    .mistake-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 12px;
-    }
-
-    .footer-note{
-      margin-top: 10px;
-      font-size: 0.95rem;
-      color:#3e675f;
-    }
-
-    footer{
-      text-align:center;
-      padding: 1rem;
-      background: rgba(255,255,255,0.72);
-      border-top: 1px solid rgba(12,60,52,0.10);
-      font-size:0.92rem;
-      color: rgba(47,91,82,0.95);
-      margin-top:auto;
     }
 
     /* ============================
-       RESPONSIVE
+       SELF CHECK
     =============================== */
-    @media (max-width: 780px){
-      .page-wrap{
-        width: min(100%, calc(100% - 14px));
-        margin-top: 14px;
-        margin-bottom: 92px;
-      }
-
-      .panel{ padding: 16px; }
-
-      .subnav{
-        align-items: stretch;
-      }
-      .subnav-ctas{
-        width: 100%;
-        justify-content: stretch;
-      }
-      .subnav-cta{
-        flex: 1 1 0;
-        text-align: center;
-      }
-
-      .banner{
-        max-height: 320px;
-      }
+    .check-top{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:10px;
+      margin-top:0.8rem;
     }
 
-    @media (max-width: 520px){
-      .banner-overlay-text h1{
-        font-size: 1.35rem;
+    .stat{
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:#fff;
+      box-shadow: var(--shadow-soft);
+      padding:0.85rem 0.95rem;
+      font-weight:800;
+    }
+
+    .tracker{
+      margin-top:0.9rem;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:#fff;
+      overflow:hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .track-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:0.9rem 1rem;
+      border-bottom:1px solid rgba(16,32,64,0.08);
+    }
+
+    .track-row:last-child{ border-bottom:none; }
+
+    .track-label{
+      font-weight:800;
+      line-height:1.4;
+    }
+
+    .track-controls{
+      display:inline-flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .track-btn{
+      min-width:54px;
+      min-height:44px;
+      border-radius:14px;
+      border:2px solid rgba(16,32,64,0.16);
+      background:#fff;
+      color:var(--text);
+      font-weight:900;
+      cursor:pointer;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .track-btn[data-val="G"].active{
+      background:var(--g);
+      color:#fff;
+      border-color:rgba(0,0,0,0.12);
+    }
+    .track-btn[data-val="A"].active{
+      background:var(--a);
+      color:#fff;
+      border-color:rgba(0,0,0,0.12);
+    }
+    .track-btn[data-val="R"].active{
+      background:var(--r);
+      color:#fff;
+      border-color:rgba(0,0,0,0.12);
+    }
+
+    .summary-box{
+      margin-top:0.9rem;
+      padding:0.95rem 1rem;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:#fff;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .summary-box p + p{ margin-top:0.55rem; }
+
+    /* ============================
+       FOOTER
+    =============================== */
+    footer{
+      margin-top:auto;
+      text-align:center;
+      padding:1rem;
+      background:rgba(255,255,255,0.76);
+      border-top:1px solid rgba(16,32,64,0.10);
+      color:var(--muted);
+      font-size:0.92rem;
+    }
+
+    @media (max-width:700px){
+      .track-row{
+        grid-template-columns:1fr;
+        align-items:start;
       }
-      .menu-btn{
-        padding: 11px 13px;
-      }
-      .back-float{
-        font-size: 0.92rem;
+      .track-controls{
+        justify-content:flex-start;
       }
     }
   </style>
@@ -659,613 +608,565 @@ title: S3 Physics – Electricity 3: Power and Concepts
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
-  <!-- MENU BUTTON -->
   <button
     class="menu-btn"
     id="menuBtn"
     type="button"
     aria-label="Open menu"
-    aria-controls="sideMenu"
     aria-expanded="false"
+    aria-controls="sideMenu"
   >☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
 
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
-    <div class="menu-head">
-      <div class="menu-title">Menu</div>
-      <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
-    </div>
-
+  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
+    <a href="#" id="closeMenuLink">✕ Close</a>
     <a href="/">🏠 Home</a>
-    <a href="/classes/science.html">🧪 Science</a>
-    <a href="/classes/physics.html">⚡ Physics</a>
-    <a href="/classes/electronics.html">💡 Electronics</a>
-    <a href="/classes/engineering.html">🧰 Engineering</a>
+    <a href="/science/">🧪 Science</a>
+    <a href="/physics/">⚡ Physics</a>
+    <a href="/electronics/">💡 Electronics</a>
+    <a href="/engineering/">🧰 Engineering</a>
   </nav>
 
-  <!-- BANNER -->
-  <div class="banner-wrap">
-    <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner" loading="eager" decoding="async">
-    <div class="banner-tint"></div>
-    <div class="banner-overlay-text">
-      <h1>S3 Physics – Electricity 3: Power and Concepts</h1>
+  <div class="banner-wrap" id="bannerWrap">
+    <img
+      src="/assets/transport-forces-banner.png"
+      alt="S2 Physics Transport and Forces banner"
+      class="banner"
+      loading="lazy"
+      onerror="document.getElementById('bannerWrap').style.display='none';"
+    >
+    <div class="title-strip">
+      <h1>S2 Physics — Transport &amp; Forces Revision</h1>
     </div>
   </div>
 
-  <!-- STICKY SUBNAV -->
   <div class="subnav-wrap">
-<a class="subnav-link" href="#resources">Start</a>
-<div class="subnav-links">
-  <a class="subnav-link" href="#resources">Start</a>
-  <a class="subnav-link" href="#overview">Overview</a>
-  <a class="subnav-link" href="#equations">Equations</a>
-  <a class="subnav-link" href="#worked">Worked examples</a>
-  <a class="subnav-link" href="#practice">Quick practice</a>
-  <a class="subnav-link" href="#mistakes">Common mistakes</a>
-</div>
-
-      <div class="subnav-ctas">
-        <a class="subnav-cta"
-           href="/assets/S3/Electricity3/Electricity%20Block%203%20Student%20Knowledge%20Organiser.pdf"
-           target="_blank" rel="noopener noreferrer">
-          KO ↗
-        </a>
-        <a class="subnav-cta secondary"
-           href="/assets/S3/Electricity3/RS%20Electricity%20B3%20N5%202026.pdf"
-           target="_blank" rel="noopener noreferrer">
-          Booklet ↗
-        </a>
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#resources">Resources</a>
+        <a class="subnav-link" href="#topics">Topics</a>
+        <a class="subnav-link" href="#selfcheck">Self-check</a>
+        <a class="subnav-link" href="#links">Links</a>
       </div>
     </nav>
   </div>
 
-  <!-- BACK BUTTON -->
-  <a class="back-float" href="/classes/s3-physics.html" aria-label="Back to S3 Physics">
-    ⬅ Back to S3 Physics
-  </a>
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">S2 Physics Transport and Forces revision page</h1>
 
-<main class="page-wrap" id="mainContent">
-  <h1 class="visually-hidden">S3 Physics – Electricity 3: Power and Concepts</h1>
+    <section class="panel" id="overview" aria-label="Overview">
+      <h2>Overview</h2>
+      <p class="lead">
+        Use the practice test to spot weak areas, then use the organiser and notes to fix them. Focus on
+        speed, forces, friction, mass and weight, magnetism, and electromagnets.
+      </p>
 
-  <!-- KEY LINKS -->
-  <section class="panel" id="resources" aria-labelledby="resources-title">
-    <h2 id="resources-title">Key links</h2>
-    <p class="muted">Start here. Open the KO first, then the booklet, then try mixed questions.</p>
+      <div class="actions" aria-label="Main revision actions">
+        <a class="btn primary" href="/classes/s2/physics/Practice%20Test.docx" target="_blank" rel="noopener noreferrer">
+          Practice Test
+        </a>
+        <a class="btn" href="/classes/s2/physics/Transport%20and%20Forces%20Knowledge%20Orgniser.pdf" target="_blank" rel="noopener noreferrer">
+          Knowledge Organiser
+        </a>
+        <a class="btn" href="/classes/s2/physics/Equation%20Sheet.pdf" target="_blank" rel="noopener noreferrer">
+          Equation Sheet
+        </a>
+        <a class="btn" href="/classes/s2/physics/Practice%20Test%20Answers.docx" target="_blank" rel="noopener noreferrer">
+          Answers
+        </a>
+      </div>
 
-    <div class="tile-grid" aria-label="Resource tiles">
-      <a class="tile main"
-         href="/assets/S3/Electricity3/Electricity%20Block%203%20Student%20Knowledge%20Organiser.pdf"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Electricity 3 Knowledge Organiser in a new tab">
-        <div class="tile-inner">
-          <p class="tile-title">Knowledge Organiser <span class="badge main">start here</span></p>
-          <p class="tile-desc">Quick rules, equations, fuse guidance, AC/DC, oscilloscope traces, and electric fields.</p>
+      <details class="block">
+        <summary><span>Simple revision routine</span><span class="tag">20–25 mins</span></summary>
+        <div class="details-inner">
+          <p class="muted">
+            Try one section of the practice test, mark it, fix the mistakes using the organiser or slides,
+            then re-try similar questions. Rate each topic Green, Amber, or Red when you finish.
+          </p>
         </div>
-      </a>
+      </details>
+    </section>
 
-      <a class="tile"
-         href="/assets/S3/Electricity3/RS%20Electricity%20B3%20N5%202026.pdf"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Electricity 3 booklet in a new tab">
-        <div class="tile-inner">
-          <p class="tile-title">Electricity 3 Booklet <span class="badge">practice</span></p>
-          <p class="tile-desc">Use this for step-by-step examples and revision questions.</p>
-        </div>
-      </a>
+    <section class="panel" id="resources" aria-label="Resources">
+      <h2>Core resources</h2>
+      <p class="muted">Start with the test. Use the other files to fix gaps.</p>
 
-      <a class="tile"
-         href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Physics Past Paper Finder in a new tab">
-        <div class="tile-inner">
-          <p class="tile-title">Physics Past Paper Finder <span class="badge">mixed questions</span></p>
-          <p class="tile-desc">Use this after the KO and booklet for mixed revision.</p>
-        </div>
-      </a>
-    </div>
-  </section>
+      <div class="resource-grid">
+        <a class="resource" href="/classes/s2/physics/Practice%20Test.docx" target="_blank" rel="noopener noreferrer">
+          <p class="resource-title">Practice Test</p>
+          <p class="resource-desc">Best first step. Try it, mark it, then fix the weak areas.</p>
+        </a>
 
-  <!-- OVERVIEW -->
-  <section class="panel soft" id="overview" aria-labelledby="overview-title">
-    <h2 id="overview-title">Overview</h2>
-    <p class="muted">
-      Revise these topics for the end-of-block test: <strong>Q = It</strong>, <strong>power and energy</strong>,
-      <strong>power equations</strong>, <strong>fuses</strong>, <strong>AC and DC</strong>,
-      <strong>oscilloscope traces</strong>, and <strong>electric fields</strong>.
-    </p>
+        <a class="resource" href="/classes/s2/physics/Transport%20and%20Forces%20Knowledge%20Orgniser.pdf" target="_blank" rel="noopener noreferrer">
+          <p class="resource-title">Knowledge Organiser</p>
+          <p class="resource-desc">Quick facts, key words, equations, and reminders.</p>
+        </a>
 
-    <div class="intro-grid">
-      <div class="intro-card">
-        <strong>Start here</strong>
-        KO → Booklet → Practice questions → Past Paper Finder
+        <a class="resource" href="/classes/s2/physics/Equation%20Sheet.pdf" target="_blank" rel="noopener noreferrer">
+          <p class="resource-title">Equation Sheet</p>
+          <p class="resource-desc">Use this for speed and weight calculations and unit checks.</p>
+        </a>
+
+        <a class="resource" href="/classes/s2/physics/Success%20Criteria%20.pdf" target="_blank" rel="noopener noreferrer">
+          <p class="resource-title">Success Criteria</p>
+          <p class="resource-desc">Use when checking whether an answer is complete enough.</p>
+        </a>
       </div>
-      <div class="intro-card">
-        <strong>Do this in calculations</strong>
-        Convert units → choose the equation → substitute → answer with a unit
-      </div>
-      <div class="intro-card">
-        <strong>Most likely test questions</strong>
-        Q = It, E = Pt, choosing the correct power formula, fuse choice, AC/DC, oscilloscope traces, field direction
-      </div>
-    </div>
 
-    <details class="mini" style="margin-top:12px;">
-      <summary><span>What you should be able to do</span><span class="tag">checklist</span></summary>
-      <div class="details-inner">
-        <ul>
-          <li>I can use <strong>Q = It</strong> and its rearrangements.</li>
-          <li>I can use <strong>P = E / t</strong> and <strong>E = Pt</strong>.</li>
-          <li>I can choose between <strong>P = IV</strong>, <strong>P = I²R</strong> and <strong>P = V² / R</strong>.</li>
-          <li>I can use <strong>I = P / V</strong> for mains appliances and choose a fuse.</li>
-          <li>I can tell the difference between <strong>AC</strong> and <strong>DC</strong>.</li>
-          <li>I can identify <strong>AC</strong> and <strong>DC</strong> traces on an oscilloscope.</li>
-          <li>I can draw electric fields with arrows going from <strong>+</strong> to <strong>−</strong>.</li>
-          <li>I can predict the direction of a positive or negative charged particle in a field.</li>
-        </ul>
-      </div>
-    </details>
-  </section>
+      <details class="block">
+        <summary><span>More support files</span><span class="tag">extra</span></summary>
+        <div class="details-inner">
+          <div class="resource-grid">
+            <a class="resource" href="/classes/s2/physics/S2%20Physics%20Transport%20and%20Forces%20RS.pptx" target="_blank" rel="noopener noreferrer">
+              <p class="resource-title">Class Slides</p>
+              <p class="resource-desc">Use for recap and worked examples from class.</p>
+            </a>
 
-  <!-- EQUATIONS -->
-  <section class="panel" id="equations" aria-labelledby="equations-title">
-    <h2 id="equations-title">Equations</h2>
-    <p class="muted">Open the section you need.</p>
+            <a class="resource" href="/classes/s2/physics/Transport%20and%20Forces%20KBC.docx" target="_blank" rel="noopener noreferrer">
+              <p class="resource-title">KBC Sheet</p>
+              <p class="resource-desc">Quick recall questions for short revision bursts.</p>
+            </a>
 
-    <details class="block" open>
-      <summary><span>Must-know equations</span><span class="tag">core</span></summary>
-      <div class="details-inner">
-        <div class="equation-grid">
-          <div class="equation-card">
-            <strong>Charge and current</strong>
-            <div class="formula">Q = It</div>
-            Use when you know current and time, or when you need to find charge, current, or time.
-          </div>
+            <a class="resource" href="/classes/s2/physics/Experment%20guide.pdf" target="_blank" rel="noopener noreferrer">
+              <p class="resource-title">Experiment Guide</p>
+              <p class="resource-desc">Useful for method, fair test, accuracy, and improvement questions.</p>
+            </a>
 
-          <div class="equation-card">
-            <strong>Power and energy</strong>
-            <div class="formula">P = E / t</div>
-            Rearrangement: <strong>E = Pt</strong>
-          </div>
-
-          <div class="equation-card">
-            <strong>Power from voltage and current</strong>
-            <div class="formula">P = IV</div>
-            Use this when the question gives <strong>I</strong> and <strong>V</strong>.
-          </div>
-
-          <div class="equation-card">
-            <strong>Power from current and resistance</strong>
-            <div class="formula">P = I²R</div>
-            Use this when the question gives <strong>I</strong> and <strong>R</strong>.
-          </div>
-
-          <div class="equation-card">
-            <strong>Power from voltage and resistance</strong>
-            <div class="formula">P = V² / R</div>
-            Use this when the question gives <strong>V</strong> and <strong>R</strong>.
-          </div>
-
-          <div class="equation-card">
-            <strong>Fuse calculation</strong>
-            <div class="formula">I = P / V</div>
-            On UK mains, use <strong>230 V</strong>.
+            <a class="resource" href="/classes/s2/physics/Forces%20Revision%20Questions.pptx" target="_blank" rel="noopener noreferrer">
+              <p class="resource-title">Revision Questions</p>
+              <p class="resource-desc">Extra questions for recap and practice.</p>
+            </a>
           </div>
         </div>
+      </details>
+    </section>
+
+    <section class="panel" id="topics" aria-label="Topics">
+      <h2>Topics</h2>
+      <p class="muted">Open one topic, revise it, then move on.</p>
+
+      <div class="btn-row" aria-label="Topic controls">
+        <button class="btn" type="button" id="openAllTopics">Open all topics</button>
+        <button class="btn" type="button" id="closeAllTopics">Close all topics</button>
       </div>
-    </details>
 
-    <details class="block">
-      <summary><span>Conversions and choosing the right equation</span><span class="tag">help</span></summary>
-      <div class="details-inner">
-        <div class="stack">
-          <div class="question"><strong>minutes → seconds:</strong> multiply by 60</div>
-          <div class="question"><strong>mA → A:</strong> divide by 1000</div>
-          <div class="question"><strong>A → mA:</strong> multiply by 1000</div>
-          <div class="question"><strong>kW → W:</strong> multiply by 1000</div>
-        </div>
+      <details class="block topic-item">
+        <summary><span>1) Speed</span><span class="tag">v = d / t</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>Speed tells you how much distance is travelled each second.</p>
+              <div class="formula">v = d / t</div>
+            </div>
 
-        <div class="stack" style="margin-top:12px;">
-          <div class="question"><strong>Know V and I?</strong> Use <strong>P = IV</strong>.</div>
-          <div class="question"><strong>Know I and R?</strong> Use <strong>P = I²R</strong>.</div>
-          <div class="question"><strong>Know V and R?</strong> Use <strong>P = V² / R</strong>.</div>
-        </div>
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Speed = <strong>m/s</strong></li>
+                <li>Distance = <strong>m</strong></li>
+                <li>Time = <strong>s</strong></li>
+                <li>Rearrange when needed</li>
+              </ul>
+            </div>
 
-        <div class="callout">
-          <strong>Steps:</strong> convert units → choose the equation → substitute → answer with a unit
-        </div>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Quantities and units</span><span class="tag">reference</span></summary>
-      <div class="details-inner">
-        <div class="table-wrap">
-          <table aria-label="Key quantities and units">
-            <thead>
-              <tr>
-                <th>Quantity</th>
-                <th>Symbol</th>
-                <th>Meaning</th>
-                <th>Unit</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Charge</td>
-                <td>Q</td>
-                <td>Amount of charge transferred</td>
-                <td>coulomb (C)</td>
-              </tr>
-              <tr>
-                <td>Current</td>
-                <td>I</td>
-                <td>Rate of flow of charge</td>
-                <td>ampere (A)</td>
-              </tr>
-              <tr>
-                <td>Power</td>
-                <td>P</td>
-                <td>Energy transferred each second</td>
-                <td>watt (W)</td>
-              </tr>
-              <tr>
-                <td>Energy</td>
-                <td>E</td>
-                <td>Amount of energy transferred</td>
-                <td>joule (J)</td>
-              </tr>
-              <tr>
-                <td>Time</td>
-                <td>t</td>
-                <td>How long the process lasts</td>
-                <td>second (s)</td>
-              </tr>
-              <tr>
-                <td>Voltage</td>
-                <td>V</td>
-                <td>The push that drives charge</td>
-                <td>volt (V)</td>
-              </tr>
-              <tr>
-                <td>Resistance</td>
-                <td>R</td>
-                <td>How much a component opposes current</td>
-                <td>ohm (Ω)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </details>
-  </section>
-
-  <!-- WORKED EXAMPLES -->
-  <section class="panel" id="worked" aria-labelledby="worked-title">
-    <h2 id="worked-title">Worked examples</h2>
-    <p class="muted">Open one example at a time.</p>
-
-    <details class="block">
-      <summary><span>Worked example 1 — Q = It</span><span class="tag">charge</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A current of 2.5 A flows for 6 minutes. Calculate the charge transferred.</p>
-        <p><strong>Step 1:</strong> Convert time to seconds: 6 × 60 = 360 s</p>
-        <p><strong>Step 2:</strong> Use <strong>Q = It</strong></p>
-        <p><strong>Step 3:</strong> Q = 2.5 × 360 = 900</p>
-        <p><strong>Answer:</strong> <strong>900 C</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 2 — P = E / t</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A heater transfers 1800 J of energy in 45 s. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Use <strong>P = E / t</strong></p>
-        <p><strong>Step 2:</strong> P = 1800 / 45</p>
-        <p><strong>Step 3:</strong> P = 40</p>
-        <p><strong>Answer:</strong> <strong>40 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 3 — P = IV</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A component has a voltage of 12 V and a current of 0.35 A. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Use <strong>P = IV</strong></p>
-        <p><strong>Step 2:</strong> P = 12 × 0.35</p>
-        <p><strong>Step 3:</strong> P = 4.2</p>
-        <p><strong>Answer:</strong> <strong>4.2 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 4 — P = I²R</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A resistor carries a current of 250 mA and has a resistance of 120 Ω. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Convert current: 250 mA = 0.25 A</p>
-        <p><strong>Step 2:</strong> Use <strong>P = I²R</strong></p>
-        <p><strong>Step 3:</strong> P = (0.25)² × 120</p>
-        <p><strong>Step 4:</strong> P = 0.0625 × 120 = 7.5</p>
-        <p><strong>Answer:</strong> <strong>7.5 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 5 — P = V² / R</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A 100 Ω resistor is connected to a 9.0 V supply. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Use <strong>P = V² / R</strong></p>
-        <p><strong>Step 2:</strong> P = 9.0² / 100</p>
-        <p><strong>Step 3:</strong> P = 81 / 100 = 0.81</p>
-        <p><strong>Answer:</strong> <strong>0.81 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 6 — Fuse choice using I = P / V</span><span class="tag">fuses</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A kettle is rated at 1840 W and uses UK mains. Calculate the current and choose a fuse.</p>
-        <p><strong>Step 1:</strong> Use <strong>V = 230 V</strong></p>
-        <p><strong>Step 2:</strong> Use <strong>I = P / V</strong></p>
-        <p><strong>Step 3:</strong> I = 1840 / 230 = 8.0 A</p>
-        <p><strong>Step 4:</strong> 3 A is too small, so choose the next suitable standard fuse.</p>
-        <p><strong>Answer:</strong> <strong>Current = 8.0 A, so choose a 13 A fuse.</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 7 — Charged particles in a field</span><span class="tag">fields</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> Two parallel plates are set up with the left plate positive and the right plate negative. Which way does a positive particle move? Which way does a negative particle move?</p>
-        <p><strong>Step 1:</strong> Electric field arrows go from <strong>+</strong> to <strong>−</strong>, so the field points <strong>left to right</strong>.</p>
-        <p><strong>Step 2:</strong> A <strong>positive</strong> particle moves in the <strong>same direction</strong> as the arrows.</p>
-        <p><strong>Step 3:</strong> A <strong>negative</strong> particle moves in the <strong>opposite direction</strong> to the arrows.</p>
-        <p><strong>Answer:</strong> <strong>Positive particle moves right. Negative particle moves left.</strong></p>
-      </div>
-    </details>
-  </section>
-
-  <!-- QUICK PRACTICE -->
-  <section class="panel" id="practice" aria-labelledby="practice-title">
-    <h2 id="practice-title">Quick practice</h2>
-    <p class="muted">Try the questions first, then open the answers.</p>
-
-    <details class="block">
-      <summary><span>Set 1: Charge and current</span><span class="tag">Q = It</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A current of 3 A flows for 8 s. Calculate the charge transferred.</div>
-          <div class="question"><strong>2.</strong> 48 C of charge passes through a lamp in 12 s. Calculate the current.</div>
-          <div class="question"><strong>3.</strong> A device carries a current of 0.4 A. How long does it take for 120 C of charge to flow?</div>
-          <div class="question"><strong>4.</strong> Explain in one sentence what <strong>1 A</strong> means.</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>24 C</strong></p>
-            <p>2. <strong>4 A</strong></p>
-            <p>3. <strong>300 s</strong></p>
-            <p>4. <strong>1 coulomb of charge flows each second.</strong></p>
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Forgetting the unit</li>
+                <li>Mixing up distance and time</li>
+                <li>Not using the same units all the way through</li>
+              </ul>
+            </div>
           </div>
-        </details>
-      </div>
-    </details>
 
-    <details class="block">
-      <summary><span>Set 2: Power and energy</span><span class="tag">P = E / t</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A 60 W lamp is on for 20 s. Calculate the energy transferred.</div>
-          <div class="question"><strong>2.</strong> 3600 J of energy is transferred in 60 s. Calculate the power.</div>
-          <div class="question"><strong>3.</strong> A 100 W heater works for 5 minutes. Calculate the energy transferred. <strong>Hint:</strong> convert the time first.</div>
-          <div class="question"><strong>4.</strong> Why does a higher power appliance transfer more energy each second?</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>1200 J</strong></p>
-            <p>2. <strong>60 W</strong></p>
-            <p>3. 5 min = 300 s, so E = Pt = 100 × 300 = <strong>30 000 J</strong></p>
-            <p>4. <strong>Because power is the amount of energy transferred each second.</strong></p>
+          <div class="callout">
+            Self-check: can you calculate speed, distance, and time from the same equation triangle?
           </div>
-        </details>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Set 3: Choosing the correct power equation</span><span class="tag">mixed</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A component has V = 6.0 V and I = 0.5 A. Calculate the power.</div>
-          <div class="question"><strong>2.</strong> A resistor has I = 2.0 A and R = 5.0 Ω. Calculate the power.</div>
-          <div class="question"><strong>3.</strong> A resistor has V = 12 V and R = 24 Ω. Calculate the power.</div>
-          <div class="question"><strong>4.</strong> A resistor has I = 300 mA and R = 40 Ω. Calculate the power. <strong>Hint:</strong> convert mA to A first.</div>
-          <div class="question"><strong>5.</strong> State which equation you would choose if the question gives <strong>V</strong> and <strong>R</strong>.</div>
         </div>
+      </details>
 
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>3.0 W</strong></p>
-            <p>2. <strong>20 W</strong></p>
-            <p>3. P = V² / R = 12² / 24 = 144 / 24 = <strong>6 W</strong></p>
-            <p>4. 300 mA = 0.3 A, so P = I²R = 0.3² × 40 = 0.09 × 40 = <strong>3.6 W</strong></p>
-            <p>5. <strong>P = V² / R</strong></p>
+      <details class="block topic-item">
+        <summary><span>2) Forces</span><span class="tag">push / pull</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>A force is a push or a pull. Forces can change speed, direction, or shape.</p>
+            </div>
+
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Force unit = <strong>newton (N)</strong></li>
+                <li>Measured with a <strong>Newton meter</strong></li>
+                <li>Forces are shown with arrows</li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Forgetting the unit is N</li>
+                <li>Calling any arrow a force without naming it</li>
+                <li>Confusing force with speed</li>
+              </ul>
+            </div>
           </div>
-        </details>
-      </div>
-    </details>
 
-    <details class="block">
-      <summary><span>Set 4: Fuses, AC/DC and oscilloscope traces</span><span class="tag">concepts</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A mains appliance is rated at 460 W. Calculate the current taken from a 230 V supply.</div>
-          <div class="question"><strong>2.</strong> Which fuse should be used for the 460 W appliance: 3 A or 13 A?</div>
-          <div class="question"><strong>3.</strong> State one difference between <strong>AC</strong> and <strong>DC</strong>.</div>
-          <div class="question"><strong>4.</strong> A straight horizontal oscilloscope trace shows what type of supply?</div>
-          <div class="question"><strong>5.</strong> A wave going above and below the centre line shows what type of supply?</div>
+          <div class="callout">
+            Self-check: can you explain three different things a force can do to an object?
+          </div>
         </div>
+      </details>
 
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. I = P / V = 460 / 230 = <strong>2 A</strong></p>
-            <p>2. <strong>3 A fuse</strong></p>
-            <p>3. <strong>AC changes direction; DC goes in one direction only.</strong></p>
-            <p>4. <strong>DC</strong></p>
-            <p>5. <strong>AC</strong></p>
+      <details class="block topic-item">
+        <summary><span>3) Resultant force and free body diagrams</span><span class="tag">balanced / unbalanced</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>The resultant force is the overall force after all forces are combined.</p>
+            </div>
+
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Balanced forces → resultant = <strong>0 N</strong></li>
+                <li>Unbalanced forces → motion changes</li>
+                <li>Arrows show direction and size</li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Thinking balanced means “not moving” only</li>
+                <li>Ignoring direction when subtracting forces</li>
+                <li>Drawing arrows with no labels</li>
+              </ul>
+            </div>
           </div>
-        </details>
-      </div>
-    </details>
 
-    <details class="block">
-      <summary><span>Set 5: Electric fields and charged particles</span><span class="tag">fields</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> In an electric field, field lines go from which type of charge to which type of charge?</div>
-          <div class="question"><strong>2.</strong> What do the arrows on field lines show?</div>
-          <div class="question"><strong>3.</strong> Why must field lines never cross?</div>
-          <div class="question"><strong>4.</strong> A positive particle is placed in a field. Does it move with the arrows or against them?</div>
-          <div class="question"><strong>5.</strong> A negative particle is placed in a field. Does it move with the arrows or against them?</div>
+          <div class="callout">
+            Self-check: if 8 N acts right and 3 N acts left, can you find the resultant and its direction?
+          </div>
         </div>
+      </details>
 
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>From positive to negative</strong></p>
-            <p>2. <strong>The direction of force on a positive test charge</strong></p>
-            <p>3. <strong>Because the field cannot point in two directions at the same place</strong></p>
-            <p>4. <strong>With the arrows</strong></p>
-            <p>5. <strong>Against the arrows</strong></p>
+      <details class="block topic-item">
+        <summary><span>4) Friction</span><span class="tag">opposes motion</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>Friction acts in the opposite direction to motion and can slow things down.</p>
+            </div>
+
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Friction can be useful or a nuisance</li>
+                <li>Kinetic energy can change into <strong>heat</strong></li>
+                <li>Equal engine force and friction = constant speed</li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Saying friction always “stops” motion instantly</li>
+                <li>Forgetting friction can be useful</li>
+                <li>Mixing up friction and resultant force</li>
+              </ul>
+            </div>
           </div>
-        </details>
+
+          <div class="callout">
+            Self-check: can you give two useful examples of friction and two nuisance examples?
+          </div>
+        </div>
+      </details>
+
+      <details class="block topic-item">
+        <summary><span>5) Mass and weight</span><span class="tag">W = m × g</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>Mass is the amount of matter. Weight is the force caused by gravity.</p>
+              <div class="formula">W = m × g</div>
+            </div>
+
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Mass = <strong>kg</strong></li>
+                <li>Weight = <strong>N</strong></li>
+                <li>g = <strong>N/kg</strong></li>
+                <li>On Earth, g ≈ <strong>10 N/kg</strong></li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Mixing up kg and N</li>
+                <li>Forgetting weight changes on different planets</li>
+                <li>Using the wrong value for g</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            Self-check: can you explain why mass stays the same but weight changes from planet to planet?
+          </div>
+        </div>
+      </details>
+
+      <details class="block topic-item">
+        <summary><span>6) Magnetism</span><span class="tag">N → S</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>Magnets have north and south poles and produce a magnetic field around them.</p>
+            </div>
+
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Unlike poles attract</li>
+                <li>Like poles repel</li>
+                <li>Field lines are drawn <strong>N to S</strong></li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Mixing up attract and repel</li>
+                <li>Drawing field arrows the wrong way</li>
+                <li>Forgetting every magnet has two poles</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            Self-check: can you sketch a bar magnet and show the direction of the field lines?
+          </div>
+        </div>
+      </details>
+
+      <details class="block topic-item">
+        <summary><span>7) Electromagnets</span><span class="tag">coil + core + current</span></summary>
+        <div class="details-inner">
+          <div class="topic-grid">
+            <div class="mini-card">
+              <h3>Key idea</h3>
+              <p>An electromagnet is a magnet made using electricity, so it can be switched on and off.</p>
+            </div>
+
+            <div class="mini-card">
+              <h3>Must know</h3>
+              <ul>
+                <li>Use a coil of wire</li>
+                <li>Add an iron core</li>
+                <li>More coils can make it stronger</li>
+                <li>Higher voltage/current can make it stronger</li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>Common mistakes</h3>
+              <ul>
+                <li>Forgetting the iron core</li>
+                <li>Saying permanent magnets can be turned off</li>
+                <li>Not linking strength to coils or supply</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            Self-check: can you describe two ways to make an electromagnet stronger?
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel" id="selfcheck" aria-label="Self-check">
+      <h2>Topic self-check</h2>
+      <p class="muted">Choose Green, Amber, or Red for each whole topic. This saves on this device.</p>
+
+      <div class="check-top">
+        <div class="stat">Green: <span id="gCount">0</span></div>
+        <div class="stat">Amber: <span id="aCount">0</span></div>
+        <div class="stat">Red: <span id="rCount">0</span></div>
+        <div class="stat">Not rated: <span id="uCount">0</span></div>
       </div>
-    </details>
-  </section>
 
-  <!-- COMMON MISTAKES -->
-  <section class="panel" id="mistakes" aria-labelledby="mistakes-title">
-    <h2 id="mistakes-title">Common mistakes</h2>
-    <p class="muted">Check these before you mark your answer wrong.</p>
+      <div class="tracker" id="tracker"></div>
 
-    <div class="mistake-grid">
-      <div class="mistake-card">
-        <strong>Time not in seconds</strong>
-        Convert minutes to seconds before using <strong>Q = It</strong> or <strong>P = E / t</strong>.
+      <div class="summary-box" aria-live="polite" aria-atomic="true">
+        <p id="summaryLine" style="font-weight:900;">Rate each topic to build your revision plan.</p>
+        <p id="summaryMessage" class="muted">Your weakest topics will be shown here.</p>
+
+        <div class="btn-row">
+          <button class="btn" type="button" id="resetTracker">Reset self-check</button>
+        </div>
       </div>
+    </section>
 
-      <div class="mistake-card">
-        <strong>mA left as A</strong>
-        Divide by 1000 before using power equations, especially before squaring in <strong>I²R</strong>.
-      </div>
+    <section class="panel" id="links" aria-label="Extra links">
+      <h2>Extra links</h2>
+      <p class="muted">Use these when you want another explanation or an interactive activity.</p>
 
-      <div class="mistake-card">
-        <strong>Wrong final unit</strong>
-        Charge = <strong>C</strong>, current = <strong>A</strong>, energy = <strong>J</strong>, power = <strong>W</strong>.
-      </div>
+      <details class="block">
+        <summary><span>Open extra links</span><span class="tag">BBC / PhET</span></summary>
+        <div class="details-inner">
+          <div class="resource-grid">
+            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=speed" target="_blank" rel="noopener">
+              <p class="resource-title">BBC Bitesize — Speed</p>
+              <p class="resource-desc">Short explanations and quick recap tasks.</p>
+            </a>
 
-      <div class="mistake-card">
-        <strong>Forgetting to square</strong>
-        In <strong>P = I²R</strong> and <strong>P = V² / R</strong>, square the value first.
-      </div>
+            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=forces" target="_blank" rel="noopener">
+              <p class="resource-title">BBC Bitesize — Forces</p>
+              <p class="resource-desc">Balanced forces, unbalanced forces, and motion.</p>
+            </a>
 
-      <div class="mistake-card">
-        <strong>Wrong fuse choice</strong>
-        Calculate the current first using <strong>I = P / V</strong>, then choose a suitable fuse.
-      </div>
+            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=friction" target="_blank" rel="noopener">
+              <p class="resource-title">BBC Bitesize — Friction</p>
+              <p class="resource-desc">Useful and nuisance friction.</p>
+            </a>
 
-      <div class="mistake-card">
-        <strong>Field arrows wrong way</strong>
-        Electric field arrows always go from <strong>+</strong> to <strong>−</strong>.
-      </div>
+            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=magnetism" target="_blank" rel="noopener">
+              <p class="resource-title">BBC Bitesize — Magnetism</p>
+              <p class="resource-desc">Poles, fields, and electromagnets.</p>
+            </a>
 
-      <div class="mistake-card">
-        <strong>Field lines crossing</strong>
-        Field lines never cross. Keep the pattern tidy and consistent.
-      </div>
+            <a class="resource" href="https://phet.colorado.edu/en/simulations/forces-and-motion-basics" target="_blank" rel="noopener">
+              <p class="resource-title">PhET — Forces and Motion</p>
+              <p class="resource-desc">Useful for resultant force, motion, and friction.</p>
+            </a>
 
-      <div class="mistake-card">
-        <strong>No unit in the answer</strong>
-        Always write the unit.
-      </div>
-    </div>
+            <a class="resource" href="https://phet.colorado.edu/en/simulation/friction" target="_blank" rel="noopener">
+              <p class="resource-title">PhET — Friction</p>
+              <p class="resource-desc">Explore friction changes in an interactive way.</p>
+            </a>
 
-    <div class="callout">
-      <strong>Check:</strong> units → equation → substitution → answer → unit
-    </div>
-  </section>
-</main>
-  
-  <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
+            <a class="resource" href="https://phet.colorado.edu/en/simulation/gravity-force-lab" target="_blank" rel="noopener">
+              <p class="resource-title">PhET — Gravity</p>
+              <p class="resource-desc">Useful for force and weight ideas.</p>
+            </a>
+
+            <a class="resource" href="https://phet.colorado.edu/en/simulations/magnets-and-electromagnets" target="_blank" rel="noopener">
+              <p class="resource-title">PhET — Magnets and Electromagnets</p>
+              <p class="resource-desc">Good for fields, poles, coils, and cores.</p>
+            </a>
+          </div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    Mr Stewart’s Physics • S2 Transport &amp; Forces • Revision Hub
+  </footer>
 
   <script>
     /* ============================
-       MENU: overlay click + ESC close + focus trap
+       HELPERS
     =============================== */
-    const menu = document.getElementById('sideMenu');
-    const overlay = document.getElementById('menuOverlay');
-    const btn = document.getElementById('menuBtn');
-    const closeBtn = document.getElementById('menuClose');
+    function $(id){ return document.getElementById(id); }
 
-    let lastFocus = null;
+    /* ============================
+       MENU WITH SCROLL LOCK + FOCUS TRAP
+    =============================== */
+    let lastFocusEl = null;
 
-    function getFocusableInMenu(){
-      return menu.querySelectorAll('a[href], button:not([disabled])');
+    function getMenuFocusable(){
+      const menu = $("sideMenu");
+      if(!menu) return [];
+      return Array.from(
+        menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])')
+      ).filter(el => !el.hasAttribute("disabled"));
     }
 
     function openMenu(){
-      lastFocus = document.activeElement;
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
 
-      menu.classList.add('open');
-      overlay.hidden = false;
-      overlay.classList.add('show');
-      btn.setAttribute('aria-expanded', 'true');
+      lastFocusEl = document.activeElement;
+      menu.classList.add("open");
+      overlay.classList.add("show");
+      document.body.classList.add("menu-open");
 
-      document.body.style.overflowY = 'hidden';
+      btn.setAttribute("aria-expanded","true");
+      btn.setAttribute("aria-label","Close menu");
+      overlay.setAttribute("aria-hidden","false");
 
-      const f = getFocusableInMenu();
-      (f[0] || menu).focus();
+      const focusable = getMenuFocusable();
+      if(focusable.length) focusable[0].focus();
     }
 
     function closeMenu(){
-      menu.classList.remove('open');
-      overlay.classList.remove('show');
-      overlay.hidden = true;
-      btn.setAttribute('aria-expanded', 'false');
+      const menu = $("sideMenu");
+      const overlay = $("menuOverlay");
+      const btn = $("menuBtn");
+      if(!menu || !overlay || !btn) return;
 
-      document.body.style.overflowY = '';
+      menu.classList.remove("open");
+      overlay.classList.remove("show");
+      document.body.classList.remove("menu-open");
 
-      if(lastFocus && lastFocus.focus) lastFocus.focus();
-      lastFocus = null;
+      btn.setAttribute("aria-expanded","false");
+      btn.setAttribute("aria-label","Open menu");
+      overlay.setAttribute("aria-hidden","true");
+
+      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
+        lastFocusEl.focus();
+      } else {
+        btn.focus();
+      }
+      lastFocusEl = null;
     }
 
     function toggleMenu(){
-      menu.classList.contains('open') ? closeMenu() : openMenu();
+      const menu = $("sideMenu");
+      if(!menu) return;
+      menu.classList.contains("open") ? closeMenu() : openMenu();
     }
 
-    btn.addEventListener('click', toggleMenu);
-    closeBtn.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-
-    document.addEventListener('keydown', (e) => {
-      const isOpen = menu.classList.contains('open');
-
-      if(e.key === 'Escape' && isOpen){
+    document.addEventListener("DOMContentLoaded", () => {
+      $("menuBtn")?.addEventListener("click", toggleMenu);
+      $("menuOverlay")?.addEventListener("click", closeMenu);
+      $("closeMenuLink")?.addEventListener("click", (e) => {
         e.preventDefault();
         closeMenu();
-        return;
+      });
+      $("menuOverlay")?.setAttribute("aria-hidden","true");
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const menu = $("sideMenu");
+      const isOpen = menu && menu.classList.contains("open");
+
+      if(e.key === "Escape" && isOpen){
+        e.preventDefault();
+        closeMenu();
       }
 
-      if(e.key === 'Tab' && isOpen){
-        const focusables = Array.from(getFocusableInMenu());
-        if(!focusables.length) return;
+      if(e.key === "Tab" && isOpen){
+        const items = getMenuFocusable();
+        if(!items.length) return;
 
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
+        const first = items[0];
+        const last = items[items.length - 1];
 
         if(e.shiftKey && document.activeElement === first){
           e.preventDefault();
@@ -1275,6 +1176,151 @@ title: S3 Physics – Electricity 3: Power and Concepts
           first.focus();
         }
       }
+    });
+
+    /* ============================
+       TOPIC OPEN / CLOSE
+    =============================== */
+    function topicDetails(){
+      return Array.from(document.querySelectorAll("details.topic-item"));
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      $("openAllTopics")?.addEventListener("click", () => {
+        topicDetails().forEach(d => d.open = true);
+        $("topics")?.scrollIntoView({behavior:"smooth", block:"start"});
+      });
+
+      $("closeAllTopics")?.addEventListener("click", () => {
+        topicDetails().forEach(d => d.open = false);
+        $("topics")?.scrollIntoView({behavior:"smooth", block:"start"});
+      });
+    });
+
+    /* ============================
+       SIMPLE TOPIC SELF-CHECK
+    =============================== */
+    const TRACK_KEY = "s2-transport-forces-topic-check-v2";
+
+    const TRACK_TOPICS = [
+      { id:"speed", label:"Speed" },
+      { id:"forces", label:"Forces" },
+      { id:"resultant", label:"Resultant force and free body diagrams" },
+      { id:"friction", label:"Friction" },
+      { id:"massweight", label:"Mass and weight" },
+      { id:"magnetism", label:"Magnetism" },
+      { id:"electromagnets", label:"Electromagnets" }
+    ];
+
+    function loadTrack(){
+      try{
+        const raw = localStorage.getItem(TRACK_KEY);
+        if(!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+      }catch{
+        return {};
+      }
+    }
+
+    function saveTrack(state){
+      try{
+        localStorage.setItem(TRACK_KEY, JSON.stringify(state));
+      }catch{}
+    }
+
+    function buildTracker(){
+      const tracker = $("tracker");
+      if(!tracker) return;
+
+      const state = loadTrack();
+      tracker.innerHTML = "";
+
+      TRACK_TOPICS.forEach(topic => {
+        const row = document.createElement("div");
+        row.className = "track-row";
+
+        const label = document.createElement("div");
+        label.className = "track-label";
+        label.textContent = topic.label;
+
+        const controls = document.createElement("div");
+        controls.className = "track-controls";
+        controls.setAttribute("role","group");
+        controls.setAttribute("aria-label", `Rate confidence for ${topic.label}`);
+
+        ["G","A","R"].forEach(val => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "track-btn";
+          btn.dataset.val = val;
+          btn.textContent = val;
+          btn.setAttribute("aria-pressed", state[topic.id] === val ? "true" : "false");
+
+          if(state[topic.id] === val) btn.classList.add("active");
+
+          btn.addEventListener("click", () => {
+            const next = loadTrack();
+            next[topic.id] = val;
+            saveTrack(next);
+            buildTracker();
+            updateTrackerSummary();
+          });
+
+          controls.appendChild(btn);
+        });
+
+        row.appendChild(label);
+        row.appendChild(controls);
+        tracker.appendChild(row);
+      });
+    }
+
+    function updateTrackerSummary(){
+      const state = loadTrack();
+
+      let g = 0, a = 0, r = 0, u = 0;
+      const redTopics = [];
+
+      TRACK_TOPICS.forEach(topic => {
+        const val = state[topic.id];
+        if(val === "G") g++;
+        else if(val === "A") a++;
+        else if(val === "R"){
+          r++;
+          redTopics.push(topic.label);
+        } else {
+          u++;
+        }
+      });
+
+      $("gCount").textContent = g;
+      $("aCount").textContent = a;
+      $("rCount").textContent = r;
+      $("uCount").textContent = u;
+
+      const rated = g + a + r;
+      $("summaryLine").textContent = `Rated ${rated} of ${TRACK_TOPICS.length} topics.`;
+
+      if(redTopics.length){
+        $("summaryMessage").textContent = `Focus first on: ${redTopics.join(", ")}.`;
+      } else if(u > 0){
+        $("summaryMessage").textContent = "Rate the remaining topics to complete your revision plan.";
+      } else {
+        $("summaryMessage").textContent = "No red topics. Next step: try the practice test again with no notes.";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      buildTracker();
+      updateTrackerSummary();
+
+      $("resetTracker")?.addEventListener("click", () => {
+        if(!confirm("Reset all self-check ratings for this page?")) return;
+        try{ localStorage.removeItem(TRACK_KEY); }catch{}
+        buildTracker();
+        updateTrackerSummary();
+      });
     });
   </script>
 </body>
