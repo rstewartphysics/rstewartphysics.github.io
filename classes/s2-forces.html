@@ -14,13 +14,36 @@ title: S2 Physics – Transport & Forces (Revision)
 
   <style>
     /* ============================
-       GLOBAL SAFETY / MOBILE
+       GLOBAL FIX: prevent clipping/overflow
     =============================== */
     *, *::before, *::after{ box-sizing:border-box; }
     html, body{ max-width:100%; }
     body{ margin:0; overflow-x:hidden; }
     img, iframe{ max-width:100%; height:auto; display:block; }
 
+    /* ============================
+       A11Y HELPERS
+    =============================== */
+    .visually-hidden{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .skip-link{
+      position:absolute; left:-999px; top:10px;
+      background: var(--accent); color:#fff;
+      padding:0.6rem 0.9rem; border-radius:12px;
+      font-weight:900; z-index:1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    }
+    .skip-link:focus{ left:10px; }
+
+    /* ============================
+       THEME (Body-Systems-style layout, Physics palette)
+    =============================== */
     :root{
       --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
 
@@ -28,42 +51,42 @@ title: S2 Physics – Transport & Forces (Revision)
       --bg1:#eef3ff;
       --bg2:#ffffff;
 
-      --text:#14213d;
-      --muted:#53627f;
+      --text:#12203a;
+      --muted:#4a5a78;
 
       --accent:#2c63ff;
-      --accent-soft:#eaf1ff;
-      --accent-line:rgba(44,99,255,0.22);
+      --accent-2:#6a2cff;
 
       --card:#ffffff;
-      --border:rgba(16,32,64,0.14);
-      --border-strong:rgba(44,99,255,0.34);
 
-      --shadow:0 10px 24px rgba(15,23,42,0.08);
-      --shadow-soft:0 6px 16px rgba(15,23,42,0.06);
+      --border: rgba(10,25,60,0.16);
+      --border-strong: rgba(44,99,255,0.38);
 
-      --radius:18px;
+      --shadow: 0 18px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 10px 22px rgba(0,0,0,0.08);
 
-      --g:#17a866;
-      --a:#f2a315;
-      --r:#dd4747;
+      --radius: 18px;
 
-      --focus-ring:3px solid rgba(44,99,255,0.85);
-      --focus-offset:4px;
+      --focus-ring: 3px solid rgba(44,99,255,0.85);
+      --focus-offset: 4px;
+
+      /* Confidence colours */
+      --g:#0bbf6a;
+      --a:#ffb020;
+      --r:#eb4343;
     }
 
     body{
       font-family: var(--font-stack);
       color: var(--text);
       background:
-        radial-gradient(900px 520px at 12% 0%, rgba(44,99,255,0.11), transparent 62%),
-        linear-gradient(180deg, var(--bg0), var(--bg1) 52%, var(--bg2) 100%);
+        radial-gradient(900px 520px at 12% 0%, rgba(44,99,255,0.14), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, rgba(106,44,255,0.10), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
       min-height:100vh;
       display:flex;
       flex-direction:column;
     }
-
-    body.menu-open{ overflow:hidden; }
 
     :focus-visible{
       outline: var(--focus-ring);
@@ -74,533 +97,617 @@ title: S2 Physics – Transport & Forces (Revision)
       *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
     }
 
-    .visually-hidden{
-      position:absolute!important;
-      width:1px;height:1px;
-      padding:0;margin:-1px;
-      overflow:hidden;
-      clip:rect(0,0,0,0);
-      white-space:nowrap;border:0;
-    }
-
-    .skip-link{
-      position:absolute;
-      left:-999px;
-      top:10px;
-      background: var(--accent);
-      color:#fff;
-      padding:0.65rem 0.95rem;
-      border-radius:12px;
-      font-weight:800;
-      z-index:1000;
-      box-shadow: var(--shadow);
-    }
-    .skip-link:focus{ left:10px; }
-
     /* ============================
-       MENU / DRAWER
+       MENU BUTTON & SIDE MENU (LIGHT)
     =============================== */
     .menu-btn{
-      position:fixed;
-      top:max(14px, env(safe-area-inset-top));
-      right:max(16px, env(safe-area-inset-right));
-      z-index:450;
-      border:1px solid var(--border-strong);
-      background:rgba(255,255,255,0.92);
-      color:var(--text);
-      border-radius:14px;
-      min-width:48px;
-      min-height:48px;
-      padding:0 0.75rem;
-      font-size:1.45rem;
-      line-height:1;
-      cursor:pointer;
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      font-size: 1.7rem;
+      background: rgba(255,255,255,0.78);
+      border: 2px solid rgba(44,99,255,0.35);
+      border-radius: 12px;
+      padding: 0.25rem 0.55rem;
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      cursor: pointer;
+      color: var(--text);
+      z-index: 400;
       box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.18s ease, background 0.18s ease;
     }
+    .menu-btn:hover,
+    .menu-btn:focus-visible{ transform: scale(1.06); }
 
     .menu-overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(10,20,40,0.28);
-      opacity:0;
-      visibility:hidden;
-      transition:opacity 0.2s ease, visibility 0.2s ease;
-      z-index:390;
+      position: fixed; inset: 0;
+      background: rgba(10,20,40,0.25);
+      display:none;
+      z-index:340;
     }
-    .menu-overlay.show{
-      opacity:1;
-      visibility:visible;
-    }
+    .menu-overlay.show{ display:block; }
 
     .side-menu{
-      position:fixed;
-      top:0;
-      right:-320px;
-      width:min(320px, 86vw);
-      height:100dvh;
-      z-index:400;
-      padding:
-        calc(4.4rem + env(safe-area-inset-top))
-        0
-        calc(1rem + env(safe-area-inset-bottom));
-      background:rgba(255,255,255,0.94);
-      border-left:1px solid var(--border);
-      box-shadow:-12px 0 24px rgba(15,23,42,0.12);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      overflow:auto;
-      transition:right 0.24s ease;
+      position: fixed; top: 0; right: -320px;
+      width: 320px; height: 100%;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
+      padding-top: calc(4.4rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      transition: right 0.25s ease;
+      z-index:350;
+      border-left: 1px solid rgba(10,25,60,0.14);
     }
-    .side-menu.open{ right:0; }
+    .side-menu.open{ right: 0; }
 
     .side-menu a{
-      display:flex;
-      align-items:center;
-      gap:0.7rem;
-      min-height:52px;
-      padding:0.95rem 1.2rem;
-      color:var(--text);
+      padding: 1rem 1.2rem;
+      font-size: 1.12rem;
       text-decoration:none;
-      font-weight:800;
-      border-bottom:1px solid rgba(16,32,64,0.07);
+      color: var(--text);
+      border-bottom: 1px solid rgba(10,25,60,0.08);
+      display:flex;
+      gap:0.7rem;
+      min-height: 46px;
+      align-items:center;
+      font-weight: 900;
     }
     .side-menu a:hover,
-    .side-menu a:focus-visible{
-      background:rgba(44,99,255,0.08);
-    }
+    .side-menu a:focus-visible{ background: rgba(44,99,255,0.10); }
 
     /* ============================
        BANNER
     =============================== */
     .banner-wrap{
-      position:relative;
-      width:100%;
-      overflow:hidden;
-      border-bottom:1px solid rgba(16,32,64,0.10);
-      box-shadow: 0 8px 20px rgba(15,23,42,0.06);
-      background:#fff;
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      border-bottom: 1px solid rgba(10,25,60,0.10);
+      background: #fff;
     }
-
     .banner{
       width:100%;
-      max-height:300px;
-      object-fit:cover;
+      max-height: 330px;
+      object-fit: cover;
       display:block;
     }
-
-    @media (max-width:768px){
-      .banner{ max-height:220px; }
+    @media (max-width: 768px){
+      .banner{ max-height: 250px; }
     }
-
-    .title-strip{
+    .banner-tint{
+      position:absolute; inset:0;
+      background: linear-gradient(120deg,
+        rgba(44,99,255,0.10),
+        rgba(255,255,255,0.08)
+      );
+      mix-blend-mode: multiply;
+      pointer-events:none;
+    }
+    .banner-overlay-text{
       position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      padding:0.9rem 1rem;
-      background:rgba(255,255,255,0.90);
-      border-top:1px solid rgba(16,32,64,0.08);
+      bottom:0; left:0; right:0;
+      background: rgba(255,255,255,0.78);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       text-align:center;
+      padding: 0.9rem 1rem;
+      border-top: 1px solid rgba(10,25,60,0.12);
     }
-
-    .title-strip h1{
+    .banner-overlay-text h1{
       margin:0;
-      font-size:1.08rem;
-      font-weight:900;
-      letter-spacing:0.2px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .banner-overlay-text p{
+      margin: 0.25rem 0 0;
+      font-size: 0.95rem;
+      color: rgba(74,90,120,0.92);
+      font-weight: 800;
     }
 
     /* ============================
-       JUMP NAV
+       STICKY JUMP BAR
     =============================== */
     .subnav-wrap{
-      position:sticky;
-      top:0;
-      z-index:320;
-      padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
-      background:rgba(246,248,255,0.84);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(16,32,64,0.10);
+      position: sticky;
+      top: 0;
+      z-index: 320;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+      background: rgba(246,248,255,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border-bottom: 1px solid rgba(10,25,60,0.12);
     }
-
     .subnav{
       display:flex;
-      gap:12px;
       align-items:center;
-      padding:8px 12px;
-      border-radius:16px;
-      border:1px solid rgba(16,32,64,0.12);
-      background:rgba(255,255,255,0.86);
-      box-shadow: var(--shadow-soft);
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(10,25,60,0.18);
+      background: rgba(255,255,255,0.70);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
     }
-
     .subnav-links{
       display:flex;
       gap:14px;
-      overflow:auto;
       flex-wrap:nowrap;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
       scrollbar-width:none;
-      -webkit-overflow-scrolling:touch;
     }
     .subnav-links::-webkit-scrollbar{ display:none; }
 
     .subnav-link{
       text-decoration:none;
-      color:var(--text);
-      white-space:nowrap;
-      font-weight:800;
-      padding:8px 2px;
-      border-bottom:3px solid transparent;
+      font-weight:900;
+      color: rgba(18,32,58,0.94);
+      padding: 8px 2px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      opacity:0.92;
     }
-    .subnav-link:hover{ border-bottom-color: var(--accent); }
+    .subnav-link:hover{
+      opacity:1;
+      border-bottom-color: var(--accent);
+    }
+    .subnav-link:focus-visible{
+      outline: 3px solid rgba(44,99,255,0.35);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
 
-    #overview, #resources, #topics, #selfcheck, #links{
-      scroll-margin-top: 120px;
+    .subnav-cta{
+      margin-left:auto;
+      text-decoration:none;
+      font-weight:900;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(44,99,255,0.35);
+      background: rgba(44,99,255,0.12);
+      color: rgba(18,32,58,0.95);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+    .subnav-cta:hover{ background: rgba(44,99,255,0.18); }
+    .subnav-cta:active{ transform: translateY(1px); }
+    .subnav-cta:focus-visible{
+      outline: 3px solid rgba(44,99,255,0.35);
+      outline-offset: 3px;
+    }
+
+    #overview, #howto, #resources, #topics, #ican, #quicklinks{
+      scroll-margin-top: 180px;
     }
 
     /* ============================
-       LAYOUT
+       MAIN LAYOUT
     =============================== */
     main.page-wrap{
+      max-width: 1100px;
+      margin: 1rem auto 2rem;
+      padding: 0 12px 4rem;
       width:100%;
-      max-width:1100px;
-      margin:1rem auto 2rem;
-      padding:0 12px 4rem;
-      flex:1;
+      flex: 1;
     }
 
     .panel{
-      background:rgba(255,255,255,0.92);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
+      background: var(--card);
+      border: 1px solid rgba(10,25,60,0.14);
+      border-radius: var(--radius);
       box-shadow: var(--shadow-soft);
-      padding:1.1rem;
-      margin:0.95rem 0;
+      padding: 1.15rem;
+      margin: 0.9rem 0;
+    }
+    .panel.soft{
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     h2{
-      margin:0 0 0.45rem;
-      font-size:1.16rem;
-      letter-spacing:0.2px;
+      margin: 0 0 0.55rem;
+      font-size: 1.18rem;
+      letter-spacing: 0.2px;
     }
+    p{ margin: 0.45rem 0 0; line-height: 1.6; }
+    .muted{ color: rgba(74,90,120,0.96); }
 
-    h3{
-      margin:0 0 0.45rem;
-      font-size:1rem;
-    }
-
-    p{
-      margin:0.4rem 0 0;
-      line-height:1.58;
-    }
-
-    .muted{ color:var(--muted); }
-
-    .lead{
-      font-size:1rem;
-      color:var(--text);
-      line-height:1.6;
-    }
-
-    .actions{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(min(210px,100%), 1fr));
-      gap:10px;
-      margin-top:0.95rem;
-    }
-
-    .btn{
-      display:inline-flex;
+    /* Buttons */
+    .wide-btn{
+      display:flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
+      gap: 10px;
       width:100%;
-      min-height:52px;
-      padding:0.9rem 1rem;
-      border-radius:16px;
-      border:1px solid var(--border);
-      background:#fff;
-      color:var(--text);
       text-decoration:none;
-      font-weight:800;
+      font-weight: 900;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 2px solid var(--border-strong);
+      background: rgba(44,99,255,0.12);
+      color: var(--text);
       box-shadow: var(--shadow-soft);
+      margin-top: 0.8rem;
       text-align:center;
     }
-
-    .btn:hover{ background:#f9fbff; }
-
-    .btn.primary{
-      border:2px solid var(--border-strong);
-      background:var(--accent-soft);
-    }
+    .wide-btn:hover{ background: rgba(44,99,255,0.16); }
+    .wide-btn:active{ transform: translateY(1px); }
 
     .btn-row{
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-      gap:10px;
-      margin-top:0.85rem;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
     }
-
-    button.btn{
-      cursor:pointer;
-      font-family:inherit;
-      font-size:1rem;
-    }
-
-    /* ============================
-       DETAILS / COLLAPSIBLES
-    =============================== */
-    details.block{
-      margin-top:12px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      overflow:hidden;
-    }
-
-    details.block > summary{
-      list-style:none;
-      cursor:pointer;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      padding:0.95rem 1rem;
-      font-weight:800;
-      background:linear-gradient(180deg, #fafdff, #f3f7ff);
-      border-bottom:1px solid rgba(16,32,64,0.08);
-    }
-
-    details.block > summary::-webkit-details-marker{ display:none; }
-
-    .details-inner{
-      padding:1rem;
-    }
-
-    .tag{
+    .small-btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:0.22rem 0.6rem;
-      border-radius:999px;
-      border:1px solid rgba(16,32,64,0.12);
-      background:#fff;
-      color:var(--muted);
-      font-size:0.84rem;
-      font-weight:800;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(10,25,60,0.16);
+      background: rgba(255,255,255,0.82);
+      color: rgba(18,32,58,0.92);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+      width: 100%;
+    }
+    .small-btn:hover{ background: rgba(44,99,255,0.08); }
+    .small-btn:active{ transform: translateY(1px); }
+
+    /* Tiles */
+    .tile-grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+      margin-top: 0.75rem;
+      align-items: stretch;
+    }
+    .tile{
+      display:block;
+      border-radius: 18px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background:
+        radial-gradient(420px 180px at 20% 0%, rgba(44,99,255,0.14), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.90));
+      box-shadow: var(--shadow-soft);
+      text-decoration:none;
+      color: var(--text);
+      overflow:hidden;
+      min-height: 140px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position:relative;
+    }
+    .tile:hover,
+    .tile:focus-visible{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(44,99,255,0.14);
+      border-color: rgba(44,99,255,0.28);
+    }
+    .tile-inner{
+      padding: 14px 14px 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      height:100%;
+      justify-content:space-between;
+    }
+    .tile-title{
+      margin:0;
+      font-size: 1.02rem;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .tile-desc{
+      margin:0;
+      color: rgba(74,90,120,0.96);
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .badge{
+      display:inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(10,25,60,0.16);
+      background: rgba(255,255,255,0.82);
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: rgba(18,32,58,0.92);
       white-space:nowrap;
     }
-
-    /* ============================
-       RESOURCE CARDS
-    =============================== */
-    .resource-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(min(230px,100%), 1fr));
-      gap:12px;
-      margin-top:0.9rem;
+    .badge.main{
+      border: 2px solid rgba(44,99,255,0.42);
+      background: rgba(44,99,255,0.16);
     }
-
-    .resource{
-      display:block;
-      min-height:132px;
-      text-decoration:none;
-      color:var(--text);
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow: var(--shadow-soft);
-      padding:1rem;
-      transition:transform 0.16s ease, border-color 0.16s ease;
-    }
-
-    .resource:hover,
-    .resource:focus-visible{
-      transform:translateY(-2px);
-      border-color:var(--border-strong);
-    }
-
-    .resource-title{
-      margin:0;
-      font-size:1rem;
-      font-weight:900;
-    }
-
-    .resource-desc{
-      margin-top:0.5rem;
-      color:var(--muted);
-      font-weight:700;
-      line-height:1.5;
+    .ext{ font-weight: 900; opacity: 0.85; }
+    .tile.main{
+      border: 2px solid rgba(44,99,255,0.52);
+      box-shadow: 0 20px 40px rgba(44,99,255,0.16);
+      background:
+        radial-gradient(520px 220px at 18% 0%, rgba(44,99,255,0.22), transparent 72%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.90));
     }
 
     /* ============================
-       TOPIC CARDS
+       DETAILS (collapsibles default CLOSED)
     =============================== */
-    .topic-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(min(230px,100%), 1fr));
-      gap:12px;
-    }
-
-    .mini-card{
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      padding:0.95rem;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .mini-card p,
-    .mini-card ul{
-      margin-top:0.4rem;
-      color:var(--muted);
-      line-height:1.6;
-      font-weight:700;
-    }
-
-    .mini-card ul{
-      padding-left:1.05rem;
-      margin-bottom:0;
-    }
-
-    .formula{
-      display:inline-block;
-      margin-top:0.3rem;
-      padding:0.35rem 0.7rem;
-      border-radius:12px;
-      background:var(--accent-soft);
-      border:1px solid var(--accent-line);
-      font-weight:900;
-      color:var(--text);
-    }
-
-    .callout{
-      margin-top:0.8rem;
-      padding:0.8rem 0.9rem;
-      border-radius:14px;
-      border:1px solid rgba(16,32,64,0.10);
-      background:#f8fbff;
-      color:var(--text);
-      font-weight:700;
-      line-height:1.55;
-    }
-
-    /* ============================
-       SELF CHECK
-    =============================== */
-    .check-top{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      gap:10px;
-      margin-top:0.8rem;
-    }
-
-    .stat{
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      box-shadow: var(--shadow-soft);
-      padding:0.85rem 0.95rem;
-      font-weight:800;
-    }
-
-    .tracker{
-      margin-top:0.9rem;
-      border:1px solid var(--border);
-      border-radius:18px;
-      background:#fff;
+    details.block{
+      border-radius: 16px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background: rgba(255,255,255,0.86);
       overflow:hidden;
-      box-shadow: var(--shadow-soft);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      margin-top: 12px;
     }
-
-    .track-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:12px;
-      align-items:center;
-      padding:0.9rem 1rem;
-      border-bottom:1px solid rgba(16,32,64,0.08);
-    }
-
-    .track-row:last-child{ border-bottom:none; }
-
-    .track-label{
-      font-weight:800;
-      line-height:1.4;
-    }
-
-    .track-controls{
-      display:inline-flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .track-btn{
-      min-width:54px;
-      min-height:44px;
-      border-radius:14px;
-      border:2px solid rgba(16,32,64,0.16);
-      background:#fff;
-      color:var(--text);
-      font-weight:900;
+    details.block > summary{
       cursor:pointer;
-      box-shadow: var(--shadow-soft);
+      padding: 12px 12px;
+      font-weight: 900;
+      list-style: none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(44,99,255,0.10), rgba(255,255,255,0.78));
+      border-bottom: 1px solid rgba(10,25,60,0.10);
     }
-
-    .track-btn[data-val="G"].active{
-      background:var(--g);
-      color:#fff;
-      border-color:rgba(0,0,0,0.12);
+    details.block > summary::-webkit-details-marker{ display:none; }
+    details.block > summary:focus-visible{
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+      border-radius: 14px;
     }
-    .track-btn[data-val="A"].active{
-      background:var(--a);
-      color:#fff;
-      border-color:rgba(0,0,0,0.12);
+    .details-inner{ padding: 12px 12px 14px; }
+    .tag{
+      display:inline-block;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background: rgba(255,255,255,0.82);
+      color: rgba(18,32,58,0.86);
+      white-space:nowrap;
+      font-weight: 900;
     }
-    .track-btn[data-val="R"].active{
-      background:var(--r);
-      color:#fff;
-      border-color:rgba(0,0,0,0.12);
-    }
-
-    .summary-box{
-      margin-top:0.9rem;
-      padding:0.95rem 1rem;
-      border-radius:16px;
-      border:1px solid var(--border);
-      background:#fff;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .summary-box p + p{ margin-top:0.55rem; }
 
     /* ============================
-       FOOTER
+       NOTE CARDS inside topic details
     =============================== */
-    footer{
-      margin-top:auto;
-      text-align:center;
-      padding:1rem;
-      background:rgba(255,255,255,0.76);
-      border-top:1px solid rgba(16,32,64,0.10);
-      color:var(--muted);
-      font-size:0.92rem;
+    .note-grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr));
+      margin-top: 10px;
+      align-items: stretch;
+    }
+    .note{
+      border-radius: 16px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background:
+        radial-gradient(420px 180px at 20% 0%, rgba(44,99,255,0.10), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.92));
+      box-shadow: var(--shadow-soft);
+      padding: 12px 12px 12px;
+    }
+    .note h3{
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      letter-spacing: .2px;
+    }
+    .note ul{ margin: 0.2rem 0 0; padding-left: 1.15rem; line-height: 1.75; }
+    .note code{
+      background: rgba(44,99,255,0.10);
+      border: 1px solid rgba(44,99,255,0.18);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 950;
+    }
+    .callout{
+      margin-top: 10px;
+      padding: 0.7rem 0.85rem;
+      border-radius: 14px;
+      border: 1px dashed rgba(10,25,60,0.22);
+      background: rgba(44,99,255,0.06);
+      color: rgba(18,32,58,0.92);
+      font-weight: 850;
     }
 
-    @media (max-width:700px){
-      .track-row{
-        grid-template-columns:1fr;
-        align-items:start;
-      }
-      .track-controls{
-        justify-content:flex-start;
-      }
+    /* ============================
+       CONFIDENCE (G/A/R) TRACKER
+    =============================== */
+    .conf-top{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background: rgba(255,255,255,0.82);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+      color: rgba(18,32,58,0.92);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .filter{
+      flex: 1 1 260px;
+      min-width: 220px;
+      border-radius: 999px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background: rgba(255,255,255,0.90);
+      padding: 12px 14px;
+      font-weight: 850;
+      color: var(--text);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .bar{
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(10,25,60,0.14);
+      overflow:hidden;
+      margin-top: 10px;
+      background: rgba(44,99,255,0.06);
+    }
+    .bar > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), rgba(106,44,255,0.70));
+    }
+
+    .conf-help{
+      margin-top: 0.6rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 14px;
+      border: 1px solid rgba(10,25,60,0.12);
+      background: rgba(44,99,255,0.06);
+      color: rgba(18,32,58,0.92);
+      font-weight: 850;
+    }
+
+    .conf-item{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items:center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(10,25,60,0.08);
+    }
+    .conf-text{
+      font-weight: 850;
+      color: rgba(18,32,58,0.92);
+      line-height: 1.35;
+    }
+    .conf-controls{
+      display:inline-flex;
+      gap: 10px;
+      align-items:center;
+      padding: 8px;
+      border: 1px solid rgba(10,25,60,0.16);
+      background: rgba(255,255,255,0.90);
+      border-radius: 18px;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+
+    .conf-opt{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 56px;
+      height: 46px;
+      border-radius: 16px;
+      border: 2px solid rgba(10,25,60,0.18);
+      background: rgba(255,255,255,0.95);
+      cursor:pointer;
+      font-weight: 1000;
+      font-size: 1.05rem;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+    .conf-opt:active{ transform: translateY(1px); }
+
+    .conf-opt input{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+
+    /* Selected colours */
+    .conf-opt.sel{
+      color: #fff;
+      border-color: rgba(0,0,0,0.18);
+      box-shadow: 0 14px 26px rgba(0,0,0,0.14);
+    }
+    .conf-opt[data-val="G"].sel{ background: var(--g); }
+    .conf-opt[data-val="A"].sel{ background: var(--a); }
+    .conf-opt[data-val="R"].sel{ background: var(--r); }
+
+    /* Unselected letter tint */
+    .conf-opt[data-val="G"]{ color: rgba(11,191,106,0.95); }
+    .conf-opt[data-val="A"]{ color: rgba(255,176,32,0.98); }
+    .conf-opt[data-val="R"]{ color: rgba(235,67,67,0.92); }
+    .conf-opt.sel[data-val="G"],
+    .conf-opt.sel[data-val="A"],
+    .conf-opt.sel[data-val="R"]{ color:#fff; }
+
+    .conf-summary{
+      margin-top: 12px;
+      padding: 0.9rem 0.95rem;
+      border-radius: 16px;
+      border: 1px solid rgba(10,25,60,0.14);
+      background: rgba(255,255,255,0.90);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+    }
+    .conf-mini{
+      margin-top: 0.55rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 14px;
+      border: 1px solid rgba(10,25,60,0.12);
+      background: rgba(44,99,255,0.05);
+      color: rgba(74,90,120,0.96);
+      font-weight: 850;
+    }
+    .conf-lines{
+      margin: 0.55rem 0 0;
+      padding-left: 1.1rem;
+      line-height: 1.75;
+      color: rgba(18,32,58,0.92);
+      font-weight: 850;
+    }
+    .conf-reset{
+      display:inline-flex;
+      width:100%;
+      margin-top: 10px;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(10,25,60,0.16);
+      background: rgba(255,255,255,0.92);
+      color: rgba(18,32,58,0.92);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.06);
+    }
+    .conf-reset:hover{ background: rgba(44,99,255,0.08); }
+    .conf-reset:active{ transform: translateY(1px); }
+
+    @media (max-width: 560px){
+      .conf-item{ grid-template-columns: 1fr; }
+      .conf-controls{ justify-content:flex-start; }
+      .conf-opt{ width: 62px; height: 48px; }
+    }
+
+    footer{
+      text-align:center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.72);
+      border-top: 1px solid rgba(10,25,60,0.10);
+      font-size:0.92rem;
+      color: rgba(74,90,120,0.96);
+      margin-top:auto;
     }
   </style>
 </head>
@@ -608,19 +715,22 @@ title: S2 Physics – Transport & Forces (Revision)
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
+  <!-- MENU BUTTON -->
   <button
     class="menu-btn"
     id="menuBtn"
     type="button"
+    onclick="toggleMenu()"
     aria-label="Open menu"
     aria-expanded="false"
     aria-controls="sideMenu"
   >☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
+  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
 
+  <!-- Drawer order: Home → Science → Physics → Electronics → Engineering -->
   <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-    <a href="#" id="closeMenuLink">✕ Close</a>
+    <a href="#" id="closeMenuLink">✖ Close</a>
     <a href="/">🏠 Home</a>
     <a href="/science/">🧪 Science</a>
     <a href="/physics/">⚡ Physics</a>
@@ -628,6 +738,7 @@ title: S2 Physics – Transport & Forces (Revision)
     <a href="/engineering/">🧰 Engineering</a>
   </nav>
 
+  <!-- BANNER -->
   <div class="banner-wrap" id="bannerWrap">
     <img
       src="/assets/transport-forces-banner.png"
@@ -636,440 +747,501 @@ title: S2 Physics – Transport & Forces (Revision)
       loading="lazy"
       onerror="document.getElementById('bannerWrap').style.display='none';"
     >
-    <div class="title-strip">
-      <h1>S2 Physics — Transport &amp; Forces Revision</h1>
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>S2 Physics — Transport &amp; Forces (Revision)</h1>
+      <p>Speed • Forces • Friction • Mass &amp; Weight • Magnetism • Electromagnets</p>
     </div>
   </div>
 
+  <!-- STICKY JUMP BAR -->
   <div class="subnav-wrap">
     <nav class="subnav" aria-label="Jump to sections">
       <div class="subnav-links">
         <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#howto">How to use</a>
         <a class="subnav-link" href="#resources">Resources</a>
         <a class="subnav-link" href="#topics">Topics</a>
-        <a class="subnav-link" href="#selfcheck">Self-check</a>
-        <a class="subnav-link" href="#links">Links</a>
+        <a class="subnav-link" href="#ican">Confidence</a>
+        <a class="subnav-link" href="#quicklinks">Links</a>
       </div>
+
+      <a class="subnav-cta"
+         href="/classes/s2/physics/Practice%20Test.docx"
+         target="_blank" rel="noopener">
+        ⭐ Practice Test ↗
+      </a>
     </nav>
   </div>
 
   <main class="page-wrap" id="mainContent">
     <h1 class="visually-hidden">S2 Physics Transport and Forces revision page</h1>
 
-    <section class="panel" id="overview" aria-label="Overview">
+    <!-- OVERVIEW -->
+    <section class="panel soft" id="overview" aria-label="Overview">
       <h2>Overview</h2>
-      <p class="lead">
-        Use the practice test to spot weak areas, then use the organiser and notes to fix them. Focus on
-        speed, forces, friction, mass and weight, magnetism, and electromagnets.
+      <p class="muted">
+        Revise the full topic: <strong>speed</strong>, <strong>forces</strong>, <strong>resultant forces</strong>, <strong>friction</strong>,
+        <strong>mass &amp; weight</strong>, <strong>magnetism</strong>, and <strong>electromagnets</strong>.
+        Use the resources first, then rate your <strong>confidence</strong> (Green/Amber/Red) as you go.
       </p>
 
-      <div class="actions" aria-label="Main revision actions">
-        <a class="btn primary" href="/classes/s2/physics/Practice%20Test.docx" target="_blank" rel="noopener noreferrer">
-          Practice Test
-        </a>
-        <a class="btn" href="/classes/s2/physics/Transport%20and%20Forces%20Knowledge%20Orgniser.pdf" target="_blank" rel="noopener noreferrer">
-          Knowledge Organiser
-        </a>
-        <a class="btn" href="/classes/s2/physics/Equation%20Sheet.pdf" target="_blank" rel="noopener noreferrer">
-          Equation Sheet
-        </a>
-        <a class="btn" href="/classes/s2/physics/Practice%20Test%20Answers.docx" target="_blank" rel="noopener noreferrer">
-          Answers
-        </a>
-      </div>
+      <a class="wide-btn"
+         href="/classes/s2/physics/Practice%20Test.docx"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Open the Practice Test in a new tab">
+        ⭐ Start here: Practice Test ↗
+      </a>
+
+      <p class="muted" style="margin-top:0.7rem;">
+        Tip: practise little-and-often — do one topic, mark it, fix mistakes, then re-try.
+      </p>
+    </section>
+
+    <!-- HOW TO USE -->
+    <section class="panel" id="howto" aria-label="How to use this page">
+      <h2>How to use (simple routine)</h2>
+      <p class="muted">Your aim: find what you don’t know yet, fix it, then practise again.</p>
 
       <details class="block">
-        <summary><span>Simple revision routine</span><span class="tag">20–25 mins</span></summary>
+        <summary><span>✅ Best routine (20–25 mins)</span><span class="tag">Repeat</span></summary>
         <div class="details-inner">
-          <p class="muted">
-            Try one section of the practice test, mark it, fix the mistakes using the organiser or slides,
-            then re-try similar questions. Rate each topic Green, Amber, or Red when you finish.
-          </p>
+          <ol style="margin:0.2rem 0 0; padding-left: 1.2rem; line-height:1.75;">
+            <li><strong>8–10 mins:</strong> practise one topic (Speed / Forces / Friction / etc.).</li>
+            <li><strong>5 mins:</strong> check answers and highlight missing key words / units.</li>
+            <li><strong>5 mins:</strong> use KO / slides to fix the weak bits.</li>
+            <li><strong>2–5 mins:</strong> rate confidence (Green/Amber/Red) and re-try one question.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary><span>⏱️ One timed run</span><span class="tag">Once</span></summary>
+        <div class="details-inner">
+          <ul style="margin:0.2rem 0 0; padding-left: 1.2rem; line-height:1.75;">
+            <li>Do the Practice Test with <strong>no notes</strong>.</li>
+            <li>Mark it, then write corrections in a different colour.</li>
+            <li>Re-attempt the questions you missed after 24 hours.</li>
+          </ul>
         </div>
       </details>
     </section>
 
+    <!-- RESOURCES -->
     <section class="panel" id="resources" aria-label="Resources">
-      <h2>Core resources</h2>
-      <p class="muted">Start with the test. Use the other files to fix gaps.</p>
+      <h2>Resources</h2>
+      <p class="muted">Start with the Practice Test. Use the others to fix mistakes and learn key ideas.</p>
 
-      <div class="resource-grid">
-        <a class="resource" href="/classes/s2/physics/Practice%20Test.docx" target="_blank" rel="noopener noreferrer">
-          <p class="resource-title">Practice Test</p>
-          <p class="resource-desc">Best first step. Try it, mark it, then fix the weak areas.</p>
+      <div class="tile-grid" aria-label="Main resources">
+        <a class="tile main"
+           href="/classes/s2/physics/Practice%20Test.docx"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Practice Test in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">⭐ Practice Test <span class="badge main">MAIN</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Attempt → mark → fix mistakes → re-try.</p>
+          </div>
         </a>
 
-        <a class="resource" href="/classes/s2/physics/Transport%20and%20Forces%20Knowledge%20Orgniser.pdf" target="_blank" rel="noopener noreferrer">
-          <p class="resource-title">Knowledge Organiser</p>
-          <p class="resource-desc">Quick facts, key words, equations, and reminders.</p>
+        <a class="tile"
+           href="/classes/s2/physics/Transport%20and%20Forces%20Knoweldge%20Orgniser.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Knowledge Organiser PDF in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">📄 Knowledge Organiser <span class="badge">core</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Key ideas and key words for quick recall.</p>
+          </div>
         </a>
 
-        <a class="resource" href="/classes/s2/physics/Equation%20Sheet.pdf" target="_blank" rel="noopener noreferrer">
-          <p class="resource-title">Equation Sheet</p>
-          <p class="resource-desc">Use this for speed and weight calculations and unit checks.</p>
+        <a class="tile"
+           href="/classes/s2/physics/Equation%20Sheet.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Equation Sheet PDF in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">🧾 Equation Sheet <span class="badge">must know</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">v = d/t and W = m×g — learn units and rearranging.</p>
+          </div>
         </a>
 
-        <a class="resource" href="/classes/s2/physics/Success%20Criteria%20.pdf" target="_blank" rel="noopener noreferrer">
-          <p class="resource-title">Success Criteria</p>
-          <p class="resource-desc">Use when checking whether an answer is complete enough.</p>
+        <a class="tile"
+           href="/classes/s2/physics/Success%20Criteria%20.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open Success Criteria PDF in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">✅ Success Criteria <span class="badge">what good looks like</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Use this when marking your answers.</p>
+          </div>
         </a>
       </div>
 
       <details class="block">
-        <summary><span>More support files</span><span class="tag">extra</span></summary>
+        <summary><span>🏁 Speed question packs</span><span class="tag">practice</span></summary>
         <div class="details-inner">
-          <div class="resource-grid">
-            <a class="resource" href="/classes/s2/physics/S2%20Physics%20Transport%20and%20Forces%20RS.pptx" target="_blank" rel="noopener noreferrer">
-              <p class="resource-title">Class Slides</p>
-              <p class="resource-desc">Use for recap and worked examples from class.</p>
+          <div class="tile-grid">
+            <a class="tile"
+               href="/classes/s2/physics/Speed%20Questions%20.pdf"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Open Speed Questions PDF in a new tab">
+              <div class="tile-inner">
+                <p class="tile-title">🏁 Speed Questions <span class="badge">calc</span> <span class="ext" aria-hidden="true">↗</span></p>
+                <p class="tile-desc">Build confidence with v = d/t.</p>
+              </div>
             </a>
 
-            <a class="resource" href="/classes/s2/physics/Transport%20and%20Forces%20KBC.docx" target="_blank" rel="noopener noreferrer">
-              <p class="resource-title">KBC Sheet</p>
-              <p class="resource-desc">Quick recall questions for short revision bursts.</p>
+            <a class="tile"
+               href="/classes/s2/physics/Speed%20Experment%20Questions%20.pdf"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Open Speed Experiment Questions PDF in a new tab">
+              <div class="tile-inner">
+                <p class="tile-title">🧪 Speed Experiment Questions <span class="badge">skills</span> <span class="ext" aria-hidden="true">↗</span></p>
+                <p class="tile-desc">Measuring, reliability, and improvements.</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary><span>📽️ Slides + KBC</span><span class="tag">recap</span></summary>
+        <div class="details-inner">
+          <div class="tile-grid">
+            <a class="tile"
+               href="/classes/s2/physics/S2%20Physics%20Transport%20and%20Forces%20RS.pptx"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Open Class Slides PPTX in a new tab">
+              <div class="tile-inner">
+                <p class="tile-title">📽️ Class Slides <span class="badge">learn</span> <span class="ext" aria-hidden="true">↗</span></p>
+                <p class="tile-desc">Use to fix the parts you got wrong.</p>
+              </div>
             </a>
 
-            <a class="resource" href="/classes/s2/physics/Experment%20guide.pdf" target="_blank" rel="noopener noreferrer">
-              <p class="resource-title">Experiment Guide</p>
-              <p class="resource-desc">Useful for method, fair test, accuracy, and improvement questions.</p>
+            <a class="tile"
+               href="/classes/s2/physics/Transport%20and%20Forces%20KBC.docx"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Open KBC Sheet DOCX in a new tab">
+              <div class="tile-inner">
+                <p class="tile-title">🗂️ KBC Sheet <span class="badge">quiz</span> <span class="ext" aria-hidden="true">↗</span></p>
+                <p class="tile-desc">Quick questions to check memory.</p>
+              </div>
             </a>
+          </div>
+        </div>
+      </details>
 
-            <a class="resource" href="/classes/s2/physics/Forces%20Revision%20Questions.pptx" target="_blank" rel="noopener noreferrer">
-              <p class="resource-title">Revision Questions</p>
-              <p class="resource-desc">Extra questions for recap and practice.</p>
-            </a>
+      <details class="block">
+        <summary><span>🟣 Answers (use after you’ve tried the test)</span><span class="tag">check</span></summary>
+        <div class="details-inner">
+          <a class="wide-btn"
+             href="/classes/s2/physics/Practice%20Test%20Answers.docx"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Open Practice Test Answers in a new tab">
+            🟣 Practice Test Answers ↗
+          </a>
+          <div class="callout">
+            Try the test first. Then use the answers to check, fix mistakes, and retest yourself.
           </div>
         </div>
       </details>
     </section>
 
+    <!-- TOPICS -->
     <section class="panel" id="topics" aria-label="Topics">
-      <h2>Topics</h2>
-      <p class="muted">Open one topic, revise it, then move on.</p>
+      <h2>Topics (open one at a time)</h2>
+      <p class="muted">Learn the key idea, practise, then rate your confidence.</p>
 
       <div class="btn-row" aria-label="Topic controls">
-        <button class="btn" type="button" id="openAllTopics">Open all topics</button>
-        <button class="btn" type="button" id="closeAllTopics">Close all topics</button>
+        <button class="small-btn" type="button" id="openAllTopics">Open all topics</button>
+        <button class="small-btn" type="button" id="closeAllTopics">Close all topics</button>
       </div>
 
       <details class="block topic-item">
-        <summary><span>1) Speed</span><span class="tag">v = d / t</span></summary>
+        <summary><span>1) 🏁 Speed</span><span class="tag">v = d ÷ t</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>Speed tells you how much distance is travelled each second.</p>
-              <div class="formula">v = d / t</div>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Speed = <strong>m/s</strong></li>
-                <li>Distance = <strong>m</strong></li>
-                <li>Time = <strong>s</strong></li>
-                <li>Rearrange when needed</li>
+                <li><strong>Speed</strong> = distance travelled per second.</li>
+                <li>Symbols: <code>v</code> speed, <code>d</code> distance, <code>t</code> time.</li>
+                <li>Units: <code>m/s</code>, <code>m</code>, <code>s</code>.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Equation</h3>
+              <p><code>v = d / t</code> (so <code>d = v×t</code> and <code>t = d / v</code>)</p>
+              <div class="callout">Always include the unit in your final answer.</div>
+            </div>
+            <div class="note">
+              <h3>Measuring speed</h3>
               <ul>
-                <li>Forgetting the unit</li>
-                <li>Mixing up distance and time</li>
-                <li>Not using the same units all the way through</li>
+                <li>Stopwatch + measured distance</li>
+                <li>Light gates + measured distance</li>
               </ul>
             </div>
-          </div>
-
-          <div class="callout">
-            Self-check: can you calculate speed, distance, and time from the same equation triangle?
+            <div class="note">
+              <h3>Improve accuracy</h3>
+              <ul>
+                <li>Repeat and average</li>
+                <li>Use a longer distance</li>
+                <li>Use a more precise timer</li>
+              </ul>
+            </div>
           </div>
         </div>
       </details>
 
       <details class="block topic-item">
-        <summary><span>2) Forces</span><span class="tag">push / pull</span></summary>
+        <summary><span>2) 🫸 Forces (basics)</span><span class="tag">push / pull</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>A force is a push or a pull. Forces can change speed, direction, or shape.</p>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Force unit = <strong>newton (N)</strong></li>
-                <li>Measured with a <strong>Newton meter</strong></li>
-                <li>Forces are shown with arrows</li>
+                <li>A <strong>force</strong> is a push or a pull.</li>
+                <li>A force can change an object’s <strong>speed</strong>, <strong>direction</strong>, or <strong>shape</strong>.</li>
+                <li>Unit of force: <strong>newton</strong> <code>N</code>.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Measuring force</h3>
               <ul>
-                <li>Forgetting the unit is N</li>
-                <li>Calling any arrow a force without naming it</li>
-                <li>Confusing force with speed</li>
+                <li>Use a <strong>spring balance</strong> (Newton meter).</li>
+                <li>Read the scale carefully (watch the unit!).</li>
               </ul>
             </div>
-          </div>
-
-          <div class="callout">
-            Self-check: can you explain three different things a force can do to an object?
           </div>
         </div>
       </details>
 
       <details class="block topic-item">
-        <summary><span>3) Resultant force and free body diagrams</span><span class="tag">balanced / unbalanced</span></summary>
+        <summary><span>3) ↔️ Resultant force &amp; free body diagrams</span><span class="tag">balanced vs unbalanced</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>The resultant force is the overall force after all forces are combined.</p>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Balanced forces → resultant = <strong>0 N</strong></li>
-                <li>Unbalanced forces → motion changes</li>
-                <li>Arrows show direction and size</li>
+                <li><strong>Resultant force</strong> = the overall effect of all forces.</li>
+                <li><strong>Balanced</strong>: resultant = <code>0 N</code> → speed stays the same (or stays still).</li>
+                <li><strong>Unbalanced</strong>: resultant ≠ <code>0 N</code> → speed and/or direction changes.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Free body diagrams (FBD)</h3>
               <ul>
-                <li>Thinking balanced means “not moving” only</li>
-                <li>Ignoring direction when subtracting forces</li>
-                <li>Drawing arrows with no labels</li>
+                <li>Draw forces as <strong>arrows</strong> on a simple object.</li>
+                <li>Arrow direction = force direction.</li>
+                <li>Longer arrow = bigger force (if drawn to scale).</li>
               </ul>
             </div>
-          </div>
-
-          <div class="callout">
-            Self-check: if 8 N acts right and 3 N acts left, can you find the resultant and its direction?
           </div>
         </div>
       </details>
 
       <details class="block topic-item">
-        <summary><span>4) Friction</span><span class="tag">opposes motion</span></summary>
+        <summary><span>4) 🛞 Friction</span><span class="tag">opposes motion</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>Friction acts in the opposite direction to motion and can slow things down.</p>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Friction can be useful or a nuisance</li>
-                <li>Kinetic energy can change into <strong>heat</strong></li>
-                <li>Equal engine force and friction = constant speed</li>
+                <li><strong>Friction</strong> is a force that <strong>opposes motion</strong>.</li>
+                <li>Friction turns <strong>kinetic energy</strong> into <strong>heat</strong> (and sometimes sound).</li>
+                <li>If engine force = friction → constant speed.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Reduce / use friction</h3>
               <ul>
-                <li>Saying friction always “stops” motion instantly</li>
-                <li>Forgetting friction can be useful</li>
-                <li>Mixing up friction and resultant force</li>
+                <li>Reduce: lubrication, smoother surfaces, bearings.</li>
+                <li>Useful: brakes, tyres on road, gripping.</li>
+                <li>Nuisance: wear, heating, slowing down.</li>
               </ul>
             </div>
-          </div>
-
-          <div class="callout">
-            Self-check: can you give two useful examples of friction and two nuisance examples?
           </div>
         </div>
       </details>
 
       <details class="block topic-item">
-        <summary><span>5) Mass and weight</span><span class="tag">W = m × g</span></summary>
+        <summary><span>5) 🌍 Mass &amp; weight</span><span class="tag">W = m × g</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>Mass is the amount of matter. Weight is the force caused by gravity.</p>
-              <div class="formula">W = m × g</div>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Mass = <strong>kg</strong></li>
-                <li>Weight = <strong>N</strong></li>
-                <li>g = <strong>N/kg</strong></li>
-                <li>On Earth, g ≈ <strong>10 N/kg</strong></li>
+                <li><strong>Mass</strong> = amount of matter (unit <code>kg</code>).</li>
+                <li><strong>Weight</strong> = force due to gravity (unit <code>N</code>).</li>
+                <li><strong>g</strong> has unit <code>N/kg</code>.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Equation</h3>
+              <p><code>W = m × g</code></p>
               <ul>
-                <li>Mixing up kg and N</li>
-                <li>Forgetting weight changes on different planets</li>
-                <li>Using the wrong value for g</li>
+                <li>Mass stays the same on all planets.</li>
+                <li>Weight changes because <code>g</code> changes.</li>
               </ul>
             </div>
-          </div>
-
-          <div class="callout">
-            Self-check: can you explain why mass stays the same but weight changes from planet to planet?
           </div>
         </div>
       </details>
 
       <details class="block topic-item">
-        <summary><span>6) Magnetism</span><span class="tag">N → S</span></summary>
+        <summary><span>6) 🧲 Magnetism</span><span class="tag">N → S field lines</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>Magnets have north and south poles and produce a magnetic field around them.</p>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Unlike poles attract</li>
-                <li>Like poles repel</li>
-                <li>Field lines are drawn <strong>N to S</strong></li>
+                <li>Magnets have 2 poles: <strong>North</strong> and <strong>South</strong>.</li>
+                <li><strong>Unlike</strong> poles attract, <strong>like</strong> poles repel.</li>
+                <li>Magnets make a <strong>magnetic field</strong> around them.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Field lines</h3>
               <ul>
-                <li>Mixing up attract and repel</li>
-                <li>Drawing field arrows the wrong way</li>
-                <li>Forgetting every magnet has two poles</li>
+                <li>Draw field lines from <strong>N → S</strong>.</li>
+                <li>Iron filings can show the field shape.</li>
               </ul>
             </div>
-          </div>
-
-          <div class="callout">
-            Self-check: can you sketch a bar magnet and show the direction of the field lines?
           </div>
         </div>
       </details>
 
       <details class="block topic-item">
-        <summary><span>7) Electromagnets</span><span class="tag">coil + core + current</span></summary>
+        <summary><span>7) 🔋 Electromagnets</span><span class="tag">coil + iron core + current</span></summary>
         <div class="details-inner">
-          <div class="topic-grid">
-            <div class="mini-card">
-              <h3>Key idea</h3>
-              <p>An electromagnet is a magnet made using electricity, so it can be switched on and off.</p>
-            </div>
-
-            <div class="mini-card">
-              <h3>Must know</h3>
+          <div class="note-grid">
+            <div class="note">
+              <h3>Key ideas</h3>
               <ul>
-                <li>Use a coil of wire</li>
-                <li>Add an iron core</li>
-                <li>More coils can make it stronger</li>
-                <li>Higher voltage/current can make it stronger</li>
+                <li>An <strong>electromagnet</strong> is a magnet you can switch on/off using electricity.</li>
+                <li>Make one using a <strong>coil of wire</strong> around an <strong>iron core</strong>.</li>
               </ul>
             </div>
-
-            <div class="mini-card">
-              <h3>Common mistakes</h3>
+            <div class="note">
+              <h3>Make it stronger</h3>
               <ul>
-                <li>Forgetting the iron core</li>
-                <li>Saying permanent magnets can be turned off</li>
-                <li>Not linking strength to coils or supply</li>
+                <li>More turns (coils of wire).</li>
+                <li>Higher supply voltage (more current).</li>
+                <li>Use an iron core.</li>
               </ul>
             </div>
           </div>
+        </div>
+      </details>
 
-          <div class="callout">
-            Self-check: can you describe two ways to make an electromagnet stronger?
-          </div>
+      <details class="block topic-item">
+        <summary><span>✨ Extension (WIP)</span><span class="tag">air resistance / parachutes</span></summary>
+        <div class="details-inner">
+          <div class="callout">Space reserved for extra notes, diagrams, and questions.</div>
         </div>
       </details>
     </section>
 
-    <section class="panel" id="selfcheck" aria-label="Self-check">
-      <h2>Topic self-check</h2>
-      <p class="muted">Choose Green, Amber, or Red for each whole topic. This saves on this device.</p>
+    <!-- CONFIDENCE (G/A/R) -->
+    <section class="panel" id="ican" aria-label="Confidence tracker">
+      <h2>Confidence (Green / Amber / Red)</h2>
+      <p class="muted">Tap each statement and choose Green, Amber, or Red. This saves on this device.</p>
 
-      <div class="check-top">
-        <div class="stat">Green: <span id="gCount">0</span></div>
-        <div class="stat">Amber: <span id="aCount">0</span></div>
-        <div class="stat">Red: <span id="rCount">0</span></div>
-        <div class="stat">Not rated: <span id="uCount">0</span></div>
+      <div class="conf-top" aria-label="Confidence controls">
+        <div class="pill">📈 Mean: <span id="meanTxt">—</span></div>
+        <div class="pill" aria-label="Counts">
+          🟩 <span id="gTxt">0</span>
+          🟧 <span id="aTxt">0</span>
+          🟥 <span id="rTxt">0</span>
+          ⬜ <span id="uTxt">0</span>
+        </div>
+
+        <div class="btn-row" style="margin:0; flex: 1 1 320px;">
+          <button class="small-btn" type="button" id="closeAllConf">Close all</button>
+          <button class="small-btn" type="button" id="resetConf">Reset</button>
+        </div>
+
+        <input class="filter" id="confFilter" type="search"
+               placeholder="Filter (e.g. speed, friction, magnets…)"
+               aria-label="Filter confidence statements" />
       </div>
 
-      <div class="tracker" id="tracker"></div>
+      <div class="bar" aria-label="Mean confidence bar"><div id="meanBar"></div></div>
 
-      <div class="summary-box" aria-live="polite" aria-atomic="true">
-        <p id="summaryLine" style="font-weight:900;">Rate each topic to build your revision plan.</p>
-        <p id="summaryMessage" class="muted">Your weakest topics will be shown here.</p>
+      <div class="conf-help">Green • Amber • Red</div>
 
-        <div class="btn-row">
-          <button class="btn" type="button" id="resetTracker">Reset self-check</button>
-        </div>
+      <div id="confSections" aria-label="Confidence sections"></div>
+
+      <div class="conf-summary" aria-live="polite" aria-atomic="true">
+        <div id="confSummaryLine" style="font-weight:900;"></div>
+        <div class="conf-mini" id="confMsg"></div>
+        <div class="conf-mini" id="confCatMeans"></div>
+        <ol class="conf-lines" id="confTopReds" aria-label="Red items"></ol>
+        <button class="conf-reset" type="button" id="confResetBtn">Reset confidence selections</button>
       </div>
     </section>
 
-    <section class="panel" id="links" aria-label="Extra links">
-      <h2>Extra links</h2>
-      <p class="muted">Use these when you want another explanation or an interactive activity.</p>
+    <!-- QUICK LINKS -->
+    <section class="panel" id="quicklinks" aria-label="Quick links">
+      <h2>Quick links</h2>
+      <p class="muted">Extra explanations and interactive practice.</p>
 
-      <details class="block">
-        <summary><span>Open extra links</span><span class="tag">BBC / PhET</span></summary>
-        <div class="details-inner">
-          <div class="resource-grid">
-            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=speed" target="_blank" rel="noopener">
-              <p class="resource-title">BBC Bitesize — Speed</p>
-              <p class="resource-desc">Short explanations and quick recap tasks.</p>
-            </a>
-
-            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=forces" target="_blank" rel="noopener">
-              <p class="resource-title">BBC Bitesize — Forces</p>
-              <p class="resource-desc">Balanced forces, unbalanced forces, and motion.</p>
-            </a>
-
-            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=friction" target="_blank" rel="noopener">
-              <p class="resource-title">BBC Bitesize — Friction</p>
-              <p class="resource-desc">Useful and nuisance friction.</p>
-            </a>
-
-            <a class="resource" href="https://www.bbc.co.uk/bitesize/search?q=magnetism" target="_blank" rel="noopener">
-              <p class="resource-title">BBC Bitesize — Magnetism</p>
-              <p class="resource-desc">Poles, fields, and electromagnets.</p>
-            </a>
-
-            <a class="resource" href="https://phet.colorado.edu/en/simulations/forces-and-motion-basics" target="_blank" rel="noopener">
-              <p class="resource-title">PhET — Forces and Motion</p>
-              <p class="resource-desc">Useful for resultant force, motion, and friction.</p>
-            </a>
-
-            <a class="resource" href="https://phet.colorado.edu/en/simulation/friction" target="_blank" rel="noopener">
-              <p class="resource-title">PhET — Friction</p>
-              <p class="resource-desc">Explore friction changes in an interactive way.</p>
-            </a>
-
-            <a class="resource" href="https://phet.colorado.edu/en/simulation/gravity-force-lab" target="_blank" rel="noopener">
-              <p class="resource-title">PhET — Gravity</p>
-              <p class="resource-desc">Useful for force and weight ideas.</p>
-            </a>
-
-            <a class="resource" href="https://phet.colorado.edu/en/simulations/magnets-and-electromagnets" target="_blank" rel="noopener">
-              <p class="resource-title">PhET — Magnets and Electromagnets</p>
-              <p class="resource-desc">Good for fields, poles, coils, and cores.</p>
-            </a>
+      <div class="tile-grid" aria-label="Quick link tiles">
+        <a class="tile" href="https://www.bbc.co.uk/bitesize/search?q=speed" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">📚 BBC Bitesize <span class="badge">speed</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Short explanations and practice.</p>
           </div>
-        </div>
-      </details>
+        </a>
+
+        <a class="tile" href="https://www.bbc.co.uk/bitesize/search?q=forces" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">📚 BBC Bitesize <span class="badge">forces</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Balanced forces, unbalanced forces, motion.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://www.bbc.co.uk/bitesize/search?q=friction" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">📚 BBC Bitesize <span class="badge">friction</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Useful vs nuisance friction.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://www.bbc.co.uk/bitesize/search?q=magnetism" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">📚 BBC Bitesize <span class="badge">magnetism</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Poles, fields, electromagnets.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://phet.colorado.edu/en/simulations/forces-and-motion-basics" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">🎮 PhET <span class="badge">Forces &amp; Motion</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Net force, friction, motion.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://phet.colorado.edu/en/simulation/friction" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">🛞 PhET <span class="badge">Friction</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Static vs sliding friction.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://phet.colorado.edu/en/simulation/gravity-force-lab" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">🌍 PhET <span class="badge">Gravity</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Gravity and forces.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="https://phet.colorado.edu/en/simulations/magnets-and-electromagnets" target="_blank" rel="noopener">
+          <div class="tile-inner">
+            <p class="tile-title">🧲 PhET <span class="badge">Magnets</span> <span class="ext" aria-hidden="true">↗</span></p>
+            <p class="tile-desc">Fields + coils.</p>
+          </div>
+        </a>
+      </div>
     </section>
+
   </main>
 
   <footer>
@@ -1078,21 +1250,16 @@ title: S2 Physics – Transport & Forces (Revision)
 
   <script>
     /* ============================
-       HELPERS
+       MENU: ESC closes + overlay click + close link + focus trap
     =============================== */
     function $(id){ return document.getElementById(id); }
-
-    /* ============================
-       MENU WITH SCROLL LOCK + FOCUS TRAP
-    =============================== */
     let lastFocusEl = null;
 
-    function getMenuFocusable(){
+    function getFocusableInMenu(){
       const menu = $("sideMenu");
       if(!menu) return [];
-      return Array.from(
-        menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])')
-      ).filter(el => !el.hasAttribute("disabled"));
+      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
     }
 
     function openMenu(){
@@ -1102,16 +1269,16 @@ title: S2 Physics – Transport & Forces (Revision)
       if(!menu || !overlay || !btn) return;
 
       lastFocusEl = document.activeElement;
+
       menu.classList.add("open");
       overlay.classList.add("show");
-      document.body.classList.add("menu-open");
 
       btn.setAttribute("aria-expanded","true");
       btn.setAttribute("aria-label","Close menu");
       overlay.setAttribute("aria-hidden","false");
 
-      const focusable = getMenuFocusable();
-      if(focusable.length) focusable[0].focus();
+      const focusables = getFocusableInMenu();
+      if(focusables.length) focusables[0].focus();
     }
 
     function closeMenu(){
@@ -1122,7 +1289,6 @@ title: S2 Physics – Transport & Forces (Revision)
 
       menu.classList.remove("open");
       overlay.classList.remove("show");
-      document.body.classList.remove("menu-open");
 
       btn.setAttribute("aria-expanded","false");
       btn.setAttribute("aria-label","Open menu");
@@ -1139,18 +1305,10 @@ title: S2 Physics – Transport & Forces (Revision)
     function toggleMenu(){
       const menu = $("sideMenu");
       if(!menu) return;
-      menu.classList.contains("open") ? closeMenu() : openMenu();
+      const isOpen = menu.classList.contains("open");
+      if(isOpen) closeMenu();
+      else openMenu();
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      $("menuBtn")?.addEventListener("click", toggleMenu);
-      $("menuOverlay")?.addEventListener("click", closeMenu);
-      $("closeMenuLink")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        closeMenu();
-      });
-      $("menuOverlay")?.setAttribute("aria-hidden","true");
-    });
 
     document.addEventListener("keydown", (e) => {
       const menu = $("sideMenu");
@@ -1162,11 +1320,11 @@ title: S2 Physics – Transport & Forces (Revision)
       }
 
       if(e.key === "Tab" && isOpen){
-        const items = getMenuFocusable();
-        if(!items.length) return;
+        const focusables = getFocusableInMenu();
+        if(!focusables.length) return;
 
-        const first = items[0];
-        const last = items[items.length - 1];
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
 
         if(e.shiftKey && document.activeElement === first){
           e.preventDefault();
@@ -1178,149 +1336,376 @@ title: S2 Physics – Transport & Forces (Revision)
       }
     });
 
-    /* ============================
-       TOPIC OPEN / CLOSE
-    =============================== */
-    function topicDetails(){
-      return Array.from(document.querySelectorAll("details.topic-item"));
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
-      $("openAllTopics")?.addEventListener("click", () => {
-        topicDetails().forEach(d => d.open = true);
-        $("topics")?.scrollIntoView({behavior:"smooth", block:"start"});
-      });
+      const overlay = $("menuOverlay");
+      if(overlay) overlay.setAttribute("aria-hidden","true");
 
-      $("closeAllTopics")?.addEventListener("click", () => {
-        topicDetails().forEach(d => d.open = false);
-        $("topics")?.scrollIntoView({behavior:"smooth", block:"start"});
-      });
+      const closeLink = $("closeMenuLink");
+      if(closeLink){
+        closeLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeMenu();
+        });
+      }
     });
 
     /* ============================
-       SIMPLE TOPIC SELF-CHECK
+       Topics: open/close all controls
     =============================== */
-    const TRACK_KEY = "s2-transport-forces-topic-check-v2";
+    const openAllTopicsBtn = document.getElementById("openAllTopics");
+    const closeAllTopicsBtn = document.getElementById("closeAllTopics");
 
-    const TRACK_TOPICS = [
-      { id:"speed", label:"Speed" },
-      { id:"forces", label:"Forces" },
-      { id:"resultant", label:"Resultant force and free body diagrams" },
-      { id:"friction", label:"Friction" },
-      { id:"massweight", label:"Mass and weight" },
-      { id:"magnetism", label:"Magnetism" },
-      { id:"electromagnets", label:"Electromagnets" }
+    function topicDetails(){
+      return [...document.querySelectorAll("details.topic-item")];
+    }
+
+    openAllTopicsBtn?.addEventListener("click", () => {
+      topicDetails().forEach(d => d.open = true);
+      document.getElementById("topics")?.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    closeAllTopicsBtn?.addEventListener("click", () => {
+      topicDetails().forEach(d => d.open = false);
+      document.getElementById("topics")?.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    /* ============================
+       CONFIDENCE (G/A/R) — Mean confidence + accordion
+       Mapping: G=3, A=2, R=1
+    =============================== */
+    const CONF_KEY = "s2-transport-forces-confidence-v1";
+
+    const ICAN = [
+      // Speed
+      {id:"s2tf_0",  cat:"Speed", text:"I can state the symbols for speed (v), distance (d) and time (t)."},
+      {id:"s2tf_1",  cat:"Speed", text:"I can state the units for speed (m/s), distance (m) and time (s)."},
+      {id:"s2tf_2",  cat:"Speed", text:"I can describe what speed is."},
+      {id:"s2tf_3",  cat:"Speed", text:"I can state the speed equation (v = d / t)."},
+      {id:"s2tf_4",  cat:"Speed", text:"I can apply the speed equation to problem-solving questions."},
+      {id:"s2tf_5",  cat:"Speed", text:"I can describe 2 methods to measure average speed."},
+      {id:"s2tf_6",  cat:"Speed", text:"I can give 1 benefit of measuring average speed."},
+      {id:"s2tf_7",  cat:"Speed", text:"I can give 1 drawback of measuring average speed."},
+      {id:"s2tf_8",  cat:"Speed", text:"I can describe a way to improve an average speed experiment."},
+
+      // Forces
+      {id:"s2tf_9",  cat:"Forces", text:"I can state what a force is (a push or a pull)."},
+      {id:"s2tf_10", cat:"Forces", text:"I can state three things a force can change (speed, direction, shape)."},
+      {id:"s2tf_11", cat:"Forces", text:"I can state the unit of force (newton, N)."},
+      {id:"s2tf_12", cat:"Forces", text:"I can state the device used to measure force (spring balance / Newton meter)."},
+
+      // Resultant & FBD
+      {id:"s2tf_13", cat:"Resultant & FBD", text:"I can describe the terms: resultant force, free body diagram, balanced force, unbalanced force."},
+      {id:"s2tf_14", cat:"Resultant & FBD", text:"I can use a free body diagram to calculate the resultant force on an object."},
+      {id:"s2tf_15", cat:"Resultant & FBD", text:"I can describe what an unbalanced force does to an object’s motion."},
+      {id:"s2tf_16", cat:"Resultant & FBD", text:"I can describe what balanced forces mean for an object’s motion."},
+
+      // Friction
+      {id:"s2tf_17", cat:"Friction", text:"I can state what friction is."},
+      {id:"s2tf_18", cat:"Friction", text:"I can state the friction energy change (kinetic → heat)."},
+      {id:"s2tf_19", cat:"Friction", text:"I can state the direction friction acts (opposite motion)."},
+      {id:"s2tf_20", cat:"Friction", text:"I can describe how friction and engine force relate to a car’s speed."},
+      {id:"s2tf_21", cat:"Friction", text:"I can give at least 2 examples of useful friction."},
+      {id:"s2tf_22", cat:"Friction", text:"I can give at least 2 examples of nuisance friction."},
+      {id:"s2tf_23", cat:"Friction", text:"I can state at least 2 ways to reduce friction."},
+
+      // Mass & Weight
+      {id:"s2tf_24", cat:"Mass & Weight", text:"I can describe mass, weight and gravitational field strength (g)."},
+      {id:"s2tf_25", cat:"Mass & Weight", text:"I can state the units of mass (kg), weight (N) and gravitational field strength (N/kg)."},
+      {id:"s2tf_26", cat:"Mass & Weight", text:"I can state the mass and weight equation (W = m × g)."},
+      {id:"s2tf_27", cat:"Mass & Weight", text:"I can state the gravitational field strength on Earth (about 10 N/kg)."},
+      {id:"s2tf_28", cat:"Mass & Weight", text:"I can apply W = m × g to problems on Earth."},
+      {id:"s2tf_29", cat:"Mass & Weight", text:"I can state whether mass or weight stays constant on all planets (mass)."},
+      {id:"s2tf_30", cat:"Mass & Weight", text:"I can apply W = m × g to problems on other planets."},
+
+      // Magnetism
+      {id:"s2tf_31", cat:"Magnetism", text:"I can name the two poles of a magnet (north and south)."},
+      {id:"s2tf_32", cat:"Magnetism", text:"I can state when two magnets attract (unlike poles)."},
+      {id:"s2tf_33", cat:"Magnetism", text:"I can state when two magnets repel (like poles)."},
+      {id:"s2tf_34", cat:"Magnetism", text:"I can sketch the magnetic field lines around a bar magnet."},
+      {id:"s2tf_35", cat:"Magnetism", text:"I can state the direction magnetic field lines are drawn (N → S)."},
+
+      // Electromagnets
+      {id:"s2tf_36", cat:"Electromagnets", text:"I can state what an electromagnet is."},
+      {id:"s2tf_37", cat:"Electromagnets", text:"I can suggest a benefit of electromagnets."},
+      {id:"s2tf_38", cat:"Electromagnets", text:"I can describe an application of electromagnets."},
+      {id:"s2tf_39", cat:"Electromagnets", text:"I can describe how to make an electromagnet."},
+      {id:"s2tf_40", cat:"Electromagnets", text:"I can draw a diagram of an electromagnet."},
+      {id:"s2tf_41", cat:"Electromagnets", text:"I can state how the number of coils affects electromagnet strength."},
+      {id:"s2tf_42", cat:"Electromagnets", text:"I can state how the supply voltage affects electromagnet strength."}
     ];
 
-    function loadTrack(){
+    function confLoad(){
       try{
-        const raw = localStorage.getItem(TRACK_KEY);
+        const raw = localStorage.getItem(CONF_KEY);
         if(!raw) return {};
-        const parsed = JSON.parse(raw);
-        return parsed && typeof parsed === "object" ? parsed : {};
-      }catch{
-        return {};
-      }
+        const obj = JSON.parse(raw);
+        return (obj && typeof obj === "object") ? obj : {};
+      }catch{ return {}; }
+    }
+    function confSave(state){
+      try{ localStorage.setItem(CONF_KEY, JSON.stringify(state)); }catch{}
+    }
+    function score(val){
+      if(val === "G") return 3;
+      if(val === "A") return 2;
+      if(val === "R") return 1;
+      return 0;
     }
 
-    function saveTrack(state){
-      try{
-        localStorage.setItem(TRACK_KEY, JSON.stringify(state));
-      }catch{}
-    }
+    function updateConfSummary(state){
+      const meanTxt = document.getElementById("meanTxt");
+      const gTxt = document.getElementById("gTxt");
+      const aTxt = document.getElementById("aTxt");
+      const rTxt = document.getElementById("rTxt");
+      const uTxt = document.getElementById("uTxt");
+      const meanBar = document.getElementById("meanBar");
+      const line = document.getElementById("confSummaryLine");
+      const msg = document.getElementById("confMsg");
+      const catMeans = document.getElementById("confCatMeans");
+      const topReds = document.getElementById("confTopReds");
 
-    function buildTracker(){
-      const tracker = $("tracker");
-      if(!tracker) return;
+      let g=0,a=0,r=0,u=0;
+      let sum=0, rated=0;
 
-      const state = loadTrack();
-      tracker.innerHTML = "";
+      const byCat = {};
+      const reds = [];
 
-      TRACK_TOPICS.forEach(topic => {
-        const row = document.createElement("div");
-        row.className = "track-row";
+      ICAN.forEach(item => {
+        const v = state[item.id] || "";
+        if(v === "G") g++;
+        else if(v === "A") a++;
+        else if(v === "R") r++;
+        else u++;
 
-        const label = document.createElement("div");
-        label.className = "track-label";
-        label.textContent = topic.label;
-
-        const controls = document.createElement("div");
-        controls.className = "track-controls";
-        controls.setAttribute("role","group");
-        controls.setAttribute("aria-label", `Rate confidence for ${topic.label}`);
-
-        ["G","A","R"].forEach(val => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "track-btn";
-          btn.dataset.val = val;
-          btn.textContent = val;
-          btn.setAttribute("aria-pressed", state[topic.id] === val ? "true" : "false");
-
-          if(state[topic.id] === val) btn.classList.add("active");
-
-          btn.addEventListener("click", () => {
-            const next = loadTrack();
-            next[topic.id] = val;
-            saveTrack(next);
-            buildTracker();
-            updateTrackerSummary();
-          });
-
-          controls.appendChild(btn);
-        });
-
-        row.appendChild(label);
-        row.appendChild(controls);
-        tracker.appendChild(row);
-      });
-    }
-
-    function updateTrackerSummary(){
-      const state = loadTrack();
-
-      let g = 0, a = 0, r = 0, u = 0;
-      const redTopics = [];
-
-      TRACK_TOPICS.forEach(topic => {
-        const val = state[topic.id];
-        if(val === "G") g++;
-        else if(val === "A") a++;
-        else if(val === "R"){
-          r++;
-          redTopics.push(topic.label);
+        const sc = score(v);
+        if(sc){
+          sum += sc;
+          rated++;
+          (byCat[item.cat] ||= {sum:0, rated:0}).sum += sc;
+          byCat[item.cat].rated += 1;
         } else {
-          u++;
+          (byCat[item.cat] ||= {sum:0, rated:0});
+        }
+
+        if(v === "R"){
+          reds.push(`${item.cat} — ${item.text}`);
         }
       });
 
-      $("gCount").textContent = g;
-      $("aCount").textContent = a;
-      $("rCount").textContent = r;
-      $("uCount").textContent = u;
+      const mean = rated ? (sum / rated) : 0;
+      const pct = rated ? Math.round((mean/3)*100) : 0;
 
-      const rated = g + a + r;
-      $("summaryLine").textContent = `Rated ${rated} of ${TRACK_TOPICS.length} topics.`;
+      if(meanTxt) meanTxt.textContent = rated ? `${mean.toFixed(1)} / 3 (${pct}%)` : "—";
+      if(gTxt) gTxt.textContent = g;
+      if(aTxt) aTxt.textContent = a;
+      if(rTxt) rTxt.textContent = r;
+      if(uTxt) uTxt.textContent = u;
 
-      if(redTopics.length){
-        $("summaryMessage").textContent = `Focus first on: ${redTopics.join(", ")}.`;
-      } else if(u > 0){
-        $("summaryMessage").textContent = "Rate the remaining topics to complete your revision plan.";
-      } else {
-        $("summaryMessage").textContent = "No red topics. Next step: try the practice test again with no notes.";
+      if(meanBar) meanBar.style.width = rated ? `${pct}%` : "0%";
+
+      if(line){
+        line.textContent = `Rated: ${rated} / ${ICAN.length} • Mean confidence: ${rated ? mean.toFixed(1) : "—"} / 3`;
+      }
+
+      if(msg){
+        if(u){
+          msg.textContent = "Rate the remaining statements to get a full mean confidence.";
+        } else if(r){
+          msg.textContent = "Fix your Reds first, then re-rate them.";
+        } else {
+          msg.textContent = "No Reds. Try a timed run of the Practice Test.";
+        }
+      }
+
+      if(catMeans){
+        const cats = Object.keys(byCat);
+        const parts = cats.map(cat => {
+          const d = byCat[cat];
+          const m = d.rated ? (d.sum/d.rated) : 0;
+          return `${cat}: ${d.rated ? m.toFixed(1) : "—"}/3`;
+        });
+        catMeans.textContent = parts.join(" • ");
+      }
+
+      if(topReds){
+        topReds.innerHTML = "";
+        const show = reds.slice(0,5);
+        if(show.length){
+          show.forEach(t => {
+            const li = document.createElement("li");
+            li.textContent = t;
+            topReds.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.textContent = "Your Red items will appear here.";
+          topReds.appendChild(li);
+        }
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      buildTracker();
-      updateTrackerSummary();
+    function buildConfidence(){
+      const container = document.getElementById("confSections");
+      if(!container) return;
 
-      $("resetTracker")?.addEventListener("click", () => {
-        if(!confirm("Reset all self-check ratings for this page?")) return;
-        try{ localStorage.removeItem(TRACK_KEY); }catch{}
-        buildTracker();
-        updateTrackerSummary();
+      const state = confLoad();
+      container.innerHTML = "";
+
+      // Group by category
+      const groups = {};
+      ICAN.forEach(item => (groups[item.cat] ||= []).push(item));
+
+      Object.keys(groups).forEach((cat, idx) => {
+        const det = document.createElement("details");
+        det.className = "block conf-cat";
+        if(idx === 0) det.open = true;
+
+        const sum = document.createElement("summary");
+        const left = document.createElement("span");
+        left.textContent = cat;
+
+        const right = document.createElement("span");
+        right.className = "tag";
+        right.textContent = "tap G/A/R";
+
+        sum.appendChild(left);
+        sum.appendChild(right);
+
+        const inner = document.createElement("div");
+        inner.className = "details-inner";
+
+        groups[cat].forEach((item) => {
+          const chosen = state[item.id] || "";
+
+          const row = document.createElement("div");
+          row.className = "conf-item";
+          row.dataset.hay = `${cat} ${item.text}`.toLowerCase();
+
+          const t = document.createElement("div");
+          t.className = "conf-text";
+          t.textContent = item.text;
+
+          const controls = document.createElement("div");
+          controls.className = "conf-controls";
+          controls.setAttribute("role","group");
+          controls.setAttribute("aria-label", `Confidence for ${cat}`);
+
+          const mkOpt = (val) => {
+            const lab = document.createElement("label");
+            lab.className = "conf-opt";
+            lab.dataset.val = val;
+
+            const inp = document.createElement("input");
+            inp.type = "radio";
+            inp.name = `conf_${item.id}`;
+            inp.value = val;
+            inp.checked = (chosen === val);
+
+            inp.addEventListener("change", () => {
+              const next = confLoad();
+              next[item.id] = val;
+              confSave(next);
+
+              controls.querySelectorAll(".conf-opt").forEach(o => o.classList.remove("sel"));
+              lab.classList.add("sel");
+
+              updateConfSummary(next);
+            });
+
+            const span = document.createElement("span");
+            span.textContent = val;
+
+            lab.appendChild(inp);
+            lab.appendChild(span);
+
+            if(chosen === val) lab.classList.add("sel");
+            return lab;
+          };
+
+          controls.appendChild(mkOpt("G"));
+          controls.appendChild(mkOpt("A"));
+          controls.appendChild(mkOpt("R"));
+
+          row.appendChild(t);
+          row.appendChild(controls);
+          inner.appendChild(row);
+        });
+
+        det.appendChild(sum);
+        det.appendChild(inner);
+        container.appendChild(det);
       });
+
+      // Accordion behaviour (one open at a time)
+      container.querySelectorAll("details.block").forEach(d => {
+        d.addEventListener("toggle", () => {
+          if(!d.open) return;
+          container.querySelectorAll("details.block").forEach(other => {
+            if(other !== d) other.open = false;
+          });
+        });
+      });
+
+      updateConfSummary(state);
+    }
+
+    function applyConfFilter(q){
+      const container = document.getElementById("confSections");
+      if(!container) return;
+
+      const f = (q || "").trim().toLowerCase();
+      const cats = [...container.querySelectorAll("details.conf-cat")];
+
+      cats.forEach(det => {
+        const rows = [...det.querySelectorAll(".conf-item")];
+        let any = false;
+
+        rows.forEach(row => {
+          const hit = !f || (row.dataset.hay || "").includes(f);
+          row.style.display = hit ? "" : "none";
+          if(hit) any = true;
+        });
+
+        det.style.display = any ? "" : "none";
+
+        // If a category has no matches and it’s open, close it
+        if(!any) det.open = false;
+      });
+    }
+
+    function wireConfControls(){
+      const closeAll = document.getElementById("closeAllConf");
+      const resetA = document.getElementById("resetConf");
+      const resetB = document.getElementById("confResetBtn");
+      const filter = document.getElementById("confFilter");
+      const container = document.getElementById("confSections");
+
+      closeAll?.addEventListener("click", () => {
+        if(!container) return;
+        container.querySelectorAll("details.conf-cat").forEach(d => d.open = false);
+        document.getElementById("ican")?.scrollIntoView({behavior:"smooth", block:"start"});
+      });
+
+      const doReset = () => {
+        if(!confirm("Reset all confidence ratings for Transport & Forces?")) return;
+        try{ localStorage.removeItem(CONF_KEY); }catch{}
+        // Clear UI selections without rebuild/jump
+        document.querySelectorAll('#confSections input[type="radio"]').forEach(inp => inp.checked = false);
+        document.querySelectorAll('#confSections .conf-opt.sel').forEach(el => el.classList.remove("sel"));
+        updateConfSummary({});
+      };
+
+      resetA?.addEventListener("click", doReset);
+      resetB?.addEventListener("click", doReset);
+
+      filter?.addEventListener("input", (e) => {
+        applyConfFilter(e.target.value);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      buildConfidence();
+      wireConfControls();
     });
   </script>
 </body>
