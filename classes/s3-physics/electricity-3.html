@@ -35,18 +35,19 @@ title: S3 Physics – Electricity 3: Power and Concepts
       flex-direction: column;
       min-height: 100vh;
     }
+    body.menu-open {
+      overflow: hidden;
+    }
+
     img, iframe { max-width: 100%; height: auto; display: block; }
 
     :root{
-      --bg: #f4fbfa;
       --panel: rgba(255,255,255,0.88);
-      --panel-strong: #ffffff;
       --text: #0c2b24;
       --muted: #2f5b52;
 
       --accent: #00b3a4;
       --accent-2: #00897d;
-      --accent-3: #dff7f3;
 
       --line: rgba(12,60,52,0.12);
       --line-strong: rgba(0,179,164,0.25);
@@ -69,11 +70,12 @@ title: S3 Physics – Electricity 3: Power and Concepts
       overflow:hidden; clip:rect(0,0,0,0);
       white-space:nowrap; border:0;
     }
+
     .skip-link{
       position:absolute;
       left:-999px;
       top:10px;
-      z-index:1000;
+      z-index:1200;
       background:#00b3a4;
       color:#fff;
       padding:0.65rem 0.95rem;
@@ -96,15 +98,15 @@ title: S3 Physics – Electricity 3: Power and Concepts
     }
 
     /* ============================
-       MENU BUTTON
+       MENU
     =============================== */
     .menu-btn{
       position: fixed;
       top: max(14px, env(safe-area-inset-top));
       left: max(14px, env(safe-area-inset-left));
-      z-index: 950;
+      z-index: 1100;
       border: 1px solid rgba(255,255,255,0.28);
-      background: rgba(255,255,255,0.68);
+      background: rgba(255,255,255,0.78);
       color: #08332c;
       backdrop-filter: blur(18px) saturate(180%);
       -webkit-backdrop-filter: blur(18px) saturate(180%);
@@ -114,17 +116,24 @@ title: S3 Physics – Electricity 3: Power and Concepts
       font-weight: 900;
       cursor: pointer;
       box-shadow: var(--shadow-soft);
+      -webkit-tap-highlight-color: transparent;
     }
 
     .menu-overlay{
       position: fixed;
       inset: 0;
-      background: rgba(7,22,18,0.28);
-      z-index: 910;
+      z-index: 1000;
+      background: rgba(7,22,18,0.30);
       opacity: 0;
-      transition: opacity 0.2s ease;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
     }
-    .menu-overlay.show{ opacity: 1; }
+    .menu-overlay.show{
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
 
     .side-menu{
       position: fixed;
@@ -132,21 +141,26 @@ title: S3 Physics – Electricity 3: Power and Concepts
       left: 0;
       height: 100dvh;
       width: min(82vw, 340px);
-      z-index: 920;
-      padding: max(18px, env(safe-area-inset-top)) 16px 18px 16px;
-      background: rgba(255,255,255,0.72);
+      z-index: 1050;
+      padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom)) 16px;
+      background: rgba(255,255,255,0.78);
       backdrop-filter: blur(22px) saturate(180%);
       -webkit-backdrop-filter: blur(22px) saturate(180%);
       border-right: 1px solid rgba(255,255,255,0.35);
       box-shadow: 20px 0 50px rgba(0,0,0,0.14);
-      transform: translateX(-105%);
+      transform: translate3d(-105%,0,0);
       transition: transform 0.24s ease;
       display: flex;
       flex-direction: column;
       gap: 10px;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      will-change: transform;
     }
-    .side-menu.open{ transform: translateX(0); }
+    .side-menu.open{
+      transform: translate3d(0,0,0);
+    }
 
     .menu-head{
       display:flex;
@@ -173,6 +187,7 @@ title: S3 Physics – Electricity 3: Power and Concepts
       line-height: 1;
       cursor: pointer;
       font-weight: 900;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .side-menu a{
@@ -181,7 +196,7 @@ title: S3 Physics – Electricity 3: Power and Concepts
       font-weight: 850;
       padding: 14px 14px;
       border-radius: 16px;
-      background: rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.58);
       border: 1px solid rgba(12,60,52,0.08);
     }
     .side-menu a:hover{
@@ -258,7 +273,7 @@ title: S3 Physics – Electricity 3: Power and Concepts
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       min-width: 0;
-      flex: 1 1 520px;
+      flex: 1 1 420px;
     }
     .subnav-links::-webkit-scrollbar{ display:none; }
 
@@ -343,21 +358,12 @@ title: S3 Physics – Electricity 3: Power and Concepts
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
-    .panel.soft{
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,255,253,0.92));
-    }
 
     .panel h2{
       margin: 0 0 10px;
       font-size: clamp(1.15rem, 2.4vw, 1.45rem);
       line-height: 1.15;
       color: #0c2b24;
-    }
-    .panel h3{
-      margin: 0 0 8px;
-      font-size: 1.05rem;
-      color: #0d3a32;
     }
     .muted{
       color: var(--muted);
@@ -366,42 +372,13 @@ title: S3 Physics – Electricity 3: Power and Concepts
       font-size: 1rem;
     }
 
-    .intro-grid,
-    .equation-grid,
-    .tile-grid,
-    .mistake-grid{
+    .tile-grid{
       display:grid;
       gap: 12px;
-    }
-
-    .intro-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 14px;
-    }
-
-    .intro-card,
-    .equation-card,
-    .mistake-card{
-      background: rgba(255,255,255,0.82);
-      border: 1px solid rgba(12,60,52,0.10);
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 140px;
-    }
-
-    .intro-card strong,
-    .equation-card strong,
-    .mistake-card strong{
-      display:block;
-      margin-bottom: 6px;
-      color:#0b312a;
-      font-size: 1rem;
-    }
-
-    .tile-grid{
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       margin-top: 14px;
     }
+
     .tile{
       display:block;
       text-decoration:none;
@@ -410,7 +387,7 @@ title: S3 Physics – Electricity 3: Power and Concepts
       background: linear-gradient(180deg, #ffffff, #f7fffd);
       border: 1px solid rgba(12,60,52,0.10);
       box-shadow: var(--shadow-soft);
-      min-height: 140px;
+      min-height: 148px;
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
     .tile:hover{
@@ -444,6 +421,7 @@ title: S3 Physics – Electricity 3: Power and Concepts
       line-height:1.5;
       font-size:0.96rem;
     }
+
     .badge,
     .tag{
       display:inline-flex;
@@ -462,34 +440,15 @@ title: S3 Physics – Electricity 3: Power and Concepts
       color:#0a5a51;
     }
 
-    /* ============================
-       TABLES
-    =============================== */
-    .table-wrap{
-      overflow-x: auto;
-      margin-top: 12px;
+    .callout{
+      margin-top: 14px;
+      padding: 12px 14px;
       border-radius: 16px;
-      border: 1px solid rgba(12,60,52,0.10);
-      background: #ffffff;
+      background: rgba(223,247,243,0.72);
+      border: 1px solid rgba(0,179,164,0.18);
+      color:#17453d;
+      line-height:1.55;
     }
-    table{
-      width:100%;
-      border-collapse: collapse;
-      min-width: 620px;
-    }
-    th, td{
-      padding: 12px 12px;
-      text-align:left;
-      border-bottom: 1px solid rgba(12,60,52,0.08);
-      vertical-align: top;
-      line-height: 1.45;
-    }
-    th{
-      background: rgba(0,179,164,0.08);
-      color:#0a433a;
-      font-size: 0.95rem;
-    }
-    tr:last-child td{ border-bottom: 0; }
 
     /* ============================
        DETAILS / ACCORDIONS
@@ -542,39 +501,6 @@ title: S3 Physics – Electricity 3: Power and Concepts
     .details-inner > :first-child{ margin-top: 0; }
     .details-inner > :last-child{ margin-bottom: 0; }
 
-    .stack{
-      display:grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .formula{
-      display:inline-block;
-      margin: 6px 0 8px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(0,179,164,0.10);
-      border: 1px solid rgba(0,179,164,0.18);
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      color:#08433c;
-    }
-
-    .callout{
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(223,247,243,0.72);
-      border: 1px solid rgba(0,179,164,0.18);
-      color:#17453d;
-      line-height:1.55;
-    }
-
-    .equation-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 14px;
-    }
-
     .question-list{
       display:grid;
       gap: 10px;
@@ -590,17 +516,6 @@ title: S3 Physics – Electricity 3: Power and Concepts
     }
     .question strong{
       color:#0d3a32;
-    }
-
-    .mistake-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 12px;
-    }
-
-    .footer-note{
-      margin-top: 10px;
-      font-size: 0.95rem;
-      color:#3e675f;
     }
 
     footer{
@@ -695,15 +610,12 @@ title: S3 Physics – Electricity 3: Power and Concepts
 
   <!-- STICKY SUBNAV -->
   <div class="subnav-wrap">
-<a class="subnav-link" href="#resources">Start</a>
-<div class="subnav-links">
-  <a class="subnav-link" href="#resources">Start</a>
-  <a class="subnav-link" href="#overview">Overview</a>
-  <a class="subnav-link" href="#equations">Equations</a>
-  <a class="subnav-link" href="#worked">Worked examples</a>
-  <a class="subnav-link" href="#practice">Quick practice</a>
-  <a class="subnav-link" href="#mistakes">Common mistakes</a>
-</div>
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#resources">Key links</a>
+        <a class="subnav-link" href="#worked">Worked examples</a>
+        <a class="subnav-link" href="#practice">Quick practice</a>
+      </div>
 
       <div class="subnav-ctas">
         <a class="subnav-cta"
@@ -725,555 +637,377 @@ title: S3 Physics – Electricity 3: Power and Concepts
     ⬅ Back to S3 Physics
   </a>
 
-<main class="page-wrap" id="mainContent">
-  <h1 class="visually-hidden">S3 Physics – Electricity 3: Power and Concepts</h1>
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">S3 Physics – Electricity 3: Power and Concepts</h1>
 
-  <!-- KEY LINKS -->
-  <section class="panel" id="resources" aria-labelledby="resources-title">
-    <h2 id="resources-title">Key links</h2>
-    <p class="muted">Start here. Open the KO first, then the booklet, then try mixed questions.</p>
+    <!-- KEY LINKS -->
+    <section class="panel" id="resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Key links</h2>
+      <p class="muted">Start with the Knowledge Organiser, then use the booklet, then try mixed practice.</p>
 
-    <div class="tile-grid" aria-label="Resource tiles">
-      <a class="tile main"
-         href="/assets/S3/Electricity3/Electricity%20Block%203%20Student%20Knowledge%20Organiser.pdf"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Electricity 3 Knowledge Organiser in a new tab">
-        <div class="tile-inner">
-          <p class="tile-title">Knowledge Organiser <span class="badge main">start here</span></p>
-          <p class="tile-desc">Quick rules, equations, fuse guidance, AC/DC, oscilloscope traces, and electric fields.</p>
+      <div class="tile-grid" aria-label="Resource tiles">
+        <a class="tile main"
+           href="/assets/S3/Electricity3/Electricity%20Block%203%20Student%20Knowledge%20Organiser.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open the Electricity 3 Knowledge Organiser in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">Knowledge Organiser <span class="badge main">start here</span></p>
+            <p class="tile-desc">Quick rules, equations, fuse guidance, AC/DC, oscilloscope traces, and electric fields.</p>
+          </div>
+        </a>
+
+        <a class="tile"
+           href="/assets/S3/Electricity3/RS%20Electricity%20B3%20N5%202026.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open the Electricity 3 booklet in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">Electricity 3 Booklet <span class="badge">practice</span></p>
+            <p class="tile-desc">Use this for step-by-step examples and revision questions.</p>
+          </div>
+        </a>
+
+        <a class="tile"
+           href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open the Physics Past Paper Finder in a new tab">
+          <div class="tile-inner">
+            <p class="tile-title">Physics Past Paper Finder <span class="badge">mixed questions</span></p>
+            <p class="tile-desc">Use this for mixed practice. Focus on <strong>Electrical Charge Carriers</strong> and <strong>Electrical Power &amp; Energy</strong>.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="callout">
+        <strong>Past Paper Finder:</strong> practise the sections <strong>Electrical Charge Carriers</strong> and <strong>Electrical Power &amp; Energy</strong>.
+      </div>
+    </section>
+
+    <!-- WORKED EXAMPLES -->
+    <section class="panel" id="worked" aria-labelledby="worked-title">
+      <h2 id="worked-title">Worked examples</h2>
+      <p class="muted">Open one example at a time.</p>
+
+      <details class="block">
+        <summary><span>Worked example 1 — Q = It</span><span class="tag">charge</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> A current of 2.5 A flows for 6 minutes. Calculate the charge transferred.</p>
+          <p><strong>Step 1:</strong> Convert time to seconds: 6 × 60 = 360 s</p>
+          <p><strong>Step 2:</strong> Use <strong>Q = It</strong></p>
+          <p><strong>Step 3:</strong> Q = 2.5 × 360 = 900</p>
+          <p><strong>Answer:</strong> <strong>900 C</strong></p>
         </div>
-      </a>
+      </details>
 
-      <a class="tile"
-         href="/assets/S3/Electricity3/RS%20Electricity%20B3%20N5%202026.pdf"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Electricity 3 booklet in a new tab">
-        <div class="tile-inner">
-          <p class="tile-title">Electricity 3 Booklet <span class="badge">practice</span></p>
-          <p class="tile-desc">Use this for step-by-step examples and revision questions.</p>
+      <details class="block">
+        <summary><span>Worked example 2 — P = E / t</span><span class="tag">power</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> A heater transfers 1800 J of energy in 45 s. Calculate the power.</p>
+          <p><strong>Step 1:</strong> Use <strong>P = E / t</strong></p>
+          <p><strong>Step 2:</strong> P = 1800 / 45</p>
+          <p><strong>Step 3:</strong> P = 40</p>
+          <p><strong>Answer:</strong> <strong>40 W</strong></p>
         </div>
-      </a>
+      </details>
 
-      <a class="tile"
-         href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Physics Past Paper Finder in a new tab">
-        <div class="tile-inner">
-          <p class="tile-title">Physics Past Paper Finder <span class="badge">mixed questions</span></p>
-          <p class="tile-desc">Use this after the KO and booklet for mixed revision.</p>
+      <details class="block">
+        <summary><span>Worked example 3 — P = IV</span><span class="tag">power</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> A component has a voltage of 12 V and a current of 0.35 A. Calculate the power.</p>
+          <p><strong>Step 1:</strong> Use <strong>P = IV</strong></p>
+          <p><strong>Step 2:</strong> P = 12 × 0.35</p>
+          <p><strong>Step 3:</strong> P = 4.2</p>
+          <p><strong>Answer:</strong> <strong>4.2 W</strong></p>
         </div>
-      </a>
-    </div>
-  </section>
+      </details>
 
-  <!-- OVERVIEW -->
-  <section class="panel soft" id="overview" aria-labelledby="overview-title">
-    <h2 id="overview-title">Overview</h2>
-    <p class="muted">
-      Revise these topics for the end-of-block test: <strong>Q = It</strong>, <strong>power and energy</strong>,
-      <strong>power equations</strong>, <strong>fuses</strong>, <strong>AC and DC</strong>,
-      <strong>oscilloscope traces</strong>, and <strong>electric fields</strong>.
-    </p>
+      <details class="block">
+        <summary><span>Worked example 4 — P = I²R</span><span class="tag">power</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> A resistor carries a current of 250 mA and has a resistance of 120 Ω. Calculate the power.</p>
+          <p><strong>Step 1:</strong> Convert current: 250 mA = 0.25 A</p>
+          <p><strong>Step 2:</strong> Use <strong>P = I²R</strong></p>
+          <p><strong>Step 3:</strong> P = (0.25)² × 120</p>
+          <p><strong>Step 4:</strong> P = 0.0625 × 120 = 7.5</p>
+          <p><strong>Answer:</strong> <strong>7.5 W</strong></p>
+        </div>
+      </details>
 
-    <div class="intro-grid">
-      <div class="intro-card">
-        <strong>Start here</strong>
-        KO → Booklet → Practice questions → Past Paper Finder
-      </div>
-      <div class="intro-card">
-        <strong>Do this in calculations</strong>
-        Convert units → choose the equation → substitute → answer with a unit
-      </div>
-      <div class="intro-card">
-        <strong>Most likely test questions</strong>
-        Q = It, E = Pt, choosing the correct power formula, fuse choice, AC/DC, oscilloscope traces, field direction
-      </div>
-    </div>
+      <details class="block">
+        <summary><span>Worked example 5 — P = V² / R</span><span class="tag">power</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> A 100 Ω resistor is connected to a 9.0 V supply. Calculate the power.</p>
+          <p><strong>Step 1:</strong> Use <strong>P = V² / R</strong></p>
+          <p><strong>Step 2:</strong> P = 9.0² / 100</p>
+          <p><strong>Step 3:</strong> P = 81 / 100 = 0.81</p>
+          <p><strong>Answer:</strong> <strong>0.81 W</strong></p>
+        </div>
+      </details>
 
-    <details class="mini" style="margin-top:12px;">
-      <summary><span>What you should be able to do</span><span class="tag">checklist</span></summary>
-      <div class="details-inner">
-        <ul>
-          <li>I can use <strong>Q = It</strong> and its rearrangements.</li>
-          <li>I can use <strong>P = E / t</strong> and <strong>E = Pt</strong>.</li>
-          <li>I can choose between <strong>P = IV</strong>, <strong>P = I²R</strong> and <strong>P = V² / R</strong>.</li>
-          <li>I can use <strong>I = P / V</strong> for mains appliances and choose a fuse.</li>
-          <li>I can tell the difference between <strong>AC</strong> and <strong>DC</strong>.</li>
-          <li>I can identify <strong>AC</strong> and <strong>DC</strong> traces on an oscilloscope.</li>
-          <li>I can draw electric fields with arrows going from <strong>+</strong> to <strong>−</strong>.</li>
-          <li>I can predict the direction of a positive or negative charged particle in a field.</li>
-        </ul>
-      </div>
-    </details>
-  </section>
+      <details class="block">
+        <summary><span>Worked example 6 — Fuse choice using I = P / V</span><span class="tag">fuses</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> A kettle is rated at 1840 W and uses UK mains. Calculate the current and choose a fuse.</p>
+          <p><strong>Step 1:</strong> Use <strong>V = 230 V</strong></p>
+          <p><strong>Step 2:</strong> Use <strong>I = P / V</strong></p>
+          <p><strong>Step 3:</strong> I = 1840 / 230 = 8.0 A</p>
+          <p><strong>Step 4:</strong> 3 A is too small, so choose the next suitable standard fuse.</p>
+          <p><strong>Answer:</strong> <strong>Current = 8.0 A, so choose a 13 A fuse.</strong></p>
+        </div>
+      </details>
 
-  <!-- EQUATIONS -->
-  <section class="panel" id="equations" aria-labelledby="equations-title">
-    <h2 id="equations-title">Equations</h2>
-    <p class="muted">Open the section you need.</p>
+      <details class="block">
+        <summary><span>Worked example 7 — Charged particles in a field</span><span class="tag">fields</span></summary>
+        <div class="details-inner">
+          <p><strong>Question:</strong> Two parallel plates are set up with the left plate positive and the right plate negative. Which way does a positive particle move? Which way does a negative particle move?</p>
+          <p><strong>Step 1:</strong> Electric field arrows go from <strong>+</strong> to <strong>−</strong>, so the field points <strong>left to right</strong>.</p>
+          <p><strong>Step 2:</strong> A <strong>positive</strong> particle moves in the <strong>same direction</strong> as the arrows.</p>
+          <p><strong>Step 3:</strong> A <strong>negative</strong> particle moves in the <strong>opposite direction</strong> to the arrows.</p>
+          <p><strong>Answer:</strong> <strong>Positive particle moves right. Negative particle moves left.</strong></p>
+        </div>
+      </details>
+    </section>
 
-    <details class="block" open>
-      <summary><span>Must-know equations</span><span class="tag">core</span></summary>
-      <div class="details-inner">
-        <div class="equation-grid">
-          <div class="equation-card">
-            <strong>Charge and current</strong>
-            <div class="formula">Q = It</div>
-            Use when you know current and time, or when you need to find charge, current, or time.
+    <!-- QUICK PRACTICE -->
+    <section class="panel" id="practice" aria-labelledby="practice-title">
+      <h2 id="practice-title">Quick practice</h2>
+      <p class="muted">Try the questions first, then open the answers.</p>
+
+      <details class="block">
+        <summary><span>Set 1: Charge and current</span><span class="tag">Q = It</span></summary>
+        <div class="details-inner">
+          <div class="question-list">
+            <div class="question"><strong>1.</strong> A current of 3 A flows for 8 s. Calculate the charge transferred.</div>
+            <div class="question"><strong>2.</strong> 48 C of charge passes through a lamp in 12 s. Calculate the current.</div>
+            <div class="question"><strong>3.</strong> A device carries a current of 0.4 A. How long does it take for 120 C of charge to flow?</div>
+            <div class="question"><strong>4.</strong> Explain in one sentence what <strong>1 A</strong> means.</div>
           </div>
 
-          <div class="equation-card">
-            <strong>Power and energy</strong>
-            <div class="formula">P = E / t</div>
-            Rearrangement: <strong>E = Pt</strong>
+          <details class="mini" style="margin-top:12px;">
+            <summary><span>Check answers</span><span class="tag">answers</span></summary>
+            <div class="details-inner">
+              <p>1. <strong>24 C</strong></p>
+              <p>2. <strong>4 A</strong></p>
+              <p>3. <strong>300 s</strong></p>
+              <p>4. <strong>1 coulomb of charge flows each second.</strong></p>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary><span>Set 2: Power and energy</span><span class="tag">P = E / t</span></summary>
+        <div class="details-inner">
+          <div class="question-list">
+            <div class="question"><strong>1.</strong> A 60 W lamp is on for 20 s. Calculate the energy transferred.</div>
+            <div class="question"><strong>2.</strong> 3600 J of energy is transferred in 60 s. Calculate the power.</div>
+            <div class="question"><strong>3.</strong> A 100 W heater works for 5 minutes. Calculate the energy transferred. <strong>Hint:</strong> convert the time first.</div>
+            <div class="question"><strong>4.</strong> Why does a higher power appliance transfer more energy each second?</div>
           </div>
 
-          <div class="equation-card">
-            <strong>Power from voltage and current</strong>
-            <div class="formula">P = IV</div>
-            Use this when the question gives <strong>I</strong> and <strong>V</strong>.
+          <details class="mini" style="margin-top:12px;">
+            <summary><span>Check answers</span><span class="tag">answers</span></summary>
+            <div class="details-inner">
+              <p>1. <strong>1200 J</strong></p>
+              <p>2. <strong>60 W</strong></p>
+              <p>3. 5 min = 300 s, so E = Pt = 100 × 300 = <strong>30 000 J</strong></p>
+              <p>4. <strong>Because power is the amount of energy transferred each second.</strong></p>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary><span>Set 3: Choosing the correct power equation</span><span class="tag">mixed</span></summary>
+        <div class="details-inner">
+          <div class="question-list">
+            <div class="question"><strong>1.</strong> A component has V = 6.0 V and I = 0.5 A. Calculate the power.</div>
+            <div class="question"><strong>2.</strong> A resistor has I = 2.0 A and R = 5.0 Ω. Calculate the power.</div>
+            <div class="question"><strong>3.</strong> A resistor has V = 12 V and R = 24 Ω. Calculate the power.</div>
+            <div class="question"><strong>4.</strong> A resistor has I = 300 mA and R = 40 Ω. Calculate the power. <strong>Hint:</strong> convert mA to A first.</div>
+            <div class="question"><strong>5.</strong> State which equation you would choose if the question gives <strong>V</strong> and <strong>R</strong>.</div>
           </div>
 
-          <div class="equation-card">
-            <strong>Power from current and resistance</strong>
-            <div class="formula">P = I²R</div>
-            Use this when the question gives <strong>I</strong> and <strong>R</strong>.
+          <details class="mini" style="margin-top:12px;">
+            <summary><span>Check answers</span><span class="tag">answers</span></summary>
+            <div class="details-inner">
+              <p>1. <strong>3.0 W</strong></p>
+              <p>2. <strong>20 W</strong></p>
+              <p>3. P = V² / R = 12² / 24 = 144 / 24 = <strong>6 W</strong></p>
+              <p>4. 300 mA = 0.3 A, so P = I²R = 0.3² × 40 = 0.09 × 40 = <strong>3.6 W</strong></p>
+              <p>5. <strong>P = V² / R</strong></p>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary><span>Set 4: Fuses, AC/DC and oscilloscope traces</span><span class="tag">concepts</span></summary>
+        <div class="details-inner">
+          <div class="question-list">
+            <div class="question"><strong>1.</strong> A mains appliance is rated at 460 W. Calculate the current taken from a 230 V supply.</div>
+            <div class="question"><strong>2.</strong> Which fuse should be used for the 460 W appliance: 3 A or 13 A?</div>
+            <div class="question"><strong>3.</strong> State one difference between <strong>AC</strong> and <strong>DC</strong>.</div>
+            <div class="question"><strong>4.</strong> A straight horizontal oscilloscope trace shows what type of supply?</div>
+            <div class="question"><strong>5.</strong> A wave going above and below the centre line shows what type of supply?</div>
           </div>
 
-          <div class="equation-card">
-            <strong>Power from voltage and resistance</strong>
-            <div class="formula">P = V² / R</div>
-            Use this when the question gives <strong>V</strong> and <strong>R</strong>.
+          <details class="mini" style="margin-top:12px;">
+            <summary><span>Check answers</span><span class="tag">answers</span></summary>
+            <div class="details-inner">
+              <p>1. I = P / V = 460 / 230 = <strong>2 A</strong></p>
+              <p>2. <strong>3 A fuse</strong></p>
+              <p>3. <strong>AC changes direction; DC goes in one direction only.</strong></p>
+              <p>4. <strong>DC</strong></p>
+              <p>5. <strong>AC</strong></p>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <details class="block">
+        <summary><span>Set 5: Electric fields and charged particles</span><span class="tag">fields</span></summary>
+        <div class="details-inner">
+          <div class="question-list">
+            <div class="question"><strong>1.</strong> In an electric field, field lines go from which type of charge to which type of charge?</div>
+            <div class="question"><strong>2.</strong> What do the arrows on field lines show?</div>
+            <div class="question"><strong>3.</strong> Why must field lines never cross?</div>
+            <div class="question"><strong>4.</strong> A positive particle is placed in a field. Does it move with the arrows or against them?</div>
+            <div class="question"><strong>5.</strong> A negative particle is placed in a field. Does it move with the arrows or against them?</div>
           </div>
 
-          <div class="equation-card">
-            <strong>Fuse calculation</strong>
-            <div class="formula">I = P / V</div>
-            On UK mains, use <strong>230 V</strong>.
-          </div>
+          <details class="mini" style="margin-top:12px;">
+            <summary><span>Check answers</span><span class="tag">answers</span></summary>
+            <div class="details-inner">
+              <p>1. <strong>From positive to negative</strong></p>
+              <p>2. <strong>The direction of force on a positive test charge</strong></p>
+              <p>3. <strong>Because the field cannot point in two directions at the same place</strong></p>
+              <p>4. <strong>With the arrows</strong></p>
+              <p>5. <strong>Against the arrows</strong></p>
+            </div>
+          </details>
         </div>
-      </div>
-    </details>
+      </details>
+    </section>
+  </main>
 
-    <details class="block">
-      <summary><span>Conversions and choosing the right equation</span><span class="tag">help</span></summary>
-      <div class="details-inner">
-        <div class="stack">
-          <div class="question"><strong>minutes → seconds:</strong> multiply by 60</div>
-          <div class="question"><strong>mA → A:</strong> divide by 1000</div>
-          <div class="question"><strong>A → mA:</strong> multiply by 1000</div>
-          <div class="question"><strong>kW → W:</strong> multiply by 1000</div>
-        </div>
-
-        <div class="stack" style="margin-top:12px;">
-          <div class="question"><strong>Know V and I?</strong> Use <strong>P = IV</strong>.</div>
-          <div class="question"><strong>Know I and R?</strong> Use <strong>P = I²R</strong>.</div>
-          <div class="question"><strong>Know V and R?</strong> Use <strong>P = V² / R</strong>.</div>
-        </div>
-
-        <div class="callout">
-          <strong>Steps:</strong> convert units → choose the equation → substitute → answer with a unit
-        </div>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Quantities and units</span><span class="tag">reference</span></summary>
-      <div class="details-inner">
-        <div class="table-wrap">
-          <table aria-label="Key quantities and units">
-            <thead>
-              <tr>
-                <th>Quantity</th>
-                <th>Symbol</th>
-                <th>Meaning</th>
-                <th>Unit</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Charge</td>
-                <td>Q</td>
-                <td>Amount of charge transferred</td>
-                <td>coulomb (C)</td>
-              </tr>
-              <tr>
-                <td>Current</td>
-                <td>I</td>
-                <td>Rate of flow of charge</td>
-                <td>ampere (A)</td>
-              </tr>
-              <tr>
-                <td>Power</td>
-                <td>P</td>
-                <td>Energy transferred each second</td>
-                <td>watt (W)</td>
-              </tr>
-              <tr>
-                <td>Energy</td>
-                <td>E</td>
-                <td>Amount of energy transferred</td>
-                <td>joule (J)</td>
-              </tr>
-              <tr>
-                <td>Time</td>
-                <td>t</td>
-                <td>How long the process lasts</td>
-                <td>second (s)</td>
-              </tr>
-              <tr>
-                <td>Voltage</td>
-                <td>V</td>
-                <td>The push that drives charge</td>
-                <td>volt (V)</td>
-              </tr>
-              <tr>
-                <td>Resistance</td>
-                <td>R</td>
-                <td>How much a component opposes current</td>
-                <td>ohm (Ω)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </details>
-  </section>
-
-  <!-- WORKED EXAMPLES -->
-  <section class="panel" id="worked" aria-labelledby="worked-title">
-    <h2 id="worked-title">Worked examples</h2>
-    <p class="muted">Open one example at a time.</p>
-
-    <details class="block">
-      <summary><span>Worked example 1 — Q = It</span><span class="tag">charge</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A current of 2.5 A flows for 6 minutes. Calculate the charge transferred.</p>
-        <p><strong>Step 1:</strong> Convert time to seconds: 6 × 60 = 360 s</p>
-        <p><strong>Step 2:</strong> Use <strong>Q = It</strong></p>
-        <p><strong>Step 3:</strong> Q = 2.5 × 360 = 900</p>
-        <p><strong>Answer:</strong> <strong>900 C</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 2 — P = E / t</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A heater transfers 1800 J of energy in 45 s. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Use <strong>P = E / t</strong></p>
-        <p><strong>Step 2:</strong> P = 1800 / 45</p>
-        <p><strong>Step 3:</strong> P = 40</p>
-        <p><strong>Answer:</strong> <strong>40 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 3 — P = IV</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A component has a voltage of 12 V and a current of 0.35 A. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Use <strong>P = IV</strong></p>
-        <p><strong>Step 2:</strong> P = 12 × 0.35</p>
-        <p><strong>Step 3:</strong> P = 4.2</p>
-        <p><strong>Answer:</strong> <strong>4.2 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 4 — P = I²R</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A resistor carries a current of 250 mA and has a resistance of 120 Ω. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Convert current: 250 mA = 0.25 A</p>
-        <p><strong>Step 2:</strong> Use <strong>P = I²R</strong></p>
-        <p><strong>Step 3:</strong> P = (0.25)² × 120</p>
-        <p><strong>Step 4:</strong> P = 0.0625 × 120 = 7.5</p>
-        <p><strong>Answer:</strong> <strong>7.5 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 5 — P = V² / R</span><span class="tag">power</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A 100 Ω resistor is connected to a 9.0 V supply. Calculate the power.</p>
-        <p><strong>Step 1:</strong> Use <strong>P = V² / R</strong></p>
-        <p><strong>Step 2:</strong> P = 9.0² / 100</p>
-        <p><strong>Step 3:</strong> P = 81 / 100 = 0.81</p>
-        <p><strong>Answer:</strong> <strong>0.81 W</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 6 — Fuse choice using I = P / V</span><span class="tag">fuses</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> A kettle is rated at 1840 W and uses UK mains. Calculate the current and choose a fuse.</p>
-        <p><strong>Step 1:</strong> Use <strong>V = 230 V</strong></p>
-        <p><strong>Step 2:</strong> Use <strong>I = P / V</strong></p>
-        <p><strong>Step 3:</strong> I = 1840 / 230 = 8.0 A</p>
-        <p><strong>Step 4:</strong> 3 A is too small, so choose the next suitable standard fuse.</p>
-        <p><strong>Answer:</strong> <strong>Current = 8.0 A, so choose a 13 A fuse.</strong></p>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Worked example 7 — Charged particles in a field</span><span class="tag">fields</span></summary>
-      <div class="details-inner">
-        <p><strong>Question:</strong> Two parallel plates are set up with the left plate positive and the right plate negative. Which way does a positive particle move? Which way does a negative particle move?</p>
-        <p><strong>Step 1:</strong> Electric field arrows go from <strong>+</strong> to <strong>−</strong>, so the field points <strong>left to right</strong>.</p>
-        <p><strong>Step 2:</strong> A <strong>positive</strong> particle moves in the <strong>same direction</strong> as the arrows.</p>
-        <p><strong>Step 3:</strong> A <strong>negative</strong> particle moves in the <strong>opposite direction</strong> to the arrows.</p>
-        <p><strong>Answer:</strong> <strong>Positive particle moves right. Negative particle moves left.</strong></p>
-      </div>
-    </details>
-  </section>
-
-  <!-- QUICK PRACTICE -->
-  <section class="panel" id="practice" aria-labelledby="practice-title">
-    <h2 id="practice-title">Quick practice</h2>
-    <p class="muted">Try the questions first, then open the answers.</p>
-
-    <details class="block">
-      <summary><span>Set 1: Charge and current</span><span class="tag">Q = It</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A current of 3 A flows for 8 s. Calculate the charge transferred.</div>
-          <div class="question"><strong>2.</strong> 48 C of charge passes through a lamp in 12 s. Calculate the current.</div>
-          <div class="question"><strong>3.</strong> A device carries a current of 0.4 A. How long does it take for 120 C of charge to flow?</div>
-          <div class="question"><strong>4.</strong> Explain in one sentence what <strong>1 A</strong> means.</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>24 C</strong></p>
-            <p>2. <strong>4 A</strong></p>
-            <p>3. <strong>300 s</strong></p>
-            <p>4. <strong>1 coulomb of charge flows each second.</strong></p>
-          </div>
-        </details>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Set 2: Power and energy</span><span class="tag">P = E / t</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A 60 W lamp is on for 20 s. Calculate the energy transferred.</div>
-          <div class="question"><strong>2.</strong> 3600 J of energy is transferred in 60 s. Calculate the power.</div>
-          <div class="question"><strong>3.</strong> A 100 W heater works for 5 minutes. Calculate the energy transferred. <strong>Hint:</strong> convert the time first.</div>
-          <div class="question"><strong>4.</strong> Why does a higher power appliance transfer more energy each second?</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>1200 J</strong></p>
-            <p>2. <strong>60 W</strong></p>
-            <p>3. 5 min = 300 s, so E = Pt = 100 × 300 = <strong>30 000 J</strong></p>
-            <p>4. <strong>Because power is the amount of energy transferred each second.</strong></p>
-          </div>
-        </details>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Set 3: Choosing the correct power equation</span><span class="tag">mixed</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A component has V = 6.0 V and I = 0.5 A. Calculate the power.</div>
-          <div class="question"><strong>2.</strong> A resistor has I = 2.0 A and R = 5.0 Ω. Calculate the power.</div>
-          <div class="question"><strong>3.</strong> A resistor has V = 12 V and R = 24 Ω. Calculate the power.</div>
-          <div class="question"><strong>4.</strong> A resistor has I = 300 mA and R = 40 Ω. Calculate the power. <strong>Hint:</strong> convert mA to A first.</div>
-          <div class="question"><strong>5.</strong> State which equation you would choose if the question gives <strong>V</strong> and <strong>R</strong>.</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>3.0 W</strong></p>
-            <p>2. <strong>20 W</strong></p>
-            <p>3. P = V² / R = 12² / 24 = 144 / 24 = <strong>6 W</strong></p>
-            <p>4. 300 mA = 0.3 A, so P = I²R = 0.3² × 40 = 0.09 × 40 = <strong>3.6 W</strong></p>
-            <p>5. <strong>P = V² / R</strong></p>
-          </div>
-        </details>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Set 4: Fuses, AC/DC and oscilloscope traces</span><span class="tag">concepts</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> A mains appliance is rated at 460 W. Calculate the current taken from a 230 V supply.</div>
-          <div class="question"><strong>2.</strong> Which fuse should be used for the 460 W appliance: 3 A or 13 A?</div>
-          <div class="question"><strong>3.</strong> State one difference between <strong>AC</strong> and <strong>DC</strong>.</div>
-          <div class="question"><strong>4.</strong> A straight horizontal oscilloscope trace shows what type of supply?</div>
-          <div class="question"><strong>5.</strong> A wave going above and below the centre line shows what type of supply?</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. I = P / V = 460 / 230 = <strong>2 A</strong></p>
-            <p>2. <strong>3 A fuse</strong></p>
-            <p>3. <strong>AC changes direction; DC goes in one direction only.</strong></p>
-            <p>4. <strong>DC</strong></p>
-            <p>5. <strong>AC</strong></p>
-          </div>
-        </details>
-      </div>
-    </details>
-
-    <details class="block">
-      <summary><span>Set 5: Electric fields and charged particles</span><span class="tag">fields</span></summary>
-      <div class="details-inner">
-        <div class="question-list">
-          <div class="question"><strong>1.</strong> In an electric field, field lines go from which type of charge to which type of charge?</div>
-          <div class="question"><strong>2.</strong> What do the arrows on field lines show?</div>
-          <div class="question"><strong>3.</strong> Why must field lines never cross?</div>
-          <div class="question"><strong>4.</strong> A positive particle is placed in a field. Does it move with the arrows or against them?</div>
-          <div class="question"><strong>5.</strong> A negative particle is placed in a field. Does it move with the arrows or against them?</div>
-        </div>
-
-        <details class="mini" style="margin-top:12px;">
-          <summary><span>Check answers</span><span class="tag">answers</span></summary>
-          <div class="details-inner">
-            <p>1. <strong>From positive to negative</strong></p>
-            <p>2. <strong>The direction of force on a positive test charge</strong></p>
-            <p>3. <strong>Because the field cannot point in two directions at the same place</strong></p>
-            <p>4. <strong>With the arrows</strong></p>
-            <p>5. <strong>Against the arrows</strong></p>
-          </div>
-        </details>
-      </div>
-    </details>
-  </section>
-
-  <!-- COMMON MISTAKES -->
-  <section class="panel" id="mistakes" aria-labelledby="mistakes-title">
-    <h2 id="mistakes-title">Common mistakes</h2>
-    <p class="muted">Check these before you mark your answer wrong.</p>
-
-    <div class="mistake-grid">
-      <div class="mistake-card">
-        <strong>Time not in seconds</strong>
-        Convert minutes to seconds before using <strong>Q = It</strong> or <strong>P = E / t</strong>.
-      </div>
-
-      <div class="mistake-card">
-        <strong>mA left as A</strong>
-        Divide by 1000 before using power equations, especially before squaring in <strong>I²R</strong>.
-      </div>
-
-      <div class="mistake-card">
-        <strong>Wrong final unit</strong>
-        Charge = <strong>C</strong>, current = <strong>A</strong>, energy = <strong>J</strong>, power = <strong>W</strong>.
-      </div>
-
-      <div class="mistake-card">
-        <strong>Forgetting to square</strong>
-        In <strong>P = I²R</strong> and <strong>P = V² / R</strong>, square the value first.
-      </div>
-
-      <div class="mistake-card">
-        <strong>Wrong fuse choice</strong>
-        Calculate the current first using <strong>I = P / V</strong>, then choose a suitable fuse.
-      </div>
-
-      <div class="mistake-card">
-        <strong>Field arrows wrong way</strong>
-        Electric field arrows always go from <strong>+</strong> to <strong>−</strong>.
-      </div>
-
-      <div class="mistake-card">
-        <strong>Field lines crossing</strong>
-        Field lines never cross. Keep the pattern tidy and consistent.
-      </div>
-
-      <div class="mistake-card">
-        <strong>No unit in the answer</strong>
-        Always write the unit.
-      </div>
-    </div>
-
-    <div class="callout">
-      <strong>Check:</strong> units → equation → substitution → answer → unit
-    </div>
-  </section>
-</main>
-  
   <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
   <script>
-    /* ============================
-       MENU: overlay click + ESC close + focus trap
-    =============================== */
     const menu = document.getElementById('sideMenu');
     const overlay = document.getElementById('menuOverlay');
     const btn = document.getElementById('menuBtn');
     const closeBtn = document.getElementById('menuClose');
+    const menuLinks = menu.querySelectorAll('a[href]');
 
     let lastFocus = null;
+    let scrollY = 0;
 
-    function getFocusableInMenu(){
+    function getFocusableInMenu() {
       return menu.querySelectorAll('a[href], button:not([disabled])');
     }
 
-    function openMenu(){
-      lastFocus = document.activeElement;
-
-      menu.classList.add('open');
-      overlay.hidden = false;
-      overlay.classList.add('show');
-      btn.setAttribute('aria-expanded', 'true');
-
-      document.body.style.overflowY = 'hidden';
-
-      const f = getFocusableInMenu();
-      (f[0] || menu).focus();
+    function lockBodyScroll() {
+      scrollY = window.scrollY || window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
     }
 
-    function closeMenu(){
+    function unlockBodyScroll() {
+      document.body.classList.remove('menu-open');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
+    }
+
+    function openMenu() {
+      if (menu.classList.contains('open')) return;
+
+      lastFocus = document.activeElement;
+      lockBodyScroll();
+
+      overlay.hidden = false;
+      requestAnimationFrame(() => {
+        overlay.classList.add('show');
+        menu.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+
+        const focusables = getFocusableInMenu();
+        (focusables[0] || menu).focus();
+      });
+    }
+
+    function closeMenu() {
+      if (!menu.classList.contains('open')) return;
+
       menu.classList.remove('open');
       overlay.classList.remove('show');
-      overlay.hidden = true;
       btn.setAttribute('aria-expanded', 'false');
 
-      document.body.style.overflowY = '';
+      setTimeout(() => {
+        overlay.hidden = true;
+      }, 220);
 
-      if(lastFocus && lastFocus.focus) lastFocus.focus();
+      unlockBodyScroll();
+
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        lastFocus.focus();
+      } else {
+        btn.focus();
+      }
       lastFocus = null;
     }
 
-    function toggleMenu(){
-      menu.classList.contains('open') ? closeMenu() : openMenu();
-    }
+    btn.addEventListener('click', () => {
+      if (menu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
 
-    btn.addEventListener('click', toggleMenu);
     closeBtn.addEventListener('click', closeMenu);
     overlay.addEventListener('click', closeMenu);
+
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
 
     document.addEventListener('keydown', (e) => {
       const isOpen = menu.classList.contains('open');
 
-      if(e.key === 'Escape' && isOpen){
+      if (e.key === 'Escape' && isOpen) {
         e.preventDefault();
         closeMenu();
         return;
       }
 
-      if(e.key === 'Tab' && isOpen){
+      if (e.key === 'Tab' && isOpen) {
         const focusables = Array.from(getFocusableInMenu());
-        if(!focusables.length) return;
+        if (!focusables.length) return;
 
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
 
-        if(e.shiftKey && document.activeElement === first){
+        if (e.shiftKey && document.activeElement === first) {
           e.preventDefault();
           last.focus();
-        } else if(!e.shiftKey && document.activeElement === last){
+        } else if (!e.shiftKey && document.activeElement === last) {
           e.preventDefault();
           first.focus();
         }
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 1100 && menu.classList.contains('open')) {
+        closeMenu();
       }
     });
   </script>
