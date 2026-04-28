@@ -74,7 +74,9 @@ title: S1 Chemistry – Periodic Table, Mixtures & Compounds (Revision)
       --g:#0bbf6a;
       --a:#ffb020;
       --r:#eb4343;
-    }
+    
+      --page-accent: var(--accent);
+      --menu-accent: var(--accent);}
 
     body{
       font-family: var(--font-stack);
@@ -100,65 +102,7 @@ title: S1 Chemistry – Periodic Table, Mixtures & Compounds (Revision)
     /* ============================
        MENU BUTTON & SIDE MENU (LIGHT)
     =============================== */
-    .menu-btn{
-      position: fixed;
-      top: max(14px, env(safe-area-inset-top));
-      right: max(16px, env(safe-area-inset-right));
-      font-size: 1.7rem;
-      background: rgba(255,255,255,0.78);
-      border: 2px solid rgba(232,59,93,0.35);
-      border-radius: 12px;
-      padding: 0.25rem 0.55rem;
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-      cursor: pointer;
-      color: #2a0f15;
-      z-index: 400;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.18s ease, background 0.18s ease;
-    }
-    .menu-btn:hover,
-    .menu-btn:focus-visible{ transform: scale(1.06); }
-
-    .menu-overlay{
-      position: fixed; inset: 0;
-      background: rgba(20,7,10,0.25);
-      display:none;
-      z-index:340;
-    }
-    .menu-overlay.show{ display:block; }
-
-    .side-menu{
-      position: fixed; top: 0; right: -300px;
-      width: 300px; height: 100%;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(18px) saturate(170%);
-      -webkit-backdrop-filter: blur(18px) saturate(170%);
-      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
-      padding-top: calc(4.4rem + env(safe-area-inset-top));
-      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-      transition: right 0.25s ease;
-      z-index:350;
-      border-left: 1px solid rgba(90,20,35,0.14);
-    }
-    .side-menu.open{ right: 0; }
-
-    .side-menu a{
-      padding: 1rem 1.2rem;
-      font-size: 1.12rem;
-      text-decoration:none;
-      color: #2a0f15;
-      border-bottom: 1px solid rgba(90,20,35,0.08);
-      display:flex;
-      gap:0.7rem;
-      min-height: 46px;
-      align-items:center;
-      font-weight: 900;
-    }
-    .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(232,59,93,0.10); }
-
-    /* ============================
+/* ============================
        BANNER
     =============================== */
     .banner-wrap{
@@ -689,32 +633,16 @@ title: S1 Chemistry – Periodic Table, Mixtures & Compounds (Revision)
       margin-top:auto;
     }
   </style>
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
 </head>
 
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
 
   <!-- MENU BUTTON -->
-  <button
-    class="menu-btn"
-    id="menuBtn"
-    type="button"
-    onclick="toggleMenu()"
-    aria-label="Open menu"
-    aria-expanded="false"
-    aria-controls="sideMenu"
-  >☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()" aria-hidden="true"></div>
-
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-    <a href="#" id="closeMenuLink">✖ Close</a>
-    <a href="/">🏠 Home</a>
-    <a href="/classes/science.html">🧪 Science</a>
-    <a href="/classes/physics.html">⚡ Physics</a>
-    <a href="/classes/electronics.html">💡 Electronics</a>
-    <a href="/classes/engineering.html">🧰 Engineering</a>
-  </nav>
 
   <!-- BANNER -->
   <div class="banner-wrap">
@@ -960,72 +888,11 @@ title: S1 Chemistry – Periodic Table, Mixtures & Compounds (Revision)
     function $(id){ return document.getElementById(id); }
     let lastFocusEl = null;
 
-    function getFocusableInMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return [];
-      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled'));
-    }
-
-    function openMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      lastFocusEl = document.activeElement;
-
-      menu.classList.add("open");
-      overlay.classList.add("show");
-
-      btn.setAttribute("aria-expanded","true");
-      btn.setAttribute("aria-label","Close menu");
-      overlay.setAttribute("aria-hidden","false");
-
-      const focusables = getFocusableInMenu();
-      if(focusables.length) focusables[0].focus();
-    }
-
-    function closeMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      menu.classList.remove("open");
-      overlay.classList.remove("show");
-
-      btn.setAttribute("aria-expanded","false");
-      btn.setAttribute("aria-label","Open menu");
-      overlay.setAttribute("aria-hidden","true");
-
-      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-        lastFocusEl.focus();
-      } else {
-        btn.focus();
-      }
-      lastFocusEl = null;
-    }
-
-    function toggleMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return;
-      const isOpen = menu.classList.contains("open");
-      if(isOpen) closeMenu();
-      else openMenu();
-    }
-
     document.addEventListener("keydown", (e) => {
-      const menu = $("sideMenu");
-      const isOpen = menu && menu.classList.contains("open");
 
-      if(e.key === "Escape" && isOpen){
         e.preventDefault();
-        closeMenu();
       }
 
-      if(e.key === "Tab" && isOpen){
-        const focusables = getFocusableInMenu();
         if(!focusables.length) return;
 
         const first = focusables[0];
@@ -1355,14 +1222,11 @@ title: S1 Chemistry – Periodic Table, Mixtures & Compounds (Revision)
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      const overlay = $("menuOverlay");
       if(overlay) overlay.setAttribute("aria-hidden","true");
 
-      const closeLink = $("closeMenuLink");
       if(closeLink){
         closeLink.addEventListener("click", (e) => {
           e.preventDefault();
-          closeMenu();
         });
       }
 

@@ -69,7 +69,9 @@ title: National 5 Engineering Science
 
       --focus-ring: 3px solid rgba(255,138,0,0.55);
       --focus-offset: 4px;
-    }
+    
+      --page-accent: var(--accent);
+      --menu-accent: var(--accent);}
 
     body{
       font-family: var(--font-stack);
@@ -95,90 +97,7 @@ title: National 5 Engineering Science
     /* ============================
        MENU BUTTON + DRAWER (site-wide)
     =============================== */
-    .menu-btn{
-      position:fixed;
-      top:calc(14px + env(safe-area-inset-top));
-      right:calc(14px + env(safe-area-inset-right));
-      font-size:1.65rem;
-      background: rgba(255,255,255,0.86);
-      backdrop-filter: blur(12px) saturate(170%);
-      -webkit-backdrop-filter: blur(12px) saturate(170%);
-      border: 2px solid rgba(255,138,0,0.22);
-      border-radius: 14px;
-      padding: .42rem .70rem;
-      cursor:pointer;
-      color: var(--accent-2);
-      box-shadow: 0 14px 28px rgba(0,0,0,0.12);
-      z-index: 500;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-    }
-    .menu-btn:hover{ transform: scale(1.05); border-color: rgba(255,138,0,0.30); }
-    .menu-btn:active{ transform: scale(1.02); }
-
-    .menu-overlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,0.32);
-      display:none;
-      z-index: 440;
-    }
-    .menu-overlay.show{ display:block; }
-
-    .side-menu{
-      position:fixed;
-      top:0; right:-310px;
-      width:310px; height:100%;
-      background: rgba(255,255,255,0.86);
-      backdrop-filter: blur(18px) saturate(180%);
-      -webkit-backdrop-filter: blur(18px) saturate(180%);
-      box-shadow: -10px 0 30px rgba(0,0,0,0.18);
-      border-left: 1px solid rgba(27,20,11,0.10);
-      padding-top: calc(1rem + env(safe-area-inset-top));
-      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-      z-index: 460;
-      transition: right .28s ease;
-      display:flex;
-      flex-direction:column;
-    }
-    .side-menu.open{ right:0; }
-
-    .menu-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: .8rem 1rem;
-      border-bottom: 1px solid rgba(27,20,11,0.10);
-    }
-    .menu-title{
-      font-weight: 900;
-      color: var(--text);
-      letter-spacing: .2px;
-    }
-    .menu-close{
-      font-size:1.35rem;
-      background: rgba(255,138,0,0.12);
-      border: 1px solid rgba(255,138,0,0.22);
-      color: var(--accent-2);
-      border-radius: 12px;
-      padding: .25rem .55rem;
-      cursor:pointer;
-      font-weight: 900;
-    }
-
-    .side-menu a{
-      padding: 1rem 1.2rem;
-      font-size: 1.08rem;
-      text-decoration:none;
-      color: var(--text);
-      display:flex;
-      align-items:center;
-      gap:.7rem;
-      border-bottom: 1px solid rgba(27,20,11,0.06);
-      font-weight: 900;
-      min-height: 44px;
-    }
-    .side-menu a:hover{ background: rgba(255,138,0,0.10); }
-
-    /* ============================
+/* ============================
        HERO (no banner yet)
     =============================== */
     .hero{
@@ -664,35 +583,16 @@ title: National 5 Engineering Science
       .topic-card{ padding: 0.85rem; }
     }
   </style>
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
 </head>
 
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
 
   <!-- MENU BUTTON -->
-  <button
-    class="menu-btn"
-    id="menuBtn"
-    type="button"
-    aria-label="Open menu"
-    aria-controls="sideMenu"
-    aria-expanded="false"
-  >☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" hidden></div>
-
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
-    <div class="menu-head">
-      <div class="menu-title">Menu</div>
-      <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">×</button>
-    </div>
-
-    <a href="/">🏠 Home</a>
-    <a href="/classes/science.html">🧪 Science</a>
-    <a href="/classes/physics.html">⚡ Physics</a>
-    <a href="/classes/electronics.html">💡 Electronics</a>
-    <a href="/classes/engineering.html">🧰 Engineering</a>
-  </nav>
 
   <!-- HERO -->
   <header class="hero" role="banner">
@@ -1657,65 +1557,16 @@ title: National 5 Engineering Science
     /* ============================
        MENU: overlay click + ESC close + focus trap
     =============================== */
-    const menu = document.getElementById('sideMenu');
-    const overlay = document.getElementById('menuOverlay');
-    const btn = document.getElementById('menuBtn');
     const closeBtn = document.getElementById('menuClose');
 
     let lastFocus = null;
 
-    function getFocusableInMenu(){
-      return menu.querySelectorAll('a[href], button:not([disabled])');
-    }
-
-    function openMenu(){
-      lastFocus = document.activeElement;
-
-      menu.classList.add('open');
-      overlay.hidden = false;
-      overlay.classList.add('show');
-
-      btn.setAttribute('aria-expanded','true');
-
-      // stop background scroll (iPad-friendly)
-      document.body.style.overflowY = 'hidden';
-
-      const f = getFocusableInMenu();
-      (f[0] || menu).focus();
-    }
-
-    function closeMenu(){
-      menu.classList.remove('open');
-      overlay.classList.remove('show');
-      overlay.hidden = true;
-
-      btn.setAttribute('aria-expanded','false');
-
-      document.body.style.overflowY = '';
-
-      if(lastFocus && lastFocus.focus) lastFocus.focus();
-      lastFocus = null;
-    }
-
-    function toggleMenu(){
-      menu.classList.contains('open') ? closeMenu() : openMenu();
-    }
-
-    btn.addEventListener('click', toggleMenu);
-    closeBtn.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-
     document.addEventListener('keydown', (e) => {
-      const isOpen = menu.classList.contains('open');
 
-      if(e.key === 'Escape' && isOpen){
         e.preventDefault();
-        closeMenu();
         return;
       }
 
-      if(e.key === 'Tab' && isOpen){
-        const focusables = Array.from(getFocusableInMenu());
         if(!focusables.length) return;
 
         const first = focusables[0];

@@ -64,7 +64,9 @@ title: Advanced Higher Physics
       --focus-offset: 3px;
 
       --radius: 1rem;
-    }
+    
+      --page-accent: var(--accent);
+      --menu-accent: var(--accent);}
 
     body{
       background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
@@ -89,64 +91,7 @@ title: Advanced Higher Physics
     /* ============================
        MENU BUTTON & SIDE MENU (same behaviour as Higher)
     =============================== */
-    .menu-btn{
-      position: fixed;
-      top: calc(15px + env(safe-area-inset-top));
-      right: calc(20px + env(safe-area-inset-right));
-      font-size: 1.8rem;
-      background: rgba(255,255,255,0.55);
-      border: 2px solid rgba(27,27,27,0.22);
-      border-radius: 12px;
-      padding: 0.3rem 0.6rem;
-      backdrop-filter: blur(10px) saturate(160%);
-      -webkit-backdrop-filter: blur(10px) saturate(160%);
-      cursor: pointer;
-      color: #111;
-      z-index: 400;
-      transition: transform 0.2s ease, background 0.2s ease;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.16);
-    }
-    .menu-btn:hover,
-    .menu-btn:focus-visible{ transform: scale(1.08); background: rgba(255,255,255,0.70); }
-
-    .menu-overlay{
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.35);
-      display:none;
-      z-index:340;
-    }
-    .menu-overlay.show{ display:block; }
-
-    .side-menu{
-      position: fixed; top: 0; right: -290px;
-      width: 290px; height: 100%;
-      background: rgba(17,24,39,0.88);
-      backdrop-filter: blur(16px) saturate(200%);
-      -webkit-backdrop-filter: blur(16px) saturate(200%);
-      box-shadow: -6px 0 22px rgba(0,0,0,0.35);
-      padding-top: calc(4.5rem + env(safe-area-inset-top));
-      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-      transition: right 0.3s ease;
-      z-index:350;
-    }
-    .side-menu.open{ right: 0; }
-
-    .side-menu a{
-      padding: 1rem 1.4rem;
-      font-size: 1.12rem;
-      text-decoration:none;
-      color:#fff;
-      border-bottom: 1px solid rgba(255,255,255,0.10);
-      display:flex;
-      gap:0.7rem;
-      min-height: 44px;
-      align-items:center;
-      font-weight: 900;
-    }
-    .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(255,255,255,0.14); }
-
-    /* ============================
+/* ============================
        BANNER (full width, like Home/Higher)
     =============================== */
     .banner-wrap{
@@ -464,31 +409,16 @@ title: Advanced Higher Physics
       .panel{ padding: 1rem; }
     }
   </style>
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
 </head>
 
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
 
   <!-- MENU BUTTON -->
-  <button
-    class="menu-btn"
-    id="menuBtn"
-    type="button"
-    aria-label="Open menu"
-    aria-expanded="false"
-    aria-controls="sideMenu"
-  >☰</button>
 
-  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
-
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" tabindex="-1">
-    <a href="#" id="closeMenuLink">✖ Close</a>
-    <a href="/">🏠 Home</a>
-    <a href="/classes/science.html">🧪 Science</a>
-    <a href="/classes/physics.html">⚡ Physics</a>
-    <a href="/classes/electronics.html">💡 Electronics</a>
-    <a href="/classes/engineering.html">🧰 Engineering</a>
-  </nav>
 
   <!-- BANNER -->
   <div class="banner-wrap">
@@ -711,82 +641,17 @@ title: Advanced Higher Physics
     =============================== */
     function $(id){ return document.getElementById(id); }
 
-    const menu = $("sideMenu");
-    const overlay = $("menuOverlay");
-    const btn = $("menuBtn");
-    const closeLink = $("closeMenuLink");
-
     let lastFocusEl = null;
-
-    function getFocusableInMenu(){
-      if(!menu) return [];
-      return Array.from(menu.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled'));
-    }
-
-    function openMenu(){
-      if(!menu || !overlay || !btn) return;
-
-      lastFocusEl = document.activeElement;
-
-      menu.classList.add("open");
-      overlay.classList.add("show");
-      overlay.setAttribute("aria-hidden","false");
-
-      btn.setAttribute("aria-expanded","true");
-      btn.setAttribute("aria-label","Close menu");
-
-      document.body.style.overflowY = "hidden";
-
-      const focusables = getFocusableInMenu();
-      (focusables[0] || menu).focus();
-    }
-
-    function closeMenu(){
-      if(!menu || !overlay || !btn) return;
-
-      menu.classList.remove("open");
-      overlay.classList.remove("show");
-      overlay.setAttribute("aria-hidden","true");
-
-      btn.setAttribute("aria-expanded","false");
-      btn.setAttribute("aria-label","Open menu");
-
-      document.body.style.overflowY = "";
-
-      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-        lastFocusEl.focus();
-      } else {
-        btn.focus();
-      }
-      lastFocusEl = null;
-    }
-
-    function toggleMenu(){
-      if(!menu) return;
-      const isOpen = menu.classList.contains("open");
-      if(isOpen) closeMenu();
-      else openMenu();
-    }
-
-    btn.addEventListener("click", toggleMenu);
-    overlay.addEventListener("click", closeMenu);
 
     closeLink.addEventListener("click", (e) => {
       e.preventDefault();
-      closeMenu();
     });
 
     document.addEventListener("keydown", (e) => {
-      const isOpen = menu && menu.classList.contains("open");
 
-      if(e.key === "Escape" && isOpen){
         e.preventDefault();
-        closeMenu();
       }
 
-      if(e.key === "Tab" && isOpen){
-        const focusables = getFocusableInMenu();
         if(!focusables.length) return;
 
         const first = focusables[0];
