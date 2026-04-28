@@ -1,0 +1,358 @@
+/* =========================================================
+   SHARED SITE MENU
+   File: /assets/css/site-menu.css
+
+   Expected include:
+   {% include site-menu.html %}
+
+   Pages can customise colour using:
+   :root { --menu-accent:#2b59ff; }
+   or
+   :root { --page-accent:#2b59ff; }
+========================================================= */
+
+/* ---------- Shared variables ---------- */
+:root{
+  --menu-accent: var(--page-accent, #2563eb);
+  --menu-text: #102027;
+  --menu-muted: rgba(16,32,39,0.68);
+  --menu-glass: rgba(255,255,255,0.88);
+  --menu-glass-strong: rgba(255,255,255,0.94);
+  --menu-border: rgba(16,32,39,0.14);
+  --menu-shadow: 0 18px 44px rgba(0,0,0,0.18);
+  --menu-radius: 18px;
+  --menu-focus: 3px solid color-mix(in srgb, var(--menu-accent) 68%, white);
+}
+
+/* ---------- Prevent background scroll when menu is open ---------- */
+body.site-menu-open{
+  overflow:hidden;
+}
+
+/* ---------- Menu button ---------- */
+.site-menu-button{
+  position:fixed;
+  top:calc(14px + env(safe-area-inset-top));
+  right:calc(14px + env(safe-area-inset-right));
+  z-index:1001;
+
+  min-width:48px;
+  min-height:48px;
+  padding:0.45rem 0.7rem;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  font:inherit;
+  font-size:1.65rem;
+  font-weight:900;
+  line-height:1;
+
+  color:var(--menu-text);
+  background:var(--menu-glass);
+  border:2px solid color-mix(in srgb, var(--menu-accent) 32%, transparent);
+  border-radius:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,0.12);
+
+  backdrop-filter:blur(16px) saturate(170%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.site-menu-button:hover,
+.site-menu-button:focus-visible{
+  transform:translateY(-1px) scale(1.03);
+  background:var(--menu-glass-strong);
+  border-color:color-mix(in srgb, var(--menu-accent) 52%, transparent);
+  box-shadow:0 14px 30px rgba(0,0,0,0.16);
+}
+
+.site-menu-button:active{
+  transform:translateY(1px) scale(0.98);
+}
+
+/* ---------- Overlay ---------- */
+.site-menu-overlay{
+  position:fixed;
+  inset:0;
+  z-index:999;
+
+  background:rgba(5,12,18,0.34);
+  opacity:0;
+  pointer-events:none;
+
+  transition:opacity 0.22s ease;
+}
+
+.site-menu-overlay.is-open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.site-menu-overlay[hidden]{
+  display:none;
+}
+
+/* ---------- Drawer ---------- */
+.site-menu-drawer{
+  position:fixed;
+  top:0;
+  right:0;
+  z-index:1000;
+
+  width:min(360px, 88vw);
+  height:100dvh;
+  max-height:100dvh;
+
+  padding:
+    calc(1rem + env(safe-area-inset-top))
+    0
+    calc(1rem + env(safe-area-inset-bottom));
+
+  color:var(--menu-text);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.86)),
+    radial-gradient(420px 220px at 20% 0%, color-mix(in srgb, var(--menu-accent) 16%, transparent), transparent 72%);
+
+  border-left:1px solid var(--menu-border);
+  box-shadow:var(--menu-shadow);
+
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+
+  overflow-y:auto;
+  overscroll-behavior:contain;
+
+  transform:translateX(105%);
+  transition:transform 0.24s ease;
+
+  -webkit-overflow-scrolling:touch;
+}
+
+.site-menu-drawer.is-open{
+  transform:translateX(0);
+}
+
+/* Blur fallback */
+@supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))){
+  .site-menu-button,
+  .site-menu-drawer{
+    background:#ffffff;
+  }
+}
+
+/* ---------- Header ---------- */
+.site-menu-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+
+  padding:0.25rem 1rem 0.85rem;
+  border-bottom:1px solid rgba(16,32,39,0.10);
+}
+
+.site-menu-title{
+  margin:0;
+  font-size:1.08rem;
+  font-weight:900;
+  letter-spacing:0.01em;
+  color:var(--menu-text);
+}
+
+.site-menu-close{
+  min-width:44px;
+  min-height:44px;
+  padding:0.5rem 0.72rem;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  font:inherit;
+  font-size:1.05rem;
+  font-weight:900;
+  line-height:1;
+
+  color:var(--menu-text);
+  background:rgba(255,255,255,0.82);
+  border:1px solid var(--menu-border);
+  border-radius:14px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.08);
+
+  cursor:pointer;
+  touch-action:manipulation;
+}
+
+/* ---------- Navigation ---------- */
+.site-menu-nav{
+  display:flex;
+  flex-direction:column;
+  padding:0.55rem;
+}
+
+.site-menu-link,
+.site-menu-summary{
+  min-height:54px;
+  padding:0.92rem 0.9rem;
+
+  display:flex;
+  align-items:center;
+  gap:0.7rem;
+
+  color:var(--menu-text);
+  text-decoration:none;
+  font-size:1.04rem;
+  font-weight:900;
+  line-height:1.25;
+
+  border-radius:16px;
+  border:1px solid transparent;
+
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.site-menu-link:hover,
+.site-menu-link:focus-visible,
+.site-menu-summary:hover,
+.site-menu-summary:focus-visible{
+  background:color-mix(in srgb, var(--menu-accent) 12%, white);
+  border-color:color-mix(in srgb, var(--menu-accent) 24%, transparent);
+}
+
+.site-menu-link[aria-current="page"]{
+  background:color-mix(in srgb, var(--menu-accent) 16%, white);
+  border-color:color-mix(in srgb, var(--menu-accent) 34%, transparent);
+}
+
+/* ---------- Dropdown groups ---------- */
+.site-menu-group{
+  margin:0;
+  border-radius:16px;
+}
+
+.site-menu-group > summary{
+  list-style:none;
+}
+
+.site-menu-group > summary::-webkit-details-marker{
+  display:none;
+}
+
+.site-menu-summary{
+  position:relative;
+  width:100%;
+}
+
+.site-menu-summary::after{
+  content:"▾";
+  margin-left:auto;
+  font-size:0.9rem;
+  color:var(--menu-muted);
+  transition:transform 0.18s ease;
+}
+
+.site-menu-group[open] > .site-menu-summary::after{
+  transform:rotate(180deg);
+}
+
+.site-menu-subnav{
+  display:grid;
+  gap:0.35rem;
+
+  margin:0.1rem 0 0.55rem 2.3rem;
+  padding:0.25rem 0 0.25rem 0.65rem;
+
+  border-left:3px solid color-mix(in srgb, var(--menu-accent) 32%, transparent);
+}
+
+.site-menu-subnav a,
+.site-menu-soon{
+  min-height:44px;
+  padding:0.72rem 0.8rem;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0.5rem;
+
+  color:var(--menu-text);
+  text-decoration:none;
+  font-size:0.98rem;
+  font-weight:850;
+  line-height:1.25;
+
+  border-radius:14px;
+  border:1px solid transparent;
+}
+
+.site-menu-subnav a:hover,
+.site-menu-subnav a:focus-visible{
+  background:rgba(255,255,255,0.72);
+  border-color:color-mix(in srgb, var(--menu-accent) 22%, transparent);
+}
+
+.site-menu-subnav a[aria-current="page"]{
+  background:color-mix(in srgb, var(--menu-accent) 14%, white);
+  border-color:color-mix(in srgb, var(--menu-accent) 30%, transparent);
+}
+
+.site-menu-soon{
+  color:rgba(16,32,39,0.52);
+  cursor:not-allowed;
+}
+
+.site-menu-soon small{
+  font-size:0.78rem;
+  font-weight:900;
+  color:rgba(16,32,39,0.48);
+}
+
+/* ---------- Focus states ---------- */
+.site-menu-button:focus-visible,
+.site-menu-close:focus-visible,
+.site-menu-link:focus-visible,
+.site-menu-summary:focus-visible,
+.site-menu-subnav a:focus-visible{
+  outline:var(--menu-focus);
+  outline-offset:3px;
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width:520px){
+  .site-menu-drawer{
+    width:min(340px, 92vw);
+  }
+
+  .site-menu-button{
+    top:calc(10px + env(safe-area-inset-top));
+    right:calc(10px + env(safe-area-inset-right));
+  }
+
+  .site-menu-link,
+  .site-menu-summary{
+    min-height:52px;
+    font-size:1rem;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .site-menu-button,
+  .site-menu-overlay,
+  .site-menu-drawer,
+  .site-menu-summary::after{
+    transition:none!important;
+  }
+}
