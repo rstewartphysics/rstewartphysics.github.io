@@ -73,7 +73,9 @@ title: S2 Physics – Transport & Forces
       --g:#0bbf6a;
       --a:#ffb020;
       --r:#eb4343;
-    }
+    
+      --page-accent: var(--accent);
+      --menu-accent: var(--accent);}
 
     body{
       font-family: var(--font-stack);
@@ -86,9 +88,7 @@ title: S2 Physics – Transport & Forces
       display:flex;
       flex-direction:column;
     }
-    body.menu-open{ overflow:hidden; }
-
-    :focus-visible{
+:focus-visible{
       outline: var(--focus-ring);
       outline-offset: var(--focus-offset);
     }
@@ -100,69 +100,7 @@ title: S2 Physics – Transport & Forces
     /* ============================
        MENU BUTTON & SIDE MENU
     =============================== */
-    .menu-btn{
-      position: fixed;
-      top: max(14px, env(safe-area-inset-top));
-      right: max(16px, env(safe-area-inset-right));
-      font-size: 1.5rem;
-      background: rgba(255,255,255,0.90);
-      border: 1px solid rgba(44,99,255,0.28);
-      border-radius: 14px;
-      min-width: 48px;
-      min-height: 48px;
-      padding: 0.2rem 0.7rem;
-      backdrop-filter: blur(10px) saturate(140%);
-      -webkit-backdrop-filter: blur(10px) saturate(140%);
-      cursor: pointer;
-      color: var(--text);
-      z-index: 400;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.16s ease, background 0.16s ease;
-    }
-    .menu-btn:hover,
-    .menu-btn:focus-visible{ transform: scale(1.04); }
-
-    .menu-overlay{
-      position: fixed; inset: 0;
-      background: rgba(10,20,40,0.26);
-      display:none;
-      z-index:340;
-    }
-    .menu-overlay.show{ display:block; }
-
-    .side-menu{
-      position: fixed; top: 0; right: -320px;
-      width: min(320px, 86vw);
-      height: 100dvh;
-      background: rgba(255,255,255,0.94);
-      backdrop-filter: blur(14px) saturate(150%);
-      -webkit-backdrop-filter: blur(14px) saturate(150%);
-      box-shadow: -10px 0 22px rgba(0,0,0,0.14);
-      padding-top: calc(4.2rem + env(safe-area-inset-top));
-      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-      transition: right 0.24s ease;
-      z-index:350;
-      border-left: 1px solid rgba(10,25,60,0.12);
-      overflow:auto;
-    }
-    .side-menu.open{ right: 0; }
-
-    .side-menu a{
-      padding: 1rem 1.2rem;
-      font-size: 1.04rem;
-      text-decoration:none;
-      color: var(--text);
-      border-bottom: 1px solid rgba(10,25,60,0.08);
-      display:flex;
-      gap:0.7rem;
-      min-height: 48px;
-      align-items:center;
-      font-weight: 800;
-    }
-    .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(44,99,255,0.08); }
-
-    /* ============================
+/* ============================
        BANNER
     =============================== */
     .banner-wrap{
@@ -576,30 +514,14 @@ title: S2 Physics – Transport & Forces
       margin-top:auto;
     }
   </style>
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
 </head>
 
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
 
-  <button
-    class="menu-btn"
-    id="menuBtn"
-    type="button"
-    aria-label="Open menu"
-    aria-expanded="false"
-    aria-controls="sideMenu"
-  >☰</button>
-
-  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
-
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation">
-    <a href="#" id="closeMenuLink">Close</a>
-    <a href="/">Home</a>
-    <a href="/science/">Science</a>
-    <a href="/physics/">Physics</a>
-    <a href="/electronics/">Electronics</a>
-    <a href="/engineering/">Engineering</a>
-  </nav>
 
   <div class="banner-wrap" id="bannerWrap">
     <img
@@ -851,73 +773,11 @@ title: S2 Physics – Transport & Forces
     function $(id){ return document.getElementById(id); }
     let lastFocusEl = null;
 
-    function getFocusableInMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return [];
-      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled'));
-    }
-
-    function openMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      lastFocusEl = document.activeElement;
-      menu.classList.add("open");
-      overlay.classList.add("show");
-      document.body.classList.add("menu-open");
-
-      btn.setAttribute("aria-expanded","true");
-      btn.setAttribute("aria-label","Close menu");
-      overlay.setAttribute("aria-hidden","false");
-
-      const focusables = getFocusableInMenu();
-      if(focusables.length) focusables[0].focus();
-    }
-
-    function closeMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      menu.classList.remove("open");
-      overlay.classList.remove("show");
-      document.body.classList.remove("menu-open");
-
-      btn.setAttribute("aria-expanded","false");
-      btn.setAttribute("aria-label","Open menu");
-      overlay.setAttribute("aria-hidden","true");
-
-      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-        lastFocusEl.focus();
-      } else {
-        btn.focus();
-      }
-      lastFocusEl = null;
-    }
-
-    function toggleMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return;
-      const isOpen = menu.classList.contains("open");
-      if(isOpen) closeMenu();
-      else openMenu();
-    }
-
     document.addEventListener("keydown", (e) => {
-      const menu = $("sideMenu");
-      const isOpen = menu && menu.classList.contains("open");
 
-      if(e.key === "Escape" && isOpen){
         e.preventDefault();
-        closeMenu();
       }
 
-      if(e.key === "Tab" && isOpen){
-        const focusables = getFocusableInMenu();
         if(!focusables.length) return;
 
         const first = focusables[0];
@@ -934,20 +794,13 @@ title: S2 Physics – Transport & Forces
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-      const overlay = $("menuOverlay");
       if(overlay){
         overlay.setAttribute("aria-hidden","true");
-        overlay.addEventListener("click", closeMenu);
       }
 
-      const btn = $("menuBtn");
-      if(btn) btn.addEventListener("click", toggleMenu);
-
-      const closeLink = $("closeMenuLink");
       if(closeLink){
         closeLink.addEventListener("click", (e) => {
           e.preventDefault();
-          closeMenu();
         });
       }
     });
