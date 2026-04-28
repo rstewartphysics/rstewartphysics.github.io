@@ -11,6 +11,9 @@ title: Engineering
   <meta name="color-scheme" content="light" />
   <title>Engineering</title>
 
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+
   <style>
     /* ============================
        GLOBAL FIX: prevent clipping/overflow
@@ -55,6 +58,8 @@ title: Engineering
 
       --accent:#d98a00;
       --accent-2:#b85a00;
+      --page-accent:var(--accent);
+      --menu-accent:var(--accent);
 
       --card:#ffffff;
 
@@ -87,67 +92,6 @@ title: Engineering
     @media (prefers-reduced-motion: reduce){
       *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
     }
-
-    /* ============================
-       MENU BUTTON & SIDE MENU (LIGHT)
-    =============================== */
-    .menu-btn{
-      position: fixed;
-      top: max(14px, env(safe-area-inset-top));
-      right: max(16px, env(safe-area-inset-right));
-      font-size: 1.7rem;
-      background: rgba(255,255,255,0.82);
-      border: 2px solid rgba(217,138,0,0.30);
-      border-radius: 12px;
-      padding: 0.25rem 0.55rem;
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-      cursor: pointer;
-      color: var(--text);
-      z-index: 400;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.18s ease, background 0.18s ease;
-    }
-    .menu-btn:hover,
-    .menu-btn:focus-visible{ transform: scale(1.06); }
-
-    .menu-overlay{
-      position: fixed; inset: 0;
-      background: rgba(20,12,0,0.22);
-      display:none;
-      z-index:340;
-    }
-    .menu-overlay.show{ display:block; }
-
-    .side-menu{
-      position: fixed; top: 0; right: -300px;
-      width: 300px; height: 100%;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(18px) saturate(170%);
-      -webkit-backdrop-filter: blur(18px) saturate(170%);
-      box-shadow: -10px 0 28px rgba(0,0,0,0.16);
-      padding-top: calc(4.4rem + env(safe-area-inset-top));
-      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-      transition: right 0.25s ease;
-      z-index:350;
-      border-left: 1px solid rgba(42,26,0,0.14);
-    }
-    .side-menu.open{ right: 0; }
-
-    .side-menu a{
-      padding: 1rem 1.2rem;
-      font-size: 1.12rem;
-      text-decoration:none;
-      color: var(--text);
-      border-bottom: 1px solid rgba(42,26,0,0.08);
-      display:flex;
-      gap:0.7rem;
-      min-height: 46px;
-      align-items:center;
-      font-weight: 900;
-    }
-    .side-menu a:hover,
-    .side-menu a:focus-visible{ background: rgba(217,138,0,0.10); }
 
     /* ============================
        BANNER (Home banner style: fill width)
@@ -441,26 +385,7 @@ title: Engineering
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
-  <!-- MENU BUTTON -->
-  <button
-    class="menu-btn"
-    id="menuBtn"
-    type="button"
-    aria-label="Open menu"
-    aria-expanded="false"
-    aria-controls="sideMenu"
-  >☰</button>
-
-  <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
-
-  <nav class="side-menu" id="sideMenu" aria-label="Site navigation" aria-hidden="true" tabindex="-1">
-    <a href="#" id="closeMenuLink">✖ Close</a>
-    <a href="/">🏠 Home</a>
-    <a href="/classes/science.html">🧪 Science</a>
-    <a href="/classes/physics.html">⚡ Physics</a>
-    <a href="/classes/electronics.html">💡 Electronics</a>
-    <a href="/classes/engineering.html">🧰 Engineering</a>
-  </nav>
+  {% include site-menu.html %}
 
   <!-- BANNER -->
   <div class="banner-wrap">
@@ -614,101 +539,7 @@ title: Engineering
 
   <footer>© Mr R Stewart’s Science, Physics, Electronics &amp; Engineering</footer>
 
-  <script>
-    /* ============================
-       MENU: overlay click + close link + ESC close + focus trap
-    =============================== */
-    function $(id){ return document.getElementById(id); }
-    let lastFocusEl = null;
-
-    function getFocusableInMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return [];
-      return Array.from(menu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled'));
-    }
-
-    function openMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      lastFocusEl = document.activeElement;
-
-      menu.classList.add("open");
-      overlay.classList.add("show");
-
-      btn.setAttribute("aria-expanded","true");
-      menu.setAttribute("aria-hidden","false");
-      overlay.setAttribute("aria-hidden","false");
-
-      const focusables = getFocusableInMenu();
-      if(focusables.length) focusables[0].focus();
-      else menu.focus();
-    }
-
-    function closeMenu(){
-      const menu = $("sideMenu");
-      const overlay = $("menuOverlay");
-      const btn = $("menuBtn");
-      if(!menu || !overlay || !btn) return;
-
-      menu.classList.remove("open");
-      overlay.classList.remove("show");
-
-      btn.setAttribute("aria-expanded","false");
-      menu.setAttribute("aria-hidden","true");
-      overlay.setAttribute("aria-hidden","true");
-
-      if(lastFocusEl && typeof lastFocusEl.focus === "function"){
-        lastFocusEl.focus();
-      } else {
-        btn.focus();
-      }
-      lastFocusEl = null;
-    }
-
-    function toggleMenu(){
-      const menu = $("sideMenu");
-      if(!menu) return;
-      menu.classList.contains("open") ? closeMenu() : openMenu();
-    }
-
-    $("menuBtn").addEventListener("click", toggleMenu);
-    $("menuOverlay").addEventListener("click", closeMenu);
-
-    $("closeMenuLink").addEventListener("click", (e) => {
-      e.preventDefault();
-      closeMenu();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      const menu = $("sideMenu");
-      const isOpen = menu && menu.classList.contains("open");
-
-      if(e.key === "Escape" && isOpen){
-        e.preventDefault();
-        closeMenu();
-      }
-
-      if(e.key === "Tab" && isOpen){
-        const focusables = getFocusableInMenu();
-        if(!focusables.length) return;
-
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-
-        if(e.shiftKey && document.activeElement === first){
-          e.preventDefault();
-          last.focus();
-        } else if(!e.shiftKey && document.activeElement === last){
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    });
-
+    <script>
     /* ============================
        Prevent activation for aria-disabled links
     =============================== */
