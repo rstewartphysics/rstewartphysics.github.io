@@ -35,3 +35,7 @@ Examples:
 - Keep decorative images, logos and diagrams inside `/assets/engineering-science/images/`.
 - Use root-relative links on pages, for example:
   `/assets/engineering-science/s3/what-is-an-engineer/s3-engineering-science-what-is-an-engineer-booklet.pdf`
+
+## Git tracking note
+
+Empty folders contain a `.gitkeep` file so that GitHub tracks the folder structure. When real resources are uploaded to a folder, the `.gitkeep` file can be left in place or removed.
