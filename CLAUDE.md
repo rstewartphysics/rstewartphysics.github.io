@@ -219,6 +219,24 @@ Body background: complex radial gradient mixing whites, blues, pinks, greens. S1
 
 Dark page (`color-scheme: dark`). Body background: radial gradients in teal over dark linear gradient. Theme colour: `#0b1f1a`. Skip link uses `#00e6b3` background.
 
+### National 5 Physics — pink light
+
+```css
+:root {
+  --bg0: #fff7fb;
+  --bg1: #fff0f7;
+  --bg2: #ffffff;
+  --text: #2a0a1a;
+  --muted: #5b2f45;
+  --accent: #d74a84;
+  --page-accent: var(--accent);
+  --menu-accent: var(--accent);
+  --focus-ring: 3px solid rgba(215,74,132,0.55);
+}
+```
+
+Theme colour: `#d74a84` (pink). Skip link: `background:#d74a84; color:#2a0a1a`.
+
 ### Higher Physics — blue light
 
 ```css
@@ -232,6 +250,22 @@ Dark page (`color-scheme: dark`). Body background: radial gradients in teal over
 ```
 
 Theme colour: `#2b59ff`. Skip link uses `#2b59ff` background with white text.
+
+### Advanced Higher Physics — gold/cream light
+
+```css
+:root {
+  --bg1: #fff6d6;
+  --bg2: #ffe08a;
+  --text-main: #1b1b1b;
+  --accent: #b8860b;
+  --page-accent: var(--accent);
+  --menu-accent: var(--accent);
+  --focus: 3px solid rgba(184,134,11,0.85);
+}
+```
+
+Theme colour: `#b8860b` (dark gold). Skip link: `background:#111827; color:#fff`. Body background is a radial gradient from cream to gold.
 
 ### Engineering Science — graphite + orange (external CSS)
 
