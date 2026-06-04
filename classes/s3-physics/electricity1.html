@@ -7,6 +7,7 @@ layout: none
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
 <title>S3 Physics – Electricity 1</title>
 
 <style>
@@ -19,52 +20,86 @@ layout: none
   left: 20px;
   z-index: 300;
 
-  background: rgba(0, 255, 200, 0.18);
+  background: var(--bg-soft);
   padding: 0.75rem 1.2rem;
   border-radius: 12px;
-  color: white;
+  color: var(--text-main);
   font-weight: 600;
   text-decoration: none;
   font-size: 0.95rem;
 
-  backdrop-filter: blur(10px) saturate(160%);
-  border: 2px solid rgba(0,255,200,0.35);
-  box-shadow: 0 4px 14px rgba(0,255,200,0.35);
+  border: 2px solid var(--line);
+  box-shadow: var(--shadow-soft);
 
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .back-to-s3:hover,
 .back-to-s3:focus-visible {
-  background: rgba(0, 255, 200, 0.32);
-  transform: scale(1.08);
-  outline: 3px solid #00e6b3;
+  border-color: var(--phys-accent);
+  color: var(--phys-accent);
+  transform: scale(1.05);
+  outline: 3px solid rgba(0, 145, 122, 0.3);
   outline-offset: 3px;
 }
 
 /* ============================================================
-   FULL S3 PHYSICS STYLE SYSTEM (UPGRADED)
+   CSS VARIABLE SYSTEM — light mode defaults
    ============================================================ */
 :root {
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --text-main: #ffffff;
+  --font-stack: "Trebuchet MS", "Segoe UI", sans-serif;
   --radius-card: 1rem;
 
-  --bg1: #0c2f3c;
-  --bg2: #104b5c;
-  --bg3: #082229;
+  /* Physics teal accent */
+  --phys-accent:       #00917a;
+  --phys-accent-light: #00e6b3;
+  --phys-accent-dark:  #005c47;
 
-  --tab-active: #00e6b3;
-  --tab-bg: rgba(255,255,255,0.08);
+  /* Light mode backgrounds */
+  --bg-page:   #f4f8f7;
+  --bg-card:   #ffffff;
+  --bg-soft:   #edf7f4;
+  --bg-soft-2: #f0faf7;
 
-      --page-accent: #2563eb;
-      --menu-accent: #2563eb;}
+  /* Light mode text */
+  --text-main:  #0f2620;
+  --text-muted: #3d6b5e;
 
-/* ----------------- BASE ----------------- */
+  /* Light mode borders / shadows */
+  --line:       rgba(0, 60, 45, 0.12);
+  --shadow:      0 8px 22px rgba(0, 60, 45, 0.08);
+  --shadow-soft: 0 4px 12px rgba(0, 60, 45, 0.05);
+
+  /* Summary gradient */
+  --summary-bg: linear-gradient(90deg, #edf7f4, #ffffff);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-page:   #0d1f1a;
+    --bg-card:   #152920;
+    --bg-soft:   #0a1f15;
+    --bg-soft-2: #0d2318;
+
+    --text-main:  #e0f2ec;
+    --text-muted: #7ab8a4;
+
+    --line:       rgba(255, 255, 255, 0.10);
+    --shadow:      0 8px 22px rgba(0, 0, 0, 0.40);
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.28);
+
+    --phys-accent:       #00e6b3;
+    --phys-accent-light: #5fffd8;
+    --phys-accent-dark:  #a8fff0;
+
+    --summary-bg: linear-gradient(90deg, #0a2a1e, #152920);
+  }
+}
+
+/* --------- BASE --------- */
 body {
   margin: 0;
-  background: radial-gradient(circle at 25% 30%, var(--bg1), var(--bg2), var(--bg3));
-  background-attachment: scroll;
+  background-color: var(--bg-page);
   font-family: var(--font-stack);
   color: var(--text-main);
   line-height: 1.55;
@@ -72,17 +107,17 @@ body {
   flex-direction: column;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ----------------- MENU BUTTON ----------------- */
-/* ----------------- SIDE MENU ----------------- */
-/* ----------------- BANNER ----------------- */
+/* --------- BANNER --------- */
 .banner-wrap {
   position: relative;
   width: 100%;
   overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
+
 .banner {
   width: 100%;
   height: auto;
@@ -93,102 +128,86 @@ body {
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
-.banner-tint {
-  position: absolute; inset: 0;
-  background: linear-gradient(120deg,
-    rgba(0,255,200,0.3),
-    rgba(0,180,255,0.25),
-    rgba(0,255,180,0.2)
-  );
-  mix-blend-mode: multiply;
-}
-
+/* Overlay strip sits over an image — always dark bg + white text */
 .banner-overlay-text {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(8px);
   text-align: center;
   padding: 1rem 0.6rem;
-  border-top: 1px solid rgba(255,255,255,0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 .banner-overlay-text h1 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
+  color: #ffffff;
 }
 
-/* ----------------- PAGE WRAPPER ----------------- */
+/* --------- PAGE WRAPPER --------- */
 .page-wrap {
   flex: 1;
   width: 100%;
   max-width: 1100px;
   margin: 2rem auto;
-  padding: 0 1rem 6rem; /* extra bottom padding */
+  padding: 0 1rem 6rem;
 }
 
-/* ----------------- CONTENT PANELS ----------------- */
+/* --------- CONTENT PANELS --------- */
 .topic-box {
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.25);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
   padding: 1.5rem;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow);
   margin-bottom: 2rem;
 }
 
 .topic-box a {
-  color: #00e6b3;
+  color: var(--phys-accent);
   font-weight: 600;
 }
 
-/* ----------------- CARDS ----------------- */
+/* --------- INFO CARDS --------- */
 .info-card,
 .core-revision-box,
 .checklist-box {
-  background: rgba(0,0,0,0.45);
+  background: var(--bg-soft);
   border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.28);
+  border: 1px solid var(--line);
   padding: 1rem 1.1rem;
   margin: 0.75rem 0 1.1rem;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-soft);
 }
 
-/* ----------------- GRID ----------------- */
+/* --------- GRID --------- */
 .core-grid {
   display: grid;
   gap: 0.75rem;
 }
 @media (min-width: 700px) {
-  .core-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .core-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.core-item-title {
-  font-weight: 600;
-}
+.core-item-title { font-weight: 600; }
 
-/* ----------------- CHECKLIST ----------------- */
+/* --------- CHECKLIST --------- */
 .checklist-box ul {
   list-style: none;
   padding-left: 0;
   margin: 0.3rem 0;
 }
-.checklist-box li::before {
-  content: "☐ ";
-}
+.checklist-box li::before { content: "☐ "; }
 
-/* ----------------- COLLAPSIBLES ----------------- */
-.collapsible-panel {
-  margin-top: 1.25rem;
-}
+/* --------- COLLAPSIBLES --------- */
+.collapsible-panel { margin-top: 1.25rem; }
 
 .collapsible-panel details {
-  background: rgba(0,0,0,0.45);
+  background: var(--bg-card);
   border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.3);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
 }
 
@@ -200,44 +219,31 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg,
-    rgba(0,255,200,0.16),
-    rgba(0,180,255,0.18)
-  );
-  border-bottom: 1px solid rgba(255,255,255,0.25);
-  role: button;
+  background: var(--summary-bg);
+  color: var(--text-main);
+  border-bottom: 1px solid var(--line);
 }
 
-/* Hide Safari built-in arrow */
-details summary::-webkit-details-marker {
-  display:none;
-}
+details summary::-webkit-details-marker { display: none; }
 
-.summary-icon {
-  font-size: 1.2rem;
-}
-.summary-text {
-  flex: 1;
-}
+.summary-icon { font-size: 1.2rem; }
+.summary-text { flex: 1; }
 
-/* ----------------- VIDEO GRID ----------------- */
+/* --------- VIDEO GRID --------- */
 .video-grid {
   padding: 1rem 1.1rem 1.2rem;
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(0, 1fr);
 }
-
 @media (min-width: 700px) {
-  .video-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .video-card {
-  background: rgba(0,0,0,0.5);
+  background: var(--bg-soft);
   border-radius: 0.8rem;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid var(--line);
   padding: 0.75rem;
 }
 
@@ -257,50 +263,135 @@ details summary::-webkit-details-marker {
   border: 0;
 }
 
-/* ----------------- FOOTER ----------------- */
+/* --------- FOOTER --------- */
 footer {
   text-align: center;
   padding: 1rem;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  color: #fff;
+  background: var(--bg-card);
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
-/* ============================================
-   DYSLEXIA-FRIENDLY SPACING FOR ALL COLLAPSIBLES
-   ============================================ */
 
+/* --------- DYSLEXIA-FRIENDLY SPACING --------- */
 .collapsible-panel details ul {
   line-height: 1.75;
   margin-top: 0.8rem;
   margin-bottom: 0.8rem;
 }
-
 .collapsible-panel details ul li {
   margin-bottom: 0.85rem;
   padding-left: 0.2rem;
 }
-
 .collapsible-panel details ul li ul li {
   margin-bottom: 0.65rem;
   padding-left: 1rem;
 }
-
-/* Extra breathing room inside opened panels */
 .collapsible-panel details[open] .info-card,
 .collapsible-panel details[open] .core-revision-box,
 .collapsible-panel details[open] .checklist-box {
   padding-top: 1.1rem;
   padding-bottom: 1.1rem;
 }
-
-/* More spacing before section headers inside collapsibles */
 .collapsible-panel details h3 {
   margin-top: 1.1rem;
   margin-bottom: 0.6rem;
 }
 
+/* --------- DOWNLOAD BUTTON --------- */
+.download-btn {
+  display: inline-block;
+  padding: 0.7rem 1.2rem;
+  background: var(--bg-soft);
+  border: 1.5px solid var(--phys-accent);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--phys-accent);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.download-btn:hover,
+.download-btn:focus-visible {
+  background: var(--phys-accent);
+  color: var(--bg-page);
+}
+
+/* --------- REVISION SUMMARY GRID ITEMS --------- */
+.summary-grid-item {
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-soft-2);
+  color: var(--text-main);
+}
+
+/* --------- AI TUTOR BUTTON --------- */
+.ai-tutor-btn {
+  display: inline-block;
+  padding: 0.9rem 1.4rem;
+  background: var(--bg-soft);
+  border: 1.5px solid var(--phys-accent);
+  border-radius: 14px;
+  color: var(--phys-accent);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: none;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.ai-tutor-btn:hover,
+.ai-tutor-btn:focus-visible {
+  background: var(--phys-accent);
+  color: var(--bg-page);
+  transform: scale(1.05);
+}
+
+/* --------- FORM INPUTS / SELECTS --------- */
+input,
+select {
+  background: var(--bg-soft);
+  color: var(--text-main);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  font-family: var(--font-stack);
+  font-size: 1rem;
+}
+
+/* --------- VIR / TOOL BUTTONS --------- */
+.vir-btn {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--phys-accent);
+  color: var(--bg-page);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-stack);
+  font-size: 1rem;
+  transition: opacity 0.15s ease;
+}
+.vir-btn:hover { opacity: 0.85; }
+
+/* --------- JS FEEDBACK COLOURS --------- */
+.fb-correct   { color: #007a5e; }
+.fb-incorrect { color: #b91c1c; }
+.fb-warning   { color: #92400e; }
+
+@media (prefers-color-scheme: dark) {
+  .fb-correct   { color: #00ffb3; }
+  .fb-incorrect { color: #ff6f6f; }
+  .fb-warning   { color: #ffca6f; }
+}
+
+/* --------- REDUCED MOTION --------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
 </style>
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
@@ -308,17 +399,11 @@ footer {
 <body>
   {% include site-menu.html %}
 
-<!-- MENU BUTTON -->
-
-<!-- SIDE MENU -->
-
-
 <!-- BANNER -->
 <div class="banner-wrap">
   <img src="/assets/s3physicsbanner.png" alt="S3 Physics banner" class="banner">
-  <div class="banner-tint"></div>
   <div class="banner-overlay-text">
-    <h1>S3 Physics – Electricity 1: Voltage, Current & Resistance</h1>
+    <h1>S3 Physics – Electricity 1: Voltage, Current &amp; Resistance</h1>
   </div>
 </div>
 
@@ -326,17 +411,15 @@ footer {
 <main class="page-wrap">
 
 <a href="/classes/s3-physics.html" class="back-to-s3">⬅ Back to S3 Physics</a>
-   
+
 <div class="topic-box">
 
-<h2>📘 Electricity 1 – Notes & Revision</h2>
+<h2>📘 Electricity 1 – Notes &amp; Revision</h2>
 
 <p>
   <a href="/classes/s3-physics/RS Electricity B1 N5 2025.pdf"
      target="_blank"
-     class="download-btn"
-     style="display:inline-block; padding:0.7rem 1.2rem; background:rgba(0,255,200,0.18);
-            border:1px solid rgba(0,255,200,0.4); border-radius:12px; font-weight:600;">
+     class="download-btn">
      📘 Download the Full Booklet (PDF)
   </a>
 </p>
@@ -361,7 +444,7 @@ footer {
     <ul>
       <li>Circuit symbols and simple circuit diagrams</li>
       <li>Voltage, current and resistance — meanings, symbols and units</li>
-      <li>Rules for current & voltage in series and parallel circuits</li>
+      <li>Rules for current &amp; voltage in series and parallel circuits</li>
       <li>Using ohmmeters correctly</li>
       <li>Using <strong>V = I R</strong> to solve problems</li>
       <li>Combining resistors in series and parallel</li>
@@ -385,7 +468,7 @@ footer {
  <div class="info-card">
   <ul>
     <li><a href="https://physicsflashrepo.ovh" target="_blank">⚡ Flash Physics</a></li>
-    <li><a href="https://glowscotland-my.sharepoint.com" target="_blank">📁 Mr Stewart’s Materials</a></li>
+    <li><a href="https://glowscotland-my.sharepoint.com" target="_blank">📁 Mr Stewart's Materials</a></li>
     <li><a href="/classes/s3-physics/Electricity Block 1 Practice Test.pdf" target="_blank">📝 Electricity 1 Practice Test (PDF)</a></li>
   </ul>
 </div>
@@ -394,13 +477,13 @@ footer {
 </div>
 
 <!-- ============================
-     CORE FACTS & EQUATIONS (FINAL REWRITE)
+     CORE FACTS & EQUATIONS
 =============================== -->
 <div class="collapsible-panel">
 <details>
   <summary>
     <span class="summary-icon">📌</span>
-    <span class="summary-text">Core Facts & Equations</span>
+    <span class="summary-text">Core Facts &amp; Equations</span>
   </summary>
 
   <div class="core-revision-box">
@@ -410,18 +493,18 @@ footer {
       <div>
         <div class="core-item-title">Key Definitions</div>
         <ul>
-          <li><strong>Voltage (V)</strong> – the electrical <strong>push</strong> that gives energy to charges.  
-              It is the <strong>energy transferred per unit charge</strong> (per coulomb).  
+          <li><strong>Voltage (V)</strong> – the electrical <strong>push</strong> that gives energy to charges.
+              It is the <strong>energy transferred per unit charge</strong> (per coulomb).
               Unit: <strong>volt (V)</strong>.
           </li>
 
-          <li><strong>Current (I)</strong> – the <strong>flow of charge</strong> every second.  
-              Bigger current means more charge passing a point each second.  
+          <li><strong>Current (I)</strong> – the <strong>flow of charge</strong> every second.
+              Bigger current means more charge passing a point each second.
               Unit: <strong>ampere (A)</strong>.
           </li>
 
-          <li><strong>Resistance (R)</strong> – how much a component <strong>opposes</strong> the flow of current.  
-              High resistance → harder for current to flow.  
+          <li><strong>Resistance (R)</strong> – how much a component <strong>opposes</strong> the flow of current.
+              High resistance → harder for current to flow.
               Unit: <strong>ohm (Ω)</strong>.
           </li>
         </ul>
@@ -429,24 +512,24 @@ footer {
 
       <!-- EQUATIONS -->
       <div>
-        <div class="core-item-title">Essential Equations & Rules</div>
+        <div class="core-item-title">Essential Equations &amp; Rules</div>
         <ul>
-          <li><strong>V = I × R</strong> (Ohm’s Law) – links voltage, current and resistance.</li>
+          <li><strong>V = I × R</strong> (Ohm's Law) – links voltage, current and resistance.</li>
 
           <li><strong>Series circuits:</strong><br>
             • Current: <strong>same</strong> everywhere (only one path).<br>
-            • Voltage: <strong>splits</strong> across components.  
+            • Voltage: <strong>splits</strong> across components.
               Bigger resistance → bigger share of the voltage.<br>
-            • Resistance: <strong>adds up</strong> →  
+            • Resistance: <strong>adds up</strong> →
               R<sub>T</sub> = R₁ + R₂ + …<br>
             • Adding more components increases total resistance → current becomes smaller.
           </li>
 
           <li><strong>Parallel circuits:</strong><br>
             • Voltage: <strong>same</strong> across every branch.<br>
-            • Current: <strong>splits</strong> into branches and <strong>rejoins</strong> afterwards.  
+            • Current: <strong>splits</strong> into branches and <strong>rejoins</strong> afterwards.
               Lower-resistance branches take <strong>more</strong> current.<br>
-            • Resistance: total becomes <strong>smaller</strong> than the smallest resistor →  
+            • Resistance: total becomes <strong>smaller</strong> than the smallest resistor →
               1/R<sub>T</sub> = 1/R₁ + 1/R₂ + …<br>
             • Adding a new branch gives current another path → total current increases.
           </li>
@@ -460,13 +543,13 @@ footer {
 </div>
 
 <!-- ============================
-     COMMON MISTAKES & FIXES (FINAL REWRITE)
+     COMMON MISTAKES & FIXES
 =============================== -->
 <div class="collapsible-panel">
 <details>
   <summary>
     <span class="summary-icon">⚠️</span>
-    <span class="summary-text">Common Mistakes & How to Fix Them</span>
+    <span class="summary-text">Common Mistakes &amp; How to Fix Them</span>
   </summary>
 
   <div class="info-card">
@@ -507,7 +590,7 @@ footer {
         • A lower-resistance branch takes <strong>more</strong> current.
       </li>
 
-      <li><strong>Thinking bulbs “use up” current</strong><br>
+      <li><strong>Thinking bulbs "use up" current</strong><br>
         • Bulbs use <strong>energy</strong>, not current.
       </li>
 
@@ -518,7 +601,7 @@ footer {
 </div>
 
 <!-- ============================
-     REVISION SUMMARY GRID (FINAL REWRITE)
+     REVISION SUMMARY GRID
 =============================== -->
 <div class="collapsible-panel">
 <details>
@@ -530,8 +613,7 @@ footer {
   <div class="info-card">
     <div style="display:grid; grid-template-columns:1fr; gap:1rem;">
 
-      <!-- VOLTAGE -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
+      <div class="summary-grid-item">
         <strong>Voltage</strong><br>
         • The <strong>push</strong> that moves charges<br>
         • Measured in volts (V)<br>
@@ -540,8 +622,7 @@ footer {
         • Bigger resistance → bigger voltage drop
       </div>
 
-      <!-- CURRENT -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
+      <div class="summary-grid-item">
         <strong>Current</strong><br>
         • Flow of charge per second<br>
         • Measured in amps (A)<br>
@@ -550,8 +631,7 @@ footer {
         • Lower resistance → more current in that branch
       </div>
 
-      <!-- RESISTANCE -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
+      <div class="summary-grid-item">
         <strong>Resistance</strong><br>
         • Opposition to current<br>
         • Measured in ohms (Ω)<br>
@@ -559,13 +639,12 @@ footer {
         • Parallel: total is <strong>less than the smallest</strong> resistor
       </div>
 
-      <!-- FORMULAS -->
-      <div style="padding:0.6rem; border:1px solid rgba(255,255,255,0.25); border-radius:8px;">
+      <div class="summary-grid-item">
         <strong>Formulas</strong><br>
         • V = I × R<br>
         • R<sub>T</sub>(series) = R₁ + R₂ + …<br>
         • 1 / R<sub>T</sub>(parallel) = 1/R₁ + 1/R₂ + …<br>
-        • I = V ÷ R  R = V ÷ I
+        • I = V ÷ R  R = V ÷ I
       </div>
 
     </div>
@@ -584,10 +663,10 @@ function mt_feedback1(ans) {
   const fb = document.getElementById("mt1");
   if (ans === "series") {
     fb.textContent = "Correct — in series, current stays the same everywhere!";
-    fb.style.color = "#00ffb3";
+    fb.className = "fb-correct";
   } else {
     fb.textContent = "Not quite — current only splits in parallel circuits.";
-    fb.style.color = "#ff6f6f";
+    fb.className = "fb-incorrect";
   }
 }
 
@@ -596,10 +675,10 @@ function mt_feedback2(unit) {
   const fb = document.getElementById("mt2");
   if (unit === "A") {
     fb.textContent = "Correct — current is measured in amps (A).";
-    fb.style.color = "#00ffb3";
+    fb.className = "fb-correct";
   } else {
     fb.textContent = "Try again — that's not the unit for current.";
-    fb.style.color = "#ff6f6f";
+    fb.className = "fb-incorrect";
   }
 }
 
@@ -608,17 +687,17 @@ function mt_feedback3(selection) {
   const fb = document.getElementById("mt3");
   if (selection === "I=V/R") {
     fb.textContent = "Correct — I = V ÷ R.";
-    fb.style.color = "#00ffb3";
+    fb.className = "fb-correct";
   } else {
     fb.textContent = "That's not the correct formula for finding current.";
-    fb.style.color = "#ff6f6f";
+    fb.className = "fb-incorrect";
   }
 }
 </script>
 
-   
+
 <!-- ============================
-     VIDEOS (NEW, NO TITLES, ARIA LABELS)
+     VIDEOS
 =============================== -->
 <div class="collapsible-panel">
 <details>
@@ -631,9 +710,9 @@ function mt_feedback3(selection) {
 
   <div class="video-card">
     <div class="video-embed">
-      <iframe loading="lazy" 
+      <iframe loading="lazy"
         src="https://www.youtube.com/embed/4t560bFk8DM"
-        aria-label="Ohm’s Law video"></iframe>
+        aria-label="Ohm's Law video"></iframe>
     </div>
   </div>
 
@@ -692,7 +771,7 @@ function mt_feedback3(selection) {
 
 
 <!-- ============================
-     PRACTICE QUESTIONS (UPDATED)
+     PRACTICE QUESTIONS
 =============================== -->
 <div class="collapsible-panel">
 <details>
@@ -717,17 +796,17 @@ function mt_feedback3(selection) {
     </li>
   </ul>
 
-  <hr style="border:0; border-top:1px solid rgba(255,255,255,0.25); margin:1rem 0;">
+  <hr style="border:0; border-top:1px solid var(--line); margin:1rem 0;">
 
   <h3>N5 Practical Electronics Past-Paper Questions (Block 1)</h3>
 
   <p>
-    These questions come from the official  
+    These questions come from the official
     <a href="assets/electronics/revision/N5 Practical Electronics PPQ Nov25 Update-2.pdf"
        target="_blank"
        style="font-weight:600;">
        N5 Practical Electronics PPQ (Nov 2025 Update)
-    </a>,  
+    </a>,
     filtered to match the <strong>Electricity Block 1</strong> topics:
   </p>
 
@@ -741,20 +820,20 @@ function mt_feedback3(selection) {
 
   <p style="margin-top:0.6rem;">
     These cover all Block 1 outcomes: circuit symbols, colour code, voltage/current rules,
-    resistance calculations, series & parallel analysis, and <strong>V = IR</strong>.
+    resistance calculations, series &amp; parallel analysis, and <strong>V = IR</strong>.
   </p>
 
-   <hr style="border:0; border-top:1px solid rgba(255,255,255,0.25); margin:1rem 0;">
+   <hr style="border:0; border-top:1px solid var(--line); margin:1rem 0;">
 
 <h3>N5 Physics Past-Paper Questions (Block 1)</h3>
 
 <p>
-  These questions come from the  
+  These questions come from the
   <a href="https://rstewartphysics.github.io/classes/n5-physics/N5%20Physics%20Past%20Papers%20(September%202025%20Update).pdf"
      target="_blank"
      style="font-weight:600;">
      N5 Physics Past Papers (Sept 2025 Update)
-  </a>,  
+  </a>,
   filtered to include only <strong>Electricity Block 1</strong> content.
 </p>
 
@@ -773,8 +852,8 @@ function mt_feedback3(selection) {
 </ul>
 
 <p style="margin-top:0.6rem;">
-  These questions match the exact S3 assessment content:  
-  circuit symbols, voltage/current rules, series & parallel circuits,  
+  These questions match the exact S3 assessment content:
+  circuit symbols, voltage/current rules, series &amp; parallel circuits,
   resistance calculations, and <strong>V = IR</strong>.
 </p>
 
@@ -825,7 +904,7 @@ function mt_feedback3(selection) {
 <ul>
   <li>I can describe how temperature affects resistance of a conductor.</li>
   <li>I can describe how temperature affects resistance of a resistor.</li>
-  <li>I can describe an experiment to prove Ohm’s Law.</li>
+  <li>I can describe an experiment to prove Ohm's Law.</li>
   <li>I know what happens to total resistance when components change in series and parallel circuits.</li>
   <li>I can predict and measure total resistance in a series circuit.</li>
 </ul>
@@ -847,6 +926,7 @@ function mt_feedback3(selection) {
 
 </details>
 </div>
+
 <!-- ============================
      MAGIC SCHOOL AI TUTOR
 =============================== -->
@@ -859,30 +939,14 @@ function mt_feedback3(selection) {
 
   <div class="info-card">
     <p>
-      Use our class AI tutor to revise Electricity Block 1.  
+      Use our class AI tutor to revise Electricity Block 1.
       Click the button below to launch the tutor with the correct S3 Physics settings.
     </p>
 
     <a href="https://student.magicschool.ai/s/join?joinCode=QLzaLQ"
        target="_blank"
        rel="noopener"
-       style="
-         display:inline-block;
-         padding:0.9rem 1.4rem;
-         background:rgba(0,255,200,0.18);
-         border:1px solid rgba(0,255,200,0.45);
-         border-radius:14px;
-         color:white;
-         font-weight:700;
-         font-size:1.1rem;
-         text-decoration:none;
-         backdrop-filter:blur(12px) saturate(180%);
-         box-shadow:0 6px 18px rgba(0,255,200,0.35);
-         transition:transform 0.2s ease, background 0.2s ease;
-       "
-       onmouseover="this.style.transform='scale(1.08)'; this.style.background='rgba(0,255,200,0.32)';"
-       onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(0,255,200,0.18)';"
-    >
+       class="ai-tutor-btn">
       🚀 Launch AI Tutor
     </a>
 
@@ -918,8 +982,8 @@ function mt_feedback3(selection) {
   </div>
 
 </details>
-</div> 
-   
+</div>
+
 <!-- ============================
      RESISTOR COLOUR CODE CALCULATOR
 =============================== -->
@@ -969,24 +1033,15 @@ function mt_feedback3(selection) {
 
   <div class="info-card">
 
-    <p>Click “New Question” to generate a random V, I or R calculation.</p>
+    <p>Click "New Question" to generate a random V, I or R calculation.</p>
 
-    <div id="vir-question" style="font-size:1.2rem; font-weight:600; margin:0.8rem 0;">Press “New Question”.</div>
+    <div id="vir-question" style="font-size:1.2rem; font-weight:600; margin:0.8rem 0;">Press "New Question".</div>
 
     <input id="vir-answer" type="number" step="0.01" placeholder="Enter your answer"
-      style="padding:0.5rem; border-radius:0.5rem; border:none; width:180px;" />
+      style="width:180px;" />
 
-    <button onclick="checkVIR()"
-      style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem;
-             border:none; background:#00e6b3; font-weight:600; cursor:pointer;">
-      Check
-    </button>
-
-    <button onclick="newVIR()"
-      style="margin-left:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem;
-             border:none; background:#0cc4a2; font-weight:600; cursor:pointer;">
-      New Question
-    </button>
+    <button class="vir-btn" onclick="checkVIR()">Check</button>
+    <button class="vir-btn" onclick="newVIR()">New Question</button>
 
     <div id="vir-feedback" style="margin-top:1rem; font-size:1.1rem; font-weight:600;"></div>
 
@@ -999,18 +1054,15 @@ function mt_feedback3(selection) {
 
 </main>
 
-<footer>© Mr R Stewart’s Science, Physics, Electronics & Engineering</footer>
+<footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
 
 <!-- ============================
-     JAVASCRIPT (MENU, TOOLS, LOGIC)
+     JAVASCRIPT
 =============================== -->
 
 <script>
-/* MOBILE SIDE MENU */
-
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-  }
+  if (e.key === 'Escape') {}
 });
 </script>
 
@@ -1069,7 +1121,9 @@ function updateResistor() {
 let currentAnswer = 0;
 
 function newVIR() {
-  document.getElementById("vir-feedback").textContent = "";
+  const fb = document.getElementById("vir-feedback");
+  fb.textContent = "";
+  fb.className = "";
   const type = Math.floor(Math.random() * 3);
 
   let V = (Math.random()*9 + 1).toFixed(1);
@@ -1107,16 +1161,16 @@ function checkVIR() {
 
   if (isNaN(user)) {
     fb.textContent = "Please enter a number.";
-    fb.style.color = "#ffca6f";
+    fb.className = "fb-warning";
     return;
   }
 
   if (Math.abs(user - currentAnswer) < 0.05) {
     fb.textContent = "Correct!";
-    fb.style.color = "#00ffb3";
+    fb.className = "fb-correct";
   } else {
     fb.textContent = `Not quite. Correct answer = ${currentAnswer}`;
-    fb.style.color = "#ff6f6f";
+    fb.className = "fb-incorrect";
   }
 }
 </script>
