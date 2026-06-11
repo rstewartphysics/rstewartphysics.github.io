@@ -9,7 +9,8 @@ title: Higher Physics
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#2b59ff" />
+  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Higher Physics" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -22,459 +23,23 @@ title: Higher Physics
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
 
+  <!-- Shared Higher Physics stylesheet (hub + topic pages) -->
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260611">
+
   <title>Higher Physics</title>
-
-  <style>
-    /* ============================
-       GLOBAL FIX: prevent clipping/overflow
-    =============================== */
-    *, *::before, *::after{ box-sizing:border-box; }
-    html, body{ max-width:100%; }
-    body{ margin:0; overflow-x:hidden; }
-    img, iframe{ max-width:100%; height:auto; display:block; }
-
-    /* ============================
-       A11Y HELPERS
-    =============================== */
-    .visually-hidden{
-      position:absolute!important;
-      width:1px;height:1px;
-      padding:0;margin:-1px;
-      overflow:hidden;
-      clip:rect(0,0,0,0);
-      white-space:nowrap;border:0;
-    }
-    .skip-link{
-      position:absolute;
-      left:-999px;
-      top:10px;
-      background:#2b59ff;
-      color:#ffffff;
-      padding:0.6rem 0.9rem;
-      border-radius:12px;
-      font-weight:900;
-      z-index:1200;
-      box-shadow:0 12px 24px rgba(0,0,0,0.14);
-    }
-    .skip-link:focus{
-      left:10px;
-      outline:3px solid rgba(255,255,255,0.9);
-      outline-offset:3px;
-    }
-
-    /* ============================
-       THEME
-    =============================== */
-    :root{
-      --font-stack: "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
-
-      --bg0:#f6f8ff;
-      --bg1:#eef2ff;
-      --bg2:#ffffff;
-
-      --text:#0b1630;
-      --muted:#2c466a;
-
-      --accent:#2b59ff;
-      --accent-2:#1636b8;
-      --page-accent:var(--accent);
-      --menu-accent:var(--accent);
-
-      /* Shared menu colour */
-      --menu-accent:#2b59ff;
-
-      --card:#ffffff;
-      --glass:rgba(255,255,255,0.86);
-
-      --border:rgba(11,22,48,0.14);
-      --border-strong:rgba(43,89,255,0.28);
-
-      --shadow:0 18px 40px rgba(0,0,0,0.10);
-      --shadow-soft:0 10px 22px rgba(0,0,0,0.08);
-
-      --radius:18px;
-
-      --focus-ring:3px solid rgba(43,89,255,0.55);
-      --focus-offset:4px;
-    }
-
-    body{
-      font-family:var(--font-stack);
-      color:var(--text);
-      background:
-        radial-gradient(900px 520px at 12% 0%, rgba(43,89,255,0.14), transparent 62%),
-        radial-gradient(900px 520px at 88% 6%, rgba(22,54,184,0.10), transparent 58%),
-        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2) 100%);
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      -webkit-font-smoothing:antialiased;
-    }
-
-    :focus-visible{
-      outline:var(--focus-ring);
-      outline-offset:var(--focus-offset);
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; }
-    }
-
-    /* ============================
-       BANNER
-    =============================== */
-    .banner-wrap{
-      position:relative;
-      width:100%;
-      overflow:hidden;
-      flex-shrink:0;
-      box-shadow:0 10px 24px rgba(0,0,0,0.12);
-      z-index:2;
-      height:clamp(220px, 32vh, 420px);
-      background:rgba(255,255,255,0.35);
-    }
-    .banner{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      object-position:center;
-      opacity:0;
-      animation:fadeIn 1s ease forwards;
-    }
-    @keyframes fadeIn{ to{ opacity:1; } }
-
-    .banner-tint{
-      position:absolute;
-      inset:0;
-      background:linear-gradient(120deg,
-        rgba(43,89,255,0.20),
-        rgba(22,54,184,0.14),
-        rgba(255,255,255,0.00)
-      );
-      mix-blend-mode:multiply;
-      pointer-events:none;
-    }
-
-    .banner-overlay-text{
-      position:absolute;
-      bottom:0; left:0; right:0;
-      background:rgba(255,255,255,0.82);
-      backdrop-filter:blur(12px) saturate(160%);
-      -webkit-backdrop-filter:blur(12px) saturate(160%);
-      border-top:1px solid rgba(11,22,48,0.10);
-      padding:.95rem .9rem;
-      text-align:center;
-    }
-    .banner-overlay-text h1{
-      margin:0;
-      font-size:1.12rem;
-      font-weight:900;
-      color:var(--text);
-    }
-    .banner-overlay-text p{
-      margin:.25rem 0 0;
-      color:var(--muted);
-      font-weight:800;
-      font-size:.95rem;
-    }
-
-    /* ============================
-       STICKY JUMP MENU
-    =============================== */
-    .subnav-wrap{
-      position:sticky;
-      top:0;
-      z-index:320;
-      padding:calc(6px + env(safe-area-inset-top)) 10px 6px;
-      background:rgba(246,248,255,0.80);
-      backdrop-filter:blur(14px) saturate(170%);
-      -webkit-backdrop-filter:blur(14px) saturate(170%);
-      border-bottom:1px solid rgba(11,22,48,0.10);
-    }
-    .subnav{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:8px 10px;
-      border-radius:16px;
-      border:1px solid rgba(43,89,255,0.18);
-      background:rgba(255,255,255,0.78);
-      box-shadow:none;
-    }
-    .subnav-links{
-      display:flex;
-      gap:12px;
-      flex-wrap:nowrap;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      scrollbar-width:none;
-      width:100%;
-    }
-    .subnav-links::-webkit-scrollbar{ display:none; }
-
-    .subnav-link{
-      text-decoration:none;
-      font-weight:900;
-      color:var(--text);
-      padding:6px 2px;
-      border-bottom:3px solid transparent;
-      white-space:nowrap;
-      opacity:0.95;
-      font-size:1rem;
-    }
-    .subnav-link:hover{
-      opacity:1;
-      border-bottom-color:var(--accent);
-    }
-
-    #overview, #resources, #morelinks{ scroll-margin-top:190px; }
-
-    /* ============================
-       MAIN LAYOUT
-    =============================== */
-    .page-wrap{
-      max-width:1200px;
-      margin:1rem auto 2rem;
-      padding:0 1rem 4rem;
-      flex:1;
-      width:100%;
-    }
-
-    .panel{
-      background:var(--glass);
-      border:1px solid rgba(11,22,48,0.10);
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
-      border-radius:var(--radius);
-      padding:1.2rem;
-      box-shadow:var(--shadow-soft);
-      margin-bottom:1rem;
-    }
-
-    .panel h2{
-      margin:0 0 .35rem;
-      font-size:1.12rem;
-      font-weight:900;
-      color:var(--text);
-    }
-    .panel p{
-      margin:.25rem 0 0;
-      color:var(--muted);
-      font-weight:800;
-      line-height:1.55;
-    }
-
-    details.mini{
-      margin-top:.8rem;
-      border-radius:16px;
-      border:1px solid rgba(43,89,255,0.18);
-      background:rgba(43,89,255,0.05);
-      overflow:hidden;
-    }
-    details.mini summary{
-      cursor:pointer;
-      padding:.85rem 1rem;
-      font-weight:900;
-      color:var(--text);
-      list-style:none;
-      display:flex;
-      gap:.55rem;
-      align-items:center;
-      border-bottom:1px solid rgba(11,22,48,0.08);
-      background:rgba(255,255,255,0.70);
-    }
-    details.mini summary::-webkit-details-marker{ display:none; }
-    details.mini summary::after{
-      content:"▾";
-      margin-left:auto;
-      font-weight:900;
-      opacity:.8;
-      transition:transform .18s ease;
-    }
-    details.mini[open] summary::after{
-      transform:rotate(180deg);
-    }
-
-    .details-inner{
-      padding:.9rem 1rem;
-      color:var(--muted);
-      font-weight:800;
-    }
-    .details-inner ul{
-      margin:.35rem 0 0;
-      padding-left:1.1rem;
-      line-height:1.75;
-    }
-    .details-inner li{ margin:.35rem 0; }
-
-    /* ============================
-       CARD TILES
-    =============================== */
-    .tile-grid{
-      display:grid;
-      gap:1rem;
-      grid-template-columns:repeat(auto-fit, minmax(min(240px,100%), 1fr));
-      align-items:stretch;
-      margin-top:.9rem;
-    }
-
-    @media (max-width:1100px){
-      .tile-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width:560px){
-      .tile-grid{ grid-template-columns:1fr; }
-    }
-
-    .class-tile{
-      display:block;
-      position:relative;
-      border-radius:var(--radius);
-      border:1px solid rgba(11,22,48,0.12);
-      overflow:hidden;
-      text-decoration:none;
-      color:var(--text);
-      background:rgba(255,255,255,0.92);
-      box-shadow:var(--shadow-soft);
-      transition:transform .18s ease, box-shadow .18s ease;
-      min-height:140px;
-    }
-    .class-tile:hover,
-    .class-tile:focus-visible{
-      transform:translateY(-2px);
-      box-shadow:0 18px 34px rgba(43,89,255,0.16);
-    }
-    .class-tile img{
-      width:100%;
-      height:100%;
-      min-height:140px;
-      object-fit:cover;
-      filter:saturate(1.02) contrast(1.03);
-    }
-
-    .tile-emoji{
-      width:100%;
-      min-height:140px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:3rem;
-      line-height:1;
-      background:
-        radial-gradient(520px 320px at 20% 20%, rgba(43,89,255,0.22), transparent 60%),
-        radial-gradient(520px 320px at 80% 30%, rgba(22,54,184,0.16), transparent 62%),
-        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(238,242,255,0.92));
-    }
-    .tile-emoji span{ filter:drop-shadow(0 8px 14px rgba(0,0,0,0.12)); }
-
-    .tile-label{
-      position:absolute;
-      bottom:0; left:0; right:0;
-      background:rgba(255,255,255,0.88);
-      backdrop-filter:blur(12px);
-      -webkit-backdrop-filter:blur(12px);
-      padding:.55rem .65rem;
-      border-top:1px solid rgba(11,22,48,0.10);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:.6rem;
-    }
-
-    .tile-text{
-      display:flex;
-      flex-direction:column;
-      gap:.18rem;
-      min-width:0;
-    }
-    .tile-title{
-      font-weight:900;
-      color:var(--text);
-      line-height:1.15;
-      display:-webkit-box;
-      -webkit-line-clamp:1;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-    }
-    .tile-sub{
-      display:none;
-    }
-
-    .ext-mark{
-      font-weight:900;
-      color:var(--accent-2);
-      opacity:.95;
-      flex-shrink:0;
-      margin-top:0;
-    }
-
-    .class-tile.no-overlay .tile-label{
-      display:none;
-    }
-    .class-tile.no-overlay::after{
-      content:"↗";
-      position:absolute;
-      right:10px;
-      bottom:10px;
-      width:40px;
-      height:40px;
-      display:grid;
-      place-items:center;
-      border-radius:12px;
-      border:1px solid rgba(11,22,48,0.14);
-      background:rgba(255,255,255,0.82);
-      backdrop-filter:blur(10px) saturate(160%);
-      -webkit-backdrop-filter:blur(10px) saturate(160%);
-      box-shadow:0 10px 18px rgba(0,0,0,0.08);
-      color:var(--accent-2);
-      font-weight:900;
-      opacity:0;
-      transform:translateY(4px);
-      transition:opacity .18s ease, transform .18s ease;
-    }
-    .class-tile.no-overlay:hover::after,
-    .class-tile.no-overlay:focus-visible::after{
-      opacity:1;
-      transform:translateY(0);
-    }
-    @media (pointer: coarse){
-      .class-tile.no-overlay::after{
-        opacity:.92;
-        transform:none;
-      }
-    }
-
-    footer{
-      text-align:center;
-      padding:1rem;
-      background:rgba(255,255,255,0.80);
-      border-top:1px solid rgba(11,22,48,0.10);
-      font-size:0.92rem;
-      margin-top:auto;
-      color:var(--muted);
-      font-weight:800;
-    }
-
-    @media (max-width:720px){
-      .banner-overlay-text p{ display:none; }
-      .banner-wrap{ height:clamp(170px, 22vh, 260px); }
-    }
-    @media (max-width:560px){
-      .banner-overlay-text h1{ font-size:1.02rem; }
-      .panel{ padding:1rem; }
-    }
-  </style>
 </head>
 
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
   {% include site-menu.html %}
+
   <header class="banner-wrap">
     <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
     <div class="banner-tint"></div>
     <div class="banner-overlay-text">
       <h1>Higher Physics</h1>
-      <p>Resources and support links</p>
+      <p>Learn, practise and prepare for the exam</p>
     </div>
   </header>
 
@@ -482,19 +47,54 @@ title: Higher Physics
     <nav class="subnav" aria-label="Jump to sections">
       <div class="subnav-links">
         <a class="subnav-link" href="#overview">Overview</a>
-        <a class="subnav-link" href="#resources">Resources</a>
-        <a class="subnav-link" href="#morelinks">More links</a>
+        <a class="subnav-link" href="#units">Units &amp; topics</a>
+        <a class="subnav-link" href="#learn">Learn</a>
+        <a class="subnav-link" href="#practise">Practise</a>
+        <a class="subnav-link" href="#exam">Exam prep</a>
       </div>
     </nav>
   </div>
 
   <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Higher Physics hub</h1>
+
+    <!-- OVERVIEW -->
     <section class="panel" id="overview" aria-labelledby="overview-title">
       <h2 id="overview-title">Overview</h2>
-      <p>Use this page to open core resources and extra support links.</p>
+      <p>Everything for Higher Physics in one place — pick how you want to use the page.</p>
+
+      <div class="mode-chooser" aria-label="Ways to use this page">
+        <a class="mode-card" href="#learn">
+          <span class="mode-emoji" aria-hidden="true">📚</span>
+          <span class="mode-title">Learn &amp; revise</span>
+          <span class="mode-sub">Notes, videos and key ideas.</span>
+        </a>
+        <a class="mode-card" href="#practise">
+          <span class="mode-emoji" aria-hidden="true">✍️</span>
+          <span class="mode-title">Practise</span>
+          <span class="mode-sub">Quizzes, flashcards and sims.</span>
+        </a>
+        <a class="mode-card" href="#exam">
+          <span class="mode-emoji" aria-hidden="true">📝</span>
+          <span class="mode-title">Exam prep</span>
+          <span class="mode-sub">Past papers by topic and SQA.</span>
+        </a>
+      </div>
 
       <details class="mini">
-        <summary>Higher Physics Outline</summary>
+        <summary>A simple revision plan</summary>
+        <div class="details-inner">
+          <ul>
+            <li><strong>1)</strong> Learn the key ideas — short notes and videos.</li>
+            <li><strong>2)</strong> Practise calculations until they feel automatic.</li>
+            <li><strong>3)</strong> Do past papers by topic to spot weak areas fast.</li>
+            <li><strong>4)</strong> Repeat little and often — confidence comes from reps.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="mini">
+        <summary>Higher Physics outline</summary>
         <div class="details-inner">
           <ul>
             <li><strong>Electricity</strong>: measurement uncertainty, I–V characteristics, internal resistance, capacitors, AC/DC, semiconductors and band theory.</li>
@@ -519,58 +119,156 @@ title: Higher Physics
       </details>
     </section>
 
-    <section class="panel" id="resources" aria-labelledby="resources-title">
-      <h2 id="resources-title">Resources</h2>
-      <p>Start here for the main Higher Physics resources.</p>
+    <!-- UNITS & TOPICS -->
+    <section class="panel" id="units" aria-labelledby="units-title">
+      <h2 id="units-title">Units &amp; topics</h2>
+      <p>Topic pages are being built. Each one will have notes, worked examples and self-check practice.</p>
 
-      <div class="tile-grid" aria-label="Higher Physics resource tiles">
-        <a class="class-tile no-overlay"
-           href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
-           target="_blank" rel="noopener noreferrer"
-           aria-label="Higher Physics Past Papers by Topic Finder PDF opens in a new tab">
-          <img src="/assets/higher/higherpastpapers.png" alt="">
-          <div class="tile-label">
-            <div class="tile-text">
-              <div class="tile-title">Past Papers Finder</div>
-            </div>
-            <span class="ext-mark" aria-hidden="true">↗</span>
-          </div>
-        </a>
+      <div class="unit-group">
+        <div class="unit-head">
+          <h3 class="unit-title">Electricity</h3>
+        </div>
+        <div class="topic-list" aria-label="Electricity topics">
+          <span class="topic-link soon">Monitoring &amp; measuring a.c. <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Current, p.d., power &amp; resistance <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Electrical sources &amp; internal resistance <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Capacitors <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Conductors, semiconductors &amp; insulators <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">p–n junctions <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+        </div>
+      </div>
 
-        <a class="class-tile no-overlay"
-           href="https://www.taylorwebapps.site/mc%20physics%20higher/index.html"
-           target="_blank" rel="noopener noreferrer"
-           aria-label="DELTA Physics Higher multiple choice practice opens in a new tab">
-          <img src="/assets/higher/Delta.png" alt="">
-          <div class="tile-label">
-            <div class="tile-text">
-              <div class="tile-title">DELTA</div>
-            </div>
-            <span class="ext-mark" aria-hidden="true">↗</span>
-          </div>
-        </a>
+      <div class="unit-group">
+        <div class="unit-head">
+          <h3 class="unit-title">Our Dynamic Universe</h3>
+        </div>
+        <div class="topic-list" aria-label="Our Dynamic Universe topics">
+          <span class="topic-link soon">Motion — equations &amp; graphs <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Forces, energy &amp; power <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Collisions, explosions &amp; impulse <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Gravitation <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Special relativity <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">The expanding universe <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+        </div>
+      </div>
 
-        <a class="class-tile no-overlay"
+      <div class="unit-group">
+        <div class="unit-head">
+          <h3 class="unit-title">Particles &amp; Waves</h3>
+        </div>
+        <div class="topic-list" aria-label="Particles and Waves topics">
+          <span class="topic-link soon">Forces on charged particles <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">The Standard Model <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Nuclear reactions <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Wave–particle duality <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Interference &amp; diffraction <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Refraction of light <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+          <span class="topic-link soon">Spectra <span class="soon-badge"><span aria-hidden="true">⏳ </span>Coming soon</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEARN -->
+    <section class="panel" id="learn" aria-labelledby="learn-title">
+      <h2 id="learn-title">Learn &amp; revise</h2>
+      <p>Notes, videos and explanations to build understanding.</p>
+
+      <div class="tile-grid" aria-label="Learning resources">
+        <a class="class-tile"
            href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EhxjMnoOy8BJtbNX5hLm6EMB34x2DImCTq1AHBp46Ac-1A?e=1CLPoc"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Mr Stewart’s Materials opens in a new tab">
-          <img src="/assets/higher/mrstewartsmaterials.png" alt="">
+           aria-label="Mr Stewart’s Materials — class booklets, notes and tasks. Glow login needed. Opens in a new tab">
+          <img src="/assets/higher/mrstewartsmaterials.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
           <div class="tile-label">
             <div class="tile-text">
               <div class="tile-title">Mr Stewart’s Materials</div>
+              <div class="tile-sub">Class booklets, notes and tasks.</div>
+              <div class="tile-pills"><span class="pill">Glow login</span></div>
             </div>
             <span class="ext-mark" aria-hidden="true">↗</span>
           </div>
         </a>
 
-        <a class="class-tile no-overlay"
+        <a class="class-tile"
            href="https://physicsflashrepo.ovh/"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Flash Physics opens in a new tab">
-          <img src="/assets/higher/flashphsyics.png" alt="">
+           aria-label="Flash Physics — fast explanations and quick-fire practice. Opens in a new tab">
+          <img src="/assets/higher/flashphsyics.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
           <div class="tile-label">
             <div class="tile-text">
               <div class="tile-title">Flash Physics</div>
+              <div class="tile-sub">Fast explanations and quick-fire practice.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.bbc.co.uk/bitesize/subjects/zpyb4wx"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="BBC Bitesize — short revision notes and tests. Opens in a new tab">
+          <img src="/assets/higher/bbc.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">BBC Bitesize</div>
+              <div class="tile-sub">Short revision notes and tests.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://scholar.hw.ac.uk/courses/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Scholar — Heriot-Watt’s full Higher course. Scholar login needed. Opens in a new tab">
+          <img src="/assets/higher/scholar.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Scholar</div>
+              <div class="tile-sub">Heriot-Watt’s full Higher course.</div>
+              <div class="tile-pills"><span class="pill">Scholar login</span></div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://student.magicschool.ai/s/join?joinCode=o6paYQ"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="AI Tutor — guided hints and self-checking with MagicSchool. Opens in a new tab">
+          <img src="/assets/higher/AI.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">AI Tutor</div>
+              <div class="tile-sub">Guided hints and self-checking (MagicSchool).</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.youtube.com/@mrstewartphysics/playlists"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mr Stewart on YouTube — video walkthroughs and playlists. Opens in a new tab">
+          <div class="tile-emoji" aria-hidden="true"><span>🎥</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mr Stewart on YouTube</div>
+              <div class="tile-sub">Video walkthroughs and playlists.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://mrsphysics.co.uk/index.php/higher/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Mrs Physics — clear notes and worked examples. Opens in a new tab">
+          <div class="tile-emoji" aria-hidden="true"><span>🌟</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Mrs Physics</div>
+              <div class="tile-sub">Clear notes and worked examples.</div>
             </div>
             <span class="ext-mark" aria-hidden="true">↗</span>
           </div>
@@ -578,157 +276,134 @@ title: Higher Physics
       </div>
     </section>
 
-    <section class="panel" id="morelinks" aria-labelledby="morelinks-title">
-      <h2 id="morelinks-title">More links</h2>
-      <p>Extra help, practice and support links.</p>
+    <!-- PRACTISE -->
+    <section class="panel" id="practise" aria-labelledby="practise-title">
+      <h2 id="practise-title">Practise</h2>
+      <p>Quizzes, flashcards and simulations to test yourself.</p>
 
-      <details class="mini" open>
-        <summary>Open more links</summary>
-        <div class="details-inner">
-          <div class="tile-grid" aria-label="Additional Higher Physics links">
-            <a class="class-tile no-overlay"
-               href="https://scholar.hw.ac.uk/courses/"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Scholar opens in a new tab">
-              <img src="/assets/higher/scholar.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Scholar</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile no-overlay"
-               href="https://student.magicschool.ai/s/join?joinCode=o6paYQ"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="AI Tutor opens in a new tab">
-              <img src="/assets/higher/AI.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">AI Tutor</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile no-overlay"
-               href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EtlydMZL4qJMi6zQL_-a33kBoPsCdAu2vK8AFiurWKlraQ?e=eyZbIN"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Practice Tests opens in a new tab">
-              <img src="/assets/higher/practicetests.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Practice Tests</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile no-overlay"
-               href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/Eqbob1cLAspLihPfnlpwkoIB8XS8ilM10Fw4Nl6lwV6yTg?e=EormyU"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Tricky Questions opens in a new tab">
-              <img src="/assets/higher/tricky.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Tricky Questions</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile"
-               href="/classes/higher/simulations.html"
-               aria-label="Higher Physics Interactive Simulations">
-              <div class="tile-emoji" aria-hidden="true"><span>🧩</span></div>
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Interactive Simulations</div>
-                </div>
-              </div>
-            </a>
-
-            <a class="class-tile no-overlay"
-               href="https://sway.office.com/t01NVX6h5b8SiFmF?ref=Link&loc=play"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Self-Marking Multiple Choice opens in a new tab">
-              <img src="/assets/higher/mc.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Self-Marking Multiple Choice</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile no-overlay"
-               href="https://quizlet.com/join/TetMQdg6Y"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Quizlets opens in a new tab">
-              <img src="/assets/higher/quizlet.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Quizlets</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile no-overlay"
-               href="https://www.bbc.co.uk/bitesize/subjects/zpyb4wx"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="BBC Bitesize opens in a new tab">
-              <img src="/assets/higher/bbc.png" alt="">
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">BBC Bitesize</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile"
-               href="https://www.youtube.com/@mrstewartphysics/playlists"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Mr Stewart YouTube playlists opens in a new tab">
-              <div class="tile-emoji" aria-hidden="true"><span>🎥</span></div>
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Mr Stewart YouTube</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile"
-               href="https://mrsphysics.co.uk/index.php/higher/"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Mrs Physics Higher Physics opens in a new tab">
-              <div class="tile-emoji" aria-hidden="true"><span>🌟</span></div>
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">Mrs Physics</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
-
-            <a class="class-tile"
-               href="https://www.sqa.org.uk/sqa/47916.html"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="SQA Higher Physics website opens in a new tab">
-              <div class="tile-emoji" aria-hidden="true"><span>🏛️</span></div>
-              <div class="tile-label">
-                <div class="tile-text">
-                  <div class="tile-title">SQA Higher Physics</div>
-                </div>
-                <span class="ext-mark" aria-hidden="true">↗</span>
-              </div>
-            </a>
+      <div class="tile-grid" aria-label="Practice resources">
+        <a class="class-tile featured"
+           href="/classes/higher/simulations.html"
+           aria-label="Interactive Simulations — play with the physics, on this site">
+          <div class="tile-emoji" aria-hidden="true"><span>🧩</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Interactive Simulations</div>
+              <div class="tile-sub">Play with the physics — on this site.</div>
+              <div class="tile-pills"><span class="pill">On this site</span></div>
+            </div>
           </div>
-        </div>
-      </details>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.taylorwebapps.site/mc%20physics%20higher/index.html"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="DELTA — quick multiple-choice you mark instantly. Opens in a new tab">
+          <img src="/assets/higher/Delta.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">DELTA</div>
+              <div class="tile-sub">Quick multiple-choice you mark instantly.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://sway.office.com/t01NVX6h5b8SiFmF?ref=Link&loc=play"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Self-Marking Multiple Choice — check key ideas with instant feedback. Opens in a new tab">
+          <img src="/assets/higher/mc.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Self-Marking Multiple Choice</div>
+              <div class="tile-sub">Check key ideas with instant feedback.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://quizlet.com/join/TetMQdg6Y"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Quizlets — flashcards for key words and definitions. Opens in a new tab">
+          <img src="/assets/higher/quizlet.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Quizlets</div>
+              <div class="tile-sub">Flashcards for key words and definitions.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/EtlydMZL4qJMi6zQL_-a33kBoPsCdAu2vK8AFiurWKlraQ?e=eyZbIN"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Practice Tests — targeted practice sets. Glow login needed. Opens in a new tab">
+          <img src="/assets/higher/practicetests.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Practice Tests</div>
+              <div class="tile-sub">Targeted practice sets.</div>
+              <div class="tile-pills"><span class="pill">Glow login</span></div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://glowscotland-my.sharepoint.com/:f:/g/personal/gw20stewartrobert1_glow_sch_uk/Eqbob1cLAspLihPfnlpwkoIB8XS8ilM10Fw4Nl6lwV6yTg?e=EormyU"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Tricky Questions — harder questions to stretch you. Glow login needed. Opens in a new tab">
+          <img src="/assets/higher/tricky.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Tricky Questions</div>
+              <div class="tile-sub">Harder questions to stretch you.</div>
+              <div class="tile-pills"><span class="pill">Glow login</span></div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- EXAM PREP -->
+    <section class="panel" id="exam" aria-labelledby="exam-title">
+      <h2 id="exam-title">Exam prep</h2>
+      <p>Past papers and official SQA information.</p>
+
+      <div class="tile-grid" aria-label="Exam preparation resources">
+        <a class="class-tile"
+           href="/classes/higher/Higher%20Physics%20Past%20Papers%20%28September%202025%20Update%29.pdf"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Past Papers Finder — find past-paper questions by topic. Large PDF, 22 megabytes. Opens in a new tab">
+          <img src="/assets/higher/higherpastpapers.jpg" alt="" loading="lazy" decoding="async" width="600" height="600">
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">Past Papers Finder</div>
+              <div class="tile-sub">Find past-paper questions by topic.</div>
+              <div class="tile-pills"><span class="pill">PDF · 22 MB</span></div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <a class="class-tile"
+           href="https://www.sqa.org.uk/sqa/47916.html"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="SQA Higher Physics — official course pages and documents. Opens in a new tab">
+          <div class="tile-emoji" aria-hidden="true"><span>🏛️</span></div>
+          <div class="tile-label">
+            <div class="tile-text">
+              <div class="tile-title">SQA Higher Physics</div>
+              <div class="tile-sub">Official course pages and documents.</div>
+            </div>
+            <span class="ext-mark" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
     </section>
   </main>
 
@@ -758,18 +433,7 @@ title: Higher Physics
       }catch(e){}
     }
 
-    function applyTileImagePerformanceHints(){
-      const imgs = Array.from(document.querySelectorAll('.class-tile img'));
-      imgs.forEach((img, i) => {
-        img.setAttribute('decoding', 'async');
-        img.setAttribute('loading', i < 2 ? 'eager' : 'lazy');
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      injectManifest();
-      applyTileImagePerformanceHints();
-    });
+    document.addEventListener('DOMContentLoaded', injectManifest);
   </script>
 </body>
 </html>

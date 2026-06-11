@@ -17,6 +17,7 @@ _includes/site-menu.html      — navigation drawer markup (included on every pa
 assets/css/site-menu.css      — navigation drawer styles (linked on every page)
 assets/js/site-menu.js        — navigation drawer behaviour (linked on every page)
 assets/css/engineering-science.css — shared stylesheet for all Engineering Science pages
+assets/css/higher-physics.css — shared stylesheet for the Higher Physics hub + topic pages
 assets/style.css              — legacy/unused, do not reference
 classes/                      — all subject pages
 index.html                    — home page
@@ -250,6 +251,8 @@ Theme colour: `#d74a84` (pink). Skip link: `background:#d74a84; color:#2a0a1a`.
 ```
 
 Theme colour: `#2b59ff`. Skip link uses `#2b59ff` background with white text.
+
+**Now in external CSS.** The Higher Physics hub and all Higher topic pages link `/assets/css/higher-physics.css?v=hp-YYYYMMDD` (cache-busted, bump the version on change) instead of an inline `<style>` block — same approach as Engineering Science. The sheet holds the shared chrome (tokens, banner, sticky sub-nav, panels, `details.mini`, tiles, mode chooser, units/topic placeholders, login pills, featured tile, footer, a11y helpers) and a full `@media (prefers-color-scheme: dark)` block (dark navy palette). **Page-specific widget CSS stays inline on each topic page.** Higher pages use `.class-tile` tiles (not the Physics `a.card`) — a deliberate retained exception. Coming-soon topic placeholders are inert `<span class="topic-link soon">` (non-focusable, `pointer-events:none`); going live = swap to `<a href>` and drop the `.soon`/badge.
 
 ### Advanced Higher Physics — gold/cream light
 
