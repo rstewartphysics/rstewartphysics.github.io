@@ -54,18 +54,31 @@ Each concept opens with its relationship(s) in an **equation card**:
 <div class="eq-cards">
   <div class="eq-card">
     <div class="eq-name">Ohm's law</div>
-    <div class="eq-formula">V = I R</div>
+    <div class="eq-formula"><var>V</var> = <var>I</var> <var>R</var></div>
     <div class="eq-desc">p.d. = current × resistance</div>
   </div>
 </div>
 ```
 
+### SQA typography — match the relationship sheet, past papers & marking instructions
+
+The SQA documents (in `classes/higher/`) set body text in **Trebuchet** (which the whole site already
+uses) and **equations in Times New Roman with the *variables in italic*** (Symbol font for Ω, μ, etc.).
+So match that for every equation and worked example:
+
+- **Equation/calc font is serif:** `font-family: "Times New Roman", Times, Georgia, serif;` — already
+  applied to `.eq-formula`, `.calc` and `.ms` on the reference page.
+- **Wrap every physics quantity symbol in `<var>`** (V, I, R, P, Q, t, E, …) so it renders *italic*,
+  exactly like the relationship sheet. **Numbers, units, operators and subscripts stay upright (roman).**
+  E.g. `<var>V</var> = <var>I</var> <var>R</var>`, `<var>R</var><sub>T</sub>`, `<var>V</var><sub>s</sub>`.
+- Keep the body/notes/`note-cell` in Trebuchet (the site default) — that already matches SQA body text.
+
 **Fractions must be real stacked fractions** (to match the SQA relationship sheet), using the `.frac`
-component — **never** a one-line `a/b` in a card:
+component — **never** a one-line `a/b` in a card. Put `<var>` inside the fraction parts too:
 
 ```html
 <span class="frac" aria-label="R 2 over R 1 plus R 2">
-  <span class="fr-n">R₂</span><span class="fr-d">R₁ + R₂</span>
+  <span class="fr-n"><var>R</var><sub>2</sub></span><span class="fr-d"><var>R</var><sub>1</sub> + <var>R</var><sub>2</sub></span>
 </span>
 ```
 
@@ -91,11 +104,11 @@ up every `=` vertically.
   <span class="ex-type">Rearrange — numbers in first</span>
   <div class="ex-q">A 12 V supply drives 50 mA through a resistor. Find its resistance.</div>
   <div class="calc">
-    <div class="calc-row"><span class="lhs">I</span><span class="eq">=</span><span class="rhs">50 ÷ 1000 = 0.050 A</span><span class="note-cell">mA → A</span></div>
-    <div class="calc-row"><span class="lhs">V</span><span class="eq">=</span><span class="rhs">I R</span><span class="note-cell"></span></div>
-    <div class="calc-row"><span class="lhs">12</span><span class="eq">=</span><span class="rhs">0.050 × R</span><span class="note-cell">numbers in first</span></div>
-    <div class="calc-row"><span class="lhs">R</span><span class="eq">=</span><span class="rhs">12 ÷ 0.050</span><span class="note-cell">now rearrange</span></div>
-    <div class="calc-row"><span class="lhs">R</span><span class="eq">=</span><span class="rhs">240 Ω</span><span class="note-cell"></span></div>
+    <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">50 ÷ 1000 = 0.050 A</span><span class="note-cell">mA → A</span></div>
+    <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs"><var>I</var> <var>R</var></span><span class="note-cell"></span></div>
+    <div class="calc-row"><span class="lhs">12</span><span class="eq">=</span><span class="rhs">0.050 × <var>R</var></span><span class="note-cell">numbers in first</span></div>
+    <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">12 ÷ 0.050</span><span class="note-cell">now rearrange</span></div>
+    <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">240 Ω</span><span class="note-cell"></span></div>
   </div>
 </div>
 ```
