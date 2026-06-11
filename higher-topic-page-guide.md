@@ -64,8 +64,8 @@ Each concept opens with its relationship(s) in an **equation card**:
 component — **never** a one-line `a/b` in a card:
 
 ```html
-<span class="frac" aria-label="R 1 over R 1 plus R 2">
-  <span class="fr-n">R₁</span><span class="fr-d">R₁ + R₂</span>
+<span class="frac" aria-label="R 2 over R 1 plus R 2">
+  <span class="fr-n">R₂</span><span class="fr-d">R₁ + R₂</span>
 </span>
 ```
 
@@ -160,6 +160,8 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
 - Match the **SQA relationship-sheet wording and symbols**; use SQA command words (Calculate / Determine /
   Show that / Explain / State).
 - Don't smuggle in non-Higher content; link sibling topics rather than duplicating them.
+- **Potential dividers:** label **R₁ = top, R₂ = bottom**. The output is **V₂** (the p.d. across the
+  bottom resistor): `V₂ = (R₂ / (R₁ + R₂)) × Vs`. V₂/R₂ always refer to the bottom resistor.
 - **Bridge circuits:** teach as **two potential dividers**; pupils find the p.d. between the midpoints
   (`V = V_P − V_Q`). **Never use the words "Wheatstone bridge", "balanced" or "unbalanced"** — the SQA
   has dropped that vocabulary.
