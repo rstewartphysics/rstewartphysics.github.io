@@ -37,6 +37,8 @@ classes/higher/simulations.html, relativity-simulation.html, *.pdf — shared Hi
 
 Topic file names are kebab-case of the hub's topic label (e.g. `current-pd-power-resistance.html`). Every topic page links `/assets/css/higher-physics.css` for chrome + dark mode and keeps its own widget CSS/JS inline. All asset/menu links are absolute (`/assets/…`, `/classes/…`) so nesting depth doesn't matter. To publish a topic, build the page then flip its hub placeholder from `<span class="topic-link soon">` to `<a class="topic-link" href="…">… <span class="go">→</span></a>`. Per-page `localStorage` keys use a topic prefix (e.g. `hp-cpr-`).
 
+**Before building any Higher topic page, read [`higher-topic-page-guide.md`](higher-topic-page-guide.md)** (repo root) — the full construction spec: concept-block layout, equation cards with real 2-D fractions (`fr-n`/`fr-d`, never `num`/`den`), two worked examples per equation (substitute-&-solve + rearrange with "numbers in first"), `.calc` side-note grid, question rules (every question needs a conversion/tricky step), UK SVG symbol/diagram rules, and the pre-commit checklist. Reference implementation: `classes/higher/electricity/current-pd-power-resistance.html`.
+
 ---
 
 ## Standard page template
