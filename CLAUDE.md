@@ -23,6 +23,20 @@ classes/                      — all subject pages
 index.html                    — home page
 ```
 
+### Higher Physics topic pages — filing structure
+
+Higher topic pages are grouped by SQA unit so new pages drop in cleanly:
+
+```
+classes/higher-physics.html                              — the hub
+classes/higher/electricity/<topic>.html                 — Electricity unit
+classes/higher/dynamic-universe/<topic>.html             — Our Dynamic Universe unit
+classes/higher/particles-waves/<topic>.html              — Particles & Waves unit
+classes/higher/simulations.html, relativity-simulation.html, *.pdf — shared Higher assets
+```
+
+Topic file names are kebab-case of the hub's topic label (e.g. `current-pd-power-resistance.html`). Every topic page links `/assets/css/higher-physics.css` for chrome + dark mode and keeps its own widget CSS/JS inline. All asset/menu links are absolute (`/assets/…`, `/classes/…`) so nesting depth doesn't matter. To publish a topic, build the page then flip its hub placeholder from `<span class="topic-link soon">` to `<a class="topic-link" href="…">… <span class="go">→</span></a>`. Per-page `localStorage` keys use a topic prefix (e.g. `hp-cpr-`).
+
 ---
 
 ## Standard page template

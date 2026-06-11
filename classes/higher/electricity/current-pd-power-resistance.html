@@ -1,0 +1,702 @@
+---
+layout: none
+title: Current, p.d., power & resistance — Higher Physics
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)" />
+
+  <link rel="apple-touch-icon" href="/assets/higher/Delta.png" />
+  <link rel="icon" type="image/png" href="/assets/higher/Delta.png" />
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260611c">
+
+  <title>Current, p.d., power &amp; resistance — Higher Physics</title>
+
+  <style>
+    /* ---- page-specific widget styles (chrome comes from higher-physics.css) ---- */
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: .7rem; }
+    .eqtable { width: 100%; border-collapse: collapse; min-width: 460px; }
+    .eqtable th, .eqtable td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border-soft); vertical-align: top; font-weight: 800; color: var(--muted); }
+    .eqtable th { color: var(--text); }
+    .eqtable code, .eq { font-weight: 900; color: var(--text); font-size: 1.02rem; }
+
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1.02rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .9rem; margin: 0 0 .6rem; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 150px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    select.num { width: auto; }
+
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #3b6bff, #1636b8); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+
+    .readout { font-size: 1.35rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .working { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .92rem; line-height: 1.5; }
+
+    .circuit { display: block; width: 100%; max-width: 360px; height: auto; margin: .4rem auto .2rem; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--accent); }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .meter { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+
+    .meterbar { position: relative; height: 16px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); margin-top: .7rem; overflow: hidden; }
+    .meterbar > span { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, #3b6bff, #1636b8); }
+    .meterbar.centred::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--muted); opacity: .6; }
+
+    .seg { display: inline-flex; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; }
+    .seg button { border: 0; background: var(--card); color: var(--text); font-weight: 900; padding: .5rem .8rem; min-height: 44px; cursor: pointer; font-family: inherit; font-size: .95rem; }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+    /* symbols + matching game */
+    .sym-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .7rem; margin-top: .8rem; }
+    .sym-card { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .6rem; text-align: center; }
+    .sym-card svg { width: 88px; height: 48px; display: block; margin: 0 auto .35rem; }
+    .sym-card .cap { font-weight: 900; color: var(--text); font-size: .9rem; }
+    .sym svg .s { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; }
+    .sym svg .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .sym svg text { fill: var(--text); font-weight: 800; font-size: 13px; font-family: inherit; }
+
+    .match-cols { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: .8rem; }
+    .match-col h4 { margin: 0 0 .4rem; font-size: .9rem; color: var(--muted); font-weight: 900; }
+    .match-item { display: block; width: 100%; text-align: left; border: 1px solid var(--border-accent); border-radius: 10px; background: var(--card); color: var(--text); padding: .5rem .6rem; min-height: 48px; margin-bottom: .5rem; cursor: pointer; font-weight: 900; font-family: inherit; font-size: .95rem; -webkit-tap-highlight-color: transparent; }
+    .match-item svg { width: 70px; height: 40px; vertical-align: middle; }
+    .match-item[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+    .match-item.done { opacity: .55; pointer-events: none; border-style: dashed; }
+    .match-item.bad { animation: shake .3s; }
+    @keyframes shake { 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.stem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .45rem .55rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: #c2410c; background: rgba(194,65,12,.12); }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+
+    /* reveal mark schemes */
+    details.reveal { margin-top: .6rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal .reveal-body { padding: .7rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .reveal-body .ms { font-family: ui-monospace, Menlo, monospace; color: var(--text); }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 40px; min-height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .6rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .4rem; }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Current, p.d., power &amp; resistance</h1>
+      <p>Higher Physics · Electricity</p>
+    </div>
+  </header>
+
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#overview">Overview</a>
+        <a class="subnav-link" href="#equations">Equations</a>
+        <a class="subnav-link" href="#resistance">Resistance</a>
+        <a class="subnav-link" href="#power">Power</a>
+        <a class="subnav-link" href="#dividers">Dividers</a>
+        <a class="subnav-link" href="#symbols">Symbols</a>
+        <a class="subnav-link" href="#practice">Practice</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Current, p.d., power and resistance</h1>
+
+    <!-- OVERVIEW -->
+    <section class="panel" id="overview" aria-labelledby="overview-title">
+      <a class="backlink" href="/classes/higher-physics.html"><span aria-hidden="true">←</span> Back to Higher hub</a>
+      <h2 id="overview-title">Overview</h2>
+      <p class="lead">This is the workhorse topic of Higher Electricity: charge and current, Ohm's law, combining resistors, electrical power, and potential dividers. Learn the ideas, try the tools, then test yourself.</p>
+
+      <details class="mini">
+        <summary>What you'll be able to do</summary>
+        <div class="details-inner">
+          <ul>
+            <li>Use <strong>Q = It</strong> to link charge, current and time.</li>
+            <li>Use <strong>V = IR</strong> for a component or a whole circuit, and read a V–I graph.</li>
+            <li>Find total resistance in <strong>series</strong> and <strong>parallel</strong>.</li>
+            <li>Choose and use <strong>P = IV</strong>, <strong>P = I²R</strong> or <strong>P = V²/R</strong>.</li>
+            <li>Find the output of a <strong>potential divider</strong>, including sensor (LDR/thermistor) circuits.</li>
+            <li>Find the <strong>p.d. between the midpoints of two dividers</strong> across one supply.</li>
+            <li>Lay calculations out the SQA way: relationship → substitution → answer with a unit.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- EQUATIONS -->
+    <section class="panel" id="equations" aria-labelledby="equations-title">
+      <h2 id="equations-title">The equations</h2>
+      <p class="lead">Everything on this page comes from these relationships. Pick the one that matches what you're given.</p>
+      <div class="table-scroll">
+        <table class="eqtable">
+          <thead><tr><th>Relationship</th><th>In words</th><th>Use when…</th></tr></thead>
+          <tbody>
+            <tr><td><code>Q = I t</code></td><td>charge = current × time</td><td>charge moved or average current</td></tr>
+            <tr><td><code>V = I R</code></td><td>p.d. = current × resistance (Ohm's law)</td><td>one component or the whole circuit</td></tr>
+            <tr><td><code>R<sub>T</sub> = R₁ + R₂ + …</code></td><td>series total resistance</td><td>components in series</td></tr>
+            <tr><td><code>1/R<sub>T</sub> = 1/R₁ + 1/R₂ + …</code></td><td>parallel total resistance</td><td>components in parallel</td></tr>
+            <tr><td><code>P = I V</code></td><td>power = current × p.d.</td><td>given current and p.d.</td></tr>
+            <tr><td><code>P = I² R</code></td><td>power = current² × resistance</td><td>given current and resistance</td></tr>
+            <tr><td><code>P = V² / R</code></td><td>power = p.d.² ÷ resistance</td><td>given p.d. and resistance</td></tr>
+            <tr><td><code>E = P t</code></td><td>energy transferred = power × time</td><td>energy or heat dissipated</td></tr>
+            <tr><td><code>V₁ = (R₁ / (R₁ + R₂)) × V<sub>s</sub></code></td><td>potential divider output</td><td>p.d. across one of two series resistors</td></tr>
+            <tr><td><code>V = V<sub>P</sub> − V<sub>Q</sub></code></td><td>p.d. between the midpoints of two dividers</td><td>two dividers across one supply</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">Linked topic: a real supply has internal resistance, so <code>E = V + I r</code>. That's covered on the <a href="/classes/higher-physics.html">Electrical sources &amp; internal resistance</a> page.</div>
+    </section>
+
+    <!-- CURRENT / OHM / RESISTANCE -->
+    <section class="panel" id="resistance" aria-labelledby="resistance-title">
+      <h2 id="resistance-title">Current, p.d. &amp; resistance</h2>
+      <p class="lead"><strong>Current</strong> is the rate of flow of charge, <code>Q = It</code>. <strong>Potential difference</strong> is the energy given to each coulomb of charge. <strong>Resistance</strong> opposes current: <code>V = IR</code>.</p>
+      <ul class="lead" style="padding-left:1.1rem;">
+        <li><strong>Ohmic</strong> conductor: V–I graph is a straight line through the origin — resistance is constant.</li>
+        <li><strong>Non-ohmic</strong> (e.g. a lamp filament): the line curves — resistance rises as it heats up.</li>
+        <li><strong>Series:</strong> current is the same everywhere; p.d.s add up.</li>
+        <li><strong>Parallel:</strong> p.d. is the same across each branch; currents add; total resistance is <em>less than the smallest branch</em>.</li>
+      </ul>
+
+      <div class="widget">
+        <h3>Series &amp; parallel calculator</h3>
+        <p class="hint">Enter the resistor values (Ω), choose the arrangement, and see the working.</p>
+        <div id="rt-rows" class="controls" style="gap:.6rem;"></div>
+        <div class="btnrow">
+          <button class="btn" type="button" id="rt-add">+ Add resistor</button>
+          <span class="seg" role="group" aria-label="Arrangement">
+            <button type="button" id="rt-series" aria-pressed="true">Series</button>
+            <button type="button" id="rt-parallel" aria-pressed="false">Parallel</button>
+          </span>
+          <button class="btn primary" type="button" id="rt-calc">Calculate</button>
+        </div>
+        <div class="readout" id="rt-out" aria-live="polite">—</div>
+        <div class="working" id="rt-work" hidden></div>
+      </div>
+    </section>
+
+    <!-- POWER -->
+    <section class="panel" id="power" aria-labelledby="power-title">
+      <h2 id="power-title">Electrical power</h2>
+      <p class="lead">Power is energy transferred per second. Choose the power equation from what you already know — all three give the same answer.</p>
+
+      <div class="widget">
+        <h3>Which power equation?</h3>
+        <p class="hint">Fill in <strong>any two</strong> of current, p.d. and resistance. It picks the right relationship and shows the working.</p>
+        <div class="controls">
+          <label class="field">Current I (A)<input class="num" type="number" id="p-i" step="any" inputmode="decimal"></label>
+          <label class="field">p.d. V (V)<input class="num" type="number" id="p-v" step="any" inputmode="decimal"></label>
+          <label class="field">Resistance R (Ω)<input class="num" type="number" id="p-r" step="any" inputmode="decimal"></label>
+          <button class="btn primary" type="button" id="p-calc">Find the power</button>
+        </div>
+        <div class="readout" id="p-out" aria-live="polite">—</div>
+        <div class="working" id="p-work" hidden></div>
+      </div>
+    </section>
+
+    <!-- DIVIDERS -->
+    <section class="panel" id="dividers" aria-labelledby="dividers-title">
+      <h2 id="dividers-title">Potential dividers</h2>
+      <p class="lead">Two resistors in series split the supply voltage in the ratio of their resistances. The output across the lower resistor is <code>V₁ = (R₁ / (R₁ + R₂)) × V<sub>s</sub></code>.</p>
+
+      <div class="widget">
+        <h3>Potential divider simulator</h3>
+        <p class="hint">Adjust the resistors and supply. Swap the lower resistor for a sensor to see the output change with light or temperature.</p>
+        <div class="controls">
+          <label class="field">Supply V<sub>s</sub> (V)
+            <span class="row"><input type="range" id="d-vs" min="1" max="12" step="0.5" value="12"><input class="num" id="d-vs-n" type="number" step="0.5" value="12" inputmode="decimal"></span>
+          </label>
+          <label class="field">R₁ top (kΩ)
+            <span class="row"><input type="range" id="d-r1" min="0.5" max="10" step="0.5" value="3"><input class="num" id="d-r1-n" type="number" step="0.5" value="3" inputmode="decimal"></span>
+          </label>
+          <label class="field" id="d-r2-field">R₂ bottom (kΩ)
+            <span class="row"><input type="range" id="d-r2" min="0.5" max="10" step="0.5" value="7"><input class="num" id="d-r2-n" type="number" step="0.5" value="7" inputmode="decimal"></span>
+          </label>
+        </div>
+        <div class="btnrow">
+          <span class="seg" role="group" aria-label="Lower component">
+            <button type="button" id="d-fixed" aria-pressed="true">Fixed R₂</button>
+            <button type="button" id="d-ldr" aria-pressed="false">LDR</button>
+            <button type="button" id="d-therm" aria-pressed="false">Thermistor</button>
+          </span>
+        </div>
+        <label class="field" id="d-sensor-field" hidden style="margin-top:.7rem;"><span id="d-sensor-label">Light level</span>
+          <span class="row"><input type="range" id="d-sensor" min="0" max="100" step="1" value="50"><span class="num" id="d-sensor-val" style="display:inline-flex;align-items:center;">50%</span></span>
+        </label>
+
+        <svg class="circuit" viewBox="0 0 220 220" role="img" aria-label="Potential divider circuit diagram">
+          <title>Potential divider</title>
+          <path class="wire" d="M60 22 V52 M60 92 V120 M60 160 V198 M60 198 H150 M115 120 H150 V100"/>
+          <rect class="res" x="48" y="52" width="24" height="40" rx="3"/>
+          <rect class="res" x="48" y="120" width="24" height="40" rx="3"/>
+          <path class="wire" d="M60 120 H115"/>
+          <circle class="meter" cx="150" cy="92" r="14"/>
+          <text x="150" y="96" text-anchor="middle">V</text>
+          <path class="wire" d="M150 106 V198"/>
+          <text x="60" y="16" text-anchor="middle" id="d-vs-lab">+12 V</text>
+          <text x="60" y="214" text-anchor="middle">0 V</text>
+          <text x="80" y="76" id="d-r1-lab">R₁ 3 kΩ</text>
+          <text x="80" y="144" id="d-r2-lab">R₂ 7 kΩ</text>
+        </svg>
+        <div class="readout" id="d-out" aria-live="polite">Output across R₂ = —</div>
+        <div class="working" id="d-work"></div>
+      </div>
+
+      <h3 style="margin-top:1.2rem;">Two dividers across one supply — the voltage "across the bridge"</h3>
+      <p class="lead">Put two potential dividers across the same supply. The voltage "across the bridge" is the p.d. between the two midpoints: work out each midpoint voltage and subtract, <code>V = V<sub>P</sub> − V<sub>Q</sub></code>. It reads zero when the two dividers share the same ratio (R₁/R₂ = R₃/R₄).</p>
+
+      <div class="widget">
+        <h3>"Voltage across the bridge" simulator</h3>
+        <p class="hint">Set the four resistors and supply. The voltmeter reads the p.d. between midpoints P and Q.</p>
+        <div class="controls">
+          <label class="field">V<sub>s</sub> (V)<span class="row"><input type="range" id="b-vs" min="1" max="12" step="0.5" value="9"><input class="num" id="b-vs-n" type="number" step="0.5" value="9" inputmode="decimal"></span></label>
+          <label class="field">R₁ (kΩ)<span class="row"><input type="range" id="b-r1" min="0.5" max="10" step="0.5" value="2"><input class="num" id="b-r1-n" type="number" step="0.5" value="2" inputmode="decimal"></span></label>
+          <label class="field">R₂ (kΩ)<span class="row"><input type="range" id="b-r2" min="0.5" max="10" step="0.5" value="4"><input class="num" id="b-r2-n" type="number" step="0.5" value="4" inputmode="decimal"></span></label>
+          <label class="field">R₃ (kΩ)<span class="row"><input type="range" id="b-r3" min="0.5" max="10" step="0.5" value="6"><input class="num" id="b-r3-n" type="number" step="0.5" value="6" inputmode="decimal"></span></label>
+          <label class="field">R₄ (kΩ)<span class="row"><input type="range" id="b-r4" min="0.5" max="10" step="0.5" value="3"><input class="num" id="b-r4-n" type="number" step="0.5" value="3" inputmode="decimal"></span></label>
+        </div>
+
+        <svg class="circuit" viewBox="0 0 320 220" role="img" aria-label="Two potential dividers across one supply, with a voltmeter between the midpoints">
+          <title>Two dividers across one supply</title>
+          <path class="wire" d="M40 24 H280 M40 196 H280"/>
+          <path class="wire" d="M90 24 V54 M90 94 V110 M90 134 V164 M90 164 V196"/>
+          <path class="wire" d="M230 24 V54 M230 94 V110 M230 134 V164 M230 164 V196"/>
+          <rect class="res" x="78" y="54" width="24" height="40" rx="3"/>
+          <rect class="res" x="78" y="134" width="24" height="40" rx="3"/>
+          <rect class="res" x="218" y="54" width="24" height="40" rx="3"/>
+          <rect class="res" x="218" y="134" width="24" height="40" rx="3"/>
+          <circle class="node" cx="90" cy="110" r="3.5"/>
+          <circle class="node" cx="230" cy="110" r="3.5"/>
+          <path class="wire" d="M90 110 H146 M174 110 H230"/>
+          <circle class="meter" cx="160" cy="110" r="14"/>
+          <text x="160" y="114" text-anchor="middle">V</text>
+          <text x="50" y="18" id="b-vs-lab">+9 V</text>
+          <text x="50" y="212">0 V</text>
+          <text x="70" y="48" text-anchor="end" id="b-r1-lab">R₁</text>
+          <text x="70" y="128" text-anchor="end" id="b-r2-lab">R₂</text>
+          <text x="250" y="48" id="b-r3-lab">R₃</text>
+          <text x="250" y="128" id="b-r4-lab">R₄</text>
+          <text x="90" y="124" text-anchor="middle" style="font-size:11px;">P</text>
+          <text x="230" y="124" text-anchor="middle" style="font-size:11px;">Q</text>
+        </svg>
+        <div class="meterbar centred" aria-hidden="true"><span id="b-bar"></span></div>
+        <div class="readout" id="b-out" aria-live="polite">V across the bridge = —</div>
+        <div class="working" id="b-work"></div>
+      </div>
+    </section>
+
+    <!-- SYMBOLS -->
+    <section class="panel" id="symbols" aria-labelledby="symbols-title">
+      <h2 id="symbols-title">Circuit symbols (UK)</h2>
+      <p class="lead">Higher uses UK (BS / IEC) symbols. The resistor is a plain rectangle — never the US zig-zag.</p>
+      <div class="sym-grid sym" id="sym-grid"></div>
+
+      <div class="widget">
+        <h3>Match the symbol</h3>
+        <p class="hint">Tap a symbol, then tap its name. Get them all to win.</p>
+        <div class="match-cols">
+          <div class="match-col"><h4>Symbols</h4><div id="match-syms"></div></div>
+          <div class="match-col"><h4>Names</h4><div id="match-names"></div></div>
+        </div>
+        <div class="score" id="match-status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section class="panel" id="practice" aria-labelledby="practice-title">
+      <h2 id="practice-title">Practice</h2>
+
+      <div class="widget">
+        <h3>Quick multiple choice</h3>
+        <p class="hint">Exam-style multiple choice. Choose an answer for each, then mark them.</p>
+        <div id="quiz"></div>
+        <div class="btnrow"><button class="btn primary" type="button" id="quiz-mark">Mark my answers</button><button class="btn" type="button" id="quiz-reset">Reset</button></div>
+        <div class="score" id="quiz-score" aria-live="polite"></div>
+      </div>
+
+      <div class="widget">
+        <h3>Self-marking calculations</h3>
+        <p class="hint">A fresh random question each time. Type your answer and check it.</p>
+        <p class="readout" id="gen-q" style="font-size:1.1rem;">Press "New question".</p>
+        <div class="controls">
+          <label class="field">Your answer<input class="num" id="gen-a" type="number" step="any" inputmode="decimal"></label>
+          <span id="gen-unit" style="font-weight:900;align-self:center;"></span>
+          <button class="btn primary" type="button" id="gen-check">Check</button>
+          <button class="btn" type="button" id="gen-new">New question</button>
+        </div>
+        <div class="readout" id="gen-fb" aria-live="polite"></div>
+        <div class="working" id="gen-work" hidden></div>
+        <div class="score" id="gen-score"></div>
+      </div>
+
+      <div class="widget">
+        <h3>Exam-style questions</h3>
+        <p class="hint">Try each one fully, the SQA way, before opening the mark scheme.</p>
+
+        <p class="stem"><strong>1.</strong> A kettle element of resistance 26 Ω is connected to the 230 V mains.
+          (a) Calculate the current in the element. (b) Calculate the power.</p>
+        <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+          <div class="ms">(a) V = IR → 230 = I × 26 → I = 8.8 A</div>
+          <div class="ms">(b) P = IV = 8.8 × 230 = 2040 W (≈ 2.0 kW)  [or P = V²/R = 230²/26 = 2030 W]</div>
+          Marks: relationship, substitution, answer with unit — each step shown.
+        </div></details>
+
+        <p class="stem" style="margin-top:1rem;"><strong>2.</strong> A 1.5 kΩ and a 4.5 kΩ resistor form a potential divider across a 6.0 V supply.
+          Calculate the p.d. across the 4.5 kΩ resistor.</p>
+        <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+          <div class="ms">V = (R / (R₁+R₂)) × V_s = (4.5 / (1.5 + 4.5)) × 6.0</div>
+          <div class="ms">= (4.5 / 6.0) × 6.0 = 4.5 V</div>
+        </div></details>
+
+        <p class="stem" style="margin-top:1rem;"><strong>3.</strong> Two dividers are connected across a 9.0 V supply. The left divider is R₁ = 2.0 kΩ (top) and R₂ = 4.0 kΩ (bottom); the right divider is R₃ = 6.0 kΩ (top) and R₄ = 3.0 kΩ (bottom). Calculate the p.d. between the two midpoints.</p>
+        <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+          <div class="ms">V_P = (4.0 / 6.0) × 9.0 = 6.0 V</div>
+          <div class="ms">V_Q = (3.0 / 9.0) × 9.0 = 3.0 V</div>
+          <div class="ms">V = V_P − V_Q = 6.0 − 3.0 = 3.0 V</div>
+          The reading would be 0 V only if the two dividers had the same ratio.
+        </div></details>
+      </div>
+    </section>
+
+    <!-- CHECK -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check yourself</h2>
+      <p class="lead">Rate each skill: Red = not yet, Amber = getting there, Green = confident. Your ratings are saved on this device.</p>
+      <div id="rag"></div>
+      <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+      <div class="btnrow"><button class="btn" type="button" id="rag-reset">Reset ratings</button></div>
+    </section>
+  </main>
+
+  <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY = "hp-cpr-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
+
+    /* link a range slider and a number input so either updates the other */
+    function bindPair(rangeId, numId, onChange){
+      var r=$(rangeId), n=$(numId);
+      function fromR(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); }
+      function fromN(){ var v=parseFloat(n.value); if(!isNaN(v)){ r.value=v; onChange(parseFloat(r.value)); } }
+      if(r) r.addEventListener("input", fromR);
+      if(n) n.addEventListener("input", fromN);
+      return { get:function(){ return parseFloat(r.value); } };
+    }
+
+    /* ---------- Series / parallel calculator ---------- */
+    (function(){
+      var rows=$("rt-rows"), mode="series";
+      function addRow(val){
+        var f=document.createElement("label"); f.className="field"; f.textContent="R (Ω)";
+        var i=document.createElement("input"); i.type="number"; i.className="num rt-r"; i.step="any"; i.inputMode="decimal"; i.value=(val==null?"":val);
+        f.appendChild(document.createElement("br")); f.appendChild(i); rows.appendChild(f);
+      }
+      addRow(6); addRow(3);
+      $("rt-add").addEventListener("click", function(){ if(rows.querySelectorAll(".rt-r").length<6) addRow(""); });
+      function setMode(m){ mode=m; $("rt-series").setAttribute("aria-pressed", m==="series"); $("rt-parallel").setAttribute("aria-pressed", m==="parallel"); }
+      $("rt-series").addEventListener("click", function(){ setMode("series"); });
+      $("rt-parallel").addEventListener("click", function(){ setMode("parallel"); });
+      $("rt-calc").addEventListener("click", function(){
+        var vals=[].map.call(rows.querySelectorAll(".rt-r"), function(i){ return parseFloat(i.value); }).filter(function(v){ return !isNaN(v) && v>0; });
+        if(vals.length<2){ setT("rt-out","Enter at least two resistor values."); $("rt-work").hidden=true; return; }
+        var work, rt;
+        if(mode==="series"){ rt=vals.reduce(function(a,b){return a+b;},0); work="R_T = "+vals.join(" + ")+"\nR_T = "+round(rt,2)+" Ω"; }
+        else { var inv=vals.reduce(function(a,b){return a+1/b;},0); rt=1/inv; work="1/R_T = "+vals.map(function(v){return "1/"+v;}).join(" + ")+"\n1/R_T = "+round(inv,4)+"\nR_T = "+round(rt,2)+" Ω"; }
+        setT("rt-out","Total resistance R_T = "+round(rt,2)+" Ω");
+        var w=$("rt-work"); w.textContent=work; w.hidden=false;
+      });
+    })();
+
+    /* ---------- Which power equation ---------- */
+    (function(){
+      $("p-calc").addEventListener("click", function(){
+        var I=parseFloat($("p-i").value), V=parseFloat($("p-v").value), R=parseFloat($("p-r").value);
+        var hasI=!isNaN(I), hasV=!isNaN(V), hasR=!isNaN(R), P, work;
+        if(hasI&&hasV){ P=I*V; work="P = I V\nP = "+I+" × "+V+"\nP = "+round(P,2)+" W"; }
+        else if(hasI&&hasR){ P=I*I*R; work="P = I² R\nP = "+I+"² × "+R+"\nP = "+round(P,2)+" W"; }
+        else if(hasV&&hasR){ P=V*V/R; work="P = V² / R\nP = "+V+"² / "+R+"\nP = "+round(P,2)+" W"; }
+        else { setT("p-out","Fill in any two of I, V and R."); $("p-work").hidden=true; return; }
+        setT("p-out","Power P = "+round(P,2)+" W");
+        var w=$("p-work"); w.textContent=work; w.hidden=false;
+      });
+    })();
+
+    /* ---------- Potential divider simulator ---------- */
+    (function(){
+      var mode="fixed";
+      var vs=12, r1=3, r2=7;
+      function sensorR(pct){
+        // resistance falls as light/temperature rises: 10kΩ down to 0.5kΩ
+        return round(0.5 + (10-0.5)*(1 - pct/100), 2);
+      }
+      function update(){
+        if(mode!=="fixed") r2=sensorR(parseFloat($("d-sensor").value));
+        var vout = vs * r2/(r1+r2);
+        setT("d-vs-lab","+"+vs+" V");
+        setT("d-r1-lab","R₁ "+r1+" kΩ");
+        setT("d-r2-lab",(mode==="fixed"?"R₂ ":(mode==="ldr"?"LDR ":"Thermistor "))+round(r2,2)+" kΩ");
+        setT("d-out","Output across the lower resistor = "+round(vout,2)+" V");
+        $("d-work").textContent="V₁ = (R₂ / (R₁ + R₂)) × V_s\nV₁ = ("+round(r2,2)+" / ("+r1+" + "+round(r2,2)+")) × "+vs+"\nV₁ = "+round(vout,2)+" V";
+      }
+      bindPair("d-vs","d-vs-n",function(v){ vs=v; update(); });
+      bindPair("d-r1","d-r1-n",function(v){ r1=v; update(); });
+      bindPair("d-r2","d-r2-n",function(v){ r2=v; update(); });
+      $("d-sensor").addEventListener("input", function(){ setT("d-sensor-val", $("d-sensor").value+"%"); update(); });
+      function setMode(m){
+        mode=m;
+        $("d-fixed").setAttribute("aria-pressed", m==="fixed");
+        $("d-ldr").setAttribute("aria-pressed", m==="ldr");
+        $("d-therm").setAttribute("aria-pressed", m==="therm");
+        $("d-r2-field").hidden = (m!=="fixed");
+        $("d-sensor-field").hidden = (m==="fixed");
+        setT("d-sensor-label", m==="ldr"?"Light level":"Temperature");
+        update();
+      }
+      $("d-fixed").addEventListener("click", function(){ setMode("fixed"); });
+      $("d-ldr").addEventListener("click", function(){ setMode("ldr"); });
+      $("d-therm").addEventListener("click", function(){ setMode("therm"); });
+      update();
+    })();
+
+    /* ---------- Two-divider "across the bridge" simulator ---------- */
+    (function(){
+      var vs=9, r1=2, r2=4, r3=6, r4=3;
+      function update(){
+        var vp = vs*r2/(r1+r2), vq = vs*r4/(r3+r4), vpq = vp-vq;
+        setT("b-vs-lab","+"+vs+" V");
+        setT("b-r1-lab","R₁ "+r1+"k"); setT("b-r2-lab","R₂ "+r2+"k");
+        setT("b-r3-lab","R₃ "+r3+"k"); setT("b-r4-lab","R₄ "+r4+"k");
+        var sign = vpq>0.0005?"P is higher": (vpq<-0.0005?"Q is higher":"equal — reads 0 V");
+        setT("b-out","V across the bridge = "+round(vpq,2)+" V  ("+sign+")");
+        $("b-work").textContent =
+          "V_P = (R₂ / (R₁+R₂)) × V_s = ("+r2+"/("+r1+"+"+r2+")) × "+vs+" = "+round(vp,2)+" V\n"+
+          "V_Q = (R₄ / (R₃+R₄)) × V_s = ("+r4+"/("+r3+"+"+r4+")) × "+vs+" = "+round(vq,2)+" V\n"+
+          "V = V_P − V_Q = "+round(vp,2)+" − "+round(vq,2)+" = "+round(vpq,2)+" V";
+        var bar=$("b-bar"); var frac=Math.max(-1,Math.min(1, vpq/vs));
+        if(frac>=0){ bar.style.left="50%"; bar.style.width=(frac*50)+"%"; }
+        else { bar.style.left=(50+frac*50)+"%"; bar.style.width=(-frac*50)+"%"; }
+      }
+      bindPair("b-vs","b-vs-n",function(v){ vs=v; update(); });
+      bindPair("b-r1","b-r1-n",function(v){ r1=v; update(); });
+      bindPair("b-r2","b-r2-n",function(v){ r2=v; update(); });
+      bindPair("b-r3","b-r3-n",function(v){ r3=v; update(); });
+      bindPair("b-r4","b-r4-n",function(v){ r4=v; update(); });
+      update();
+    })();
+
+    /* ---------- UK symbols + matching game ---------- */
+    var SYMS = {
+      resistor:   { name:"Resistor",          svg:'<rect class="sf" x="14" y="14" width="60" height="20" rx="2"/><path class="s" d="M2 24 H14 M74 24 H86"/>' },
+      variable:   { name:"Variable resistor", svg:'<rect class="sf" x="14" y="14" width="60" height="20" rx="2"/><path class="s" d="M2 24 H14 M74 24 H86 M22 40 L66 8"/><path class="s" d="M66 8 l-7 2 M66 8 l-1 7"/>' },
+      ldr:        { name:"LDR",               svg:'<circle class="s" cx="44" cy="24" r="20"/><rect class="sf" x="30" y="18" width="28" height="12" rx="2"/><path class="s" d="M2 24 H24 M64 24 H86 M70 6 l-8 7 M78 12 l-8 7"/>' },
+      thermistor: { name:"Thermistor",        svg:'<rect class="sf" x="18" y="14" width="52" height="20" rx="2"/><path class="s" d="M2 24 H18 M70 24 H86 M14 40 L30 40 L74 8"/>' },
+      cell:       { name:"Cell",              svg:'<path class="s" d="M2 24 H38 M50 24 H86"/><path class="s" d="M38 10 V38"/><path class="s" d="M50 16 V32" stroke-width="5"/>' },
+      lamp:       { name:"Lamp",              svg:'<circle class="s" cx="44" cy="24" r="16"/><path class="s" d="M2 24 H28 M60 24 H86 M33 13 L55 35 M55 13 L33 35"/>' },
+      voltmeter:  { name:"Voltmeter",         svg:'<circle class="s" cx="44" cy="24" r="16"/><text x="44" y="29" text-anchor="middle">V</text><path class="s" d="M2 24 H28 M60 24 H86"/>' },
+      ammeter:    { name:"Ammeter",           svg:'<circle class="s" cx="44" cy="24" r="16"/><text x="44" y="29" text-anchor="middle">A</text><path class="s" d="M2 24 H28 M60 24 H86"/>' },
+      switch:     { name:"Switch",            svg:'<path class="s" d="M2 24 H28 M60 24 H86 M28 24 L58 12"/><circle class="sf" cx="28" cy="24" r="3"/><circle class="sf" cx="60" cy="24" r="3"/>' }
+    };
+    (function(){
+      var grid=$("sym-grid"), order=["resistor","variable","ldr","thermistor","cell","lamp","voltmeter","ammeter","switch"];
+      order.forEach(function(k){
+        var c=document.createElement("div"); c.className="sym-card";
+        c.innerHTML='<svg viewBox="0 0 88 48" aria-hidden="true">'+SYMS[k].svg+'</svg><div class="cap">'+SYMS[k].name+'</div>';
+        grid.appendChild(c);
+      });
+    })();
+    (function(){
+      var keys=["resistor","variable","ldr","thermistor","voltmeter","lamp"];
+      var symBox=$("match-syms"), nameBox=$("match-names");
+      var selSym=null, done=0;
+      function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+      shuffle(keys).forEach(function(k){
+        var b=document.createElement("button"); b.type="button"; b.className="match-item"; b.setAttribute("aria-pressed","false"); b.dataset.key=k;
+        b.innerHTML='<svg viewBox="0 0 88 48" class="sym" aria-hidden="true">'+SYMS[k].svg+'</svg><span class="visually-hidden">'+SYMS[k].name+' symbol</span>';
+        b.addEventListener("click", function(){
+          if(selSym) selSym.setAttribute("aria-pressed","false");
+          selSym=b; b.setAttribute("aria-pressed","true");
+        });
+        symBox.appendChild(b);
+      });
+      shuffle(keys).forEach(function(k){
+        var b=document.createElement("button"); b.type="button"; b.className="match-item"; b.dataset.key=k; b.textContent=SYMS[k].name;
+        b.addEventListener("click", function(){
+          if(!selSym){ setT("match-status","Tap a symbol first, then its name."); return; }
+          if(selSym.dataset.key===k){
+            selSym.classList.add("done"); b.classList.add("done"); selSym.setAttribute("aria-pressed","false"); selSym=null; done++;
+            setT("match-status", done+" of "+keys.length+" matched"+(done===keys.length?" — all correct!":"."));
+          } else {
+            b.classList.add("bad"); setTimeout(function(){ b.classList.remove("bad"); }, 320);
+            setT("match-status","Not a match — try again.");
+          }
+        });
+        nameBox.appendChild(b);
+      });
+    })();
+
+    /* ---------- Multiple-choice quiz ---------- */
+    (function(){
+      var QS=[
+        { q:"A potential divider has +12 V across a 3.0 kΩ resistor (top) and a 7.0 kΩ resistor (bottom). The p.d. across the 7.0 kΩ resistor is", o:["3.6 V","4.0 V","5.1 V","8.4 V"], a:3 },
+        { q:"A 6.0 Ω and a 3.0 Ω resistor are connected in parallel. The total resistance is", o:["2.0 Ω","4.5 Ω","9.0 Ω","18 Ω"], a:0 },
+        { q:"A lamp carries 2.0 A when the p.d. across it is 12 V. The power is", o:["6 W","14 W","24 W","48 W"], a:2 },
+        { q:"A current of 0.50 A flows through an 8.0 Ω resistor. The power dissipated is", o:["2.0 W","4.0 W","16 W","32 W"], a:0 },
+        { q:"A charge of 60 C passes a point in 20 s. The current is", o:["0.33 A","3.0 A","1200 A","40 A"], a:1 },
+        { q:"Three 6.0 Ω resistors are connected in series. The total resistance is", o:["2.0 Ω","6.0 Ω","12 Ω","18 Ω"], a:3 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="stem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){
+          html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>';
+        });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      $("quiz-mark").addEventListener("click", function(){
+        var score=0;
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]').classList.add("correct");
+          if(chosen){ var oi=parseInt(chosen.value,10); if(oi===item.a) score++; else box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]').classList.add("wrong"); }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* ---------- Self-marking generator ---------- */
+    (function(){
+      var cur=null, right=0, total=0;
+      function ri(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+      function make(){
+        var t=ri(0,3);
+        if(t===0){ var I=ri(5,40)/10, s=ri(10,120); return { text:"A current of "+I+" A flows for "+s+" s. Calculate the charge.", ans:I*s, unit:"C", work:"Q = I t = "+I+" × "+s+" = "+round(I*s,2)+" C" }; }
+        if(t===1){ var i=ri(2,30)/10, r=ri(2,50); return { text:"A current of "+i+" A flows through a "+r+" Ω resistor. Calculate the p.d.", ans:i*r, unit:"V", work:"V = I R = "+i+" × "+r+" = "+round(i*r,2)+" V" }; }
+        if(t===2){ var ii=ri(2,40)/10, vv=ri(2,24); return { text:"A device draws "+ii+" A at "+vv+" V. Calculate the power.", ans:ii*vv, unit:"W", work:"P = I V = "+ii+" × "+vv+" = "+round(ii*vv,2)+" W" }; }
+        var vs=ri(3,12), R1=ri(1,9), R2=ri(1,9), vo=vs*R2/(R1+R2);
+        return { text:"A divider has R₁ = "+R1+" kΩ (top) and R₂ = "+R2+" kΩ (bottom) across "+vs+" V. Calculate the p.d. across R₂.", ans:vo, unit:"V", work:"V₁ = (R₂/(R₁+R₂))×V_s = ("+R2+"/("+R1+"+"+R2+"))×"+vs+" = "+round(vo,2)+" V" };
+      }
+      function newQ(){ cur=make(); setT("gen-q",cur.text); setT("gen-unit",cur.unit); $("gen-a").value=""; setT("gen-fb",""); $("gen-work").hidden=true; $("gen-a").focus(); }
+      $("gen-new").addEventListener("click", newQ);
+      $("gen-check").addEventListener("click", function(){
+        if(!cur){ newQ(); return; }
+        var v=parseFloat($("gen-a").value);
+        if(isNaN(v)){ setT("gen-fb","Type a number first."); return; }
+        total++;
+        var tol=Math.max(0.05, Math.abs(cur.ans)*0.01);
+        if(Math.abs(v-cur.ans)<=tol){ right++; setT("gen-fb","✓ Correct!"); }
+        else { setT("gen-fb","✗ Not quite — answer "+round(cur.ans,2)+" "+cur.unit); }
+        var w=$("gen-work"); w.textContent=cur.work; w.hidden=false;
+        setT("gen-score","Score: "+right+" / "+total);
+      });
+    })();
+
+    /* ---------- RAG self-check ---------- */
+    (function(){
+      var CRIT=[
+        "Use Q = It to find charge, current or time.",
+        "Use V = IR for a component or whole circuit.",
+        "Find total resistance in series.",
+        "Find total resistance in parallel.",
+        "Choose and use P = IV, I²R or V²/R.",
+        "Find the output of a potential divider.",
+        "Find the p.d. between two divider midpoints.",
+        "Read a V–I graph (ohmic vs non-ohmic).",
+        "Lay out a calculation the SQA way."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+  })();
+  </script>
+</body>
+</html>
