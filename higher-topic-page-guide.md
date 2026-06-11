@@ -113,7 +113,22 @@ up every `=` vertically.
 </div>
 ```
 
-- **Side-notes** (the `note-cell`) explain every extra step: unit conversions, squaring, "find the other
+- **Unit conversions go to the LEFT, not in the main working.** A conversion is a prep step, so pull it
+  out into an `.ex-conv` block (a "Convert first" panel) and wrap it with the `.calc` in an `.ex-flow`
+  grid — this keeps the **main working centred** and the conversions off to the left. Only do this when
+  the example actually has a unit conversion; otherwise the `.calc` sits centred on its own.
+
+```html
+<div class="ex-flow">
+  <div class="ex-conv">
+    <span class="conv-label">Convert first</span>
+    <div><var>I</var> = 50 ÷ 1000 = 0.050 A <span class="u">mA → A</span></div>
+  </div>
+  <div class="calc"> … main working rows … </div>
+</div>
+```
+
+- **Side-notes** (the `note-cell`) explain every other extra step: squaring, "find the other
   p.d. first", "flip back at the end", "numbers in first", "now rearrange". Keep them short (≤ ~17 chars wrap).
 - `rhs` is monospace and `nowrap`; the `.example` has `overflow-x:auto` for narrow screens.
 
