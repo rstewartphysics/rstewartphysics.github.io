@@ -18,11 +18,15 @@ title: Current, p.d., power & resistance — Higher Physics
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
 
-  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260611d">
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260612a">
 
   <title>Current, p.d., power &amp; resistance — Higher Physics</title>
 
   <style>
+    /* warm accent needs a brighter value on the dark palette */
+    :root { --warm: #c2410c; }
+    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; } }
+
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
     .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
     .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
@@ -44,7 +48,7 @@ title: Current, p.d., power & resistance — Higher Physics
 
     /* ---- worked examples (centred, aligned on the = sign) ---- */
     .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
-    .ex-type { display: inline-block; font-size: .68rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
     .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
     .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
     .calc-row { display: contents; }
@@ -59,9 +63,16 @@ title: Current, p.d., power & resistance — Higher Physics
     .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
     .ex-conv var { font-style: italic; }
     .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
-    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
     .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
     @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; } }
+    /* narrow phones: coaching notes wrap under their line instead of hiding off-screen */
+    @media (max-width: 600px) {
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
 
     /* ---- practice callout (stands out) ---- */
     .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
@@ -79,7 +90,7 @@ title: Current, p.d., power & resistance — Higher Physics
     .circuit .meter { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
     .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
     .circuit .vi-a { stroke: var(--accent); stroke-width: 3; fill: none; }
-    .circuit .vi-b { stroke: #c2410c; stroke-width: 3; fill: none; }
+    .circuit .vi-b { stroke: var(--warm); stroke-width: 3; fill: none; }
 
     /* symbol mini-chart */
     .sym-mini { display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: .5rem; margin-top: .5rem; }
@@ -102,6 +113,7 @@ title: Current, p.d., power & resistance — Higher Physics
     .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
     .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .btn:hover { border-color: var(--border-strong); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
     .btn.primary { background: linear-gradient(135deg, #3b6bff, #1636b8); color: #fff; border-color: transparent; }
     .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
@@ -117,31 +129,46 @@ title: Current, p.d., power & resistance — Higher Physics
     /* ---- practice ---- */
     .stem { margin: .9rem 0 0; font-weight: 900; color: var(--text); }
     details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
-    details.reveal > summary { cursor: pointer; list-style: none; padding: .55rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
     details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
     details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
     details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
 
     /* quiz */
     .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
     .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
-    .opt { display: block; padding: .45rem .55rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
     .opt input { margin-right: .5rem; }
     .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
-    .opt.wrong { border-color: #c2410c; background: rgba(194,65,12,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
     .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
 
     /* RAG */
     .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
     .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
     .rag-btns { display: inline-flex; gap: .35rem; }
-    .rag-btns button { min-width: 40px; min-height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
     .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
     .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
     .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
     .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
 
     .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .ex-divider { margin: 1.1rem 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
   </style>
 </head>
 
@@ -167,7 +194,7 @@ title: Current, p.d., power & resistance — Higher Physics
         <a class="subnav-link" href="#c3">Combining R</a>
         <a class="subnav-link" href="#c4">Power</a>
         <a class="subnav-link" href="#c5">Dividers</a>
-        <a class="subnav-link" href="#c6">Two dividers</a>
+        <a class="subnav-link" href="#c6">Go further</a>
         <a class="subnav-link" href="#check">Check</a>
       </div>
       <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
@@ -198,6 +225,8 @@ title: Current, p.d., power & resistance — Higher Physics
           <li>In a <strong>series</strong> loop the current is the same everywhere. At a junction the currents add (charge is conserved).</li>
         </ul>
       </div>
+
+      <div class="note">National 5 refresher — exam questions don't ask <var>Q</var> = <var>I</var> <var>t</var> on its own at Higher. It comes back in the <strong>Capacitors</strong> topic (charge stored for a constant charging current), so make sure it's automatic.</div>
 
       <figure class="figure">
         <svg class="circuit" viewBox="0 0 240 150" role="img" aria-label="A series circuit: a cell, a lamp and an ammeter in one loop, current flowing clockwise">
@@ -360,6 +389,21 @@ Q = It → 90 = I × 90 → I = 1.0 A</div></div></details>
 I = 12 ÷ 1000 = 0.012 A   (mA → A)
 V = IR = 0.012 × 1000 = 12 V</div></div></details>
       </div>
+
+      <div class="note"><strong>Sig figs &amp; notation:</strong> give your final answer with <strong>no more significant figures than the fewest in the data</strong>, and use scientific notation for very large or small values — marking instructions write answers like 1.2 × 10³ Ω.</div>
+
+      <div class="note"><strong>"Show that" questions:</strong> start from the relationship, substitute the numbers, then state the target value <strong>with its unit</strong> — e.g. <em>show that the current is 0.25 A</em>: <var>I</var> = <var>V</var> ÷ <var>R</var> = 6.0 ÷ 24 = 0.25 A. Never start from the answer and work backwards — that scores zero.</div>
+
+      <details class="reveal">
+        <summary>Go further — uncertainty in R = V ÷ I</summary>
+        <div class="reveal-body">
+          <p style="margin:0 0 .5rem;">When two measured values are combined, the one with the <strong>largest percentage uncertainty</strong> is a good estimate of the percentage uncertainty in the result.</p>
+          <div class="ms">V = (10.0 ± 0.1) V   → 0.1/10.0 = 1%
+I = (0.50 ± 0.01) A  → 0.01/0.50 = 2%   (largest)
+R = V ÷ I = 10.0 ÷ 0.50 = 20 Ω
+uncertainty ≈ 2% of 20 = ± 0.4 Ω → R = (20.0 ± 0.4) Ω</div>
+        </div>
+      </details>
     </section>
 
     <!-- ================= CONCEPT 3 ================= -->
@@ -455,12 +499,50 @@ V = IR = 0.012 × 1000 = 12 V</div></div></details>
         </div>
       </div>
 
+      <p class="ex-divider">Mixed networks — reduce in stages</p>
+      <div class="notes">
+        <ul>
+          <li>Exam circuits usually <strong>mix</strong> series and parallel. Reduce the <strong>parallel part first</strong>, then add the series resistors — one stage at a time.</li>
+          <li><strong>Shortcut:</strong> <var>n</var> identical resistors in parallel give <var>R</var><sub>T</sub> = <var>R</var> ÷ <var>n</var> — ten 220 Ω branches make 220 ÷ 10 = 22 Ω.</li>
+          <li>To find the p.d. or power in <strong>one part</strong> of a circuit: reduce the network → find the <strong>total current</strong> → work back out to the part you want.</li>
+        </ul>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">A 6.0 Ω resistor is connected in series with a parallel pair of 12 Ω and 4.0 Ω. Find the total resistance of the circuit.</div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs">1/<var>R</var><sub>p</sub></span><span class="eq">=</span><span class="rhs">1/12 + 1/4.0</span><span class="note-cell">parallel part first</span></div>
+          <div class="calc-row"><span class="lhs">1/<var>R</var><sub>p</sub></span><span class="eq">=</span><span class="rhs">0.333</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>p</sub></span><span class="eq">=</span><span class="rhs">1 ÷ 0.333 = 3.0 Ω</span><span class="note-cell">flip back</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs">6.0 + 3.0</span><span class="note-cell">now add the series R</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs">9.0 Ω</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Several steps — work back out</span>
+        <div class="ex-q">A 20 Ω resistor is in series with a parallel pair of 30 Ω and 60 Ω across a 12 V supply of negligible internal resistance. Find the p.d. across the 60 Ω resistor.</div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs">1/<var>R</var><sub>p</sub></span><span class="eq">=</span><span class="rhs">1/30 + 1/60 = 0.05</span><span class="note-cell">parallel part first</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>p</sub></span><span class="eq">=</span><span class="rhs">20 Ω</span><span class="note-cell">flip back</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs">20 + 20 = 40 Ω</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs"><var>V</var> ÷ <var>R</var><sub>T</sub> = 12 ÷ 40</span><span class="note-cell">total current next</span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">0.30 A</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs"><var>I</var> <var>R</var><sub>p</sub> = 0.30 × 20</span><span class="note-cell">work back out</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">6.0 V</span><span class="note-cell">same across both branches</span></div>
+        </div>
+      </div>
+
+      <div class="note"><strong>"Negligible internal resistance"</strong> in a question means: ignore the battery's own resistance. When it is <em>not</em> negligible, that's the next topic — <em>Electrical sources &amp; internal resistance</em>. And a.c. questions reuse these exact circuit methods with rms values.</div>
+
       <div class="widget">
         <h3>Series / parallel calculator</h3>
         <p class="hint">Enter the resistor values (Ω), choose the arrangement, see the working.</p>
         <div id="rt-rows" class="controls" style="gap:.6rem;"></div>
         <div class="btnrow">
           <button class="btn" type="button" id="rt-add">+ Add resistor</button>
+          <button class="btn" type="button" id="rt-remove">− Remove last</button>
           <span class="seg" role="group" aria-label="Arrangement">
             <button type="button" id="rt-series" aria-pressed="true">Series</button>
             <button type="button" id="rt-parallel" aria-pressed="false">Parallel</button>
@@ -477,6 +559,15 @@ V = IR = 0.012 × 1000 = 12 V</div></div></details>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">R₁ = R₂ = 4000 Ω   (kΩ → Ω)
 1/R_T = 1/4000 + 1/4000 = 2/4000 = 0.0005
 R_T = 1 ÷ 0.0005 = 2000 Ω  (2.0 kΩ)</div></div></details>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 4</span>
+        <p class="stem">A 1.0 kΩ resistor is in series with a parallel pair of 3.0 kΩ and 6.0 kΩ, across a 9.0 V supply of negligible internal resistance. Calculate (a) the total resistance of the circuit and (b) the current from the supply.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) parallel part first: 1/R_p = 1/3000 + 1/6000 = 0.0005   (kΩ → Ω)
+R_p = 1 ÷ 0.0005 = 2000 Ω
+R_T = 1000 + 2000 = 3000 Ω  (3.0 kΩ)
+(b) I = V ÷ R_T = 9.0 ÷ 3000 = 0.003 A  (3.0 mA)</div></div></details>
       </div>
     </section>
 
@@ -544,11 +635,63 @@ R_T = 1 ÷ 0.0005 = 2000 Ω  (2.0 kΩ)</div></div></details>
         </div>
       </div>
 
+      <p class="ex-divider">Rated power — when the square root comes out</p>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">A heating element of resistance 23 Ω is connected to the 230 V mains. Find the power dissipated.</div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>P</var></span><span class="eq">=</span><span class="rhs"><var>V</var><sup>2</sup> ÷ <var>R</var></span><span class="note-cell">given V and R — pick V²/R</span></div>
+          <div class="calc-row"><span class="lhs"><var>P</var></span><span class="eq">=</span><span class="rhs">230² ÷ 23</span><span class="note-cell">square the voltage first</span></div>
+          <div class="calc-row"><span class="lhs"><var>P</var></span><span class="eq">=</span><span class="rhs">2300 W  (2.3 kW)</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <div class="ex-q">A 2.2 kΩ resistor is rated at 0.25 W. Find the largest p.d. that can safely be applied across it.</div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>R</var> = 2.2 × 1000 = 2200 Ω <span class="u">kΩ → Ω</span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>P</var></span><span class="eq">=</span><span class="rhs"><var>V</var><sup>2</sup> ÷ <var>R</var></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs">0.25</span><span class="eq">=</span><span class="rhs"><var>V</var><sup>2</sup> ÷ 2200</span><span class="note-cell">numbers in first</span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var><sup>2</sup></span><span class="eq">=</span><span class="rhs">0.25 × 2200 = 550</span><span class="note-cell">now rearrange</span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">√550</span><span class="note-cell">square root last</span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">23 V</span><span class="note-cell"></span></div>
+          </div>
+        </div>
+      </div>
+
       <div class="practice">
-        <span class="practice-tag">Practice 4</span>
+        <span class="practice-tag">Practice 5</span>
         <p class="stem">A current of 0.30 A flows through a 2.0 kΩ resistor. Calculate the power dissipated.</p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">R = 2.0 × 1000 = 2000 Ω   (kΩ → Ω)
 P = I²R = 0.30² × 2000 = 0.09 × 2000 = 180 W</div></div></details>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 6</span>
+        <p class="stem">(a) A heater rated at 4.8 W has a resistance of 120 Ω. Calculate the current in it.<br>(b) A 2.2 MΩ resistor carries a current of 5.0 µA. Calculate the power dissipated.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) P = I²R → 4.8 = I² × 120 → I² = 0.04 → I = √0.04 = 0.20 A
+(b) R = 2.2 × 10⁶ Ω (MΩ → Ω);  I = 5.0 × 10⁻⁶ A (µA → A)
+P = I²R = (5.0 × 10⁻⁶)² × 2.2 × 10⁶ = 5.5 × 10⁻⁵ W</div></div></details>
+      </div>
+
+      <div class="note"><strong>Say it like the SQA:</strong> current <strong>in</strong> a component, p.d. (voltage) <strong>across</strong> it. Marking instructions give <strong>0 marks</strong> for "voltage through" or "current across".</div>
+
+      <div class="practice">
+        <span class="practice-tag">Justify it</span>
+        <p class="stem">1. A battery of negligible internal resistance drives a resistor in series with two identical resistors in parallel. A switch sits in series with one of the parallel resistors. The switch is now closed. State whether the current from the battery increases, stays the same, or decreases. You must justify your answer.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">Increases.  (1)
+Closing the switch adds a parallel branch, so the total resistance of the
+circuit decreases — I = V ÷ R_T, so the current increases.  (1)</div></div></details>
+        <p class="stem">2. Two identical resistors connected in series with a battery are reconnected in parallel across the same battery. State whether the total power dissipated is greater than, equal to, or less than before. You must justify your answer.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">Greater than.  (1)
+Total resistance falls from 2R to R/2, and P = V² ÷ R_T,
+so the power dissipated is greater (4 times as much).  (1)</div></div></details>
       </div>
     </section>
 
@@ -584,8 +727,11 @@ P = I²R = 0.30² × 2000 = 0.09 × 2000 = 180 W</div></div></details>
           <li>Two resistors in series split the supply voltage in the ratio of their resistances.</li>
           <li>The bigger resistor takes the bigger share of the voltage.</li>
           <li><strong>Sensor dividers:</strong> swap one resistor for an <strong>LDR</strong> (resistance falls as light rises) or a <strong>thermistor</strong> (resistance falls as temperature rises) so the output voltage changes with the surroundings.</li>
+          <li>Recent Higher exam divider questions are <strong>numeric</strong> — sensor dividers are context you know from National 5, useful for understanding rather than a calculation you'll be set.</li>
         </ul>
       </div>
+
+      <div class="note"><strong>Relationships sheet:</strong> the SQA sheet writes the divider output across <var>R</var><sub>1</sub> — <var>V</var><sub>1</sub> = (<var>R</var><sub>1</sub> ÷ (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>)) × <var>V</var><sub>s</sub> — and <var>V</var><sub>1</sub>/<var>V</var><sub>2</sub> = <var>R</var><sub>1</sub>/<var>R</var><sub>2</sub>. Same formula, different label: read the question carefully to see <em>which</em> resistor's p.d. is wanted.</div>
 
       <div class="widget">
         <h3>Potential divider simulator</h3>
@@ -652,17 +798,26 @@ P = I²R = 0.30² × 2000 = 0.09 × 2000 = 180 W</div></div></details>
       </div>
 
       <div class="practice">
-        <span class="practice-tag">Practice 5</span>
+        <span class="practice-tag">Practice 7</span>
         <p class="stem">A 2.2 kΩ (top) and 4.7 kΩ (bottom) divider is across 9.0 V. Find the p.d. across the 4.7 kΩ.</p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">Both in kΩ, so they cancel — no need to convert.
 V₂ = (R₂ / (R₁ + R₂)) × V_s = (4.7 / (2.2 + 4.7)) × 9.0 = (4.7 / 6.9) × 9.0 = 6.1 V</div></div></details>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Justify it</span>
+        <p class="stem">In a potential divider, the resistance of the bottom resistor R₂ is increased. State whether the output voltage V₂ increases, stays the same, or decreases. You must justify your answer.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">Increases.  (1)
+R₂ is now a bigger share of the total resistance,
+so it takes a bigger share of the supply voltage.  (1)</div></div></details>
       </div>
     </section>
 
     <!-- ================= CONCEPT 6 ================= -->
     <section class="panel" id="c6" aria-labelledby="c6-title">
-      <span class="concept-tag">Concept 6</span>
+      <span class="concept-tag">Go further — extension</span>
       <h2 id="c6-title">Two dividers across one supply</h2>
+      <p class="lead">This circuit hasn't appeared directly in recent Higher papers — treat it as extension that sharpens your divider skills (and previews monitoring circuits).</p>
 
       <div class="eq-cards">
         <div class="eq-card">
@@ -754,7 +909,7 @@ V₂ = (R₂ / (R₁ + R₂)) × V_s = (4.7 / (2.2 + 4.7)) × 9.0 = (4.7 / 6.9) 
       </details>
 
       <div class="practice">
-        <span class="practice-tag">Practice 6</span>
+        <span class="practice-tag">Practice 8</span>
         <p class="stem">Two dividers across 10 V: left 5.0 kΩ/5.0 kΩ, right 2.0 kΩ/8.0 kΩ. Find the p.d. between the midpoints.</p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">V_P = (5/10)×10 = 5.0 V
 V_Q = (8/10)×10 = 8.0 V
@@ -803,14 +958,26 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
 
     /* Series / parallel calculator */
     (function(){
-      var rows=$("rt-rows"), mode="series";
+      var rows=$("rt-rows"), mode="series", SUB=["₁","₂","₃","₄","₅","₆"];
+      function renumber(){
+        var labs=rows.querySelectorAll(".rt-lab");
+        [].forEach.call(labs, function(el,idx){ el.textContent="R"+SUB[idx]+" (Ω)"; });
+        $("rt-add").disabled = (labs.length>=6);
+        $("rt-remove").disabled = (labs.length<=2);
+      }
       function addRow(val){
-        var f=document.createElement("label"); f.className="field"; f.textContent="R (Ω)";
+        var f=document.createElement("label"); f.className="field";
+        var s=document.createElement("span"); s.className="rt-lab";
         var i=document.createElement("input"); i.type="number"; i.className="num rt-r"; i.step="any"; i.inputMode="decimal"; i.value=(val==null?"":val);
-        f.appendChild(document.createElement("br")); f.appendChild(i); rows.appendChild(f);
+        f.appendChild(s); f.appendChild(document.createElement("br")); f.appendChild(i); rows.appendChild(f);
+        renumber();
       }
       addRow(6); addRow(3);
       $("rt-add").addEventListener("click", function(){ if(rows.querySelectorAll(".rt-r").length<6) addRow(""); });
+      $("rt-remove").addEventListener("click", function(){
+        var all=rows.querySelectorAll("label.field");
+        if(all.length>2){ rows.removeChild(all[all.length-1]); renumber(); }
+      });
       function setMode(m){ mode=m; $("rt-series").setAttribute("aria-pressed", m==="series"); $("rt-parallel").setAttribute("aria-pressed", m==="parallel"); }
       $("rt-series").addEventListener("click", function(){ setMode("series"); });
       $("rt-parallel").addEventListener("click", function(){ setMode("parallel"); });
@@ -892,7 +1059,11 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
         { q:"A 3.0 kΩ and a 6.0 kΩ resistor in parallel have a total resistance of", o:["2.0 kΩ","4.5 kΩ","9.0 kΩ","18 kΩ"], a:0 },
         { q:"A current of 0.20 A flows through a 100 Ω resistor. The power dissipated is", o:["4.0 W","20 W","2.0 W","400 W"], a:0 },
         { q:"A divider has 3.0 kΩ (top) and 7.0 kΩ (bottom) across 12 V. The p.d. across the 7.0 kΩ is", o:["3.6 V","4.0 V","5.1 V","8.4 V"], a:3 },
-        { q:"A 2.0 kW kettle runs for 3.0 minutes. The energy transferred is", o:["360 kJ","6.0 kJ","100 kJ","360 J"], a:0 }
+        { q:"A 2.0 kW kettle runs for 3.0 minutes. The energy transferred is", o:["360 kJ","6.0 kJ","100 kJ","360 J"], a:0 },
+        { q:"A 6.0 Ω resistor is connected in series with a parallel pair of 12 Ω and 4.0 Ω. The total resistance of the circuit is", o:["3.0 Ω","9.0 Ω","22 Ω","7.3 Ω"], a:1 },
+        { q:"A 20 Ω resistor is in series with a parallel pair of 30 Ω and 60 Ω, across a 12 V supply of negligible internal resistance. The p.d. across the 60 Ω resistor is", o:["3.0 V","4.0 V","6.0 V","8.0 V"], a:2 },
+        { q:"A 2.2 kΩ resistor is rated at 0.25 W. The largest p.d. that can safely be applied across it is about", o:["0.011 V","8.8 V","23 V","550 V"], a:2 },
+        { q:"A 12 V battery of negligible internal resistance is connected to two 10 Ω resistors in parallel. I — the p.d. across each resistor is 12 V. II — the current in each resistor is 1.2 A. III — the total resistance of the circuit is 20 Ω. Which statements are correct?", o:["I only","I and II only","II and III only","I, II and III"], a:1 }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -901,13 +1072,22 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
         d.innerHTML=html; box.appendChild(d);
       });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
       $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
         var score=0;
+        clearNotes();
         QS.forEach(function(item,qi){
           var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
           box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]').classList.add("correct");
-          if(chosen){ var oi=parseInt(chosen.value,10); if(oi===item.a) score++; else box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]').classList.add("wrong"); }
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){
+            var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
         setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
@@ -915,6 +1095,7 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
       $("quiz-reset").addEventListener("click", function(){
         box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
         box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes();
         setT("quiz-score","");
       });
       var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
@@ -928,9 +1109,13 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
         "Find total resistance in series and parallel.",
         "Choose and use P = IV, I²R or V²/R.",
         "Find the output of a potential divider.",
-        "Find the p.d. between two divider midpoints.",
+        "(Go further) Find the p.d. between two divider midpoints.",
         "Read a V–I graph (ohmic vs non-ohmic).",
-        "Lay out a calculation the SQA way."
+        "Lay out a calculation the SQA way.",
+        "Reduce a mixed series–parallel network in stages.",
+        "Find the p.d. or power in one part of a circuit.",
+        "Justify a greater / less / the same answer.",
+        "Answer a “show that” question properly."
       ];
       var box=$("rag"), state=load("rag",{});
       function summary(){
@@ -960,6 +1145,35 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
         summary();
       });
       summary();
+    })();
+
+    /* Subnav scrollspy — underline the section in view */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id];
+          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Printing: open every answer reveal, then restore */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){
+        opened=[];
+        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
+      });
+      window.addEventListener("afterprint", function(){
+        opened.forEach(function(d){ d.removeAttribute("open"); });
+        opened=[];
+      });
     })();
   })();
   </script>
