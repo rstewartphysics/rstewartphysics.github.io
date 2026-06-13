@@ -318,9 +318,68 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--eng-text); outline-offset: 2px; }
     .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--eng-text); }
 
+    /* ---------- mode chooser ---------- */
+    .modebar { margin: 1rem 0 .4rem; }
+    .mode-grid { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(160px,100%), 1fr)); }
+    .mode-card {
+      display: flex; flex-direction: column; gap: .2rem; min-height: 64px;
+      padding: .85rem .95rem; border: 1px solid var(--eng-border); border-radius: 14px;
+      background: var(--eng-surface); color: var(--eng-text); text-decoration: none;
+      box-shadow: var(--eng-shadow);
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .mode-card:hover, .mode-card:focus-visible { transform: translateY(-2px); border-color: var(--eng-orange); }
+    .mode-card:focus-visible { outline: 3px solid var(--eng-orange); outline-offset: 2px; }
+    .mode-card .mc-top { font-weight: 900; font-size: 1rem; }
+    .mode-card .mc-sub { font-weight: 700; font-size: .84rem; color: var(--eng-muted); }
+    .legend { margin: .55rem 0 0; font-size: .84rem; font-weight: 700; color: var(--eng-muted); }
+    .legend .badge { vertical-align: baseline; }
+
+    /* ---------- exam / assignment badges ---------- */
+    .badge {
+      display: inline-block; font-size: .66rem; font-weight: 900; letter-spacing: .04em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-left: .4rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .badge.exam   { color: #111; background: var(--eng-orange); }
+    .badge.assign { color: var(--eng-text); background: transparent; border: 1.5px solid var(--eng-orange); }
+
+    /* ---------- collapsible sections ---------- */
+    .toolbar { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .2rem 0 .8rem; }
+    .toolbar .tb-label { font-size: .8rem; font-weight: 800; color: var(--eng-muted); margin-right: .15rem; }
+    .tb-btn {
+      min-height: 38px; padding: .3rem .7rem; border-radius: 9px; border: 1px solid var(--eng-border);
+      background: var(--eng-surface); color: var(--eng-text); font-family: inherit; font-weight: 900;
+      font-size: .85rem; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .tb-btn:hover { border-color: var(--eng-orange); }
+    .tb-btn:focus-visible { outline: 3px solid var(--eng-orange); outline-offset: 2px; }
+    .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .6rem; cursor: pointer; }
+    .sec-head .concept-tag { flex-basis: 100%; margin-bottom: .1rem; }
+    .sec-head h2, .sec-head h3 { margin: 0; flex: 1; min-width: 0; }
+    .sec-toggle {
+      margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
+      min-width: 44px; min-height: 44px; border: 1px solid var(--eng-border); border-radius: 10px;
+      background: var(--eng-surface-2); color: var(--eng-text); cursor: pointer; font-size: 1rem;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .sec-toggle:focus-visible { outline: 3px solid var(--eng-orange); outline-offset: 2px; }
+    .sec-chev { display: inline-block; transition: transform .18s ease; font-weight: 900; }
+    .sec.collapsed .sec-chev { transform: rotate(-90deg); }
+    .sec.collapsed .sec-body { display: none; }
+
+    /* ---------- system-boundary diagram extras ---------- */
+    .bd .sysbound { fill: none; stroke: var(--eng-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+    .bd .boundlabel { fill: var(--eng-muted); font-size: 10px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+    .bd .ext { fill: var(--eng-muted); font-size: 10.5px; font-weight: 800; }
+    .bd .drv .blk { stroke-dasharray: 3 2; }
+
     @media print {
-      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
+      .modebar, .toolbar, .sec-toggle { display: none !important; }
       .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      .sec.collapsed .sec-body { display: block !important; }
       details.reveal > summary::after { content: ""; }
       body { background: #fff; }
     }
@@ -370,10 +429,26 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
       </div>
     </section>
 
+    <!-- ================= MODE CHOOSER ================= -->
+    <section class="modebar" aria-label="Choose how to use this page">
+      <div class="mode-grid">
+        <a class="mode-card" href="#s1"><span class="mc-top">📖 Revise the topic</span><span class="mc-sub">Notes, diagrams &amp; practice</span></a>
+        <a class="mode-card" href="#answers"><span class="mc-top">✅ Check my booklet</span><span class="mc-sub">Answers keyed to your booklet</span></a>
+        <a class="mode-card" href="#check"><span class="mc-top">🎯 Test myself</span><span class="mc-sub">Quiz &amp; confidence check</span></a>
+      </div>
+      <p class="legend"><span class="badge exam">🎯 Exam</span> = tested in the written paper most years. <span class="badge assign">📘 Assignment</span> = a skill you produce in the SQA assignment.</p>
+    </section>
+
+    <div class="toolbar">
+      <span class="tb-label">Sections:</span>
+      <button class="tb-btn" type="button" id="expand-all">Expand all</button>
+      <button class="tb-btn" type="button" id="collapse-all">Collapse all</button>
+    </div>
+
     <!-- ================= SECTION 1 ================= -->
-    <section class="panel" id="s1" aria-labelledby="s1-title">
+    <section class="panel sec" id="s1" aria-labelledby="s1-title">
       <span class="concept-tag">Section 1</span>
-      <h2 id="s1-title">Engineering and engineers</h2>
+      <h2 id="s1-title">Engineering and engineers <span class="badge exam" title="Engineering roles — 3–7 marks in every question paper (2024 Q5/Q13; 2025 Q3/Q10/Q13)">🎯 Exam</span></h2>
       <p class="lead">Engineering is the use of <strong>science, mathematics, technology and creativity</strong> to solve real-world problems.</p>
 
       <h3>What engineers actually do</h3>
@@ -462,9 +537,9 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     </section>
 
     <!-- ================= SECTION 2 ================= -->
-    <section class="panel" id="s2" aria-labelledby="s2-title">
+    <section class="panel sec" id="s2" aria-labelledby="s2-title">
       <span class="concept-tag">Section 2</span>
-      <h2 id="s2-title">Engineering contexts and impacts</h2>
+      <h2 id="s2-title">Engineering contexts and impacts <span class="badge exam" title="Engineering impacts — 5–9 marks in every question paper (2024 Q9/Q12; 2025 Q7/Q12)">🎯 Exam</span></h2>
       <p class="lead">An engineering <strong>context</strong> is the situation an engineering problem belongs to. Start by identifying the <strong>problem or need</strong>, then think about a possible solution — and the impacts it would have.</p>
 
       <div class="tblwrap">
@@ -491,8 +566,9 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
       </div>
 
       <div class="howto">
-        <h3>How to answer: the what + why structure</h3>
+        <h3>How to answer "explain" questions — what + why (cause + effect)</h3>
         <p><strong>What</strong> — say what the impact is. <strong>Why</strong> — say why it matters or how it happens. Use full sentences and engineering vocabulary, and match the type of impact the question asks for.</p>
+        <p><strong>Watch the command word.</strong> An <strong>explain</strong> question always needs the cause <em>and</em> effect (what + why). A <strong>describe</strong> question only needs the features — you don't always need a "why".</p>
         <p><strong>Question:</strong> Explain one positive environmental impact of using electric buses.</p>
         <p><strong>Model answer:</strong> Electric buses produce no exhaust emissions while driving <em>(what)</em>, so local air pollution is reduced and less fossil fuel is burned <em>(why)</em>.</p>
       </div>
@@ -538,9 +614,9 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     </section>
 
     <!-- ================= SECTION 3 ================= -->
-    <section class="panel" id="s3" aria-labelledby="s3-title">
+    <section class="panel sec" id="s3" aria-labelledby="s3-title">
       <span class="concept-tag">Section 3</span>
-      <h2 id="s3-title">Sustainability and emerging technologies</h2>
+      <h2 id="s3-title">Sustainability and emerging technologies <span class="badge exam" title="Emerging tech &amp; sustainability — tested every year (2024 Q10/Q12; 2025 Q7/Q12)">🎯 Exam</span></h2>
       <p class="lead">A <strong>sustainable</strong> solution meets needs today without harming the future. An <strong>emerging technology</strong> is a new or developing technology that could change how engineering problems are solved.</p>
 
       <h3>Engineering and climate change</h3>
@@ -564,6 +640,9 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
 
       <h3>Emerging technologies</h3>
       <p class="lead">Examples: smart sensors, drones, 3D printing, AI monitoring systems, self-healing materials. In an answer, always give an <strong>advantage and a disadvantage</strong> — new technology can improve a solution but may be expensive, unproven or have its own impacts.</p>
+      <div class="note">
+        <strong>Exam marker rule.</strong> You only get the marks if you (a) name a genuinely <strong>new or emerging</strong> technology — things like AI and self-driving cars are treated as already established and capped at 1 mark — and (b) give a <strong>cause and effect</strong>, not just name it. (Real exemplar answers SQA accepted: ammonia-fuelled engines, nuclear-diamond batteries.)
+      </div>
 
       <details class="reveal">
         <summary>Research task help — booklet p.12 <span class="page-ref">no answer sheet</span></summary>
@@ -602,9 +681,9 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     </section>
 
     <!-- ================= SECTION 4 ================= -->
-    <section class="panel" id="s4" aria-labelledby="s4-title">
+    <section class="panel sec" id="s4" aria-labelledby="s4-title">
       <span class="concept-tag">Section 4</span>
-      <h2 id="s4-title">The systems approach</h2>
+      <h2 id="s4-title">The systems approach <span class="badge exam" title="Systems — 5–9 marks in every question paper (e.g. 2025 Q6)">🎯 Exam</span> <span class="badge assign" title="Assignment Task 1 (2025) / Task 3 (2024): system &amp; sub-system diagram = 8 marks">📘 Assignment</span></h2>
       <p class="lead">A <strong>system</strong> is a group of parts working together to carry out a task. Engineers break a product into smaller parts — it makes the product easier to understand, design, test and improve.</p>
 
       <div class="tblwrap">
@@ -639,7 +718,7 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
       </figure>
 
       <div class="note">
-        Input devices: <strong>switches and sensors</strong> (LDR, temperature sensor, motion sensor). Output devices: <strong>lamps, motors, buzzers, heaters</strong>. Don't mix up the <strong>real-world input</strong> (e.g. a person approaching) with the <strong>input device</strong> that detects it (the motion sensor).
+        <strong>Input devices</strong> (also called <strong>transducers</strong>): switches and sensors (LDR, temperature sensor, motion sensor) — they turn an <strong>external input</strong> (the real-world signal) into an electrical signal. <strong>Output devices</strong>: lamps, motors, buzzers, heaters — they turn the electrical signal back into an <strong>external output</strong> (light, movement, sound, heat). Don't mix up the <strong>external input</strong> (e.g. a person approaching) with the <strong>input device</strong> that detects it (the motion sensor).
       </div>
 
       <h3>Sub-systems</h3>
@@ -672,6 +751,67 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
           <text class="cap" x="426" y="80" text-anchor="middle">door safely</text>
         </svg>
         <figcaption>Automatic door: the sensor signals the control, the control switches the motor, the motor moves the door mechanism.</figcaption>
+      </figure>
+
+      <h3>The diagram the assignment asks for <span class="badge assign" title="Assignment Task 1 (2025) / Task 3 (2024): system &amp; sub-system diagram with boundary = 8 marks">📘 Assignment</span></h3>
+      <p class="lead">In the SQA assignment you draw two diagrams. First a <strong>system diagram</strong> showing only the <strong>external input</strong> and <strong>external output</strong>. Then a <strong>sub-system diagram</strong> that adds the <strong>system boundary</strong>, a <strong>driver</strong> for every output device, and a <strong>feedback</strong> loop.</p>
+
+      <figure class="figure">
+        <svg class="bd w480" viewBox="0 0 480 76" role="img" aria-label="System diagram: external input 'person approaches' goes into one block labelled automatic door system, which gives an external output 'door opens or closes'">
+          <title>System diagram with external input and output</title>
+          <text class="ext" x="46" y="34" text-anchor="middle">person</text>
+          <text class="ext" x="46" y="48" text-anchor="middle">approaches</text>
+          <line class="arr" x1="92" y1="40" x2="116" y2="40"/>
+          <polygon class="arrh" points="124,40 114,35.5 114,44.5"/>
+          <rect class="blk" x="126" y="22" width="232" height="38" rx="4"/>
+          <text x="242" y="45" text-anchor="middle">AUTOMATIC DOOR SYSTEM</text>
+          <line class="arr" x1="358" y1="40" x2="382" y2="40"/>
+          <polygon class="arrh" points="390,40 380,35.5 380,44.5"/>
+          <text class="ext" x="434" y="34" text-anchor="middle">door opens</text>
+          <text class="ext" x="434" y="48" text-anchor="middle">or closes</text>
+        </svg>
+        <figcaption>System diagram — show only the <strong>external input</strong> and <strong>external output</strong>, not the components.</figcaption>
+      </figure>
+
+      <figure class="figure">
+        <svg class="bd w560" viewBox="0 0 560 176" role="img" aria-label="Sub-system diagram for an automatic door. A dashed system boundary surrounds four sub-systems: motion sensor, microcontroller, driver and motor. The external input 'person approaches' enters from the left outside the boundary; the external output 'door opens or closes' leaves to the right outside the boundary. A feedback loop runs from after the motor, through a position switch, back into the microcontroller, with an arrowhead at each end.">
+          <title>Sub-system diagram with system boundary, driver and feedback</title>
+          <rect class="sysbound" x="72" y="14" width="388" height="150" rx="8"/>
+          <text class="boundlabel" x="80" y="28">System boundary</text>
+          <rect class="blk" x="84" y="40" width="86" height="40" rx="4"/>
+          <rect class="blk" x="188" y="40" width="104" height="40" rx="4"/>
+          <g class="drv"><rect class="blk" x="310" y="40" width="56" height="40" rx="4"/></g>
+          <rect class="blk" x="384" y="40" width="64" height="40" rx="4"/>
+          <text x="127" y="56" text-anchor="middle">MOTION</text>
+          <text x="127" y="70" text-anchor="middle">SENSOR</text>
+          <text x="240" y="56" text-anchor="middle">MICRO-</text>
+          <text x="240" y="70" text-anchor="middle">CONTROLLER</text>
+          <text x="338" y="64" text-anchor="middle">DRIVER</text>
+          <text x="416" y="64" text-anchor="middle">MOTOR</text>
+          <line class="arr" x1="170" y1="60" x2="180" y2="60"/>
+          <polygon class="arrh" points="188,60 178,55.5 178,64.5"/>
+          <line class="arr" x1="292" y1="60" x2="302" y2="60"/>
+          <polygon class="arrh" points="310,60 300,55.5 300,64.5"/>
+          <line class="arr" x1="366" y1="60" x2="376" y2="60"/>
+          <polygon class="arrh" points="384,60 374,55.5 374,64.5"/>
+          <text class="ext" x="32" y="56" text-anchor="middle">person</text>
+          <text class="ext" x="32" y="70" text-anchor="middle">approaches</text>
+          <line class="arr" x1="50" y1="60" x2="76" y2="60"/>
+          <polygon class="arrh" points="84,60 74,55.5 74,64.5"/>
+          <line class="arr" x1="448" y1="60" x2="482" y2="60"/>
+          <polygon class="arrh" points="490,60 480,55.5 480,64.5"/>
+          <text class="ext" x="522" y="56" text-anchor="middle">door opens</text>
+          <text class="ext" x="522" y="70" text-anchor="middle">or closes</text>
+          <rect class="blk" x="250" y="96" width="92" height="34" rx="4"/>
+          <text x="296" y="110" text-anchor="middle">POSITION</text>
+          <text x="296" y="124" text-anchor="middle">SWITCH</text>
+          <path class="fb" d="M416 80 V113 H342"/>
+          <polygon class="fbh" points="342,113 350,108.5 350,117.5"/>
+          <path class="fb" d="M250 113 H228 V80"/>
+          <polygon class="fbh" points="228,80 223.5,88 232.5,88"/>
+          <text class="fbt" x="384" y="93" text-anchor="middle">feedback</text>
+        </svg>
+        <figcaption>Sub-system diagram — the dashed <strong>system boundary</strong> goes round the sub-systems only; the external input and output stay outside it. Every output device needs its own <strong>driver</strong>, and the <strong>feedback</strong> loop has an arrowhead at each end.</figcaption>
       </figure>
 
       <div class="widget" data-builder id="build-fan">
@@ -713,19 +853,19 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><span class="model-tag">Any two, with their function:</span>The <strong>water heating sub-system</strong> heats the water to the set temperature; the <strong>drum motor sub-system</strong> turns the drum to wash the clothes. (Water level control and the pump are also good answers.)</div></details>
         <p class="stem">7. Explain how sub-systems interact in an automatic door system. <span class="marks">3 marks</span></p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body">The sensor detects a person and sends a signal to the control sub-system; the control sub-system processes the signal and switches on the motor; the motor moves the door mechanism so the door opens. The <strong>output of each sub-system becomes the input of the next</strong>.</div></details>
-        <p class="stem">8. Draw a labelled sub-system diagram for an automatic door system. <span class="marks">3 marks</span></p>
+        <p class="stem">8. Draw a labelled sub-system diagram for an automatic door system. <span class="marks">3 marks</span> <span class="badge assign" title="This is the assignment's marked diagram — add the system boundary, drivers and feedback for the full 6-mark version">📘 Assignment</span></p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body">SENSOR → CONTROL → MOTOR → DOOR, with arrows showing the direction of flow — exactly as in the diagram above. Each block must be labelled and every arrow must have a direction.</div></details>
         <p class="stem">9. Describe the difference between a real-world input and an input device. <span class="marks">2 marks</span></p>
-        <details class="reveal"><summary>Answer</summary><div class="reveal-body">The <strong>real-world input</strong> is the actual condition or signal (e.g. a person approaching, a temperature rise). The <strong>input device</strong> (switch or sensor) detects it and turns it into a signal the system can use.</div></details>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body">The <strong>external (real-world) input</strong> is the actual condition or signal (e.g. a person approaching, a temperature rise). The <strong>input device</strong> or <strong>transducer</strong> (switch or sensor) detects it and turns it into a signal the system can use.</div></details>
         <p class="stem">10. Describe the difference between an output device and a real-world output. <span class="marks">2 marks</span></p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body">The <strong>output device</strong> (lamp, motor, buzzer) is the part that produces the action; the <strong>real-world output</strong> is the effect it has (light, movement, sound).</div></details>
       </div>
     </section>
 
     <!-- ================= SECTION 5 ================= -->
-    <section class="panel" id="s5" aria-labelledby="s5-title">
+    <section class="panel sec" id="s5" aria-labelledby="s5-title">
       <span class="concept-tag">Section 5</span>
-      <h2 id="s5-title">Control systems</h2>
+      <h2 id="s5-title">Control systems <span class="badge exam" title="Open- and closed-loop control — most years (2024 Q5/Q11; 2025 Q6/Q12)">🎯 Exam</span> <span class="badge assign" title="Assignment Task 1 (2025): closed-loop control narrative">📘 Assignment</span></h2>
       <p class="lead">A <strong>control system</strong> makes a system operate in the required way — switching things on and off, keeping something at a set level, or stopping a system becoming unsafe.</p>
 
       <div class="tblwrap">
@@ -824,6 +964,7 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
           <text x="510" y="39" text-anchor="middle">ROOM</text>
           <text x="510" y="53" text-anchor="middle">TEMP</text>
           <path class="fb" d="M510 62 V122 H328"/>
+          <polygon class="fbh" points="328,122 336,117.5 336,126.5"/>
           <rect class="blk" x="252" y="106" width="76" height="32" rx="4"/>
           <text x="290" y="126" text-anchor="middle">SENSOR</text>
           <path class="fb" d="M252 122 H168 V72"/>
@@ -895,13 +1036,13 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><strong>What:</strong> the toaster runs for a set time whatever happens to the bread. <strong>Why:</strong> the output (the colour of the toast) is never monitored — there is no feedback, so the toaster cannot adjust itself.</div></details>
         <p class="stem">9. Describe the operation of a central heating system using the following words: set value, thermostat, feedback, control system, heating. <span class="marks">4 marks</span></p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body">The <strong>set value</strong> is the temperature selected on the <strong>thermostat</strong>. The thermostat measures the actual room temperature and sends this information back as <strong>feedback</strong>. The <strong>control system</strong> compares the actual temperature with the set value: if the room is too cold, the <strong>heating</strong> switches on; when the room reaches the set value, the heating switches off.</div></details>
-        <p class="stem">10. Draw a labelled closed-loop control diagram for a central heating system. <span class="marks">4 marks</span></p>
+        <p class="stem">10. Draw a labelled closed-loop control diagram for a central heating system. <span class="marks">4 marks</span> <span class="badge exam" title="Drawn in the exam — 2024 Question Paper Q11(a)">🎯 Exam</span></p>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body">SET VALUE → ERROR DETECTOR → CONTROL → HEATER → ROOM TEMPERATURE, with a <strong>feedback path</strong> from the room temperature through a <strong>SENSOR</strong> back to the error detector — exactly as in the diagram above. The feedback arrow must be clearly shown.</div></details>
       </div>
     </section>
 
     <!-- ================= BOOKLET ANSWERS ================= -->
-    <section class="panel" id="answers" aria-labelledby="answers-title">
+    <section class="panel sec" id="answers" aria-labelledby="answers-title">
       <span class="concept-tag">Booklet check</span>
       <h2 id="answers-title">Check your booklet work</h2>
       <p class="lead">Try each task in your booklet first, then open the matching answer. Where a task is open-ended you will see an <strong>example of a strong answer</strong> — yours can be different, as long as it uses <strong>what + why</strong>. The five Section Practice sets are answered inside the sections above.</p>
@@ -1099,7 +1240,7 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     </section>
 
     <!-- ================= KEY IDEAS ================= -->
-    <section class="panel" id="keyideas" aria-labelledby="keyideas-title">
+    <section class="panel sec" id="keyideas" aria-labelledby="keyideas-title">
       <span class="concept-tag">Knowledge organiser</span>
       <h2 id="keyideas-title">Key ideas at a glance</h2>
       <p class="lead">The booklet's knowledge organiser (p.25–26). Learn these definitions word for word.</p>
@@ -1420,6 +1561,48 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
         summary();
       });
       summary();
+    })();
+
+    /* Collapsible learn sections */
+    (function(){
+      var secs=[].slice.call(document.querySelectorAll("section.sec"));
+      secs.forEach(function(sec){
+        var h2=sec.querySelector("h2"); if(!h2) return;
+        var tag=sec.querySelector(".concept-tag");
+        var title=((h2.childNodes[0] && h2.childNodes[0].textContent) || "section").trim();
+        var head=document.createElement("div"); head.className="sec-head";
+        var body=document.createElement("div"); body.className="sec-body";
+        while(sec.firstChild){ body.appendChild(sec.firstChild); }
+        if(tag) head.appendChild(tag);
+        head.appendChild(h2);
+        var btn=document.createElement("button");
+        btn.type="button"; btn.className="sec-toggle";
+        btn.innerHTML='<span class="sec-chev" aria-hidden="true">▾</span>';
+        head.appendChild(btn);
+        sec.appendChild(head); sec.appendChild(body);
+        function setOpen(open){
+          sec.classList.toggle("collapsed", !open);
+          btn.setAttribute("aria-expanded", open?"true":"false");
+          btn.setAttribute("aria-label", (open?"Collapse ":"Expand ")+title);
+        }
+        setOpen(true);
+        btn.addEventListener("click", function(e){ e.stopPropagation(); setOpen(sec.classList.contains("collapsed")); });
+        head.addEventListener("click", function(e){ if(e.target!==btn && !btn.contains(e.target)) setOpen(sec.classList.contains("collapsed")); });
+        sec._setOpen=setOpen;
+      });
+      function openTarget(hash){
+        if(!hash || hash.charAt(0)!=="#" || hash.length<2) return;
+        var el; try{ el=document.querySelector(hash); }catch(e){ return; }
+        while(el){ if(el.classList && el.classList.contains("sec") && el._setOpen){ el._setOpen(true); break; } el=el.parentNode; }
+      }
+      [].forEach.call(document.querySelectorAll('a[href^="#"]'), function(a){
+        a.addEventListener("click", function(){ openTarget(a.getAttribute("href")); });
+      });
+      window.addEventListener("hashchange", function(){ openTarget(location.hash); });
+      if(location.hash) openTarget(location.hash);
+      var ea=$("expand-all"), ca=$("collapse-all");
+      if(ea) ea.addEventListener("click", function(){ secs.forEach(function(s){ s._setOpen&&s._setOpen(true); }); });
+      if(ca) ca.addEventListener("click", function(){ secs.forEach(function(s){ s._setOpen&&s._setOpen(false); }); });
     })();
 
     /* Subnav scrollspy */
