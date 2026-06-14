@@ -1,6 +1,6 @@
 ---
 layout: none
-title: Current, p.d., power & resistance — Higher Physics
+title: Current, p.d., power & resistance (Beta) — Higher Physics
 ---
 
 <!DOCTYPE html>
@@ -20,7 +20,7 @@ title: Current, p.d., power & resistance — Higher Physics
 
   <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260612a">
 
-  <title>Current, p.d., power &amp; resistance — Higher Physics</title>
+  <title>Current, p.d., power &amp; resistance (Beta) — Higher Physics</title>
 
   <style>
     /* warm accent needs a brighter value on the dark palette */
@@ -170,6 +170,126 @@ title: Current, p.d., power & resistance — Higher Physics
       details.reveal > summary::after { content: ""; }
       body { background: #fff; }
     }
+
+    /* ===================== BETA: feature colour grammar (chrome only) ===================== */
+    /* All CONCEPTS share one colour (light blue). Colour instead tells you the TYPE of
+       block: equations, interactives, practice, examples. Used ONLY on borders + small
+       swatches — never behind body text — so AA contrast is untouched and colour is always
+       redundant with the visible label/heading. Hues are from the Higher logo palette. */
+    :root {
+      --c-concept: var(--accent);   /* light blue — all concept panels */
+      --c-eq:   #1636b8;            /* deep blue  — equations */
+      --c-int:  #b8860b;            /* amber/gold — interactives */
+      --c-prac: var(--warm);        /* orange/red — practice */
+      --c-ex:   #15803d;            /* green      — worked examples */
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --c-eq: #7da9ff; --c-int: #f3c969; --c-ex: #5dd693; }
+    }
+    /* concepts: uniform colour for every section */
+    .panel[id] { border-left: 5px solid var(--c-concept); }
+    .panel[id] > .concept-tag::before {
+      content: ""; display: inline-block; width: .72em; height: .72em; margin-right: .45em;
+      border-radius: 3px; background: var(--c-concept); vertical-align: middle;
+    }
+    .subnav-link.is-active { border-bottom-color: var(--accent); }
+    /* features: each type its own colour on the left edge */
+    .eq-card  { border-left: 5px solid var(--c-eq) !important; }
+    .widget   { border-left: 5px solid var(--c-int); }
+    .practice { border-left: 5px solid var(--c-prac); }
+    .example  { border-left: 5px solid var(--c-ex); }
+    /* colour key chips */
+    .colour-key { display: flex; flex-wrap: wrap; gap: .55rem; margin: .1rem 0; }
+    .ck { display: inline-flex; align-items: center; gap: .35rem; font-weight: 800; font-size: .8rem; color: var(--muted); }
+    .ck::before { content: ""; width: .85em; height: .85em; border-radius: 3px; background: var(--ckc, var(--accent)); }
+    .ck.eq   { --ckc: var(--c-eq); }
+    .ck.int  { --ckc: var(--c-int); }
+    .ck.prac { --ckc: var(--c-prac); }
+    .ck.ex   { --ckc: var(--c-ex); }
+
+    /* ===================== BETA: sticky "challenges done" badge ===================== */
+    .sticky-prog {
+      position: fixed; z-index: 300;
+      right: calc(12px + env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      display: inline-flex; align-items: center; gap: .45rem;
+      min-height: 44px; padding: .5rem .85rem; border-radius: 999px;
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--c-int); box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      font-weight: 900; font-size: .9rem; text-decoration: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .sticky-prog:hover, .sticky-prog:focus-visible { border-color: var(--c-prac); }
+    .sticky-prog:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .sticky-prog .sp-ico { font-size: 1.05rem; }
+    .sticky-prog.complete { border-color: var(--c-ex); }
+    @media (max-width: 380px) { .sticky-prog { font-size: .82rem; padding: .45rem .7rem; } }
+
+    /* ===================== BETA: progress HUD + badges ===================== */
+    .beta-flag {
+      display: inline-block; font-size: .66rem; font-weight: 900; letter-spacing: .08em;
+      text-transform: uppercase; color: #fff; background: var(--warm);
+      padding: 2px 9px; border-radius: 999px; vertical-align: middle; margin-left: .35rem;
+    }
+    .hud-row { display: flex; flex-wrap: wrap; gap: .8rem; margin: .5rem 0 .7rem; }
+    .hud-stat {
+      flex: 1; min-width: 92px; text-align: center; padding: .6rem .4rem;
+      border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card);
+    }
+    .hud-num { display: block; font-size: 1.55rem; font-weight: 900; color: var(--text); line-height: 1.1; }
+    .hud-lab { display: block; font-size: .76rem; font-weight: 800; color: var(--muted); margin-top: .15rem; }
+    .g-track { height: 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); overflow: hidden; }
+    .g-track > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b6bff, #1636b8); transition: width .35s ease; }
+    .badges { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; }
+    .badge-chip {
+      display: inline-flex; align-items: center; gap: .4rem; padding: .42rem .75rem;
+      border: 1px solid var(--border-soft); border-radius: 999px; background: var(--card);
+      font-weight: 900; font-size: .85rem; color: var(--muted); opacity: .55;
+    }
+    .badge-chip.earned { opacity: 1; color: var(--text); border-color: var(--accent); background: var(--surface-2); }
+    .badge-chip .bi { font-size: 1.05rem; }
+
+    /* ===================== BETA: cloze ===================== */
+    .cloze-text { font-weight: 800; color: var(--text); line-height: 2.2; font-size: 1rem; }
+    .cl-sel {
+      min-height: 40px; padding: .25rem .45rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-weight: 800; font-family: inherit; font-size: .95rem; margin: 0 .12rem;
+    }
+    .cl-sel.ok { border-color: #15803d; border-width: 2px; }
+    .cl-sel.no { border-color: var(--warm); border-width: 2px; }
+
+    /* ===================== BETA: predict buttons + feedback line ===================== */
+    .predict-btns { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .3rem; }
+    .predict-btns button { min-height: 48px; }
+    .predict-fb { margin-top: .7rem; }
+    .fb-line { margin-top: .7rem; font-weight: 900; min-height: 1.2em; }
+    .fb-line.ok { color: #15803d; }
+    .fb-line.no { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .fb-line.ok { color: #5dd693; } }
+
+    /* ===================== BETA: tap-to-order builder ===================== */
+    .ord-slots { display: grid; gap: .5rem; margin-top: .3rem; }
+    .ord-slot {
+      display: flex; align-items: center; gap: .5rem; min-height: 48px; padding: .55rem .7rem;
+      border: 2px dashed var(--border); border-radius: 10px; background: var(--card);
+      color: var(--muted); font-weight: 900; font-family: inherit; font-size: .95rem;
+      cursor: pointer; text-align: left; width: 100%;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .ord-slot .step-n { color: var(--accent-2); flex-shrink: 0; }
+    .ord-slot.filled { border-style: solid; color: var(--text); }
+    .ord-slot.ok { border-color: #15803d; }
+    .ord-slot.no { border-color: var(--warm); }
+    .ord-slot:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ord-bank { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .7rem; }
+    .ord-tile {
+      min-height: 48px; padding: .5rem .85rem; border: 1px solid var(--border-accent); border-radius: 10px;
+      background: var(--card); color: var(--text); font-weight: 900; font-family: inherit; font-size: .92rem;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .ord-tile:hover { border-color: var(--border-strong); }
+    .ord-tile:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ord-tile:disabled { opacity: .35; cursor: not-allowed; }
   </style>
 </head>
 
@@ -183,7 +303,7 @@ title: Current, p.d., power & resistance — Higher Physics
     <div class="banner-tint"></div>
     <div class="banner-overlay-text">
       <h1>Current, p.d., power &amp; resistance</h1>
-      <p>Higher Physics · Electricity</p>
+      <p>Higher Physics · Electricity <span class="beta-flag">Beta</span></p>
     </div>
   </header>
 
@@ -205,7 +325,26 @@ title: Current, p.d., power & resistance — Higher Physics
   <main class="page-wrap" id="mainContent">
     <h1 class="visually-hidden">Current, p.d., power and resistance</h1>
     <a class="backlink" href="/classes/higher-physics.html"><span aria-hidden="true">←</span> Back to Higher hub</a>
-    <a class="backlink" href="/classes/higher/electricity/current-pd-power-resistance-beta.html" style="color: var(--warm); margin-left: 1rem;"><span aria-hidden="true">🧪</span> Try the new interactive beta</a>
+
+    <!-- ================= BETA PROGRESS HUD ================= -->
+    <section class="panel" id="ghud" aria-labelledby="ghud-title">
+      <span class="concept-tag">Beta · interactive mode</span>
+      <h2 id="ghud-title">Your progress</h2>
+      <div class="colour-key" aria-hidden="true">
+        <span class="ck eq">Equations</span>
+        <span class="ck int">Interactives</span>
+        <span class="ck prac">Practice</span>
+        <span class="ck ex">Worked examples</span>
+      </div>
+      <div class="hud-row">
+        <div class="hud-stat"><span class="hud-num" id="g-points">0</span><span class="hud-lab">points</span></div>
+        <div class="hud-stat"><span class="hud-num" id="g-streak">0</span><span class="hud-lab">streak 🔥</span></div>
+        <div class="hud-stat"><span class="hud-num" id="g-count">0 / 0</span><span class="hud-lab">challenges done</span></div>
+      </div>
+      <div class="g-track" aria-hidden="true"><span id="g-bar"></span></div>
+      <p class="score" id="g-status" aria-live="polite"></p>
+      <div class="badges" id="g-badges" aria-label="Badges earned"></div>
+    </section>
 
     <!-- ================= CONCEPT 1 ================= -->
     <section class="panel" id="c1" aria-labelledby="c1-title">
@@ -334,6 +473,48 @@ Q = It → 90 = I × 90 → I = 1.0 A</div></div></details>
       </div>
 
       <figure class="figure">
+        <svg class="circuit" viewBox="0 0 264 176" role="img" aria-label="A circuit to investigate Ohm's law: a cell drives current through an ammeter and a resistor in series, with a voltmeter connected across the resistor">
+          <title>Measuring p.d. and current for a resistor</title>
+          <path class="wire" d="M30 40 V80"/>
+          <path class="wire" d="M16 80 H44"/>
+          <path class="wire" d="M24 90 H36" stroke-width="5"/>
+          <path class="wire" d="M30 96 V140"/>
+          <path class="wire" d="M30 140 H210"/>
+          <path class="wire" d="M30 40 H106"/>
+          <circle class="meter" cx="120" cy="40" r="14"/>
+          <text x="120" y="44" text-anchor="middle">A</text>
+          <path class="wire" d="M134 40 H210"/>
+          <path class="wire" d="M210 40 V70"/>
+          <rect class="res" x="198" y="70" width="24" height="44" rx="2"/>
+          <path class="wire" d="M210 114 V140"/>
+          <circle class="node" cx="210" cy="70" r="3"/>
+          <circle class="node" cx="210" cy="114" r="3"/>
+          <path class="wire" d="M210 70 H244 V81"/>
+          <circle class="meter" cx="244" cy="95" r="14"/>
+          <text x="244" y="99" text-anchor="middle">V</text>
+          <path class="wire" d="M244 109 V114 H210"/>
+          <path class="wire" d="M84 40 L77 36 M84 40 L77 44"/>
+          <text x="70" y="34">I</text>
+          <text x="186" y="96" text-anchor="end">R</text>
+        </svg>
+        <figcaption>Ohm's law in the lab: the ammeter reads the current <var>I</var> in the resistor; the voltmeter reads the p.d. <var>V</var> across it. Then <var>R</var> = <var>V</var> ÷ <var>I</var>.</figcaption>
+      </figure>
+
+      <div class="widget" data-challenge="ch-cloze" id="cl-lang">
+        <h3>Fill the gaps — say it like the SQA</h3>
+        <p class="hint">Pick the precise word for each gap, then check. The SQA gives <strong>0 marks</strong> for "voltage through" or "current across".</p>
+        <p class="cloze-text">Current flows
+          <select class="cl-sel" data-answer="in" aria-label="gap 1"><option value="">choose…</option><option>in</option><option>across</option></select>
+          a component, while potential difference is measured
+          <select class="cl-sel" data-answer="across" aria-label="gap 2"><option value="">choose…</option><option>in</option><option>across</option></select>
+          it. A component whose V–I graph is a straight line through the origin is described as
+          <select class="cl-sel" data-answer="ohmic" aria-label="gap 3"><option value="">choose…</option><option>ohmic</option><option>non-ohmic</option></select>.
+        </p>
+        <div class="btnrow"><button class="btn primary" type="button" id="cl-check">Check</button><button class="btn" type="button" id="cl-reset">Reset</button></div>
+        <p class="fb-line" id="cl-fb" aria-live="polite"></p>
+      </div>
+
+      <figure class="figure">
         <svg class="circuit wide" viewBox="0 0 270 190" role="img" aria-label="A voltage against current graph showing a straight ohmic line and an upward-curving lamp line, with a legend">
           <title>V–I graphs: ohmic vs lamp</title>
           <path class="wire" d="M45 25 V155 H250"/>
@@ -349,6 +530,21 @@ Q = It → 90 = I × 90 → I = 1.0 A</div></div></details>
         </svg>
         <figcaption>p.d. (V) against current (I): straight = ohmic; curved = lamp filament.</figcaption>
       </figure>
+
+      <div class="widget" data-challenge="ch-graph" id="graph-quiz">
+        <h3>Read the V–I graph</h3>
+        <p class="hint">Use the graph above, then check both answers.</p>
+        <p class="qstem" style="font-weight:900; margin:.2rem 0 .4rem;">1. Which line shows a component obeying Ohm's law (constant resistance)?</p>
+        <label class="opt"><input type="radio" name="gq1" value="0">The straight line through the origin</label>
+        <label class="opt"><input type="radio" name="gq1" value="1">The upward-curving line</label>
+        <label class="opt"><input type="radio" name="gq1" value="2">Both lines</label>
+        <p class="qstem" style="font-weight:900; margin:.7rem 0 .4rem;">2. As the current increases, the lamp filament's resistance…</p>
+        <label class="opt"><input type="radio" name="gq2" value="0">increases</label>
+        <label class="opt"><input type="radio" name="gq2" value="1">stays constant</label>
+        <label class="opt"><input type="radio" name="gq2" value="2">decreases</label>
+        <div class="btnrow"><button class="btn primary" type="button" id="gq-check">Check</button></div>
+        <p class="fb-line" id="gq-fb" aria-live="polite"></p>
+      </div>
 
       <div class="example">
         <span class="ex-type">Substitute &amp; solve</span>
@@ -510,6 +706,24 @@ uncertainty ≈ 2% of 20 = ± 0.4 Ω → R = (20.0 ± 0.4) Ω</div>
         </ul>
       </div>
 
+      <figure class="figure">
+        <svg class="circuit wide" viewBox="0 0 260 130" role="img" aria-label="A mixed network: resistor R1 in series with a parallel pair, resistor R2 and resistor R3">
+          <title>Mixed network — R1 in series with a parallel pair R2 and R3</title>
+          <circle class="node" cx="14" cy="65" r="3"/><path class="wire" d="M14 65 H40"/>
+          <rect class="res" x="40" y="55" width="36" height="20" rx="2"/>
+          <text x="58" y="50" text-anchor="middle">R₁</text>
+          <path class="wire" d="M76 65 H104"/><circle class="node" cx="104" cy="65" r="3"/>
+          <path class="wire" d="M104 35 V95"/>
+          <path class="wire" d="M104 35 H140"/><rect class="res" x="140" y="25" width="40" height="20" rx="2"/><path class="wire" d="M180 35 H216"/>
+          <text x="160" y="20" text-anchor="middle">R₂</text>
+          <path class="wire" d="M104 95 H140"/><rect class="res" x="140" y="85" width="40" height="20" rx="2"/><path class="wire" d="M180 95 H216"/>
+          <text x="160" y="121" text-anchor="middle">R₃</text>
+          <path class="wire" d="M216 35 V95"/><circle class="node" cx="216" cy="65" r="3"/>
+          <path class="wire" d="M216 65 H246"/><circle class="node" cx="246" cy="65" r="3"/>
+        </svg>
+        <figcaption>R₁ is in series with the parallel pair R₂ and R₃. Reduce the parallel pair to one value first, then add R₁ to get R<sub>T</sub>.</figcaption>
+      </figure>
+
       <div class="example">
         <span class="ex-type">Substitute &amp; solve</span>
         <div class="ex-q">A 6.0 Ω resistor is connected in series with a parallel combination of a 12 Ω resistor and a 4.0 Ω resistor. Calculate the total resistance of the circuit. <span class="marks">5 marks</span></div>
@@ -553,6 +767,25 @@ uncertainty ≈ 2% of 20 = ± 0.4 Ω → R = (20.0 ± 0.4) Ω</div>
         </div>
         <div class="readout" id="rt-out" aria-live="polite">—</div>
         <div class="working" id="rt-work" hidden></div>
+      </div>
+
+      <div class="widget" data-challenge="ch-order" id="order-steps">
+        <h3>Order the steps — p.d. in part of a network</h3>
+        <p class="hint">A resistor is in series with a parallel pair, across a supply. Tap the steps in the right order to find the p.d. across one branch. Tap a placed step to clear it.</p>
+        <div class="ord-slots">
+          <button type="button" class="ord-slot"><span class="step-n">1.</span> <span class="ord-word">—</span></button>
+          <button type="button" class="ord-slot"><span class="step-n">2.</span> <span class="ord-word">—</span></button>
+          <button type="button" class="ord-slot"><span class="step-n">3.</span> <span class="ord-word">—</span></button>
+          <button type="button" class="ord-slot"><span class="step-n">4.</span> <span class="ord-word">—</span></button>
+        </div>
+        <div class="ord-bank" id="ord-bank">
+          <button type="button" class="ord-tile" data-word="Find the total current: I = V ÷ R_T">Find the total current: I = V ÷ R_T</button>
+          <button type="button" class="ord-tile" data-word="Reduce the parallel part to one value">Reduce the parallel part to one value</button>
+          <button type="button" class="ord-tile" data-word="Work back out: p.d. = I × R of that part">Work back out: p.d. = I × R of that part</button>
+          <button type="button" class="ord-tile" data-word="Add the series resistor to get R_T">Add the series resistor to get R_T</button>
+        </div>
+        <div class="btnrow"><button class="btn primary" type="button" id="ord-check">Check order</button><button class="btn" type="button" id="ord-reset">Reset</button></div>
+        <p class="fb-line" id="ord-fb" aria-live="polite"></p>
       </div>
 
       <div class="practice">
@@ -600,6 +833,52 @@ R_T = 1000 + 2000 = 3000 Ω  (3.0 kΩ)
           <li>All three power formulae give the same answer — choose the one matching your known values.</li>
           <li>For heat or energy over time, follow up with <strong>E = Pt</strong>.</li>
         </ul>
+      </div>
+
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 240 160" role="img" aria-label="A heating element connected to a power supply with an ammeter in series, showing the current in the element">
+          <title>A heating element (resistor) dissipating power</title>
+          <path class="wire" d="M30 40 V72"/>
+          <path class="wire" d="M16 72 H44"/>
+          <path class="wire" d="M24 82 H36" stroke-width="5"/>
+          <path class="wire" d="M30 88 V130"/>
+          <path class="wire" d="M30 40 H106"/>
+          <circle class="meter" cx="120" cy="40" r="14"/>
+          <text x="120" y="44" text-anchor="middle">A</text>
+          <path class="wire" d="M134 40 H210"/>
+          <path class="wire" d="M210 40 V64"/>
+          <rect class="res" x="198" y="64" width="24" height="44" rx="2"/>
+          <path class="wire" d="M210 108 V130"/>
+          <path class="wire" d="M210 130 H30"/>
+          <path class="wire" d="M84 40 L77 36 M84 40 L77 44"/>
+          <text x="70" y="34">I</text>
+          <text x="186" y="90" text-anchor="end">R</text>
+          <text x="36" y="64">+</text>
+        </svg>
+        <figcaption>The element has resistance <var>R</var> and carries current <var>I</var> from the supply. The power dissipated is <var>P</var> = <var>I</var><var>V</var> = <var>I</var><sup>2</sup><var>R</var> = <var>V</var><sup>2</sup>/<var>R</var>.</figcaption>
+      </figure>
+
+      <div class="widget" data-challenge="ch-calc" id="calc-check">
+        <h3>Check your calculation</h3>
+        <p class="hint">A 9.0 V supply drives a current of 0.50 A through a resistor. Work out the power dissipated, type your answer, then check — you'll get a hint if it's a common slip.</p>
+        <label class="field" style="font-weight:900; color:var(--muted);">Power <var>P</var> (W)
+          <input class="num" id="cc-ans" type="number" step="any" inputmode="decimal" style="margin-top:.3rem;">
+        </label>
+        <div class="btnrow"><button class="btn primary" type="button" id="cc-check">Check</button></div>
+        <p class="fb-line" id="cc-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="widget" data-challenge="ch-predict" id="predict">
+        <h3>Predict &amp; justify</h3>
+        <p class="qstem" style="font-weight:900; margin:.2rem 0 .5rem;">A battery of negligible internal resistance drives a resistor in series with two identical resistors in parallel. A switch in series with one of the parallel branches is now closed. The current from the battery will…</p>
+        <div class="predict-btns">
+          <button class="btn" type="button" data-pred="1">Increase</button>
+          <button class="btn" type="button" data-pred="0">Stay the same</button>
+          <button class="btn" type="button" data-pred="0">Decrease</button>
+        </div>
+        <div class="predict-fb" id="pred-fb" hidden>
+          <div class="note"><strong>Increase.</strong> Closing the switch adds a parallel branch, so the total resistance of the circuit <strong>decreases</strong>. With the supply voltage fixed, <var>I</var> = <var>V</var> ÷ <var>R</var><sub>T</sub> means the current from the battery <strong>increases</strong>.</div>
+        </div>
       </div>
 
       <div class="example">
@@ -938,15 +1217,23 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
         <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
         <div class="btnrow"><button class="btn" type="button" id="rag-reset">Reset ratings</button></div>
       </div>
+
+      <div class="widget">
+        <h3>Beta progress</h3>
+        <p class="hint">Your points, streak, badges and completed challenges are saved on this device. Clear them here to start fresh.</p>
+        <div class="btnrow"><button class="btn" type="button" id="g-reset">Reset beta progress</button></div>
+      </div>
     </section>
   </main>
+
+  <a class="sticky-prog" id="sticky-prog" href="#ghud" aria-label="Challenges done — jump to your progress"><span class="sp-ico" aria-hidden="true">🏆</span><span id="sp-text">0 / 0</span></a>
 
   <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
 
   <script>
   (function(){
     "use strict";
-    var KEY = "hp-cpr-";
+    var KEY = "hp-cpr-beta-";
     function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
     function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
     function $(id){ return document.getElementById(id); }
@@ -1177,6 +1464,214 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
         opened=[];
       });
     })();
+  })();
+  </script>
+
+  <!-- ================= BETA: gamification engine + interactive challenges ================= -->
+  <script>
+  (function(){
+    "use strict";
+    var K = "hp-cpr-beta-g-";
+    function save(k,v){ try{ localStorage.setItem(K+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(K+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function fb(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"ok":"no"); el.textContent=(ok?"✓ ":"✗ ")+msg; }
+
+    var done = load("done",{}), points = load("points",0), streak = load("streak",0), bestStreak = load("bestStreak",0);
+    var challenges = [];
+    [].forEach.call(document.querySelectorAll("[data-challenge]"), function(el){ challenges.push(el.getAttribute("data-challenge")); });
+    var total = challenges.length;
+
+    var BADGES = [
+      { id:"first",  icon:"🎯", name:"First challenge", test:function(n){ return n>=1; } },
+      { id:"streak", icon:"🔥", name:"3 in a row",      test:function(n){ return bestStreak>=3; } },
+      { id:"half",   icon:"⚡", name:"Halfway there",    test:function(n){ return total>0 && n>=Math.ceil(total/2); } },
+      { id:"all",    icon:"🏆", name:"All challenges",   test:function(n){ return total>0 && n>=total; } }
+    ];
+
+    function doneCount(){ var n=0; challenges.forEach(function(c){ if(done[c]) n++; }); return n; }
+
+    function renderBadges(n){
+      var box=$("g-badges"); if(!box) return;
+      box.innerHTML="";
+      BADGES.forEach(function(b){
+        var earned=b.test(n);
+        var chip=document.createElement("span");
+        chip.className="badge-chip"+(earned?" earned":"");
+        chip.innerHTML='<span class="bi" aria-hidden="true">'+b.icon+'</span> '+b.name+(earned?" ✓":" — locked");
+        box.appendChild(chip);
+      });
+    }
+
+    function sync(){
+      var n=doneCount();
+      setT("g-points", points);
+      setT("g-streak", streak);
+      setT("g-count", n+" / "+total);
+      setT("sp-text", n+" / "+total);
+      var sp=$("sticky-prog"); if(sp) sp.classList.toggle("complete", total>0 && n>=total);
+      var bar=$("g-bar"); if(bar) bar.style.width=(total? (n/total*100):0)+"%";
+      var st=$("g-status");
+      if(st){
+        st.textContent = (n>=total && total>0)
+          ? "All challenges complete — nice work! 🏆"
+          : (n>0 ? "Keep going — "+(total-n)+" challenge"+((total-n)===1?"":"s")+" left."
+                 : "Try the challenges as you scroll to earn points and badges.");
+      }
+      renderBadges(n);
+    }
+
+    function award(id, pts, correct){
+      if(correct){
+        if(!done[id]){
+          streak++; if(streak>bestStreak){ bestStreak=streak; save("bestStreak",bestStreak); }
+          done[id]=true; points+=pts;
+          save("streak",streak); save("done",done); save("points",points);
+        }
+      } else {
+        if(streak!==0){ streak=0; save("streak",streak); }
+      }
+      sync();
+    }
+
+    /* ---- cloze ---- */
+    (function(){
+      var w=$("cl-lang"); if(!w) return;
+      var sels=w.querySelectorAll(".cl-sel");
+      $("cl-check").addEventListener("click", function(){
+        var allOk=true, answered=true;
+        [].forEach.call(sels, function(s){
+          if(!s.value) answered=false;
+          var ok = s.value===s.getAttribute("data-answer");
+          s.classList.toggle("ok", !!s.value && ok);
+          s.classList.toggle("no", !!s.value && !ok);
+          if(!ok) allOk=false;
+        });
+        if(!answered){ fb($("cl-fb"), false, "Fill every gap first."); return; }
+        if(allOk){ fb($("cl-fb"), true, "Perfect — current in, p.d. across, straight line through the origin = ohmic."); award("ch-cloze",10,true); }
+        else { fb($("cl-fb"), false, "Not quite — fix the gaps marked in orange and try again."); award("ch-cloze",0,false); }
+      });
+      $("cl-reset").addEventListener("click", function(){
+        [].forEach.call(sels, function(s){ s.value=""; s.classList.remove("ok","no"); });
+        var f=$("cl-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+      });
+    })();
+
+    /* ---- V–I graph MCQ ---- */
+    (function(){
+      var w=$("graph-quiz"); if(!w) return;
+      $("gq-check").addEventListener("click", function(){
+        var a1=w.querySelector('input[name="gq1"]:checked');
+        var a2=w.querySelector('input[name="gq2"]:checked');
+        if(!a1||!a2){ fb($("gq-fb"), false, "Answer both questions first."); return; }
+        var ok = a1.value==="0" && a2.value==="0";
+        if(ok){ fb($("gq-fb"), true, "Yes — the straight line is ohmic, and a lamp's resistance rises as the filament heats up."); award("ch-graph",10,true); }
+        else { fb($("gq-fb"), false, "Not quite — the ohmic line is the straight one through the origin, and the lamp's resistance increases. Try again."); award("ch-graph",0,false); }
+      });
+    })();
+
+    /* ---- calculation checker with misconception nudges ---- */
+    (function(){
+      var w=$("calc-check"); if(!w) return;
+      $("cc-check").addEventListener("click", function(){
+        var v=parseFloat($("cc-ans").value);
+        if(isNaN(v)){ fb($("cc-fb"), false, "Type a number first."); return; }
+        if(Math.abs(v-4.5)<0.05){ fb($("cc-fb"), true, "Correct — P = IV = 0.50 × 9.0 = 4.5 W."); award("ch-calc",10,true); return; }
+        var msg="Not yet — P = IV = 9.0 × 0.50 = 4.5 W.";
+        if(Math.abs(v-18)<0.4) msg="That's 9.0 ÷ 0.50 — you divided. Power is P = IV, so multiply: 9.0 × 0.50 = 4.5 W.";
+        else if(Math.abs(v-0.056)<0.01) msg="That's 0.50 ÷ 9.0 — the wrong way round. P = IV = 9.0 × 0.50 = 4.5 W.";
+        else if(Math.abs(v-9.5)<0.1) msg="Looks like you added. Power is P = IV — multiply: 9.0 × 0.50 = 4.5 W.";
+        fb($("cc-fb"), false, msg); award("ch-calc",0,false);
+      });
+    })();
+
+    /* ---- predict & justify ---- */
+    (function(){
+      var w=$("predict"); if(!w) return;
+      [].forEach.call(w.querySelectorAll(".predict-btns button"), function(b){
+        b.addEventListener("click", function(){
+          var ok=b.getAttribute("data-pred")==="1";
+          $("pred-fb").hidden=false;
+          [].forEach.call(w.querySelectorAll(".predict-btns button"), function(x){ x.disabled=true; });
+          award("ch-predict",10,ok);
+        });
+      });
+    })();
+
+    /* ---- tap-to-order builder ---- */
+    (function(){
+      var w=$("order-steps"); if(!w) return;
+      var CORRECT=[
+        "Reduce the parallel part to one value",
+        "Add the series resistor to get R_T",
+        "Find the total current: I = V ÷ R_T",
+        "Work back out: p.d. = I × R of that part"
+      ];
+      var slotWrap=w.querySelector(".ord-slots");
+      var slots=[].slice.call(w.querySelectorAll(".ord-slot"));
+      var bank=$("ord-bank");
+      function tileFor(word){
+        var r=null;
+        [].forEach.call(bank.querySelectorAll(".ord-tile"), function(t){ if(t.getAttribute("data-word")===word) r=t; });
+        return r;
+      }
+      function place(word){
+        for(var i=0;i<slots.length;i++){
+          if(!slots[i].getAttribute("data-word")){
+            slots[i].setAttribute("data-word", word);
+            slots[i].querySelector(".ord-word").textContent=word;
+            slots[i].classList.add("filled");
+            return true;
+          }
+        }
+        return false;
+      }
+      function clearSlot(slot){
+        var word=slot.getAttribute("data-word");
+        if(!word) return;
+        slot.removeAttribute("data-word");
+        slot.querySelector(".ord-word").textContent="—";
+        slot.classList.remove("filled","ok","no");
+        var t=tileFor(word); if(t) t.disabled=false;
+      }
+      bank.addEventListener("click", function(e){
+        var t=e.target.closest(".ord-tile"); if(!t||t.disabled) return;
+        if(place(t.getAttribute("data-word"))) t.disabled=true;
+      });
+      slotWrap.addEventListener("click", function(e){
+        var s=e.target.closest(".ord-slot"); if(!s) return;
+        clearSlot(s);
+      });
+      $("ord-check").addEventListener("click", function(){
+        var filled=slots.every(function(s){ return s.getAttribute("data-word"); });
+        if(!filled){ fb($("ord-fb"), false, "Place all four steps first."); return; }
+        var allOk=true;
+        slots.forEach(function(s,i){
+          var ok=s.getAttribute("data-word")===CORRECT[i];
+          s.classList.toggle("ok",ok); s.classList.toggle("no",!ok);
+          if(!ok) allOk=false;
+        });
+        if(allOk){ fb($("ord-fb"), true, "Correct order — reduce the parallel part, find R_T, find the total current, then work back out."); award("ch-order",10,true); }
+        else { fb($("ord-fb"), false, "Not in order yet — tap a step to clear it and rethink the sequence."); award("ch-order",0,false); }
+      });
+      $("ord-reset").addEventListener("click", function(){
+        slots.forEach(clearSlot);
+        var f=$("ord-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+      });
+    })();
+
+    /* ---- reset beta progress ---- */
+    (function(){
+      var b=$("g-reset"); if(!b) return;
+      b.addEventListener("click", function(){
+        done={}; points=0; streak=0; bestStreak=0;
+        save("done",done); save("points",points); save("streak",streak); save("bestStreak",bestStreak);
+        sync();
+      });
+    })();
+
+    sync();
   })();
   </script>
 </body>
