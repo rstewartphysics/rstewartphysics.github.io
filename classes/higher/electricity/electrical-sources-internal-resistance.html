@@ -1,0 +1,1166 @@
+---
+layout: none
+title: Electrical sources & internal resistance — Higher Physics
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)" />
+
+  <link rel="apple-touch-icon" href="/assets/higher/Delta.png" />
+  <link rel="icon" type="image/png" href="/assets/higher/Delta.png" />
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260612a">
+
+  <title>Electrical sources &amp; internal resistance — Higher Physics</title>
+
+  <style>
+    /* warm accent needs a brighter value on the dark palette */
+    :root { --warm: #c2410c; }
+    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; } }
+
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+
+    /* ---- equation cards (the standout) with real 2D fractions ---- */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(250px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ms var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .4em; }
+    .frac > .fr-n { border-bottom: 2.5px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 1px; }
+
+    /* ---- worked examples (centred, aligned on the = sign) ---- */
+    .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+    .marks { display: inline-block; font-size: .74rem; font-weight: 900; letter-spacing: .03em; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 8px; margin-left: .45rem; white-space: nowrap; vertical-align: middle; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    /* conversions pulled to the left; working stays centred */
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv var { font-style: italic; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; } }
+    /* narrow phones: coaching notes wrap under their line instead of hiding off-screen */
+    @media (max-width: 600px) {
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    /* ---- practice callout (stands out) ---- */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #3b6bff, #1636b8); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .practice .stem { margin: .15rem 0 0; }
+
+    /* ---- diagrams ---- */
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .circuit { display: block; width: 100%; max-width: 320px; height: auto; margin: 0 auto; }
+    .circuit.wide { max-width: 420px; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--text); }
+    .circuit .meter { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .dash { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .vi-a { stroke: var(--accent); stroke-width: 3; fill: none; }
+    .circuit .grid { stroke: var(--border); stroke-width: 1; }
+
+    /* ---- tools ---- */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field[hidden] { display: none; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 140px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn.primary { background: linear-gradient(135deg, #3b6bff, #1636b8); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .readout { font-size: 1.2rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .working { font-family: ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .9rem; line-height: 1.5; }
+
+    /* ---- practice reveal ---- */
+    .stem { margin: .9rem 0 0; font-weight: 900; color: var(--text); }
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .ex-divider { margin: 1.1rem 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+
+    /* ===================== BETA: feature colour grammar (chrome only) ===================== */
+    :root {
+      --c-concept: var(--accent);   /* light blue — all concept panels */
+      --c-eq:   #1636b8;            /* deep blue  — equations */
+      --c-int:  #b8860b;            /* amber/gold — interactives */
+      --c-prac: var(--warm);        /* orange/red — practice */
+      --c-ex:   #15803d;            /* green      — worked examples */
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --c-eq: #7da9ff; --c-int: #f3c969; --c-ex: #5dd693; }
+    }
+    .panel[id] { border-left: 5px solid var(--c-concept); }
+    .panel[id] > .concept-tag::before {
+      content: ""; display: inline-block; width: .72em; height: .72em; margin-right: .45em;
+      border-radius: 3px; background: var(--c-concept); vertical-align: middle;
+    }
+    .subnav-link.is-active { border-bottom-color: var(--accent); }
+    .eq-card  { border-left: 5px solid var(--c-eq) !important; }
+    .widget   { border-left: 5px solid var(--c-int); }
+    .practice { border-left: 5px solid var(--c-prac); }
+    .example  { border-left: 5px solid var(--c-ex); }
+    .colour-key { display: flex; flex-wrap: wrap; gap: .55rem; margin: .1rem 0; }
+    .ck { display: inline-flex; align-items: center; gap: .35rem; font-weight: 800; font-size: .8rem; color: var(--muted); }
+    .ck::before { content: ""; width: .85em; height: .85em; border-radius: 3px; background: var(--ckc, var(--accent)); }
+    .ck.eq   { --ckc: var(--c-eq); }
+    .ck.int  { --ckc: var(--c-int); }
+    .ck.prac { --ckc: var(--c-prac); }
+    .ck.ex   { --ckc: var(--c-ex); }
+
+    /* ===================== BETA: sticky "challenges done" badge ===================== */
+    .sticky-prog {
+      position: fixed; z-index: 300;
+      right: calc(12px + env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      display: inline-flex; align-items: center; gap: .45rem;
+      min-height: 44px; padding: .5rem .85rem; border-radius: 999px;
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--c-int); box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      font-weight: 900; font-size: .9rem; text-decoration: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .sticky-prog:hover, .sticky-prog:focus-visible { border-color: var(--c-prac); }
+    .sticky-prog:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .sticky-prog .sp-ico { font-size: 1.05rem; }
+    .sticky-prog.complete { border-color: var(--c-ex); }
+    @media (max-width: 380px) { .sticky-prog { font-size: .82rem; padding: .45rem .7rem; } }
+
+    /* ===================== BETA: progress HUD + badges ===================== */
+    .beta-flag {
+      display: inline-block; font-size: .66rem; font-weight: 900; letter-spacing: .08em;
+      text-transform: uppercase; color: #fff; background: var(--warm);
+      padding: 2px 9px; border-radius: 999px; vertical-align: middle; margin-left: .35rem;
+    }
+    .hud-row { display: flex; flex-wrap: wrap; gap: .8rem; margin: .5rem 0 .7rem; }
+    .hud-stat {
+      flex: 1; min-width: 92px; text-align: center; padding: .6rem .4rem;
+      border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card);
+    }
+    .hud-num { display: block; font-size: 1.55rem; font-weight: 900; color: var(--text); line-height: 1.1; }
+    .hud-lab { display: block; font-size: .76rem; font-weight: 800; color: var(--muted); margin-top: .15rem; }
+    .g-track { height: 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); overflow: hidden; }
+    .g-track > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b6bff, #1636b8); transition: width .35s ease; }
+    .badges { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; }
+    .badge-chip {
+      display: inline-flex; align-items: center; gap: .4rem; padding: .42rem .75rem;
+      border: 1px solid var(--border-soft); border-radius: 999px; background: var(--card);
+      font-weight: 900; font-size: .85rem; color: var(--muted); opacity: .55;
+    }
+    .badge-chip.earned { opacity: 1; color: var(--text); border-color: var(--accent); background: var(--surface-2); }
+    .badge-chip .bi { font-size: 1.05rem; }
+
+    /* ===================== BETA: cloze ===================== */
+    .cloze-text { font-weight: 800; color: var(--text); line-height: 2.2; font-size: 1rem; }
+    .cl-sel {
+      min-height: 40px; padding: .25rem .45rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-weight: 800; font-family: inherit; font-size: .95rem; margin: 0 .12rem;
+    }
+    .cl-sel.ok { border-color: #15803d; border-width: 2px; }
+    .cl-sel.no { border-color: var(--warm); border-width: 2px; }
+
+    /* ===================== BETA: predict buttons + feedback line ===================== */
+    .predict-btns { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .3rem; }
+    .predict-btns button { min-height: 48px; }
+    .predict-fb { margin-top: .7rem; }
+    .fb-line { margin-top: .7rem; font-weight: 900; min-height: 1.2em; }
+    .fb-line.ok { color: #15803d; }
+    .fb-line.no { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .fb-line.ok { color: #5dd693; } }
+
+    /* ===================== BETA: tap-to-order builder ===================== */
+    .ord-slots { display: grid; gap: .5rem; margin-top: .3rem; }
+    .ord-slot {
+      display: flex; align-items: center; gap: .5rem; min-height: 48px; padding: .55rem .7rem;
+      border: 2px dashed var(--border); border-radius: 10px; background: var(--card);
+      color: var(--muted); font-weight: 900; font-family: inherit; font-size: .95rem;
+      cursor: pointer; text-align: left; width: 100%;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .ord-slot .step-n { color: var(--accent-2); flex-shrink: 0; }
+    .ord-slot.filled { border-style: solid; color: var(--text); }
+    .ord-slot.ok { border-color: #15803d; }
+    .ord-slot.no { border-color: var(--warm); }
+    .ord-slot:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ord-bank { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .7rem; }
+    .ord-tile {
+      min-height: 48px; padding: .5rem .85rem; border: 1px solid var(--border-accent); border-radius: 10px;
+      background: var(--card); color: var(--text); font-weight: 900; font-family: inherit; font-size: .92rem;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .ord-tile:hover { border-color: var(--border-strong); }
+    .ord-tile:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ord-tile:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* ===================== BETA: matching game ===================== */
+    .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin-top: .3rem; }
+    .match-col { display: flex; flex-direction: column; gap: .45rem; }
+    .match-col h4 { margin: .1rem 0 .1rem; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); }
+    .match-tile {
+      min-height: 48px; padding: .5rem .65rem; border: 1px solid var(--border-accent); border-radius: 10px;
+      background: var(--card); color: var(--text); font-weight: 800; font-family: inherit; font-size: .86rem;
+      text-align: left; cursor: pointer; line-height: 1.3;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .match-tile:hover { border-color: var(--border-strong); }
+    .match-tile.sel { border-color: var(--accent); border-width: 2px; background: var(--surface-2); }
+    .match-tile.done { border-color: #15803d; background: rgba(21,128,61,.12); cursor: default; }
+    .match-tile.no { border-color: var(--warm); border-width: 2px; }
+    .match-tile:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    @media (prefers-color-scheme: dark) { .match-tile.done { border-color: #5dd693; } }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Electrical sources &amp; internal resistance</h1>
+      <p>Higher Physics · Electricity <span class="beta-flag">Beta</span></p>
+    </div>
+  </header>
+
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to concepts">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#c1">EMF &amp; lost volts</a>
+        <a class="subnav-link" href="#c2">Solving circuits</a>
+        <a class="subnav-link" href="#c3">Graphs &amp; experiment</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Electrical sources and internal resistance</h1>
+    <a class="backlink" href="/classes/higher-physics.html"><span aria-hidden="true">←</span> Back to Higher hub</a>
+
+    <!-- ================= BETA PROGRESS HUD ================= -->
+    <section class="panel" id="ghud" aria-labelledby="ghud-title">
+      <span class="concept-tag">Beta · interactive mode</span>
+      <h2 id="ghud-title">Your progress</h2>
+      <div class="colour-key" aria-hidden="true">
+        <span class="ck eq">Equations</span>
+        <span class="ck int">Interactives</span>
+        <span class="ck prac">Practice</span>
+        <span class="ck ex">Worked examples</span>
+      </div>
+      <div class="hud-row">
+        <div class="hud-stat"><span class="hud-num" id="g-points">0</span><span class="hud-lab">points</span></div>
+        <div class="hud-stat"><span class="hud-num" id="g-streak">0</span><span class="hud-lab">streak 🔥</span></div>
+        <div class="hud-stat"><span class="hud-num" id="g-count">0 / 0</span><span class="hud-lab">challenges done</span></div>
+      </div>
+      <div class="g-track" aria-hidden="true"><span id="g-bar"></span></div>
+      <p class="score" id="g-status" aria-live="polite"></p>
+      <div class="badges" id="g-badges" aria-label="Badges earned"></div>
+    </section>
+
+    <!-- ================= CONCEPT 1 ================= -->
+    <section class="panel" id="c1" aria-labelledby="c1-title">
+      <span class="concept-tag">Concept 1</span>
+      <h2 id="c1-title">EMF, terminal p.d. &amp; lost volts</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">EMF</div>
+          <div class="eq-formula"><var>E</var> = <var>V</var> + <var>I</var><var>r</var></div>
+          <div class="eq-desc">EMF = terminal p.d. + lost volts</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Lost volts</div>
+          <div class="eq-formula">lost volts = <var>I</var><var>r</var> = <var>E</var> − <var>V</var></div>
+          <div class="eq-desc">only there when a current flows</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <ul>
+          <li>A real cell is modelled as an <strong>ideal source of EMF <var>E</var></strong> in series with a small <strong>internal resistance <var>r</var></strong>. The two can't be separated — <var>r</var> lives inside the cell.</li>
+          <li><strong>EMF (<var>E</var>)</strong> is the energy given to <strong>each coulomb</strong> of charge passing through the source (volt = joule per coulomb). An EMF of 1.5&nbsp;V means <strong>1.5&nbsp;J is given to every coulomb</strong>.</li>
+          <li><strong>Terminal p.d. (t.p.d., <var>V</var>)</strong> is the p.d. across the cell's terminals — this equals the p.d. across the external components (<var>V</var> = <var>I</var><var>R</var>).</li>
+          <li><strong>Lost volts (<var>I</var><var>r</var>)</strong> is the energy lost <strong>per coulomb</strong> driving current through the internal resistance: lost volts = <var>E</var> − <var>V</var>.</li>
+          <li><strong>Ideal supply:</strong> <var>r</var> = 0, so there are no lost volts and the t.p.d. always equals the EMF.</li>
+          <li><strong>Open circuit:</strong> no current (<var>I</var> = 0), so no lost volts → a voltmeter across the terminals reads the <strong>full EMF</strong>. (This is how you measure <var>E</var>.)</li>
+          <li><strong>Short circuit:</strong> external resistance ≈ 0, so the t.p.d. ≈ 0 and the current is at its <strong>maximum</strong>, <var>I</var><sub>short</sub> = <var>E</var> ÷ <var>r</var>.</li>
+        </ul>
+      </div>
+
+      <figure class="figure">
+        <svg class="circuit wide" viewBox="0 0 300 190" role="img" aria-label="A real cell drawn as an EMF source E in series with internal resistance r inside a dashed boundary, connected to an external resistor R, with a voltmeter across the terminals">
+          <title>A real cell: EMF E and internal resistance r, supplying an external resistor R</title>
+          <rect class="dash" x="30" y="22" width="100" height="146" rx="6"/>
+          <text x="34" y="16">cell</text>
+          <path class="wire" d="M90 40 V72"/>
+          <path class="wire" d="M75 72 H105"/>
+          <path class="wire" d="M83 82 H97" stroke-width="5"/>
+          <path class="wire" d="M90 82 V110"/>
+          <rect class="res" x="78" y="110" width="24" height="36" rx="2"/>
+          <path class="wire" d="M90 146 V150"/>
+          <text x="110" y="70"><tspan font-style="italic">E</tspan></text>
+          <text x="110" y="133"><tspan font-style="italic">r</tspan></text>
+          <path class="wire" d="M90 40 H230"/>
+          <path class="wire" d="M90 150 H230"/>
+          <circle class="node" cx="130" cy="40" r="3"/>
+          <circle class="node" cx="130" cy="150" r="3"/>
+          <path class="wire" d="M230 40 V72"/>
+          <rect class="res" x="218" y="72" width="24" height="46" rx="2"/>
+          <path class="wire" d="M230 118 V150"/>
+          <text x="250" y="98"><tspan font-style="italic">R</tspan></text>
+          <circle class="node" cx="180" cy="40" r="3"/>
+          <circle class="node" cx="180" cy="150" r="3"/>
+          <path class="wire" d="M180 40 V78"/>
+          <circle class="meter" cx="180" cy="95" r="15"/>
+          <text x="180" y="99" text-anchor="middle">V</text>
+          <path class="wire" d="M180 112 V150"/>
+        </svg>
+        <figcaption>The voltmeter across the terminals reads the t.p.d. (<var>E</var> − <var>I</var><var>r</var>), which is also the p.d. across <var>R</var>.</figcaption>
+      </figure>
+
+      <div class="widget" data-challenge="ch-cloze" id="cl-lang">
+        <h3>Fill the gaps — say it like the SQA</h3>
+        <p class="hint">Pick the precise word for each gap, then check. The marks here are for using the right terms.</p>
+        <p class="cloze-text">The EMF is the energy supplied to each
+          <select class="cl-sel" data-answer="coulomb" aria-label="gap 1"><option value="">choose…</option><option>coulomb</option><option>second</option></select>
+          of charge passing through the source. When a current flows, energy is lost driving charge through the cell's
+          <select class="cl-sel" data-answer="internal resistance" aria-label="gap 2"><option value="">choose…</option><option>internal resistance</option><option>external resistor</option></select>;
+          this used-up p.d. is called the
+          <select class="cl-sel" data-answer="lost volts" aria-label="gap 3"><option value="">choose…</option><option>lost volts</option><option>extra volts</option></select>.
+          What is left is measured across the terminals — the
+          <select class="cl-sel" data-answer="terminal" aria-label="gap 4"><option value="">choose…</option><option>terminal</option><option>total</option></select>
+          p.d. So terminal p.d. = EMF
+          <select class="cl-sel" data-answer="minus" aria-label="gap 5"><option value="">choose…</option><option value="minus">−</option><option value="plus">+</option></select>
+          lost volts.
+        </p>
+        <div class="btnrow"><button class="btn primary" type="button" id="cl-check">Check</button><button class="btn" type="button" id="cl-reset">Reset</button></div>
+        <p class="fb-line" id="cl-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="widget" data-challenge="ch-match" id="match-game">
+        <h3>Match the term to its meaning</h3>
+        <p class="hint">Tap a term on the left, then its meaning on the right. Correct pairs lock green.</p>
+        <div class="match-grid">
+          <div class="match-col" id="match-terms"><h4>Term</h4></div>
+          <div class="match-col" id="match-defs"><h4>Meaning</h4></div>
+        </div>
+        <p class="fb-line" id="match-fb" aria-live="polite"></p>
+        <div class="btnrow"><button class="btn" type="button" id="match-reset">Reset</button></div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">A cell of EMF 1.5 V has an internal resistance of 0.50 Ω. It is connected to a 2.5 Ω resistor. Calculate the current in the circuit. <span class="marks">3 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>E</var></span><span class="eq">=</span><span class="rhs"><var>I</var>(<var>R</var> + <var>r</var>)</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">1.5</span><span class="eq">=</span><span class="rhs"><var>I</var>(2.5 + 0.50)</span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">1.5 ÷ 3.0</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">0.50 A</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <div class="ex-q">A battery of EMF 6.0 V has an internal resistance of 0.40 Ω. When connected to a lamp the current is 1.5 A. Calculate the terminal potential difference across the battery. <span class="marks">3 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>E</var></span><span class="eq">=</span><span class="rhs"><var>V</var> + <var>I</var><var>r</var></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">6.0</span><span class="eq">=</span><span class="rhs"><var>V</var> + (1.5 × 0.40)</span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">6.0 − 0.60</span><span class="note-cell">lost volts = 0.60 V</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">5.4 V</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="note"><strong>Lost volts</strong> = <var>I</var><var>r</var> = 0.60 V, and <strong>t.p.d. = EMF − lost volts</strong>. The terminal p.d. is always less than the EMF whenever a current flows.</div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem">A car battery has an EMF of 12.8 V and an internal resistance of 0.10 Ω. The starter motor draws a current of 80 A. <strong>Show that</strong> the terminal p.d. falls to 4.8 V while the motor turns. <span class="marks">3 marks</span></p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">V = E − Ir            (a "show" Q must start from a correct relationship)
+V = 12.8 − (80 × 0.10)
+V = 12.8 − 8.0
+V = 4.8 V             (target value, with unit)</div>
+        <p style="margin:.5rem 0 0;">Never start from 4.8 V and work back — that scores 0 in a "show that".</p></div></details>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 2 ================= -->
+    <section class="panel" id="c2" aria-labelledby="c2-title">
+      <span class="concept-tag">Concept 2</span>
+      <h2 id="c2-title">Solving circuits with internal resistance</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Whole circuit</div>
+          <div class="eq-formula"><var>E</var> = <var>I</var>(<var>R</var> + <var>r</var>)</div>
+          <div class="eq-desc">EMF drives the current through <var>R</var> <strong>and</strong> <var>r</var></div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <ul>
+          <li>Treat the internal resistance <var>r</var> as <strong>just another series resistor</strong>: total resistance = <var>R</var> + <var>r</var>.</li>
+          <li>Routine method: find the total resistance → find the current from <var>E</var> = <var>I</var>(<var>R</var> + <var>r</var>) → then work out any t.p.d. (<var>V</var> = <var>I</var><var>R</var>), lost volts (<var>I</var><var>r</var>) or power as needed.</li>
+          <li><strong>Power:</strong> power to the external circuit = <var>I</var><sup>2</sup><var>R</var>; power wasted inside the cell = <var>I</var><sup>2</sup><var>r</var>; total power from the source = <var>E</var><var>I</var>.</li>
+          <li><strong>Cells in series</strong> add their EMFs <em>and</em> their internal resistances.</li>
+        </ul>
+      </div>
+
+      <div class="widget" data-challenge="ch-calc" id="calc-check">
+        <h3>Check your calculation</h3>
+        <p class="hint">A cell of EMF 1.5 V and internal resistance 0.50 Ω is connected to a 2.5 Ω resistor. Work out the current, type your answer, then check — you'll get a hint if it's a common slip.</p>
+        <label class="field" style="font-weight:900; color:var(--muted);">Current <var>I</var> (A)
+          <input class="num" id="cc-ans" type="number" step="any" inputmode="decimal" style="margin-top:.3rem;">
+        </label>
+        <div class="btnrow"><button class="btn primary" type="button" id="cc-check">Check</button></div>
+        <p class="fb-line" id="cc-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="widget" data-challenge="ch-order" id="order-steps">
+        <h3>Order the steps — find the terminal p.d.</h3>
+        <p class="hint">A cell of EMF <var>E</var> and internal resistance <var>r</var> is connected to a resistor <var>R</var>. Tap the steps in the right order to find the terminal p.d. Tap a placed step to clear it.</p>
+        <div class="ord-slots">
+          <button type="button" class="ord-slot"><span class="step-n">1.</span> <span class="ord-word">—</span></button>
+          <button type="button" class="ord-slot"><span class="step-n">2.</span> <span class="ord-word">—</span></button>
+          <button type="button" class="ord-slot"><span class="step-n">3.</span> <span class="ord-word">—</span></button>
+          <button type="button" class="ord-slot"><span class="step-n">4.</span> <span class="ord-word">—</span></button>
+        </div>
+        <div class="ord-bank" id="ord-bank">
+          <button type="button" class="ord-tile" data-word="Find the current: I = E ÷ (R + r)">Find the current: I = E ÷ (R + r)</button>
+          <button type="button" class="ord-tile" data-word="Add r to R to get the total resistance">Add r to R to get the total resistance</button>
+          <button type="button" class="ord-tile" data-word="Terminal p.d. = E − Ir">Terminal p.d. = E − Ir</button>
+          <button type="button" class="ord-tile" data-word="Find the lost volts: I × r">Find the lost volts: I × r</button>
+        </div>
+        <div class="btnrow"><button class="btn primary" type="button" id="ord-check">Check order</button><button class="btn" type="button" id="ord-reset">Reset</button></div>
+        <p class="fb-line" id="ord-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">A battery of EMF 9.0 V and internal resistance 1.0 Ω is connected to a 3.5 Ω resistor in series with a 0.5 Ω resistor. Calculate the current in the circuit. <span class="marks">3 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>E</var></span><span class="eq">=</span><span class="rhs"><var>I</var>(<var>R</var> + <var>r</var>)</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">9.0</span><span class="eq">=</span><span class="rhs"><var>I</var>(3.5 + 0.5 + 1.0)</span><span class="note-cell">include r in the total</span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">9.0 ÷ 5.0</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">1.8 A</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Several steps — find lost volts, then r</span>
+        <div class="ex-q">A cell of EMF 1.50 V is connected to a 4.0 Ω resistor. The current is 0.30 A. Calculate the internal resistance of the cell. <span class="marks">4 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs"><var>I</var><var>R</var></span><span class="note-cell">terminal p.d. first</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">0.30 × 4.0 = 1.2 V</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>E</var></span><span class="eq">=</span><span class="rhs"><var>V</var> + <var>I</var><var>r</var></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">1.50</span><span class="eq">=</span><span class="rhs">1.2 + (0.30 × <var>r</var>)</span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs">0.30 <var>r</var></span><span class="eq">=</span><span class="rhs">0.30</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs"><var>r</var></span><span class="eq">=</span><span class="rhs">1.0 Ω</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="widget" data-challenge="ch-predict" id="predict">
+        <h3>Predict &amp; justify</h3>
+        <p class="qstem" style="font-weight:900; margin:.2rem 0 .5rem;">A battery of EMF 12.8 V and internal resistance 0.10 Ω supplies one lamp. A second identical lamp is now switched on <strong>in parallel</strong>. The terminal p.d. of the battery will…</p>
+        <div class="predict-btns">
+          <button class="btn" type="button" data-pred="0">Increase</button>
+          <button class="btn" type="button" data-pred="0">Stay the same</button>
+          <button class="btn" type="button" data-pred="1">Decrease</button>
+        </div>
+        <div class="predict-fb" id="pred-fb" hidden>
+          <div class="note"><strong>Decrease.</strong> Adding a parallel lamp <strong>lowers the total external resistance</strong>, so the <strong>current increases</strong>. A larger current means <strong>larger lost volts (<var>I</var><var>r</var>)</strong>, so the terminal p.d. (= <var>E</var> − <var>I</var><var>r</var>) <strong>falls</strong>.</div>
+        </div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem">Two identical cells, each of EMF 1.5 V and internal resistance 0.20 Ω, are connected <strong>in series</strong> with a 2.6 Ω resistor. Calculate (a) the current and (b) the terminal p.d. of the battery. <span class="marks">4 marks</span></p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">Series cells:  E = 1.5 + 1.5 = 3.0 V ;  r = 0.20 + 0.20 = 0.40 Ω
+(a) E = I(R + r) → 3.0 = I(2.6 + 0.40) → I = 3.0 ÷ 3.0 = 1.0 A
+(b) V = IR = 1.0 × 2.6 = 2.6 V    (or V = E − Ir = 3.0 − 0.40 = 2.6 V)</div></div></details>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Justify it</span>
+        <p class="stem">A battery of EMF 12.8 V and internal resistance 0.10 Ω supplies two identical lamps. A switch adds a third lamp <strong>in parallel</strong>. State and <strong>justify</strong> the effect on the terminal p.d. <span class="marks">3 marks</span></p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">Terminal p.d. decreases.  (1)
+Adding a parallel lamp lowers the total external resistance,
+so the current increases.  (1)
+Larger current → larger lost volts (Ir), so t.p.d. = E − Ir falls.  (1)</div>
+        <p style="margin:.5rem 0 0;">Mark scheme: correct direction first; wrong physics in the justification caps the marks.</p></div></details>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 3 ================= -->
+    <section class="panel" id="c3" aria-labelledby="c3-title">
+      <span class="concept-tag">Concept 3</span>
+      <h2 id="c3-title">Measuring EMF &amp; internal resistance — graphs &amp; experiment</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Straight line</div>
+          <div class="eq-formula"><var>V</var> = <var>E</var> − <var>r</var><var>I</var></div>
+          <div class="eq-desc">rearranged from <var>E</var> = <var>V</var> + <var>I</var><var>r</var></div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <ul>
+          <li>Written as <var>V</var> = −<var>r</var><var>I</var> + <var>E</var>, plotting <strong>terminal p.d. <var>V</var> (y-axis)</strong> against <strong>current <var>I</var> (x-axis)</strong> gives a <strong>straight line</strong>:
+            <ul>
+              <li><strong>y-intercept = EMF <var>E</var></strong> (the t.p.d. when <var>I</var> = 0, i.e. open circuit);</li>
+              <li><strong>gradient = −<var>r</var></strong> (internal resistance = magnitude of the gradient);</li>
+              <li><strong>x-intercept = short-circuit current</strong>, <var>I</var><sub>short</sub> = <var>E</var> ÷ <var>r</var> (where <var>V</var> = 0).</li>
+            </ul>
+          </li>
+          <li><strong>Experiment:</strong> connect the cell to a <strong>variable resistor</strong>, with an <strong>ammeter in series</strong> and a <strong>voltmeter across the cell's terminals</strong>. Change the variable resistor to get a range of settings; for each one record the <strong>current <var>I</var></strong> and <strong>terminal p.d. <var>V</var></strong>.</li>
+          <li>Plot <var>V</var> against <var>I</var> and draw the best-fit straight line: the <strong>y-intercept is the EMF</strong> and the <strong>magnitude of the gradient is the internal resistance</strong>.</li>
+        </ul>
+      </div>
+
+      <figure class="figure">
+        <svg class="circuit wide" viewBox="0 0 300 180" role="img" aria-label="Experiment circuit: a cell, an ammeter in series, a variable resistor, and a voltmeter connected across the terminals">
+          <title>Experiment to measure EMF and internal resistance</title>
+          <path class="wire" d="M50 40 V70"/>
+          <path class="wire" d="M35 70 H65"/>
+          <path class="wire" d="M43 80 H57" stroke-width="5"/>
+          <path class="wire" d="M50 80 V140"/>
+          <path class="wire" d="M50 40 H116"/>
+          <circle class="meter" cx="130" cy="40" r="14"/>
+          <text x="130" y="44" text-anchor="middle">A</text>
+          <path class="wire" d="M144 40 H250"/>
+          <path class="wire" d="M250 40 V72"/>
+          <rect class="res" x="238" y="72" width="24" height="44" rx="2"/>
+          <path class="wire" d="M228 122 L272 60 M272 60 L264 62 M272 60 L268 69"/>
+          <path class="wire" d="M250 116 V140"/>
+          <text x="278" y="100"><tspan font-style="italic">R</tspan></text>
+          <path class="wire" d="M50 140 H250"/>
+          <circle class="node" cx="185" cy="40" r="3"/>
+          <circle class="node" cx="185" cy="140" r="3"/>
+          <path class="wire" d="M185 40 V76"/>
+          <circle class="meter" cx="185" cy="92" r="14"/>
+          <text x="185" y="96" text-anchor="middle">V</text>
+          <path class="wire" d="M185 108 V140"/>
+        </svg>
+        <figcaption>The ammeter reads the current <var>I</var>; the voltmeter reads the terminal p.d. <var>V</var>. Vary <var>R</var> and plot <var>V</var> against <var>I</var>.</figcaption>
+      </figure>
+
+      <div class="widget" id="vi-sim">
+        <h3>V–I graph simulator</h3>
+        <p class="hint">Change the EMF and internal resistance and watch the line tilt. Read off the y-intercept (EMF), the gradient (−<var>r</var>) and the x-intercept (short-circuit current).</p>
+        <div class="controls">
+          <label class="field">EMF <var>E</var> (V)<span class="row"><input type="range" id="vi-e" min="1" max="6" step="0.5" value="3"><input class="num" id="vi-e-n" type="number" step="0.5" value="3" inputmode="decimal"></span></label>
+          <label class="field">Internal resistance <var>r</var> (Ω)<span class="row"><input type="range" id="vi-r" min="0.5" max="5" step="0.5" value="1"><input class="num" id="vi-r-n" type="number" step="0.5" value="1" inputmode="decimal"></span></label>
+        </div>
+        <figure class="figure">
+          <svg class="circuit wide" id="vi-svg" viewBox="0 0 290 200" role="img" aria-label="Graph of terminal p.d. against current: a straight line of negative gradient with the y-intercept marked as the EMF and the x-intercept marked as the short-circuit current">
+            <title>Terminal p.d. against current</title>
+            <path class="wire" d="M48 22 V164 H268"/>
+            <path class="wire" d="M48 22 L44 30 M48 22 L52 30"/>
+            <path class="wire" d="M268 164 L260 160 M268 164 L260 168"/>
+            <line class="vi-a" id="vi-line" x1="48" y1="42" x2="264" y2="164"/>
+            <circle class="node" id="vi-yint" cx="48" cy="42" r="4"/>
+            <circle class="node" id="vi-xint" cx="264" cy="164" r="4"/>
+            <text transform="rotate(-90 16 95)" x="16" y="95" text-anchor="middle">terminal p.d. <tspan font-style="italic">V</tspan> (V)</text>
+            <text x="158" y="190" text-anchor="middle">current <tspan font-style="italic">I</tspan> (A)</text>
+            <text id="vi-elab" x="56" y="40"><tspan font-style="italic">E</tspan></text>
+            <text id="vi-ilab" x="260" y="156" text-anchor="end"><tspan font-style="italic">I</tspan>(short)</text>
+          </svg>
+        </figure>
+        <div class="readout" id="vi-out" aria-live="polite">—</div>
+        <div class="working" id="vi-work"></div>
+      </div>
+
+      <div class="widget" data-challenge="ch-graph" id="graph-quiz">
+        <h3>Read the V–I graph</h3>
+        <p class="hint">Use the graph above, then check both answers.</p>
+        <p class="qstem" style="font-weight:900; margin:.2rem 0 .4rem;">1. On a graph of terminal p.d. (y) against current (x), the y-intercept gives you…</p>
+        <label class="opt"><input type="radio" name="gq1" value="0">the internal resistance</label>
+        <label class="opt"><input type="radio" name="gq1" value="1">the EMF</label>
+        <label class="opt"><input type="radio" name="gq1" value="2">the short-circuit current</label>
+        <p class="qstem" style="font-weight:900; margin:.7rem 0 .4rem;">2. The internal resistance is found from…</p>
+        <label class="opt"><input type="radio" name="gq2" value="0">the y-intercept</label>
+        <label class="opt"><input type="radio" name="gq2" value="1">the magnitude of the gradient</label>
+        <label class="opt"><input type="radio" name="gq2" value="2">the x-intercept</label>
+        <div class="btnrow"><button class="btn primary" type="button" id="gq-check">Check</button></div>
+        <p class="fb-line" id="gq-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Read EMF, r and short-circuit current</span>
+        <div class="ex-q">The graph of terminal p.d. against current for a cell is a straight line. It cuts the p.d. axis at 6.0 V and has a gradient of −2.0 V A⁻¹. Determine (a) the EMF, (b) the internal resistance and (c) the short-circuit current. <span class="marks">4 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs">(a) <var>E</var></span><span class="eq">=</span><span class="rhs">y-intercept = 6.0 V</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">(b) gradient</span><span class="eq">=</span><span class="rhs">−<var>r</var> → <var>r</var> = 2.0 Ω</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">(c) <var>E</var></span><span class="eq">=</span><span class="rhs"><var>I</var><sub>short</sub> <var>r</var></span><span class="note-cell">at V = 0</span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var><sub>short</sub></span><span class="eq">=</span><span class="rhs">6.0 ÷ 2.0 = 3.0 A</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Two-point data — no graph drawn</span>
+        <div class="ex-q">When the current from a cell is 0.50 A the terminal p.d. is 1.40 V; when the current is 1.00 A the terminal p.d. is 1.20 V. Determine the EMF and the internal resistance of the cell. <span class="marks">4 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>r</var></span><span class="eq">=</span><span class="rhs">−gradient</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>r</var></span><span class="eq">=</span><span class="rhs">−(1.20 − 1.40) ÷ (1.00 − 0.50)</span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><var>r</var></span><span class="eq">=</span><span class="rhs">0.20 ÷ 0.50 = 0.40 Ω</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>E</var></span><span class="eq">=</span><span class="rhs"><var>V</var> + <var>I</var><var>r</var> = 1.40 + (0.50 × 0.40)</span><span class="note-cell">use either data point</span></div>
+          <div class="calc-row"><span class="lhs"><var>E</var></span><span class="eq">=</span><span class="rhs">1.60 V</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 3</span>
+        <p class="stem">In an experiment to find the EMF and internal resistance of a cell, a graph of terminal p.d. against current is plotted. The line meets the p.d. axis at 1.50 V and the current axis at 5.0 A. Determine (a) the EMF, (b) the short-circuit current and (c) the internal resistance. <span class="marks">4 marks</span></p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) EMF = y-intercept = 1.50 V
+(b) short-circuit current = x-intercept = 5.0 A
+(c) I_short = E ÷ r → r = E ÷ I_short = 1.50 ÷ 5.0 = 0.30 Ω</div></div></details>
+      </div>
+
+      <details class="reveal">
+        <summary>Go further — the <var>R</var> against 1/<var>I</var> method</summary>
+        <div class="reveal-body">
+          <p style="margin:0 0 .5rem;">Some papers vary <var>R</var> and plot it against 1/<var>I</var>. Rearranging <var>E</var> = <var>I</var>(<var>R</var> + <var>r</var>) gives <var>R</var> = <var>E</var>(1/<var>I</var>) − <var>r</var>.</p>
+          <div class="ms">A graph of R (y) against 1/I (x) is a straight line:
+  gradient = E      y-intercept = −r
+(Same physics, different axes.)</div>
+        </div>
+      </details>
+    </section>
+
+    <!-- ================= CHECK ================= -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check yourself</h2>
+
+      <div class="widget">
+        <h3>Mixed multiple choice</h3>
+        <p class="hint">Exam-style multiple choice, 1 mark each. Choose an answer for each, then mark them.</p>
+        <div id="quiz"></div>
+        <div class="btnrow"><button class="btn primary" type="button" id="quiz-mark">Mark my answers</button><button class="btn" type="button" id="quiz-reset">Reset</button></div>
+        <div class="score" id="quiz-score" aria-live="polite"></div>
+      </div>
+
+      <div class="widget">
+        <h3>Rate your confidence</h3>
+        <p class="hint">Red = not yet, Amber = getting there, Green = confident. Saved on this device.</p>
+        <div id="rag"></div>
+        <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+        <div class="btnrow"><button class="btn" type="button" id="rag-reset">Reset ratings</button></div>
+      </div>
+
+      <div class="widget">
+        <h3>Beta progress</h3>
+        <p class="hint">Your points, streak, badges and completed challenges are saved on this device. Clear them here to start fresh.</p>
+        <div class="btnrow"><button class="btn" type="button" id="g-reset">Reset beta progress</button></div>
+      </div>
+    </section>
+  </main>
+
+  <a class="sticky-prog" id="sticky-prog" href="#ghud" aria-label="Challenges done — jump to your progress"><span class="sp-ico" aria-hidden="true">🏆</span><span id="sp-text">0 / 0</span></a>
+
+  <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY = "hp-emf-beta-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
+    function bindPair(rangeId, numId, onChange){
+      var r=$(rangeId), n=$(numId);
+      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
+      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ r.value=v; onChange(parseFloat(r.value)); } });
+    }
+
+    /* V–I graph simulator */
+    (function(){
+      if(!$("vi-svg")) return;
+      var E=3, r=1;
+      var OX=48, TOP=22, BOT=164, RIGHT=268;
+      var W=RIGHT-OX, H=BOT-TOP, YMAX=6;
+      function niceCeil(v){ var s=[1,2,3,4,5,6,8,10,12,15,20,24]; for(var i=0;i<s.length;i++){ if(s[i]>=v) return s[i]; } return Math.ceil(v); }
+      function update(){
+        var ishort = E/r;
+        var xmax = niceCeil(ishort);
+        var ay = BOT - (E/YMAX)*H;
+        var bx = OX + (ishort/xmax)*W;
+        var line=$("vi-line"); line.setAttribute("x1",OX); line.setAttribute("y1",round(ay,1)); line.setAttribute("x2",round(bx,1)); line.setAttribute("y2",BOT);
+        var yi=$("vi-yint"); yi.setAttribute("cx",OX); yi.setAttribute("cy",round(ay,1));
+        var xi=$("vi-xint"); xi.setAttribute("cx",round(bx,1)); xi.setAttribute("cy",BOT);
+        $("vi-elab").setAttribute("y", round(ay,1)-4);
+        var il=$("vi-ilab"); il.setAttribute("x", round(bx,1)-4); il.setAttribute("y", BOT-8);
+        setT("vi-out","EMF = "+E+" V · internal resistance = "+r+" Ω · short-circuit current = "+round(ishort,2)+" A");
+        $("vi-work").textContent =
+          "V = E − rI   (straight line)\n"+
+          "y-intercept = EMF = "+E+" V\n"+
+          "gradient = −r = −"+r+" V A⁻¹\n"+
+          "I_short = E ÷ r = "+E+" ÷ "+r+" = "+round(ishort,2)+" A";
+      }
+      bindPair("vi-e","vi-e-n",function(v){ E=v; update(); });
+      bindPair("vi-r","vi-r-n",function(v){ r=v; update(); });
+      update();
+    })();
+
+    /* Mixed multiple-choice */
+    (function(){
+      var QS=[
+        { q:"The EMF of a battery is best described as", o:["the energy lost in the internal resistance","the energy supplied to each coulomb of charge passing through it","the total charge it can deliver","the current it supplies per second"], a:1 },
+        { q:"A cell of EMF 1.5 V and internal resistance 0.50 Ω drives a current of 0.20 A. The lost volts are", o:["0.30 V","0.10 V","0.75 V","3.0 V"], a:1 },
+        { q:"A 6.0 V battery of internal resistance 0.50 Ω is connected to a 2.5 Ω resistor. The current is", o:["2.4 A","12 A","2.0 A","0.42 A"], a:2 },
+        { q:"A graph of terminal p.d. against current has a gradient of −0.25 V A⁻¹ and a y-intercept of 1.5 V. The internal resistance is", o:["1.5 Ω","0.25 Ω","6.0 Ω","−0.25 Ω"], a:1 },
+        { q:"For the cell in the previous question, the short-circuit current is", o:["0.17 A","1.5 A","6.0 A","0.38 A"], a:2 },
+        { q:"A second resistor is added in parallel across a real battery. The terminal p.d.", o:["increases","decreases, because the current rises and the lost volts rise","stays the same","becomes equal to the EMF"], a:1 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
+        var score=0;
+        clearNotes();
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){
+            var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes();
+        setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* RAG self-check */
+    (function(){
+      var CRIT=[
+        "Define EMF, terminal p.d., lost volts and internal resistance.",
+        "Explain ideal supply, open circuit and short circuit.",
+        "Use E = V + Ir and E = I(R + r) in multi-step problems.",
+        "Find the lost volts and terminal p.d. for a circuit.",
+        "Find the short-circuit current (I_short = E ÷ r).",
+        "Describe the experiment to measure EMF and internal resistance.",
+        "Read EMF (intercept), r (gradient) and I_short from a V–I graph.",
+        "Justify the effect on terminal p.d. when the circuit changes.",
+        "Lay out an internal-resistance calculation the SQA way."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+
+    /* Subnav scrollspy — underline the section in view */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id];
+          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Printing: open every answer reveal, then restore */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){
+        opened=[];
+        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
+      });
+      window.addEventListener("afterprint", function(){
+        opened.forEach(function(d){ d.removeAttribute("open"); });
+        opened=[];
+      });
+    })();
+  })();
+  </script>
+
+  <!-- ================= BETA: gamification engine + interactive challenges ================= -->
+  <script>
+  (function(){
+    "use strict";
+    var K = "hp-emf-beta-g-";
+    function save(k,v){ try{ localStorage.setItem(K+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(K+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function fb(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"ok":"no"); el.textContent=(ok?"✓ ":"✗ ")+msg; }
+
+    var done = load("done",{}), points = load("points",0), streak = load("streak",0), bestStreak = load("bestStreak",0);
+    var challenges = [];
+    [].forEach.call(document.querySelectorAll("[data-challenge]"), function(el){ challenges.push(el.getAttribute("data-challenge")); });
+    var total = challenges.length;
+
+    var BADGES = [
+      { id:"first",  icon:"🎯", name:"First challenge", test:function(n){ return n>=1; } },
+      { id:"streak", icon:"🔥", name:"3 in a row",      test:function(n){ return bestStreak>=3; } },
+      { id:"half",   icon:"⚡", name:"Halfway there",    test:function(n){ return total>0 && n>=Math.ceil(total/2); } },
+      { id:"all",    icon:"🏆", name:"All challenges",   test:function(n){ return total>0 && n>=total; } }
+    ];
+
+    function doneCount(){ var n=0; challenges.forEach(function(c){ if(done[c]) n++; }); return n; }
+
+    function renderBadges(n){
+      var box=$("g-badges"); if(!box) return;
+      box.innerHTML="";
+      BADGES.forEach(function(b){
+        var earned=b.test(n);
+        var chip=document.createElement("span");
+        chip.className="badge-chip"+(earned?" earned":"");
+        chip.innerHTML='<span class="bi" aria-hidden="true">'+b.icon+'</span> '+b.name+(earned?" ✓":" — locked");
+        box.appendChild(chip);
+      });
+    }
+
+    function sync(){
+      var n=doneCount();
+      setT("g-points", points);
+      setT("g-streak", streak);
+      setT("g-count", n+" / "+total);
+      setT("sp-text", n+" / "+total);
+      var sp=$("sticky-prog"); if(sp) sp.classList.toggle("complete", total>0 && n>=total);
+      var bar=$("g-bar"); if(bar) bar.style.width=(total? (n/total*100):0)+"%";
+      var st=$("g-status");
+      if(st){
+        st.textContent = (n>=total && total>0)
+          ? "All challenges complete — nice work! 🏆"
+          : (n>0 ? "Keep going — "+(total-n)+" challenge"+((total-n)===1?"":"s")+" left."
+                 : "Try the challenges as you scroll to earn points and badges.");
+      }
+      renderBadges(n);
+    }
+
+    function award(id, pts, correct){
+      if(correct){
+        if(!done[id]){
+          streak++; if(streak>bestStreak){ bestStreak=streak; save("bestStreak",bestStreak); }
+          done[id]=true; points+=pts;
+          save("streak",streak); save("done",done); save("points",points);
+        }
+      } else {
+        if(streak!==0){ streak=0; save("streak",streak); }
+      }
+      sync();
+    }
+
+    /* ---- cloze ---- */
+    (function(){
+      var w=$("cl-lang"); if(!w) return;
+      var sels=w.querySelectorAll(".cl-sel");
+      $("cl-check").addEventListener("click", function(){
+        var allOk=true, answered=true;
+        [].forEach.call(sels, function(s){
+          if(!s.value) answered=false;
+          var ok = s.value===s.getAttribute("data-answer");
+          s.classList.toggle("ok", !!s.value && ok);
+          s.classList.toggle("no", !!s.value && !ok);
+          if(!ok) allOk=false;
+        });
+        if(!answered){ fb($("cl-fb"), false, "Fill every gap first."); return; }
+        if(allOk){ fb($("cl-fb"), true, "Perfect — energy per coulomb, lost in the internal resistance, t.p.d. = EMF − lost volts."); award("ch-cloze",10,true); }
+        else { fb($("cl-fb"), false, "Not quite — fix the gaps marked in orange and try again."); award("ch-cloze",0,false); }
+      });
+      $("cl-reset").addEventListener("click", function(){
+        [].forEach.call(sels, function(s){ s.value=""; s.classList.remove("ok","no"); });
+        var f=$("cl-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+      });
+    })();
+
+    /* ---- matching game ---- */
+    (function(){
+      var w=$("match-game"); if(!w) return;
+      var PAIRS=[
+        { k:"emf",   term:"EMF",                 def:"Energy given to each coulomb passing through the source" },
+        { k:"tpd",   term:"Terminal p.d.",       def:"P.d. measured across the cell's terminals (= IR)" },
+        { k:"lost",  term:"Lost volts",          def:"Energy lost per coulomb inside the cell (= Ir)" },
+        { k:"r",     term:"Internal resistance", def:"The resistance of the source itself, inside the cell" },
+        { k:"open",  term:"Open circuit",        def:"No current flows, so a voltmeter reads the full EMF" },
+        { k:"short", term:"Short circuit",       def:"External R ≈ 0, so the current is a maximum (E ÷ r)" }
+      ];
+      var termCol=$("match-terms"), defCol=$("match-defs"), fbEl=$("match-fb");
+      var selTerm=null, matched=0;
+      function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+      function build(){
+        [].forEach.call(termCol.querySelectorAll(".match-tile"), function(t){ t.parentNode.removeChild(t); });
+        [].forEach.call(defCol.querySelectorAll(".match-tile"), function(t){ t.parentNode.removeChild(t); });
+        selTerm=null; matched=0;
+        PAIRS.forEach(function(p){
+          var t=document.createElement("button"); t.type="button"; t.className="match-tile"; t.dataset.key=p.k; t.dataset.side="t"; t.textContent=p.term; termCol.appendChild(t);
+        });
+        shuffle(PAIRS.slice()).forEach(function(p){
+          var d=document.createElement("button"); d.type="button"; d.className="match-tile"; d.dataset.key=p.k; d.dataset.side="d"; d.textContent=p.def; defCol.appendChild(d);
+        });
+        if(fbEl){ fbEl.textContent=""; fbEl.className="fb-line"; }
+      }
+      function clearSel(){ if(selTerm){ selTerm.classList.remove("sel"); selTerm=null; } }
+      termCol.addEventListener("click", function(e){
+        var t=e.target.closest(".match-tile"); if(!t||t.classList.contains("done")) return;
+        clearSel(); selTerm=t; t.classList.add("sel");
+      });
+      defCol.addEventListener("click", function(e){
+        var d=e.target.closest(".match-tile"); if(!d||d.classList.contains("done")) return;
+        if(!selTerm){ fb(fbEl, false, "Pick a term on the left first."); return; }
+        if(selTerm.dataset.key===d.dataset.key){
+          selTerm.classList.remove("sel"); selTerm.classList.add("done"); d.classList.add("done");
+          selTerm=null; matched++;
+          if(matched===PAIRS.length){ fb(fbEl, true, "All matched — well done!"); award("ch-match",10,true); }
+          else { fbEl.className="fb-line ok"; fbEl.textContent="✓ Matched — "+(PAIRS.length-matched)+" to go."; }
+        } else {
+          var bad=d; bad.classList.add("no"); clearSel();
+          fb(fbEl, false, "Not a match — try again.");
+          award("ch-match",0,false);
+          setTimeout(function(){ bad.classList.remove("no"); }, 600);
+        }
+      });
+      $("match-reset").addEventListener("click", build);
+      build();
+    })();
+
+    /* ---- calculation checker with misconception nudges ---- */
+    (function(){
+      var w=$("calc-check"); if(!w) return;
+      $("cc-check").addEventListener("click", function(){
+        var v=parseFloat($("cc-ans").value);
+        if(isNaN(v)){ fb($("cc-fb"), false, "Type a number first."); return; }
+        if(Math.abs(v-0.50)<0.02){ fb($("cc-fb"), true, "Correct — I = E ÷ (R + r) = 1.5 ÷ 3.0 = 0.50 A."); award("ch-calc",10,true); return; }
+        var msg="Not yet — I = E ÷ (R + r) = 1.5 ÷ (2.5 + 0.50) = 0.50 A.";
+        if(Math.abs(v-0.60)<0.02) msg="That's 1.5 ÷ 2.5 — you used R only. Include the internal resistance: I = E ÷ (R + r) = 1.5 ÷ 3.0 = 0.50 A.";
+        else if(Math.abs(v-3.0)<0.05) msg="That's R + r — the total resistance, not the current. Now divide: I = 1.5 ÷ 3.0 = 0.50 A.";
+        else if(Math.abs(v-2.0)<0.05) msg="That's E ÷ r — you divided by r instead of (R + r). Use I = 1.5 ÷ 3.0 = 0.50 A.";
+        fb($("cc-fb"), false, msg); award("ch-calc",0,false);
+      });
+    })();
+
+    /* ---- predict & justify ---- */
+    (function(){
+      var w=$("predict"); if(!w) return;
+      [].forEach.call(w.querySelectorAll(".predict-btns button"), function(b){
+        b.addEventListener("click", function(){
+          var ok=b.getAttribute("data-pred")==="1";
+          $("pred-fb").hidden=false;
+          [].forEach.call(w.querySelectorAll(".predict-btns button"), function(x){ x.disabled=true; });
+          award("ch-predict",10,ok);
+        });
+      });
+    })();
+
+    /* ---- V–I graph MCQ ---- */
+    (function(){
+      var w=$("graph-quiz"); if(!w) return;
+      $("gq-check").addEventListener("click", function(){
+        var a1=w.querySelector('input[name="gq1"]:checked');
+        var a2=w.querySelector('input[name="gq2"]:checked');
+        if(!a1||!a2){ fb($("gq-fb"), false, "Answer both questions first."); return; }
+        var ok = a1.value==="1" && a2.value==="1";
+        if(ok){ fb($("gq-fb"), true, "Yes — the y-intercept is the EMF, and the internal resistance is the magnitude of the gradient."); award("ch-graph",10,true); }
+        else { fb($("gq-fb"), false, "Not quite — the y-intercept is the EMF (V when I = 0) and r is the size of the gradient. Try again."); award("ch-graph",0,false); }
+      });
+    })();
+
+    /* ---- tap-to-order builder ---- */
+    (function(){
+      var w=$("order-steps"); if(!w) return;
+      var CORRECT=[
+        "Add r to R to get the total resistance",
+        "Find the current: I = E ÷ (R + r)",
+        "Find the lost volts: I × r",
+        "Terminal p.d. = E − Ir"
+      ];
+      var slotWrap=w.querySelector(".ord-slots");
+      var slots=[].slice.call(w.querySelectorAll(".ord-slot"));
+      var bank=$("ord-bank");
+      function tileFor(word){
+        var r=null;
+        [].forEach.call(bank.querySelectorAll(".ord-tile"), function(t){ if(t.getAttribute("data-word")===word) r=t; });
+        return r;
+      }
+      function place(word){
+        for(var i=0;i<slots.length;i++){
+          if(!slots[i].getAttribute("data-word")){
+            slots[i].setAttribute("data-word", word);
+            slots[i].querySelector(".ord-word").textContent=word;
+            slots[i].classList.add("filled");
+            return true;
+          }
+        }
+        return false;
+      }
+      function clearSlot(slot){
+        var word=slot.getAttribute("data-word");
+        if(!word) return;
+        slot.removeAttribute("data-word");
+        slot.querySelector(".ord-word").textContent="—";
+        slot.classList.remove("filled","ok","no");
+        var t=tileFor(word); if(t) t.disabled=false;
+      }
+      bank.addEventListener("click", function(e){
+        var t=e.target.closest(".ord-tile"); if(!t||t.disabled) return;
+        if(place(t.getAttribute("data-word"))) t.disabled=true;
+      });
+      slotWrap.addEventListener("click", function(e){
+        var s=e.target.closest(".ord-slot"); if(!s) return;
+        clearSlot(s);
+      });
+      $("ord-check").addEventListener("click", function(){
+        var filled=slots.every(function(s){ return s.getAttribute("data-word"); });
+        if(!filled){ fb($("ord-fb"), false, "Place all four steps first."); return; }
+        var allOk=true;
+        slots.forEach(function(s,i){
+          var ok=s.getAttribute("data-word")===CORRECT[i];
+          s.classList.toggle("ok",ok); s.classList.toggle("no",!ok);
+          if(!ok) allOk=false;
+        });
+        if(allOk){ fb($("ord-fb"), true, "Correct order — total resistance, current, lost volts, then terminal p.d."); award("ch-order",10,true); }
+        else { fb($("ord-fb"), false, "Not in order yet — tap a step to clear it and rethink the sequence."); award("ch-order",0,false); }
+      });
+      $("ord-reset").addEventListener("click", function(){
+        slots.forEach(clearSlot);
+        var f=$("ord-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+      });
+    })();
+
+    /* ---- reset beta progress ---- */
+    (function(){
+      var b=$("g-reset"); if(!b) return;
+      b.addEventListener("click", function(){
+        done={}; points=0; streak=0; bestStreak=0;
+        save("done",done); save("points",points); save("streak",streak); save("bestStreak",bestStreak);
+        sync();
+      });
+    })();
+
+    sync();
+  })();
+  </script>
+</body>
+</html>
