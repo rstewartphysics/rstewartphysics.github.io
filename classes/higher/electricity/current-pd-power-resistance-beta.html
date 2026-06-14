@@ -171,23 +171,61 @@ title: Current, p.d., power & resistance (Beta) — Higher Physics
       body { background: #fff; }
     }
 
-    /* ===================== BETA: section colour grammar (chrome only) ===================== */
-    /* Each concept gets an identity colour drawn from the Higher logo palette.
-       Used ONLY on borders + a decorative swatch — never behind body text — so AA contrast
-       is untouched and the colour is always redundant with the visible concept label. */
-    #c4 { --sec: #b8860b; }                  /* power & energy → amber */
-    #c6, #check { --sec: var(--warm); }      /* extension + test → warm orange/red */
-    @media (prefers-color-scheme: dark) { #c4 { --sec: #f3c969; } }
-    .panel[id] { border-left: 5px solid var(--sec, var(--accent)); }
-    .panel[id] .eq-card { border-left-color: var(--sec, var(--accent)); }
+    /* ===================== BETA: feature colour grammar (chrome only) ===================== */
+    /* All CONCEPTS share one colour (light blue). Colour instead tells you the TYPE of
+       block: equations, interactives, practice, examples. Used ONLY on borders + small
+       swatches — never behind body text — so AA contrast is untouched and colour is always
+       redundant with the visible label/heading. Hues are from the Higher logo palette. */
+    :root {
+      --c-concept: var(--accent);   /* light blue — all concept panels */
+      --c-eq:   #1636b8;            /* deep blue  — equations */
+      --c-int:  #b8860b;            /* amber/gold — interactives */
+      --c-prac: var(--warm);        /* orange/red — practice */
+      --c-ex:   #15803d;            /* green      — worked examples */
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --c-eq: #7da9ff; --c-int: #f3c969; --c-ex: #5dd693; }
+    }
+    /* concepts: uniform colour for every section */
+    .panel[id] { border-left: 5px solid var(--c-concept); }
     .panel[id] > .concept-tag::before {
       content: ""; display: inline-block; width: .72em; height: .72em; margin-right: .45em;
-      border-radius: 3px; background: var(--sec, var(--accent)); vertical-align: middle;
+      border-radius: 3px; background: var(--c-concept); vertical-align: middle;
     }
     .subnav-link.is-active { border-bottom-color: var(--accent); }
+    /* features: each type its own colour on the left edge */
+    .eq-card  { border-left: 5px solid var(--c-eq) !important; }
+    .widget   { border-left: 5px solid var(--c-int); }
+    .practice { border-left: 5px solid var(--c-prac); }
+    .example  { border-left: 5px solid var(--c-ex); }
+    /* colour key chips */
+    .colour-key { display: flex; flex-wrap: wrap; gap: .55rem; margin: .1rem 0; }
+    .ck { display: inline-flex; align-items: center; gap: .35rem; font-weight: 800; font-size: .8rem; color: var(--muted); }
+    .ck::before { content: ""; width: .85em; height: .85em; border-radius: 3px; background: var(--ckc, var(--accent)); }
+    .ck.eq   { --ckc: var(--c-eq); }
+    .ck.int  { --ckc: var(--c-int); }
+    .ck.prac { --ckc: var(--c-prac); }
+    .ck.ex   { --ckc: var(--c-ex); }
+
+    /* ===================== BETA: sticky "challenges done" badge ===================== */
+    .sticky-prog {
+      position: fixed; z-index: 300;
+      right: calc(12px + env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      display: inline-flex; align-items: center; gap: .45rem;
+      min-height: 44px; padding: .5rem .85rem; border-radius: 999px;
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--c-int); box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      font-weight: 900; font-size: .9rem; text-decoration: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .sticky-prog:hover, .sticky-prog:focus-visible { border-color: var(--c-prac); }
+    .sticky-prog:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .sticky-prog .sp-ico { font-size: 1.05rem; }
+    .sticky-prog.complete { border-color: var(--c-ex); }
+    @media (max-width: 380px) { .sticky-prog { font-size: .82rem; padding: .45rem .7rem; } }
 
     /* ===================== BETA: progress HUD + badges ===================== */
-    .beta-note { font-weight: 800; color: var(--muted); font-size: .92rem; line-height: 1.55; margin: .25rem 0 .7rem; }
     .beta-flag {
       display: inline-block; font-size: .66rem; font-weight: 900; letter-spacing: .08em;
       text-transform: uppercase; color: #fff; background: var(--warm);
@@ -291,8 +329,13 @@ title: Current, p.d., power & resistance (Beta) — Higher Physics
     <!-- ================= BETA PROGRESS HUD ================= -->
     <section class="panel" id="ghud" aria-labelledby="ghud-title">
       <span class="concept-tag">Beta · interactive mode</span>
-      <h2 id="ghud-title">Your progress <span class="beta-flag">Beta</span></h2>
-      <p class="beta-note">This is the experimental version of the page — extra interactive challenges, colour-coded concepts and progress tracking. Everything is saved on this device only (no account, nothing sent anywhere). Prefer the classic page? <a href="/classes/higher/electricity/current-pd-power-resistance.html">Open the stable version</a>.</p>
+      <h2 id="ghud-title">Your progress</h2>
+      <div class="colour-key" aria-hidden="true">
+        <span class="ck eq">Equations</span>
+        <span class="ck int">Interactives</span>
+        <span class="ck prac">Practice</span>
+        <span class="ck ex">Worked examples</span>
+      </div>
       <div class="hud-row">
         <div class="hud-stat"><span class="hud-num" id="g-points">0</span><span class="hud-lab">points</span></div>
         <div class="hud-stat"><span class="hud-num" id="g-streak">0</span><span class="hud-lab">streak 🔥</span></div>
@@ -428,6 +471,34 @@ Q = It → 90 = I × 90 → I = 1.0 A</div></div></details>
           <li><strong>Non-ohmic</strong> (e.g. a lamp) → the line curves; resistance rises as it heats up.</li>
         </ul>
       </div>
+
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 264 176" role="img" aria-label="A circuit to investigate Ohm's law: a cell drives current through an ammeter and a resistor in series, with a voltmeter connected across the resistor">
+          <title>Measuring p.d. and current for a resistor</title>
+          <path class="wire" d="M30 40 V80"/>
+          <path class="wire" d="M16 80 H44"/>
+          <path class="wire" d="M24 90 H36" stroke-width="5"/>
+          <path class="wire" d="M30 96 V140"/>
+          <path class="wire" d="M30 140 H210"/>
+          <path class="wire" d="M30 40 H106"/>
+          <circle class="meter" cx="120" cy="40" r="14"/>
+          <text x="120" y="44" text-anchor="middle">A</text>
+          <path class="wire" d="M134 40 H210"/>
+          <path class="wire" d="M210 40 V70"/>
+          <rect class="res" x="198" y="70" width="24" height="44" rx="2"/>
+          <path class="wire" d="M210 114 V140"/>
+          <circle class="node" cx="210" cy="70" r="3"/>
+          <circle class="node" cx="210" cy="114" r="3"/>
+          <path class="wire" d="M210 70 H244 V81"/>
+          <circle class="meter" cx="244" cy="95" r="14"/>
+          <text x="244" y="99" text-anchor="middle">V</text>
+          <path class="wire" d="M244 109 V114 H210"/>
+          <path class="wire" d="M84 40 L77 36 M84 40 L77 44"/>
+          <text x="70" y="34">I</text>
+          <text x="186" y="96" text-anchor="end">R</text>
+        </svg>
+        <figcaption>Ohm's law in the lab: the ammeter reads the current <var>I</var> in the resistor; the voltmeter reads the p.d. <var>V</var> across it. Then <var>R</var> = <var>V</var> ÷ <var>I</var>.</figcaption>
+      </figure>
 
       <div class="widget" data-challenge="ch-cloze" id="cl-lang">
         <h3>Fill the gaps — say it like the SQA</h3>
@@ -635,6 +706,24 @@ uncertainty ≈ 2% of 20 = ± 0.4 Ω → R = (20.0 ± 0.4) Ω</div>
         </ul>
       </div>
 
+      <figure class="figure">
+        <svg class="circuit wide" viewBox="0 0 260 130" role="img" aria-label="A mixed network: resistor R1 in series with a parallel pair, resistor R2 and resistor R3">
+          <title>Mixed network — R1 in series with a parallel pair R2 and R3</title>
+          <circle class="node" cx="14" cy="65" r="3"/><path class="wire" d="M14 65 H40"/>
+          <rect class="res" x="40" y="55" width="36" height="20" rx="2"/>
+          <text x="58" y="50" text-anchor="middle">R₁</text>
+          <path class="wire" d="M76 65 H104"/><circle class="node" cx="104" cy="65" r="3"/>
+          <path class="wire" d="M104 35 V95"/>
+          <path class="wire" d="M104 35 H140"/><rect class="res" x="140" y="25" width="40" height="20" rx="2"/><path class="wire" d="M180 35 H216"/>
+          <text x="160" y="20" text-anchor="middle">R₂</text>
+          <path class="wire" d="M104 95 H140"/><rect class="res" x="140" y="85" width="40" height="20" rx="2"/><path class="wire" d="M180 95 H216"/>
+          <text x="160" y="121" text-anchor="middle">R₃</text>
+          <path class="wire" d="M216 35 V95"/><circle class="node" cx="216" cy="65" r="3"/>
+          <path class="wire" d="M216 65 H246"/><circle class="node" cx="246" cy="65" r="3"/>
+        </svg>
+        <figcaption>R₁ is in series with the parallel pair R₂ and R₃. Reduce the parallel pair to one value first, then add R₁ to get R<sub>T</sub>.</figcaption>
+      </figure>
+
       <div class="example">
         <span class="ex-type">Substitute &amp; solve</span>
         <div class="ex-q">A 6.0 Ω resistor is connected in series with a parallel combination of a 12 Ω resistor and a 4.0 Ω resistor. Calculate the total resistance of the circuit. <span class="marks">5 marks</span></div>
@@ -745,6 +834,29 @@ R_T = 1000 + 2000 = 3000 Ω  (3.0 kΩ)
           <li>For heat or energy over time, follow up with <strong>E = Pt</strong>.</li>
         </ul>
       </div>
+
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 240 160" role="img" aria-label="A heating element connected to a power supply with an ammeter in series, showing the current in the element">
+          <title>A heating element (resistor) dissipating power</title>
+          <path class="wire" d="M30 40 V72"/>
+          <path class="wire" d="M16 72 H44"/>
+          <path class="wire" d="M24 82 H36" stroke-width="5"/>
+          <path class="wire" d="M30 88 V130"/>
+          <path class="wire" d="M30 40 H106"/>
+          <circle class="meter" cx="120" cy="40" r="14"/>
+          <text x="120" y="44" text-anchor="middle">A</text>
+          <path class="wire" d="M134 40 H210"/>
+          <path class="wire" d="M210 40 V64"/>
+          <rect class="res" x="198" y="64" width="24" height="44" rx="2"/>
+          <path class="wire" d="M210 108 V130"/>
+          <path class="wire" d="M210 130 H30"/>
+          <path class="wire" d="M84 40 L77 36 M84 40 L77 44"/>
+          <text x="70" y="34">I</text>
+          <text x="186" y="90" text-anchor="end">R</text>
+          <text x="36" y="64">+</text>
+        </svg>
+        <figcaption>The element has resistance <var>R</var> and carries current <var>I</var> from the supply. The power dissipated is <var>P</var> = <var>I</var><var>V</var> = <var>I</var><sup>2</sup><var>R</var> = <var>V</var><sup>2</sup>/<var>R</var>.</figcaption>
+      </figure>
 
       <div class="widget" data-challenge="ch-calc" id="calc-check">
         <h3>Check your calculation</h3>
@@ -1114,6 +1226,8 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
     </section>
   </main>
 
+  <a class="sticky-prog" id="sticky-prog" href="#ghud" aria-label="Challenges done — jump to your progress"><span class="sp-ico" aria-hidden="true">🏆</span><span id="sp-text">0 / 0</span></a>
+
   <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
 
   <script>
@@ -1395,6 +1509,8 @@ V = V_P − V_Q = 5.0 − 8.0 = −3.0 V  (Q is 3.0 V higher than P)</div></div>
       setT("g-points", points);
       setT("g-streak", streak);
       setT("g-count", n+" / "+total);
+      setT("sp-text", n+" / "+total);
+      var sp=$("sticky-prog"); if(sp) sp.classList.toggle("complete", total>0 && n>=total);
       var bar=$("g-bar"); if(bar) bar.style.width=(total? (n/total*100):0)+"%";
       var st=$("g-status");
       if(st){
