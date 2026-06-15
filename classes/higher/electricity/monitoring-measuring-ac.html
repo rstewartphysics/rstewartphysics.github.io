@@ -1,0 +1,1064 @@
+---
+layout: none
+title: Monitoring & measuring a.c. — Higher Physics
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)" />
+
+  <link rel="apple-touch-icon" href="/assets/higher/Delta.png" />
+  <link rel="icon" type="image/png" href="/assets/higher/Delta.png" />
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260612a">
+
+  <title>Monitoring &amp; measuring a.c. — Higher Physics</title>
+
+  <style>
+    /* warm accent needs a brighter value on the dark palette */
+    :root { --warm: #c2410c; }
+    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; } }
+
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+
+    /* ---- equation / key-idea cards (the standout) with real 2D fractions ---- */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(250px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ms var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .eq-card.idea .eq-formula { font-family: var(--font-stack); font-size: 1.02rem; font-weight: 900; line-height: 1.4; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .4em; }
+    .frac > .fr-n { border-bottom: 2.5px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 1px; }
+
+    /* ---- given (relationship sheet) vs derived equations ---- */
+    .eq-tag { display:inline-block; font-size:.64rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; padding:2px 8px; border-radius:999px; margin-bottom:.15rem; }
+    .eq-tag.given { color:#fff; background:#1636b8; }
+    .eq-tag.derived { color:var(--accent-2); background:var(--surface-2); border:1.5px solid var(--border-accent); }
+    @media (prefers-color-scheme: dark){ .eq-tag.given { background:#3b6bff; } }
+    .eq-key { display:flex; flex-wrap:wrap; gap:.45rem 1rem; margin:.1rem 0 .3rem; font-weight:800; font-size:.82rem; color:var(--muted); }
+    .eq-key span { display:inline-flex; align-items:center; gap:.35rem; }
+    .eq-key .swatch { display:inline-block; width:.85em; height:.85em; border-radius:3px; flex-shrink:0; }
+    .eq-key .swatch.given { background:#1636b8; }
+    .eq-key .swatch.derived { background:transparent; border:1.5px solid var(--border-accent); }
+    @media (prefers-color-scheme: dark){ .eq-key .swatch.given { background:#3b6bff; } }
+
+    /* ---- worked examples (centred, aligned on the = sign) ---- */
+    .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+    .marks { display: inline-block; font-size: .74rem; font-weight: 900; letter-spacing: .03em; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 8px; margin-left: .45rem; white-space: nowrap; vertical-align: middle; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    /* conversions pulled to the left; working stays centred */
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv var { font-style: italic; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; } }
+    /* narrow phones: coaching notes wrap under their line instead of hiding off-screen */
+    @media (max-width: 600px) {
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    /* ---- practice callout (stands out) ---- */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #3b6bff, #1636b8); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .practice .stem { margin: .15rem 0 0; }
+
+    /* ---- model answer (qualitative concept 1) ---- */
+    .model-ans { text-align: left; font-family: var(--font-stack); font-weight: 800; color: var(--muted); line-height: 1.6; background: var(--surface-2); border-radius: 8px; padding: .6rem .8rem; }
+    .model-ans strong { color: var(--text); }
+    .ans-label { display: block; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .3rem; }
+
+    /* ---- diagrams ---- */
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .scope { display: block; width: 100%; max-width: 420px; height: auto; margin: .2rem auto 0; }
+    .scope .frame { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .scope .grid { stroke: var(--border); stroke-width: 1; }
+    .scope .axis { stroke: var(--muted); stroke-width: 1.6; }
+    .scope .trace { stroke: var(--accent); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .scope .dc { stroke: var(--warm); stroke-width: 2.6; fill: none; stroke-linecap: round; }
+    .scope .mark { stroke: var(--warm); stroke-width: 1.6; stroke-dasharray: 4 3; fill: none; }
+    .scope text { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 11px; }
+    .scope .small { font-size: 9.5px; fill: var(--muted); }
+
+    /* ---- tools ---- */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field[hidden] { display: none; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 140px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn.primary { background: linear-gradient(135deg, #3b6bff, #1636b8); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .readout { font-size: 1.2rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .working { font-family: ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .9rem; line-height: 1.5; }
+
+    /* ---- practice reveal ---- */
+    .stem { margin: .9rem 0 0; font-weight: 900; color: var(--text); }
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .ex-divider { margin: 1.1rem 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+
+    /* ===================== BETA: feature colour grammar (chrome only) ===================== */
+    :root {
+      --c-concept: var(--accent);
+      --c-eq:   #1636b8;
+      --c-int:  #b8860b;
+      --c-prac: var(--warm);
+      --c-ex:   #15803d;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --c-eq: #7da9ff; --c-int: #f3c969; --c-ex: #5dd693; }
+    }
+    .panel[id] { border-left: 5px solid var(--c-concept); }
+    .panel[id] > .concept-tag::before {
+      content: ""; display: inline-block; width: .72em; height: .72em; margin-right: .45em;
+      border-radius: 3px; background: var(--c-concept); vertical-align: middle;
+    }
+    .subnav-link.is-active { border-bottom-color: var(--accent); }
+    .eq-card  { border-left: 5px solid var(--c-eq) !important; }
+    .widget   { border-left: 5px solid var(--c-int); }
+    .practice { border-left: 5px solid var(--c-prac); }
+    .example  { border-left: 5px solid var(--c-ex); }
+    .colour-key { display: flex; flex-wrap: wrap; gap: .55rem; margin: .1rem 0; }
+    .ck { display: inline-flex; align-items: center; gap: .35rem; font-weight: 800; font-size: .8rem; color: var(--muted); }
+    .ck::before { content: ""; width: .85em; height: .85em; border-radius: 3px; background: var(--ckc, var(--accent)); }
+    .ck.eq   { --ckc: var(--c-eq); }
+    .ck.int  { --ckc: var(--c-int); }
+    .ck.prac { --ckc: var(--c-prac); }
+    .ck.ex   { --ckc: var(--c-ex); }
+
+    /* ===================== BETA: sticky "challenges done" badge ===================== */
+    .sticky-prog {
+      position: fixed; z-index: 300;
+      right: calc(12px + env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      display: inline-flex; align-items: center; gap: .45rem;
+      min-height: 44px; padding: .5rem .85rem; border-radius: 999px;
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--c-int); box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      font-weight: 900; font-size: .9rem; text-decoration: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .sticky-prog:hover, .sticky-prog:focus-visible { border-color: var(--c-prac); }
+    .sticky-prog:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .sticky-prog .sp-ico { font-size: 1.05rem; }
+    .sticky-prog.complete { border-color: var(--c-ex); }
+    @media (max-width: 380px) { .sticky-prog { font-size: .82rem; padding: .45rem .7rem; } }
+
+    /* ===================== BETA: progress HUD + badges ===================== */
+    .beta-flag {
+      display: inline-block; font-size: .66rem; font-weight: 900; letter-spacing: .08em;
+      text-transform: uppercase; color: #fff; background: var(--warm);
+      padding: 2px 9px; border-radius: 999px; vertical-align: middle; margin-left: .35rem;
+    }
+    .hud-row { display: flex; flex-wrap: wrap; gap: .8rem; margin: .5rem 0 .7rem; }
+    .hud-stat {
+      flex: 1; min-width: 92px; text-align: center; padding: .6rem .4rem;
+      border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card);
+    }
+    .hud-num { display: block; font-size: 1.55rem; font-weight: 900; color: var(--text); line-height: 1.1; }
+    .hud-lab { display: block; font-size: .76rem; font-weight: 800; color: var(--muted); margin-top: .15rem; }
+    .g-track { height: 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); overflow: hidden; }
+    .g-track > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b6bff, #1636b8); transition: width .35s ease; }
+    .badges { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; }
+    .badge-chip {
+      display: inline-flex; align-items: center; gap: .4rem; padding: .42rem .75rem;
+      border: 1px solid var(--border-soft); border-radius: 999px; background: var(--card);
+      font-weight: 900; font-size: .85rem; color: var(--muted); opacity: .55;
+    }
+    .badge-chip.earned { opacity: 1; color: var(--text); border-color: var(--accent); background: var(--surface-2); }
+    .badge-chip .bi { font-size: 1.05rem; }
+
+    /* ===================== BETA: cloze ===================== */
+    .cloze-text { font-weight: 800; color: var(--text); line-height: 2.2; font-size: 1rem; }
+    .cl-sel {
+      min-height: 40px; padding: .25rem .45rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-weight: 800; font-family: inherit; font-size: .95rem; margin: 0 .12rem;
+    }
+    .cl-sel.ok { border-color: #15803d; border-width: 2px; }
+    .cl-sel.no { border-color: var(--warm); border-width: 2px; }
+
+    /* ===================== BETA: predict buttons + feedback line ===================== */
+    .predict-btns { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .3rem; }
+    .predict-btns button { min-height: 48px; }
+    .predict-fb { margin-top: .7rem; }
+    .fb-line { margin-top: .7rem; font-weight: 900; min-height: 1.2em; }
+    .fb-line.ok { color: #15803d; }
+    .fb-line.no { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .fb-line.ok { color: #5dd693; } }
+
+    /* ===================== BETA: matching game ===================== */
+    .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin-top: .3rem; }
+    .match-col { display: flex; flex-direction: column; gap: .45rem; }
+    .match-col h4 { margin: .1rem 0 .1rem; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); }
+    .match-tile {
+      min-height: 48px; padding: .5rem .65rem; border: 1px solid var(--border-accent); border-radius: 10px;
+      background: var(--card); color: var(--text); font-weight: 800; font-family: inherit; font-size: .86rem;
+      text-align: left; cursor: pointer; line-height: 1.3;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .match-tile:hover { border-color: var(--border-strong); }
+    .match-tile.sel { border-color: var(--accent); border-width: 2px; background: var(--surface-2); }
+    .match-tile.done { border-color: #15803d; background: rgba(21,128,61,.12); cursor: default; }
+    .match-tile.no { border-color: var(--warm); border-width: 2px; }
+    .match-tile:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    @media (prefers-color-scheme: dark) { .match-tile.done { border-color: #5dd693; } }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/hphysicsbanner.png" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Monitoring &amp; measuring a.c.</h1>
+      <p>Higher Physics · Electricity <span class="beta-flag">Beta</span></p>
+    </div>
+  </header>
+
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to concepts">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#c1">What a.c. is</a>
+        <a class="subnav-link" href="#c2">Peak &amp; rms</a>
+        <a class="subnav-link" href="#c3">Reading the trace</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Monitoring and measuring alternating current</h1>
+    <a class="backlink" href="/classes/higher-physics.html"><span aria-hidden="true">←</span> Back to Higher hub</a>
+
+    <!-- ================= BETA PROGRESS HUD ================= -->
+    <section class="panel" id="ghud" aria-labelledby="ghud-title">
+      <span class="concept-tag">Beta · interactive mode</span>
+      <h2 id="ghud-title">Your progress</h2>
+      <div class="colour-key" aria-hidden="true">
+        <span class="ck eq">Equations</span>
+        <span class="ck int">Interactives</span>
+        <span class="ck prac">Practice</span>
+        <span class="ck ex">Worked examples</span>
+      </div>
+      <div class="hud-row">
+        <div class="hud-stat"><span class="hud-num" id="g-points">0</span><span class="hud-lab">points</span></div>
+        <div class="hud-stat"><span class="hud-num" id="g-streak">0</span><span class="hud-lab">streak 🔥</span></div>
+        <div class="hud-stat"><span class="hud-num" id="g-count">0 / 0</span><span class="hud-lab">challenges done</span></div>
+      </div>
+      <div class="g-track" aria-hidden="true"><span id="g-bar"></span></div>
+      <p class="score" id="g-status" aria-live="polite"></p>
+      <div class="badges" id="g-badges" aria-label="Badges earned"></div>
+    </section>
+
+    <!-- ================= CONCEPT 1 ================= -->
+    <section class="panel" id="c1" aria-labelledby="c1-title">
+      <span class="concept-tag">Concept 1</span>
+      <h2 id="c1-title">What alternating current is</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card idea">
+          <div class="eq-name">Key idea</div>
+          <div class="eq-formula"><strong>a.c.</strong> is a current that <strong>changes direction and instantaneous value with time</strong>; <strong>d.c.</strong> flows one way only.</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <ul>
+          <li><strong>Alternating current (a.c.)</strong> continually <strong>changes direction</strong>, and its <strong>instantaneous value</strong> changes with time (the mains supply, signal generators). <strong>Direct current (d.c.)</strong> flows in <strong>one direction only</strong>.</li>
+          <li>On an <strong>oscilloscope</strong>, a.c. shows as a repeating wave (sinusoidal for the mains); steady d.c. is a flat horizontal line.</li>
+          <li>The <strong>peak value</strong> is the maximum the wave reaches from zero; the <strong>period <var>T</var></strong> is the time for one complete cycle; the <strong>frequency <var>f</var></strong> is the number of cycles per second (<var>f</var> = 1 ÷ <var>T</var>).</li>
+        </ul>
+      </div>
+
+      <figure class="figure">
+        <svg class="scope" viewBox="0 0 320 180" role="img" aria-label="An oscilloscope screen comparing a sinusoidal a.c. trace, labelled with its peak value and one period, against a flat horizontal line for steady d.c.">
+          <title>a.c. (a sine wave) compared with steady d.c. (a flat line)</title>
+          <rect class="frame" x="20" y="20" width="280" height="130" rx="6"/>
+          <line class="grid" x1="20" y1="52" x2="300" y2="52"/>
+          <line class="grid" x1="20" y1="85" x2="300" y2="85"/>
+          <line class="grid" x1="20" y1="118" x2="300" y2="118"/>
+          <line class="grid" x1="76" y1="20" x2="76" y2="150"/>
+          <line class="grid" x1="132" y1="20" x2="132" y2="150"/>
+          <line class="grid" x1="188" y1="20" x2="188" y2="150"/>
+          <line class="grid" x1="244" y1="20" x2="244" y2="150"/>
+          <line class="axis" x1="20" y1="85" x2="300" y2="85"/>
+          <path class="trace" d="M20 85 Q 48 35 76 85 Q 104 135 132 85 Q 160 35 188 85 Q 216 135 244 85 Q 272 35 300 85"/>
+          <path class="dc" d="M20 60 H300"/>
+          <line class="mark" x1="48" y1="35" x2="48" y2="85"/>
+          <text class="small" x="52" y="46">peak</text>
+          <line class="mark" x1="76" y1="118" x2="188" y2="118"/>
+          <text class="small" x="118" y="132" text-anchor="middle">one period T</text>
+          <text class="small" x="296" y="56" text-anchor="end">d.c.</text>
+        </svg>
+        <figcaption>a.c. (blue) repeats and changes direction each cycle; steady d.c. (orange) is a flat line.</figcaption>
+      </figure>
+
+      <div class="widget" data-challenge="ch-cloze" id="cl-lang">
+        <h3>Fill the gaps — say it like the SQA</h3>
+        <p class="hint">Pick the precise word for each gap, then check.</p>
+        <p class="cloze-text">Alternating current continually changes
+          <select class="cl-sel" data-answer="direction" aria-label="gap 1"><option value="">choose…</option><option>direction</option><option>resistance</option></select>,
+          while direct current flows in
+          <select class="cl-sel" data-answer="one" aria-label="gap 2"><option value="">choose…</option><option>one</option><option>both</option></select>
+          direction only. On an oscilloscope, a.c. appears as a repeating
+          <select class="cl-sel" data-answer="wave" aria-label="gap 3"><option value="">choose…</option><option>wave</option><option>flat line</option></select>.
+          The time for one complete cycle is the
+          <select class="cl-sel" data-answer="period" aria-label="gap 4"><option value="">choose…</option><option>period</option><option>frequency</option></select>,
+          and the number of cycles each second is the
+          <select class="cl-sel" data-answer="frequency" aria-label="gap 5"><option value="">choose…</option><option>frequency</option><option>period</option></select>.
+        </p>
+        <div class="btnrow"><button class="btn primary" type="button" id="cl-check">Check</button><button class="btn" type="button" id="cl-reset">Reset</button></div>
+        <p class="fb-line" id="cl-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Model answer — State the difference</span>
+        <div class="ex-q">State one difference between alternating current and direct current. <span class="marks">1 mark</span></div>
+        <div class="model-ans">
+          <span class="ans-label">Model answer</span>
+          a.c. <strong>changes direction (and instantaneous value) with time</strong>, whereas d.c. flows in <strong>one direction only</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 2 ================= -->
+    <section class="panel" id="c2" aria-labelledby="c2-title">
+      <span class="concept-tag">Concept 2</span>
+      <h2 id="c2-title">Peak &amp; rms values</h2>
+
+      <div class="eq-key">
+        <span><span class="swatch given"></span><strong>On the relationship sheet</strong> — given to you in the exam</span>
+        <span><span class="swatch derived"></span><strong>Derived</strong> — just the same equation rearranged</span>
+      </div>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <span class="eq-tag given">On the relationship sheet</span>
+          <div class="eq-name">Peak voltage</div>
+          <div class="eq-formula"><var>V</var><sub>peak</sub> = √2 <var>V</var><sub>rms</sub></div>
+          <div class="eq-desc">peak = √2 × rms (≈ 1.41 × rms)</div>
+        </div>
+        <div class="eq-card">
+          <span class="eq-tag derived">Derived</span>
+          <div class="eq-name">rms voltage</div>
+          <div class="eq-formula">
+            <span><var>V</var><sub>rms</sub> =</span>
+            <span class="frac" aria-label="V peak over root two"><span class="fr-n"><var>V</var><sub>peak</sub></span><span class="fr-d">√2</span></span>
+          </div>
+          <div class="eq-desc">rms = peak ÷ √2</div>
+        </div>
+        <div class="eq-card">
+          <span class="eq-tag given">On the relationship sheet</span>
+          <div class="eq-name">Peak current</div>
+          <div class="eq-formula"><var>I</var><sub>peak</sub> = √2 <var>I</var><sub>rms</sub></div>
+          <div class="eq-desc">and <var>I</var><sub>rms</sub> = <var>I</var><sub>peak</sub> ÷ √2</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <ul>
+          <li>The <strong>rms (root mean square)</strong> value of an a.c. is the <strong>d.c. value that would deliver the same power</strong> to a resistor. It is what a.c. meters read and what "230 V mains" means (230 V is the rms, not the peak).</li>
+          <li>For a sinusoidal a.c.: <var>V</var><sub>peak</sub> = √2 × <var>V</var><sub>rms</sub> ≈ 1.41 × <var>V</var><sub>rms</sub> (and the same for current).</li>
+          <li><strong>Always check whether a value is peak or rms before using it</strong> — mixing them is the classic error. Meters and quoted mains values are <strong>rms</strong>; an oscilloscope shows you the <strong>peak</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="widget" data-challenge="ch-match" id="match-game">
+        <h3>Match the term to its meaning</h3>
+        <p class="hint">Tap a term on the left, then its meaning on the right. Correct pairs lock green.</p>
+        <div class="match-grid">
+          <div class="match-col" id="match-terms"><h4>Term</h4></div>
+          <div class="match-col" id="match-defs"><h4>Meaning</h4></div>
+        </div>
+        <p class="fb-line" id="match-fb" aria-live="polite"></p>
+        <div class="btnrow"><button class="btn" type="button" id="match-reset">Reset</button></div>
+      </div>
+
+      <div class="widget" data-challenge="ch-calc" id="calc-check">
+        <h3>Check your calculation</h3>
+        <p class="hint">The mains supply has an rms voltage of 230 V. Work out the peak voltage (in V), type your answer, then check — you'll get a hint if it's a common slip.</p>
+        <label class="field">Peak voltage <var>V</var><sub>peak</sub> (V)
+          <span class="row"><input class="num" id="cc-ans" type="number" step="any" inputmode="decimal"></span>
+        </label>
+        <div class="btnrow"><button class="btn primary" type="button" id="cc-check">Check</button></div>
+        <p class="fb-line" id="cc-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">The mains supply has an rms voltage of 230 V. Calculate the peak voltage of the supply. <span class="marks">3 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>peak</sub></span><span class="eq">=</span><span class="rhs">√2 × <var>V</var><sub>rms</sub></span><span class="note-cell">on the sheet</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>peak</sub></span><span class="eq">=</span><span class="rhs">1.41 × 230</span><span class="note-cell">√2 ≈ 1.41</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>peak</sub></span><span class="eq">=</span><span class="rhs">325 V  (3.25 × 10² V)</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <div class="ex-q">An oscilloscope shows that an a.c. signal has a peak voltage of 12 V. Calculate the rms voltage. <span class="marks">3 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>peak</sub></span><span class="eq">=</span><span class="rhs">√2 × <var>V</var><sub>rms</sub></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">12</span><span class="eq">=</span><span class="rhs">1.41 × <var>V</var><sub>rms</sub></span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>rms</sub></span><span class="eq">=</span><span class="rhs">12 ÷ 1.41</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>rms</sub></span><span class="eq">=</span><span class="rhs">8.5 V</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="note"><strong>Peak or rms?</strong> A value from a <strong>meter</strong> or quoted for the <strong>mains</strong> is rms; a value read off an <strong>oscilloscope</strong> is peak. Decide which you have <em>before</em> you substitute.</div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem">An a.c. supply has a peak current of 0.50 A. Calculate the rms current. <span class="marks">3 marks</span></p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">I_rms = I_peak ÷ √2 = 0.50 ÷ 1.41 = 0.35 A</div></div></details>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 3 ================= -->
+    <section class="panel" id="c3" aria-labelledby="c3-title">
+      <span class="concept-tag">Concept 3</span>
+      <h2 id="c3-title">Reading the oscilloscope</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <span class="eq-tag given">On the relationship sheet</span>
+          <div class="eq-name">Frequency</div>
+          <div class="eq-formula">
+            <span><var>T</var> =</span>
+            <span class="frac" aria-label="1 over f"><span class="fr-n">1</span><span class="fr-d"><var>f</var></span></span>
+            <span>&nbsp;so&nbsp;<var>f</var> =</span>
+            <span class="frac" aria-label="1 over T"><span class="fr-n">1</span><span class="fr-d"><var>T</var></span></span>
+          </div>
+          <div class="eq-desc">period and frequency are reciprocals</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <ul>
+          <li>An oscilloscope has two key control settings:
+            <ul>
+              <li><strong>volts/div (Y-gain):</strong> volts per vertical division → <strong>peak voltage = (divisions from the centre line to the peak) × (volts/div)</strong>;</li>
+              <li><strong>time-base (time/div):</strong> seconds per horizontal division → <strong>period <var>T</var> = (divisions for one complete wave) × (time/div)</strong>.</li>
+            </ul>
+          </li>
+          <li>From the period, <strong><var>f</var> = 1 ÷ <var>T</var></strong>. From the peak voltage, <strong>rms = peak ÷ √2</strong>.</li>
+          <li><strong>Method:</strong> (1) count divisions for one full cycle → × time/div → <var>T</var> → <var>f</var> = 1 ÷ <var>T</var>; (2) count divisions from the centre to the peak → × volts/div → <var>V</var><sub>peak</sub> → <var>V</var><sub>rms</sub>.</li>
+        </ul>
+      </div>
+
+      <figure class="figure">
+        <svg class="scope" viewBox="0 0 320 190" role="img" aria-label="An oscilloscope grid with a sine wave, showing the peak height measured in divisions above the centre line and one full cycle measured in divisions along the time axis">
+          <title>Reading peak height and period in divisions on an oscilloscope grid</title>
+          <rect class="frame" x="20" y="18" width="280" height="132" rx="6"/>
+          <line class="grid" x1="76" y1="18" x2="76" y2="150"/>
+          <line class="grid" x1="132" y1="18" x2="132" y2="150"/>
+          <line class="grid" x1="188" y1="18" x2="188" y2="150"/>
+          <line class="grid" x1="244" y1="18" x2="244" y2="150"/>
+          <line class="grid" x1="20" y1="51" x2="300" y2="51"/>
+          <line class="grid" x1="20" y1="117" x2="300" y2="117"/>
+          <line class="axis" x1="20" y1="84" x2="300" y2="84"/>
+          <path class="trace" d="M20 84 Q 48 40 76 84 Q 104 128 132 84 Q 160 40 188 84 Q 216 128 244 84 Q 272 40 300 84"/>
+          <line class="mark" x1="48" y1="40" x2="48" y2="84"/>
+          <text class="small" x="52" y="60">peak (divisions)</text>
+          <line class="mark" x1="76" y1="128" x2="188" y2="128"/>
+          <text class="small" x="132" y="142" text-anchor="middle">one cycle (divisions)</text>
+          <text class="small" x="26" y="32">Y-gain = volts/div · time-base = time/div</text>
+        </svg>
+        <figcaption>Peak voltage = (divisions to the peak) × volts/div. Period <var>T</var> = (divisions for one cycle) × time/div.</figcaption>
+      </figure>
+
+      <div class="widget" id="scope-sim">
+        <h3>Oscilloscope simulator</h3>
+        <p class="hint">Set the controls and the divisions, and read off the peak voltage, period, frequency and rms.</p>
+        <div class="controls">
+          <label class="field">Y-gain (volts/div)<span class="row"><input type="range" id="sc-vd" min="0.5" max="5" step="0.5" value="2"><input class="num" id="sc-vd-n" type="number" step="0.5" value="2" inputmode="decimal"></span></label>
+          <label class="field">Time-base (ms/div)<span class="row"><input type="range" id="sc-td" min="0.5" max="10" step="0.5" value="5"><input class="num" id="sc-td-n" type="number" step="0.5" value="5" inputmode="decimal"></span></label>
+          <label class="field">Peak (divisions)<span class="row"><input type="range" id="sc-ph" min="1" max="3.5" step="0.5" value="3"><input class="num" id="sc-ph-n" type="number" step="0.5" value="3" inputmode="decimal"></span></label>
+          <label class="field">Divisions / cycle<span class="row"><input type="range" id="sc-pc" min="2" max="8" step="1" value="4"><input class="num" id="sc-pc-n" type="number" step="1" value="4" inputmode="decimal"></span></label>
+        </div>
+        <figure class="figure">
+          <svg class="scope" id="sc-svg" viewBox="0 0 320 170" role="img" aria-label="A live oscilloscope trace that changes shape as the Y-gain, time-base, peak height and divisions per cycle controls are adjusted">
+            <title>Live oscilloscope trace for the chosen settings</title>
+            <rect class="frame" x="20" y="15" width="280" height="130" rx="6"/>
+            <line class="grid" x1="48" y1="15" x2="48" y2="145"/>
+            <line class="grid" x1="76" y1="15" x2="76" y2="145"/>
+            <line class="grid" x1="104" y1="15" x2="104" y2="145"/>
+            <line class="grid" x1="132" y1="15" x2="132" y2="145"/>
+            <line class="grid" x1="160" y1="15" x2="160" y2="145"/>
+            <line class="grid" x1="188" y1="15" x2="188" y2="145"/>
+            <line class="grid" x1="216" y1="15" x2="216" y2="145"/>
+            <line class="grid" x1="244" y1="15" x2="244" y2="145"/>
+            <line class="grid" x1="272" y1="15" x2="272" y2="145"/>
+            <line class="grid" x1="20" y1="47" x2="300" y2="47"/>
+            <line class="grid" x1="20" y1="80" x2="300" y2="80"/>
+            <line class="grid" x1="20" y1="113" x2="300" y2="113"/>
+            <line class="axis" x1="20" y1="80" x2="300" y2="80"/>
+            <path class="trace" id="sc-trace" d=""/>
+          </svg>
+        </figure>
+        <div class="readout" id="sc-out" aria-live="polite">—</div>
+        <div class="working" id="sc-work"></div>
+      </div>
+
+      <div class="widget" data-challenge="ch-graph" id="graph-quiz">
+        <h3>Read the trace</h3>
+        <p class="hint">Use the simulator and diagram above, then check both answers.</p>
+        <p class="qstem" style="font-weight:900; margin:.2rem 0 .4rem;">1. The peak voltage is found from…</p>
+        <label class="opt"><input type="radio" name="gq1" value="0">divisions per cycle × time/div</label>
+        <label class="opt"><input type="radio" name="gq1" value="1">divisions to the peak × volts/div</label>
+        <label class="opt"><input type="radio" name="gq1" value="2">volts/div ÷ time/div</label>
+        <p class="qstem" style="font-weight:900; margin:.7rem 0 .4rem;">2. To get the frequency from the trace you…</p>
+        <label class="opt"><input type="radio" name="gq2" value="0">find the period T, then use f = 1 ÷ T</label>
+        <label class="opt"><input type="radio" name="gq2" value="1">multiply the peak by √2</label>
+        <label class="opt"><input type="radio" name="gq2" value="2">divide volts/div by time/div</label>
+        <div class="btnrow"><button class="btn primary" type="button" id="gq-check">Check</button></div>
+        <p class="fb-line" id="gq-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve — frequency from the time-base</span>
+        <div class="ex-q">On an oscilloscope, one complete wave occupies 4.0 divisions. The time-base is set to 5.0 ms per division. Calculate the frequency of the a.c. signal. <span class="marks">4 marks</span></div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div>5.0 ms = 5.0 × 10⁻³ s <span class="u">ms → s</span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">divisions × time/div</span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">4.0 × 5.0 × 10⁻³</span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">0.020 s</span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>f</var></span><span class="eq">=</span><span class="rhs">1 ÷ <var>T</var> = 1 ÷ 0.020</span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>f</var></span><span class="eq">=</span><span class="rhs">50 Hz</span><span class="note-cell"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Several steps — peak then rms</span>
+        <div class="ex-q">The same trace reaches 3.0 divisions above the centre line. The Y-gain is 2.0 V per division. Calculate (a) the peak voltage and (b) the rms voltage. <span class="marks">4 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs">(a) <var>V</var><sub>peak</sub></span><span class="eq">=</span><span class="rhs">divisions × volts/div</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>peak</sub></span><span class="eq">=</span><span class="rhs">3.0 × 2.0 = 6.0 V</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">(b) <var>V</var><sub>rms</sub></span><span class="eq">=</span><span class="rhs"><var>V</var><sub>peak</sub> ÷ √2</span><span class="note-cell">peak → rms</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>rms</sub></span><span class="eq">=</span><span class="rhs">6.0 ÷ 1.41 = 4.2 V</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem">An a.c. trace shows a peak that is 2.5 divisions high with the Y-gain at 4.0 V/div, and one full cycle spanning 5.0 divisions with the time-base at 2.0 ms/div. Determine (a) the peak voltage, (b) the rms voltage and (c) the frequency. <span class="marks">5 marks</span></p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) V_peak = 2.5 × 4.0 = 10 V
+(b) V_rms = 10 ÷ 1.41 = 7.1 V
+(c) T = 5.0 × 2.0 × 10⁻³ = 0.010 s   (ms → s)
+    f = 1 ÷ 0.010 = 100 Hz</div></div></details>
+      </div>
+    </section>
+
+    <!-- ================= CHECK ================= -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check yourself</h2>
+
+      <div class="widget" data-challenge="ch-check-cloze" id="cl2-recap">
+        <h3>Recap — fill the gaps</h3>
+        <p class="hint">Pull the whole topic together: choose the right word for each gap, then check. Counts towards your badges.</p>
+        <p class="cloze-text">a.c. changes
+          <select class="cl-sel" data-answer="direction" aria-label="gap 1"><option value="">choose…</option><option>direction</option><option>nothing</option></select>
+          with time. The rms value is the d.c. value that delivers the same
+          <select class="cl-sel" data-answer="power" aria-label="gap 2"><option value="">choose…</option><option>power</option><option>charge</option></select>
+          to a resistor, and for a sine wave <var>V</var><sub>peak</sub> = √2 ×
+          <select class="cl-sel" data-answer="rms" aria-label="gap 3"><option value="">choose…</option><option value="rms">V rms</option><option value="peak">V peak</option></select>.
+          The "230 V" mains figure is an
+          <select class="cl-sel" data-answer="rms" aria-label="gap 4"><option value="">choose…</option><option>rms</option><option>peak</option></select>
+          value. On an oscilloscope the period is the divisions for one cycle ×
+          <select class="cl-sel" data-answer="timediv" aria-label="gap 5"><option value="">choose…</option><option value="timediv">time/div</option><option value="voltsdiv">volts/div</option></select>,
+          and the frequency is
+          <select class="cl-sel" data-answer="oneoverT" aria-label="gap 6"><option value="">choose…</option><option value="oneoverT">1 ÷ T</option><option value="oneoverf">1 ÷ f</option></select>.
+        </p>
+        <div class="btnrow"><button class="btn primary" type="button" id="cl2-check">Check</button><button class="btn" type="button" id="cl2-reset">Reset</button></div>
+        <p class="fb-line" id="cl2-fb" aria-live="polite"></p>
+      </div>
+
+      <div class="widget">
+        <h3>Mixed multiple choice</h3>
+        <p class="hint">Exam-style multiple choice, 1 mark each. Choose an answer for each, then mark them.</p>
+        <div id="quiz"></div>
+        <div class="btnrow"><button class="btn primary" type="button" id="quiz-mark">Mark my answers</button><button class="btn" type="button" id="quiz-reset">Reset</button></div>
+        <div class="score" id="quiz-score" aria-live="polite"></div>
+      </div>
+
+      <div class="widget">
+        <h3>Rate your confidence</h3>
+        <p class="hint">Red = not yet, Amber = getting there, Green = confident. Saved on this device.</p>
+        <div id="rag"></div>
+        <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+        <div class="btnrow"><button class="btn" type="button" id="rag-reset">Reset ratings</button></div>
+      </div>
+
+      <div class="widget">
+        <h3>Beta progress</h3>
+        <p class="hint">Your points, streak, badges and completed challenges are saved on this device. Clear them here to start fresh.</p>
+        <div class="btnrow"><button class="btn" type="button" id="g-reset">Reset beta progress</button></div>
+      </div>
+    </section>
+  </main>
+
+  <a class="sticky-prog" id="sticky-prog" href="#ghud" aria-label="Challenges done — jump to your progress"><span class="sp-ico" aria-hidden="true">🏆</span><span id="sp-text">0 / 0</span></a>
+
+  <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY = "hp-ac-beta-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
+    function bindPair(rangeId, numId, onChange){
+      var r=$(rangeId), n=$(numId);
+      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
+      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ r.value=v; onChange(parseFloat(r.value)); } });
+    }
+
+    /* Oscilloscope simulator */
+    (function(){
+      if(!$("sc-svg")) return;
+      var vd=2, td=5, ph=3, pc=4;
+      var GX=20, GW=280, DIVW=28;      /* grid: 10 divisions of 28 px from x=20 */
+      var CY=80, DIVH=33;              /* centre line; vertical division height */
+      function draw(){
+        var amp = ph*DIVH;            /* pixels */
+        var lambda = pc*DIVW;         /* pixels per cycle */
+        var d="", N=160;
+        for(var i=0;i<=N;i++){
+          var x=GX + (GW)*i/N;
+          var y=CY - amp*Math.sin(2*Math.PI*(x-GX)/lambda);
+          d += (i===0?"M":"L") + round(x,1) + " " + round(y,1) + " ";
+        }
+        $("sc-trace").setAttribute("d", d.trim());
+        var vpeak = ph*vd;
+        var vrms = vpeak/Math.SQRT2;
+        var T = pc*td*1e-3;           /* seconds */
+        var f = 1/T;
+        setT("sc-out","V_peak = "+round(vpeak,2)+" V · V_rms = "+round(vrms,2)+" V · T = "+round(T,4)+" s · f = "+round(f,1)+" Hz");
+        $("sc-work").textContent =
+          "V_peak = divisions × volts/div = "+ph+" × "+vd+" = "+round(vpeak,2)+" V\n"+
+          "V_rms = V_peak ÷ √2 = "+round(vpeak,2)+" ÷ 1.41 = "+round(vrms,2)+" V\n"+
+          "T = divisions × time/div = "+pc+" × "+td+" ms = "+round(T*1000,2)+" ms = "+round(T,4)+" s\n"+
+          "f = 1 ÷ T = "+round(f,1)+" Hz";
+      }
+      bindPair("sc-vd","sc-vd-n",function(v){ vd=v; draw(); });
+      bindPair("sc-td","sc-td-n",function(v){ td=v; draw(); });
+      bindPair("sc-ph","sc-ph-n",function(v){ ph=v; draw(); });
+      bindPair("sc-pc","sc-pc-n",function(v){ pc=v; draw(); });
+      draw();
+    })();
+
+    /* Mixed multiple-choice */
+    (function(){
+      var QS=[
+        { q:"Alternating current is current that", o:["always increases","changes direction with time","flows one way only","has no frequency"], a:1 },
+        { q:"The mains is quoted as 230 V. This value is the", o:["peak voltage","rms voltage","peak-to-peak voltage","average voltage"], a:1 },
+        { q:"An a.c. supply has a peak voltage of 14.1 V. Its rms voltage is about", o:["20 V","10 V","14.1 V","7.1 V"], a:1 },
+        { q:"A signal of rms current 2.0 A has a peak current of about", o:["1.4 A","2.8 A","2.0 A","4.0 A"], a:1 },
+        { q:"One cycle of an a.c. trace takes 0.020 s. The frequency is", o:["20 Hz","50 Hz","0.020 Hz","500 Hz"], a:1 },
+        { q:"On an oscilloscope, the peak voltage is found from", o:["divisions per cycle × time/div","divisions to the peak × volts/div","volts/div ÷ time/div","1 ÷ T"], a:1 },
+        { q:"A trace shows one cycle over 5.0 divisions with the time-base at 2.0 ms/div. The frequency is", o:["100 Hz","10 Hz","50 Hz","200 Hz"], a:0 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
+        var score=0;
+        clearNotes();
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){
+            var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes();
+        setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* RAG self-check */
+    (function(){
+      var CRIT=[
+        "State what a.c. is and how it differs from d.c.",
+        "Explain what the rms value means (same power as the equivalent d.c.).",
+        "Convert between peak and rms for voltage and current.",
+        "Find the peak (and rms) voltage from an oscilloscope trace using the Y-gain.",
+        "Find the period and frequency from a trace (T = 1 ÷ f).",
+        "Decide whether a value is peak or rms before using it.",
+        "Lay out an a.c. calculation the SQA way."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+
+    /* Subnav scrollspy — underline the section in view */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id];
+          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Printing: open every answer reveal, then restore */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){
+        opened=[];
+        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
+      });
+      window.addEventListener("afterprint", function(){
+        opened.forEach(function(d){ d.removeAttribute("open"); });
+        opened=[];
+      });
+    })();
+  })();
+  </script>
+
+  <!-- ================= BETA: gamification engine + interactive challenges ================= -->
+  <script>
+  (function(){
+    "use strict";
+    var K = "hp-ac-beta-g-";
+    function save(k,v){ try{ localStorage.setItem(K+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(K+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function fb(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"ok":"no"); el.textContent=(ok?"✓ ":"✗ ")+msg; }
+
+    var done = load("done",{}), points = load("points",0), streak = load("streak",0), bestStreak = load("bestStreak",0);
+    var challenges = [];
+    [].forEach.call(document.querySelectorAll("[data-challenge]"), function(el){ challenges.push(el.getAttribute("data-challenge")); });
+    var total = challenges.length;
+
+    var BADGES = [
+      { id:"first",  icon:"🎯", name:"First challenge", test:function(n){ return n>=1; } },
+      { id:"streak", icon:"🔥", name:"3 in a row",      test:function(n){ return bestStreak>=3; } },
+      { id:"half",   icon:"⚡", name:"Halfway there",    test:function(n){ return total>0 && n>=Math.ceil(total/2); } },
+      { id:"all",    icon:"🏆", name:"All challenges",   test:function(n){ return total>0 && n>=total; } }
+    ];
+
+    function doneCount(){ var n=0; challenges.forEach(function(c){ if(done[c]) n++; }); return n; }
+
+    function renderBadges(n){
+      var box=$("g-badges"); if(!box) return;
+      box.innerHTML="";
+      BADGES.forEach(function(b){
+        var earned=b.test(n);
+        var chip=document.createElement("span");
+        chip.className="badge-chip"+(earned?" earned":"");
+        chip.innerHTML='<span class="bi" aria-hidden="true">'+b.icon+'</span> '+b.name+(earned?" ✓":" — locked");
+        box.appendChild(chip);
+      });
+    }
+
+    function sync(){
+      var n=doneCount();
+      setT("g-points", points);
+      setT("g-streak", streak);
+      setT("g-count", n+" / "+total);
+      setT("sp-text", n+" / "+total);
+      var sp=$("sticky-prog"); if(sp) sp.classList.toggle("complete", total>0 && n>=total);
+      var bar=$("g-bar"); if(bar) bar.style.width=(total? (n/total*100):0)+"%";
+      var st=$("g-status");
+      if(st){
+        st.textContent = (n>=total && total>0)
+          ? "All challenges complete — nice work! 🏆"
+          : (n>0 ? "Keep going — "+(total-n)+" challenge"+((total-n)===1?"":"s")+" left."
+                 : "Try the challenges as you scroll to earn points and badges.");
+      }
+      renderBadges(n);
+    }
+
+    function award(id, pts, correct){
+      if(correct){
+        if(!done[id]){
+          streak++; if(streak>bestStreak){ bestStreak=streak; save("bestStreak",bestStreak); }
+          done[id]=true; points+=pts;
+          save("streak",streak); save("done",done); save("points",points);
+        }
+      } else {
+        if(streak!==0){ streak=0; save("streak",streak); }
+      }
+      sync();
+    }
+
+    /* ---- cloze ---- */
+    (function(){
+      var w=$("cl-lang"); if(!w) return;
+      var sels=w.querySelectorAll(".cl-sel");
+      $("cl-check").addEventListener("click", function(){
+        var allOk=true, answered=true;
+        [].forEach.call(sels, function(s){
+          if(!s.value) answered=false;
+          var ok = s.value===s.getAttribute("data-answer");
+          s.classList.toggle("ok", !!s.value && ok);
+          s.classList.toggle("no", !!s.value && !ok);
+          if(!ok) allOk=false;
+        });
+        if(!answered){ fb($("cl-fb"), false, "Fill every gap first."); return; }
+        if(allOk){ fb($("cl-fb"), true, "Perfect — a.c. changes direction; period = one cycle, frequency = cycles per second."); award("ch-cloze",10,true); }
+        else { fb($("cl-fb"), false, "Not quite — fix the gaps marked in orange and try again."); award("ch-cloze",0,false); }
+      });
+      $("cl-reset").addEventListener("click", function(){
+        [].forEach.call(sels, function(s){ s.value=""; s.classList.remove("ok","no"); });
+        var f=$("cl-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+      });
+    })();
+
+    /* ---- recap cloze (Check yourself section) ---- */
+    (function(){
+      var w=$("cl2-recap"); if(!w) return;
+      var sels=w.querySelectorAll(".cl-sel");
+      $("cl2-check").addEventListener("click", function(){
+        var allOk=true, answered=true;
+        [].forEach.call(sels, function(s){
+          if(!s.value) answered=false;
+          var ok = s.value===s.getAttribute("data-answer");
+          s.classList.toggle("ok", !!s.value && ok);
+          s.classList.toggle("no", !!s.value && !ok);
+          if(!ok) allOk=false;
+        });
+        if(!answered){ fb($("cl2-fb"), false, "Fill every gap first."); return; }
+        if(allOk){ fb($("cl2-fb"), true, "Spot on — that's the whole topic in one paragraph."); award("ch-check-cloze",10,true); }
+        else { fb($("cl2-fb"), false, "Not quite — fix the gaps marked in orange and try again."); award("ch-check-cloze",0,false); }
+      });
+      $("cl2-reset").addEventListener("click", function(){
+        [].forEach.call(sels, function(s){ s.value=""; s.classList.remove("ok","no"); });
+        var f=$("cl2-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+      });
+    })();
+
+    /* ---- matching game ---- */
+    (function(){
+      var w=$("match-game"); if(!w) return;
+      var PAIRS=[
+        { k:"peak",  term:"Peak value",      def:"The maximum value the wave reaches from zero" },
+        { k:"rms",   term:"rms value",       def:"The d.c. value that gives the same power in a resistor" },
+        { k:"period",term:"Period T",        def:"The time for one complete cycle" },
+        { k:"freq",  term:"Frequency f",     def:"The number of cycles per second (f = 1 ÷ T)" },
+        { k:"mains", term:"230 V mains",     def:"An rms value, not the peak" }
+      ];
+      var termCol=$("match-terms"), defCol=$("match-defs"), fbEl=$("match-fb");
+      var selTerm=null, matched=0;
+      function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+      function build(){
+        [].forEach.call(termCol.querySelectorAll(".match-tile"), function(t){ t.parentNode.removeChild(t); });
+        [].forEach.call(defCol.querySelectorAll(".match-tile"), function(t){ t.parentNode.removeChild(t); });
+        selTerm=null; matched=0;
+        PAIRS.forEach(function(p){
+          var t=document.createElement("button"); t.type="button"; t.className="match-tile"; t.dataset.key=p.k; t.dataset.side="t"; t.textContent=p.term; termCol.appendChild(t);
+        });
+        shuffle(PAIRS.slice()).forEach(function(p){
+          var d=document.createElement("button"); d.type="button"; d.className="match-tile"; d.dataset.key=p.k; d.dataset.side="d"; d.textContent=p.def; defCol.appendChild(d);
+        });
+        if(fbEl){ fbEl.textContent=""; fbEl.className="fb-line"; }
+      }
+      function clearSel(){ if(selTerm){ selTerm.classList.remove("sel"); selTerm=null; } }
+      termCol.addEventListener("click", function(e){
+        var t=e.target.closest(".match-tile"); if(!t||t.classList.contains("done")) return;
+        clearSel(); selTerm=t; t.classList.add("sel");
+      });
+      defCol.addEventListener("click", function(e){
+        var d=e.target.closest(".match-tile"); if(!d||d.classList.contains("done")) return;
+        if(!selTerm){ fb(fbEl, false, "Pick a term on the left first."); return; }
+        if(selTerm.dataset.key===d.dataset.key){
+          selTerm.classList.remove("sel"); selTerm.classList.add("done"); d.classList.add("done");
+          selTerm=null; matched++;
+          if(matched===PAIRS.length){ fb(fbEl, true, "All matched — well done!"); award("ch-match",10,true); }
+          else { fbEl.className="fb-line ok"; fbEl.textContent="✓ Matched — "+(PAIRS.length-matched)+" to go."; }
+        } else {
+          var bad=d; bad.classList.add("no"); clearSel();
+          fb(fbEl, false, "Not a match — try again.");
+          award("ch-match",0,false);
+          setTimeout(function(){ bad.classList.remove("no"); }, 600);
+        }
+      });
+      $("match-reset").addEventListener("click", build);
+      build();
+    })();
+
+    /* ---- calculation checker with misconception nudges ---- */
+    (function(){
+      var w=$("calc-check"); if(!w) return;
+      $("cc-check").addEventListener("click", function(){
+        var v=parseFloat($("cc-ans").value);
+        if(isNaN(v)){ fb($("cc-fb"), false, "Type a number first."); return; }
+        if(Math.abs(v-325)<4){ fb($("cc-fb"), true, "Correct — V_peak = √2 × V_rms = 1.41 × 230 = 325 V."); award("ch-calc",10,true); return; }
+        var msg="Not yet — V_peak = √2 × V_rms = 1.41 × 230 = 325 V.";
+        if(Math.abs(v-163)<3) msg="That's 230 ÷ √2 — you divided instead of multiplying. To go rms → peak, multiply: 1.41 × 230 = 325 V.";
+        else if(Math.abs(v-230)<1) msg="That's just the rms value. Multiply by √2 to get the peak: 1.41 × 230 = 325 V.";
+        else if(Math.abs(v-460)<3) msg="That's 2 × 230 — use √2 (≈1.41), not 2: 1.41 × 230 = 325 V.";
+        fb($("cc-fb"), false, msg); award("ch-calc",0,false);
+      });
+    })();
+
+    /* ---- read-the-trace MCQ ---- */
+    (function(){
+      var w=$("graph-quiz"); if(!w) return;
+      $("gq-check").addEventListener("click", function(){
+        var a1=w.querySelector('input[name="gq1"]:checked');
+        var a2=w.querySelector('input[name="gq2"]:checked');
+        if(!a1||!a2){ fb($("gq-fb"), false, "Answer both questions first."); return; }
+        var ok = a1.value==="1" && a2.value==="0";
+        if(ok){ fb($("gq-fb"), true, "Yes — peak = divisions to the peak × volts/div; for frequency, find T then f = 1 ÷ T."); award("ch-graph",10,true); }
+        else { fb($("gq-fb"), false, "Not quite — peak voltage uses the Y-gain (volts/div); frequency needs the period first (f = 1 ÷ T). Try again."); award("ch-graph",0,false); }
+      });
+    })();
+
+    /* ---- reset beta progress ---- */
+    (function(){
+      var b=$("g-reset"); if(!b) return;
+      b.addEventListener("click", function(){
+        done={}; points=0; streak=0; bestStreak=0;
+        save("done",done); save("points",points); save("streak",streak); save("bestStreak",bestStreak);
+        sync();
+      });
+    })();
+
+    sync();
+  })();
+  </script>
+</body>
+</html>
