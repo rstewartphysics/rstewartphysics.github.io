@@ -156,10 +156,11 @@ the quick map; copy exact values from the source.
 | Subject | Accent | `theme-color` (light) | Skip-link | Token source |
 |---------|--------|-----------------------|-----------|--------------|
 | Home / Physics | `#0aa8b5` teal | `#eaf7fa` | teal | inline per page |
+| S3 Physics | `#00747c` blue-teal | `#eaf7fa` | teal | `assets/css/s3-physics.css` |
 | Science (S1/S2) | `#16a34a` green | `#eef7ff` | dark | inline per page |
 | Electronics | `#00e6b3` teal-green | `#0b1f1a` (dark page) | `#00e6b3` bg | inline; `color-scheme: dark` |
 | National 5 | `#d74a84` pink | `#d74a84` | `#d74a84` bg / `#2a0a1a` text | inline per page |
-| Higher | `#2b59ff` blue | `#eef2ff` (dark `#0a0f1f`) | `#2b59ff` bg, white | `assets/css/higher-physics.css` |
+| Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | `#0a6fbf` bg, white | `assets/css/higher-physics.css` |
 | Advanced Higher | `#b8860b` gold | `#b8860b` | `#111827` bg, white | inline; cream→gold radial bg |
 | Engineering Science | `#f28c28` orange | — | — | `assets/css/engineering-science.css` |
 
