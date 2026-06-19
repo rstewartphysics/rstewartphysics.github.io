@@ -15,6 +15,11 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
 - **J Keegan** — National 5 Practical Electronics past-paper-style questions (2025).
 - **S Woodhouse** — Block 3 practice questions and answers (2026).
 - **R Stewart & S Woodhouse** — Electricity Block 3 booklet (2026).
+- **Mr Davie** (September 2025 update by **Mr White**) — the Higher and National 5 Physics "Past
+  Paper Finder" documents, shared freely by their authors. Past-paper questions and marking
+  instructions © Qualifications Scotland (SQA).
+- **Mr McDonald** (2024) — the National 5 Engineering Science "Past Paper Finder", shared freely by
+  its author. Questions © Qualifications Scotland (SQA).
 
 ## Open-licensed & third-party material
 
