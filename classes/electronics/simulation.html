@@ -1,0 +1,591 @@
+---
+layout: none
+title: Circuit Simulation — National 5 Electronics
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Circuit Simulation — National 5 Electronics</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260619a">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <style>
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+    .notes strong { color: var(--text); }
+
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #00c79a, #00705a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .15rem 0 0; font-weight: 900; color: var(--text); }
+
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+
+    /* truth + data tables */
+    .ttable { border-collapse: collapse; margin: .6rem auto 0; font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--text); }
+    .ttable caption { font-family: var(--font-stack); font-weight: 900; color: var(--text); margin-bottom: .35rem; }
+    .ttable th, .ttable td { border: 1px solid var(--border); padding: .4rem .8rem; text-align: center; min-width: 38px; }
+    .ttable thead th { background: var(--surface-2); }
+    .ttable td.out { color: var(--accent-2); font-weight: 900; }
+    .ttable tr.hi td { background: rgba(0,200,150,.16); }
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
+    .dtable thead th { background: var(--surface-2); }
+    .dtable td.l { text-align: left; }
+
+    /* symbol grid */
+    .sym-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .6rem; margin-top: .7rem; }
+    .sym-cell { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .6rem; text-align: center; }
+    .symdef { width: 100%; max-width: 130px; height: 64px; display: block; margin: 0 auto .35rem; }
+    .symdef .s { stroke: var(--text); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .symdef .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.4; }
+    .symdef text { fill: var(--text); font-weight: 800; font-size: 12px; }
+    .sym-name { font-weight: 900; color: var(--text); font-size: .92rem; }
+    .sym-fn { font-weight: 800; color: var(--muted); font-size: .8rem; margin-top: .15rem; }
+
+    /* I/P/O block diagram */
+    .blocks { display: flex; align-items: stretch; gap: .5rem; flex-wrap: wrap; margin-top: .7rem; justify-content: center; }
+    .blk { flex: 1; min-width: 150px; border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .7rem; text-align: center; }
+    .blk .blk-t { font-weight: 900; color: var(--accent-2); text-transform: uppercase; font-size: .72rem; letter-spacing: .05em; }
+    .blk .blk-b { font-weight: 800; color: var(--text); margin-top: .25rem; }
+    .blk-arrow { align-self: center; font-weight: 900; color: var(--muted); font-size: 1.4rem; }
+    @media (max-width: 560px) { .blk-arrow { transform: rotate(90deg); } }
+
+    /* widget */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; }
+    .seg button { border: 0; border-right: 1px solid var(--border-soft); background: var(--card); color: var(--text); font-weight: 900; padding: .5rem .8rem; min-height: 44px; cursor: pointer; font-family: inherit; font-size: .92rem; }
+    .seg button:last-child { border-right: 0; }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #04241d; }
+    .toggle-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; align-items: center; }
+    .tbtn { min-width: 80px; min-height: 48px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .tbtn[aria-pressed="true"] { background: linear-gradient(135deg, #00c79a, #00705a); color: #fff; border-color: transparent; }
+    .tbtn:focus-visible, .seg button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .readout { font-size: 1.15rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+
+    /* fault diagram */
+    .circuit { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--text); }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .bad  { stroke: var(--warm); }
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+
+    /* buttons / quiz / rag */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #00c79a, #00705a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note strong { color: var(--text); }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/Electronicsbanner.png" alt="National 5 Electronics circuit simulation banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Circuit Simulation</h1>
+      <p>Design, build and test circuits on screen before you reach for a soldering iron.</p>
+    </div>
+  </header>
+
+  <nav class="subnav-wrap" aria-label="On this page">
+    <div class="subnav">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#c1">Why simulate</a>
+        <a class="subnav-link" href="#c2">Logic gates</a>
+        <a class="subnav-link" href="#c3">Gate explorer</a>
+        <a class="subnav-link" href="#c4">Half-adder</a>
+        <a class="subnav-link" href="#c5">Block design</a>
+        <a class="subnav-link" href="#c6">Fault-finding</a>
+        <a class="subnav-link" href="#c7">Costing</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/electronics.html">Electronics hub →</a>
+    </div>
+  </nav>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Circuit Simulation</h1>
+    <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">←</span> Back to Electronics hub</a>
+    <p class="lead">This is the <strong>Circuit simulation</strong> area of the course. You use simulation
+      software to design, construct, test and investigate a circuit's behaviour — and to find faults —
+      before building it for real.</p>
+
+    <!-- C1 -->
+    <section class="panel" id="c1" aria-label="Why simulate">
+      <span class="concept-tag">Concept 1</span>
+      <h2>Why simulate before you build?</h2>
+      <div class="notes">
+        <ul>
+          <li><strong>Cheaper &amp; safer</strong> — no components are wasted and nothing is damaged while you experiment.</li>
+          <li><strong>Faster</strong> — change a value or a connection in seconds and see the effect immediately.</li>
+          <li><strong>Test the design</strong> — confirm it behaves as intended, and measure voltages/currents/waveforms with on-screen meters and a virtual oscilloscope.</li>
+          <li><strong>Find faults early</strong> — a printout or layout from the simulator shows up mistakes before any soldering.</li>
+        </ul>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem">Give <strong>two</strong> reasons an engineer simulates a circuit before constructing it.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">Any two of: it avoids wasting/damaging components; it is quicker to change and re-test; faults and design errors are found before building; voltages and waveforms can be measured safely on screen.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- C2 -->
+    <section class="panel" id="c2" aria-label="Logic gates and truth tables">
+      <span class="concept-tag">Concept 2</span>
+      <h2>Logic gates (ANSI &amp; IEC) and truth tables</h2>
+      <div class="notes">
+        <p>You must <strong>identify</strong> a gate from its symbol or truth table and <strong>complete</strong> a
+          truth table. Below are the <strong>ANSI distinctive-shape</strong> symbols (the IEC rectangular symbol
+          uses the logic operator shown in brackets).</p>
+      </div>
+      <div class="sym-grid" aria-label="Logic gate symbols">
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="AND gate"><title>AND gate</title>
+            <path class="sf" d="M40 12 H66 A20 20 0 0 1 66 52 H40 Z"/>
+            <line class="s" x1="20" y1="22" x2="40" y2="22"/><line class="s" x1="20" y1="42" x2="40" y2="42"/>
+            <line class="s" x1="86" y1="32" x2="106" y2="32"/></svg>
+          <div class="sym-name">AND (&amp;)</div><div class="sym-fn">output 1 only when all inputs are 1</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="OR gate"><title>OR gate</title>
+            <path class="sf" d="M38 12 Q60 12 84 32 Q60 52 38 52 Q50 32 38 12 Z"/>
+            <line class="s" x1="20" y1="22" x2="44" y2="22"/><line class="s" x1="20" y1="42" x2="44" y2="42"/>
+            <line class="s" x1="84" y1="32" x2="106" y2="32"/></svg>
+          <div class="sym-name">OR (≥1)</div><div class="sym-fn">output 1 when any input is 1</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="NOT gate"><title>NOT gate</title>
+            <polygon class="sf" points="42,14 42,50 78,32"/>
+            <circle class="sf" cx="84" cy="32" r="5"/>
+            <line class="s" x1="20" y1="32" x2="42" y2="32"/><line class="s" x1="89" y1="32" x2="108" y2="32"/></svg>
+          <div class="sym-name">NOT (1)</div><div class="sym-fn">inverts: 0→1, 1→0</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="NAND gate"><title>NAND gate</title>
+            <path class="sf" d="M38 12 H62 A20 20 0 0 1 62 52 H38 Z"/>
+            <circle class="sf" cx="88" cy="32" r="5"/>
+            <line class="s" x1="20" y1="22" x2="38" y2="22"/><line class="s" x1="20" y1="42" x2="38" y2="42"/>
+            <line class="s" x1="93" y1="32" x2="108" y2="32"/></svg>
+          <div class="sym-name">NAND (&amp;)</div><div class="sym-fn">AND then inverted</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="NOR gate"><title>NOR gate</title>
+            <path class="sf" d="M36 12 Q58 12 80 32 Q58 52 36 52 Q48 32 36 12 Z"/>
+            <circle class="sf" cx="86" cy="32" r="5"/>
+            <line class="s" x1="20" y1="22" x2="42" y2="22"/><line class="s" x1="20" y1="42" x2="42" y2="42"/>
+            <line class="s" x1="91" y1="32" x2="108" y2="32"/></svg>
+          <div class="sym-name">NOR (≥1)</div><div class="sym-fn">OR then inverted</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="XOR gate"><title>XOR gate</title>
+            <path class="s" d="M30 12 Q42 32 30 52"/>
+            <path class="sf" d="M38 12 Q60 12 84 32 Q60 52 38 52 Q50 32 38 12 Z"/>
+            <line class="s" x1="20" y1="22" x2="40" y2="22"/><line class="s" x1="20" y1="42" x2="40" y2="42"/>
+            <line class="s" x1="84" y1="32" x2="106" y2="32"/></svg>
+          <div class="sym-name">XOR (=1)</div><div class="sym-fn">output 1 when inputs differ</div>
+        </div>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem">Complete the output column for a 2-input <strong>NAND</strong> gate for inputs (0,0), (0,1), (1,0), (1,1).</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">NAND outputs are 1, 1, 1, 0. (It is 0 only when both inputs are 1.)</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- C3 -->
+    <section class="panel" id="c3" aria-label="Interactive logic gate explorer">
+      <span class="concept-tag">Concept 3</span>
+      <h2>Gate explorer</h2>
+      <div class="widget" aria-label="Logic gate explorer">
+        <h3>Pick a gate, set the inputs</h3>
+        <p class="hint">Choose a gate and toggle inputs A and B. The output and the highlighted truth-table row update live.</p>
+        <div class="seg" id="lg-gate" role="group" aria-label="Choose a logic gate">
+          <button type="button" data-g="AND" aria-pressed="true">AND</button>
+          <button type="button" data-g="OR" aria-pressed="false">OR</button>
+          <button type="button" data-g="NAND" aria-pressed="false">NAND</button>
+          <button type="button" data-g="NOR" aria-pressed="false">NOR</button>
+          <button type="button" data-g="XOR" aria-pressed="false">XOR</button>
+          <button type="button" data-g="NOT" aria-pressed="false">NOT</button>
+        </div>
+        <div class="toggle-row">
+          <button class="tbtn" type="button" id="lg-a" aria-pressed="false">A = 0</button>
+          <button class="tbtn" type="button" id="lg-b" aria-pressed="false">B = 0</button>
+        </div>
+        <div class="readout" id="lg-out" aria-live="polite"></div>
+        <table class="ttable" id="lg-tt" aria-label="Live truth table"></table>
+      </div>
+    </section>
+
+    <!-- C4 -->
+    <section class="panel" id="c4" aria-label="The half-adder">
+      <span class="concept-tag">Concept 4</span>
+      <h2>The half-adder</h2>
+      <div class="notes">
+        <ul>
+          <li>A <strong>half-adder</strong> adds two single bits A and B and gives a <strong>Sum</strong> and a <strong>Carry</strong>.</li>
+          <li><strong>Sum</strong> = A <strong>XOR</strong> B &nbsp;·&nbsp; <strong>Carry</strong> = A <strong>AND</strong> B.</li>
+          <li>1 + 1 = "10" in binary: Sum = 0, Carry = 1.</li>
+        </ul>
+        <table class="ttable" aria-label="Half-adder truth table">
+          <caption>Half-adder</caption>
+          <thead><tr><th>A</th><th>B</th><th>Sum (XOR)</th><th>Carry (AND)</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>0</td><td class="out">0</td><td class="out">0</td></tr>
+            <tr><td>0</td><td>1</td><td class="out">1</td><td class="out">0</td></tr>
+            <tr><td>1</td><td>0</td><td class="out">1</td><td class="out">0</td></tr>
+            <tr><td>1</td><td>1</td><td class="out">0</td><td class="out">1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 4</span>
+        <p class="stem">State the Sum and Carry of a half-adder when A = 1 and B = 1, and name the two gates that produce them.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">Sum = 0, Carry = 1. Sum comes from an <strong>XOR</strong> gate; Carry comes from an <strong>AND</strong> gate.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- C5 -->
+    <section class="panel" id="c5" aria-label="Input process output block design">
+      <span class="concept-tag">Concept 5</span>
+      <h2>Block-diagram design: input → process → output</h2>
+      <div class="notes">
+        <p>Every electronic system can be drawn as three stages. Identifying them helps you design and fault-find.</p>
+      </div>
+      <div class="blocks" aria-label="Input process output example">
+        <div class="blk"><div class="blk-t">Input</div><div class="blk-b">LDR voltage divider (senses light)</div></div>
+        <div class="blk-arrow" aria-hidden="true">→</div>
+        <div class="blk"><div class="blk-t">Process</div><div class="blk-b">741 comparator + transistor switch</div></div>
+        <div class="blk-arrow" aria-hidden="true">→</div>
+        <div class="blk"><div class="blk-t">Output</div><div class="blk-b">Relay drives a lamp</div></div>
+      </div>
+      <div class="note"><strong>Designing a system:</strong> choose a <strong>sub-system</strong> for each block, then connect them. You can convert between a <strong>circuit diagram</strong> and a <strong>layout diagram</strong>, and work out the IC pin-outs you need.</div>
+      <div class="practice">
+        <span class="practice-tag">Practice 5</span>
+        <p class="stem">A circuit sounds a buzzer when it gets too hot. Identify a suitable input, process and output sub-system.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body"><strong>Input:</strong> thermistor voltage divider. <strong>Process:</strong> comparator (switches when the temperature voltage passes a reference) driving a transistor. <strong>Output:</strong> a buzzer (or relay + buzzer).</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- C6 -->
+    <section class="panel" id="c6" aria-label="Fault-finding from a printout">
+      <span class="concept-tag">Concept 6</span>
+      <h2>Fault-finding from a simulation printout</h2>
+      <div class="notes">
+        <p>From a simulated printout or layout diagram you can spot common faults:</p>
+        <ul>
+          <li><strong>Wrong supply voltage</strong> set on the source.</li>
+          <li><strong>Wrong resistor value</strong> (or wrong colour code / BS1852 entered).</li>
+          <li><strong>Wrong orientation</strong> of a polarised part — diode, LED, electrolytic capacitor or transistor put in the wrong way round.</li>
+        </ul>
+      </div>
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 320 120" role="img" aria-labelledby="fault-t">
+          <title id="fault-t">An LED branch with the LED drawn the wrong way round</title>
+          <line class="wire" x1="30" y1="30" x2="30" y2="90"/>
+          <text x="8" y="64">9V</text>
+          <line class="wire" x1="30" y1="30" x2="120" y2="30"/>
+          <rect class="res" x="120" y="20" width="44" height="20"/><text x="124" y="15">R 470Ω</text>
+          <line class="wire" x1="164" y1="30" x2="220" y2="30"/>
+          <!-- LED triangle pointing the WRONG way (towards +) -->
+          <polygon class="res bad" points="240,30 222,20 222,40"/>
+          <line class="wire bad" x1="220" y1="20" x2="220" y2="40"/>
+          <line class="wire" x1="240" y1="30" x2="290" y2="30"/>
+          <line class="wire" x1="290" y1="30" x2="290" y2="90"/>
+          <line class="wire" x1="30" y1="90" x2="290" y2="90"/>
+          <text x="206" y="58">LED</text>
+        </svg>
+        <figcaption>Fault: the LED (orange) is reversed — it is in reverse bias, so it will not light.</figcaption>
+      </figure>
+      <div class="practice">
+        <span class="practice-tag">Practice 6</span>
+        <p class="stem">A simulated lamp circuit does not light. The printout shows the supply at 9 V and a 470 Ω resistor, but the LED arrow points towards the positive supply. State the fault and the fix.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">The LED is connected the <strong>wrong way round</strong> (reverse biased), so no current flows and it cannot light. Reverse the LED so its arrow/cathode points towards the negative (0 V) side.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- C7 -->
+    <section class="panel" id="c7" aria-label="Costing a build from component codes">
+      <span class="concept-tag">Concept 7</span>
+      <h2>Costing a build from component codes</h2>
+      <div class="notes">
+        <p>From a parts list with component codes and unit costs you can work out the <strong>total build cost</strong>.</p>
+      </div>
+      <table class="dtable" aria-label="Example parts list">
+        <thead><tr><th>Code</th><th>Component</th><th>Qty</th><th>Unit cost</th><th>Line cost</th></tr></thead>
+        <tbody>
+          <tr><td>R1–R3</td><td class="l">Resistor</td><td>3</td><td>£0.05</td><td>£0.15</td></tr>
+          <tr><td>D1</td><td class="l">LED</td><td>1</td><td>£0.12</td><td>£0.12</td></tr>
+          <tr><td>IC1</td><td class="l">555 timer</td><td>1</td><td>£0.40</td><td>£0.40</td></tr>
+          <tr><td>RLA1</td><td class="l">Relay</td><td>1</td><td>£1.10</td><td>£1.10</td></tr>
+          <tr><td colspan="4" class="l"><strong>Total</strong></td><td><strong>£1.77</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="practice">
+        <span class="practice-tag">Practice 7</span>
+        <p class="stem">A design needs 5 resistors at £0.05 each, 2 LEDs at £0.12 each and one 555 timer at £0.40. Calculate the total component cost.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">Resistors 5 × £0.05 = £0.25; LEDs 2 × £0.12 = £0.24; 555 = £0.40. Total = £0.25 + £0.24 + £0.40 = <strong>£0.89</strong>.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Tools -->
+    <section class="panel" aria-label="Simulation tools">
+      <h2>🔧 Simulation tools</h2>
+      <p>Open the on-site simulators to design and test circuits.</p>
+      <div class="topic-list">
+        <a class="topic-link" href="/classes/electronics/555-astable.html">555 Astable simulator <span class="go" aria-hidden="true">→</span></a>
+        <a class="topic-link" href="/classes/electronics/stripboard-builder.html">Stripboard builder <span class="go" aria-hidden="true">→</span></a>
+        <a class="topic-link" href="/assets/electronics/Yenka.pdf">Yenka simulation guide (PDF) <span class="go" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <!-- Check -->
+    <section class="panel" id="check" aria-label="Check your understanding">
+      <span class="concept-tag">Check</span>
+      <h2>Check your understanding</h2>
+      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <div id="quiz" aria-label="Multiple choice questions"></div>
+      <div class="btnrow">
+        <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
+        <button class="btn" id="quiz-reset" type="button">Reset</button>
+      </div>
+      <div class="score" id="quiz-score" aria-live="polite"></div>
+
+      <h3 style="margin-top:1.2rem;font-weight:900;">RAG self-check</h3>
+      <p class="muted" style="font-weight:800;">Tap Red / Amber / Green for how confident you feel.</p>
+      <div id="rag" aria-label="Red amber green self assessment"></div>
+      <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
+      <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY="el-sim-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+
+    /* Logic gate explorer */
+    (function(){
+      var gate="AND", a=0, b=0;
+      function calc(g,A,B){
+        switch(g){
+          case "AND": return A & B;
+          case "OR": return A | B;
+          case "NAND": return (A & B)?0:1;
+          case "NOR": return (A | B)?0:1;
+          case "XOR": return A ^ B;
+          case "NOT": return A?0:1;
+        }
+        return 0;
+      }
+      function rows(g){
+        if(g==="NOT") return [[0],[1]];
+        return [[0,0],[0,1],[1,0],[1,1]];
+      }
+      function render(){
+        var single = (gate==="NOT");
+        $("lg-b").style.display = single ? "none" : "";
+        var out = calc(gate, a, single?0:b);
+        setT("lg-out", gate + " output = " + out);
+        var tt=$("lg-tt"), html="<caption>"+gate+"</caption><thead><tr>"+(single?"<th>A</th>":"<th>A</th><th>B</th>")+"<th>out</th></tr></thead><tbody>";
+        rows(gate).forEach(function(r){
+          var A=r[0], B=single?0:r[1], o=calc(gate,A,B);
+          var active = (A===a) && (single || B===b);
+          html += '<tr class="'+(active?"hi":"")+'">'+(single?("<td>"+A+"</td>"):("<td>"+A+"</td><td>"+B+"</td>"))+'<td class="out">'+o+'</td></tr>';
+        });
+        html+="</tbody>"; tt.innerHTML=html;
+      }
+      $("lg-gate").addEventListener("click", function(e){
+        var btn=e.target.closest("button"); if(!btn) return;
+        gate=btn.dataset.g;
+        [].forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===btn); });
+        render();
+      });
+      function toggle(id, get, set){
+        $(id).addEventListener("click", function(){ set(get()?0:1); var v=get(); this.setAttribute("aria-pressed", v===1); this.textContent=(id==="lg-a"?"A = ":"B = ")+v; render(); });
+      }
+      toggle("lg-a", function(){return a;}, function(v){a=v;});
+      toggle("lg-b", function(){return b;}, function(v){b=v;});
+      render();
+    })();
+
+    /* Quiz */
+    (function(){
+      var QS=[
+        { q:"A 2-input gate outputs 1 only when both inputs are 1. It is a", o:["OR gate","AND gate","NOR gate","XOR gate"], a:1 },
+        { q:"A 2-input NOR gate with inputs (0,0) outputs", o:["0","1","undefined","both"], a:1 },
+        { q:"In a half-adder the Carry output is produced by an", o:["XOR gate","OR gate","AND gate","NOT gate"], a:2 },
+        { q:"A simulated LED does not light and its arrow points to the +9 V rail. The most likely fault is", o:["resistor too small","supply too high","LED connected in reverse","missing earth"], a:2 },
+        { q:"The main benefit of simulating before building is", o:["it earns more marks","faults and design errors are found without wasting parts","it removes the need to test","it makes soldering optional"], a:1 },
+        { q:"5 resistors at £0.05, 2 LEDs at £0.12 and one IC at £0.40 cost in total", o:["£0.57","£0.89","£1.17","£0.77"], a:1 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
+        var score=0; clearNotes();
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){ var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes(); setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* RAG */
+    (function(){
+      var CRIT=[
+        "Give reasons to simulate before building.",
+        "Identify a logic gate from its symbol or truth table.",
+        "Complete a truth table for a 2-input gate.",
+        "Describe the half-adder (Sum and Carry).",
+        "Identify input, process and output stages.",
+        "Spot common faults on a simulation printout.",
+        "Work out a build cost from component codes."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+
+    /* Scrollspy */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id]; if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Print reveal */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){ opened=[]; document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); }); });
+      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
+    })();
+  })();
+  </script>
+</body>
+</html>

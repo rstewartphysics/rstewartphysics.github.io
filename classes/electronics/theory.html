@@ -1,0 +1,787 @@
+---
+layout: none
+title: Circuit Design Theory — National 5 Electronics
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Circuit Design Theory — National 5 Electronics</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260619a">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <style>
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+    .notes strong { color: var(--text); }
+
+    /* equation cards with real 2-D fractions */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(230px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.55rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ms var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .4em; }
+    .frac > .fr-n { border-bottom: 2.5px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 1px; }
+
+    /* worked examples */
+    .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv var { font-style: italic; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; }
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    /* practice callout */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #00c79a, #00705a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .15rem 0 0; font-weight: 900; color: var(--text); }
+
+    /* reveal answers */
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+    /* diagrams */
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .circuit { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--text); }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .sig  { stroke: var(--accent); stroke-width: 2.6; fill: none; }
+    .circuit .warm { stroke: var(--warm); stroke-width: 2.6; fill: none; }
+
+    /* data + truth tables */
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
+    .dtable thead th { background: var(--surface-2); }
+    .dtable td.l { text-align: left; }
+    .ttable { border-collapse: collapse; margin: .6rem auto 0; font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--text); }
+    .ttable caption { font-family: var(--font-stack); font-weight: 900; color: var(--text); margin-bottom: .35rem; }
+    .ttable th, .ttable td { border: 1px solid var(--border); padding: .4rem .8rem; text-align: center; min-width: 38px; }
+    .ttable thead th { background: var(--surface-2); }
+    .ttable td.out { color: var(--accent-2); font-weight: 900; }
+
+    /* interactive widget */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 130px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .readout { font-size: 1.15rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .cmp-state { font-weight: 900; margin-top: .35rem; }
+    .working { font-family: ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .9rem; line-height: 1.5; }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #00c79a, #00705a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--warm); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note strong { color: var(--text); }
+    .prefix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px,1fr)); gap: .5rem; margin-top: .6rem; }
+    .pfx { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .5rem; text-align: center; font-weight: 800; color: var(--text); }
+    .pfx b { display: block; font-size: 1.15rem; color: var(--accent-2); }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/Electronicsbanner.png" alt="National 5 Electronics circuit design banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Circuit Design — Theory</h1>
+      <p>The key electrical concepts and components for National 5 Electronics.</p>
+    </div>
+  </header>
+
+  <nav class="subnav-wrap" aria-label="On this page">
+    <div class="subnav">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#c1">Units</a>
+        <a class="subnav-link" href="#c2">V, I, R, P</a>
+        <a class="subnav-link" href="#c3">Networks</a>
+        <a class="subnav-link" href="#c4">Dividers</a>
+        <a class="subnav-link" href="#c5">Scope</a>
+        <a class="subnav-link" href="#c6">Capacitors</a>
+        <a class="subnav-link" href="#c7">Magnetism</a>
+        <a class="subnav-link" href="#c8">Logic</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/electronics.html">Electronics hub →</a>
+    </div>
+  </nav>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Circuit Design Theory</h1>
+    <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">←</span> Back to Electronics hub</a>
+    <p class="lead">This is the <strong>Circuit design</strong> area of the course — the electrical
+      concepts and components you analyse, design and calculate with. Work through each concept, try the
+      worked examples the SQA way, then test yourself in the Check section.</p>
+
+    <!-- ===================== CONCEPT 1 ===================== -->
+    <section class="panel" id="c1" aria-label="Units, notation and prefixes">
+      <span class="concept-tag">Concept 1</span>
+      <h2>Units, scientific notation &amp; prefixes</h2>
+      <div class="notes">
+        <p>Every quantity has an <strong>SI unit</strong>. Large and small values are written in
+          <strong>scientific notation</strong> (e.g. 4 700 Ω = 4.7 × 10³ Ω) or with a <strong>prefix</strong>.</p>
+        <ul>
+          <li><strong>Charge</strong> <var>Q</var> — coulomb (C) · <strong>Current</strong> <var>I</var> — ampere (A)</li>
+          <li><strong>Voltage / p.d.</strong> <var>V</var> — volt (V) · <strong>Resistance</strong> <var>R</var> — ohm (Ω)</li>
+          <li><strong>Power</strong> <var>P</var> — watt (W) · <strong>Time</strong> <var>t</var> — second (s) · <strong>Capacitance</strong> <var>C</var> — farad (F)</li>
+        </ul>
+        <div class="prefix-grid" aria-label="Prefixes you must know">
+          <div class="pfx"><b>p</b>pico · ×10⁻¹²</div>
+          <div class="pfx"><b>n</b>nano · ×10⁻⁹</div>
+          <div class="pfx"><b>µ</b>micro · ×10⁻⁶</div>
+          <div class="pfx"><b>m</b>milli · ×10⁻³</div>
+          <div class="pfx"><b>k</b>kilo · ×10³</div>
+          <div class="pfx"><b>M</b>mega · ×10⁶</div>
+        </div>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem">Write each value in its base unit (no prefix): (a) 4.7 kΩ &nbsp; (b) 22 µF &nbsp; (c) 3.3 mA &nbsp; (d) 470 nF.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">(a) 4.7 kΩ = 4.7 × 1000 = 4700 Ω
+(b) 22 µF = 22 × 10⁻⁶ = 0.000022 F
+(c) 3.3 mA = 3.3 ÷ 1000 = 0.0033 A
+(d) 470 nF = 470 × 10⁻⁹ = 0.00000047 F</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 2 ===================== -->
+    <section class="panel" id="c2" aria-label="Current, voltage, resistance and power">
+      <span class="concept-tag">Concept 2</span>
+      <h2>Current, voltage, resistance &amp; power</h2>
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Ohm's law</div>
+          <div class="eq-formula"><var>V</var> = <var>I</var> <var>R</var></div>
+          <div class="eq-desc">p.d. = current × resistance</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Power</div>
+          <div class="eq-formula"><var>P</var> = <var>I</var> <var>V</var></div>
+          <div class="eq-desc">power = current × p.d.</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Power (from current)</div>
+          <div class="eq-formula"><var>P</var> = <var>I</var><sup>2</sup> <var>R</var></div>
+          <div class="eq-desc">power = current² × resistance</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Power (from p.d.)</div>
+          <div class="eq-formula"><var>P</var> = <span class="frac" aria-label="V squared over R"><span class="fr-n"><var>V</var><sup>2</sup></span><span class="fr-d"><var>R</var></span></span></div>
+          <div class="eq-desc">power = p.d.² ÷ resistance</div>
+        </div>
+      </div>
+      <div class="notes">
+        <ul>
+          <li>Choose the power equation that uses the <strong>two quantities you already have</strong>.</li>
+          <li>Always convert prefixes to base units <em>before</em> substituting numbers.</li>
+        </ul>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <span class="ex-q">A 4.7 kΩ resistor carries a current of 2.0 mA. Calculate the p.d. across it.</span>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>R</var> = 4.7 × 1000 = 4700 Ω <span class="u">kΩ → Ω</span></div>
+            <div><var>I</var> = 2.0 ÷ 1000 = 0.0020 A <span class="u">mA → A</span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs"><var>I</var> <var>R</var></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">0.0020 × 4700</span><span class="note-cell">numbers in</span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">9.4 V</span><span class="note-cell"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <span class="ex-q">A resistor dissipates 0.50 W when 5.0 V is across it. Calculate its resistance.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>P</var></span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="V squared over R"><span class="fr-n"><var>V</var><sup>2</sup></span><span class="fr-d"><var>R</var></span></span></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">0.50</span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="5.0 squared over R"><span class="fr-n">5.0<sup>2</sup></span><span class="fr-d"><var>R</var></span></span></span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">5.0<sup>2</sup> ÷ 0.50</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">25 ÷ 0.50</span><span class="note-cell">square first</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">50 Ω</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem">A 12 V supply drives a current of 0.25 A through a lamp. Calculate (a) the resistance of the lamp and (b) the power it dissipates.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">(a) V = I R  →  R = V ÷ I = 12 ÷ 0.25 = 48 Ω
+(b) P = I V = 0.25 × 12 = 3.0 W</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 3 ===================== -->
+    <section class="panel" id="c3" aria-label="Resistor networks">
+      <span class="concept-tag">Concept 3</span>
+      <h2>Resistor networks (up to three resistors)</h2>
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Series</div>
+          <div class="eq-formula"><var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub> + <var>R</var><sub>3</sub></div>
+          <div class="eq-desc">resistances add</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Parallel</div>
+          <div class="eq-formula"><span class="frac" aria-label="1 over R total"><span class="fr-n">1</span><span class="fr-d"><var>R</var><sub>T</sub></span></span> = <span class="frac" aria-label="1 over R1"><span class="fr-n">1</span><span class="fr-d"><var>R</var><sub>1</sub></span></span> + <span class="frac" aria-label="1 over R2"><span class="fr-n">1</span><span class="fr-d"><var>R</var><sub>2</sub></span></span></div>
+          <div class="eq-desc">add the reciprocals, then flip back</div>
+        </div>
+      </div>
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 320 120" role="img" aria-labelledby="net-t">
+          <title id="net-t">A series pair and a parallel pair of resistors</title>
+          <!-- series -->
+          <line class="wire" x1="20" y1="35" x2="55" y2="35"/>
+          <rect class="res" x="55" y="25" width="44" height="20"/>
+          <line class="wire" x1="99" y1="35" x2="135" y2="35"/>
+          <rect class="res" x="135" y="25" width="44" height="20"/>
+          <line class="wire" x1="179" y1="35" x2="210" y2="35"/>
+          <text x="62" y="20">R₁</text><text x="142" y="20">R₂</text>
+          <text x="20" y="58">Series</text>
+          <!-- parallel -->
+          <line class="wire" x1="20" y1="95" x2="55" y2="95"/>
+          <line class="wire" x1="55" y1="78" x2="55" y2="112"/>
+          <rect class="res" x="80" y="68" width="44" height="18"/>
+          <rect class="res" x="80" y="104" width="44" height="18"/>
+          <line class="wire" x1="55" y1="78" x2="80" y2="78"/><line class="wire" x1="55" y1="112" x2="80" y2="112"/>
+          <line class="wire" x1="124" y1="78" x2="150" y2="78"/><line class="wire" x1="124" y1="112" x2="150" y2="112"/>
+          <line class="wire" x1="150" y1="78" x2="150" y2="112"/>
+          <line class="wire" x1="150" y1="95" x2="185" y2="95"/>
+          <circle class="node" cx="55" cy="95" r="3"/><circle class="node" cx="150" cy="95" r="3"/>
+          <text x="20" y="62" opacity="0"></text>
+          <text x="200" y="99">Parallel</text>
+        </svg>
+        <figcaption>Series resistances add; parallel resistors are combined with reciprocals.</figcaption>
+      </figure>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <span class="ex-q">A 12 Ω resistor and a 4.0 Ω resistor are connected in parallel. Calculate the total resistance.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><span class="frac" aria-label="1 over R total"><span class="fr-n">1</span><span class="fr-d"><var>R</var><sub>T</sub></span></span></span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="1 over 12"><span class="fr-n">1</span><span class="fr-d">12</span></span> + <span class="frac" aria-label="1 over 4"><span class="fr-n">1</span><span class="fr-d">4.0</span></span></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><span class="frac" aria-label="1 over R total"><span class="fr-n">1</span><span class="fr-d"><var>R</var><sub>T</sub></span></span></span><span class="eq">=</span><span class="rhs">0.0833 + 0.25 = 0.3333</span><span class="note-cell">common error: don't stop here</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs">1 ÷ 0.3333</span><span class="note-cell">flip back at the end</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs">3.0 Ω</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Multi-step</span>
+        <span class="ex-q">A 6.0 Ω resistor is in series with a parallel pair of 12 Ω and 4.0 Ω. Calculate the total resistance of the network.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>P</sub></span><span class="eq">=</span><span class="rhs">3.0 Ω</span><span class="note-cell">parallel pair (above)</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs"><var>R</var><sub>P</sub> + 6.0</span><span class="note-cell">now add the series part</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>T</sub></span><span class="eq">=</span><span class="rhs">3.0 + 6.0 = 9.0 Ω</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 3</span>
+        <p class="stem">Three 6.0 Ω resistors are connected in parallel. Calculate the total resistance.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">1/R_T = 1/6 + 1/6 + 1/6 = 3/6 = 0.5
+R_T = 1 ÷ 0.5 = 2.0 Ω</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 4 ===================== -->
+    <section class="panel" id="c4" aria-label="Voltage dividers">
+      <span class="concept-tag">Concept 4</span>
+      <h2>Voltage dividers &amp; the comparator switch-over</h2>
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Ratio form</div>
+          <div class="eq-formula"><span class="frac" aria-label="V1 over V2"><span class="fr-n"><var>V</var><sub>1</sub></span><span class="fr-d"><var>V</var><sub>2</sub></span></span> = <span class="frac" aria-label="R1 over R2"><span class="fr-n"><var>R</var><sub>1</sub></span><span class="fr-d"><var>R</var><sub>2</sub></span></span></div>
+          <div class="eq-desc">the p.d.s share in the ratio of the resistors</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Output form</div>
+          <div class="eq-formula"><var>V</var><sub>2</sub> = <span class="frac" aria-label="R2 over R1 plus R2"><span class="fr-n"><var>R</var><sub>2</sub></span><span class="fr-d"><var>R</var><sub>1</sub> + <var>R</var><sub>2</sub></span></span> × <var>V</var><sub>s</sub></div>
+          <div class="eq-desc">output across the lower resistor R₂</div>
+        </div>
+      </div>
+      <div class="notes">
+        <ul>
+          <li><strong>R₁ = top</strong>, <strong>R₂ = bottom</strong>. The output <var>V</var><sub>2</sub> is the p.d. across the <strong>bottom</strong> resistor.</li>
+          <li>Replace R₁ or R₂ with an <strong>LDR</strong> or <strong>thermistor</strong> to make a sensor whose output voltage changes with light or temperature.</li>
+          <li>Feed the divider output into a <strong>741 comparator</strong>: when <var>V</var><sub>2</sub> rises above the reference voltage on the other input, the output <strong>switches over</strong> (low → high) and can drive a transistor/relay.</li>
+        </ul>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <span class="ex-q">A divider has R₁ = 3.0 kΩ (top) and R₂ = 7.0 kΩ (bottom) across a 12 V supply. Calculate the output p.d. across R₂.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>2</sub></span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="R2 over R1 plus R2"><span class="fr-n"><var>R</var><sub>2</sub></span><span class="fr-d"><var>R</var><sub>1</sub> + <var>R</var><sub>2</sub></span></span> × <var>V</var><sub>s</sub></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>2</sub></span><span class="eq">=</span><span class="rhs">(7.0 ÷ (3.0 + 7.0)) × 12</span><span class="note-cell">kΩ cancel — no convert</span></div>
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>2</sub></span><span class="eq">=</span><span class="rhs">0.70 × 12 = 8.4 V</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <span class="ex-q">A divider across 9.0 V must give 6.0 V across the bottom resistor. The top resistor is 2.0 kΩ. Calculate the bottom resistor.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>V</var><sub>2</sub></span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="R2 over 2 plus R2"><span class="fr-n"><var>R</var><sub>2</sub></span><span class="fr-d">2.0 + <var>R</var><sub>2</sub></span></span> × <var>V</var><sub>s</sub></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">6.0</span><span class="eq">=</span><span class="rhs">(<var>R</var><sub>2</sub> ÷ (2.0 + <var>R</var><sub>2</sub>)) × 9.0</span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs">6.0(2.0 + <var>R</var><sub>2</sub>)</span><span class="eq">=</span><span class="rhs">9.0 <var>R</var><sub>2</sub></span><span class="note-cell">cross-multiply</span></div>
+          <div class="calc-row"><span class="lhs">12</span><span class="eq">=</span><span class="rhs">3.0 <var>R</var><sub>2</sub></span><span class="note-cell">collect terms</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var><sub>2</sub></span><span class="eq">=</span><span class="rhs">4.0 kΩ</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="widget" aria-label="Voltage divider and comparator calculator">
+        <h3>Voltage-divider &amp; comparator</h3>
+        <p class="hint">Set the supply, the two resistors (kΩ) and the comparator reference. The output is the p.d. across the bottom resistor R₂.</p>
+        <div class="controls">
+          <label class="field" for="el-vs">Supply V<sub>s</sub> (V)
+            <span class="row"><input type="range" id="el-vs" min="3" max="15" step="0.5" value="12"><input class="num" type="number" id="el-vs-n" min="0" step="any" inputmode="decimal" value="12"></span></label>
+          <label class="field" for="el-r1">R<sub>1</sub> top (kΩ)
+            <span class="row"><input type="range" id="el-r1" min="0.5" max="20" step="0.5" value="3"><input class="num" type="number" id="el-r1-n" min="0" step="any" inputmode="decimal" value="3"></span></label>
+          <label class="field" for="el-r2">R<sub>2</sub> bottom (kΩ)
+            <span class="row"><input type="range" id="el-r2" min="0.5" max="20" step="0.5" value="7"><input class="num" type="number" id="el-r2-n" min="0" step="any" inputmode="decimal" value="7"></span></label>
+          <label class="field" for="el-vref">Reference (V)
+            <span class="row"><input type="range" id="el-vref" min="0" max="15" step="0.5" value="6"><input class="num" type="number" id="el-vref-n" min="0" step="any" inputmode="decimal" value="6"></span></label>
+        </div>
+        <div class="readout" id="el-out" aria-live="polite"></div>
+        <div class="cmp-state" id="el-cmp"></div>
+        <div class="working" id="el-work"></div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 4</span>
+        <p class="stem">A divider across 5.0 V has R₁ = 4.0 kΩ (top) and an LDR as R₂ (bottom). In the dark the LDR is 16 kΩ. Calculate the output voltage in the dark.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">V₂ = (R₂ / (R₁ + R₂)) × V_s
+V₂ = (16 / (4 + 16)) × 5.0 = (16/20) × 5.0 = 4.0 V</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 5 ===================== -->
+    <section class="panel" id="c5" aria-label="Analogue versus digital and the oscilloscope">
+      <span class="concept-tag">Concept 5</span>
+      <h2>Analogue vs digital &amp; the oscilloscope</h2>
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Frequency</div>
+          <div class="eq-formula"><var>f</var> = <span class="frac" aria-label="1 over T"><span class="fr-n">1</span><span class="fr-d"><var>T</var></span></span></div>
+          <div class="eq-desc">frequency = 1 ÷ period</div>
+        </div>
+      </div>
+      <div class="notes">
+        <ul>
+          <li>An <strong>analogue</strong> signal varies smoothly through every value; a <strong>digital</strong> signal has only two levels (high/low, 1/0).</li>
+          <li>On an oscilloscope, <strong>peak voltage</strong> = (vertical divisions to the peak) × <strong>Y-gain</strong> (V/div).</li>
+          <li><strong>Period</strong> <var>T</var> = (horizontal divisions for one wave) × <strong>time-base</strong> (s/div). Then <var>f</var> = 1 ÷ <var>T</var>.</li>
+        </ul>
+      </div>
+      <figure class="figure">
+        <svg class="circuit wide" viewBox="0 0 320 110" role="img" aria-labelledby="scope-t" style="max-width:380px">
+          <title id="scope-t">A sine trace on an oscilloscope grid</title>
+          <rect x="10" y="10" width="300" height="90" class="res" fill="none"/>
+          <g stroke="var(--border)" stroke-width="1">
+            <line x1="60" y1="10" x2="60" y2="100"/><line x1="110" y1="10" x2="110" y2="100"/>
+            <line x1="160" y1="10" x2="160" y2="100"/><line x1="210" y1="10" x2="210" y2="100"/><line x1="260" y1="10" x2="260" y2="100"/>
+            <line x1="10" y1="32" x2="310" y2="32"/><line x1="10" y1="55" x2="310" y2="55"/><line x1="10" y1="78" x2="310" y2="78"/>
+          </g>
+          <path class="sig" d="M10 55 Q35 12 60 55 T110 55 T160 55 T210 55 T260 55 T310 55"/>
+        </svg>
+        <figcaption>One full wave spans a number of divisions across the screen.</figcaption>
+      </figure>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <span class="ex-q">One complete wave spans 4.0 divisions. The time-base is set to 5.0 ms/division. Calculate the frequency.</span>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Find the period</span>
+            <div><var>T</var> = 4.0 × 5.0 = 20 ms</div>
+            <div><var>T</var> = 0.020 s <span class="u">ms → s</span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>f</var></span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="1 over T"><span class="fr-n">1</span><span class="fr-d"><var>T</var></span></span></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>f</var></span><span class="eq">=</span><span class="rhs">1 ÷ 0.020</span><span class="note-cell">use seconds</span></div>
+            <div class="calc-row"><span class="lhs"><var>f</var></span><span class="eq">=</span><span class="rhs">50 Hz</span><span class="note-cell"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 5</span>
+        <p class="stem">A trace shows a peak 3.0 divisions high with the Y-gain at 2.0 V/division, and one wave spans 5.0 divisions with the time-base at 2.0 ms/division. State the peak voltage and calculate the frequency.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">Peak voltage = 3.0 × 2.0 = 6.0 V
+T = 5.0 × 2.0 = 10 ms = 0.010 s
+f = 1 ÷ T = 1 ÷ 0.010 = 100 Hz</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 6 ===================== -->
+    <section class="panel" id="c6" aria-label="Capacitance and timing">
+      <span class="concept-tag">Concept 6</span>
+      <h2>Capacitance &amp; timing</h2>
+      <div class="notes">
+        <ul>
+          <li>A <strong>capacitor</strong> stores charge. It takes time to charge up through a resistor, so it introduces a <strong>delay</strong>.</li>
+          <li>A <strong>larger capacitance</strong> (or larger series resistance) <strong>lengthens</strong> the timing — the output takes longer to switch.</li>
+          <li>This is how a capacitor changes an <strong>output waveform's timing</strong>: it sets how long a timer (such as a 555 astable) stays high or low, which sets the frequency of the output.</li>
+        </ul>
+        <div class="note"><strong>Try it:</strong> the <a href="/classes/electronics/555-astable.html">555 Astable Simulator</a> lets you change the capacitor and resistors and watch the on/off timing change.</div>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 6</span>
+        <p class="stem">In a timing circuit the capacitor is swapped from 10 µF to 100 µF, with the resistors unchanged. State and explain what happens to the time the output stays high.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">The time <strong>increases</strong> (about ten times longer). A larger capacitance stores more charge, so it takes longer to charge up through the same resistor before the circuit switches state.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 7 ===================== -->
+    <section class="panel" id="c7" aria-label="Magnetic effect of a current and electromechanical devices">
+      <span class="concept-tag">Concept 7</span>
+      <h2>Magnetic effect &amp; electromechanical devices</h2>
+      <div class="notes">
+        <ul>
+          <li>A current in a wire creates a <strong>magnetic field</strong> around it. The field is <strong>stronger</strong> when the wire is wound into a <strong>coil</strong> (and stronger still with an iron core).</li>
+          <li>This is used in <strong>electromechanical devices</strong>: the <strong>relay</strong> (a coil that switches a separate circuit), <strong>solenoid</strong>, <strong>motor</strong> and <strong>buzzer</strong>.</li>
+          <li>A relay lets a small electronic signal switch a much larger current, and keeps the two circuits separate.</li>
+        </ul>
+        <div class="note"><strong>Back-EMF:</strong> when a relay coil is switched off, its collapsing field produces a large reverse voltage that can destroy the transistor driving it. A <strong>flyback diode</strong> is fitted in <strong>reverse bias across the coil</strong> to safely conduct this away.</div>
+      </div>
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 300 120" role="img" aria-labelledby="relay-t">
+          <title id="relay-t">A relay coil with a flyback diode in reverse bias across it</title>
+          <line class="wire" x1="40" y1="20" x2="120" y2="20"/>
+          <line class="wire" x1="40" y1="100" x2="120" y2="100"/>
+          <line class="wire" x1="40" y1="20" x2="40" y2="100"/>
+          <text x="14" y="64">+V</text>
+          <!-- coil -->
+          <path class="wire" d="M120 20 q0 12 12 12 q-12 0 -12 12 q0 12 12 12 q-12 0 -12 12 q0 12 12 12 q-12 0 -12 12" transform="translate(0,0)"/>
+          <line class="wire" x1="120" y1="20" x2="120" y2="100"/>
+          <text x="135" y="64">coil</text>
+          <!-- diode across coil (reverse biased) -->
+          <line class="wire" x1="200" y1="20" x2="200" y2="100"/>
+          <line class="wire" x1="120" y1="20" x2="200" y2="20"/>
+          <line class="wire" x1="120" y1="100" x2="200" y2="100"/>
+          <polygon class="res" points="190,68 210,68 200,52" />
+          <line class="wire" x1="190" y1="52" x2="210" y2="52"/>
+          <text x="216" y="64">flyback</text>
+          <circle class="node" cx="120" cy="20" r="3"/><circle class="node" cx="120" cy="100" r="3"/>
+          <circle class="node" cx="200" cy="20" r="3"/><circle class="node" cx="200" cy="100" r="3"/>
+        </svg>
+        <figcaption>The diode points up (reverse to the supply), so it only conducts the coil's back-EMF.</figcaption>
+      </figure>
+      <div class="practice">
+        <span class="practice-tag">Practice 7</span>
+        <p class="stem">State why a flyback diode is connected across a relay coil, and explain why it must be fitted in reverse bias.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">It protects the switching transistor from the large reverse voltage (back-EMF) produced when the coil's magnetic field collapses. In reverse bias it does not conduct during normal operation, but it conducts the back-EMF safely back round the coil when the current is switched off.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== CONCEPT 8 ===================== -->
+    <section class="panel" id="c8" aria-label="Combinational logic">
+      <span class="concept-tag">Concept 8</span>
+      <h2>Combinational logic (overview)</h2>
+      <div class="notes">
+        <ul>
+          <li><strong>Logic gates</strong> take digital inputs (1/0) and give a digital output set by a <strong>truth table</strong>.</li>
+          <li><strong>Combinational logic</strong> connects gates together (≤4 inputs, ≤2 outputs) so the output depends only on the present inputs.</li>
+          <li>Useful building blocks: <strong>transistor switching</strong>, the <strong>bi-stable</strong> (a 1-bit memory), the <strong>half-adder</strong> (adds two bits) and the <strong>741 comparator</strong> (switches when one input passes the other).</li>
+        </ul>
+        <table class="ttable" aria-label="Truth tables for 2-input AND and OR gates">
+          <caption>2-input AND &amp; OR</caption>
+          <thead><tr><th>A</th><th>B</th><th>AND</th><th>OR</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>0</td><td class="out">0</td><td class="out">0</td></tr>
+            <tr><td>0</td><td>1</td><td class="out">0</td><td class="out">1</td></tr>
+            <tr><td>1</td><td>0</td><td class="out">0</td><td class="out">1</td></tr>
+            <tr><td>1</td><td>1</td><td class="out">1</td><td class="out">1</td></tr>
+          </tbody>
+        </table>
+        <div class="note"><strong>Go deeper:</strong> the <a href="/classes/electronics/simulation.html">Simulation</a> page has the ANSI+IEC gate symbols, the interactive truth-table builder and the half-adder.</div>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 8</span>
+        <p class="stem">An alarm should sound only when a door is open <em>AND</em> the system is armed. State which single logic gate does this, and give the output when door = 1, armed = 0.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">An <strong>AND</strong> gate. With inputs 1 and 0, an AND gate outputs <strong>0</strong> — the alarm stays off.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== BOOKLETS ===================== -->
+    <section class="panel" aria-label="Learning booklets">
+      <h2>📄 Learning booklets</h2>
+      <p>Open the class notes and reference material for this unit.</p>
+      <div class="topic-list">
+        <a class="topic-link" href="/classes/electronics/notes.html">Notes &amp; booklets <span class="go" aria-hidden="true">→</span></a>
+        <a class="topic-link" href="/assets/electronics/Yenka.pdf">Yenka simulation guide (PDF) <span class="go" aria-hidden="true">→</span></a>
+        <a class="topic-link" href="/classes/electronics/revision.html">Exam &amp; revision <span class="go" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <!-- ===================== CHECK ===================== -->
+    <section class="panel" id="check" aria-label="Check your understanding">
+      <span class="concept-tag">Check</span>
+      <h2>Check your understanding</h2>
+      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <div id="quiz" aria-label="Multiple choice questions"></div>
+      <div class="btnrow">
+        <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
+        <button class="btn" id="quiz-reset" type="button">Reset</button>
+      </div>
+      <div class="score" id="quiz-score" aria-live="polite"></div>
+
+      <h3 style="margin-top:1.2rem;font-weight:900;">RAG self-check</h3>
+      <p class="muted" style="font-weight:800;">Tap Red / Amber / Green for how confident you feel.</p>
+      <div id="rag" aria-label="Red amber green self assessment"></div>
+      <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
+      <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY = "el-thy-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
+    function bindPair(rangeId, numId, onChange){
+      var r=$(rangeId), n=$(numId);
+      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
+      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ if(r) r.value=v; onChange(v); } });
+    }
+
+    /* Voltage divider + comparator */
+    (function(){
+      var vs=12, r1=3, r2=7, vref=6;
+      function update(){
+        if(!(r1+r2>0)) return;
+        var v2 = vs * r2/(r1+r2);
+        setT("el-out","Output V₂ = "+round(v2,2)+" V");
+        var high = v2 >= vref;
+        setT("el-cmp", "Comparator: output "+(high?"HIGH (≈ +"+round(vs,1)+" V)":"LOW (≈ 0 V)")+"  — V₂ "+(high?"≥":"<")+" reference "+round(vref,1)+" V");
+        $("el-work").textContent =
+          "V₂ = (R₂ / (R₁ + R₂)) × V_s\n"+
+          "V₂ = ("+round(r2,2)+" / ("+round(r1,2)+" + "+round(r2,2)+")) × "+round(vs,1)+"\n"+
+          "V₂ = "+round(v2,2)+" V";
+      }
+      bindPair("el-vs","el-vs-n",function(v){ vs=v; update(); });
+      bindPair("el-r1","el-r1-n",function(v){ r1=v; update(); });
+      bindPair("el-r2","el-r2-n",function(v){ r2=v; update(); });
+      bindPair("el-vref","el-vref-n",function(v){ vref=v; update(); });
+      update();
+    })();
+
+    /* Mixed multiple-choice */
+    (function(){
+      var QS=[
+        { q:"A 3.3 kΩ resistor carries 4.0 mA. The p.d. across it is", o:["13.2 V","0.825 V","13 200 V","0.0132 V"], a:0 },
+        { q:"A 12 Ω and a 6.0 Ω resistor in parallel have a total resistance of", o:["18 Ω","9.0 Ω","4.0 Ω","2.0 Ω"], a:2 },
+        { q:"A divider has 4.0 kΩ (top) and 8.0 kΩ (bottom) across 9.0 V. The p.d. across the 8.0 kΩ is", o:["3.0 V","6.0 V","4.5 V","2.25 V"], a:1 },
+        { q:"A 5.0 V signal drives 0.20 A through a heater. The power is", o:["1.0 W","25 W","0.04 W","100 W"], a:0 },
+        { q:"One wave spans 5.0 divisions at 2.0 ms/division. The frequency is", o:["10 Hz","50 Hz","100 Hz","500 Hz"], a:2 },
+        { q:"A flyback diode across a relay coil is fitted", o:["in series, forward biased","in reverse bias across the coil","in series with the supply","across the transistor base"], a:1 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
+        var score=0; clearNotes();
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){ var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes(); setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* RAG self-check */
+    (function(){
+      var CRIT=[
+        "Convert between prefixes and base units.",
+        "Use V = IR for a component or whole circuit.",
+        "Choose and use P = IV, I²R or V²/R.",
+        "Find total resistance in series and parallel.",
+        "Find the output of a voltage divider.",
+        "Read peak voltage, period and frequency from a scope trace.",
+        "Explain how a capacitor changes output timing.",
+        "Explain the relay and the flyback diode.",
+        "Complete a truth table for a logic gate."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+
+    /* Subnav scrollspy */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id];
+          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Print: open every reveal, then restore */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){
+        opened=[];
+        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
+      });
+      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
+    })();
+  })();
+  </script>
+</body>
+</html>
