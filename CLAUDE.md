@@ -102,7 +102,7 @@ title: Page Title
     <!-- page content -->
   </main>
 
-  <footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+  {% include site-footer.html %}
 </body>
 </html>
 ```
@@ -274,11 +274,20 @@ Class names + purpose. **Exact CSS lives in the reference page / shared sheets �
 
 ## Footer
 
+Every page uses the shared include — do **not** hand-write a `<footer>` element:
+
 ```html
-<footer>© Mr R Stewart's Science, Physics, Electronics &amp; Engineering</footer>
+{% include site-footer.html %}
 ```
-Science pages use the shorter `© Mr Stewart's Science`. `footer` is centred, frosted
-(`rgba(255,255,255,.72)` light / `rgba(0,0,0,.25)` dark), `margin-top:auto`.
+
+The include (`_includes/site-footer.html`) renders the single canonical line
+`© Mr Stewart's Physics, Electronics and Engineering` plus a `.footer-nav` with three links —
+**Home** (`/`), **About &amp; Contact** (`/classes/contact.html`), **Credits**
+(`/classes/credits.html`) — and carries its own scoped link styling. The same string/links apply on
+every subject, Science included (no shorter variant). The `footer` element itself is still styled per
+page: centred, frosted (`rgba(255,255,255,.72)` light / `rgba(0,0,0,.25)` dark), `margin-top:auto`;
+the shared sheets and inline-themed pages already define this. Link colour is `inherit`, so it adapts
+to each page's footer text colour automatically.
 
 ---
 
