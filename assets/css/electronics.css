@@ -165,7 +165,7 @@ body {
   flex-shrink: 0;
   box-shadow: 0 10px 24px rgba(0,0,0,0.12);
   z-index: 2;
-  height: clamp(220px, 32vh, 420px);
+  aspect-ratio: 3 / 1;
   background: var(--glass);
 }
 .banner {
@@ -187,6 +187,7 @@ body {
     rgba(255,255,255,0.00));
   mix-blend-mode: multiply;
   pointer-events: none;
+  display: none;
 }
 
 .banner-overlay-text {
@@ -198,6 +199,19 @@ body {
   border-top: 1px solid var(--border-soft);
   padding: .95rem .9rem;
   text-align: center;
+}
+/* Hub/landing pages: banner art already shows the title — hide the duplicate bar (SR-only) */
+.banner-wrap.is-hub .banner-overlay-text {
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  inset: auto;
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .banner-overlay-text h1 {
   margin: 0;
@@ -517,9 +531,58 @@ footer {
 
 @media (max-width: 720px) {
   .banner-overlay-text p { display: none; }
-  .banner-wrap { height: clamp(170px, 22vh, 260px); }
 }
 @media (max-width: 560px) {
   .banner-overlay-text h1 { font-size: 1.02rem; }
   .panel { padding: 1rem; }
 }
+
+/* ============================================================
+   READING HELP — larger text + calmer background (dyslexia/low literacy)
+   Toggled by adding .reading-help to <html>; saved per device.
+   rem-based sizing scales proportionally from the root font-size.
+   ============================================================ */
+html.reading-help { font-size: 112.5%; }
+html.reading-help body { line-height: 1.7; letter-spacing: .012em; }
+html.reading-help p,
+html.reading-help li,
+html.reading-help dd,
+html.reading-help .notes,
+html.reading-help .lead { line-height: 1.85; }
+@media (prefers-color-scheme: light) {
+  html.reading-help body { background: #faf8f0; }
+}
+@media (prefers-color-scheme: dark) {
+  html.reading-help body { background: #08130f; }
+}
+
+.reading-toggle {
+  position: fixed;
+  left: calc(12px + env(safe-area-inset-left));
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 44px;
+  padding: .5rem .85rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 900;
+  font-family: var(--font-stack);
+  font-size: .95rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.reading-toggle[aria-pressed="true"] { background: var(--accent); color: #04241d; border-color: transparent; }
+.reading-toggle:hover { border-color: var(--border-strong); }
+.reading-toggle:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+@media print { .reading-toggle { display: none !important; } }
+
+/* generic horizontal-scroll wrapper for wide tables on small screens */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: .6rem; }
+.table-scroll > table { margin-top: 0; }

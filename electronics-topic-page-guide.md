@@ -3,8 +3,7 @@
 Read this before building or editing any National 5 Electronics sub-page. It is the Electronics
 sibling of [`higher-topic-page-guide.md`](higher-topic-page-guide.md): the **structure** is the same
 as the Higher topic pages, but the **palette is Electronics teal-green** and several **conventions
-diverge** (symbols, content framing). The plan of record is
-[`electronics-revamp-plan.md`](electronics-revamp-plan.md); the **source of truth for content** is the
+diverge** (symbols, content framing). The **source of truth for content** is the
 SQA course spec C884 75 v3.0 (Jan 2026) in `assets/electronics/sqa-source-docs/`.
 
 ---
@@ -13,9 +12,9 @@ SQA course spec C884 75 v3.0 (Jan 2026) in `assets/electronics/sqa-source-docs/`
 
 ```
 classes/electronics.html                  — HUB (5 primary tiles + tools/resources row)
-classes/electronics/theory.html           — Circuit design
-classes/electronics/simulation.html        — Circuit simulation
-classes/electronics/construction.html      — Circuit construction
+classes/electronics/theory.html           — Circuit design: ALL theory (incl. symbols, logic, IC pin-outs)
+classes/electronics/simulation.html        — Using simulation software (why/when/how) + fault-finding + costing
+classes/electronics/construction.html      — Building: resistor codes, boards, soldering, cables, diagrams
 classes/electronics/testing.html           — Test equipment & methods
 classes/electronics/planning.html          — Practical activity
 ```
@@ -71,22 +70,23 @@ grid, `.example`/`.ex-type`/`.ex-q`, `.practice`/`.practice-tag`, `details.revea
   `V = IR`, `R_T = R₁+R₂+…`, `1/R_T = 1/R₁+1/R₂+…`, `P = IV`, `P = I²R`, `P = V²/R`,
   `V₁/V₂ = R₁/R₂`, `V₂ = (R₂/(R₁+R₂))·V_s`, `f = 1/T`.
 
-## 6. Symbols & diagrams — **ANSI + IEC** (deliberate divergence from Higher)
+## 6. Symbols & diagrams — **UK / IEC rectangle** (consistent with Higher)
 
-The Electronics spec mandates **ANSI + IEC** symbols. **Do not** use the Higher UK/BS rectangle-resistor
-or distinctive-shape-gate rules here.
-- **Resistor:** ANSI **zig-zag** (and may also show the IEC rectangle as the alternative). Variable
-  resistor = zig-zag + arrow. LDR/thermistor as per ANSI+IEC.
-- **Logic gates:** ANSI **distinctive shapes** are the primary form (AND = D-shape, OR = curved-back
-  shield, NOT = triangle + bubble, NAND/NOR/XOR accordingly); IEC rectangular (`&`, `≥1`, `=1`) shown as
-  the alternative where useful.
+A deliberate teacher's choice: use the **UK / IEC rectangle** form for resistors and **distinctive
+shapes** for logic gates — the same convention as the Higher Physics pages. This diverges from the
+spec's literal "ANSI and IEC" wording, but keeps the site consistent. **Do not** use the ANSI zig-zag
+resistor here.
+- **Resistor:** **rectangle**. Variable resistor = rectangle + diagonal arrow. LDR = rectangle in a
+  circle with two arrows pointing in. Thermistor = rectangle with the diagonal line + foot.
+- **Logic gates:** **distinctive shapes** (AND = D-shape, OR = curved-back shield, NOT = triangle +
+  bubble, NAND/NOR/XOR accordingly); the IEC operator (`&`, `≥1`, `=1`) is shown in brackets in the label.
 - All diagrams are **inline SVG**, themed via classes (`.s`/`.sf`/`.wire`/`.res`/`.node`/`text` →
   `var(--text)`/`var(--card)`; never hard-code black/white). Each SVG: `role="img"` + `<title>`.
-- Mandated symbol list to cover on **Construction**: power supplies; resistors (fixed, variable, LDR,
-  thermistor); diodes; capacitors (electrolytic + non-electrolytic); transistors (bipolar +
-  n-channel enhancement MOSFET); I/O (switch, relay, motor, buzzer, lamp, LED, solenoid, speaker);
-  connectors/wires; fuses; logic gates (AND, OR, NOT, NOR, XOR, NAND); ICs (7400-series, 555 timer);
-  741 comparator; voltmeter/ammeter.
+- Mandated symbol list to cover on **Theory** (Concept 8): power supplies; resistors (fixed, variable,
+  LDR, thermistor); diodes; capacitors (electrolytic + non-electrolytic); transistors (NPN +
+  n-channel enhancement MOSFET, **no PNP**); I/O (switch, relay, motor, buzzer, lamp, LED, solenoid,
+  speaker); connectors/wires; fuses; 741 op-amp; voltmeter/ammeter. Logic gates (AND, OR, NOT, NAND,
+  NOR, XOR) are Concept 9; the 741 / 555 / 7400-series IC pin-outs are Concept 11.
 
 ## 7. Electronics-specific components (add inline, themed via tokens)
 
@@ -116,6 +116,6 @@ or distinctive-shape-gate rules here.
 
 - Standard head (dual `theme-color`, `color-scheme`, overflow-fix); links the teal sheet.
 - Every `.calc-row` has exactly 4 cells; fractions use `fr-n`/`fr-d`; `<var>` on every symbol.
-- **ANSI+IEC** symbols (not the Higher rectangle convention).
+- **UK / IEC rectangle** resistors + distinctive-shape gates (same as Higher); no ANSI zig-zag.
 - Tags balanced (`<section>`/`<div>`/`<details>`/`<svg>`/`<script>`/`<style>`); JS-referenced IDs exist.
 - Absolute asset/menu paths; unique `localStorage` prefix; no Liquid-unsafe sequences in JS/CSS.
