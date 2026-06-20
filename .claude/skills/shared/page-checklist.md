@@ -20,6 +20,10 @@ the two `theme-color` metas, and the skip-link colour to match.
 - A11y: skip link, `id="mainContent"`, focus rings ≥3px, tap targets ≥44–48px,
   `aria-label` on cards/sections/grids, decorative imgs `aria-hidden`+`alt=""`,
   `prefers-reduced-motion` block, `aria-live` on widget results, no `alert()`.
+- **Banner:** use the subject's 3:1 `.jpeg` banner from `/assets/` (see CLAUDE.md table). The
+  artwork already shows the subject title, so `.banner-wrap` uses `aspect-ratio: 3 / 1` (never a
+  fixed `height`/`max-height` — the full banner must show, no crop/zoom), `.banner-tint` is
+  `display:none`, and the overlay bar is hidden on hubs via `is-hub` but kept on topic pages.
 - No parallax / `background-attachment: fixed` / blueprint-grid backgrounds.
 - `overflow-x:hidden`, `max-width:100%`, `env(safe-area-inset-*)` on sticky controls.
 - **Liquid safety:** no `{{`, `{%`, `%}` in inline CSS/JS (only `{% include site-menu.html %}`).

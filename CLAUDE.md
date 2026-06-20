@@ -185,22 +185,30 @@ the quick map; copy exact values from the source.
 
 ## Banner
 
-`.banner-wrap` is `position:relative; overflow:hidden; height: clamp(220px, 32vh, 420px)` with a
-bottom border + soft shadow. Inside: `.banner` (full-bleed `object-fit:cover`), `.banner-tint`
-(decorative `mix-blend-mode:multiply` wash, `pointer-events:none`), and `.banner-overlay-text` (a
-frosted title bar pinned to the bottom — `rgba(255,255,255,.84)` light / `rgba(0,0,0,.42)` dark).
-Engineering Science uses `<img class="banner">` directly in `.container` (no overlay) at
-`clamp(170px, 24vh, 300px)`, `border-radius: 20px`. **Exact CSS: the reference page / shared sheet.**
+Banners are finished 3:1 artwork (the subject title + `MrStewartPhysics.co.uk` are baked into the
+image). `.banner-wrap` is `position:relative; overflow:hidden; aspect-ratio: 3 / 1` with a bottom
+border + soft shadow — **never a fixed `height`/`max-height`** (that would crop/zoom the art; the
+whole banner must stay visible). Inside: `.banner` (`width:100%; height:100%; object-fit:cover` — no
+crop since both are 3:1), `.banner-tint` (`display:none` — kept in markup but disabled so the
+artwork shows its true colours), and `.banner-overlay-text` (frosted title bar pinned to the bottom).
+
+**Overlay rule:** the art already shows the *subject* title, so on hub/landing pages the overlay is a
+duplicate — hide it by adding `is-hub` to the header (`<header class="banner-wrap is-hub">`); the
+shared sheets carry a `.banner-wrap.is-hub .banner-overlay-text` SR-only rule. On **topic/content
+sub-pages keep the overlay** — there it shows the specific topic name, which the generic subject art
+does not. Inline-themed pages replicate this inline (hide the overlay on the hub; keep it on topics).
 
 ### Banner image assets
 
+All banners are 3:1 `.jpeg` in `/assets/`. Topic pages reuse their subject's banner.
+
 | Subject | Asset | Subject | Asset |
 |---------|-------|---------|-------|
-| Home | `/assets/homelogo.png` | S3 Physics | `/assets/s3physicsbanner.png` |
-| Science | `/assets/sciencebanner.png` | National 5 | `/assets/n5physicsbanner.png` |
-| Physics | `/assets/physicsbanner.png` | Higher | `/assets/hphysicsbanner.png` |
-| Electronics | `/assets/Electronicsbanner.png` | Advanced Higher | `/assets/advbanner.png` |
-| Engineering Science | `/assets/Engeneringbanner.png` | | |
+| Home | `/assets/home-banner.jpeg` | S3 Physics | `/assets/s3-physics-banner.jpeg` |
+| Physics | `/assets/physics-banner.jpeg` | National 5 Physics | `/assets/national-5-physics-banner.jpeg` |
+| Higher | `/assets/higher-physics-banner.jpeg` | Advanced Higher | `/assets/advanced-higher-physics-banner.jpeg` |
+| Electronics | `/assets/electronics-banner.jpeg` | Engineering Science (hub) | `/assets/engineering-science-banner.jpeg` |
+| S3 Engineering Science | `/assets/s3-engineering-science-banner.jpeg` | National 5 Engineering Science | `/assets/national-5-engineering-science-banner.jpeg` |
 
 ---
 
