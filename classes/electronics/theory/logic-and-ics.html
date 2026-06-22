@@ -1,0 +1,818 @@
+---
+layout: none
+title: Theory — Logic Gates and ICs · National 5 Electronics
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Theory — Logic Gates and ICs · National 5 Electronics</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <style>
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+    .notes p { margin: .5rem 0 0; }
+    .notes strong { color: var(--text); }
+    .notes a { color: var(--accent-2); font-weight: 900; text-decoration: none; }
+    .notes a:hover, .notes a:focus-visible { text-decoration: underline; }
+
+    /* equation cards with real 2-D fractions */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(230px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.55rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ms var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .4em; }
+    .frac > .fr-n { border-bottom: 2.5px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 1px; }
+
+    /* worked examples */
+    .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv var { font-style: italic; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; }
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    /* practice callout */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #008063, #00604a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .15rem 0 0; font-weight: 900; color: var(--text); }
+
+    /* reveal answers */
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+    /* diagrams */
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .circ-pair { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; justify-content: center; margin: .8rem 0 .2rem; }
+    .circ-pair .figure { flex: 1 1 260px; min-width: 240px; max-width: 360px; margin: 0; }
+    .pin-cap { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .cphoto { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; background: #fff; border: 1px solid var(--border-soft); border-radius: 10px; padding: .5rem; box-sizing: border-box; }
+    .sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: .7rem; margin: .8rem 0 .2rem; }
+    .sensor-grid .figure { margin: 0; }
+    .circuit { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--text); }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .sig  { stroke: var(--accent); stroke-width: 2.6; fill: none; }
+    .circuit .warm { stroke: var(--warm); stroke-width: 2.6; fill: none; }
+    .circuit .s  { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .fill { fill: var(--text); }
+
+    /* data + truth tables */
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
+    .dtable thead th { background: var(--surface-2); }
+    .dtable td.l { text-align: left; }
+    .ttable { border-collapse: collapse; margin: .6rem auto 0; font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--text); }
+    .ttable caption { font-family: var(--font-stack); font-weight: 900; color: var(--text); margin-bottom: .35rem; }
+    .ttable th, .ttable td { border: 1px solid var(--border); padding: .4rem .8rem; text-align: center; min-width: 38px; }
+    .ttable thead th { background: var(--surface-2); }
+    .ttable td.out { color: var(--accent-2); font-weight: 900; }
+
+    /* interactive widget */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 130px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .readout { font-size: 1.15rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .cmp-state { font-weight: 900; margin-top: .35rem; }
+    .working { font-family: ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .9rem; line-height: 1.5; }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--warm); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note strong { color: var(--text); }
+    .prefix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px,1fr)); gap: .5rem; margin-top: .6rem; }
+    .pfx { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .5rem; text-align: center; font-weight: 800; color: var(--text); }
+    .pfx b { display: block; font-size: 1.15rem; color: var(--accent-2); }
+
+    /* symbol reference grid */
+    .sym-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .55rem; margin-top: .7rem; }
+    .sym-cell { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .55rem; text-align: center; }
+    .symdef { width: 100%; max-width: 120px; height: 56px; display: block; margin: 0 auto .3rem; }
+    .symdef .s { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .symdef .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .symdef .fill { fill: var(--text); }
+    .symdef text { fill: var(--text); font-weight: 800; font-size: 12px; }
+    .sym-name { font-weight: 900; color: var(--text); font-size: .9rem; }
+    .sym-fn { font-weight: 800; color: var(--muted); font-size: .78rem; margin-top: .1rem; }
+
+    /* gate explorer widget */
+    .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; }
+    .seg button { border: 0; border-right: 1px solid var(--border-soft); background: var(--card); color: var(--text); font-weight: 900; padding: .5rem .8rem; min-height: 44px; cursor: pointer; font-family: inherit; font-size: .92rem; }
+    .seg button:last-child { border-right: 0; }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #04241d; }
+    .toggle-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; align-items: center; }
+    .tbtn { min-width: 80px; min-height: 48px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .tbtn[aria-pressed="true"] { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .tbtn:focus-visible, .seg button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ttable tr.hi td { background: rgba(0,200,150,.16); }
+
+    /* IC pin-out diagrams */
+    .pinout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%),1fr)); gap: .9rem; margin-top: .7rem; }
+    .pinout { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .7rem; }
+    .pinout h3 { margin: 0 0 .3rem; font-size: .95rem; font-weight: 900; color: var(--text); text-align: center; }
+    .dip { display: block; width: 100%; max-width: 280px; height: auto; margin: 0 auto; }
+    .dip .body { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.2; }
+    .dip .pin { fill: var(--card); stroke: var(--text); stroke-width: 1.8; }
+    .dip .notch { fill: none; stroke: var(--text); stroke-width: 1.8; }
+    .dip .pn { fill: var(--text); font-weight: 900; font-size: 10px; text-anchor: middle; }
+    .dip .lbl { fill: var(--muted); font-weight: 800; font-size: 10px; }
+    .dip text { font-family: inherit; }
+
+    /* ===== student-friendly scaffolds ===== */
+    /* 5-step maths method */
+    .method { margin: .8rem 0; padding: .7rem .85rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); }
+    .method h3 { margin: 0 0 .4rem; font-size: .95rem; font-weight: 900; color: var(--text); }
+    .method ol { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+    .method li { flex: 1 1 150px; position: relative; padding: .45rem .55rem .45rem 2.1rem; border: 1px solid var(--border-soft); border-radius: 8px; background: var(--card); font-weight: 800; color: var(--text); font-size: .86rem; line-height: 1.35; }
+    .method li::before { counter-increment: step; content: counter(step); position: absolute; left: .45rem; top: 50%; transform: translateY(-50%); width: 1.45rem; height: 1.45rem; border-radius: 999px; background: linear-gradient(135deg, #008063, #00604a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: .82rem; }
+
+    /* key-words box */
+    .keywords { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin: .7rem 0; }
+    .keywords h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
+    .keywords dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; }
+    .keywords dt { font-weight: 900; color: var(--text); }
+    .keywords dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    /* number helper / prefix ladder */
+    .numhelper { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .7rem .8rem; margin: .7rem 0; text-align: center; }
+    .numhelper .ladder { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .3rem; font-weight: 900; }
+    .numhelper .pfx-step { border: 1px solid var(--border-accent); border-radius: 8px; padding: .35rem .55rem; background: var(--surface-2); color: var(--text); min-width: 44px; }
+    .numhelper .pfx-step.base { background: var(--accent); color: #04241d; border-color: transparent; }
+    .numhelper .arrow { font-weight: 900; color: var(--accent-2); }
+    .numhelper .cap { font-weight: 800; color: var(--muted); font-size: .82rem; margin-top: .45rem; }
+    .numhelper .cap b { color: var(--text); }
+
+    /* formula triangles */
+    .ftri-wrap { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: .6rem 0 .2rem; }
+    .ftri { text-align: center; }
+    .ftri svg { width: 110px; height: auto; display: block; margin: 0 auto; }
+    .ftri .lbl { font-weight: 800; color: var(--muted); font-size: .8rem; margin-top: .25rem; }
+    .ftri .s { stroke: var(--text); stroke-width: 2.4; fill: none; stroke-linejoin: round; }
+    .ftri text { fill: var(--text); font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-weight: 700; font-size: 22px; text-anchor: middle; }
+
+    /* writing frame (sentence starters) */
+    .frame { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .7rem .85rem; margin-top: .8rem; }
+    .frame .frame-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .3rem; }
+    .frame p { margin: .25rem 0; font-weight: 800; color: var(--text); line-height: 1.75; }
+    .frame .blank { color: var(--accent-2); font-weight: 900; }
+
+    /* challenge marker */
+    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+
+    /* guided "we do" example (worked layout with blanks to fill) */
+    .guided { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .8rem .9rem; margin-top: .7rem; }
+    .guided .ex-type { background: var(--surface-2); }
+    .guided .gq { display: block; font-weight: 900; color: var(--text); margin: .35rem 0 .55rem; }
+    .guided .gwork { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.12rem; font-weight: 600; color: var(--text); line-height: 1.9; }
+    .guided .gwork var { font-style: italic; }
+    .guided .gwork > div { margin: .15rem 0; }
+    .guided .blank { display: inline-block; min-width: 2.6em; border-bottom: 2px dashed var(--accent-2); color: var(--accent-2); font-weight: 900; text-align: center; padding: 0 .2em; }
+    .guided .ghint { font-family: var(--font-stack); font-weight: 800; font-size: .82rem; color: var(--muted); margin-top: .5rem; }
+
+    /* "you can now…" can-do list */
+    .cando { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin-top: 1rem; }
+    .cando h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #15803d; }
+    .cando ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25rem; }
+    .cando li { position: relative; padding-left: 1.6rem; font-weight: 800; color: var(--text); line-height: 1.4; }
+    .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
+    @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics circuit design banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Theory — Logic Gates &amp; ICs</h1>
+      <p>Logic gates, the control circuits you must describe, and IC pin-outs.</p>
+    </div>
+  </header>
+
+  <nav class="subnav-wrap" aria-label="On this page">
+    <div class="subnav">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#logic">Logic gates</a>
+        <a class="subnav-link" href="#control">Control circuits</a>
+        <a class="subnav-link" href="#pinouts">Pin-outs</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/electronics/theory.html">All theory &rarr;</a>
+    </div>
+  </nav>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Theory — Logic Gates and ICs</h1>
+    <a class="backlink" href="/classes/electronics/theory.html"><span aria-hidden="true">&larr;</span> Back to Theory</a>
+    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;"><span aria-hidden="true">📖</span> Glossary</a>
+    <p class="lead"><strong>Logic gates</strong> and truth tables, the <strong>control circuits</strong> you
+      must be able to describe (op-amp comparator and the 555), and the <strong>IC pin-outs</strong> on the data sheet.</p>
+
+    <section class="panel" id="logic" aria-label="Logic gates and truth tables">
+      <span class="concept-tag">Concept 1</span>
+      <h2>Logic gates &amp; truth tables</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Logic gate</dt><dd>a part that gives a 1 or 0 output from 1/0 inputs.</dd>
+          <dt>Truth table</dt><dd>a table of every input and the output it gives.</dd>
+          <dt>Combinational</dt><dd>gates joined so one gate's output feeds the next.</dd>
+        </dl>
+      </div>
+      <div class="notes">
+        <p>A <strong>logic gate</strong> takes digital inputs (1/0) and gives a digital output set by its
+          <strong>truth table</strong>. You must <strong>identify</strong> a gate from its symbol or truth table and
+          <strong>complete</strong> a truth table. The symbols below are the distinctive shapes (the IEC operator is in brackets).</p>
+      </div>
+      <div class="sym-grid" aria-label="Logic gate symbols">
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="AND gate"><title>AND gate</title>
+            <path class="sf" d="M40 12 H66 A20 20 0 0 1 66 52 H40 Z"/>
+            <line class="s" x1="20" y1="22" x2="40" y2="22"/><line class="s" x1="20" y1="42" x2="40" y2="42"/>
+            <line class="s" x1="86" y1="32" x2="106" y2="32"/></svg>
+          <div class="sym-name">AND (&amp;)</div><div class="sym-fn">output 1 only when all inputs are 1</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="OR gate"><title>OR gate</title>
+            <path class="sf" d="M38 12 Q60 12 84 32 Q60 52 38 52 Q50 32 38 12 Z"/>
+            <line class="s" x1="20" y1="22" x2="44" y2="22"/><line class="s" x1="20" y1="42" x2="44" y2="42"/>
+            <line class="s" x1="84" y1="32" x2="106" y2="32"/></svg>
+          <div class="sym-name">OR (≥1)</div><div class="sym-fn">output 1 when any input is 1</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="NOT gate"><title>NOT gate</title>
+            <polygon class="sf" points="42,14 42,50 78,32"/>
+            <circle class="sf" cx="84" cy="32" r="5"/>
+            <line class="s" x1="20" y1="32" x2="42" y2="32"/><line class="s" x1="89" y1="32" x2="108" y2="32"/></svg>
+          <div class="sym-name">NOT (1)</div><div class="sym-fn">inverts: 0→1, 1→0</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="NAND gate"><title>NAND gate</title>
+            <path class="sf" d="M38 12 H62 A20 20 0 0 1 62 52 H38 Z"/>
+            <circle class="sf" cx="88" cy="32" r="5"/>
+            <line class="s" x1="20" y1="22" x2="38" y2="22"/><line class="s" x1="20" y1="42" x2="38" y2="42"/>
+            <line class="s" x1="93" y1="32" x2="108" y2="32"/></svg>
+          <div class="sym-name">NAND (&amp;)</div><div class="sym-fn">AND then inverted</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="NOR gate"><title>NOR gate</title>
+            <path class="sf" d="M36 12 Q58 12 80 32 Q58 52 36 52 Q48 32 36 12 Z"/>
+            <circle class="sf" cx="86" cy="32" r="5"/>
+            <line class="s" x1="20" y1="22" x2="42" y2="22"/><line class="s" x1="20" y1="42" x2="42" y2="42"/>
+            <line class="s" x1="91" y1="32" x2="108" y2="32"/></svg>
+          <div class="sym-name">NOR (≥1)</div><div class="sym-fn">OR then inverted</div>
+        </div>
+        <div class="sym-cell">
+          <svg class="symdef" viewBox="0 0 130 64" role="img" aria-label="XOR gate"><title>XOR gate</title>
+            <path class="s" d="M30 12 Q42 32 30 52"/>
+            <path class="sf" d="M38 12 Q60 12 84 32 Q60 52 38 52 Q50 32 38 12 Z"/>
+            <line class="s" x1="20" y1="22" x2="40" y2="22"/><line class="s" x1="20" y1="42" x2="40" y2="42"/>
+            <line class="s" x1="84" y1="32" x2="106" y2="32"/></svg>
+          <div class="sym-name">XOR (=1)</div><div class="sym-fn">output 1 when inputs differ</div>
+        </div>
+      </div>
+
+      <div class="widget" aria-label="Logic gate explorer">
+        <h3>Gate explorer</h3>
+        <p class="hint">Choose a gate and toggle inputs A and B. The output and the highlighted truth-table row update live.</p>
+        <div class="seg" id="lg-gate" role="group" aria-label="Choose a logic gate">
+          <button type="button" data-g="AND" aria-pressed="true">AND</button>
+          <button type="button" data-g="OR" aria-pressed="false">OR</button>
+          <button type="button" data-g="NAND" aria-pressed="false">NAND</button>
+          <button type="button" data-g="NOR" aria-pressed="false">NOR</button>
+          <button type="button" data-g="XOR" aria-pressed="false">XOR</button>
+          <button type="button" data-g="NOT" aria-pressed="false">NOT</button>
+        </div>
+        <div class="toggle-row">
+          <button class="tbtn" type="button" id="lg-a" aria-pressed="false">A = 0</button>
+          <button class="tbtn" type="button" id="lg-b" aria-pressed="false">B = 0</button>
+        </div>
+        <div class="readout" id="lg-out" aria-live="polite"></div>
+        <table class="ttable" id="lg-tt" aria-label="Live truth table"></table>
+      </div>
+
+      <div class="notes" style="margin-top:1rem;">
+        <p><strong>Combinational logic — work out the intermediate level first.</strong> Gates can be chained
+          (up to 4 inputs, 2 outputs). Here an <strong>AND</strong> gate gives the intermediate signal
+          <var>G</var> = A&nbsp;AND&nbsp;B, then an <strong>OR</strong> gate gives the output
+          <var>F</var> = <var>G</var>&nbsp;OR&nbsp;C. Fill the <strong>G</strong> column before the output —
+          exactly what the exam's "complete the truth table" question expects.</p>
+      </div>
+      <div class="table-scroll">
+      <table class="ttable" aria-label="Combinational logic truth table with the intermediate level G">
+        <caption>F = (A AND B) OR C</caption>
+        <thead><tr><th>A</th><th>B</th><th>C</th><th>G = A·B</th><th>F = G + C</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td>0</td><td class="out">0</td></tr>
+          <tr><td>0</td><td>0</td><td>1</td><td>0</td><td class="out">1</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td>0</td><td class="out">0</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td>0</td><td class="out">1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td>0</td><td class="out">0</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td>0</td><td class="out">1</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td>1</td><td class="out">1</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td>1</td><td class="out">1</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 1 — complete the truth table</span>
+        <p class="stem">A system has two outputs from inputs A and B: <var>X</var> = A <strong>AND</strong> B and
+          <var>Y</var> = A <strong>NOR</strong> B. Complete both output columns for all four input rows.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">A B → X (AND), Y (NOR)
+0 0 → X = 0, Y = 1
+0 1 → X = 0, Y = 0
+1 0 → X = 0, Y = 0
+1 1 → X = 1, Y = 0</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>✅ You can now…</h3>
+        <ul>
+          <li>identify a gate from its symbol or truth table.</li>
+          <li>complete a truth table, working out any in-between level first.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== CONTROL CIRCUITS (op-amp + 555) ===================== -->
+    <section class="panel" id="control" aria-label="Control circuits to describe">
+      <span class="concept-tag">Concept 2</span>
+      <h2>Control circuits you must describe</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Comparator</dt><dd>an op-amp that compares a signal with a set reference voltage.</dd>
+          <dt>Astable</dt><dd>a circuit that switches by itself — a continuous square wave.</dd>
+          <dt>Monostable</dt><dd>one trigger gives one output pulse of a fixed length.</dd>
+        </dl>
+      </div>
+      <div class="notes">
+        <p>You should be able to give a short "<strong>how it works</strong>" description for each of these
+          circuits — and recognise the circuit diagram. All resistors are drawn the <strong>UK (BS) way</strong>, as a rectangle.
+          The <a href="/classes/electronics/theory/transistor-switching-circuits.html">transistor switch</a> is the fourth circuit you must describe.</p>
+      </div>
+<div class="notes"><p><strong>Op-amp comparator.</strong> The op-amp compares <strong>two voltages</strong>: a sensor divider on one input and a set <strong>reference</strong> level on the other. When the sensor voltage rises <strong>above</strong> the reference, the output swings <strong>high</strong> (LED on); below it, the output is <strong>low</strong>. This switches an output at a chosen light or temperature level.</p></div>
+      <div class="circ-pair">
+      <figure class="figure">
+        <img class="cphoto" src="/assets/electronics/Circuits/comparitor.jpg" alt="Op-amp comparator: a reference voltage divider and a thermistor sensor divider feed a 741 op-amp that switches an LED" loading="lazy">
+        <figcaption>The op-amp compares the sensor voltage with the reference and switches the LED.</figcaption>
+      </figure>
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 360 208" role="img" aria-label="741 pin connections" style="max-width:340px"><rect class="sf" x="148" y="30" width="64" height="158" rx="5"/><path class="s" d="M170 30 A10 10 0 0 0 190 30"/><text x="180" y="115" text-anchor="middle" font-size="12" font-weight="900">741</text><line class="s" x1="148" y1="52" x2="132" y2="52"/><circle class="node" cx="132" cy="52" r="3"/><text x="156" y="56" text-anchor="start" font-size="11" font-weight="900">1</text><text x="126" y="56" text-anchor="end" font-size="10.5">offset (n/c)</text><line class="s" x1="148" y1="92" x2="132" y2="92"/><circle class="node" cx="132" cy="92" r="3"/><text x="156" y="96" text-anchor="start" font-size="11" font-weight="900">2</text><text x="126" y="96" text-anchor="end" font-size="10.5">− in ← reference</text><line class="s" x1="148" y1="132" x2="132" y2="132"/><circle class="node" cx="132" cy="132" r="3"/><text x="156" y="136" text-anchor="start" font-size="11" font-weight="900">3</text><text x="126" y="136" text-anchor="end" font-size="10.5">+ in ← LDR</text><line class="s" x1="148" y1="172" x2="132" y2="172"/><circle class="node" cx="132" cy="172" r="3"/><text x="156" y="176" text-anchor="start" font-size="11" font-weight="900">4</text><text x="126" y="176" text-anchor="end" font-size="10.5">V− → 0V</text><line class="s" x1="212" y1="52" x2="228" y2="52"/><circle class="node" cx="228" cy="52" r="3"/><text x="204" y="56" text-anchor="end" font-size="11" font-weight="900">8</text><text x="234" y="56" text-anchor="start" font-size="10.5">n/c</text><line class="s" x1="212" y1="92" x2="228" y2="92"/><circle class="node" cx="228" cy="92" r="3"/><text x="204" y="96" text-anchor="end" font-size="11" font-weight="900">7</text><text x="234" y="96" text-anchor="start" font-size="10.5">V+ → +V</text><line class="s" x1="212" y1="132" x2="228" y2="132"/><circle class="node" cx="228" cy="132" r="3"/><text x="204" y="136" text-anchor="end" font-size="11" font-weight="900">6</text><text x="234" y="136" text-anchor="start" font-size="10.5">output → LED</text><line class="s" x1="212" y1="172" x2="228" y2="172"/><circle class="node" cx="228" cy="172" r="3"/><text x="204" y="176" text-anchor="end" font-size="11" font-weight="900">5</text><text x="234" y="176" text-anchor="start" font-size="10.5">offset (n/c)</text></svg>
+        <figcaption class="pin-cap">What connects to each 741 pin in this comparator.</figcaption>
+      </figure>
+      </div>
+<div class="notes"><p><strong>555 astable.</strong> With no trigger needed, the 555 runs continuously: <strong>C</strong> charges through <strong>R1 + R2</strong> and discharges through <strong>R2</strong>, so pin&nbsp;3 gives a steady <strong>square wave</strong> that switches between high and low. Bigger R or C values make it slower (lower frequency) — a flashing-LED or tone circuit.</p></div>
+      <div class="circ-pair">
+      <figure class="figure">
+        <img class="cphoto" src="/assets/electronics/Circuits/Astable.jpg" alt="555 astable circuit: resistors and a capacitor set the timing, giving a continuous square wave on pin 3 that flashes two LEDs" loading="lazy">
+        <figcaption>R1, R2 and C set the on/off times; pin 3 gives a continuous square wave.</figcaption>
+      </figure>
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 360 208" role="img" aria-label="555 pin connections" style="max-width:340px"><rect class="sf" x="148" y="30" width="64" height="158" rx="5"/><path class="s" d="M170 30 A10 10 0 0 0 190 30"/><text x="180" y="115" text-anchor="middle" font-size="12" font-weight="900">555</text><line class="s" x1="148" y1="52" x2="132" y2="52"/><circle class="node" cx="132" cy="52" r="3"/><text x="156" y="56" text-anchor="start" font-size="11" font-weight="900">1</text><text x="126" y="56" text-anchor="end" font-size="10.5">GND → 0V</text><line class="s" x1="148" y1="92" x2="132" y2="92"/><circle class="node" cx="132" cy="92" r="3"/><text x="156" y="96" text-anchor="start" font-size="11" font-weight="900">2</text><text x="126" y="96" text-anchor="end" font-size="10.5">trigger (→6)</text><line class="s" x1="148" y1="132" x2="132" y2="132"/><circle class="node" cx="132" cy="132" r="3"/><text x="156" y="136" text-anchor="start" font-size="11" font-weight="900">3</text><text x="126" y="136" text-anchor="end" font-size="10.5">output → LED</text><line class="s" x1="148" y1="172" x2="132" y2="172"/><circle class="node" cx="132" cy="172" r="3"/><text x="156" y="176" text-anchor="start" font-size="11" font-weight="900">4</text><text x="126" y="176" text-anchor="end" font-size="10.5">reset → +V</text><line class="s" x1="212" y1="52" x2="228" y2="52"/><circle class="node" cx="228" cy="52" r="3"/><text x="204" y="56" text-anchor="end" font-size="11" font-weight="900">8</text><text x="234" y="56" text-anchor="start" font-size="10.5">V+ → +V</text><line class="s" x1="212" y1="92" x2="228" y2="92"/><circle class="node" cx="228" cy="92" r="3"/><text x="204" y="96" text-anchor="end" font-size="11" font-weight="900">7</text><text x="234" y="96" text-anchor="start" font-size="10.5">discharge → R1/R2</text><line class="s" x1="212" y1="132" x2="228" y2="132"/><circle class="node" cx="228" cy="132" r="3"/><text x="204" y="136" text-anchor="end" font-size="11" font-weight="900">6</text><text x="234" y="136" text-anchor="start" font-size="10.5">threshold (→2, R2/C)</text><line class="s" x1="212" y1="172" x2="228" y2="172"/><circle class="node" cx="228" cy="172" r="3"/><text x="204" y="176" text-anchor="end" font-size="11" font-weight="900">5</text><text x="234" y="176" text-anchor="start" font-size="10.5">control (0.01µF)</text></svg>
+        <figcaption class="pin-cap">What connects to each 555 pin in this astable.</figcaption>
+      </figure>
+      </div>
+<div class="notes"><p><strong>555 monostable.</strong> It has <strong>one</strong> stable state. A short <strong>trigger</strong> pulse on pin&nbsp;2 makes pin&nbsp;3 go <strong>high</strong> for one fixed time set by <strong>R and C</strong> (a longer time for bigger R or C), then it returns <strong>low</strong> on its own — a one-shot timer (e.g. a timed light).</p></div>
+      <div class="circ-pair">
+      <figure class="figure">
+        <img class="cphoto" src="/assets/electronics/Circuits/monostable.jpg" alt="555 monostable circuit: a trigger button makes pin 3 go high for one fixed time set by R and C, lighting a lamp" loading="lazy">
+        <figcaption>A trigger makes pin 3 go high for one fixed time set by R and C, then it returns low.</figcaption>
+      </figure>
+      <figure class="figure">
+        <svg class="circuit" viewBox="0 0 360 208" role="img" aria-label="555 pin connections" style="max-width:340px"><rect class="sf" x="148" y="30" width="64" height="158" rx="5"/><path class="s" d="M170 30 A10 10 0 0 0 190 30"/><text x="180" y="115" text-anchor="middle" font-size="12" font-weight="900">555</text><line class="s" x1="148" y1="52" x2="132" y2="52"/><circle class="node" cx="132" cy="52" r="3"/><text x="156" y="56" text-anchor="start" font-size="11" font-weight="900">1</text><text x="126" y="56" text-anchor="end" font-size="10.5">GND → 0V</text><line class="s" x1="148" y1="92" x2="132" y2="92"/><circle class="node" cx="132" cy="92" r="3"/><text x="156" y="96" text-anchor="start" font-size="11" font-weight="900">2</text><text x="126" y="96" text-anchor="end" font-size="10.5">trigger ← button</text><line class="s" x1="148" y1="132" x2="132" y2="132"/><circle class="node" cx="132" cy="132" r="3"/><text x="156" y="136" text-anchor="start" font-size="11" font-weight="900">3</text><text x="126" y="136" text-anchor="end" font-size="10.5">output → LED</text><line class="s" x1="148" y1="172" x2="132" y2="172"/><circle class="node" cx="132" cy="172" r="3"/><text x="156" y="176" text-anchor="start" font-size="11" font-weight="900">4</text><text x="126" y="176" text-anchor="end" font-size="10.5">reset → +V</text><line class="s" x1="212" y1="52" x2="228" y2="52"/><circle class="node" cx="228" cy="52" r="3"/><text x="204" y="56" text-anchor="end" font-size="11" font-weight="900">8</text><text x="234" y="56" text-anchor="start" font-size="10.5">V+ → +V</text><line class="s" x1="212" y1="92" x2="228" y2="92"/><circle class="node" cx="228" cy="92" r="3"/><text x="204" y="96" text-anchor="end" font-size="11" font-weight="900">7</text><text x="234" y="96" text-anchor="start" font-size="10.5">discharge (→6, R)</text><line class="s" x1="212" y1="132" x2="228" y2="132"/><circle class="node" cx="228" cy="132" r="3"/><text x="204" y="136" text-anchor="end" font-size="11" font-weight="900">6</text><text x="234" y="136" text-anchor="start" font-size="10.5">threshold (→7, C)</text><line class="s" x1="212" y1="172" x2="228" y2="172"/><circle class="node" cx="228" cy="172" r="3"/><text x="204" y="176" text-anchor="end" font-size="11" font-weight="900">5</text><text x="234" y="176" text-anchor="start" font-size="10.5">control (0.01µF)</text></svg>
+        <figcaption class="pin-cap">What connects to each 555 pin in this monostable.</figcaption>
+      </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem">A 555 is wired so that one push of a button makes an LED stay on for exactly 5 seconds, then it goes off on its own. Is this an <em>astable</em> or a <em>monostable</em>, and what two components set the 5-second time?</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">It is a <strong>monostable</strong> (one trigger &rarr; one fixed pulse). The time is set by the <strong>resistor (R) and capacitor (C)</strong> — a bigger R or C gives a longer time.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>✅ You can now…</h3>
+        <ul>
+          <li>describe an op-amp comparator.</li>
+          <li>describe a 555 astable and a 555 monostable, and say what sets their timing.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" id="pinouts" aria-label="IC pin-out reference">
+      <span class="concept-tag">Concept 3</span>
+      <h2>IC pin-out reference</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>IC</dt><dd>an integrated circuit — a "chip".</dd>
+          <dt>Pin-out</dt><dd>which job each pin (leg) of the chip does.</dd>
+          <dt>Notch</dt><dd>the mark that shows the pin 1 end of the chip.</dd>
+        </dl>
+      </div>
+      <div class="notes"><p>These are the pin-outs given on the SQA <strong>data sheet</strong>, so you can recognise them in the
+        exam and <strong>complete IC pin-out diagrams</strong>. The notch (or dot) marks the <strong>pin&nbsp;1</strong> end.</p></div>
+      <div class="pinout-grid">
+
+        <div class="pinout">
+          <h3>741 op-amp (8-pin)</h3>
+          <svg class="dip" viewBox="0 0 300 180" role="img" aria-label="741 op-amp eight pin pin-out">
+            <title>741 op-amp DIP pin-out</title>
+            <rect class="body" x="110" y="20" width="80" height="140" rx="4"/>
+            <path class="notch" d="M140 20 a10 10 0 0 0 20 0"/>
+            <rect class="pin" x="95" y="34" width="15" height="12"/><rect class="pin" x="95" y="69" width="15" height="12"/>
+            <rect class="pin" x="95" y="104" width="15" height="12"/><rect class="pin" x="95" y="139" width="15" height="12"/>
+            <rect class="pin" x="190" y="34" width="15" height="12"/><rect class="pin" x="190" y="69" width="15" height="12"/>
+            <rect class="pin" x="190" y="104" width="15" height="12"/><rect class="pin" x="190" y="139" width="15" height="12"/>
+            <text class="pn" x="122" y="44">1</text><text class="pn" x="122" y="79">2</text>
+            <text class="pn" x="122" y="114">3</text><text class="pn" x="122" y="149">4</text>
+            <text class="pn" x="178" y="44">8</text><text class="pn" x="178" y="79">7</text>
+            <text class="pn" x="178" y="114">6</text><text class="pn" x="178" y="149">5</text>
+            <text class="lbl" x="90" y="44" text-anchor="end">Offset null</text>
+            <text class="lbl" x="90" y="79" text-anchor="end">Inverting −</text>
+            <text class="lbl" x="90" y="114" text-anchor="end">Non-inv +</text>
+            <text class="lbl" x="90" y="149" text-anchor="end">V−</text>
+            <text class="lbl" x="210" y="44">NC</text><text class="lbl" x="210" y="79">V+</text>
+            <text class="lbl" x="210" y="114">Output</text><text class="lbl" x="210" y="149">Offset null</text>
+          </svg>
+        </div>
+
+        <div class="pinout">
+          <h3>555 timer (8-pin)</h3>
+          <svg class="dip" viewBox="0 0 300 180" role="img" aria-label="555 timer eight pin pin-out">
+            <title>555 timer DIP pin-out</title>
+            <rect class="body" x="110" y="20" width="80" height="140" rx="4"/>
+            <path class="notch" d="M140 20 a10 10 0 0 0 20 0"/>
+            <rect class="pin" x="95" y="34" width="15" height="12"/><rect class="pin" x="95" y="69" width="15" height="12"/>
+            <rect class="pin" x="95" y="104" width="15" height="12"/><rect class="pin" x="95" y="139" width="15" height="12"/>
+            <rect class="pin" x="190" y="34" width="15" height="12"/><rect class="pin" x="190" y="69" width="15" height="12"/>
+            <rect class="pin" x="190" y="104" width="15" height="12"/><rect class="pin" x="190" y="139" width="15" height="12"/>
+            <text class="pn" x="122" y="44">1</text><text class="pn" x="122" y="79">2</text>
+            <text class="pn" x="122" y="114">3</text><text class="pn" x="122" y="149">4</text>
+            <text class="pn" x="178" y="44">8</text><text class="pn" x="178" y="79">7</text>
+            <text class="pn" x="178" y="114">6</text><text class="pn" x="178" y="149">5</text>
+            <text class="lbl" x="90" y="44" text-anchor="end">Ground</text>
+            <text class="lbl" x="90" y="79" text-anchor="end">Trigger</text>
+            <text class="lbl" x="90" y="114" text-anchor="end">Output</text>
+            <text class="lbl" x="90" y="149" text-anchor="end">Reset</text>
+            <text class="lbl" x="210" y="44">V+ (Vcc)</text><text class="lbl" x="210" y="79">Discharge</text>
+            <text class="lbl" x="210" y="114">Threshold</text><text class="lbl" x="210" y="149">Control V</text>
+          </svg>
+        </div>
+
+        <div class="pinout">
+          <h3>7408 — Quad 2-input AND</h3>
+          <svg class="dip" viewBox="0 0 300 320" role="img" aria-label="7408 fourteen pin pin-out"><title>7408 14-pin DIP pin-out</title><rect class="body" x="110" y="20" width="80" height="280" rx="4"/><path class="notch" d="M140 20 a10 10 0 0 0 20 0"/><rect class="pin" x="95" y="39" width="15" height="12"/><text class="pn" x="122" y="49">1</text><text class="lbl" x="90" y="49" text-anchor="end">1A</text><rect class="pin" x="95" y="79" width="15" height="12"/><text class="pn" x="122" y="89">2</text><text class="lbl" x="90" y="89" text-anchor="end">1B</text><rect class="pin" x="95" y="119" width="15" height="12"/><text class="pn" x="122" y="129">3</text><text class="lbl" x="90" y="129" text-anchor="end">1Y</text><rect class="pin" x="95" y="159" width="15" height="12"/><text class="pn" x="122" y="169">4</text><text class="lbl" x="90" y="169" text-anchor="end">2A</text><rect class="pin" x="95" y="199" width="15" height="12"/><text class="pn" x="122" y="209">5</text><text class="lbl" x="90" y="209" text-anchor="end">2B</text><rect class="pin" x="95" y="239" width="15" height="12"/><text class="pn" x="122" y="249">6</text><text class="lbl" x="90" y="249" text-anchor="end">2Y</text><rect class="pin" x="95" y="279" width="15" height="12"/><text class="pn" x="122" y="289">7</text><text class="lbl" x="90" y="289" text-anchor="end">Gnd</text><rect class="pin" x="190" y="39" width="15" height="12"/><text class="pn" x="178" y="49">14</text><text class="lbl" x="210" y="49">Vcc</text><rect class="pin" x="190" y="79" width="15" height="12"/><text class="pn" x="178" y="89">13</text><text class="lbl" x="210" y="89">4B</text><rect class="pin" x="190" y="119" width="15" height="12"/><text class="pn" x="178" y="129">12</text><text class="lbl" x="210" y="129">4A</text><rect class="pin" x="190" y="159" width="15" height="12"/><text class="pn" x="178" y="169">11</text><text class="lbl" x="210" y="169">4Y</text><rect class="pin" x="190" y="199" width="15" height="12"/><text class="pn" x="178" y="209">10</text><text class="lbl" x="210" y="209">3B</text><rect class="pin" x="190" y="239" width="15" height="12"/><text class="pn" x="178" y="249">9</text><text class="lbl" x="210" y="249">3A</text><rect class="pin" x="190" y="279" width="15" height="12"/><text class="pn" x="178" y="289">8</text><text class="lbl" x="210" y="289">3Y</text></svg>
+        </div>
+        <div class="pinout">
+          <h3>7432 — Quad 2-input OR</h3>
+          <svg class="dip" viewBox="0 0 300 320" role="img" aria-label="7432 fourteen pin pin-out"><title>7432 14-pin DIP pin-out</title><rect class="body" x="110" y="20" width="80" height="280" rx="4"/><path class="notch" d="M140 20 a10 10 0 0 0 20 0"/><rect class="pin" x="95" y="39" width="15" height="12"/><text class="pn" x="122" y="49">1</text><text class="lbl" x="90" y="49" text-anchor="end">1A</text><rect class="pin" x="95" y="79" width="15" height="12"/><text class="pn" x="122" y="89">2</text><text class="lbl" x="90" y="89" text-anchor="end">1B</text><rect class="pin" x="95" y="119" width="15" height="12"/><text class="pn" x="122" y="129">3</text><text class="lbl" x="90" y="129" text-anchor="end">1Y</text><rect class="pin" x="95" y="159" width="15" height="12"/><text class="pn" x="122" y="169">4</text><text class="lbl" x="90" y="169" text-anchor="end">2A</text><rect class="pin" x="95" y="199" width="15" height="12"/><text class="pn" x="122" y="209">5</text><text class="lbl" x="90" y="209" text-anchor="end">2B</text><rect class="pin" x="95" y="239" width="15" height="12"/><text class="pn" x="122" y="249">6</text><text class="lbl" x="90" y="249" text-anchor="end">2Y</text><rect class="pin" x="95" y="279" width="15" height="12"/><text class="pn" x="122" y="289">7</text><text class="lbl" x="90" y="289" text-anchor="end">Gnd</text><rect class="pin" x="190" y="39" width="15" height="12"/><text class="pn" x="178" y="49">14</text><text class="lbl" x="210" y="49">Vcc</text><rect class="pin" x="190" y="79" width="15" height="12"/><text class="pn" x="178" y="89">13</text><text class="lbl" x="210" y="89">4B</text><rect class="pin" x="190" y="119" width="15" height="12"/><text class="pn" x="178" y="129">12</text><text class="lbl" x="210" y="129">4A</text><rect class="pin" x="190" y="159" width="15" height="12"/><text class="pn" x="178" y="169">11</text><text class="lbl" x="210" y="169">4Y</text><rect class="pin" x="190" y="199" width="15" height="12"/><text class="pn" x="178" y="209">10</text><text class="lbl" x="210" y="209">3B</text><rect class="pin" x="190" y="239" width="15" height="12"/><text class="pn" x="178" y="249">9</text><text class="lbl" x="210" y="249">3A</text><rect class="pin" x="190" y="279" width="15" height="12"/><text class="pn" x="178" y="289">8</text><text class="lbl" x="210" y="289">3Y</text></svg>
+        </div>
+        <div class="pinout">
+          <h3>7400 — Quad 2-input NAND</h3>
+          <svg class="dip" viewBox="0 0 300 320" role="img" aria-label="7400 fourteen pin pin-out"><title>7400 14-pin DIP pin-out</title><rect class="body" x="110" y="20" width="80" height="280" rx="4"/><path class="notch" d="M140 20 a10 10 0 0 0 20 0"/><rect class="pin" x="95" y="39" width="15" height="12"/><text class="pn" x="122" y="49">1</text><text class="lbl" x="90" y="49" text-anchor="end">1A</text><rect class="pin" x="95" y="79" width="15" height="12"/><text class="pn" x="122" y="89">2</text><text class="lbl" x="90" y="89" text-anchor="end">1B</text><rect class="pin" x="95" y="119" width="15" height="12"/><text class="pn" x="122" y="129">3</text><text class="lbl" x="90" y="129" text-anchor="end">1Y</text><rect class="pin" x="95" y="159" width="15" height="12"/><text class="pn" x="122" y="169">4</text><text class="lbl" x="90" y="169" text-anchor="end">2A</text><rect class="pin" x="95" y="199" width="15" height="12"/><text class="pn" x="122" y="209">5</text><text class="lbl" x="90" y="209" text-anchor="end">2B</text><rect class="pin" x="95" y="239" width="15" height="12"/><text class="pn" x="122" y="249">6</text><text class="lbl" x="90" y="249" text-anchor="end">2Y</text><rect class="pin" x="95" y="279" width="15" height="12"/><text class="pn" x="122" y="289">7</text><text class="lbl" x="90" y="289" text-anchor="end">Gnd</text><rect class="pin" x="190" y="39" width="15" height="12"/><text class="pn" x="178" y="49">14</text><text class="lbl" x="210" y="49">Vcc</text><rect class="pin" x="190" y="79" width="15" height="12"/><text class="pn" x="178" y="89">13</text><text class="lbl" x="210" y="89">4B</text><rect class="pin" x="190" y="119" width="15" height="12"/><text class="pn" x="178" y="129">12</text><text class="lbl" x="210" y="129">4A</text><rect class="pin" x="190" y="159" width="15" height="12"/><text class="pn" x="178" y="169">11</text><text class="lbl" x="210" y="169">4Y</text><rect class="pin" x="190" y="199" width="15" height="12"/><text class="pn" x="178" y="209">10</text><text class="lbl" x="210" y="209">3B</text><rect class="pin" x="190" y="239" width="15" height="12"/><text class="pn" x="178" y="249">9</text><text class="lbl" x="210" y="249">3A</text><rect class="pin" x="190" y="279" width="15" height="12"/><text class="pn" x="178" y="289">8</text><text class="lbl" x="210" y="289">3Y</text></svg>
+        </div>
+        <div class="pinout">
+          <h3>7402 — Quad 2-input NOR</h3>
+          <svg class="dip" viewBox="0 0 300 320" role="img" aria-label="7402 fourteen pin pin-out"><title>7402 14-pin DIP pin-out</title><rect class="body" x="110" y="20" width="80" height="280" rx="4"/><path class="notch" d="M140 20 a10 10 0 0 0 20 0"/><rect class="pin" x="95" y="39" width="15" height="12"/><text class="pn" x="122" y="49">1</text><text class="lbl" x="90" y="49" text-anchor="end">1Y</text><rect class="pin" x="95" y="79" width="15" height="12"/><text class="pn" x="122" y="89">2</text><text class="lbl" x="90" y="89" text-anchor="end">1A</text><rect class="pin" x="95" y="119" width="15" height="12"/><text class="pn" x="122" y="129">3</text><text class="lbl" x="90" y="129" text-anchor="end">1B</text><rect class="pin" x="95" y="159" width="15" height="12"/><text class="pn" x="122" y="169">4</text><text class="lbl" x="90" y="169" text-anchor="end">2Y</text><rect class="pin" x="95" y="199" width="15" height="12"/><text class="pn" x="122" y="209">5</text><text class="lbl" x="90" y="209" text-anchor="end">2A</text><rect class="pin" x="95" y="239" width="15" height="12"/><text class="pn" x="122" y="249">6</text><text class="lbl" x="90" y="249" text-anchor="end">2B</text><rect class="pin" x="95" y="279" width="15" height="12"/><text class="pn" x="122" y="289">7</text><text class="lbl" x="90" y="289" text-anchor="end">Gnd</text><rect class="pin" x="190" y="39" width="15" height="12"/><text class="pn" x="178" y="49">14</text><text class="lbl" x="210" y="49">Vcc</text><rect class="pin" x="190" y="79" width="15" height="12"/><text class="pn" x="178" y="89">13</text><text class="lbl" x="210" y="89">4Y</text><rect class="pin" x="190" y="119" width="15" height="12"/><text class="pn" x="178" y="129">12</text><text class="lbl" x="210" y="129">4B</text><rect class="pin" x="190" y="159" width="15" height="12"/><text class="pn" x="178" y="169">11</text><text class="lbl" x="210" y="169">4A</text><rect class="pin" x="190" y="199" width="15" height="12"/><text class="pn" x="178" y="209">10</text><text class="lbl" x="210" y="209">3Y</text><rect class="pin" x="190" y="239" width="15" height="12"/><text class="pn" x="178" y="249">9</text><text class="lbl" x="210" y="249">3B</text><rect class="pin" x="190" y="279" width="15" height="12"/><text class="pn" x="178" y="289">8</text><text class="lbl" x="210" y="289">3A</text></svg>
+        </div>
+        <div class="pinout">
+          <h3>7486 — Quad 2-input XOR</h3>
+          <svg class="dip" viewBox="0 0 300 320" role="img" aria-label="7486 fourteen pin pin-out"><title>7486 14-pin DIP pin-out</title><rect class="body" x="110" y="20" width="80" height="280" rx="4"/><path class="notch" d="M140 20 a10 10 0 0 0 20 0"/><rect class="pin" x="95" y="39" width="15" height="12"/><text class="pn" x="122" y="49">1</text><text class="lbl" x="90" y="49" text-anchor="end">1A</text><rect class="pin" x="95" y="79" width="15" height="12"/><text class="pn" x="122" y="89">2</text><text class="lbl" x="90" y="89" text-anchor="end">1B</text><rect class="pin" x="95" y="119" width="15" height="12"/><text class="pn" x="122" y="129">3</text><text class="lbl" x="90" y="129" text-anchor="end">1Y</text><rect class="pin" x="95" y="159" width="15" height="12"/><text class="pn" x="122" y="169">4</text><text class="lbl" x="90" y="169" text-anchor="end">2A</text><rect class="pin" x="95" y="199" width="15" height="12"/><text class="pn" x="122" y="209">5</text><text class="lbl" x="90" y="209" text-anchor="end">2B</text><rect class="pin" x="95" y="239" width="15" height="12"/><text class="pn" x="122" y="249">6</text><text class="lbl" x="90" y="249" text-anchor="end">2Y</text><rect class="pin" x="95" y="279" width="15" height="12"/><text class="pn" x="122" y="289">7</text><text class="lbl" x="90" y="289" text-anchor="end">Gnd</text><rect class="pin" x="190" y="39" width="15" height="12"/><text class="pn" x="178" y="49">14</text><text class="lbl" x="210" y="49">Vcc</text><rect class="pin" x="190" y="79" width="15" height="12"/><text class="pn" x="178" y="89">13</text><text class="lbl" x="210" y="89">4B</text><rect class="pin" x="190" y="119" width="15" height="12"/><text class="pn" x="178" y="129">12</text><text class="lbl" x="210" y="129">4A</text><rect class="pin" x="190" y="159" width="15" height="12"/><text class="pn" x="178" y="169">11</text><text class="lbl" x="210" y="169">4Y</text><rect class="pin" x="190" y="199" width="15" height="12"/><text class="pn" x="178" y="209">10</text><text class="lbl" x="210" y="209">3B</text><rect class="pin" x="190" y="239" width="15" height="12"/><text class="pn" x="178" y="249">9</text><text class="lbl" x="210" y="249">3A</text><rect class="pin" x="190" y="279" width="15" height="12"/><text class="pn" x="178" y="289">8</text><text class="lbl" x="210" y="289">3Y</text></svg>
+        </div>
+        <div class="pinout">
+          <h3>7404 — Hex NOT (inverters)</h3>
+          <svg class="dip" viewBox="0 0 300 320" role="img" aria-label="7404 fourteen pin pin-out"><title>7404 14-pin DIP pin-out</title><rect class="body" x="110" y="20" width="80" height="280" rx="4"/><path class="notch" d="M140 20 a10 10 0 0 0 20 0"/><rect class="pin" x="95" y="39" width="15" height="12"/><text class="pn" x="122" y="49">1</text><text class="lbl" x="90" y="49" text-anchor="end">1A</text><rect class="pin" x="95" y="79" width="15" height="12"/><text class="pn" x="122" y="89">2</text><text class="lbl" x="90" y="89" text-anchor="end">1Y</text><rect class="pin" x="95" y="119" width="15" height="12"/><text class="pn" x="122" y="129">3</text><text class="lbl" x="90" y="129" text-anchor="end">2A</text><rect class="pin" x="95" y="159" width="15" height="12"/><text class="pn" x="122" y="169">4</text><text class="lbl" x="90" y="169" text-anchor="end">2Y</text><rect class="pin" x="95" y="199" width="15" height="12"/><text class="pn" x="122" y="209">5</text><text class="lbl" x="90" y="209" text-anchor="end">3A</text><rect class="pin" x="95" y="239" width="15" height="12"/><text class="pn" x="122" y="249">6</text><text class="lbl" x="90" y="249" text-anchor="end">3Y</text><rect class="pin" x="95" y="279" width="15" height="12"/><text class="pn" x="122" y="289">7</text><text class="lbl" x="90" y="289" text-anchor="end">Gnd</text><rect class="pin" x="190" y="39" width="15" height="12"/><text class="pn" x="178" y="49">14</text><text class="lbl" x="210" y="49">Vcc</text><rect class="pin" x="190" y="79" width="15" height="12"/><text class="pn" x="178" y="89">13</text><text class="lbl" x="210" y="89">6A</text><rect class="pin" x="190" y="119" width="15" height="12"/><text class="pn" x="178" y="129">12</text><text class="lbl" x="210" y="129">6Y</text><rect class="pin" x="190" y="159" width="15" height="12"/><text class="pn" x="178" y="169">11</text><text class="lbl" x="210" y="169">5A</text><rect class="pin" x="190" y="199" width="15" height="12"/><text class="pn" x="178" y="209">10</text><text class="lbl" x="210" y="209">5Y</text><rect class="pin" x="190" y="239" width="15" height="12"/><text class="pn" x="178" y="249">9</text><text class="lbl" x="210" y="249">4A</text><rect class="pin" x="190" y="279" width="15" height="12"/><text class="pn" x="178" y="289">8</text><text class="lbl" x="210" y="289">4Y</text></svg>
+        </div>
+      </div>
+      <div class="note">On every 7400-series chip <strong>pin 14 = Vcc</strong> (power) and <strong>pin 7 = Gnd</strong> (0 V);
+        the gates' input and output pins depend on the chip type above.</div>
+      <div class="practice">
+        <span class="practice-tag">Practice 3</span>
+        <p class="stem">On a 555 timer, which pin is the output, and on a 7408 AND-gate chip which pins are the power supply (Vcc) and ground (0 V)?</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">The 555 output is <strong>pin 3</strong>. On the 7408 (and every 7400-series chip), <strong>Vcc is pin 14</strong> and <strong>ground is pin 7</strong>.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>✅ You can now…</h3>
+        <ul>
+          <li>read the 741, 555 and 7400-series pin-outs.</li>
+          <li>find the power (Vcc) and ground (0 V) pins on a chip.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== CHECK ===================== -->
+    <section class="panel" id="check" aria-label="Check your understanding">
+      <span class="concept-tag">Check</span>
+      <h2>Check your understanding</h2>
+      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <div id="quiz" aria-label="Multiple choice questions"></div>
+      <div class="btnrow">
+        <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
+        <button class="btn" id="quiz-reset" type="button">Reset</button>
+      </div>
+      <div class="score" id="quiz-score" aria-live="polite"></div>
+
+      <h3 style="margin-top:1.2rem;font-weight:900;">RAG self-check</h3>
+      <p class="muted" style="font-weight:800;">Tap Red / Amber / Green for how confident you feel.</p>
+      <div id="rag" aria-label="Red amber green self assessment"></div>
+      <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
+      <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+    </section>
+
+    <nav class="topic-list" aria-label="More" style="margin-top:1.4rem;">
+      <a class="topic-link" href="/classes/electronics/theory.html">Back to all theory <span class="go" aria-hidden="true">→</span></a>
+      <a class="topic-link" href="/classes/electronics/revision.html">Exam &amp; revision <span class="go" aria-hidden="true">→</span></a>
+    </nav>
+  </main>
+
+  {% include site-footer.html %}
+
+  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">🔤 Reading help</button>
+  <script>
+  (function(){
+    var RKEY="el-reading-help", el=document.documentElement, rbtn=document.getElementById("readingToggle");
+    if(!rbtn) return;
+    function apply(on){ el.classList.toggle("reading-help", on); rbtn.setAttribute("aria-pressed", on?"true":"false"); }
+    var on=false; try{ on=localStorage.getItem(RKEY)==="1"; }catch(e){}
+    apply(on);
+    rbtn.addEventListener("click", function(){ on=!on; apply(on); try{ localStorage.setItem(RKEY, on?"1":"0"); }catch(e){} });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY = "el-thy-li-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
+    function bindPair(rangeId, numId, onChange){
+      var r=$(rangeId), n=$(numId);
+      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
+      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ if(r) r.value=v; onChange(v); } });
+    }
+
+    /* Voltage divider + comparator */
+    (function(){
+      if(!$("el-out")) return;
+      var vs=12, r1=3, r2=7, vref=6;
+      function update(){
+        if(!(r1+r2>0)) return;
+        var v2 = vs * r2/(r1+r2);
+        setT("el-out","Output V₂ = "+round(v2,2)+" V");
+        var high = v2 >= vref;
+        setT("el-cmp", "Comparator: output "+(high?"HIGH (≈ +"+round(vs,1)+" V)":"LOW (≈ 0 V)")+"  — V₂ "+(high?"≥":"<")+" reference "+round(vref,1)+" V");
+        $("el-work").textContent =
+          "V₂ = (R₂ / (R₁ + R₂)) × V_s\n"+
+          "V₂ = ("+round(r2,2)+" / ("+round(r1,2)+" + "+round(r2,2)+")) × "+round(vs,1)+"\n"+
+          "V₂ = "+round(v2,2)+" V";
+      }
+      bindPair("el-vs","el-vs-n",function(v){ vs=v; update(); });
+      bindPair("el-r1","el-r1-n",function(v){ r1=v; update(); });
+      bindPair("el-r2","el-r2-n",function(v){ r2=v; update(); });
+      bindPair("el-vref","el-vref-n",function(v){ vref=v; update(); });
+      update();
+    })();
+
+    /* Logic gate explorer */
+    (function(){
+      if(!$("lg-gate")) return;
+      var gate="AND", a=0, b=0;
+      function calc(g,A,B){
+        switch(g){
+          case "AND": return A & B;
+          case "OR": return A | B;
+          case "NAND": return (A & B)?0:1;
+          case "NOR": return (A | B)?0:1;
+          case "XOR": return A ^ B;
+          case "NOT": return A?0:1;
+        }
+        return 0;
+      }
+      function rows(g){ return g==="NOT" ? [[0],[1]] : [[0,0],[0,1],[1,0],[1,1]]; }
+      function render(){
+        var single = (gate==="NOT");
+        $("lg-b").style.display = single ? "none" : "";
+        var out = calc(gate, a, single?0:b);
+        setT("lg-out", gate + " output = " + out);
+        var tt=$("lg-tt"), html="<caption>"+gate+"</caption><thead><tr>"+(single?"<th>A</th>":"<th>A</th><th>B</th>")+"<th>out</th></tr></thead><tbody>";
+        rows(gate).forEach(function(r){
+          var A=r[0], B=single?0:r[1], o=calc(gate,A,B);
+          var active = (A===a) && (single || B===b);
+          html += '<tr class="'+(active?"hi":"")+'">'+(single?("<td>"+A+"</td>"):("<td>"+A+"</td><td>"+B+"</td>"))+'<td class="out">'+o+'</td></tr>';
+        });
+        html+="</tbody>"; tt.innerHTML=html;
+      }
+      $("lg-gate").addEventListener("click", function(e){
+        var btn=e.target.closest("button"); if(!btn) return;
+        gate=btn.dataset.g;
+        [].forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===btn); });
+        render();
+      });
+      function toggle(id, get, set){
+        $(id).addEventListener("click", function(){ set(get()?0:1); var v=get(); this.setAttribute("aria-pressed", v===1); this.textContent=(id==="lg-a"?"A = ":"B = ")+v; render(); });
+      }
+      toggle("lg-a", function(){return a;}, function(v){a=v;});
+      toggle("lg-b", function(){return b;}, function(v){b=v;});
+      render();
+    })();
+
+    /* Mixed multiple-choice */
+    (function(){
+      var QS=[
+        { q:"A 2-input gate that outputs 1 only when both inputs are 1 is an", o:["OR gate","AND gate","NOR gate","XOR gate"], a:1 },
+        { q:"An op-amp comparator switches its output when the sensor voltage passes the", o:["supply voltage","reference voltage","ground","output voltage"], a:1 },
+        { q:"A 555 circuit that gives one fixed-length output pulse each time it is triggered is a", o:["astable","monostable","comparator","bi-stable"], a:1 },
+        { q:"On a 555 timer the output is", o:["pin 1","pin 3","pin 7","pin 8"], a:1 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
+        var score=0; clearNotes();
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){ var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes(); setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* RAG self-check */
+    (function(){
+      var CRIT=[
+        "Identify a gate and complete a truth table.",
+        "Describe the op-amp comparator, 555 astable and 555 monostable.",
+        "Read the 741, 555 and 7400-series IC pin-outs."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+
+    /* Subnav scrollspy */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id];
+          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Print: open every reveal, then restore */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){
+        opened=[];
+        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
+      });
+      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
+    })();
+  })();
+  </script>
+</body>
+</html>

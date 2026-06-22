@@ -1,0 +1,718 @@
+---
+layout: none
+title: Theory — Quantities and Calculations · National 5 Electronics
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Theory — Quantities and Calculations · National 5 Electronics</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <style>
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+    .notes p { margin: .5rem 0 0; }
+    .notes strong { color: var(--text); }
+    .notes a { color: var(--accent-2); font-weight: 900; text-decoration: none; }
+    .notes a:hover, .notes a:focus-visible { text-decoration: underline; }
+
+    /* equation cards with real 2-D fractions */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(230px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.55rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ms var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .4em; }
+    .frac > .fr-n { border-bottom: 2.5px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 1px; }
+
+    /* worked examples */
+    .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv var { font-style: italic; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; }
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    /* practice callout */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #008063, #00604a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .15rem 0 0; font-weight: 900; color: var(--text); }
+
+    /* reveal answers */
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+    /* diagrams */
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .circ-pair { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; justify-content: center; margin: .8rem 0 .2rem; }
+    .circ-pair .figure { flex: 1 1 260px; min-width: 240px; max-width: 360px; margin: 0; }
+    .pin-cap { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .cphoto { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; background: #fff; border: 1px solid var(--border-soft); border-radius: 10px; padding: .5rem; box-sizing: border-box; }
+    .sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: .7rem; margin: .8rem 0 .2rem; }
+    .sensor-grid .figure { margin: 0; }
+    .circuit { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--text); }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .sig  { stroke: var(--accent); stroke-width: 2.6; fill: none; }
+    .circuit .warm { stroke: var(--warm); stroke-width: 2.6; fill: none; }
+    .circuit .s  { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .fill { fill: var(--text); }
+
+    /* data + truth tables */
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
+    .dtable thead th { background: var(--surface-2); }
+    .dtable td.l { text-align: left; }
+    .ttable { border-collapse: collapse; margin: .6rem auto 0; font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--text); }
+    .ttable caption { font-family: var(--font-stack); font-weight: 900; color: var(--text); margin-bottom: .35rem; }
+    .ttable th, .ttable td { border: 1px solid var(--border); padding: .4rem .8rem; text-align: center; min-width: 38px; }
+    .ttable thead th { background: var(--surface-2); }
+    .ttable td.out { color: var(--accent-2); font-weight: 900; }
+
+    /* interactive widget */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 130px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .readout { font-size: 1.15rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .cmp-state { font-weight: 900; margin-top: .35rem; }
+    .working { font-family: ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .9rem; line-height: 1.5; }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--warm); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note strong { color: var(--text); }
+    .prefix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px,1fr)); gap: .5rem; margin-top: .6rem; }
+    .pfx { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .5rem; text-align: center; font-weight: 800; color: var(--text); }
+    .pfx b { display: block; font-size: 1.15rem; color: var(--accent-2); }
+
+    /* symbol reference grid */
+    .sym-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .55rem; margin-top: .7rem; }
+    .sym-cell { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .55rem; text-align: center; }
+    .symdef { width: 100%; max-width: 120px; height: 56px; display: block; margin: 0 auto .3rem; }
+    .symdef .s { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .symdef .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .symdef .fill { fill: var(--text); }
+    .symdef text { fill: var(--text); font-weight: 800; font-size: 12px; }
+    .sym-name { font-weight: 900; color: var(--text); font-size: .9rem; }
+    .sym-fn { font-weight: 800; color: var(--muted); font-size: .78rem; margin-top: .1rem; }
+
+    /* gate explorer widget */
+    .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; }
+    .seg button { border: 0; border-right: 1px solid var(--border-soft); background: var(--card); color: var(--text); font-weight: 900; padding: .5rem .8rem; min-height: 44px; cursor: pointer; font-family: inherit; font-size: .92rem; }
+    .seg button:last-child { border-right: 0; }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #04241d; }
+    .toggle-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; align-items: center; }
+    .tbtn { min-width: 80px; min-height: 48px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .tbtn[aria-pressed="true"] { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .tbtn:focus-visible, .seg button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ttable tr.hi td { background: rgba(0,200,150,.16); }
+
+    /* IC pin-out diagrams */
+    .pinout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%),1fr)); gap: .9rem; margin-top: .7rem; }
+    .pinout { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .7rem; }
+    .pinout h3 { margin: 0 0 .3rem; font-size: .95rem; font-weight: 900; color: var(--text); text-align: center; }
+    .dip { display: block; width: 100%; max-width: 280px; height: auto; margin: 0 auto; }
+    .dip .body { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.2; }
+    .dip .pin { fill: var(--card); stroke: var(--text); stroke-width: 1.8; }
+    .dip .notch { fill: none; stroke: var(--text); stroke-width: 1.8; }
+    .dip .pn { fill: var(--text); font-weight: 900; font-size: 10px; text-anchor: middle; }
+    .dip .lbl { fill: var(--muted); font-weight: 800; font-size: 10px; }
+    .dip text { font-family: inherit; }
+
+    /* ===== student-friendly scaffolds ===== */
+    /* 5-step maths method */
+    .method { margin: .8rem 0; padding: .7rem .85rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); }
+    .method h3 { margin: 0 0 .4rem; font-size: .95rem; font-weight: 900; color: var(--text); }
+    .method ol { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+    .method li { flex: 1 1 150px; position: relative; padding: .45rem .55rem .45rem 2.1rem; border: 1px solid var(--border-soft); border-radius: 8px; background: var(--card); font-weight: 800; color: var(--text); font-size: .86rem; line-height: 1.35; }
+    .method li::before { counter-increment: step; content: counter(step); position: absolute; left: .45rem; top: 50%; transform: translateY(-50%); width: 1.45rem; height: 1.45rem; border-radius: 999px; background: linear-gradient(135deg, #008063, #00604a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: .82rem; }
+
+    /* key-words box */
+    .keywords { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin: .7rem 0; }
+    .keywords h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
+    .keywords dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; }
+    .keywords dt { font-weight: 900; color: var(--text); }
+    .keywords dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    /* number helper / prefix ladder */
+    .numhelper { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .7rem .8rem; margin: .7rem 0; text-align: center; }
+    .numhelper .ladder { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .3rem; font-weight: 900; }
+    .numhelper .pfx-step { border: 1px solid var(--border-accent); border-radius: 8px; padding: .35rem .55rem; background: var(--surface-2); color: var(--text); min-width: 44px; }
+    .numhelper .pfx-step.base { background: var(--accent); color: #04241d; border-color: transparent; }
+    .numhelper .arrow { font-weight: 900; color: var(--accent-2); }
+    .numhelper .cap { font-weight: 800; color: var(--muted); font-size: .82rem; margin-top: .45rem; }
+    .numhelper .cap b { color: var(--text); }
+
+    /* formula triangles */
+    .ftri-wrap { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: .6rem 0 .2rem; }
+    .ftri { text-align: center; }
+    .ftri svg { width: 110px; height: auto; display: block; margin: 0 auto; }
+    .ftri .lbl { font-weight: 800; color: var(--muted); font-size: .8rem; margin-top: .25rem; }
+    .ftri .s { stroke: var(--text); stroke-width: 2.4; fill: none; stroke-linejoin: round; }
+    .ftri text { fill: var(--text); font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-weight: 700; font-size: 22px; text-anchor: middle; }
+
+    /* writing frame (sentence starters) */
+    .frame { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .7rem .85rem; margin-top: .8rem; }
+    .frame .frame-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .3rem; }
+    .frame p { margin: .25rem 0; font-weight: 800; color: var(--text); line-height: 1.75; }
+    .frame .blank { color: var(--accent-2); font-weight: 900; }
+
+    /* challenge marker */
+    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+
+    /* guided "we do" example (worked layout with blanks to fill) */
+    .guided { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .8rem .9rem; margin-top: .7rem; }
+    .guided .ex-type { background: var(--surface-2); }
+    .guided .gq { display: block; font-weight: 900; color: var(--text); margin: .35rem 0 .55rem; }
+    .guided .gwork { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.12rem; font-weight: 600; color: var(--text); line-height: 1.9; }
+    .guided .gwork var { font-style: italic; }
+    .guided .gwork > div { margin: .15rem 0; }
+    .guided .blank { display: inline-block; min-width: 2.6em; border-bottom: 2px dashed var(--accent-2); color: var(--accent-2); font-weight: 900; text-align: center; padding: 0 .2em; }
+    .guided .ghint { font-family: var(--font-stack); font-weight: 800; font-size: .82rem; color: var(--muted); margin-top: .5rem; }
+
+    /* "you can now…" can-do list */
+    .cando { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin-top: 1rem; }
+    .cando h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #15803d; }
+    .cando ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25rem; }
+    .cando li { position: relative; padding-left: 1.6rem; font-weight: 800; color: var(--text); line-height: 1.4; }
+    .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
+    @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics circuit design banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Theory — Quantities &amp; Calculations</h1>
+      <p>Units and prefixes; current, voltage, resistance and power.</p>
+    </div>
+  </header>
+
+  <nav class="subnav-wrap" aria-label="On this page">
+    <div class="subnav">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#units">Units</a>
+        <a class="subnav-link" href="#vir">V, I, R, P</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/electronics/theory.html">All theory &rarr;</a>
+    </div>
+  </nav>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Theory — Quantities and Calculations</h1>
+    <a class="backlink" href="/classes/electronics/theory.html"><span aria-hidden="true">&larr;</span> Back to Theory</a>
+    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;"><span aria-hidden="true">📖</span> Glossary</a>
+    <p class="lead">Units and the core electrical quantities — the <strong>foundations</strong> for every
+      calculation. Work through each part, try the examples, then test yourself at the end.</p>
+
+    <div class="method" aria-label="The 5 steps for any calculation">
+      <h3>📐 The 5 steps for any calculation</h3>
+      <ol>
+        <li><strong>Find the formula</strong> — it's on your sheet.</li>
+        <li><strong>Fix the units</strong> — change any prefixes (see the number helper).</li>
+        <li><strong>Put the numbers in.</strong></li>
+        <li><strong>Work it out</strong> — one line at a time.</li>
+        <li><strong>Write the answer</strong> — with its unit.</li>
+      </ol>
+    </div>
+
+    <section class="panel" id="units" aria-label="Units, notation and prefixes">
+      <span class="concept-tag">Concept 1</span>
+      <h2>Units, scientific notation &amp; prefixes</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Unit</dt><dd>what you measured (for example volt or ohm).</dd>
+          <dt>Prefix</dt><dd>a letter in front of a unit that makes it bigger or smaller (k = ×1000).</dd>
+          <dt>Base unit</dt><dd>the plain unit with no prefix (for example Ω, A, V).</dd>
+        </dl>
+      </div>
+      <div class="notes">
+        <p>Every measurement has a <strong>unit</strong>. The unit tells you what you measured (for example
+          volts or ohms).</p>
+        <p>Big or small numbers use a <strong>prefix</strong> — a letter in front of the unit (like <strong>k</strong>
+          for kilo). You can also write them in <strong>scientific notation</strong>, a short way to write very big
+          or very small numbers (for example 4 700 Ω = 4.7 × 10³ Ω).</p>
+        <ul>
+          <li><strong>Current</strong> <var>I</var> — ampere (A) · <strong>Voltage / p.d.</strong> <var>V</var> — volt (V)</li>
+          <li><strong>Resistance</strong> <var>R</var> — ohm (Ω) · <strong>Power</strong> <var>P</var> — watt (W)</li>
+          <li><strong>Time</strong> <var>t</var> — second (s) · <strong>Capacitance</strong> <var>C</var> — farad (F) · <strong>Frequency</strong> <var>f</var> — hertz (Hz)</li>
+        </ul>
+        <div class="prefix-grid" aria-label="Prefixes you must know">
+          <div class="pfx"><b>p</b>pico · ×10⁻¹²</div>
+          <div class="pfx"><b>n</b>nano · ×10⁻⁹</div>
+          <div class="pfx"><b>µ</b>micro · ×10⁻⁶</div>
+          <div class="pfx"><b>m</b>milli · ×10⁻³</div>
+          <div class="pfx"><b>k</b>kilo · ×10³</div>
+          <div class="pfx"><b>M</b>mega · ×10⁶</div>
+        </div>
+        <div class="numhelper" aria-label="Number helper for changing prefixes">
+          <div class="ladder">
+            <span class="pfx-step">k</span><span class="arrow">→</span>
+            <span class="pfx-step base">base unit</span><span class="arrow">→</span>
+            <span class="pfx-step">m</span><span class="arrow">→</span>
+            <span class="pfx-step">µ</span><span class="arrow">→</span>
+            <span class="pfx-step">n</span><span class="arrow">→</span>
+            <span class="pfx-step">p</span>
+          </div>
+          <div class="cap">Going <b>right</b> (k → base → m → µ…): <b>× 1000</b> each step.
+            Going <b>left</b> (back the other way): <b>÷ 1000</b> each step.
+            So 4.7 kΩ <b>× 1000</b> = 4700 Ω, and 2.0 mA <b>÷ 1000</b> = 0.0020 A.</div>
+        </div>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem">Write each value in its base unit (no prefix): (a) 4.7 kΩ &nbsp; (b) 22 µF &nbsp; (c) 3.3 mA &nbsp; (d) 470 nF.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">(a) 4.7 kΩ = 4.7 × 1000 = 4700 Ω
+(b) 22 µF = 22 × 10⁻⁶ = 0.000022 F
+(c) 3.3 mA = 3.3 ÷ 1000 = 0.0033 A
+(d) 470 nF = 470 × 10⁻⁹ = 0.00000047 F</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>✅ You can now…</h3>
+        <ul>
+          <li>name the unit for current, voltage, resistance and power.</li>
+          <li>change a value between a prefix and its base unit (× or ÷ 1000).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" id="vir" aria-label="Current, voltage, resistance and power">
+      <span class="concept-tag">Concept 2</span>
+      <h2>Current, voltage, resistance &amp; power</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Voltage (p.d.)</dt><dd>the push that moves the current. In volts (V).</dd>
+          <dt>Current</dt><dd>how much electricity flows. In amps (A).</dd>
+          <dt>Resistance</dt><dd>how hard it is for current to flow. In ohms (Ω).</dd>
+          <dt>Power</dt><dd>how fast energy is used (heat or light). In watts (W).</dd>
+        </dl>
+      </div>
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Ohm's law</div>
+          <div class="eq-formula"><var>V</var> = <var>I</var> <var>R</var></div>
+          <div class="eq-desc">p.d. = current × resistance</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Power</div>
+          <div class="eq-formula"><var>P</var> = <var>I</var> <var>V</var></div>
+          <div class="eq-desc">power = current × p.d.</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Power (from current)</div>
+          <div class="eq-formula"><var>P</var> = <var>I</var><sup>2</sup> <var>R</var></div>
+          <div class="eq-desc">power = current² × resistance</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Power (from p.d.)</div>
+          <div class="eq-formula"><var>P</var> = <span class="frac" aria-label="V squared over R"><span class="fr-n"><var>V</var><sup>2</sup></span><span class="fr-d"><var>R</var></span></span></div>
+          <div class="eq-desc">power = p.d.² ÷ resistance</div>
+        </div>
+      </div>
+      <div class="ftri-wrap" aria-label="Formula triangles for rearranging">
+        <div class="ftri">
+          <svg viewBox="0 0 120 110" role="img" aria-label="Triangle for V equals I times R. Cover the one you want to find.">
+            <title>V = I R triangle</title>
+            <path class="s" d="M60 8 L110 100 L10 100 Z"/>
+            <line class="s" x1="33" y1="60" x2="87" y2="60"/>
+            <line class="s" x1="60" y1="60" x2="60" y2="100"/>
+            <text x="60" y="46">V</text><text x="42" y="92">I</text><text x="80" y="92">R</text>
+          </svg>
+          <div class="lbl">Cover the one you want</div>
+        </div>
+        <div class="ftri">
+          <svg viewBox="0 0 120 110" role="img" aria-label="Triangle for P equals I times V. Cover the one you want to find.">
+            <title>P = I V triangle</title>
+            <path class="s" d="M60 8 L110 100 L10 100 Z"/>
+            <line class="s" x1="33" y1="60" x2="87" y2="60"/>
+            <line class="s" x1="60" y1="60" x2="60" y2="100"/>
+            <text x="60" y="46">P</text><text x="42" y="92">I</text><text x="80" y="92">V</text>
+          </svg>
+          <div class="lbl">Cover the one you want</div>
+        </div>
+      </div>
+      <div class="notes">
+        <ul>
+          <li>Look at what the question gives you. Pick the power formula that uses <strong>those two things</strong>.</li>
+          <li>A resistor turns electrical energy into heat — it <strong>gives out</strong> power.</li>
+          <li>Always change prefixes to the base unit <em>before</em> you put numbers in (use the number helper).</li>
+        </ul>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <span class="ex-q">A 4.7 kΩ resistor carries a current of 2.0 mA. Calculate the p.d. across it.</span>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>R</var> = 4.7 × 1000 = 4700 Ω <span class="u">kΩ → Ω</span></div>
+            <div><var>I</var> = 2.0 ÷ 1000 = 0.0020 A <span class="u">mA → A</span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs"><var>I</var> <var>R</var></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">0.0020 × 4700</span><span class="note-cell">numbers in</span></div>
+            <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">9.4 V</span><span class="note-cell"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <span class="ex-q">A resistor gives out 0.50 W of heat when 5.0 V is across it. Calculate its resistance.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>P</var></span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="V squared over R"><span class="fr-n"><var>V</var><sup>2</sup></span><span class="fr-d"><var>R</var></span></span></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">0.50</span><span class="eq">=</span><span class="rhs"><span class="frac" aria-label="5.0 squared over R"><span class="fr-n">5.0<sup>2</sup></span><span class="fr-d"><var>R</var></span></span></span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">5.0<sup>2</sup> ÷ 0.50</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">25 ÷ 0.50</span><span class="note-cell">square first</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">50 Ω</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="guided" aria-label="Guided example — fill the gaps">
+        <span class="ex-type">We do — fill the gaps</span>
+        <span class="gq">A 2.0 kΩ resistor carries a current of 3.0 mA. Find the p.d. across it.</span>
+        <div class="gwork">
+          <div><strong>1 Fix the units:</strong> <var>R</var> = 2.0 × 1000 = <span class="blank">____</span> Ω &nbsp;·&nbsp; <var>I</var> = 3.0 ÷ 1000 = <span class="blank">____</span> A</div>
+          <div><strong>2 Formula:</strong> <var>V</var> = <var>I</var> <var>R</var></div>
+          <div><strong>3 Numbers in:</strong> <var>V</var> = <span class="blank">____</span> × <span class="blank">____</span></div>
+          <div><strong>4 Answer:</strong> <var>V</var> = <span class="blank">____</span> V</div>
+        </div>
+        <details class="reveal"><summary>Check your answers</summary>
+          <div class="reveal-body ms">R = 2.0 × 1000 = 2000 Ω    I = 3.0 ÷ 1000 = 0.0030 A
+V = I R = 0.0030 × 2000
+V = 6.0 V</div>
+        </details>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem">A 12 V supply drives a current of 0.25 A through a lamp. Calculate (a) the resistance of the lamp and (b) the power it dissipates.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body ms">(a) V = I R  →  R = V ÷ I = 12 ÷ 0.25 = 48 Ω
+(b) P = I V = 0.25 × 12 = 3.0 W</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>✅ You can now…</h3>
+        <ul>
+          <li>use <var>V</var> = <var>I</var> <var>R</var> for a component or a whole circuit.</li>
+          <li>pick and use the right power formula (<var>P</var> = <var>I</var><var>V</var>, <var>I</var>²<var>R</var> or <var>V</var>²/<var>R</var>).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== CHECK ===================== -->
+    <section class="panel" id="check" aria-label="Check your understanding">
+      <span class="concept-tag">Check</span>
+      <h2>Check your understanding</h2>
+      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <div id="quiz" aria-label="Multiple choice questions"></div>
+      <div class="btnrow">
+        <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
+        <button class="btn" id="quiz-reset" type="button">Reset</button>
+      </div>
+      <div class="score" id="quiz-score" aria-live="polite"></div>
+
+      <h3 style="margin-top:1.2rem;font-weight:900;">RAG self-check</h3>
+      <p class="muted" style="font-weight:800;">Tap Red / Amber / Green for how confident you feel.</p>
+      <div id="rag" aria-label="Red amber green self assessment"></div>
+      <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
+      <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+    </section>
+
+    <nav class="topic-list" aria-label="Next theory topic" style="margin-top:1.4rem;">
+      <a class="topic-link" href="/classes/electronics/theory/resistor-circuits.html">Next: Resistor circuits <span class="go" aria-hidden="true">→</span></a>
+    </nav>
+  </main>
+
+  {% include site-footer.html %}
+
+  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">🔤 Reading help</button>
+  <script>
+  (function(){
+    var RKEY="el-reading-help", el=document.documentElement, rbtn=document.getElementById("readingToggle");
+    if(!rbtn) return;
+    function apply(on){ el.classList.toggle("reading-help", on); rbtn.setAttribute("aria-pressed", on?"true":"false"); }
+    var on=false; try{ on=localStorage.getItem(RKEY)==="1"; }catch(e){}
+    apply(on);
+    rbtn.addEventListener("click", function(){ on=!on; apply(on); try{ localStorage.setItem(RKEY, on?"1":"0"); }catch(e){} });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    "use strict";
+    var KEY = "el-thy-qc-";
+    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
+    function $(id){ return document.getElementById(id); }
+    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
+    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
+    function bindPair(rangeId, numId, onChange){
+      var r=$(rangeId), n=$(numId);
+      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
+      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ if(r) r.value=v; onChange(v); } });
+    }
+
+    /* Voltage divider + comparator */
+    (function(){
+      if(!$("el-out")) return;
+      var vs=12, r1=3, r2=7, vref=6;
+      function update(){
+        if(!(r1+r2>0)) return;
+        var v2 = vs * r2/(r1+r2);
+        setT("el-out","Output V₂ = "+round(v2,2)+" V");
+        var high = v2 >= vref;
+        setT("el-cmp", "Comparator: output "+(high?"HIGH (≈ +"+round(vs,1)+" V)":"LOW (≈ 0 V)")+"  — V₂ "+(high?"≥":"<")+" reference "+round(vref,1)+" V");
+        $("el-work").textContent =
+          "V₂ = (R₂ / (R₁ + R₂)) × V_s\n"+
+          "V₂ = ("+round(r2,2)+" / ("+round(r1,2)+" + "+round(r2,2)+")) × "+round(vs,1)+"\n"+
+          "V₂ = "+round(v2,2)+" V";
+      }
+      bindPair("el-vs","el-vs-n",function(v){ vs=v; update(); });
+      bindPair("el-r1","el-r1-n",function(v){ r1=v; update(); });
+      bindPair("el-r2","el-r2-n",function(v){ r2=v; update(); });
+      bindPair("el-vref","el-vref-n",function(v){ vref=v; update(); });
+      update();
+    })();
+
+    /* Logic gate explorer */
+    (function(){
+      if(!$("lg-gate")) return;
+      var gate="AND", a=0, b=0;
+      function calc(g,A,B){
+        switch(g){
+          case "AND": return A & B;
+          case "OR": return A | B;
+          case "NAND": return (A & B)?0:1;
+          case "NOR": return (A | B)?0:1;
+          case "XOR": return A ^ B;
+          case "NOT": return A?0:1;
+        }
+        return 0;
+      }
+      function rows(g){ return g==="NOT" ? [[0],[1]] : [[0,0],[0,1],[1,0],[1,1]]; }
+      function render(){
+        var single = (gate==="NOT");
+        $("lg-b").style.display = single ? "none" : "";
+        var out = calc(gate, a, single?0:b);
+        setT("lg-out", gate + " output = " + out);
+        var tt=$("lg-tt"), html="<caption>"+gate+"</caption><thead><tr>"+(single?"<th>A</th>":"<th>A</th><th>B</th>")+"<th>out</th></tr></thead><tbody>";
+        rows(gate).forEach(function(r){
+          var A=r[0], B=single?0:r[1], o=calc(gate,A,B);
+          var active = (A===a) && (single || B===b);
+          html += '<tr class="'+(active?"hi":"")+'">'+(single?("<td>"+A+"</td>"):("<td>"+A+"</td><td>"+B+"</td>"))+'<td class="out">'+o+'</td></tr>';
+        });
+        html+="</tbody>"; tt.innerHTML=html;
+      }
+      $("lg-gate").addEventListener("click", function(e){
+        var btn=e.target.closest("button"); if(!btn) return;
+        gate=btn.dataset.g;
+        [].forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===btn); });
+        render();
+      });
+      function toggle(id, get, set){
+        $(id).addEventListener("click", function(){ set(get()?0:1); var v=get(); this.setAttribute("aria-pressed", v===1); this.textContent=(id==="lg-a"?"A = ":"B = ")+v; render(); });
+      }
+      toggle("lg-a", function(){return a;}, function(v){a=v;});
+      toggle("lg-b", function(){return b;}, function(v){b=v;});
+      render();
+    })();
+
+    /* Mixed multiple-choice */
+    (function(){
+      var QS=[
+        { q:"470 kΩ written in ohms is", o:["470 Ω","4 700 Ω","470 000 Ω","0.47 Ω"], a:2 },
+        { q:"A 3.3 kΩ resistor carries 4.0 mA. The p.d. across it is", o:["13.2 V","0.825 V","13 200 V","0.0132 V"], a:0 },
+        { q:"A 5.0 V signal drives 0.20 A through a heater. The power is", o:["1.0 W","25 W","0.04 W","100 W"], a:0 },
+        { q:"The best answer for what a cell does in a circuit is that it", o:["gives power","supplies energy / provides the p.d.","makes current","stores charge"], a:1 }
+      ];
+      var box=$("quiz");
+      QS.forEach(function(item,qi){
+        var d=document.createElement("div"); d.className="q";
+        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
+        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        d.innerHTML=html; box.appendChild(d);
+      });
+      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      $("quiz-mark").addEventListener("click", function(){
+        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
+        var score=0; clearNotes();
+        QS.forEach(function(item,qi){
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
+          right.classList.add("correct"); addNote(right, "✓ correct answer");
+          if(chosen){ var oi=parseInt(chosen.value,10);
+            if(oi===item.a) score++;
+            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+          }
+        });
+        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
+        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+      });
+      $("quiz-reset").addEventListener("click", function(){
+        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
+        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        clearNotes(); setT("quiz-score","");
+      });
+      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
+    })();
+
+    /* RAG self-check */
+    (function(){
+      var CRIT=[
+        "Convert between prefixes and base units.",
+        "Use V = IR for a component or whole circuit.",
+        "Choose and use P = IV, I²R or V²/R."
+      ];
+      var box=$("rag"), state=load("rag",{});
+      function summary(){
+        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
+        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
+      }
+      CRIT.forEach(function(c,i){
+        var row=document.createElement("div"); row.className="rag-item";
+        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
+        var btns=document.createElement("span"); btns.className="rag-btns";
+        ["R","A","G"].forEach(function(k){
+          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
+          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
+          b.setAttribute("aria-pressed", state[i]===k);
+          b.addEventListener("click", function(){
+            state[i]=k; save("rag",state);
+            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
+            summary();
+          });
+          btns.appendChild(b);
+        });
+        row.appendChild(btns); box.appendChild(row);
+      });
+      $("rag-reset").addEventListener("click", function(){
+        state={}; save("rag",state);
+        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        summary();
+      });
+      summary();
+    })();
+
+    /* Subnav scrollspy */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var links=document.querySelectorAll(".subnav-link"), map={};
+      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
+      var obs=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
+          var l=map[en.target.id];
+          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
+        });
+      }, { rootMargin: "-25% 0px -65% 0px" });
+      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
+    })();
+
+    /* Print: open every reveal, then restore */
+    (function(){
+      var opened=[];
+      window.addEventListener("beforeprint", function(){
+        opened=[];
+        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
+      });
+      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
+    })();
+  })();
+  </script>
+</body>
+</html>
