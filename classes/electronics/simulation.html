@@ -13,8 +13,9 @@ title: Circuit Simulation — National 5 Electronics
   <title>Circuit Simulation — National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -102,6 +103,27 @@ title: Circuit Simulation — National 5 Electronics
     .frame .frame-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .3rem; }
     .frame p { margin: .25rem 0; font-weight: 800; color: var(--text); line-height: 1.75; }
     .frame .blank { color: var(--accent-2); font-weight: 900; }
+
+    /* The Operator — IPO designer */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+    .ipo-brief { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .75rem .8rem; margin-top: .6rem; }
+    .ipo-brief .ipo-q { font-weight: 900; color: var(--text); margin: 0 0 .55rem; }
+    .ipo-brief .ipo-q b { color: var(--accent-2); }
+    .ipo-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .5rem; }
+    .ipo-cell { display: flex; flex-direction: column; gap: .25rem; font-weight: 900; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; flex: 1 1 150px; }
+    .ipo-sel { min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 800; font-family: inherit; font-size: .9rem; }
+    .ipo-sel:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ipo-arrow { font-weight: 900; color: var(--accent-2); align-self: center; padding-bottom: .55rem; }
+    .ipo-verdict { font-weight: 900; margin-top: .5rem; }
+    .ipo-brief.ok { border-color: #15803d; }
+    .ipo-brief.no { border-color: var(--warm); }
+    .ipo-brief.ok .ipo-verdict { color: #15803d; }
+    .ipo-brief.no .ipo-verdict { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .ipo-brief.ok .ipo-verdict { color: #5dd693; } .ipo-brief.ok { border-color: #5dd693; } }
+    @media (max-width: 520px) { .ipo-arrow { display: none; } }
 
     @media print {
       .skip-link, .subnav-wrap, .backlink, .btnrow, #siteMenuButton, footer { display: none !important; }
@@ -357,6 +379,26 @@ title: Circuit Simulation — National 5 Electronics
       </div>
     </section>
 
+    <!-- Challenge -->
+    <section class="panel" id="challenge" aria-label="The Operator system designer">
+      <span class="concept-tag">Interactive</span>
+      <h2>The Operator — design the system</h2>
+      <p class="notes">For each brief, choose an <strong>input</strong>, a <strong>process</strong> and an
+        <strong>output</strong> sub-system that work together. Satisfy all three briefs to earn the 🎛️
+        <strong>The Operator</strong> badge.</p>
+      <div class="widget" aria-label="Input process output design challenge">
+        <h3>Choose the sub-systems <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Match the sensor to what is sensed, a switching process, and an output that does the job.</p>
+        <div id="ipo-list"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="ipo-check" type="button">Check my designs</button>
+          <button class="btn" id="ipo-reset" type="button">Reset</button>
+        </div>
+        <div class="score" id="ipo-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
     <!-- Check -->
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
@@ -505,6 +547,102 @@ title: Circuit Simulation — National 5 Electronics
       window.addEventListener("beforeprint", function(){ opened=[]; document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); }); });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* The Operator — input/process/output designer (badge: sim-io, pass all briefs) */
+  (function(){
+    "use strict";
+    var listEl = document.getElementById("ipo-list");
+    if(!listEl) return;
+    var BADGE = "sim-io";
+
+    var INPUTS = [
+      { id: "ldr", t: "LDR light sensor (voltage divider)" },
+      { id: "thermistor", t: "Thermistor temperature sensor" },
+      { id: "moisture", t: "Moisture / water probe" },
+      { id: "switch", t: "Push switch" }
+    ];
+    var PROCESS = [
+      { id: "comp", t: "Comparator + transistor switch" },
+      { id: "tsw", t: "Transistor switch" },
+      { id: "timer", t: "555 timer (delay)" },
+      { id: "logic", t: "Logic gate" }
+    ];
+    var OUTPUTS = [
+      { id: "lamp", t: "Relay → lamp" },
+      { id: "led", t: "LED indicator" },
+      { id: "buzzer", t: "Buzzer / sounder" },
+      { id: "motor", t: "Motor" }
+    ];
+    var SWITCHERS = ["comp", "tsw"];
+    var BRIEFS = [
+      { text: "Sound a <b>buzzer when it gets too hot</b>.", input: "thermistor", process: SWITCHERS, outputs: ["buzzer"] },
+      { text: "Switch on a <b>lamp automatically when it gets dark</b>.", input: "ldr", process: SWITCHERS, outputs: ["lamp", "led"] },
+      { text: "Sound an <b>alarm when a sensor detects water</b> (a flood warning).", input: "moisture", process: SWITCHERS, outputs: ["buzzer"] }
+    ];
+
+    function selectHTML(group, list, bi){
+      var h = '<select class="ipo-sel" data-group="' + group + '" data-bi="' + bi + '"><option value="">choose…</option>';
+      list.forEach(function(o){ h += '<option value="' + o.id + '">' + o.t + "</option>"; });
+      return h + "</select>";
+    }
+    function build(){
+      listEl.innerHTML = "";
+      BRIEFS.forEach(function(b, bi){
+        var d = document.createElement("div"); d.className = "ipo-brief";
+        d.innerHTML =
+          '<p class="ipo-q">' + (bi+1) + ". " + b.text + "</p>" +
+          '<div class="ipo-row">' +
+            '<label class="ipo-cell">Input' + selectHTML("input", INPUTS, bi) + "</label>" +
+            '<span class="ipo-arrow" aria-hidden="true">→</span>' +
+            '<label class="ipo-cell">Process' + selectHTML("process", PROCESS, bi) + "</label>" +
+            '<span class="ipo-arrow" aria-hidden="true">→</span>' +
+            '<label class="ipo-cell">Output' + selectHTML("output", OUTPUTS, bi) + "</label>" +
+          "</div><p class='ipo-verdict' id='ipo-v" + bi + "'></p>";
+        listEl.appendChild(d);
+      });
+      document.getElementById("ipo-score").textContent = "";
+    }
+    function val(group, bi){ return listEl.querySelector('select[data-group="' + group + '"][data-bi="' + bi + '"]').value; }
+
+    document.getElementById("ipo-check").addEventListener("click", function(){
+      var complete = BRIEFS.every(function(_, bi){ return val("input", bi) && val("process", bi) && val("output", bi); });
+      if(!complete){ document.getElementById("ipo-score").textContent = "Choose all three blocks for every brief first."; return; }
+      var score = 0;
+      BRIEFS.forEach(function(b, bi){
+        var i = val("input", bi), p = val("process", bi), o = val("output", bi);
+        var inOk = i === b.input, pOk = b.process.indexOf(p) >= 0, oOk = b.outputs.indexOf(o) >= 0;
+        var ok = inOk && pOk && oOk;
+        if(ok) score++;
+        var card = listEl.children[bi], v = document.getElementById("ipo-v" + bi);
+        card.classList.toggle("ok", ok); card.classList.toggle("no", !ok);
+        if(ok){ v.textContent = "✓ This design works."; }
+        else {
+          var probs = [];
+          if(!inOk) probs.push("the input doesn't sense the right thing");
+          if(!pOk) probs.push("the process won't switch the output on");
+          if(!oOk) probs.push("the output doesn't do the job");
+          v.textContent = "✗ Not yet — " + probs.join("; ") + ".";
+        }
+      });
+      var msg = "Briefs satisfied: " + score + " / " + BRIEFS.length;
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, BRIEFS.length);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg = "All briefs satisfied — 🎛️ The Operator unlocked!";
+        }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("ipo-score").textContent = msg;
+    });
+    document.getElementById("ipo-reset").addEventListener("click", build);
+
+    build();
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>

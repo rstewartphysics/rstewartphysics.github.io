@@ -13,8 +13,9 @@ title: Practical Activity Planning — National 5 Electronics
   <title>Practical Activity Planning — National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -98,6 +99,23 @@ title: Practical Activity Planning — National 5 Electronics
     .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
     .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
     .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    /* Master Planner sequencer */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+    .seq-item { display: flex; align-items: center; gap: .6rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .55rem .7rem; margin-top: .5rem; }
+    .seq-pos { flex: 0 0 1.8rem; height: 1.8rem; border-radius: 999px; background: var(--surface-2); color: var(--accent-2); font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .seq-name { flex: 1; font-weight: 900; color: var(--text); }
+    .seq-move { display: inline-flex; flex-direction: column; gap: 3px; }
+    .seq-move button { min-width: 44px; min-height: 26px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .seq-move button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .seq-move button:disabled { opacity: .35; cursor: default; }
+    .seq-item.ok { border-color: #15803d; }
+    .seq-item.no { border-color: var(--warm); }
+    .seq-item.ok .seq-pos { color: #15803d; }
+    @media (prefers-color-scheme: dark) { .seq-item.ok .seq-pos { color: #5dd693; } }
 
     @media print {
       .skip-link, .subnav-wrap, .backlink, .btnrow, #siteMenuButton, footer { display: none !important; }
@@ -294,6 +312,26 @@ title: Practical Activity Planning — National 5 Electronics
       </div>
     </section>
 
+    <!-- Challenge -->
+    <section class="panel" id="challenge" aria-label="Master Planner sequencer">
+      <span class="concept-tag">Interactive</span>
+      <h2>Master Planner — order the five stages</h2>
+      <p class="notes">Put the five marked stages of the practical activity into the correct order. Use the
+        ▲ / ▼ buttons to move each stage. Get all five in the right place to earn the 🗂️
+        <strong>Master Planner</strong> badge.</p>
+      <div class="widget" aria-label="Stage ordering challenge">
+        <h3>Drag the stages into order <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Move each card up or down until the sequence is right, then check your order.</p>
+        <div id="seq-list"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="seq-check" type="button">Check my order</button>
+          <button class="btn" id="seq-shuffle" type="button">Shuffle</button>
+        </div>
+        <div class="score" id="seq-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
     <!-- Check -->
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
@@ -440,6 +478,83 @@ title: Practical Activity Planning — National 5 Electronics
       window.addEventListener("beforeprint", function(){ opened=[]; document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); }); });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* Master Planner — order the five marked stages (badge: pln-st, pass all) */
+  (function(){
+    "use strict";
+    var listEl = document.getElementById("seq-list");
+    if(!listEl) return;
+    var BADGE = "pln-st";
+
+    var STAGES = [
+      { n: 1, name: "Analysis & design" },
+      { n: 2, name: "Designing & simulating" },
+      { n: 3, name: "Construction (safe working)" },
+      { n: 4, name: "Testing" },
+      { n: 5, name: "Reporting" }
+    ];
+    var order = [];
+
+    function shuffled(){
+      var a = STAGES.slice();
+      do {
+        for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+      } while(a.every(function(s, i){ return s.n === i+1; })); /* never start already solved */
+      return a;
+    }
+    function render(){
+      listEl.innerHTML = "";
+      order.forEach(function(s, i){
+        var row = document.createElement("div"); row.className = "seq-item";
+        row.innerHTML =
+          '<span class="seq-pos">' + (i+1) + "</span>" +
+          '<span class="seq-name">' + s.name + "</span>" +
+          '<span class="seq-move">' +
+            '<button type="button" data-dir="-1" aria-label="Move ' + s.name + ' up"' + (i === 0 ? " disabled" : "") + ">▲</button>" +
+            '<button type="button" data-dir="1" aria-label="Move ' + s.name + ' down"' + (i === order.length-1 ? " disabled" : "") + ">▼</button>" +
+          "</span>";
+        row.querySelectorAll(".seq-move button").forEach(function(b){
+          b.addEventListener("click", function(){ move(i, parseInt(b.getAttribute("data-dir"), 10)); });
+        });
+        listEl.appendChild(row);
+      });
+    }
+    function move(i, dir){
+      var j = i + dir;
+      if(j < 0 || j >= order.length) return;
+      var t = order[i]; order[i] = order[j]; order[j] = t;
+      render();
+      document.getElementById("seq-score").textContent = "";
+    }
+    function start(){ order = shuffled(); render(); document.getElementById("seq-score").textContent = ""; }
+
+    document.getElementById("seq-check").addEventListener("click", function(){
+      var score = 0;
+      order.forEach(function(s, i){
+        var ok = s.n === i+1;
+        if(ok) score++;
+        var row = listEl.children[i];
+        row.classList.toggle("ok", ok); row.classList.toggle("no", !ok);
+      });
+      var msg = "In place: " + score + " / 5" + (score === 5 ? " — perfect order!" : " — keep moving the red cards.");
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, 5);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg = "All five correct — 🗂️ Master Planner unlocked!";
+        }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("seq-score").textContent = msg;
+    });
+    document.getElementById("seq-shuffle").addEventListener("click", start);
+
+    start();
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>

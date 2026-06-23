@@ -13,8 +13,9 @@ title: Theory — Logic Gates and ICs · National 5 Electronics
   <title>Theory — Logic Gates and ICs · National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -251,6 +252,17 @@ title: Theory — Logic Gates and ICs · National 5 Electronics
     .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
     @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
 
+    /* Logic Lord truth-table builder */
+    .tt-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px,100%),1fr)); gap: 1rem; margin-top: .4rem; }
+    .tt-card { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .6rem; }
+    .tt-card .ttable { margin: 0 auto; }
+    .tt-cell { min-width: 44px; min-height: 38px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); color: var(--text); font-weight: 900; font-family: inherit; font-size: 1.05rem; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .tt-cell:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .tt-cell.unset { color: var(--muted); }
+    .tt-cell.ok { border-color: #15803d; color: #15803d; }
+    .tt-cell.no { border-color: var(--warm); color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .tt-cell.ok { border-color: #5dd693; color: #5dd693; } }
+
     @media print {
       .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
       .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
@@ -279,6 +291,7 @@ title: Theory — Logic Gates and ICs · National 5 Electronics
         <a class="subnav-link" href="#logic">Logic gates</a>
         <a class="subnav-link" href="#control">Control circuits</a>
         <a class="subnav-link" href="#pinouts">Pin-outs</a>
+        <a class="subnav-link" href="#challenge">Challenge</a>
         <a class="subnav-link" href="#check">Check</a>
       </div>
       <a class="subnav-cta" href="/classes/electronics/theory.html">All theory &rarr;</a>
@@ -590,6 +603,26 @@ title: Theory — Logic Gates and ICs · National 5 Electronics
       </div>
     </section>
 
+    <!-- ===================== CHALLENGE ===================== -->
+    <section class="panel" id="challenge" aria-label="Logic Lord truth-table builder">
+      <span class="concept-tag">Interactive</span>
+      <h2>Logic Lord — build the truth tables</h2>
+      <p class="notes">Fill in the <strong>output (Q)</strong> column for every gate. Tap a cell to cycle it
+        through <strong>0</strong> and <strong>1</strong>. Get <strong>every</strong> cell right to earn the
+        🚦 <strong>Logic Lord</strong> badge — completing the six Theory badges also unlocks 🎓 Theory Triumph.</p>
+      <div class="widget" aria-label="Truth-table builder">
+        <h3>Set every output <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Tap each Q cell to set it. Check your tables to mark them — fix any reds and check again.</p>
+        <div class="tt-tables" id="tt-tables"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="tt-check" type="button">Check my tables</button>
+          <button class="btn" id="tt-reset" type="button">Clear</button>
+        </div>
+        <div class="score" id="tt-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
     <!-- ===================== CHECK ===================== -->
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
@@ -812,6 +845,85 @@ title: Theory — Logic Gates and ICs · National 5 Electronics
       });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* Logic Lord — truth-table builder (badge: thy-li, pass all cells) */
+  (function(){
+    "use strict";
+    var wrap = document.getElementById("tt-tables");
+    if(!wrap) return;
+    var BADGE = "thy-li";
+
+    var GATES = [
+      { name: "AND",  rows: [[0,0,0],[0,1,0],[1,0,0],[1,1,1]] },
+      { name: "OR",   rows: [[0,0,0],[0,1,1],[1,0,1],[1,1,1]] },
+      { name: "NAND", rows: [[0,0,1],[0,1,1],[1,0,1],[1,1,0]] },
+      { name: "NOR",  rows: [[0,0,1],[0,1,0],[1,0,0],[1,1,0]] },
+      { name: "XOR",  rows: [[0,0,0],[0,1,1],[1,0,1],[1,1,0]] },
+      { name: "NOT",  single: true, rows: [[0,1],[1,0]] }
+    ];
+    var TOTAL = GATES.reduce(function(n,g){ return n + g.rows.length; }, 0);
+
+    function buildTable(g){
+      var card = document.createElement("div"); card.className = "tt-card";
+      var single = !!g.single;
+      var html = '<table class="ttable"><caption>' + g.name + "</caption><thead><tr>" +
+        (single ? "<th>A</th>" : "<th>A</th><th>B</th>") + "<th>Q</th></tr></thead><tbody>";
+      g.rows.forEach(function(r){
+        var ans = single ? r[1] : r[2];
+        var inputs = single ? ("<td>" + r[0] + "</td>") : ("<td>" + r[0] + "</td><td>" + r[1] + "</td>");
+        html += "<tr>" + inputs + '<td class="out"><button type="button" class="tt-cell unset" ' +
+          'data-ans="' + ans + '" aria-label="Output for ' + g.name + " with inputs " +
+          (single ? ("A=" + r[0]) : ("A=" + r[0] + ", B=" + r[1])) + '">·</button></td></tr>';
+      });
+      html += "</tbody></table>";
+      card.innerHTML = html;
+      return card;
+    }
+    function render(){
+      wrap.innerHTML = "";
+      GATES.forEach(function(g){ wrap.appendChild(buildTable(g)); });
+      document.getElementById("tt-score").textContent = "";
+    }
+    render();
+
+    wrap.addEventListener("click", function(e){
+      var b = e.target.closest(".tt-cell"); if(!b) return;
+      var v = b.getAttribute("data-v");
+      v = (v === null || v === "") ? "0" : (v === "0" ? "1" : "0");
+      b.setAttribute("data-v", v);
+      b.textContent = v;
+      b.classList.remove("unset", "ok", "no");
+    });
+
+    document.getElementById("tt-check").addEventListener("click", function(){
+      var cells = wrap.querySelectorAll(".tt-cell");
+      var unset = false;
+      Array.prototype.forEach.call(cells, function(b){ if(b.getAttribute("data-v") === null || b.getAttribute("data-v") === "") unset = true; });
+      if(unset){ document.getElementById("tt-score").textContent = "Set every Q cell first (tap to choose 0 or 1)."; return; }
+      var score = 0;
+      Array.prototype.forEach.call(cells, function(b){
+        var ok = b.getAttribute("data-v") === b.getAttribute("data-ans");
+        b.classList.toggle("ok", ok); b.classList.toggle("no", !ok);
+        if(ok) score++;
+      });
+      var msg = "Score: " + score + " / " + TOTAL + (score === TOTAL ? " — perfect!" : " — fix the red cells and check again.");
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, TOTAL);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg = "Score: " + score + " / " + TOTAL + " — 🚦 Logic Lord unlocked!";
+        }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("tt-score").textContent = msg;
+    });
+    document.getElementById("tt-reset").addEventListener("click", render);
+
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>

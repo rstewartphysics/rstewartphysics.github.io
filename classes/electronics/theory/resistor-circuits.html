@@ -13,8 +13,9 @@ title: Theory — Resistor Circuits · National 5 Electronics
   <title>Theory — Resistor Circuits · National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -251,6 +252,20 @@ title: Theory — Resistor Circuits · National 5 Electronics
     .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
     @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
 
+    /* resistance challenge round */
+    .rc-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .6rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rc-item .rc-q { flex: 1; min-width: 220px; font-weight: 800; color: var(--text); }
+    .rc-item .rc-q b { color: var(--accent-2); }
+    .rc-ans { display: inline-flex; align-items: center; gap: .35rem; font-weight: 900; color: var(--muted); }
+    .rc-ans .num { width: 6.4rem; }
+    .rc-ans .rc-unit { font-weight: 900; color: var(--text); }
+    .rc-note { font-weight: 900; white-space: nowrap; width: 100%; margin-top: .1rem; }
+    .rc-item.ok .rc-note { color: #15803d; }
+    .rc-item.no .rc-note { color: var(--warm); }
+    .rc-item.ok .num { border-color: #15803d; }
+    .rc-item.no .num { border-color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .rc-item.ok .rc-note { color: #5dd693; } .rc-item.ok .num { border-color: #5dd693; } }
+
     @media print {
       .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
       .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
@@ -278,6 +293,7 @@ title: Theory — Resistor Circuits · National 5 Electronics
       <div class="subnav-links">
         <a class="subnav-link" href="#networks">Networks</a>
         <a class="subnav-link" href="#dividers">Dividers</a>
+        <a class="subnav-link" href="#challenge">Challenge</a>
         <a class="subnav-link" href="#check">Check</a>
       </div>
       <a class="subnav-cta" href="/classes/electronics/theory.html">All theory &rarr;</a>
@@ -504,6 +520,27 @@ V₂ = (16 / (4 + 16)) × 5.0 = (16/20) × 5.0 = 4.0 V</div>
       </div>
     </section>
 
+    <!-- ===================== CHALLENGE ===================== -->
+    <section class="panel" id="challenge" aria-label="Network Navigator challenge">
+      <span class="concept-tag">Interactive</span>
+      <h2>Network Navigator challenge</h2>
+      <p class="notes">Find the <strong>total resistance</strong> of ten series and parallel networks.
+        Type each total in ohms (Ω). Score <strong>8 / 10</strong> to earn the 🔗 <strong>Network Navigator</strong>
+        badge. Remember: <strong>series adds up</strong>; <strong>parallel</strong> uses
+        <span style="white-space:nowrap">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub></span>.</p>
+      <div class="widget" aria-label="Ten-question resistance challenge">
+        <h3>Your networks <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Answers within 2% are accepted, so sensible rounding is fine.</p>
+        <div id="rc-list"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="rc-check" type="button">Check answers</button>
+          <button class="btn" id="rc-new" type="button">New set</button>
+        </div>
+        <div class="score" id="rc-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
     <!-- ===================== CHECK ===================== -->
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
@@ -723,6 +760,85 @@ V₂ = (16 / (4 + 16)) × 5.0 = (16/20) × 5.0 = 4.0 V</div>
       });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* Network Navigator challenge — series/parallel totals (badge: thy-rc) */
+  (function(){
+    "use strict";
+    var list = document.getElementById("rc-list");
+    if(!list) return;
+    var BADGE = "thy-rc", NQ = 10;
+    var RES = [100,120,150,180,220,330,470,680,1000,1200,1500,2200,3300,4700];
+
+    function pick(){ return RES[Math.floor(Math.random()*RES.length)]; }
+    function sig3(n){
+      if(n === 0) return "0";
+      var d = Math.ceil(Math.log10(Math.abs(n)));
+      var p = Math.pow(10, 3 - d);
+      return (Math.round(n*p)/p).toString();
+    }
+    function makeQ(){
+      var t = ["s2","s3","p2","peq"][Math.floor(Math.random()*4)];
+      var r1, r2, r3, a, q;
+      if(t === "s2"){ r1=pick(); r2=pick(); a=r1+r2;
+        q = "Series: <b>" + r1 + " Ω</b> + <b>" + r2 + " Ω</b>. Total = ? Ω"; }
+      else if(t === "s3"){ r1=pick(); r2=pick(); r3=pick(); a=r1+r2+r3;
+        q = "Series: <b>" + r1 + " Ω</b> + <b>" + r2 + " Ω</b> + <b>" + r3 + " Ω</b>. Total = ? Ω"; }
+      else if(t === "peq"){ r1=pick(); a=r1/2;
+        q = "Parallel: two <b>" + r1 + " Ω</b> resistors. Total = ? Ω"; }
+      else { r1=pick(); do { r2=pick(); } while(r2 === r1); a=(r1*r2)/(r1+r2);
+        q = "Parallel: <b>" + r1 + " Ω</b> with <b>" + r2 + " Ω</b>. Total = ? Ω"; }
+      return { q: q, a: a };
+    }
+
+    var current = [];
+    function build(){
+      current = []; for(var i=0;i<NQ;i++){ current.push(makeQ()); }
+      list.innerHTML = "";
+      current.forEach(function(item, i){
+        var row = document.createElement("div"); row.className = "rc-item";
+        row.innerHTML =
+          '<span class="rc-q">' + (i+1) + ". " + item.q + "</span>" +
+          '<span class="rc-ans"><input class="num" type="text" inputmode="decimal" ' +
+            'id="rc-i' + i + '" aria-label="Total resistance for network ' + (i+1) + ' in ohms">' +
+            '<span class="rc-unit">Ω</span></span>' +
+          '<span class="rc-note" id="rc-n' + i + '"></span>';
+        list.appendChild(row);
+      });
+      document.getElementById("rc-score").textContent = "";
+    }
+
+    document.getElementById("rc-check").addEventListener("click", function(){
+      var anyBlank = false;
+      current.forEach(function(_, i){ if(document.getElementById("rc-i"+i).value.trim() === "") anyBlank = true; });
+      if(anyBlank){ document.getElementById("rc-score").textContent = "Fill in every box first."; return; }
+      var score = 0;
+      current.forEach(function(item, i){
+        var val = parseFloat(document.getElementById("rc-i"+i).value.trim().replace(/,/g, ""));
+        var ok = !isNaN(val) && Math.abs(val - item.a) <= Math.abs(item.a) * 0.02;
+        if(ok) score++;
+        var row = list.children[i], note = document.getElementById("rc-n"+i);
+        row.classList.toggle("ok", ok); row.classList.toggle("no", !ok);
+        note.textContent = ok ? "✓ correct" : "✗ answer: " + sig3(item.a) + " Ω";
+      });
+      var msg = "Score: " + score + " / " + NQ;
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, NQ);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg += " — 🔗 Network Navigator unlocked!";
+        } else if(res.unlocked){ msg += " — badge already earned."; }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("rc-score").textContent = msg;
+    });
+    document.getElementById("rc-new").addEventListener("click", build);
+
+    build();
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>
