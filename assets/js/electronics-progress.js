@@ -1,7 +1,10 @@
 /* ============================================================
    National 5 Electronics — progress & badges (shared module)
    Single source of truth for the badge registry, localStorage
-   schema, hub dashboard renderer and the unlock toast.
+   schema, the corner badge counter, the compact hub strip, the
+   "badge guide" dialog and the unlock toast. All UI CSS is
+   injected by this file so the counter works on every electronics
+   page, whether or not it links electronics.css.
 
    Storage: one key "el-progress-v1" (per device, no accounts).
    Public API on window.ElProgress:
@@ -9,8 +12,9 @@
      record(id, score, max)  log a scored attempt (stores best)
      get(id) / all()         read state
      reset()                 clear everything
-     renderHub(el)           paint the dashboard
+     renderHub(el)           paint the compact hub strip
      decorateTiles()         add progress chips to [data-el-badges]
+     openDetails()           open the badge-guide dialog
      toast(def)              accessible "badge unlocked" announce
    ============================================================ */
 (function () {
@@ -145,6 +149,7 @@
     s.seen = true;
     recomputeAchievements(data.badges);
     save(data);
+    refreshAll();
   }
 
   function record(id, score, max) {
@@ -170,6 +175,7 @@
 
     var newAch = recomputeAchievements(data.badges);
     save(data);
+    refreshAll();
 
     return {
       unlocked: !!s.unlocked,
@@ -197,6 +203,81 @@
     try { window.localStorage.removeItem(KEY); } catch (e) {}
   }
 
+  function counts() {
+    var data = all();
+    var topicU = data.topic.filter(function (b) { return b.state && b.state.unlocked; }).length;
+    var achU = data.achievements.filter(function (b) { return b.state && b.state.unlocked; }).length;
+    var total = data.topic.length + data.achievements.length;
+    var earned = topicU + achU;
+    return { data: data, earned: earned, total: total, pct: total ? Math.round(earned / total * 100) : 0 };
+  }
+
+  /* ---------- injected CSS (self-contained, palette-aware) ---------- */
+  function injectCSS() {
+    if (document.getElementById("elp-styles")) { return; }
+    var css =
+".elp-head{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}" +
+".elp-count{font-weight:900;color:var(--text,#e8fff7);white-space:nowrap}" +
+".elp-count-big{font-size:1.5rem;color:var(--accent-2,#34e7c4)}" +
+".elp-count-total{font-size:1rem;color:var(--muted,#9fc7bb)}" +
+".elp-bar{flex:1;min-width:160px;height:14px;border-radius:999px;background:var(--surface-2,rgba(0,230,179,.08));border:1px solid var(--border-accent,rgba(0,230,179,.28));overflow:hidden}" +
+".elp-bar-fill{height:100%;border-radius:999px;background:linear-gradient(135deg,#00c79a,#00705a);transition:width .4s ease}" +
+".elp-off{margin:.7rem 0 0;font-weight:800;color:var(--warm,#ff9d6e)}" +
+".elp-mini-grid{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-top:.8rem}" +
+".elp-mini{width:2rem;height:2rem;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:1.35rem;line-height:1;border:1px solid var(--border-soft,rgba(255,255,255,.12));background:var(--card,#0c241d)}" +
+".elp-mini.is-unlocked{border-color:var(--border-strong,rgba(0,230,179,.45));background:linear-gradient(135deg,rgba(0,230,179,.14),rgba(0,230,179,.03)),var(--card,#0c241d)}" +
+".elp-mini.is-locked{filter:grayscale(1);opacity:.4}" +
+".elp-mini-sep{width:1px;height:1.6rem;background:var(--border,rgba(255,255,255,.18));margin:0 .15rem}" +
+".elp-guide-btn{margin-top:.9rem;display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:.55rem 1rem;border-radius:10px;border:1px solid var(--border-accent,rgba(0,230,179,.28));background:var(--card,#0c241d);color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif);font-weight:900;font-size:.95rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
+".elp-guide-btn:hover,.elp-guide-btn:focus-visible{border-color:var(--accent,#00e6b3)}" +
+".elp-counter{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(14px + env(safe-area-inset-bottom));z-index:1000;display:inline-flex;align-items:center;gap:.35rem;min-height:40px;padding:.4rem .7rem;border-radius:999px;border:1px solid var(--border-strong,rgba(0,230,179,.45));background:var(--card,#0c241d);color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif);font-weight:900;font-size:.9rem;box-shadow:var(--shadow-soft,0 10px 22px rgba(0,0,0,.3));cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
+".elp-counter:hover,.elp-counter:focus-visible{border-color:var(--accent,#00e6b3)}" +
+".elp-counter-num{color:var(--accent-2,#34e7c4)}" +
+".elp-subhead{margin:1.1rem 0 .2rem}" +
+".elp-subhead h3{margin:0;font-size:1.02rem;font-weight:900;color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif)}" +
+".elp-subhead p{margin:.1rem 0 0;color:var(--muted,#9fc7bb);font-weight:800;font-size:.92rem;line-height:1.45}" +
+".elp-grid{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));margin-top:.7rem}" +
+".elp-badge{display:flex;align-items:center;gap:.7rem;padding:.7rem .8rem;min-height:64px;border-radius:14px;border:1px solid var(--border-soft,rgba(255,255,255,.12));background:var(--card,#0c241d);text-decoration:none;color:var(--text,#e8fff7);-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
+"a.elp-badge{transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}" +
+"a.elp-badge:hover,a.elp-badge:focus-visible{transform:translateY(-1px);border-color:var(--border-strong,rgba(0,230,179,.45));box-shadow:var(--shadow-soft,0 10px 22px rgba(0,0,0,.3))}" +
+".elp-badge .elp-emoji{font-size:1.7rem;line-height:1;flex-shrink:0;width:2.2rem;text-align:center}" +
+".elp-badge .elp-text{display:flex;flex-direction:column;gap:.15rem;min-width:0}" +
+".elp-badge .elp-name{font-weight:900;line-height:1.2}" +
+".elp-badge .elp-meta{font-weight:800;font-size:.82rem;line-height:1.35}" +
+".elp-badge.is-unlocked{border-color:var(--border-strong,rgba(0,230,179,.45));background:linear-gradient(135deg,rgba(0,230,179,.10),rgba(0,230,179,.02)),var(--card,#0c241d)}" +
+".elp-badge.is-unlocked .elp-earned{color:var(--accent-2,#34e7c4)}" +
+".elp-badge.is-locked{border-style:dashed;opacity:.82}" +
+".elp-badge.is-locked .elp-emoji{opacity:.6}" +
+".elp-badge.is-locked .elp-name{color:var(--muted,#9fc7bb)}" +
+".elp-badge.is-locked .elp-cond{color:var(--muted,#9fc7bb)}" +
+".elp-reset-wrap{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-top:1.1rem}" +
+".elp-reset{min-height:44px;padding:.5rem .95rem;border-radius:999px;border:1px solid var(--border-accent,rgba(0,230,179,.28));background:var(--card,#0c241d);color:var(--muted,#9fc7bb);font-family:var(--font-stack,sans-serif);font-weight:900;font-size:.92rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
+".elp-reset:hover,.elp-reset:focus-visible{border-color:var(--border-strong,rgba(0,230,179,.45));color:var(--text,#e8fff7)}" +
+".elp-reset.is-armed{background:var(--warm,#c2410c);border-color:transparent;color:#fff}" +
+".elp-reset-status{font-weight:800;color:var(--muted,#9fc7bb)}" +
+".elp-chip{margin-left:auto;flex-shrink:0;align-self:flex-start;display:inline-flex;align-items:center;gap:.25rem;padding:2px 9px;border-radius:999px;font-weight:900;font-size:.78rem;color:#fff;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.35)}" +
+".elp-chip.is-done{background:rgba(255,255,255,.92);color:#04241d;border-color:transparent}" +
+".elp-dialog-overlay{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:5vh 12px;overflow:auto}" +
+".elp-dialog-overlay[hidden]{display:none}" +
+".elp-dialog{width:100%;max-width:640px;background:var(--card,#0c241d);border:1px solid var(--border-strong,rgba(0,230,179,.45));border-radius:16px;box-shadow:var(--shadow,0 18px 40px rgba(0,0,0,.5));padding:1rem 1.1rem 1.2rem}" +
+".elp-dialog-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.2rem}" +
+".elp-dialog-head h2{margin:0;font-size:1.2rem;font-weight:900;color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif)}" +
+".elp-dialog-close{margin-left:auto;min-width:44px;min-height:44px;border-radius:10px;border:1px solid var(--border,rgba(255,255,255,.18));background:var(--surface-2,rgba(0,230,179,.08));color:var(--text,#e8fff7);font-weight:900;font-size:1.05rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
+".elp-dialog-close:hover,.elp-dialog-close:focus-visible{border-color:var(--accent,#00e6b3)}" +
+"body.elp-dialog-open{overflow:hidden}" +
+".elp-toast-region{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1300;display:flex;flex-direction:column;gap:.5rem;width:max-content;max-width:min(92vw,380px);pointer-events:none}" +
+".elp-toast{display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;border-radius:14px;background:var(--card,#0c241d);border:1px solid var(--border-strong,rgba(0,230,179,.45));box-shadow:var(--shadow,0 18px 40px rgba(0,0,0,.5));color:var(--text,#e8fff7);font-weight:800;opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}" +
+".elp-toast.is-in{opacity:1;transform:translateY(0)}" +
+".elp-toast-emoji{font-size:1.5rem;line-height:1}" +
+".elp-toast-text strong{font-weight:900;color:var(--accent-2,#34e7c4)}" +
+"@media (prefers-reduced-motion:reduce){.elp-bar-fill,.elp-toast,a.elp-badge{transition:none!important}}" +
+"@media print{.elp-counter,.elp-dialog-overlay{display:none!important}}";
+    var style = document.createElement("style");
+    style.id = "elp-styles";
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
   /* ---------- accessible unlock toast ---------- */
   var toastRegion = null;
   function ensureToastRegion() {
@@ -219,7 +300,6 @@
       '<span class="elp-toast-text"><strong>Badge unlocked!</strong> </span>';
     el.querySelector(".elp-toast-text").appendChild(document.createTextNode(def.name));
     region.appendChild(el);
-    /* force reflow then animate in */
     void el.offsetWidth;
     el.classList.add("is-in");
     window.setTimeout(function () {
@@ -230,7 +310,7 @@
     }, 4200);
   }
 
-  /* ---------- hub dashboard ---------- */
+  /* ---------- detailed badge card (used in the dialog) ---------- */
   function badgeCard(def, state, isAch) {
     var unlocked = !!(state && state.unlocked);
     var asLink = !isAch && !!def.href;
@@ -255,49 +335,6 @@
     return card;
   }
 
-  function renderHub(container) {
-    if (!container) { return; }
-    var data = all();
-    var topicUnlocked = data.topic.filter(function (b) { return b.state && b.state.unlocked; }).length;
-    var achUnlocked = data.achievements.filter(function (b) { return b.state && b.state.unlocked; }).length;
-    var total = data.topic.length + data.achievements.length;
-    var earned = topicUnlocked + achUnlocked;
-    var pct = total ? Math.round((earned / total) * 100) : 0;
-
-    container.innerHTML = "";
-
-    var head = document.createElement("div");
-    head.className = "elp-head";
-    head.innerHTML =
-      '<div class="elp-count"><span class="elp-count-big">' + earned +
-      '</span><span class="elp-count-total"> / ' + total + " badges</span></div>" +
-      '<div class="elp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + total +
-      '" aria-valuenow="' + earned + '" aria-label="Badges earned">' +
-      '<div class="elp-bar-fill" style="width:' + pct + '%"></div></div>';
-    container.appendChild(head);
-
-    if (data.off) {
-      var off = document.createElement("p");
-      off.className = "elp-off";
-      off.textContent = "Progress saving is turned off in this browser, so badges won't be remembered here.";
-      container.appendChild(off);
-    }
-
-    container.appendChild(sectionTitle("Topic badges", "Master each interactive to earn its badge."));
-    var tGrid = document.createElement("div");
-    tGrid.className = "elp-grid";
-    data.topic.forEach(function (b) { tGrid.appendChild(badgeCard(b.def, b.state, false)); });
-    container.appendChild(tGrid);
-
-    container.appendChild(sectionTitle("Achievement badges", "Extra rewards for going further."));
-    var aGrid = document.createElement("div");
-    aGrid.className = "elp-grid";
-    data.achievements.forEach(function (b) { aGrid.appendChild(badgeCard(b.def, b.state, true)); });
-    container.appendChild(aGrid);
-
-    container.appendChild(resetControl(container));
-  }
-
   function sectionTitle(title, sub) {
     var wrap = document.createElement("div");
     wrap.className = "elp-subhead";
@@ -305,7 +342,60 @@
     return wrap;
   }
 
-  function resetControl(container) {
+  /* small greyed/earned icon for the compact hub strip */
+  function miniIcon(def, state) {
+    var unlocked = !!(state && state.unlocked);
+    var span = document.createElement("span");
+    span.className = "elp-mini" + (unlocked ? " is-unlocked" : " is-locked");
+    span.textContent = def.emoji;
+    var label = def.name + ": " + (unlocked ? "earned" : "locked");
+    span.setAttribute("role", "img");
+    span.setAttribute("title", label);
+    span.setAttribute("aria-label", label);
+    return span;
+  }
+
+  /* ---------- compact hub strip ---------- */
+  function renderHub(container) {
+    if (!container) { return; }
+    var c = counts();
+    container.innerHTML = "";
+
+    var head = document.createElement("div");
+    head.className = "elp-head";
+    head.innerHTML =
+      '<div class="elp-count"><span class="elp-count-big">' + c.earned +
+      '</span><span class="elp-count-total"> / ' + c.total + " badges</span></div>" +
+      '<div class="elp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + c.total +
+      '" aria-valuenow="' + c.earned + '" aria-label="Badges earned">' +
+      '<div class="elp-bar-fill" style="width:' + c.pct + '%"></div></div>';
+    container.appendChild(head);
+
+    if (c.data.off) {
+      var off = document.createElement("p");
+      off.className = "elp-off";
+      off.textContent = "Progress saving is off in this browser, so badges won't be remembered here.";
+      container.appendChild(off);
+    }
+
+    var strip = document.createElement("div");
+    strip.className = "elp-mini-grid";
+    c.data.topic.forEach(function (b) { strip.appendChild(miniIcon(b.def, b.state)); });
+    var sep = document.createElement("span");
+    sep.className = "elp-mini-sep"; sep.setAttribute("aria-hidden", "true");
+    strip.appendChild(sep);
+    c.data.achievements.forEach(function (b) { strip.appendChild(miniIcon(b.def, b.state)); });
+    container.appendChild(strip);
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "elp-guide-btn";
+    btn.innerHTML = '<span aria-hidden="true">🔎</span> View badges &amp; how to earn them';
+    btn.addEventListener("click", openDetails);
+    container.appendChild(btn);
+  }
+
+  function resetControl() {
     var wrap = document.createElement("div");
     wrap.className = "elp-reset-wrap";
     var status = document.createElement("span");
@@ -334,8 +424,7 @@
       btn.classList.remove("is-armed");
       btn.textContent = "Reset my progress";
       reset();
-      renderHub(container);
-      decorateTiles();
+      refreshAll();
       status.textContent = "Progress cleared.";
     });
 
@@ -376,6 +465,124 @@
     });
   }
 
+  /* ---------- corner badge counter (every page) ---------- */
+  var counterEl = null;
+  function renderCounter() {
+    if (counterEl) { updateCounter(); return; }
+    counterEl = document.createElement("button");
+    counterEl.type = "button";
+    counterEl.className = "elp-counter";
+    counterEl.innerHTML = '<span aria-hidden="true">🎖</span><span class="elp-counter-num"></span>';
+    counterEl.addEventListener("click", openDetails);
+    document.body.appendChild(counterEl);
+    updateCounter();
+  }
+  function updateCounter() {
+    if (!counterEl) { return; }
+    var c = counts();
+    counterEl.querySelector(".elp-counter-num").textContent = c.earned + "/" + c.total;
+    counterEl.setAttribute("aria-label",
+      "Badges earned: " + c.earned + " of " + c.total + ". Open the badge guide.");
+  }
+
+  /* ---------- badge-guide dialog ---------- */
+  var overlayEl = null, dialogEl = null, lastFocus = null;
+  function ensureDialog() {
+    if (overlayEl) { return; }
+    overlayEl = document.createElement("div");
+    overlayEl.className = "elp-dialog-overlay";
+    overlayEl.hidden = true;
+    dialogEl = document.createElement("div");
+    dialogEl.className = "elp-dialog";
+    dialogEl.setAttribute("role", "dialog");
+    dialogEl.setAttribute("aria-modal", "true");
+    dialogEl.setAttribute("aria-labelledby", "elp-dialog-title");
+    overlayEl.appendChild(dialogEl);
+    overlayEl.addEventListener("click", function (e) {
+      if (e.target === overlayEl) { closeDetails(); }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!overlayEl || overlayEl.hidden) { return; }
+      if (e.key === "Escape") { closeDetails(); }
+      else if (e.key === "Tab") { trapTab(e); }
+    });
+    document.body.appendChild(overlayEl);
+  }
+  function focusables() {
+    return Array.prototype.slice.call(
+      dialogEl.querySelectorAll('a[href],button,[tabindex]:not([tabindex="-1"])')
+    ).filter(function (el) { return el.offsetParent !== null; });
+  }
+  function trapTab(e) {
+    var f = focusables(); if (!f.length) { return; }
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  function buildDialog() {
+    var data = all();
+    dialogEl.innerHTML = "";
+
+    var head = document.createElement("div");
+    head.className = "elp-dialog-head";
+    head.innerHTML = '<h2 id="elp-dialog-title">🎖 Electronics badges</h2>';
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "elp-dialog-close";
+    close.setAttribute("aria-label", "Close badge guide");
+    close.innerHTML = "✕";
+    close.addEventListener("click", closeDetails);
+    head.appendChild(close);
+    dialogEl.appendChild(head);
+
+    if (data.off) {
+      var off = document.createElement("p");
+      off.className = "elp-off";
+      off.textContent = "Progress saving is off in this browser, so badges won't be remembered here.";
+      dialogEl.appendChild(off);
+    }
+
+    dialogEl.appendChild(sectionTitle("Topic badges",
+      "Master each interactive to earn its badge — tap one to go to its page."));
+    var tGrid = document.createElement("div");
+    tGrid.className = "elp-grid";
+    data.topic.forEach(function (b) { tGrid.appendChild(badgeCard(b.def, b.state, false)); });
+    dialogEl.appendChild(tGrid);
+
+    dialogEl.appendChild(sectionTitle("Achievement badges",
+      "Extra rewards that unlock automatically as you go."));
+    var aGrid = document.createElement("div");
+    aGrid.className = "elp-grid";
+    data.achievements.forEach(function (b) { aGrid.appendChild(badgeCard(b.def, b.state, true)); });
+    dialogEl.appendChild(aGrid);
+
+    dialogEl.appendChild(resetControl());
+  }
+  function openDetails() {
+    ensureDialog();
+    buildDialog();
+    lastFocus = document.activeElement;
+    overlayEl.hidden = false;
+    document.body.classList.add("elp-dialog-open");
+    var close = dialogEl.querySelector(".elp-dialog-close");
+    if (close) { close.focus(); }
+  }
+  function closeDetails() {
+    if (!overlayEl || overlayEl.hidden) { return; }
+    overlayEl.hidden = true;
+    document.body.classList.remove("elp-dialog-open");
+    if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
+  }
+
+  /* keep every surface in sync after a change */
+  function refreshAll() {
+    updateCounter();
+    var hub = document.getElementById("elProgressHub");
+    if (hub) { renderHub(hub); }
+    decorateTiles();
+    if (overlayEl && !overlayEl.hidden) { buildDialog(); }
+  }
+
   /* ---------- expose + auto-init ---------- */
   window.ElProgress = {
     registry: { topic: TOPIC, achievements: ACH },
@@ -386,13 +593,16 @@
     reset: reset,
     renderHub: renderHub,
     decorateTiles: decorateTiles,
+    openDetails: openDetails,
     toast: toast
   };
 
   function init() {
+    injectCSS();
     var hub = document.getElementById("elProgressHub");
     if (hub) { renderHub(hub); }
     decorateTiles();
+    renderCounter();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
