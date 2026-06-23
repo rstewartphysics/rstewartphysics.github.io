@@ -61,6 +61,14 @@
   var THEORY_IDS = TOPIC.filter(function (t) { return t.section === "Theory"; })
     .map(function (t) { return t.id; });
 
+  /* pages that carry section challenges (cloze, fill-ins, MC quiz) */
+  function normPath(p) {
+    try { p = decodeURIComponent(p); } catch (e) {}
+    return p.replace(/\/+$/, "") || p;
+  }
+  var CHALLENGE_PAGES = TOPIC.map(function (t) { return normPath(t.href); });
+  function pageKey() { return normPath(window.location.pathname); }
+
   /* ---- achievement ("extra progress") badges — auto-derived ---- */
   var ACH = [
     { id: "ach-theory", name: "Theory Triumph", emoji: "🎓",
@@ -83,6 +91,16 @@
       cond: "Open every interactive at least once",
       test: function (b) {
         return TOPIC.every(function (t) { var s = b[t.id]; return s && s.seen; });
+      } },
+    { id: "ach-curious", name: "Page Perfect", emoji: "🧩",
+      cond: "Finish every challenge on a page",
+      test: function (b, data) {
+        return !!data && !!data.pageDone && Object.keys(data.pageDone).length >= 1;
+      } },
+    { id: "ach-scholar", name: "Completionist", emoji: "📚",
+      cond: "Finish every challenge on every page",
+      test: function (b, data) {
+        return !!data && !!data.pageDone && CHALLENGE_PAGES.every(function (pk) { return data.pageDone[pk]; });
       } }
   ];
 
@@ -101,15 +119,17 @@
   function load() {
     var raw;
     try { raw = window.localStorage.getItem(KEY); }
-    catch (e) { return { v: VERSION, badges: {}, off: true }; }
-    if (!raw) return { v: VERSION, badges: {} };
+    catch (e) { return { v: VERSION, badges: {}, challenges: {}, pageDone: {}, off: true }; }
+    if (!raw) return { v: VERSION, badges: {}, challenges: {}, pageDone: {} };
     try {
       var data = JSON.parse(raw);
       if (!data || typeof data !== "object" || !data.badges) {
-        return { v: VERSION, badges: {} };
+        return { v: VERSION, badges: {}, challenges: {}, pageDone: {} };
       }
+      if (!data.challenges) { data.challenges = {}; }
+      if (!data.pageDone) { data.pageDone = {}; }
       return data;
-    } catch (e) { return { v: VERSION, badges: {} }; }
+    } catch (e) { return { v: VERSION, badges: {}, challenges: {}, pageDone: {} }; }
   }
   function save(data) {
     try { window.localStorage.setItem(KEY, JSON.stringify(data)); return true; }
@@ -124,12 +144,13 @@
     } catch (e) { return false; }
   }
 
-  /* recompute achievement badges from current topic state (idempotent) */
-  function recomputeAchievements(badges) {
+  /* recompute achievement badges from current topic + challenge state (idempotent) */
+  function recomputeAchievements(data) {
+    var badges = data.badges;
     var newly = [];
     ACH.forEach(function (a) {
       var was = badges[a.id] && badges[a.id].unlocked;
-      var now = a.test(badges);
+      var now = a.test(badges, data);
       if (now && !was) {
         badges[a.id] = { unlocked: true, at: today() };
         newly.push(a);
@@ -147,7 +168,7 @@
     var s = data.badges[id] || (data.badges[id] = {});
     if (s.seen) { return; }
     s.seen = true;
-    recomputeAchievements(data.badges);
+    recomputeAchievements(data);
     save(data);
     refreshAll();
   }
@@ -173,7 +194,7 @@
       if (!s.at) { s.at = today(); }
     }
 
-    var newAch = recomputeAchievements(data.badges);
+    var newAch = recomputeAchievements(data);
     save(data);
     refreshAll();
 
@@ -212,6 +233,168 @@
     return { data: data, earned: earned, total: total, pct: total ? Math.round(earned / total * 100) : 0 };
   }
 
+  /* ---------- section challenges (cloze, fill-ins, MC quiz) ---------- */
+  function pageChallengeEls() {
+    return document.querySelectorAll("[data-el-challenge]");
+  }
+  function syncPageDone(data) {
+    var els = pageChallengeEls();
+    var total = els.length;
+    if (!total) { return; }
+    var pk = pageKey(), done = 0;
+    Array.prototype.forEach.call(els, function (el) {
+      if (data.challenges[pk + "::" + el.getAttribute("data-el-challenge")]) { done++; }
+    });
+    if (done >= total) { data.pageDone[pk] = true; }
+  }
+  function complete(id) {
+    if (!id) { return; }
+    var data = load();
+    var k = pageKey() + "::" + id;
+    if (data.challenges[k]) { return; }       /* sticky + idempotent */
+    data.challenges[k] = true;
+    syncPageDone(data);
+    recomputeAchievements(data);
+    save(data);
+    refreshAll();
+  }
+  function challengeDone(id) {
+    var data = load();
+    return !!data.challenges[pageKey() + "::" + id];
+  }
+  function challengeState() {
+    var data = load();
+    var els = pageChallengeEls();
+    var pk = pageKey(), total = els.length, done = 0;
+    Array.prototype.forEach.call(els, function (el) {
+      if (data.challenges[pk + "::" + el.getAttribute("data-el-challenge")]) { done++; }
+    });
+    return { page: { done: done, total: total }, globalDone: Object.keys(data.challenges).length };
+  }
+  function matchAns(v, ans) {
+    if (ans == null) { return false; }
+    var got = String(v).trim().toLowerCase().replace(/,/g, "");
+    var gotN = parseFloat(got);
+    return ans.split("|").some(function (o) {
+      o = o.trim().toLowerCase();
+      var oN = parseFloat(o);
+      if (!isNaN(oN) && !isNaN(gotN)) {
+        return Math.abs(gotN - oN) <= Math.max(1e-9, Math.abs(oN) * 0.02);
+      }
+      return got === o;
+    });
+  }
+
+  /* per-page "section challenges" meter, injected at top of <main> */
+  function renderMeter() {
+    var cs = challengeState();
+    var existing = document.getElementById("elpMeter");
+    if (!cs.page.total) { if (existing) { existing.parentNode.removeChild(existing); } return; }
+    var main = document.querySelector("main");
+    if (!main) { return; }
+    var m = existing;
+    if (!m) {
+      m = document.createElement("div");
+      m.id = "elpMeter";
+      m.className = "elp-meter";
+      main.insertBefore(m, main.firstChild);
+    }
+    var pct = Math.round(cs.page.done / cs.page.total * 100);
+    m.innerHTML =
+      '<span class="elp-meter-lab">📋 Section challenges</span>' +
+      '<span class="elp-meter-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + cs.page.total +
+      '" aria-valuenow="' + cs.page.done + '" aria-label="Section challenges done">' +
+      '<span style="width:' + pct + '%"></span></span>' +
+      '<span class="elp-meter-num">' + cs.page.done + " / " + cs.page.total + "</span>";
+  }
+
+  /* bind the existing MC "Check your understanding" quiz (no page edits needed) */
+  function bindQuiz() {
+    var quiz = document.getElementById("quiz");
+    if (!quiz) { return; }
+    if (!quiz.getAttribute("data-el-challenge")) { quiz.setAttribute("data-el-challenge", "quiz"); }
+    var mark = document.getElementById("quiz-mark");
+    var scoreEl = document.getElementById("quiz-score");
+    if (!mark || !scoreEl) { return; }
+    mark.addEventListener("click", function () {
+      /* the page's own handler runs first (registered at parse) and writes the score */
+      var m = /(-?\d+)\s*\/\s*(\d+)/.exec(scoreEl.textContent || "");
+      if (m) { var s = +m[1], t = +m[2]; if (t > 0 && s / t >= 0.7) { complete("quiz"); } }
+    });
+  }
+
+  /* bind cloze blocks: <div class="elp-cloze" data-el-challenge="…"> */
+  function bindCloze() {
+    Array.prototype.forEach.call(document.querySelectorAll(".elp-cloze"), function (box) {
+      var id = box.getAttribute("data-el-challenge");
+      var sels = box.querySelectorAll(".cl-sel");
+      var check = box.querySelector(".cl-check");
+      var reset = box.querySelector(".cl-reset");
+      var fb = box.querySelector(".fb-line");
+      if (check) {
+        check.addEventListener("click", function () {
+          var allRight = true, answered = true;
+          Array.prototype.forEach.call(sels, function (s) {
+            if (!s.value) { answered = false; }
+            var ok = s.value && s.value === s.getAttribute("data-answer");
+            s.classList.toggle("is-ok", !!ok);
+            s.classList.toggle("is-no", !!s.value && !ok);
+            if (!ok) { allRight = false; }
+          });
+          if (!answered) { if (fb) { fb.textContent = "Choose an answer for every gap."; } return; }
+          if (fb) { fb.textContent = allRight ? "✓ All correct!" : "Not quite — fix the highlighted gaps and check again."; }
+          if (allRight) { complete(id); }
+        });
+      }
+      if (reset) {
+        reset.addEventListener("click", function () {
+          Array.prototype.forEach.call(sels, function (s) { s.value = ""; s.classList.remove("is-ok", "is-no"); });
+          if (fb) { fb.textContent = ""; }
+        });
+      }
+    });
+  }
+
+  /* bind interactive fill-in worked examples: .guided[data-el-challenge] with .gap-in inputs */
+  function bindFillins() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-el-challenge].elp-fillin"), function (box) {
+      var id = box.getAttribute("data-el-challenge");
+      var ins = box.querySelectorAll(".gap-in");
+      var check = box.querySelector(".gp-check");
+      var reset = box.querySelector(".gp-reset");
+      var fb = box.querySelector(".fb-line");
+      if (check) {
+        check.addEventListener("click", function () {
+          var allRight = true, answered = true;
+          Array.prototype.forEach.call(ins, function (inp) {
+            var v = (inp.value || "").trim();
+            if (!v) { answered = false; }
+            var ok = v && matchAns(v, inp.getAttribute("data-answer"));
+            inp.classList.toggle("is-ok", !!ok);
+            inp.classList.toggle("is-no", !!v && !ok);
+            if (!ok) { allRight = false; }
+          });
+          if (!answered) { if (fb) { fb.textContent = "Fill in every gap first."; } return; }
+          if (fb) { fb.textContent = allRight ? "✓ All correct!" : "Not quite — check the highlighted gaps."; }
+          if (allRight) { complete(id); }
+        });
+      }
+      if (reset) {
+        reset.addEventListener("click", function () {
+          Array.prototype.forEach.call(ins, function (inp) { inp.value = ""; inp.classList.remove("is-ok", "is-no"); });
+          if (fb) { fb.textContent = ""; }
+        });
+      }
+    });
+  }
+
+  function registerChallenges() {
+    bindQuiz();
+    bindCloze();
+    bindFillins();
+    renderMeter();
+  }
+
   /* ---------- injected CSS (self-contained, palette-aware) ---------- */
   function injectCSS() {
     if (document.getElementById("elp-styles")) { return; }
@@ -230,9 +413,24 @@
 ".elp-mini-sep{width:1px;height:1.6rem;background:var(--border,rgba(255,255,255,.18));margin:0 .15rem}" +
 ".elp-guide-btn{margin-top:.9rem;display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:.55rem 1rem;border-radius:10px;border:1px solid var(--border-accent,rgba(0,230,179,.28));background:var(--card,#0c241d);color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif);font-weight:900;font-size:.95rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
 ".elp-guide-btn:hover,.elp-guide-btn:focus-visible{border-color:var(--accent,#00e6b3)}" +
-".elp-counter{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(14px + env(safe-area-inset-bottom));z-index:1000;display:inline-flex;align-items:center;gap:.35rem;min-height:40px;padding:.4rem .7rem;border-radius:999px;border:1px solid var(--border-strong,rgba(0,230,179,.45));background:var(--card,#0c241d);color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif);font-weight:900;font-size:.9rem;box-shadow:var(--shadow-soft,0 10px 22px rgba(0,0,0,.3));cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
+".elp-counter{position:fixed;right:calc(12px + env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));z-index:1000;display:inline-flex;align-items:center;gap:.35rem;min-height:40px;padding:.4rem .7rem;border-radius:999px;border:1px solid var(--border-strong,rgba(0,230,179,.45));background:var(--card,#0c241d);color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif);font-weight:900;font-size:.9rem;box-shadow:var(--shadow-soft,0 10px 22px rgba(0,0,0,.3));cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
 ".elp-counter:hover,.elp-counter:focus-visible{border-color:var(--accent,#00e6b3)}" +
 ".elp-counter-num{color:var(--accent-2,#34e7c4)}" +
+".elp-counter-ch{color:var(--muted,#9fc7bb)}" +
+".elp-meter{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:0 0 1rem;padding:.5rem .75rem;border:1px solid var(--border-accent,rgba(0,230,179,.28));border-radius:12px;background:var(--surface-2,rgba(0,230,179,.08));font-family:var(--font-stack,sans-serif)}" +
+".elp-meter-lab{font-weight:900;color:var(--text,#e8fff7);font-size:.85rem}" +
+".elp-meter-bar{flex:1;min-width:120px;height:10px;border-radius:999px;background:var(--card,#0c241d);border:1px solid var(--border-accent,rgba(0,230,179,.28));overflow:hidden}" +
+".elp-meter-bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(135deg,#00c79a,#00705a)}" +
+".elp-meter-num{font-weight:900;color:var(--accent-2,#34e7c4)}" +
+".elp-cloze{border:1px solid var(--border-accent,rgba(0,230,179,.28));border-left:5px solid var(--accent,#00e6b3);border-radius:12px;background:var(--surface-2,rgba(0,230,179,.08));padding:.75rem .9rem;margin:.9rem 0}" +
+".elp-cloze .cl-text{font-weight:800;color:var(--text,#e8fff7);line-height:2.1;margin:0 0 .5rem}" +
+".cl-sel,.gap-in{min-height:40px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,.18));background:var(--card,#0c241d);color:var(--text,#e8fff7);font-family:inherit;font-weight:800;font-size:.95rem;padding:.2rem .45rem;vertical-align:middle}" +
+".gap-in{width:5.5rem;text-align:center}" +
+".cl-sel:focus-visible,.gap-in:focus-visible{outline:2px solid var(--accent,#00e6b3);outline-offset:2px}" +
+".cl-sel.is-ok,.gap-in.is-ok{border-color:#15803d;color:#15803d}" +
+".cl-sel.is-no,.gap-in.is-no{border-color:var(--warm,#c2410c)}" +
+"@media (prefers-color-scheme:dark){.cl-sel.is-ok,.gap-in.is-ok{border-color:#5dd693;color:#5dd693}}" +
+".fb-line{font-weight:900;margin:.35rem 0 0;min-height:1.2em;color:var(--accent-2,#34e7c4)}" +
 ".elp-subhead{margin:1.1rem 0 .2rem}" +
 ".elp-subhead h3{margin:0;font-size:1.02rem;font-weight:900;color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif)}" +
 ".elp-subhead p{margin:.1rem 0 0;color:var(--muted,#9fc7bb);font-weight:800;font-size:.92rem;line-height:1.45}" +
@@ -472,7 +670,7 @@
     counterEl = document.createElement("button");
     counterEl.type = "button";
     counterEl.className = "elp-counter";
-    counterEl.innerHTML = '<span aria-hidden="true">🎖</span><span class="elp-counter-num"></span>';
+    counterEl.innerHTML = '<span aria-hidden="true">🎖</span><span class="elp-counter-num"></span><span class="elp-counter-ch"></span>';
     counterEl.addEventListener("click", openDetails);
     document.body.appendChild(counterEl);
     updateCounter();
@@ -480,9 +678,14 @@
   function updateCounter() {
     if (!counterEl) { return; }
     var c = counts();
+    var cs = challengeState();
     counterEl.querySelector(".elp-counter-num").textContent = c.earned + "/" + c.total;
+    var chEl = counterEl.querySelector(".elp-counter-ch");
+    chEl.textContent = cs.globalDone ? " · 📋 " + cs.globalDone : "";
     counterEl.setAttribute("aria-label",
-      "Badges earned: " + c.earned + " of " + c.total + ". Open the badge guide.");
+      "Badges earned: " + c.earned + " of " + c.total +
+      (cs.globalDone ? "; " + cs.globalDone + " challenges completed" : "") +
+      ". Open the badge guide.");
   }
 
   /* ---------- badge-guide dialog ---------- */
@@ -577,6 +780,7 @@
   /* keep every surface in sync after a change */
   function refreshAll() {
     updateCounter();
+    renderMeter();
     var hub = document.getElementById("elProgressHub");
     if (hub) { renderHub(hub); }
     decorateTiles();
@@ -594,11 +798,15 @@
     renderHub: renderHub,
     decorateTiles: decorateTiles,
     openDetails: openDetails,
+    complete: complete,
+    challengeDone: challengeDone,
+    challengeState: challengeState,
     toast: toast
   };
 
   function init() {
     injectCSS();
+    registerChallenges();
     var hub = document.getElementById("elProgressHub");
     if (hub) { renderHub(hub); }
     decorateTiles();
