@@ -13,8 +13,9 @@ title: Theory — Signals and Capacitors · National 5 Electronics
   <title>Theory — Signals and Capacitors · National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -251,6 +252,26 @@ title: Theory — Signals and Capacitors · National 5 Electronics
     .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
     @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
 
+    /* Wave Reader challenge */
+    .sc-item { padding: .75rem 0; border-bottom: 1px solid var(--border-soft); }
+    .sc-item .sc-q { font-weight: 800; color: var(--text); }
+    .sc-item .sc-q b { color: var(--accent-2); }
+    .sc-readout { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--accent-2); font-size: .8rem; margin: .25rem 0; }
+    .sc-scope { display: block; width: 100%; max-width: 340px; height: auto; margin: .35rem 0; }
+    .sc-scope rect.frame { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .sc-scope .grid { stroke: var(--border); stroke-width: 1; }
+    .sc-scope .axis { stroke: var(--border-strong, var(--text)); stroke-width: 1.4; opacity: .6; }
+    .sc-scope .trace { stroke: var(--accent); stroke-width: 2.4; fill: none; }
+    .sc-ans { display: inline-flex; align-items: center; gap: .35rem; font-weight: 900; color: var(--muted); margin-top: .35rem; }
+    .sc-ans .num { width: 6.4rem; }
+    .sc-unit { font-weight: 900; color: var(--text); }
+    .sc-note { font-weight: 900; margin-top: .25rem; }
+    .sc-item.ok .sc-note { color: #15803d; }
+    .sc-item.no .sc-note { color: var(--warm); }
+    .sc-item.ok .num { border-color: #15803d; }
+    .sc-item.no .num { border-color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .sc-item.ok .sc-note { color: #5dd693; } .sc-item.ok .num { border-color: #5dd693; } }
+
     @media print {
       .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
       .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
@@ -278,6 +299,7 @@ title: Theory — Signals and Capacitors · National 5 Electronics
       <div class="subnav-links">
         <a class="subnav-link" href="#scope">Signals &amp; scope</a>
         <a class="subnav-link" href="#capacitors">Capacitors</a>
+        <a class="subnav-link" href="#challenge">Challenge</a>
         <a class="subnav-link" href="#check">Check</a>
       </div>
       <a class="subnav-cta" href="/classes/electronics/theory.html">All theory &rarr;</a>
@@ -416,6 +438,28 @@ f = 1 ÷ T = 1 ÷ 0.010 = 100 Hz</div>
           <li>say what a capacitor does in a circuit.</li>
           <li>explain how a bigger capacitor makes the output timing longer.</li>
         </ul>
+      </div>
+    </section>
+
+    <!-- ===================== CHALLENGE ===================== -->
+    <section class="panel" id="challenge" aria-label="Wave Reader challenge">
+      <span class="concept-tag">Interactive</span>
+      <h2>Wave Reader challenge</h2>
+      <p class="notes">Read <strong>peak voltage</strong>, <strong>period</strong> and <strong>frequency</strong>
+        from oscilloscope traces, and work out <strong>capacitor timing</strong> changes. Count the grid
+        divisions, use the readout, and type each answer in the unit shown. Score <strong>8 / 10</strong> to
+        earn the 🌊 <strong>Wave Reader</strong> badge.</p>
+      <div class="widget" aria-label="Ten-question trace and timing challenge">
+        <h3>Your traces <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Peak = divisions × Y-gain · Period = divisions × time-base · f = 1 ÷ T (use seconds).
+          Answers within 2% are accepted.</p>
+        <div id="sc-list"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="sc-check" type="button">Check answers</button>
+          <button class="btn" id="sc-new" type="button">New set</button>
+        </div>
+        <div class="score" id="sc-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
       </div>
     </section>
 
@@ -639,6 +683,116 @@ f = 1 ÷ T = 1 ÷ 0.010 = 100 Hz</div>
       });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* Wave Reader challenge — scope traces + RC timing (badge: thy-sc) */
+  (function(){
+    "use strict";
+    var list = document.getElementById("sc-list");
+    if(!list) return;
+    var BADGE = "thy-sc", NQ = 10;
+
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    /* build a sine SVG: cycleDiv divisions per cycle, peakDiv divisions amplitude */
+    function scopeSVG(cycleDiv, peakDiv){
+      var x0 = 12, x1 = 312, cy = 90, dx = 30, dy = 20;
+      var period = cycleDiv*dx, amp = peakDiv*dy, d = "";
+      for(var x = x0; x <= x1; x += 3){
+        var y = cy - amp*Math.sin(2*Math.PI*(x-x0)/period);
+        d += (d ? "L" : "M") + x + " " + (Math.round(y*10)/10) + " ";
+      }
+      var grid = "";
+      for(var gx = x0+dx; gx < x1; gx += dx){ grid += '<line class="grid" x1="'+gx+'" y1="10" x2="'+gx+'" y2="170"/>'; }
+      for(var gy = 30; gy < 170; gy += dy){ grid += '<line class="grid" x1="12" y1="'+gy+'" x2="312" y2="'+gy+'"/>'; }
+      return '<svg class="sc-scope" viewBox="0 0 324 180" role="img" aria-label="Oscilloscope trace: ' +
+        peakDiv + ' divisions peak, one cycle every ' + cycleDiv + ' divisions">' +
+        '<rect class="frame" x="12" y="10" width="300" height="160"/>' + grid +
+        '<line class="axis" x1="12" y1="90" x2="312" y2="90"/>' +
+        '<path class="trace" d="' + d + '"/></svg>';
+    }
+
+    function genScope(){
+      var kind = rand(["peak","period","freq"]);
+      var peakDiv = rand([1,2,3]), G = rand([0.5,1,2,5]);
+      var cycleDiv = rand([2,4,5]), t = rand([1,2,5,10]);
+      var svg = scopeSVG(cycleDiv, peakDiv);
+      var readout = "Y-gain " + G + " V/div   ·   time-base " + t + " ms/div";
+      var q, a, u;
+      if(kind === "peak"){ q = "Read the <b>peak voltage</b> of this trace."; a = peakDiv*G; u = "V"; }
+      else if(kind === "period"){ q = "Read the <b>period</b> of one wave."; a = cycleDiv*t; u = "ms"; }
+      else { q = "Calculate the <b>frequency</b> of this wave."; a = 1000/(cycleDiv*t); u = "Hz"; }
+      return { q: q, a: a, u: u, svg: svg, readout: readout };
+    }
+
+    var CPAIR = [[10,100],[22,220],[10,50],[47,470],[100,50],[10,30],[22,44],[100,400]];
+    var RFACT = [["doubled",2],["halved",0.5],["tripled",3]];
+    function genRC(){
+      if(Math.random() < 0.6){
+        var p = rand(CPAIR);
+        return { q: "An RC timer's capacitor changes from <b>" + p[0] + " µF</b> to <b>" + p[1] +
+          " µF</b> (resistor unchanged). The output delay becomes how many <b>times</b> its original length?",
+          a: p[1]/p[0], u: "× longer" };
+      }
+      var r = rand(RFACT);
+      return { q: "In an RC timer the resistor is <b>" + r[0] + "</b> (capacitor unchanged). The delay becomes how many <b>times</b> its original length?",
+        a: r[1], u: "× longer" };
+    }
+
+    var current = [];
+    function build(){
+      current = [];
+      for(var i=0;i<NQ;i++){ current.push(Math.random() < 0.7 ? genScope() : genRC()); }
+      list.innerHTML = "";
+      current.forEach(function(item, i){
+        var row = document.createElement("div"); row.className = "sc-item";
+        row.innerHTML =
+          '<div class="sc-q">' + (i+1) + ". " + item.q + "</div>" +
+          (item.svg ? item.svg + '<div class="sc-readout">' + item.readout + "</div>" : "") +
+          '<div class="sc-ans"><input class="num" type="text" inputmode="decimal" id="sc-i' + i +
+            '" aria-label="Answer for question ' + (i+1) + '"><span class="sc-unit">' + item.u + "</span></div>" +
+          '<div class="sc-note" id="sc-n' + i + '"></div>';
+        list.appendChild(row);
+      });
+      document.getElementById("sc-score").textContent = "";
+    }
+    function sig3(n){
+      if(n === 0) return "0";
+      var dgt = Math.ceil(Math.log10(Math.abs(n))), p = Math.pow(10, 3 - dgt);
+      return (Math.round(n*p)/p).toString();
+    }
+
+    document.getElementById("sc-check").addEventListener("click", function(){
+      var anyBlank = false;
+      current.forEach(function(_, i){ if(document.getElementById("sc-i"+i).value.trim() === "") anyBlank = true; });
+      if(anyBlank){ document.getElementById("sc-score").textContent = "Fill in every box first."; return; }
+      var score = 0;
+      current.forEach(function(item, i){
+        var val = parseFloat(document.getElementById("sc-i"+i).value.trim().replace(/,/g, ""));
+        var ok = !isNaN(val) && Math.abs(val - item.a) <= Math.max(1e-9, Math.abs(item.a) * 0.02);
+        if(ok) score++;
+        var row = list.children[i], note = document.getElementById("sc-n"+i);
+        row.classList.toggle("ok", ok); row.classList.toggle("no", !ok);
+        note.textContent = ok ? "✓ correct" : "✗ answer: " + sig3(item.a) + " " + item.u;
+      });
+      var msg = "Score: " + score + " / " + NQ;
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, NQ);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg += " — 🌊 Wave Reader unlocked!";
+        } else if(res.unlocked){ msg += " — badge already earned."; }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("sc-score").textContent = msg;
+    });
+    document.getElementById("sc-new").addEventListener("click", build);
+
+    build();
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>
