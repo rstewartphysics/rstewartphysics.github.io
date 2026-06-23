@@ -13,8 +13,9 @@ title: Theory — Components and Devices · National 5 Electronics
   <title>Theory — Components and Devices · National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -251,6 +252,10 @@ title: Theory — Components and Devices · National 5 Electronics
     .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
     @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
 
+    /* Component Collector quiz */
+    .cd-sym { background: var(--card); border: 1px solid var(--border-soft); border-radius: 10px; padding: .5rem; max-width: 170px; margin: .2rem auto .7rem; }
+    .cd-sym .symdef { max-width: 150px; height: 64px; }
+
     @media print {
       .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
       .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
@@ -278,6 +283,7 @@ title: Theory — Components and Devices · National 5 Electronics
       <div class="subnav-links">
         <a class="subnav-link" href="#magnetism">Magnetism</a>
         <a class="subnav-link" href="#symbols">Symbols</a>
+        <a class="subnav-link" href="#challenge">Challenge</a>
         <a class="subnav-link" href="#check">Check</a>
       </div>
       <a class="subnav-cta" href="/classes/electronics/theory.html">All theory &rarr;</a>
@@ -547,6 +553,26 @@ title: Theory — Components and Devices · National 5 Electronics
       </div>
     </section>
 
+    <!-- ===================== CHALLENGE ===================== -->
+    <section class="panel" id="challenge" aria-label="Component Collector quiz">
+      <span class="concept-tag">Interactive</span>
+      <h2>Component Collector quiz</h2>
+      <p class="notes">Name the component from its <strong>UK (BS) symbol</strong>. Ten symbols are drawn from
+        the reference grid above — get <strong>8 / 10</strong> to earn the 🔌 <strong>Component Collector</strong>
+        badge.</p>
+      <div class="widget" aria-label="Symbol identification quiz">
+        <h3>Name the symbol <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Pick the component each symbol represents, then check your answers.</p>
+        <div id="cd-quiz" aria-label="Symbol questions"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="cd-mark" type="button">Mark answers</button>
+          <button class="btn" id="cd-new" type="button">New set</button>
+        </div>
+        <div class="score" id="cd-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
     <!-- ===================== CHECK ===================== -->
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
@@ -766,6 +792,83 @@ title: Theory — Components and Devices · National 5 Electronics
       });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* Component Collector quiz — name the symbol (badge: thy-cd) */
+  (function(){
+    "use strict";
+    var box = document.getElementById("cd-quiz");
+    if(!box) return;
+    var BADGE = "thy-cd", NQ = 10;
+
+    /* pull symbols straight from the reference grid so nothing is duplicated */
+    var SYMS = [];
+    Array.prototype.forEach.call(document.querySelectorAll("#symbols .sym-cell"), function(c){
+      var svg = c.querySelector(".symdef"), name = c.querySelector(".sym-name");
+      if(svg && name){ SYMS.push({ svg: svg.outerHTML, name: name.textContent.trim() }); }
+    });
+    if(SYMS.length < 4){ box.innerHTML = "<p class='hint'>Symbol quiz unavailable.</p>"; return; }
+    var N = Math.min(NQ, SYMS.length);
+
+    function shuffle(arr){
+      var a = arr.slice();
+      for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+      return a;
+    }
+    var current = [];
+    function build(){
+      current = shuffle(SYMS).slice(0, N);
+      box.innerHTML = "";
+      current.forEach(function(item, qi){
+        var distract = shuffle(SYMS.filter(function(s){ return s.name !== item.name; })).slice(0, 3);
+        var opts = shuffle([item.name].concat(distract.map(function(d){ return d.name; })));
+        item._opts = opts; item._answer = opts.indexOf(item.name);
+        var d = document.createElement("div"); d.className = "q";
+        var html = '<p class="qstem">' + (qi+1) + ". Which component is this?</p>" +
+          '<div class="cd-sym">' + item.svg + "</div>";
+        opts.forEach(function(opt, oi){
+          html += '<label class="opt" data-qi="' + qi + '" data-oi="' + oi + '">' +
+            '<input type="radio" name="cdq' + qi + '" value="' + oi + '">' + opt + "</label>";
+        });
+        d.innerHTML = html; box.appendChild(d);
+      });
+      document.getElementById("cd-score").textContent = "";
+    }
+    function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
+    function addNote(el, txt){ var s = document.createElement("span"); s.className = "mark-note"; s.textContent = txt; el.appendChild(s); }
+
+    document.getElementById("cd-mark").addEventListener("click", function(){
+      if(box.querySelectorAll("input:checked").length < current.length){
+        document.getElementById("cd-score").textContent = "Answer every symbol first."; return;
+      }
+      var score = 0; clearNotes();
+      current.forEach(function(item, qi){
+        box.querySelectorAll('.opt[data-qi="' + qi + '"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+        var right = box.querySelector('.opt[data-qi="' + qi + '"][data-oi="' + item._answer + '"]');
+        right.classList.add("correct"); addNote(right, "✓ correct answer");
+        var chosen = box.querySelector('input[name="cdq' + qi + '"]:checked');
+        var oi = parseInt(chosen.value, 10);
+        if(oi === item._answer){ score++; }
+        else { var w = box.querySelector('.opt[data-qi="' + qi + '"][data-oi="' + oi + '"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+      });
+      var msg = "Score: " + score + " / " + current.length;
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, current.length);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg += " — 🔌 Component Collector unlocked!";
+        } else if(res.unlocked){ msg += " — badge already earned."; }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("cd-score").textContent = msg;
+    });
+    document.getElementById("cd-new").addEventListener("click", build);
+
+    build();
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>
