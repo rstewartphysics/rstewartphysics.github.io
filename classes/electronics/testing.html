@@ -13,8 +13,9 @@ title: Testing — National 5 Electronics
   <title>Testing — National 5 Electronics</title>
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260620b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/electronics-progress.js" defer></script>
 
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
@@ -91,6 +92,17 @@ title: Testing — National 5 Electronics
     .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
     .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
     .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    /* Fault Finder challenge */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+    .ff-sym { font-weight: 900; color: var(--accent-2); }
+    .ff-note { font-weight: 900; white-space: normal; margin-top: .2rem; }
+    .q.ok .ff-note { color: #15803d; }
+    .q.no .ff-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .q.ok .ff-note { color: #5dd693; } }
 
     @media print {
       .skip-link, .subnav-wrap, .backlink, .btnrow, #siteMenuButton, footer { display: none !important; }
@@ -295,6 +307,26 @@ title: Testing — National 5 Electronics
       </div>
     </section>
 
+    <!-- Challenge -->
+    <section class="panel" id="challenge" aria-label="Fault Finder challenge">
+      <span class="concept-tag">Interactive</span>
+      <h2>Fault Finder challenge</h2>
+      <p class="notes">A circuit isn't behaving. Read each <strong>symptom and test reading</strong>, then pick the
+        <strong>most likely fault</strong>. Score <strong>8 / 10</strong> to earn the 🔬 <strong>Fault Finder</strong>
+        badge.</p>
+      <div class="widget" aria-label="Fault diagnosis quiz">
+        <h3>Diagnose the fault <span class="challenge-tag">scored</span></h3>
+        <p class="hint">Match the evidence to the fault, then mark your answers.</p>
+        <div id="ff-quiz" aria-label="Fault diagnosis questions"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="ff-mark" type="button">Mark answers</button>
+          <button class="btn" id="ff-new" type="button">New set</button>
+        </div>
+        <div class="score" id="ff-score" aria-live="polite"></div>
+        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#elProgressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
     <!-- Check -->
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
@@ -443,6 +475,102 @@ title: Testing — National 5 Electronics
       window.addEventListener("beforeprint", function(){ opened=[]; document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); }); });
       window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
     })();
+  })();
+  </script>
+
+  <script>
+  /* Fault Finder — symptom -> likely fault (badge: tst-ff) */
+  (function(){
+    "use strict";
+    var box = document.getElementById("ff-quiz");
+    if(!box) return;
+    var BADGE = "tst-ff", NQ = 10;
+
+    /* pool of symptom -> fault items; correct answer first, distractors follow */
+    var POOL = [
+      { s: "An LED won't light. The voltage across it reads only ~0 V and it's the right way round elsewhere, but here the band/arrow points to the + rail.",
+        a: "The LED is fitted reversed (reverse-biased)", d: ["The battery is flat", "The resistor is too small", "A track is shorted"] },
+      { s: "A lamp glows far too dim. The series resistor is colour-coded yellow-violet-black (47 Ω) where the design needs 470 Ω.",
+        a: "Wrong resistor value fitted (47 Ω not 470 Ω)", d: ["The lamp is blown", "The supply is too high", "A wire is loose"] },
+      { s: "Nothing works at all. A multimeter across the supply rails reads 0 V even though the battery is good.",
+        a: "A break/loose connection in the supply wiring", d: ["The output device is faulty", "The resistor is open circuit", "The IC is the wrong type"] },
+      { s: "A 555 timer output never changes. Its reset pin reads 0 V instead of being tied high.",
+        a: "An IC pin is wired wrong (reset not held high)", d: ["The capacitor is too big", "The LED is reversed", "The supply is too low"] },
+      { s: "A transistor switch never turns on. The base voltage stays at 0 V even when the sensor changes.",
+        a: "A break between the divider and the base", d: ["The output device is reversed", "The supply is too high", "The resistor is too large to matter"] },
+      { s: "An electrolytic capacitor gets hot and the circuit misbehaves. The + lead is connected to 0 V.",
+        a: "The electrolytic capacitor is fitted the wrong way round", d: ["The capacitor value is too small", "The resistor is open circuit", "The battery is flat"] },
+      { s: "A motor doesn't run. Continuity test shows an open circuit through one of the connecting wires.",
+        a: "A broken (open-circuit) wire", d: ["The motor needs a bigger resistor", "The supply polarity is reversed", "The IC has failed"] },
+      { s: "Two adjacent stripboard tracks measure 0 Ω between them where they should be separate.",
+        a: "A solder bridge shorting the tracks", d: ["A track cut is missing a component", "The resistor is too small", "The LED is reversed"] },
+      { s: "The output switches at the wrong light level. The LDR and fixed resistor are in each other's positions.",
+        a: "The divider components are swapped (wrong arm)", d: ["The comparator IC is faulty", "The supply is too high", "The output is reversed"] },
+      { s: "A buzzer is silent. The voltage across it is full supply voltage but it still does nothing.",
+        a: "The buzzer is faulty or fitted the wrong way round", d: ["The series resistor is too large", "A track is shorted", "The battery is flat"] },
+      { s: "An LED is very bright then fails. There is no current-limiting resistor in series with it.",
+        a: "Missing series (current-limiting) resistor", d: ["The LED is reversed", "The supply is too low", "An IC pin is wrong"] },
+      { s: "A logic output is stuck high. The gate's input that should be low is left unconnected (floating).",
+        a: "A floating (unconnected) logic input", d: ["The output LED is reversed", "The resistor is too small", "The capacitor is too big"] }
+    ];
+
+    function shuffle(arr){
+      var a = arr.slice();
+      for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+      return a;
+    }
+    var current = [];
+    function build(){
+      current = shuffle(POOL).slice(0, NQ);
+      box.innerHTML = "";
+      current.forEach(function(item, qi){
+        var opts = shuffle([item.a].concat(item.d.slice(0, 3)));
+        item._opts = opts; item._answer = opts.indexOf(item.a);
+        var d = document.createElement("div"); d.className = "q";
+        var html = '<p class="qstem">' + (qi+1) + '. <span class="ff-sym">Symptom:</span> ' + item.s + "</p>";
+        opts.forEach(function(opt, oi){
+          html += '<label class="opt" data-qi="' + qi + '" data-oi="' + oi + '">' +
+            '<input type="radio" name="ffq' + qi + '" value="' + oi + '">' + opt + "</label>";
+        });
+        html += '<p class="ff-note" id="ff-n' + qi + '"></p>';
+        d.innerHTML = html; box.appendChild(d);
+      });
+      document.getElementById("ff-score").textContent = "";
+    }
+
+    document.getElementById("ff-mark").addEventListener("click", function(){
+      if(box.querySelectorAll("input:checked").length < current.length){
+        document.getElementById("ff-score").textContent = "Diagnose every fault first."; return;
+      }
+      var score = 0;
+      current.forEach(function(item, qi){
+        box.querySelectorAll('.opt[data-qi="' + qi + '"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
+        var right = box.querySelector('.opt[data-qi="' + qi + '"][data-oi="' + item._answer + '"]');
+        right.classList.add("correct");
+        var oi = parseInt(box.querySelector('input[name="ffq' + qi + '"]:checked').value, 10);
+        var card = box.children[qi], note = document.getElementById("ff-n" + qi);
+        var ok = oi === item._answer;
+        if(ok){ score++; note.textContent = "✓ correct"; }
+        else { box.querySelector('.opt[data-qi="' + qi + '"][data-oi="' + oi + '"]').classList.add("wrong");
+          note.textContent = "✗ likely fault: " + item.a; }
+        card.classList.toggle("ok", ok); card.classList.toggle("no", !ok);
+      });
+      var msg = "Score: " + score + " / " + current.length;
+      if(window.ElProgress){
+        var res = ElProgress.record(BADGE, score, current.length);
+        if(res.justUnlocked){
+          var def = ElProgress.registry.topic.filter(function(t){ return t.id === BADGE; })[0];
+          if(def) ElProgress.toast(def);
+          msg += " — 🔬 Fault Finder unlocked!";
+        } else if(res.unlocked){ msg += " — badge already earned."; }
+        (res.newAchievements || []).forEach(function(a){ ElProgress.toast(a); });
+      }
+      document.getElementById("ff-score").textContent = msg;
+    });
+    document.getElementById("ff-new").addEventListener("click", build);
+
+    build();
+    if(window.ElProgress){ ElProgress.markSeen(BADGE); }
   })();
   </script>
 </body>
