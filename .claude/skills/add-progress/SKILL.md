@@ -25,6 +25,12 @@ page off a legacy/inline engine; **C** = stand up a brand-new subject (do C's co
    `Progress.record("<id>", score, max)` on finish. `record()` **fires the unlock + achievement toasts
    itself** — do NOT also call `Progress.toast(...)`, and never `alert()`/`confirm()`. Keep the widget's
    own inline result text. The badge `<id>` must exist in `progress/<ns>.js`.
+   *Page-completion alternative (many small pass/fail challenges, no single score — Higher's model):*
+   give the badge `unlock:"page"` in the config and skip `record()`; just wire each challenge to
+   `Progress.complete(id)`/`Progress.miss()` and call `Progress.markSeen("<id>")` once. The engine
+   unlocks the badge when every `data-prog-challenge` on its `href` page is done. **Defer `markSeen` to
+   `DOMContentLoaded`** (inline body scripts run before the deferred engine, so `window.Progress` isn't
+   ready at top level). Note the engine auto-tags a `#quiz` block as a `quiz` challenge — it counts too.
 4. **Hub** (once per subject): an empty `<div id="progressHub">` inside a "My progress" panel, and
    `data-prog-badges="id1 id2"` on the relevant hub tiles.
 

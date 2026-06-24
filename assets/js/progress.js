@@ -289,9 +289,30 @@
       if (data.streak > data.bestStreak) { data.bestStreak = data.streak; }
     }
     syncPageDone(data);
-    recomputeAchievements(data);
+    var pageUnlocked = unlockPageBadges(data);
+    var newAch = recomputeAchievements(data);
     save(data);
     refreshAll();
+    pageUnlocked.forEach(function (def) { toast(def); });
+    newAch.forEach(function (a) { toast(a); });
+  }
+  /* topic badges configured `unlock:"page"` earn themselves when their page's
+     challenges are all complete — for challenge-based subjects with no scored flagship. */
+  function unlockPageBadges(data) {
+    var pk = pageKey(), out = [];
+    if (!data.pageDone[pk]) { return out; }
+    TOPIC.forEach(function (def) {
+      if (def.unlock !== "page" || !def.href) { return; }
+      if (normPath(def.href) !== pk) { return; }
+      var s = data.badges[def.id] || (data.badges[def.id] = {});
+      if (!s.unlocked) {
+        s.unlocked = true; s.seen = true;
+        if (!s.at) { s.at = today(); }
+        if (LAYERS.pointsStreak) { data.points += POINTS.badge; }
+        out.push(def);
+      }
+    });
+    return out;
   }
   function challengeDone(id) {
     return !!load().challenges[pageKey() + "::" + id];
