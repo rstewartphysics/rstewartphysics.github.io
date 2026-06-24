@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Progress engine — logic tests</title>
+<style>
+  body{font-family:"Trebuchet MS",system-ui,sans-serif;margin:0;padding:1.2rem;background:#0b1f1a;color:#e8fff7;line-height:1.5}
+  h1{font-size:1.2rem}
+  #summary{font-weight:900;font-size:1.1rem;padding:.6rem .9rem;border-radius:10px;margin:.6rem 0 1rem}
+  #summary.ok{background:#0c3a2c;color:#5dd693}
+  #summary.bad{background:#3a0c14;color:#ff8a8a}
+  .grp{font-weight:900;margin:1rem 0 .3rem;color:#34e7c4}
+  .row{display:flex;gap:.5rem;padding:.2rem 0;font-size:.92rem;border-bottom:1px solid rgba(255,255,255,.08)}
+  .tag{flex:0 0 3.2rem;font-weight:900}
+  .pass .tag{color:#5dd693}.fail .tag{color:#ff8a8a}
+  .detail{color:#9fc7bb}
+  main{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>Progress engine — logic tests</h1>
+<div id="summary">running…</div>
+<div id="out"></div>
+<!-- offscreen host for the per-page challenge meter + challenge wrappers -->
+<main id="host"></main>
+
+<script src="../assets/js/progress.js"></script>
+<script>
+(function () {
+  "use strict";
+  var P = window.Progress, INT = P._internals;
+  var out = document.getElementById("out");
+  var pass = 0, fail = 0;
+
+  function group(t) {
+    var h = document.createElement("div"); h.className = "grp"; h.textContent = t;
+    out.appendChild(h);
+  }
+  function check(name, got, want) {
+    var ok = JSON.stringify(got) === JSON.stringify(want);
+    ok ? pass++ : fail++;
+    var row = document.createElement("div");
+    row.className = "row " + (ok ? "pass" : "fail");
+    row.innerHTML = '<span class="tag">' + (ok ? "PASS" : "FAIL") + "</span>" +
+      "<span>" + name + (ok ? "" :
+        ' <span class="detail">— got ' + JSON.stringify(got) + ", want " + JSON.stringify(want) + "</span>") + "</span>";
+    out.appendChild(row);
+  }
+  function ok(name, cond) { check(name, !!cond, true); }
+
+  function clearKeys() {
+    Object.keys(localStorage).forEach(function (k) {
+      if (k.indexOf("progress-test") === 0 || k === "test-old-key") { localStorage.removeItem(k); }
+    });
+  }
+  function host(html) { document.getElementById("host").innerHTML = html; }
+
+  /* ---- registries ---- */
+  function allUnlocked(b, ids) { return ids.every(function (id) { return b[id] && b[id].unlocked; }); }
+  var cfgEmpty = {
+    ns: "test-empty",
+    topic: [
+      { id: "A", name: "Alpha", emoji: "🅰", section: "S", cond: "8/10" },
+      { id: "B", name: "Beta", emoji: "🅱", section: "S", thr: 1, cond: "all" }
+    ],
+    ach: [
+      { id: "ach-ab", name: "Both", emoji: "🏆", cond: "A+B",
+        test: function (b) { return allUnlocked(b, ["A", "B"]); } },
+      { id: "ach-perfect", name: "Flawless", emoji: "⚡", cond: "full marks",
+        test: function (b) { return ["A", "B"].some(function (id) { var s = b[id]; return s && s.max > 0 && s.best >= s.max; }); } }
+    ],
+    ranks: [{ at: 0, name: "Trainee" }, { at: 60, name: "Apprentice" }, { at: 200, name: "Pro" }]
+  };
+
+  /* ===== Group 1 — empty store: scoring, sticky, points, streak, rank ===== */
+  group("1 — scoring, sticky unlock, best-score, points & streak (empty store)");
+  clearKeys();
+  P.init(cfgEmpty);
+
+  var r1 = P.record("A", 6, 10);
+  ok("below threshold does not unlock", r1.unlocked === false);
+  check("best stored even when locked", P.get("A").best, 6);
+  check("no badge points before unlock", P.snapshot().points, 0);
+
+  var r2 = P.record("A", 8, 10);
+  ok("reaching threshold unlocks", r2.unlocked === true && r2.justUnlocked === true);
+  check("badge award = 25 pts", P.snapshot().points, 25);
+
+  var r3 = P.record("A", 5, 10);
+  check("worse re-attempt keeps best", P.get("A").best, 8);
+  ok("unlock is sticky (no re-lock)", P.get("A").unlocked === true && r3.justUnlocked === false);
+  check("no double points on re-record", P.snapshot().points, 25);
+
+  var r4 = P.record("B", 2, 2);
+  ok("thr:1 full marks unlocks B", r4.unlocked === true);
+  check("two badges → 50 pts", P.snapshot().points, 50);
+  ok("ach-ab derived (A+B unlocked)", !!P.get("ach-ab") && P.get("ach-ab").unlocked);
+  ok("ach-perfect derived (B full marks)", !!P.get("ach-perfect") && P.get("ach-perfect").unlocked);
+
+  /* challenges + streak (needs DOM wrappers) */
+  host('<div data-prog-challenge="c1"></div><div data-prog-challenge="c2"></div>');
+  check("challenge total auto-counts from DOM", P.challengeState().page.total, 2);
+
+  P.complete("c1");
+  check("challenge award = +10 pts", P.snapshot().points, 60);
+  check("streak advances to 1", P.snapshot().streak, 1);
+  P.complete("c1");
+  check("complete() idempotent — points", P.snapshot().points, 60);
+  check("complete() idempotent — streak", P.snapshot().streak, 1);
+  P.complete("c2");
+  check("second challenge → 70 pts", P.snapshot().points, 70);
+  check("streak advances to 2", P.snapshot().streak, 2);
+  ok("ach-curious-style pageDone set when all done", P.challengeState().page.done === 2);
+
+  P.miss();
+  check("miss() resets streak", P.snapshot().streak, 0);
+  check("bestStreak preserved", P.snapshot().bestStreak, 2);
+
+  P.addPoints(5, { streak: true });
+  check("addPoints adds + advances streak", [P.snapshot().points, P.snapshot().streak], [75, 1]);
+
+  check("rank resolves to Apprentice at 75 pts", P.rank().name, "Apprentice");
+  check("rank.next is Pro", P.rank().next.name, "Pro");
+
+  /* ===== Group 2 — migration shim: lossless v1 → v2 ===== */
+  group("2 — migration shim (el-progress-v1 → progress-<ns>-v1, lossless)");
+  clearKeys();
+  host("");
+
+  var golden = {
+    v: 1,
+    badges: {
+      "thy-qc": { seen: true, best: 9, max: 10, unlocked: true, at: "2026-06-10" },
+      "thy-rc": { seen: true, best: 8, max: 10, unlocked: true, at: "2026-06-11" },
+      "thy-ts": { seen: true, best: 4, max: 4, unlocked: true, at: "2026-06-12" },
+      "thy-sc": { seen: true, best: 5, max: 10 },
+      "sim-io": { seen: true },
+      "ach-perfect": { unlocked: true, at: "2026-06-12" },
+      "ach-curious": { unlocked: true, at: "2026-06-11" }
+    },
+    challenges: { "/classes/electronics/theory/quantities-and-calculations.html::cloze-1": true },
+    pageDone: { "/classes/electronics/theory/quantities-and-calculations.html": true }
+  };
+  localStorage.setItem("test-old-key", JSON.stringify(golden));
+
+  var cfgMig = {
+    ns: "test-mig", migrateFrom: "test-old-key",
+    topic: [
+      { id: "thy-qc", name: "QC", emoji: "🧮", section: "Theory", cond: "" },
+      { id: "thy-ts", name: "TS", emoji: "💡", section: "Theory", thr: 1, cond: "" }
+    ],
+    ach: []
+  };
+  clearKeys();                          // wipe new key, keep test-old-key
+  localStorage.setItem("test-old-key", JSON.stringify(golden));
+  P.init(cfgMig);
+
+  var m = INT.load();
+  check("migrated schema bumped to v2", m.v, 2);
+  ok("thy-qc carried over intact", m.badges["thy-qc"] && m.badges["thy-qc"].best === 9 && m.badges["thy-qc"].unlocked === true);
+  ok("thy-ts carried over intact", m.badges["thy-ts"] && m.badges["thy-ts"].best === 4 && m.badges["thy-ts"].unlocked === true);
+  ok("derived ach-perfect preserved", m.badges["ach-perfect"] && m.badges["ach-perfect"].unlocked);
+  ok("challenges carried over", m.challenges["/classes/electronics/theory/quantities-and-calculations.html::cloze-1"] === true);
+  ok("pageDone carried over", m.pageDone["/classes/electronics/theory/quantities-and-calculations.html"] === true);
+  check("v2 fields added (points)", m.points, 0);
+  check("v2 fields added (streak)", m.streak, 0);
+  ok("old key left intact", !!localStorage.getItem("test-old-key"));
+
+  /* idempotency: a later edit must not be clobbered by re-migration */
+  P.addPoints(15, { streak: true });
+  P.init(cfgMig);                       // re-init: new key exists → must NOT re-copy old
+  check("re-init does not clobber new key", INT.load().points, 15);
+
+  /* ===== Group 3 — private-mode degrade (no throw) ===== */
+  group("3 — robustness");
+  clearKeys();
+  var threw = false;
+  try { P.init(cfgEmpty); P.record("A", 9, 10); P.complete("z"); P.snapshot(); }
+  catch (e) { threw = true; }
+  ok("full API path never throws", !threw);
+
+  /* ---- summary ---- */
+  var s = document.getElementById("summary");
+  s.className = fail === 0 ? "ok" : "bad";
+  s.textContent = fail === 0
+    ? "✓ ALL " + pass + " ASSERTIONS PASSED"
+    : "✗ " + fail + " FAILED, " + pass + " passed";
+  clearKeys();
+})();
+</script>
+</body>
+</html>
