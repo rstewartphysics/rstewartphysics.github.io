@@ -470,6 +470,16 @@
 ".prog-subhead h3{margin:0;font-size:1.02rem;font-weight:900;color:var(--text,#e8fff7);font-family:var(--font-stack,sans-serif)}" +
 ".prog-subhead p{margin:.1rem 0 0;color:var(--muted,#9fc7bb);font-weight:800;font-size:.92rem;line-height:1.45}" +
 ".prog-grid{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));margin-top:.7rem}" +
+".prog-how{margin:.6rem 0 0;padding:0;list-style:none;display:grid;gap:.55rem}" +
+".prog-how li{display:flex;gap:.55rem;align-items:flex-start;color:var(--text,#e8fff7);font-weight:800;font-size:.92rem;line-height:1.45}" +
+".prog-how li b{color:var(--accent-2,#34e7c4);font-weight:900}" +
+".prog-how .pi{flex-shrink:0;font-size:1.05rem;line-height:1.35}" +
+".prog-ladder{margin:.6rem 0 0;padding:0;list-style:none;display:grid;gap:.32rem}" +
+".prog-ladder li{display:flex;align-items:center;gap:.5rem;padding:.42rem .65rem;border-radius:10px;border:1px solid var(--border-soft,rgba(255,255,255,.12));background:var(--surface-2,rgba(0,230,179,.06));color:var(--muted,#9fc7bb);font-weight:800;font-size:.9rem}" +
+".prog-ladder li .lr-name{font-weight:900;color:var(--text,#e8fff7)}" +
+".prog-ladder li .lr-at{margin-left:auto;font-variant-numeric:tabular-nums;white-space:nowrap}" +
+".prog-ladder li.is-current{border-color:var(--border-strong,rgba(0,230,179,.45));background:linear-gradient(135deg,rgba(0,230,179,.12),rgba(0,230,179,.02)),var(--card,#0c241d)}" +
+".prog-ladder li .lr-you{color:var(--accent-2,#34e7c4);font-weight:900}" +
 ".prog-badge{display:flex;align-items:center;gap:.7rem;padding:.7rem .8rem;min-height:64px;border-radius:14px;border:1px solid var(--border-soft,rgba(255,255,255,.12));background:var(--card,#0c241d);text-decoration:none;color:var(--text,#e8fff7);-webkit-tap-highlight-color:transparent;touch-action:manipulation}" +
 "a.prog-badge{transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}" +
 "a.prog-badge:hover,a.prog-badge:focus-visible{transform:translateY(-1px);border-color:var(--border-strong,rgba(0,230,179,.45));box-shadow:var(--shadow-soft,0 10px 22px rgba(0,0,0,.3))}" +
@@ -678,7 +688,7 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "prog-guide-btn";
-    btn.innerHTML = '<span aria-hidden="true">🔎</span> View badges &amp; how to earn them';
+    btn.innerHTML = '<span aria-hidden="true">🔎</span> View badges, points &amp; levels';
     btn.addEventListener("click", openDetails);
     container.appendChild(btn);
   }
@@ -812,6 +822,63 @@
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
+  function pointsLevelsSection() {
+    var showPS = LAYERS.pointsStreak;
+    var showRanks = LAYERS.ranks && RANKS.length;
+    if (!showPS && !showRanks) { return null; }
+    var d = load();
+    var frag = document.createDocumentFragment();
+    frag.appendChild(sectionTitle("Points, streaks &amp; levels",
+      "Earn points as you work to climb the ranks."));
+
+    var ul = document.createElement("ul");
+    ul.className = "prog-how";
+    function how(icon, html) {
+      var li = document.createElement("li");
+      li.innerHTML = '<span class="pi" aria-hidden="true">' + icon + "</span><span>" + html + "</span>";
+      ul.appendChild(li);
+    }
+    if (showPS) {
+      how("💯", "<b>Points</b> — earn <b>+" + POINTS.challenge +
+        "</b> for every challenge you finish and <b>+" + POINTS.badge +
+        "</b> for each badge you unlock. You have <b>" + (d.points || 0) + "</b> so far.");
+      how("🔥", "<b>Streak</b> — answer challenges correctly in a row to build a streak. " +
+        "Get one wrong and it resets to <b>0</b> (your points and badges stay). " +
+        "Your best streak is <b>" + (d.bestStreak || 0) + "</b>.");
+    }
+    if (showRanks) {
+      var r = rank();
+      var msg = "<b>Levels</b> — your points set your level. You're <b>" + r.name + "</b>";
+      if (r.next) {
+        var need = r.next.at - r.points;
+        msg += ". Earn <b>" + need + "</b> more point" + (need === 1 ? "" : "s") +
+          " to reach <b>" + r.next.name + "</b>.";
+      } else {
+        msg += " — the top level. 🎉";
+      }
+      how("🎖", msg);
+    }
+    frag.appendChild(ul);
+
+    if (showRanks) {
+      var curName = rank().name;
+      var ladder = document.createElement("ol");
+      ladder.className = "prog-ladder";
+      ladder.setAttribute("aria-label", "Level ladder, lowest to highest");
+      RANKS.forEach(function (rk) {
+        var li = document.createElement("li");
+        var isCur = rk.name === curName;
+        if (isCur) { li.className = "is-current"; }
+        li.innerHTML = '<span class="lr-name">' + rk.name + "</span>" +
+          (isCur ? ' <span class="lr-you">★ you</span>' : "") +
+          '<span class="lr-at">' + (rk.at === 0 ? "start" : rk.at + " pts") + "</span>";
+        ladder.appendChild(li);
+      });
+      frag.appendChild(ladder);
+    }
+    return frag;
+  }
+
   function buildDialog() {
     var data = all();
     dialogEl.innerHTML = "";
@@ -849,6 +916,9 @@
       data.achievements.forEach(function (b) { aGrid.appendChild(badgeCard(b.def, b.state, true)); });
       dialogEl.appendChild(aGrid);
     }
+
+    var pl = pointsLevelsSection();
+    if (pl) { dialogEl.appendChild(pl); }
 
     dialogEl.appendChild(resetControl());
   }
