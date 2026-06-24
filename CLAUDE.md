@@ -316,6 +316,43 @@ Use `env(safe-area-inset-*)` wherever fixed controls sit near screen edges — t
 
 ---
 
+## Progress & badge system (site standard)
+
+The site is standardising on **one progress + badge engine across all interactive subjects** —
+**Electronics, Higher Physics, and the three Engineering Science levels (S3 / N5 / Higher)** — with
+each **level hub aggregating its own progress**. The full design, build order and **hard guardrails**
+live in **[`progress-system-rollout-plan.md`](progress-system-rollout-plan.md)** (repo root) — read it
+before touching any progress/badge code.
+
+**The model (two tiers + gamification, identical everywhere):** cross-page **mastery badges** +
+per-page **points / streak / section-challenge meter** + a **corner counter**, **per-level hub totals**
+("% explored", points, badge count) and a **named rank ladder** per subject. No cross-subject profile.
+
+**Architecture (the rules that matter day-to-day):**
+- **One engine, never a fork.** Logic lives in `assets/js/progress.js` (`window.Progress`); each subject
+  supplies only a config `assets/js/progress/<ns>.js` (its badge registry, palette via tokens, rank
+  ladder, storage namespace). Pages must **not** hand-roll progress JS.
+- **One `localStorage` key per subject:** `progress-<ns>-v1`. Exploratory widget state keeps its own
+  per-page `el-…`/`hp-…` prefix and is never written into the progress key.
+- **Neutral markup hooks** (the only thing a page adds): the two `<script>` tags, `id="progressHub"`
+  on the hub, `data-prog-badges` on hub tiles, `data-prog-challenge` on tracked challenges, and
+  `.prog-cloze`/`.prog-fillin` blocks auto-bound by the engine. A flagship scored widget calls
+  `Progress.markSeen(id)` + `Progress.record(id,score,max)`.
+- **CSS is injected by the engine, token-driven** (`var(--token, fallback)`) — no per-subject progress
+  stylesheet. **No blocking dialogs** (`alert`/`confirm`); unlocks use an `aria-live` toast; reset is a
+  two-tap inline confirm; status is never colour-only. All `page-checklist.md` a11y rules still apply.
+
+**Current status (mid-rollout):** Phase 0 has **shipped the shared engine** — `assets/js/progress.js`
+(`window.Progress`) plus the electronics config `assets/js/progress/electronics.js`, the construction
+guide [`progress-system-guide.md`](progress-system-guide.md), and the `test/progress.html` logic harness.
+**No live page is migrated yet:** **Electronics** pages still run the legacy `assets/js/electronics-progress.js`
+(`window.ElProgress`, now kept as a transitional alias of `Progress`) and **Higher Physics** pages still
+carry per-page inline engines — both migrate onto the shared engine in Phases 1–2 per the rollout plan.
+**New interactive pages follow the rollout plan**; wire pages via the neutral hooks above and the
+`progress-system-guide.md` API (the `new-page` skill bakes this in).
+
+---
+
 ## What not to do
 
 - No parallax, scroll-driven animation, or CSS `background-attachment: fixed` (breaks on iOS).

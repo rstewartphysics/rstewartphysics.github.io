@@ -95,6 +95,14 @@ resistor here.
 - **Symbol reference grid** `.sym-grid` / `.sym-cell` — SVG symbol + name + one-line function.
 - **Checklist** `.chk-list` — the pre-power-up checklist and practical-activity evidence lists.
 
+**Progress, badges & section challenges** are handled by the **shared progress engine**, not per-page
+code: today `assets/js/electronics-progress.js` (`window.ElProgress`) — the badge wall, corner counter,
+`data-el-badges` hub chips, and `data-el-challenge` cloze/fill-in/quiz tracking. This engine is being
+**generalized into the site-wide `assets/js/progress.js`** with neutral `data-prog-*` hooks and per-level
+hubs; see `progress-system-rollout-plan.md` (esp. its **§5 guardrails**) before adding or changing any
+progress/badge behaviour. Never hand-roll progress JS on a page; add markup hooks + the flagship widget's
+`markSeen`/`record` calls only.
+
 ## 8. Curriculum framing (new spec language)
 
 - The course is **National 5 Electronics** (C884 75), assessed by a **question paper** (60 → 30, 30%)
