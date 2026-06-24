@@ -273,11 +273,10 @@ pass (incl. the shim). No page has been migrated yet.
    scheme across the ~10 electronics pages + the hub.
 4. **Electronics must behave the same or better** — same badges/counter/dialog/challenges, now plus
    hub totals + a rank on the counter. *If electronics is solid after this, the engine is proven.*
-5. **Now (not before) capture the repeatable wiring steps as a skill.** Electronics' migration reveals
-   the real, stable procedure for putting a page on the engine (script tags + hooks + rename + flagship
-   `markSeen`/`record`). Encode it as a `/add-progress` skill (or extend `/improve-page`) so Phase 2's
-   Higher pages and Phase 3's engineering pages are mechanical, not bespoke. **Don't write this skill
-   speculatively in Phase 0** — it would bake in guesses.
+5. **Now (not before) capture the repeatable wiring steps as a skill.** ✅ **Done** —
+   `.claude/skills/add-progress/SKILL.md` encodes the proven procedure (mode A add-tracking, mode B
+   migrate-off-legacy, mode C new-subject) + the Phase 1 guardrails, so Phase 2's Higher pages and
+   Phase 3's engineering pages are mechanical, not bespoke. `new-page` step 6 now points at it.
 
 #### Phase 1 guardrails (discovered during migration prep, 2026-06-24 — non-negotiable)
 - **No double toasts.** The shared engine's `record()` **fires the unlock toast itself** (topic badge +
