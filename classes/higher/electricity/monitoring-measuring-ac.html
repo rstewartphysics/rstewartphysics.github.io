@@ -17,6 +17,8 @@ title: Monitoring & measuring a.c. — Higher Physics
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/higher-physics.js" defer></script>
 
   <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260620a">
 
@@ -317,25 +319,6 @@ title: Monitoring & measuring a.c. — Higher Physics
     <a class="backlink" href="/classes/higher-physics.html"><span aria-hidden="true">←</span> Back to Higher hub</a>
 
     <!-- ================= BETA PROGRESS HUD ================= -->
-    <section class="panel" id="ghud" aria-labelledby="ghud-title">
-      <span class="concept-tag">Beta · interactive mode</span>
-      <h2 id="ghud-title">Your progress</h2>
-      <div class="colour-key" aria-hidden="true">
-        <span class="ck eq">Equations</span>
-        <span class="ck int">Interactives</span>
-        <span class="ck prac">Practice</span>
-        <span class="ck ex">Worked examples</span>
-      </div>
-      <div class="hud-row">
-        <div class="hud-stat"><span class="hud-num" id="g-points">0</span><span class="hud-lab">points</span></div>
-        <div class="hud-stat"><span class="hud-num" id="g-streak">0</span><span class="hud-lab">streak 🔥</span></div>
-        <div class="hud-stat"><span class="hud-num" id="g-count">0 / 0</span><span class="hud-lab">challenges done</span></div>
-      </div>
-      <div class="g-track" aria-hidden="true"><span id="g-bar"></span></div>
-      <p class="score" id="g-status" aria-live="polite"></p>
-      <div class="badges" id="g-badges" aria-label="Badges earned"></div>
-    </section>
-
     <!-- ================= CONCEPT 1 ================= -->
     <section class="panel" id="c1" aria-labelledby="c1-title">
       <span class="concept-tag">Concept 1</span>
@@ -394,7 +377,7 @@ title: Monitoring & measuring a.c. — Higher Physics
         </figure>
       </div>
 
-      <div class="widget" data-challenge="ch-cloze" id="cl-lang">
+      <div class="widget" data-prog-challenge="ch-cloze" id="cl-lang">
         <h3>Fill the gaps — say it like the SQA</h3>
         <p class="hint">Pick the precise word for each gap, then check.</p>
         <p class="cloze-text">Alternating current continually changes
@@ -487,7 +470,7 @@ title: Monitoring & measuring a.c. — Higher Physics
         <figcaption>The rms value (dashed) sits at <var>V</var><sub>peak</sub> ÷ √2 ≈ 0.71 × peak — clearly below the peak, not halfway. It is the steady d.c. value that would deliver the same power.</figcaption>
       </figure>
 
-      <div class="widget" data-challenge="ch-match" id="match-game">
+      <div class="widget" data-prog-challenge="ch-match" id="match-game">
         <h3>Match the term to its meaning</h3>
         <p class="hint">Tap a term on the left, then its meaning on the right. Correct pairs lock green.</p>
         <div class="match-grid">
@@ -498,7 +481,7 @@ title: Monitoring & measuring a.c. — Higher Physics
         <div class="btnrow"><button class="btn" type="button" id="match-reset">Reset</button></div>
       </div>
 
-      <div class="widget" data-challenge="ch-calc" id="calc-check">
+      <div class="widget" data-prog-challenge="ch-calc" id="calc-check">
         <h3>Check your calculation</h3>
         <p class="hint">The mains supply has an rms voltage of 230 V. Work out the peak voltage (in V), type your answer, then check — you'll get a hint if it's a common slip.</p>
         <label class="field">Peak voltage <var>V</var><sub>peak</sub> (V)
@@ -631,7 +614,7 @@ title: Monitoring & measuring a.c. — Higher Physics
         <div class="working" id="sc-work"></div>
       </div>
 
-      <div class="widget" data-challenge="ch-graph" id="graph-quiz">
+      <div class="widget" data-prog-challenge="ch-graph" id="graph-quiz">
         <h3>Read the trace</h3>
         <p class="hint">Use the simulator and diagram above, then check both answers.</p>
         <p class="qstem" style="font-weight:900; margin:.2rem 0 .4rem;">1. The peak voltage is found from…</p>
@@ -689,7 +672,7 @@ title: Monitoring & measuring a.c. — Higher Physics
     <section class="panel" id="check" aria-labelledby="check-title">
       <h2 id="check-title">Check yourself</h2>
 
-      <div class="widget" data-challenge="ch-check-cloze" id="cl2-recap">
+      <div class="widget" data-prog-challenge="ch-check-cloze" id="cl2-recap">
         <h3>Recap — fill the gaps</h3>
         <p class="hint">Pull the whole topic together: choose the right word for each gap, then check. Counts towards your badges.</p>
         <p class="cloze-text">a.c. changes
@@ -728,12 +711,10 @@ title: Monitoring & measuring a.c. — Higher Physics
       <div class="widget">
         <h3>Beta progress</h3>
         <p class="hint">Your points, streak, badges and completed challenges are saved on this device. Clear them here to start fresh.</p>
-        <div class="btnrow"><button class="btn" type="button" id="g-reset">Reset beta progress</button></div>
       </div>
     </section>
   </main>
 
-  <a class="sticky-prog" id="sticky-prog" href="#ghud" aria-label="Challenges done — jump to your progress"><span class="sp-ico" aria-hidden="true">🏆</span><span id="sp-text">0 / 0</span></a>
 
   {% include site-footer.html %}
 
@@ -909,69 +890,20 @@ title: Monitoring & measuring a.c. — Higher Physics
   <script>
   (function(){
     "use strict";
-    var K = "hp-ac-beta-g-";
-    function save(k,v){ try{ localStorage.setItem(K+k, JSON.stringify(v)); }catch(e){} }
-    function load(k,d){ try{ var x=localStorage.getItem(K+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
     function $(id){ return document.getElementById(id); }
-    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
     function fb(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"ok":"no"); el.textContent=(ok?"✓ ":"✗ ")+msg; }
 
-    var done = load("done",{}), points = load("points",0), streak = load("streak",0), bestStreak = load("bestStreak",0);
-    var challenges = [];
-    [].forEach.call(document.querySelectorAll("[data-challenge]"), function(el){ challenges.push(el.getAttribute("data-challenge")); });
-    var total = challenges.length;
-
-    var BADGES = [
-      { id:"first",  icon:"🎯", name:"First challenge", test:function(n){ return n>=1; } },
-      { id:"streak", icon:"🔥", name:"3 in a row",      test:function(n){ return bestStreak>=3; } },
-      { id:"half",   icon:"⚡", name:"Halfway there",    test:function(n){ return total>0 && n>=Math.ceil(total/2); } },
-      { id:"all",    icon:"🏆", name:"All challenges",   test:function(n){ return total>0 && n>=total; } }
-    ];
-
-    function doneCount(){ var n=0; challenges.forEach(function(c){ if(done[c]) n++; }); return n; }
-
-    function renderBadges(n){
-      var box=$("g-badges"); if(!box) return;
-      box.innerHTML="";
-      BADGES.forEach(function(b){
-        var earned=b.test(n);
-        var chip=document.createElement("span");
-        chip.className="badge-chip"+(earned?" earned":"");
-        chip.innerHTML='<span class="bi" aria-hidden="true">'+b.icon+'</span> '+b.name+(earned?" ✓":" — locked");
-        box.appendChild(chip);
-      });
-    }
-
-    function sync(){
-      var n=doneCount();
-      setT("g-points", points);
-      setT("g-streak", streak);
-      setT("g-count", n+" / "+total);
-      setT("sp-text", n+" / "+total);
-      var sp=$("sticky-prog"); if(sp) sp.classList.toggle("complete", total>0 && n>=total);
-      var bar=$("g-bar"); if(bar) bar.style.width=(total? (n/total*100):0)+"%";
-      var st=$("g-status");
-      if(st){
-        st.textContent = (n>=total && total>0)
-          ? "All challenges complete — nice work! 🏆"
-          : (n>0 ? "Keep going — "+(total-n)+" challenge"+((total-n)===1?"":"s")+" left."
-                 : "Try the challenges as you scroll to earn points and badges.");
-      }
-      renderBadges(n);
-    }
-
+    /* Points, streak and badges are owned by the shared engine (assets/js/progress.js).
+       award() just reports each challenge: correct -> complete (idempotent, +points
+       +streak), wrong -> break the streak. The page total auto-counts from the
+       [data-prog-challenge] wrappers; the topic badge unlocks when all are done. */
     function award(id, pts, correct){
-      if(correct){
-        if(!done[id]){
-          streak++; if(streak>bestStreak){ bestStreak=streak; save("bestStreak",bestStreak); }
-          done[id]=true; points+=pts;
-          save("streak",streak); save("done",done); save("points",points);
-        }
-      } else {
-        if(streak!==0){ streak=0; save("streak",streak); }
-      }
-      sync();
+      if(!window.Progress) return;
+      if(correct){ window.Progress.complete(id); } else { window.Progress.miss(); }
     }
+    document.addEventListener("DOMContentLoaded", function(){
+      if(window.Progress){ window.Progress.markSeen("hp-ac"); }
+    });
 
     /* ---- cloze ---- */
     (function(){
@@ -1096,17 +1028,6 @@ title: Monitoring & measuring a.c. — Higher Physics
       });
     })();
 
-    /* ---- reset beta progress ---- */
-    (function(){
-      var b=$("g-reset"); if(!b) return;
-      b.addEventListener("click", function(){
-        done={}; points=0; streak=0; bestStreak=0;
-        save("done",done); save("points",points); save("streak",streak); save("bestStreak",bestStreak);
-        sync();
-      });
-    })();
-
-    sync();
   })();
   </script>
 </body>
