@@ -15,6 +15,9 @@
   }
 
   var TOPIC = [
+    { id: "eng-contexts", name: "Systems Thinker", emoji: "⚙️", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering/engineering-contexts-and-systems.html",
+      cond: "Finish every challenge on Engineering contexts & systems" },
     { id: "eng-energy", name: "Energy Engineer", emoji: "⚡", section: "N5 Engineering", unlock: "page",
       href: "/classes/n5-engineering/energy-and-efficiency.html",
       cond: "Finish the challenge on Energy & efficiency" }
