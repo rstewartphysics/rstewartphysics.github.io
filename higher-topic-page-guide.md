@@ -172,7 +172,12 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
   `.field{display:flex}` otherwise overrides plain `[hidden]`.
 - Results announce via `aria-live="polite"`. No `alert()`.
 - **`localStorage` prefix is per-topic and unique**, e.g. `hp-cpr-` for this page. Pick a new prefix per
-  topic (`hp-<topic>-`); never reuse another page's keys.
+  topic (`hp-<topic>-`); never reuse another page's keys. *(This applies to exploratory widget state.)*
+- **Progress / points / streak / badges:** the reference page's **inline per-page engine** (`#ghud`,
+  points, streak, `data-challenge="ch-*"`, per-page badges) is being **replaced by the shared site
+  engine** — see `progress-system-rollout-plan.md`. Don't deepen the inline engine; new Higher pages
+  should follow the rollout plan (shared engine + neutral `data-prog-*` hooks + a Higher-level hub that
+  aggregates progress), and existing pages are being migrated onto it.
 
 ## 9. Accessibility & platform guardrails
 

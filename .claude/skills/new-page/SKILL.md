@@ -16,7 +16,13 @@ description: Scaffold a new HTML/CSS page for mrstewartphysics.co.uk (a class hu
 5. **Wire it into the site:** flip the hub placeholder from
    `<span class="topic-link soon">Label</span>` to a real `<a class="topic-link" href="…">`,
    and confirm the menu drawer already covers the section (don't add topic pages to the drawer).
-6. **Run the pre-commit checklist** (shared checklist + guide §11 for Higher).
-7. **Report** what you built, where, and the validation results. Commit/push only if asked.
+6. **Wire in progress/badges (default on all new interactive pages):** if the subject participates
+   in the progress system, add the two `<script>` tags + neutral hooks per `progress-system-guide.md`
+   (and the rollout plan's **§5 guardrails**) — never hand-roll progress JS, never a per-page key. The
+   shared engine (`assets/js/progress.js`) has shipped but **no subject is migrated yet**, so until a
+   subject's tidy phase lands, match its current live setup (Electronics = `electronics-progress.js`/
+   `ElProgress`; Higher = the per-page pattern) and note it for migration.
+7. **Run the pre-commit checklist** (shared checklist + guide §11 for Higher).
+8. **Report** what you built, where, and the validation results. Commit/push only if asked.
 
 Keep widget CSS/JS inline. Pare back interactives — notes-led, 1–2 tools max per page.

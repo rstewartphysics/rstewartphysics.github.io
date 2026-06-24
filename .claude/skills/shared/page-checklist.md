@@ -7,6 +7,8 @@ Used by `/new-page`, `/improve-page`, `/from-pdf`. Read this once per task.
 - **Reference implementation (copy its structure/conventions, NOT its colours):**
   `classes/higher/electricity/current-pd-power-resistance.html`.
 - **Higher topic pages only:** also read `/higher-topic-page-guide.md`.
+- **Any page with progress/badges:** also read `/progress-system-rollout-plan.md` (the site-wide
+  progress engine — its model, hooks and **hard guardrails**).
 
 ## Use the right theme (never the reference page's blue if the subject differs)
 Pick the subject's palette from the CLAUDE.md colour table: Physics/Home teal,
@@ -28,6 +30,11 @@ the two `theme-color` metas, and the skip-link colour to match.
 - `overflow-x:hidden`, `max-width:100%`, `env(safe-area-inset-*)` on sticky controls.
 - **Liquid safety:** no `{{`, `{%`, `%}` in inline CSS/JS (only `{% include site-menu.html %}`).
 - Per-page `localStorage` keys use a unique topic prefix; never reuse another page's.
+- **Progress/badges:** use the shared engine, never a per-page fork. One progress key per subject
+  (`progress-<ns>-v1`); neutral hooks only (`#progressHub`, `data-prog-badges`, `data-prog-challenge`,
+  `.prog-cloze`/`.prog-fillin`); engine-injected token-driven CSS; unlocks via `aria-live` toast, reset
+  via two-tap confirm — **never** `alert()`/`confirm()`. Exploratory widget state stays in its own
+  per-page prefix, separate from the progress key. (Full rules: `progress-system-rollout-plan.md` §5.)
 
 ## Pre-commit validation (run before reporting done)
 - Tags balanced: `<section> <div> <details> <svg> <figure> <script> <style>` open == close.

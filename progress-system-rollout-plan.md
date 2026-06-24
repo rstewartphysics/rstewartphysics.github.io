@@ -279,6 +279,30 @@ pass (incl. the shim). No page has been migrated yet.
    Higher pages and Phase 3's engineering pages are mechanical, not bespoke. **Don't write this skill
    speculatively in Phase 0** — it would bake in guesses.
 
+#### Phase 1 guardrails (discovered during migration prep, 2026-06-24 — non-negotiable)
+- **No double toasts.** The shared engine's `record()` **fires the unlock toast itself** (topic badge +
+  each new achievement). The legacy pages **also** fire it manually via
+  `ElProgress.registry.topic.filter(…)` → `ElProgress.toast(def)` and
+  `res.newAchievements.forEach(ElProgress.toast)`. Migration **must delete those page-side toast lines**
+  or every unlock double-fires. **Keep** the widget's own inline result text (e.g.
+  `msg += " — 🔗 Network Navigator unlocked!"`) — that is the widget's result line, not the toast.
+- **`ElProgress.registry` is gone.** The shared engine does **not** expose `.registry`; its only use was
+  the manual toast lookup above, which disappears with the de-dup — **no replacement needed**.
+- **Rename the hub anchor, not just the hub id.** `#elProgressHub` is also an `href` target on every
+  "View my progress →" link (~10 pages). Rename the hub's `id="elProgressHub"`→`progressHub` **and**
+  every `href="…#elProgressHub"`→`#progressHub`, or those links break.
+- **Inner element classes do NOT change.** `.cl-sel / .cl-check / .cl-reset / .fb-line / .gap-in /
+  .gp-check / .gp-reset` are the engine's canonical names (guide §3) — keep them. Only the **wrappers**
+  rename: `.elp-cloze`→`.prog-cloze`, `.elp-fillin`→`.prog-fillin`. (Supersedes the looser §3 wording.)
+- **Renames can't break styling.** The engine injects CSS for **both** legacy (`.elp-*`, `#elProgressHub`,
+  `data-el-*`) and new (`.prog-*`, `#progressHub`, `data-prog-*`) names, and pages carry no inline cloze
+  CSS — so the swap is visually inert. This is why it's safe to swap scripts first, then rename.
+- **Electronics gains points/streak/rank/hub-totals it never had.** That is intended (step 4, "same or
+  better"), but it is *new* live behaviour — it must be on the human-check list, not assumed invisible.
+- **Leave `electronics-progress.js` on disk.** After migration nothing references it; do **not** delete
+  it in the migration commit — flag it for a separate, human-confirmed cleanup once the migration is
+  verified live, so a rollback stays trivial.
+
 ### Phase 2 — Tidy & migrate Higher Physics electricity 🔵
 Kills the worst duplication and lights up a hub that has no aggregation today.
 1. Author `assets/js/progress/higher-physics.js`: badge registry spanning **all three units**
