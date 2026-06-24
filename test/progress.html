@@ -123,6 +123,25 @@
   check("rank resolves to Apprentice at 75 pts", P.rank().name, "Apprentice");
   check("rank.next is Pro", P.rank().next.name, "Pro");
 
+  /* ===== Group 1b — unlock:"page" topic badges (challenge-based subjects) ===== */
+  group('1b — page-completion badge unlock (unlock:"page")');
+  clearKeys();
+  host('<div data-prog-challenge="p1"></div><div data-prog-challenge="p2"></div>');
+  P.init({
+    ns: "test-page",
+    topic: [{ id: "PG", name: "Page", emoji: "📄", section: "S",
+      unlock: "page", href: location.pathname, cond: "finish the page" }],
+    ach: [], ranks: [{ at: 0, name: "Trainee" }]
+  });
+  P.complete("p1");
+  ok("page badge locked until all challenges done", !P.get("PG") || !P.get("PG").unlocked);
+  P.complete("p2");
+  ok("page badge unlocks when all challenges done", !!P.get("PG") && P.get("PG").unlocked === true);
+  check("page badge awards its 25 pts on unlock", P.snapshot().points, 45);
+  P.complete("p2");
+  ok("page-completion unlock is sticky/idempotent", P.get("PG").unlocked === true);
+  check("no double badge points on re-complete", P.snapshot().points, 45);
+
   /* ===== Group 2 — migration shim: lossless v1 → v2 ===== */
   group("2 — migration shim (el-progress-v1 → progress-<ns>-v1, lossless)");
   clearKeys();

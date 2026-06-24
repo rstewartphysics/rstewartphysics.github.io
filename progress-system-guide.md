@@ -63,8 +63,16 @@ window.Progress.init({
 | `points` | — | `{ challenge, badge }` award sizes. |
 | `ranks[]` | — | `{ at:<points>, name }` — sorted ascending by the engine. |
 | `layers` | — | Feature toggles; omit = all on (the standard model). |
-| `topic[]` | ✅ | `{ id, name, emoji, section, href, thr?, cond }` per scored interactive. |
+| `topic[]` | ✅ | `{ id, name, emoji, section, href, thr?, cond, unlock? }` per tracked interactive. |
 | `ach[]` | — | `{ id, name, emoji, cond, test(badges,data) }`. Tests are **pure** and re-run on every change — never store achievement state as truth; derive it. |
+
+**Two ways a topic badge unlocks** (set per badge):
+- **Scored (default)** — a flagship widget calls `Progress.record(id, score, max)`; unlocks at `thr`
+  (or `threshold`). Use for pages with one scored interactive (electronics' model).
+- **Page-completion** — set `unlock:"page"`. The badge earns itself when **every** `data-prog-challenge`
+  on the badge's `href` page is complete (the engine matches `href` to the current page). Use for pages
+  with many small pass/fail challenges and no single score (Higher's model). No `record()` call needed —
+  the page only wires each challenge to `complete()`/`miss()` and calls `markSeen(id)` once.
 
 The config file owns all subject-specific helpers (e.g. computing `THEORY_IDS` from `topic` for an
 `ach.test`). The engine receives only `cfg`.
