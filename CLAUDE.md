@@ -342,14 +342,18 @@ per-page **points / streak / section-challenge meter** + a **corner counter**, *
   stylesheet. **No blocking dialogs** (`alert`/`confirm`); unlocks use an `aria-live` toast; reset is a
   two-tap inline confirm; status is never colour-only. All `page-checklist.md` a11y rules still apply.
 
-**Current status (mid-rollout):** Phase 0 has **shipped the shared engine** — `assets/js/progress.js`
-(`window.Progress`) plus the electronics config `assets/js/progress/electronics.js`, the construction
-guide [`progress-system-guide.md`](progress-system-guide.md), and the `test/progress.html` logic harness.
-**No live page is migrated yet:** **Electronics** pages still run the legacy `assets/js/electronics-progress.js`
-(`window.ElProgress`, now kept as a transitional alias of `Progress`) and **Higher Physics** pages still
-carry per-page inline engines — both migrate onto the shared engine in Phases 1–2 per the rollout plan.
-**New interactive pages follow the rollout plan**; wire pages via the neutral hooks above and the
-`progress-system-guide.md` API (the `new-page` skill bakes this in).
+**Current status (rollout essentially complete — default on):** the shared engine `assets/js/progress.js`
+(`window.Progress`) is live with four subject configs — `progress/electronics.js`,
+`progress/higher-physics.js`, `progress/eng-n5.js`, `progress/eng-s3.js`. **Migrated and live:**
+**Electronics** (all pages + hub, via the lossless `migrateFrom` shim), **Higher Physics** (all 5
+electricity pages + hub aggregation on `classes/higher-physics.html`), and **Engineering Science** N5 +
+S3 live topic pages + their hubs. Each writes a single `progress-<ns>-v1` key. The legacy
+`assets/js/electronics-progress.js` / `window.ElProgress` is **deprecated** (unreferenced, kept only for
+rollback — don't use on new pages). **Remaining:** Higher Engineering Science (Coming Soon — its
+`eng-higher.js` config drops in when those pages are built); coming-soon topic stubs stay unwired until
+they have content (behind-content guardrail). **New interactive pages ship with tracking by default** —
+run **`/add-progress`** and follow `progress-system-guide.md` (API) + the rollout plan's §5 guardrails;
+the `new-page` skill and the topic-page guides bake this in.
 
 ---
 
