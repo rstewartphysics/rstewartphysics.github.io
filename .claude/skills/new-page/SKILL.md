@@ -16,12 +16,16 @@ description: Scaffold a new HTML/CSS page for mrstewartphysics.co.uk (a class hu
 5. **Wire it into the site:** flip the hub placeholder from
    `<span class="topic-link soon">Label</span>` to a real `<a class="topic-link" href="…">`,
    and confirm the menu drawer already covers the section (don't add topic pages to the drawer).
-6. **Wire in progress/badges (default on all new interactive pages):** if the subject participates in
-   the progress system, run **`/add-progress`** (it encodes the proven procedure + guardrails) — never
-   hand-roll progress JS, never a per-page key. Electronics is fully migrated onto the shared engine
-   (`assets/js/progress.js` + `assets/js/progress/electronics.js`) — copy its wiring as the reference.
-   Higher Physics and Engineering Science aren't migrated yet; if you build there before their tidy
-   phase, match the page's current live setup and note it for migration.
+6. **Wire in progress/badges (default on every new interactive page):** all live interactive subjects
+   now run the shared engine, so a new topic page ships with tracking by default — run **`/add-progress`**
+   (it encodes the proven procedure + guardrails). Load the two `defer` scripts in `<head>` after
+   `site-menu.js` — `assets/js/progress.js` then the subject config `assets/js/progress/<ns>.js`
+   (`electronics` · `higher-physics` · `eng-n5` · `eng-s3`) — add neutral hooks (`data-prog-challenge`
+   on each tracked challenge, `.prog-cloze`/`.prog-fillin` blocks, the flagship widget's
+   `markSeen`/`record`), and on the hub add the `#progressHub` panel + `data-prog-badges` tile chips.
+   The badge id must exist in that subject's config (add one there if the page is a new tracked topic).
+   **Never** hand-roll progress JS and **never** a per-page progress key. If a subject has no config yet
+   (e.g. Higher Engineering Science), stand one up first via `/add-progress` mode C.
 7. **Run the pre-commit checklist** (shared checklist + guide §11 for Higher).
 8. **Report** what you built, where, and the validation results. Commit/push only if asked.
 

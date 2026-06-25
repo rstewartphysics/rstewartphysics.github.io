@@ -95,13 +95,15 @@ resistor here.
 - **Symbol reference grid** `.sym-grid` / `.sym-cell` — SVG symbol + name + one-line function.
 - **Checklist** `.chk-list` — the pre-power-up checklist and practical-activity evidence lists.
 
-**Progress, badges & section challenges** are handled by the **shared progress engine**, not per-page
-code: today `assets/js/electronics-progress.js` (`window.ElProgress`) — the badge wall, corner counter,
-`data-el-badges` hub chips, and `data-el-challenge` cloze/fill-in/quiz tracking. This engine is being
-**generalized into the site-wide `assets/js/progress.js`** with neutral `data-prog-*` hooks and per-level
-hubs; see `progress-system-rollout-plan.md` (esp. its **§5 guardrails**) before adding or changing any
-progress/badge behaviour. Never hand-roll progress JS on a page; add markup hooks + the flagship widget's
-`markSeen`/`record` calls only.
+**Progress, badges & section challenges** are handled by the **shared progress engine — default on**, not
+per-page code. Electronics runs `assets/js/progress.js` + `assets/js/progress/electronics.js`
+(`window.Progress`) with neutral `data-prog-*` hooks: the badge wall, corner counter, `data-prog-badges`
+hub chips, and `data-prog-challenge` cloze/fill-in/quiz tracking. *(The legacy
+`assets/js/electronics-progress.js` / `window.ElProgress` is deprecated — unreferenced, kept only for
+rollback; don't add it to new pages.)* Wire a new page via **`/add-progress`**: the two `defer` scripts in
+`<head>`, markup hooks, and the flagship widget's `markSeen`/`record` calls only — never hand-roll progress
+JS. See `progress-system-guide.md` (API) + `progress-system-rollout-plan.md` §5 (guardrails) before
+changing any progress/badge behaviour.
 
 ## 8. Curriculum framing (new spec language)
 

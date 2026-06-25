@@ -173,11 +173,14 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
 - Results announce via `aria-live="polite"`. No `alert()`.
 - **`localStorage` prefix is per-topic and unique**, e.g. `hp-cpr-` for this page. Pick a new prefix per
   topic (`hp-<topic>-`); never reuse another page's keys. *(This applies to exploratory widget state.)*
-- **Progress / points / streak / badges:** the reference page's **inline per-page engine** (`#ghud`,
-  points, streak, `data-challenge="ch-*"`, per-page badges) is being **replaced by the shared site
-  engine** — see `progress-system-rollout-plan.md`. Don't deepen the inline engine; new Higher pages
-  should follow the rollout plan (shared engine + neutral `data-prog-*` hooks + a Higher-level hub that
-  aggregates progress), and existing pages are being migrated onto it.
+- **Progress / points / streak / badges: use the shared engine — default on.** The old inline per-page
+  engine (`#ghud`, points, streak, `data-challenge="ch-*"`, per-page badges) is **gone**; the 5
+  electricity pages now run `assets/js/progress.js` + `assets/js/progress/higher-physics.js` with neutral
+  `data-prog-*` hooks, and `classes/higher-physics.html` aggregates the level. **Never hand-roll progress
+  JS.** A new Higher topic page wires up via **`/add-progress`**: the two `defer` scripts in `<head>`,
+  `data-prog-challenge` on each challenge (`.prog-cloze`/`.prog-fillin` auto-bind), the flagship widget's
+  `markSeen`/`record`, a badge entry in `progress/higher-physics.js`, and a `data-prog-badges` chip on the
+  hub tile. See `progress-system-guide.md` (API) + `progress-system-rollout-plan.md` §5 (guardrails).
 
 ## 9. Accessibility & platform guardrails
 
