@@ -15,6 +15,8 @@ title: What is an Engineer? | S3 Engineering Science
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/eng-s3.js" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20260621a">
 
 <style>
@@ -1541,7 +1543,7 @@ title: What is an Engineer? | S3 Engineering Science
       </div>
 
       <!-- Interactive: Sort the jobs (booklet p.3) -->
-      <div class="wie-sorter" id="jobs-sorter" aria-label="Sort the jobs activity">
+      <div class="wie-sorter" id="jobs-sorter" data-prog-challenge="ch-jobs" aria-label="Sort the jobs activity">
         <h3>Try it: sort the jobs</h3>
         <p class="wie-sorter-instr">
           This is the booklet "Sort the jobs" task. Tap a job to select it, then tap the engineer
@@ -1610,7 +1612,7 @@ title: What is an Engineer? | S3 Engineering Science
       </div>
 
       <!-- System simulation (Change 4) -->
-      <div class="wie-sim" id="sys-sim" aria-label="System diagram activity">
+      <div class="wie-sim" id="sys-sim" data-prog-challenge="ch-sim" aria-label="System diagram activity">
         <h3>Try it: build a system diagram</h3>
         <p class="wie-sim-instr">
           Tap a tile to select it, then tap the correct slot to place it.
@@ -1772,7 +1774,7 @@ title: What is an Engineer? | S3 Engineering Science
       </div>
 
       <!-- Impact sorter (Change 5) -->
-      <div class="wie-sorter" id="impact-sorter" aria-label="Impact sorting activity">
+      <div class="wie-sorter" id="impact-sorter" data-prog-challenge="ch-impacts" aria-label="Impact sorting activity">
         <h3>Sort these impacts</h3>
         <p class="wie-sorter-instr">Tap a statement to select it, then tap the correct column (Social, Economic or Environmental) to place it.</p>
 
@@ -2068,7 +2070,7 @@ title: What is an Engineer? | S3 Engineering Science
     <!-- =====================================================
          QUIZ — Change 3
     ===================================================== -->
-    <details class="wie-details wie-section-panel" id="quiz">
+    <details class="wie-details wie-section-panel" id="quiz" data-prog-challenge="ch-quiz">
       <summary>🧠 Test yourself — quiz and interactive activities <span class="wie-tap-hint">tap to open</span></summary>
       <div class="wie-details-body">
     <section class="wie-section">
@@ -2257,6 +2259,16 @@ title: What is an Engineer? | S3 Engineering Science
     if (text !== undefined) e.textContent = text;
     return e;
   }
+
+  /* Points, streak and the "Engineering Explorer" badge are owned by the shared
+     engine (assets/js/progress.js); this page only reports each activity's outcome. */
+  function award(id, correct) {
+    if (!window.Progress) { return; }
+    if (correct) { window.Progress.complete(id); } else { window.Progress.miss(); }
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.Progress) { window.Progress.markSeen('eng-what-engineer'); }
+  });
 
   /* ============================================================
      PRINT KNOWLEDGE ORGANISER
@@ -2660,6 +2672,7 @@ title: What is an Engineer? | S3 Engineering Science
     scoreBadge.style.display = '';
     el('quiz-check').style.display = 'none';
     el('quiz-retry').style.display = '';
+    award('ch-quiz', score >= 6);
   }
 
   function resetQuiz() {
@@ -2810,6 +2823,7 @@ title: What is an Engineer? | S3 Engineering Science
         if (slot) slot.classList.add('correct');
       });
       el('sim-congrats').classList.add('show');
+      award('ch-sim', true);
     }
   }
 
@@ -2999,6 +3013,7 @@ title: What is an Engineer? | S3 Engineering Science
 
     if (wrong === 0) setSortMsg('✓ All sorted correctly — well done!', 'done');
     else setSortMsg(wrong + (wrong === 1 ? ' statement was' : ' statements were') + ' in the wrong column and went back to the pool. Try again.', 'error');
+    award('ch-impacts', wrong === 0);
   }
 
   var sortCheckBtn = el('sort-check');
@@ -3165,6 +3180,7 @@ title: What is an Engineer? | S3 Engineering Science
     });
     if (wrong === 0) setJobsMsg('✓ All jobs sorted correctly — well done!', 'done');
     else setJobsMsg(wrong + (wrong === 1 ? ' job was' : ' jobs were') + ' in the wrong column and went back to the pool. Try again.', 'error');
+    award('ch-jobs', wrong === 0);
   }
 
   var jobsCheckBtn = el('jobs-check');
