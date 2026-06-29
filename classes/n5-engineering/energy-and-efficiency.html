@@ -412,6 +412,14 @@ title: Energy & Efficiency — National 5 Engineering Science
     .effsim-useful { background:#2e8b57; color:#fff; }
     .effsim-wasted { background:#e0a106; color:#1a1205; }
     @media (prefers-reduced-motion: reduce){ .effsim-seg { transition:none; } }
+    .bal-track { position:relative; height:34px; border:1px solid var(--eng-border); border-radius:10px; background:var(--eng-surface); overflow:visible; margin:1.3rem 0 .2rem; }
+    .bal-track .bal-fill { border-radius:9px; overflow:hidden; }
+    .bal-fill { display:flex; height:100%; }
+    .bal-fill .effsim-seg { font-size:.78rem; }
+    .bal-target { position:absolute; top:-3px; bottom:-3px; width:3px; background:var(--eng-text); }
+    .bal-target::after { content:"input"; position:absolute; top:-1.1rem; left:50%; transform:translateX(-50%); font-size:.66rem; font-weight:900; color:var(--eng-text); white-space:nowrap; }
+    .bal-status { text-align:center; font-weight:900; font-size:.9rem; margin:.5rem 0 0; }
+    .bal-status.ok { color:var(--good); } .bal-status.off { color:var(--bad); }
     .kit-task { margin-top:.8rem; border:1px solid var(--eng-border); border-left:5px solid var(--eng-orange); border-radius:12px; background:var(--eng-surface-2); padding:.7rem .9rem; }
     .kit-task .kit-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.5rem; }
     .kit-task input[type=number] { width:5.5rem; min-height:40px; padding:.3rem .4rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
@@ -648,6 +656,31 @@ title: Energy & Efficiency — National 5 Engineering Science
       </div>
 
       <div class="note">If you add up <strong>all</strong> the useful energy and <strong>all</strong> the wasted energy, you get back the input energy. Wasted energy is <strong>not destroyed</strong> — it is still energy, just not useful.</div>
+
+      <div class="widget" id="balSim" data-prog-challenge="ch-energy-balance">
+        <h3>⚖️ Energy balance — make it add up</h3>
+        <p class="hint">The input is fixed at <strong>1000 J</strong>. Share it between useful and wasted output. Energy can't be created or destroyed, so the two outputs must add up to exactly the input.</p>
+        <div class="kit-row">
+          <label for="bal-u">Useful output (J)</label>
+          <input type="range" id="bal-u" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules">
+          <input type="number" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules (number)">
+        </div>
+        <div class="kit-row">
+          <label for="bal-w">Wasted output (J)</label>
+          <input type="range" id="bal-w" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules">
+          <input type="number" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules (number)">
+        </div>
+        <div class="bal-track" role="img" aria-describedby="bal-status">
+          <div class="bal-fill"><div class="effsim-seg effsim-useful" id="bal-useful"></div><div class="effsim-seg effsim-wasted" id="bal-wasted"></div></div>
+          <div class="bal-target" style="left:66.667%"></div>
+        </div>
+        <p class="bal-status" id="bal-status" aria-live="polite"></p>
+        <div class="kit-task">
+          <strong>Challenge:</strong> set the outputs so they add up to exactly the 1000 J input.
+          <div class="kit-actions"><button type="button" id="bal-check">Check</button></div>
+          <p class="kit-fb" id="bal-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
 
       <div class="practice">
         <span class="practice-tag">Practice 3 — booklet p.15</span>
@@ -1489,6 +1522,45 @@ title: Energy & Efficiency — National 5 Engineering Science
       } else {
         fb.className = "kit-fb no";
         fb.textContent = "✗ " + lastEff.toFixed(0) + "% — aim for 60%. Efficiency = useful ÷ input × 100, so for 60% the useful output must be 0.6 × the input.";
+        if(window.Progress) Progress.miss();
+      }
+    });
+  });
+  </script>
+
+  <!-- WP-10 — live energy-balance model -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.WidgetKit) return;
+    var root = document.getElementById("balSim");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+    var INPUT = 1000, SCALE = 1500, lastTotal = 0;
+
+    function render(s){
+      var Eu = s.Eu, Ew = s.Ew, total = Eu + Ew;
+      lastTotal = total;
+      $("bal-useful").style.width = (Eu / SCALE * 100).toFixed(1) + "%";
+      $("bal-wasted").style.width = (Ew / SCALE * 100).toFixed(1) + "%";
+      $("bal-useful").textContent = Eu >= 250 ? "useful " + Eu : "";
+      $("bal-wasted").textContent = Ew >= 250 ? "wasted " + Ew : "";
+      var st = $("bal-status");
+      if(total === INPUT){ st.className = "bal-status ok"; st.textContent = "✓ Balanced — the outputs add up to the 1000 J input."; }
+      else if(total < INPUT){ st.className = "bal-status off"; st.textContent = "Total out " + total + " J — short by " + (INPUT - total) + " J. Energy can't vanish; where does the rest go?"; }
+      else { st.className = "bal-status off"; st.textContent = "Total out " + total + " J — over by " + (total - INPUT) + " J. Energy can't be created."; }
+    }
+
+    window.WidgetKit.liveSim(root, { render: render });
+
+    var fb = $("bal-fb");
+    $("bal-check").addEventListener("click", function(){
+      if(lastTotal === INPUT){
+        fb.className = "kit-fb ok";
+        fb.textContent = "✓ Useful + wasted = 1000 J = the input. That's conservation of energy: every joule in is accounted for.";
+        if(window.Progress) Progress.complete("ch-energy-balance");
+      } else {
+        fb.className = "kit-fb no";
+        fb.textContent = "✗ The outputs add up to " + lastTotal + " J, not 1000 J. Adjust them so useful + wasted = the input exactly.";
         if(window.Progress) Progress.miss();
       }
     });
