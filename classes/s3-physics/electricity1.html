@@ -350,6 +350,23 @@ layout: none
 .ohm-picks { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.6rem; }
 .ohm-picks button { min-height:44px; padding:.5rem .9rem; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
 .ohm-picks button[aria-pressed=true] { border-color:var(--accent); background:var(--surface-2); }
+
+/* ===== Meter drag-place (WP-5) ===== */
+.meter-tokens { display:flex; gap:.5rem; flex-wrap:wrap; margin:.5rem 0; }
+.meter-token { min-height:44px; padding:.5rem .9rem; border:1px solid var(--accent); border-radius:10px; background:var(--card); color:var(--accent); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.meter-token[aria-pressed=true] { background:var(--accent); color:#fff; }
+.meter-token:disabled { opacity:.45; cursor:default; }
+.meter-slots { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin:.6rem 0; }
+.meter-slot { min-height:74px; border:2px dashed var(--border); border-radius:12px; background:var(--card); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.25rem; padding:.5rem; text-align:center; font-weight:900; color:var(--text); cursor:pointer; }
+.meter-slot .slot-label { font-size:.78rem; font-weight:800; color:var(--muted); }
+.meter-slot.is-filled { border-style:solid; border-color:var(--accent); }
+.meter-slot.is-ok { border-color:var(--good); background:rgba(21,128,61,.10); }
+.meter-slot.is-no { border-color:var(--warm); background:rgba(194,65,12,.10); }
+.meter-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.3rem; }
+.meter-actions button { min-height:44px; padding:.5rem 1rem; border-radius:10px; font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+#meter-check { border:1px solid var(--accent); background:var(--accent); color:#fff; }
+#meter-reset { border:1px solid var(--border); background:var(--card); color:var(--text); }
+@media (max-width:480px){ .meter-slots { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -665,6 +682,42 @@ layout: none
       <p>An <strong>ammeter</strong> goes <span class="right">in series</span> (in the line, so all the current flows through it).</p>
       <p>A <strong>voltmeter</strong> goes <span class="right">in parallel</span> — across the component.</p>
       <p><span class="wrong">Don't</span> put the ammeter across a component, and <span class="wrong">don't</span> put the voltmeter in the main line — a voltmeter has very high resistance and would block the current.</p>
+    </div>
+
+    <div class="widget" id="meterPlace" data-prog-challenge="ch-meter-place">
+      <h3>🧲 Place the meters — drag or tap</h3>
+      <p class="hint">Tap a meter, then tap a position (or drag it across). Press <strong>Check</strong> — a wrong place shows what really happens to the circuit.</p>
+      <div class="meter-tokens">
+        <button class="meter-token" type="button" data-token="ammeter">Ammeter (A)</button>
+        <button class="meter-token" type="button" data-token="voltmeter">Voltmeter (V)</button>
+      </div>
+      <div class="meter-slots">
+        <div class="meter-slot" data-slot data-accept="ammeter" data-label="In the main line" data-placeholder="drop a meter" tabindex="0">
+          <span class="slot-label">① In the main line</span>
+          <span data-slot-face>—</span>
+        </div>
+        <div class="meter-slot" data-slot data-accept="voltmeter" data-label="Across the lamp" data-placeholder="drop a meter" tabindex="0">
+          <span class="slot-label">② Across the lamp</span>
+          <span data-slot-face>—</span>
+        </div>
+      </div>
+      <div class="csim-stage">
+        <svg viewBox="0 0 240 130" role="img" aria-label="A simple circuit whose lamp lights only when the meters are placed correctly">
+          <defs><filter id="meter-blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>
+          <path class="csim-wire" d="M30,30 L210,30 L210,105 L30,105 L30,78 M30,58 L30,30"/>
+          <line class="csim-cell-long" x1="18" y1="58" x2="42" y2="58"/>
+          <line class="csim-cell-short" x1="24" y1="78" x2="36" y2="78"/>
+          <circle class="csim-lamp-glow" id="meter-bulb-glow" cx="120" cy="30" r="13" fill-opacity="0.08" filter="url(#meter-blur)"/>
+          <circle class="csim-lamp-ring" cx="120" cy="30" r="11"/>
+          <line class="csim-lamp-x" x1="112.2" y1="22.2" x2="127.8" y2="37.8"/>
+          <line class="csim-lamp-x" x1="127.8" y1="22.2" x2="112.2" y2="37.8"/>
+        </svg>
+      </div>
+      <div class="meter-actions">
+        <button type="button" id="meter-check">Check</button>
+        <button type="button" id="meter-reset">Reset</button>
+      </div>
+      <p class="csim-fb" id="meter-fb" data-kit-status role="status" aria-live="polite"></p>
     </div>
 
     <div class="widget" data-prog-challenge="ch-predict-parallel">
@@ -2654,6 +2707,44 @@ document.addEventListener("DOMContentLoaded", function(){
         if(window.Progress) Progress.miss();
       }
     });
+  });
+});
+</script>
+
+<!-- WP-5 — drag-to-place the meters -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("meterPlace");
+  if(!root) return;
+  var glow = document.getElementById("meter-bulb-glow");
+  var fb = document.getElementById("meter-fb");
+
+  function validate(s){
+    var main = s[0], across = s[1];
+    var perSlot = [ main==="ammeter", across==="voltmeter" ];
+    var ok = perSlot[0] && perSlot[1];
+    var msg;
+    if(ok){ msg = "Correct! The ammeter sits in the line (it measures the current through it); the voltmeter sits across the lamp (it measures the voltage). The lamp lights."; }
+    else if(main==="voltmeter"){ msg = "No current — a voltmeter's very high resistance blocks the main line, so the lamp stays dark."; }
+    else if(across==="ammeter"){ msg = "Risky — an ammeter has almost no resistance, so placed across the lamp it short-circuits it."; }
+    else { msg = "Not quite — the ammeter goes in the main line; the voltmeter goes across the lamp."; }
+    return { ok:ok, perSlot:perSlot, msg:msg };
+  }
+
+  function light(on){ glow.setAttribute("fill-opacity", on ? "1" : "0.08"); }
+
+  var api = window.WidgetKit.dragPlace(root, { validate: validate });
+
+  document.getElementById("meter-check").addEventListener("click", function(){
+    var r = api.check();
+    if(!r || r.msg === "empty"){ fb.className = "csim-fb"; light(false); return; }
+    fb.className = "csim-fb " + (r.ok ? "ok" : "no");
+    light(r.ok);
+    if(window.Progress){ r.ok ? Progress.complete("ch-meter-place") : Progress.miss(); }
+  });
+  document.getElementById("meter-reset").addEventListener("click", function(){
+    api.reset(); fb.className = "csim-fb"; light(false);
   });
 });
 </script>
