@@ -17,6 +17,7 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
+  <script src="/assets/js/widget-kit.js" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20260624a">
 
   <style>
@@ -462,6 +463,31 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     .sticky-prog.complete{ border-color:var(--good); }
     .sticky-prog .sp-ico{ font-size:1.05rem; }
     @media (max-width:380px){ .sticky-prog{ font-size:.82rem; padding:.45rem .7rem; } }
+
+    /* ===== Runnable control loop (WP-6) ===== */
+    .loop-row { display:grid; grid-template-columns:auto 1fr 4rem; align-items:center; gap:.6rem; margin:.5rem 0; }
+    .loop-row > label { font-weight:900; font-size:.9rem; color:var(--eng-text); min-width:6rem; }
+    .loop-row input[type=range] { width:100%; accent-color:var(--eng-orange); min-height:32px; }
+    .loop-row output { font-weight:900; color:var(--eng-text); text-align:center; }
+    .loop-controls { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.6rem 0; }
+    .loop-toggle { display:inline-flex; gap:.3rem; padding:.25rem; border:1px solid var(--eng-border); border-radius:12px; background:var(--eng-surface); }
+    .loop-toggle button { min-height:40px; padding:.4rem .9rem; border:0; border-radius:9px; background:transparent; color:var(--eng-muted); font-weight:900; font-family:inherit; cursor:pointer; }
+    .loop-toggle button[aria-pressed=true] { background:var(--eng-orange); color:#111; }
+    .loop-disturb { min-height:44px; padding:.5rem 1rem; border:1px solid var(--eng-border); border-radius:10px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; font-family:inherit; cursor:pointer; }
+    .loop-stage { border:1px solid var(--eng-border); border-radius:12px; background:var(--eng-surface); padding:.5rem; }
+    .loop-stage svg { width:100%; height:auto; display:block; }
+    .loop-line { fill:none; stroke:var(--eng-orange); stroke-width:2.5; stroke-linejoin:round; stroke-linecap:round; }
+    .loop-sp { stroke:var(--eng-muted); stroke-width:1.4; stroke-dasharray:5 4; }
+    .loop-axis { stroke:var(--eng-border); stroke-width:1; }
+    .loop-axis-txt { fill:var(--eng-muted); font-size:10px; font-weight:800; font-family:inherit; }
+    .loop-readouts { display:flex; flex-wrap:wrap; gap:8px; margin:.6rem 0 0; }
+    .loop-stat { flex:1; min-width:88px; text-align:center; padding:.5rem .4rem; border:1px solid var(--eng-border); border-radius:12px; background:var(--eng-surface-2); }
+    .loop-stat b { display:block; font-size:1.05rem; font-weight:900; color:var(--eng-text); }
+    .loop-stat span { display:block; font-size:.72rem; font-weight:800; color:var(--eng-muted); margin-top:.1rem; }
+    .loop-heater-on { color:var(--bad); } .loop-heater-off { color:var(--eng-muted); }
+    .loop-status { text-align:center; font-weight:900; font-size:.9rem; margin:.5rem 0 0; min-height:1.2em; }
+    .loop-status.ok { color:var(--good); }
+    @media (max-width:520px){ .loop-row { grid-template-columns:1fr; gap:.25rem; } .loop-row > label { min-width:0; } }
   </style>
 </head>
 
@@ -1127,6 +1153,40 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
         </div>
         <div class="btnrow"><button class="btn primary" type="button" data-check>Check diagram</button><button class="btn" type="button" data-clear>Reset</button></div>
         <div class="score" data-out aria-live="polite"></div>
+      </div>
+
+      <div class="widget" id="loopSim" data-prog-challenge="ch-loop-stabilise">
+        <h3>♨️ Run the control loop — feedback on or off</h3>
+        <p class="hint">This is the central-heating loop actually running. With <strong>feedback on</strong>, the thermostat watches the temperature and holds it at the set value. Turn feedback <strong>off</strong> (open loop) and it just heats blindly. Hit “Cold draught” to disturb it and see which one recovers.</p>
+        <div class="loop-row">
+          <label for="loop-sp">Set value</label>
+          <input type="range" id="loop-sp" data-sim="SP" min="16" max="24" step="1" value="20" aria-label="Set value temperature in degrees Celsius">
+          <output id="loop-sp-out">20 °C</output>
+        </div>
+        <div class="loop-controls">
+          <div class="loop-toggle" role="group" aria-label="Feedback control">
+            <button type="button" data-sim-toggle="fb" data-value="on" aria-pressed="true">Feedback ON</button>
+            <button type="button" data-sim-toggle="fb" data-value="off" aria-pressed="false">Feedback OFF</button>
+          </div>
+          <button type="button" class="loop-disturb" id="loop-disturb">❄ Cold draught</button>
+        </div>
+        <div class="loop-stage">
+          <svg viewBox="0 0 320 150" role="img" aria-label="Temperature against time, with the set value shown as a dashed line">
+            <line class="loop-axis" x1="34" y1="130" x2="312" y2="130"/>
+            <line class="loop-axis" x1="34" y1="14" x2="34" y2="130"/>
+            <line class="loop-sp" id="loop-sp-line" x1="34" y1="70" x2="312" y2="70"/>
+            <polyline class="loop-line" id="loop-poly" points=""/>
+            <text class="loop-axis-txt" x="40" y="24" id="loop-sp-label">set 20°C</text>
+            <text class="loop-axis-txt" x="270" y="143">time →</text>
+          </svg>
+        </div>
+        <div class="loop-readouts" aria-live="polite">
+          <div class="loop-stat"><b id="loop-temp">—</b><span>Temperature (°C)</span></div>
+          <div class="loop-stat"><b id="loop-heater">—</b><span>Heater</span></div>
+          <div class="loop-stat"><b id="loop-mode">—</b><span>Control</span></div>
+        </div>
+        <p class="loop-status" id="loop-status" role="status" aria-live="polite"></p>
+        <p class="hint" style="margin:.3rem 0 0;">Challenge: with feedback <strong>on</strong>, hit “Cold draught” and let the loop bring the temperature back to the set value.</p>
       </div>
 
       <div class="practice">
@@ -1836,6 +1896,83 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     })();
 
   })();
+  </script>
+
+  <!-- WP-6 — runnable closed-loop control sim -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.WidgetKit) return;
+    var root = document.getElementById("loopSim");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+
+    var Tamb = 10, heatRate = 11, lossCoef = 0.6, Kp = 2, SPEED = 3;
+    var T = 20, SP = 20, fbOn = true;
+    var MAXN = 90, samples = [], sampleAcc = 0;
+    var disturbedArmed = false, stableTimer = 0, doneFired = false;
+
+    function mapY(t){ var lo = 6, hi = 34, c = Math.max(lo, Math.min(hi, t)); return 130 - (c - lo) / (hi - lo) * (130 - 14); }
+    function mapX(i){ return 34 + (i / (MAXN - 1)) * (312 - 34); }
+
+    function render(s){
+      SP = s.SP; fbOn = (s.fb === "on");
+      $("loop-sp-out").textContent = SP + " °C";
+      var y = mapY(SP);
+      $("loop-sp-line").setAttribute("y1", y); $("loop-sp-line").setAttribute("y2", y);
+      $("loop-sp-label").textContent = "set " + SP + "°C";
+      $("loop-sp-label").setAttribute("y", Math.max(12, y - 4));
+      $("loop-mode").textContent = fbOn ? "closed loop" : "open loop";
+    }
+    window.WidgetKit.liveSim(root, { render: render });
+
+    $("loop-disturb").addEventListener("click", function(){
+      T = Math.max(6, T - 7);
+      if(fbOn && !doneFired){ disturbedArmed = true; stableTimer = 0; }
+      var st = $("loop-status"); st.className = "loop-status"; st.textContent = "Cold draught! Temperature dropped — watch the loop respond.";
+    });
+
+    function drawGraph(){
+      var pts = [];
+      for(var i = 0; i < samples.length; i++){ pts.push(mapX(i) + "," + mapY(samples[i]).toFixed(1)); }
+      $("loop-poly").setAttribute("points", pts.join(" "));
+    }
+
+    function step(dt){
+      var err = SP - T;
+      var duty = fbOn ? Math.max(0, Math.min(1, Kp * err)) : 1;
+      T += heatRate * duty * dt - lossCoef * (T - Tamb) * dt;
+      var heaterOn = duty > 0.05;
+      $("loop-temp").textContent = T.toFixed(1);
+      $("loop-heater").textContent = heaterOn ? "ON" : "off";
+      $("loop-heater").className = heaterOn ? "loop-heater-on" : "loop-heater-off";
+      sampleAcc += dt;
+      if(sampleAcc >= 0.06){ samples.push(T); if(samples.length > MAXN){ samples.shift(); } sampleAcc = 0; drawGraph(); }
+      if(disturbedArmed && fbOn && !doneFired){
+        if(Math.abs(T - SP) <= 0.4){ stableTimer += dt; } else { stableTimer = 0; }
+        if(stableTimer >= 1.2){
+          doneFired = true; disturbedArmed = false;
+          var st = $("loop-status"); st.className = "loop-status ok";
+          st.textContent = "✓ Stabilised — feedback brought the temperature back to the set value. That's closed-loop control.";
+          if(window.Progress) Progress.complete("ch-loop-stabilise");
+        }
+      }
+    }
+
+    for(var i = 0; i < MAXN; i++){ samples.push(T); }
+    drawGraph();
+
+    if(window.WidgetKit.reducedMotion()){
+      setInterval(function(){ step(0.25); }, 400);
+    } else {
+      var last = 0;
+      (function raf(ts){
+        if(!last){ last = ts; }
+        var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+        step(dt * SPEED);
+        requestAnimationFrame(raf);
+      })(0);
+    }
+  });
   </script>
 </body>
 </html>
