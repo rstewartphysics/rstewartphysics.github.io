@@ -92,15 +92,24 @@
 
     // toggles (button group via aria-pressed, or radios)
     var toggles = [].slice.call(root.querySelectorAll("[data-sim-toggle]"));
-    var toggleKeys = {};
+    // seed initial value per key: a pressed/checked control wins, else the
+    // first control in DOM order (independent of where the pressed one sits)
+    var seed = {};
     toggles.forEach(function (el) {
       var key = el.getAttribute("data-sim-toggle");
       var val = el.getAttribute("data-value") || el.value;
-      if (toggleKeys[key] === undefined) {
-        // seed initial: pressed button or checked radio, else first
-        if ((el.getAttribute("aria-pressed") === "true") || el.checked) { state[key] = val; }
-        else if (!(key in state)) { state[key] = val; toggleKeys[key] = "seeded-first"; }
-      }
+      if (!(key in seed)) { seed[key] = val; }
+      if (el.getAttribute("aria-pressed") === "true" || el.checked) { seed[key] = val; }
+    });
+    Object.keys(seed).forEach(function (key) { if (!(key in state)) { state[key] = seed[key]; } });
+    // reconcile aria-pressed so the buttons visually match the seeded state
+    toggles.forEach(function (el) {
+      var key = el.getAttribute("data-sim-toggle");
+      var val = el.getAttribute("data-value") || el.value;
+      if (el.hasAttribute("aria-pressed")) { el.setAttribute("aria-pressed", state[key] === val ? "true" : "false"); }
+    });
+    toggles.forEach(function (el) {
+      var key = el.getAttribute("data-sim-toggle");
       var handler = function () {
         state[key] = el.getAttribute("data-value") || el.value;
         // reflect aria-pressed across the group
