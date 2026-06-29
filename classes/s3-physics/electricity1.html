@@ -340,6 +340,16 @@ layout: none
 .csim-fb.no { color:var(--bad, #d6336c); }
 @media (max-width:560px){ .csim-row { grid-template-columns:1fr; gap:.3rem; } .csim-row > label { min-width:0; } }
 @media (prefers-reduced-motion: reduce){ .csim-flow { stroke-dasharray:2 10; } }
+
+/* ===== V–I explorer (WP-4) ===== */
+.ohm-axis { stroke:var(--muted); stroke-width:1.6; stroke-linecap:round; }
+.ohm-grid { stroke:var(--border-soft); stroke-width:1; }
+.ohm-trace { stroke:var(--accent); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.ohm-dot { fill:var(--c-try); stroke:var(--card); stroke-width:1.5; }
+.ohm-axis-txt { fill:var(--muted); font-size:11px; font-weight:800; font-family:var(--font-stack); }
+.ohm-picks { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.6rem; }
+.ohm-picks button { min-height:44px; padding:.5rem .9rem; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.ohm-picks button[aria-pressed=true] { border-color:var(--accent); background:var(--surface-2); }
 </style>
 </head>
 <body>
@@ -1274,26 +1284,57 @@ layout: none
 
     <span class="step-label try">Try</span>
 
-    <div class="widget" data-prog-challenge="ch-graph">
-      <h3>Graph challenge — compare the gradients</h3>
-      <p class="hint">Both lines are V (up) against I (across). Remember the gradient = resistance.</p>
-      <svg viewBox="0 0 160 120" role="img" aria-label="Two straight lines from the origin: line A is steep, line B is shallow" style="width:100%; max-width:260px; display:block; margin:.3rem auto;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="20" y1="105" x2="150" y2="105"/>
-        <line x1="20" y1="105" x2="20" y2="10"/>
-        <line x1="20" y1="105" x2="70" y2="15" stroke="var(--accent)" stroke-width="3"/>
-        <text x="72" y="16" font-size="11" fill="var(--accent)" stroke="none" font-weight="700">A</text>
-        <line x1="20" y1="105" x2="145" y2="55" stroke="var(--c-check)" stroke-width="3"/>
-        <text x="148" y="55" font-size="11" fill="var(--c-check)" stroke="none" font-weight="700">B</text>
-        <text x="140" y="118" font-size="10" fill="currentColor" stroke="none">I</text>
-        <text x="6" y="16" font-size="10" fill="currentColor" stroke="none">V</text>
-      </svg>
-      <p style="font-weight:800; margin:.3rem 0;">Which resistor has the <strong>higher resistance</strong>?</p>
-      <div class="predict-btns" data-graph="1">
-        <button class="wbtn" type="button" data-ok="1">A — the steeper line</button>
-        <button class="wbtn" type="button" data-ok="0">B — the shallower line</button>
-        <button class="wbtn" type="button" data-ok="0">They are equal</button>
+    <div class="widget" id="ohmSim" data-prog-challenge="ch-graph-live">
+      <h3>📈 V–I explorer — draw the graph yourself</h3>
+      <p class="hint">Drag <strong>V</strong> and the line draws itself. Switch between a fixed resistor and a filament lamp — one stays straight, the other bends as it heats. The gradient (V ÷ I) is the resistance.</p>
+      <div class="csim">
+        <div class="csim-controls">
+          <div class="csim-row">
+            <label for="ohm-v">Voltage V</label>
+            <input type="range" id="ohm-v" data-sim="V" min="0" max="12" step="0.5" value="6" aria-label="Voltage in volts">
+            <input type="number" data-sim="V" min="0" max="12" step="0.5" value="6" aria-label="Voltage in volts (number)">
+          </div>
+          <div class="csim-row">
+            <label for="ohm-r">Resistance R (cold)</label>
+            <input type="range" id="ohm-r" data-sim="R" min="2" max="20" step="1" value="4" aria-label="Cold resistance in ohms">
+            <input type="number" data-sim="R" min="2" max="20" step="1" value="4" aria-label="Cold resistance in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label id="ohm-mode-lab">Component</label>
+            <div class="csim-toggle" role="group" aria-labelledby="ohm-mode-lab">
+              <button type="button" data-sim-toggle="comp" data-value="ohmic" aria-pressed="true">Fixed resistor</button>
+              <button type="button" data-sim-toggle="comp" data-value="lamp" aria-pressed="false">Filament lamp</button>
+            </div>
+          </div>
+        </div>
+        <div class="csim-stage">
+          <svg viewBox="0 0 230 180" role="img" aria-label="V against I graph that draws as you change the voltage">
+            <line class="ohm-grid" x1="35" y1="64" x2="215" y2="64"/>
+            <line class="ohm-grid" x1="35" y1="107" x2="215" y2="107"/>
+            <line class="ohm-grid" x1="95" y1="20" x2="95" y2="150"/>
+            <line class="ohm-grid" x1="155" y1="20" x2="155" y2="150"/>
+            <line class="ohm-axis" x1="35" y1="150" x2="215" y2="150"/>
+            <line class="ohm-axis" x1="35" y1="150" x2="35" y2="20"/>
+            <path class="ohm-trace" id="ohm-trace" d=""/>
+            <circle class="ohm-dot" id="ohm-dot" cx="35" cy="150" r="4.5"/>
+            <text class="ohm-axis-txt" x="205" y="166">I (A)</text>
+            <text class="ohm-axis-txt" x="12" y="26">V (V)</text>
+          </svg>
+        </div>
+        <div class="csim-readouts" aria-live="polite">
+          <div class="csim-stat"><b id="ohm-i">—</b><span>Current I (A)</span></div>
+          <div class="csim-stat"><b id="ohm-rnow">—</b><span>Resistance now (Ω)</span></div>
+          <div class="csim-stat"><b id="ohm-shape">—</b><span>Line shape</span></div>
+        </div>
+        <div class="csim-task">
+          <strong>Challenge:</strong> sweep V for <strong>both</strong> the fixed resistor and the lamp, then say which trace is <strong>ohmic</strong> (constant resistance — its gradient never changes).
+          <div class="ohm-picks" role="group" aria-label="Which trace is ohmic">
+            <button type="button" data-ohm-pick="line" aria-pressed="false">The straight line</button>
+            <button type="button" data-ohm-pick="curve" aria-pressed="false">The curve that steepens</button>
+          </div>
+          <p class="csim-fb" id="ohm-fb" role="status" aria-live="polite"></p>
+        </div>
       </div>
-      <p class="fb-line" id="graph-fb" aria-live="polite"></p>
     </div>
 
     <div class="widget" data-prog-challenge="ch-predict-r">
@@ -2277,10 +2318,6 @@ buildGAR();
       });
     });
   }
-  singlePick('[data-prog-challenge="ch-graph"]','graph-fb',
-    "Correct — steeper line = bigger gradient = higher resistance (gradient = R).",
-    "Not quite — the gradient is the resistance, so the steeper line (A) has the higher resistance.",
-    "ch-graph");
   singlePick('[data-prog-challenge="ch-error"]','err-fb',
     "Right — he flipped it. I = V ÷ R = 10 ÷ 2 = 5 A.",
     "Look again — current is I = V ÷ R = 10 ÷ 2 = 5 A, so 0.2 A is wrong because the formula was upside down.",
@@ -2560,6 +2597,63 @@ document.addEventListener("DOMContentLoaded", function(){
       setFb(false, "Not quite — in parallel each lamp gets the FULL supply voltage. Read the Lamp 1 / Lamp 2 voltage again.");
       if(window.Progress) Progress.miss();
     }
+  });
+});
+</script>
+
+<!-- WP-4 — live Ohm's-law explorer + V–I graph -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("ohmSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var trace = $("ohm-trace"), dot = $("ohm-dot");
+  var seen = { ohmic:false, lamp:false };
+
+  var X0=35, X1=215, Y0=150, Y1=20, IMAX=6, VMAX=12;
+  function mapX(I){ return X0 + (Math.max(0,Math.min(IMAX,I))/IMAX)*(X1-X0); }
+  function mapY(V){ return Y0 - (Math.max(0,Math.min(VMAX,V))/VMAX)*(Y0-Y1); }
+  function Iof(V,R,comp){ return comp==="lamp" ? V/(R*(1+1.5*V/VMAX)) : V/R; }
+  function Rof(V,R,comp){ return comp==="lamp" ? R*(1+1.5*V/VMAX) : R; }
+
+  function render(s){
+    var V=s.V, R=s.R, comp=s.comp;
+    seen[comp] = true;
+    var n=24, d="";
+    for(var i=0;i<=n;i++){
+      var u = V*i/n, Iu = Iof(u,R,comp);
+      d += (i?" L":"M") + mapX(Iu).toFixed(1) + "," + mapY(u).toFixed(1);
+    }
+    trace.setAttribute("d", d);
+    var Iv = Iof(V,R,comp);
+    dot.setAttribute("cx", mapX(Iv).toFixed(1));
+    dot.setAttribute("cy", mapY(V).toFixed(1));
+    $("ohm-i").textContent = Iv.toFixed(2);
+    $("ohm-rnow").textContent = Rof(V,R,comp).toFixed(1);
+    $("ohm-shape").textContent = comp==="lamp" ? "curved" : "straight";
+  }
+
+  window.WidgetKit.liveSim(root, { render: render });
+
+  var fb = $("ohm-fb");
+  function setFb(ok, msg){ fb.className = "csim-fb " + (ok?"ok":"no"); fb.textContent = (ok?"✓ ":"✗ ")+msg; }
+  [].forEach.call(root.querySelectorAll("[data-ohm-pick]"), function(btn){
+    btn.addEventListener("click", function(){
+      if(!(seen.ohmic && seen.lamp)){
+        fb.className="csim-fb no";
+        fb.textContent="Sweep V for both the fixed resistor AND the lamp first, so you can compare the two traces.";
+        return;
+      }
+      [].forEach.call(root.querySelectorAll("[data-ohm-pick]"), function(b){ b.setAttribute("aria-pressed", b===btn ? "true":"false"); });
+      if(btn.getAttribute("data-ohm-pick")==="line"){
+        setFb(true, "Correct — the fixed resistor gives a straight line: its gradient (V ÷ I = R) is constant, so it's ohmic. The lamp's line bends because its resistance rises as it heats.");
+        if(window.Progress) Progress.complete("ch-graph-live");
+      } else {
+        setFb(false, "Not quite — the ohmic component keeps a constant gradient, which is the straight line. The curve steepens because the lamp's resistance changes.");
+        if(window.Progress) Progress.miss();
+      }
+    });
   });
 });
 </script>
