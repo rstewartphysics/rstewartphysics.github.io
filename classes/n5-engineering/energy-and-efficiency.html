@@ -17,6 +17,7 @@ title: Energy & Efficiency — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
+  <script src="/assets/js/widget-kit.js" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20260624a">
 
   <style>
@@ -397,6 +398,27 @@ title: Energy & Efficiency — National 5 Engineering Science
     @media (prefers-reduced-motion: reduce) {
       * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
     }
+
+    /* ===== Live efficiency + Sankey (WP-2) / energy-balance (WP-10) / calc gen (WP-11) ===== */
+    .kit-row { display:grid; grid-template-columns:auto 1fr 4.5rem; align-items:center; gap:.6rem; margin:.5rem 0; }
+    .kit-row > label { font-weight:900; font-size:.9rem; color:var(--eng-text); min-width:7rem; }
+    .kit-row input[type=range] { width:100%; accent-color:var(--eng-orange); min-height:32px; }
+    .kit-row input[type=number] { width:100%; min-height:40px; padding:.3rem .4rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
+    .effsim-readout { text-align:center; margin:.4rem 0 .2rem; }
+    .effsim-readout b { font-size:1.8rem; font-weight:900; color:var(--eng-orange); line-height:1.1; }
+    .effsim-readout span { display:block; font-size:.78rem; font-weight:800; color:var(--eng-muted); }
+    .effsim-bar { display:flex; height:36px; border-radius:10px; overflow:hidden; border:1px solid var(--eng-border); background:var(--eng-surface); margin:.55rem 0 .2rem; }
+    .effsim-seg { display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.8rem; white-space:nowrap; overflow:hidden; transition:width .25s ease; }
+    .effsim-useful { background:#2e8b57; color:#fff; }
+    .effsim-wasted { background:#e0a106; color:#1a1205; }
+    @media (prefers-reduced-motion: reduce){ .effsim-seg { transition:none; } }
+    .kit-task { margin-top:.8rem; border:1px solid var(--eng-border); border-left:5px solid var(--eng-orange); border-radius:12px; background:var(--eng-surface-2); padding:.7rem .9rem; }
+    .kit-task .kit-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.5rem; }
+    .kit-task input[type=number] { width:5.5rem; min-height:40px; padding:.3rem .4rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
+    .kit-task button { min-height:44px; padding:.5rem 1rem; border:1px solid var(--eng-orange); border-radius:10px; background:var(--eng-orange); color:#111; font-weight:900; font-family:inherit; cursor:pointer; }
+    .kit-fb { margin:.55rem 0 0; font-weight:900; font-size:.9rem; min-height:1.2em; }
+    .kit-fb.ok { color:var(--good); } .kit-fb.no { color:var(--bad); }
+    @media (max-width:520px){ .kit-row { grid-template-columns:1fr; gap:.25rem; } .kit-row > label { min-width:0; } }
   </style>
 </head>
 
@@ -895,6 +917,32 @@ title: Energy & Efficiency — National 5 Engineering Science
         </svg>
         <figcaption>Useful + wasted = input: 168 000 + 32 000 = 200 000 J. Efficiency = (168 000 ÷ 200 000) × 100 = 84%.</figcaption>
       </figure>
+
+      <div class="widget" id="effSim" data-prog-challenge="ch-efficiency-target">
+        <h3>⚡ Efficiency explorer — live</h3>
+        <p class="hint">Drag the input and useful energy. The efficiency and the energy bar (green = useful, amber = wasted) update instantly. Useful output can never beat the input.</p>
+        <div class="kit-row">
+          <label for="eff-in">Input energy (J)</label>
+          <input type="range" id="eff-in" data-sim="Ein" min="200" max="1000" step="50" value="1000" aria-label="Input energy in joules">
+          <input type="number" data-sim="Ein" min="200" max="1000" step="50" value="1000" aria-label="Input energy in joules (number)">
+        </div>
+        <div class="kit-row">
+          <label for="eff-out">Useful output (J)</label>
+          <input type="range" id="eff-out" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules">
+          <input type="number" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules (number)">
+        </div>
+        <div class="effsim-readout"><b id="eff-pct">—</b><span>efficiency = useful ÷ input × 100</span></div>
+        <div class="effsim-bar" role="img" aria-describedby="eff-desc">
+          <div class="effsim-seg effsim-useful" id="eff-useful"></div>
+          <div class="effsim-seg effsim-wasted" id="eff-wasted"></div>
+        </div>
+        <p id="eff-desc" class="effsim-readout" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
+        <div class="kit-task">
+          <strong>Challenge:</strong> set the device to <strong>60% efficient</strong> (within ±2%).
+          <div class="kit-actions"><button type="button" id="eff-check">Check</button></div>
+          <p class="kit-fb" id="eff-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
 
       <h3>Comparing solutions — the "choose the better one" question <span class="badge exam" title="Compare-and-recommend with efficiency calculations is a common extended question">Exam</span></h3>
       <p class="lead">A common exam task gives you two options and asks you to <strong>recommend</strong> one. Calculate each efficiency, then back your choice with the numbers <strong>and</strong> another reason (cost, lifetime, environment).</p>
@@ -1404,6 +1452,47 @@ title: Energy & Efficiency — National 5 Engineering Science
       });
     });
   })();
+  </script>
+
+  <!-- WP-2 — live efficiency + Sankey -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.WidgetKit) return;
+    var root = document.getElementById("effSim");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+    var lastEff = 0;
+
+    function render(s){
+      var Ein = Math.max(1, s.Ein);
+      var useful = Math.min(s.Eout, Ein);
+      var wasted = Ein - useful;
+      var eff = useful / Ein * 100;
+      lastEff = eff;
+      $("eff-pct").textContent = eff.toFixed(0) + "%";
+      $("eff-useful").style.width = eff.toFixed(1) + "%";
+      $("eff-wasted").style.width = (100 - eff).toFixed(1) + "%";
+      $("eff-useful").textContent = eff >= 18 ? "useful " + eff.toFixed(0) + "%" : "";
+      $("eff-wasted").textContent = (100 - eff) >= 18 ? "wasted " + (100 - eff).toFixed(0) + "%" : "";
+      var capped = s.Eout > Ein ? " (useful capped at the input)" : "";
+      $("eff-desc").textContent = "Useful " + useful + " J · wasted " + wasted + " J · " + eff.toFixed(0) + "% efficient" + capped;
+    }
+
+    window.WidgetKit.liveSim(root, { render: render });
+
+    var fb = $("eff-fb");
+    $("eff-check").addEventListener("click", function(){
+      if(Math.abs(lastEff - 60) <= 2){
+        fb.className = "kit-fb ok";
+        fb.textContent = "✓ " + lastEff.toFixed(0) + "% — that's 60% efficient: 60% of the input becomes useful energy and 40% is wasted, usually as heat and sound.";
+        if(window.Progress) Progress.complete("ch-efficiency-target");
+      } else {
+        fb.className = "kit-fb no";
+        fb.textContent = "✗ " + lastEff.toFixed(0) + "% — aim for 60%. Efficiency = useful ÷ input × 100, so for 60% the useful output must be 0.6 × the input.";
+        if(window.Progress) Progress.miss();
+      }
+    });
+  });
   </script>
 </body>
 </html>
