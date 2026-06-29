@@ -427,6 +427,14 @@ title: Energy & Efficiency — National 5 Engineering Science
     .kit-fb { margin:.55rem 0 0; font-weight:900; font-size:.9rem; min-height:1.2em; }
     .kit-fb.ok { color:var(--good); } .kit-fb.no { color:var(--bad); }
     @media (max-width:520px){ .kit-row { grid-template-columns:1fr; gap:.25rem; } .kit-row > label { min-width:0; } }
+    .gen-q { font-weight:900; color:var(--eng-text); font-size:1rem; margin:.3rem 0; }
+    .gen-given { font-family:"Times New Roman", Times, Georgia, serif; font-size:1.05rem; color:var(--eng-text); margin:.25rem 0; }
+    .gen-given var { font-style:italic; }
+    .gen-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.5rem; }
+    .gen-actions input[type=number] { width:7rem; min-height:44px; padding:.3rem .5rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
+    .gen-actions button { min-height:44px; padding:.5rem 1rem; border-radius:10px; font-weight:900; font-family:inherit; cursor:pointer; }
+    #gen-check { border:1px solid var(--eng-orange); background:var(--eng-orange); color:#111; }
+    #gen-new { border:1px solid var(--eng-border); background:var(--eng-surface); color:var(--eng-text); }
   </style>
 </head>
 
@@ -708,6 +716,21 @@ title: Energy & Efficiency — National 5 Engineering Science
         <div class="eq-card"><div class="eq-name">Electrical energy</div><div class="eq-formula"><var>E</var><sub>e</sub> = <var>V</var> <var>I</var> <var>t</var></div><div class="eq-desc">voltage × current × time · J, V, A, s</div></div>
         <div class="eq-card"><div class="eq-name">Heat energy</div><div class="eq-formula"><var>E</var><sub>h</sub> = <var>c</var> <var>m</var> <var>ΔT</var></div><div class="eq-desc">spec. heat × mass × temp change</div></div>
         <div class="eq-card"><div class="eq-name">Power</div><div class="eq-formula"><var>P</var> = <span class="frac" aria-label="E over t"><span class="fr-n"><var>E</var></span><span class="fr-d"><var>t</var></span></span></div><div class="eq-desc">energy ÷ time · W, J, s</div></div>
+      </div>
+
+      <div class="widget" id="calcGen" data-prog-challenge="ch-energy-calc">
+        <h3>🎲 Calculation practice — endless questions</h3>
+        <p class="hint">A fresh energy calculation each time. Work it out (watch the units!), type the answer in joules, then check. Get one right to register this challenge.</p>
+        <p class="gen-q" id="gen-q" aria-live="polite">Loading…</p>
+        <p class="gen-given" id="gen-given"></p>
+        <div class="gen-actions">
+          <label for="gen-ans" class="visually-hidden">Your answer in joules</label>
+          <input type="number" id="gen-ans" inputmode="decimal" step="any" placeholder="answer" aria-label="Your answer in joules">
+          <span>J</span>
+          <button type="button" id="gen-check">Check</button>
+          <button type="button" id="gen-new">New question</button>
+        </div>
+        <p class="kit-fb" id="gen-fb" role="status" aria-live="polite"></p>
       </div>
 
       <h3>Work done — <var>E</var><sub>w</sub> = <var>F</var> <var>d</var></h3>
@@ -1564,6 +1587,59 @@ title: Energy & Efficiency — National 5 Engineering Science
         if(window.Progress) Progress.miss();
       }
     });
+  });
+  </script>
+
+  <!-- WP-11 — scored energy-calculation generator -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    var root = document.getElementById("calcGen");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+    function rint(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+    function half(a,b){ return a + Math.floor(Math.random()*((b-a)/0.5+1))*0.5; }
+
+    var GENS = [
+      function(){ var V=rint(3,12), I=half(0.5,5), t=rint(1,12)*10;
+        return { html:"<strong>Electrical energy.</strong> A component runs at "+V+" V, drawing "+I+" A, for "+t+" s. Calculate the electrical energy.",
+          given:"<var>E</var><sub>e</sub> = <var>V</var> <var>I</var> <var>t</var> = "+V+" × "+I+" × "+t, ans:V*I*t }; },
+      function(){ var m=half(0.5,5), v=rint(2,15);
+        return { html:"<strong>Kinetic energy.</strong> A mass of "+m+" kg moves at "+v+" m/s. Calculate its kinetic energy.",
+          given:"<var>E</var><sub>k</sub> = ½ <var>m</var> <var>v</var>² = ½ × "+m+" × "+v+"²", ans:0.5*m*v*v }; },
+      function(){ var m=rint(1,20), h=rint(1,10);
+        return { html:"<strong>Potential energy.</strong> A "+m+" kg load is raised "+h+" m (g = 9.8 N/kg). Calculate the gravitational potential energy.",
+          given:"<var>E</var><sub>p</sub> = <var>m</var> <var>g</var> <var>h</var> = "+m+" × 9.8 × "+h, ans:m*9.8*h }; },
+      function(){ var c=[500,900,4180][rint(0,2)], m=half(0.5,3), dT=rint(1,8)*5;
+        return { html:"<strong>Heat energy.</strong> "+m+" kg of a material (c = "+c+" J/kg°C) is heated by "+dT+" °C. Calculate the heat energy.",
+          given:"<var>E</var><sub>h</sub> = <var>c</var> <var>m</var> <var>ΔT</var> = "+c+" × "+m+" × "+dT, ans:c*m*dT }; }
+    ];
+
+    var cur = null;
+    function fmt(x){ return Math.round(x*100)/100; }
+    function newQ(){
+      cur = GENS[rint(0, GENS.length-1)]();
+      $("gen-q").innerHTML = cur.html;
+      $("gen-given").innerHTML = cur.given + " = ?";
+      $("gen-ans").value = "";
+      $("gen-fb").className = "kit-fb"; $("gen-fb").textContent = "";
+    }
+    $("gen-new").addEventListener("click", newQ);
+    $("gen-check").addEventListener("click", function(){
+      var v = parseFloat($("gen-ans").value);
+      var fb = $("gen-fb");
+      if(isNaN(v)){ fb.className = "kit-fb"; fb.textContent = "Type your answer (in joules) first."; return; }
+      var tol = Math.max(0.5, cur.ans*0.01);
+      if(Math.abs(v - cur.ans) <= tol){
+        fb.className = "kit-fb ok";
+        fb.textContent = "✓ Correct — " + fmt(cur.ans) + " J. Tap “New question” for another.";
+        if(window.Progress) Progress.complete("ch-energy-calc");
+      } else {
+        fb.className = "kit-fb no";
+        fb.textContent = "✗ Not quite — the answer is " + fmt(cur.ans) + " J. Check your working, then try a new one.";
+        if(window.Progress) Progress.miss();
+      }
+    });
+    newQ();
   });
   </script>
 </body>
