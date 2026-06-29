@@ -17,6 +17,7 @@ title: Energy & Efficiency — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
+  <script src="/assets/js/widget-kit.js" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20260624a">
 
   <style>
@@ -397,6 +398,43 @@ title: Energy & Efficiency — National 5 Engineering Science
     @media (prefers-reduced-motion: reduce) {
       * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
     }
+
+    /* ===== Live efficiency + Sankey (WP-2) / energy-balance (WP-10) / calc gen (WP-11) ===== */
+    .kit-row { display:grid; grid-template-columns:auto 1fr 4.5rem; align-items:center; gap:.6rem; margin:.5rem 0; }
+    .kit-row > label { font-weight:900; font-size:.9rem; color:var(--eng-text); min-width:7rem; }
+    .kit-row input[type=range] { width:100%; accent-color:var(--eng-orange); min-height:32px; }
+    .kit-row input[type=number] { width:100%; min-height:40px; padding:.3rem .4rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
+    .effsim-readout { text-align:center; margin:.4rem 0 .2rem; }
+    .effsim-readout b { font-size:1.8rem; font-weight:900; color:var(--eng-orange); line-height:1.1; }
+    .effsim-readout span { display:block; font-size:.78rem; font-weight:800; color:var(--eng-muted); }
+    .effsim-bar { display:flex; height:36px; border-radius:10px; overflow:hidden; border:1px solid var(--eng-border); background:var(--eng-surface); margin:.55rem 0 .2rem; }
+    .effsim-seg { display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.8rem; white-space:nowrap; overflow:hidden; transition:width .25s ease; }
+    .effsim-useful { background:#2e8b57; color:#fff; }
+    .effsim-wasted { background:#e0a106; color:#1a1205; }
+    @media (prefers-reduced-motion: reduce){ .effsim-seg { transition:none; } }
+    .bal-track { position:relative; height:34px; border:1px solid var(--eng-border); border-radius:10px; background:var(--eng-surface); overflow:visible; margin:1.3rem 0 .2rem; }
+    .bal-track .bal-fill { border-radius:9px; overflow:hidden; }
+    .bal-fill { display:flex; height:100%; }
+    .bal-fill .effsim-seg { font-size:.78rem; }
+    .bal-target { position:absolute; top:-3px; bottom:-3px; width:3px; background:var(--eng-text); }
+    .bal-target::after { content:"input"; position:absolute; top:-1.1rem; left:50%; transform:translateX(-50%); font-size:.66rem; font-weight:900; color:var(--eng-text); white-space:nowrap; }
+    .bal-status { text-align:center; font-weight:900; font-size:.9rem; margin:.5rem 0 0; }
+    .bal-status.ok { color:var(--good); } .bal-status.off { color:var(--bad); }
+    .kit-task { margin-top:.8rem; border:1px solid var(--eng-border); border-left:5px solid var(--eng-orange); border-radius:12px; background:var(--eng-surface-2); padding:.7rem .9rem; }
+    .kit-task .kit-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.5rem; }
+    .kit-task input[type=number] { width:5.5rem; min-height:40px; padding:.3rem .4rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
+    .kit-task button { min-height:44px; padding:.5rem 1rem; border:1px solid var(--eng-orange); border-radius:10px; background:var(--eng-orange); color:#111; font-weight:900; font-family:inherit; cursor:pointer; }
+    .kit-fb { margin:.55rem 0 0; font-weight:900; font-size:.9rem; min-height:1.2em; }
+    .kit-fb.ok { color:var(--good); } .kit-fb.no { color:var(--bad); }
+    @media (max-width:520px){ .kit-row { grid-template-columns:1fr; gap:.25rem; } .kit-row > label { min-width:0; } }
+    .gen-q { font-weight:900; color:var(--eng-text); font-size:1rem; margin:.3rem 0; }
+    .gen-given { font-family:"Times New Roman", Times, Georgia, serif; font-size:1.05rem; color:var(--eng-text); margin:.25rem 0; }
+    .gen-given var { font-style:italic; }
+    .gen-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.5rem; }
+    .gen-actions input[type=number] { width:7rem; min-height:44px; padding:.3rem .5rem; border:1px solid var(--eng-border); border-radius:8px; background:var(--eng-surface); color:var(--eng-text); font-weight:900; text-align:center; }
+    .gen-actions button { min-height:44px; padding:.5rem 1rem; border-radius:10px; font-weight:900; font-family:inherit; cursor:pointer; }
+    #gen-check { border:1px solid var(--eng-orange); background:var(--eng-orange); color:#111; }
+    #gen-new { border:1px solid var(--eng-border); background:var(--eng-surface); color:var(--eng-text); }
   </style>
 </head>
 
@@ -469,30 +507,17 @@ title: Energy & Efficiency — National 5 Engineering Science
 
     <!-- ================= SECTION 1 ================= -->
     <section class="panel sec" id="s1" aria-labelledby="s1-title">
-      <span class="concept-tag">Section 1</span>
+      <span class="concept-tag">Concept 1</span>
       <h2 id="s1-title">Forms of energy <span class="badge exam" title="Naming forms of energy and energy changes appears every year (e.g. 2024 Q7(b) — name the wasted energy)">Exam</span></h2>
       <p class="keypoint">Energy is the ability to do work or cause change. Engineers must recognise the common forms and follow how energy <strong>changes form</strong> as a system works.</p>
 
-      <div class="tblwrap">
-        <table class="tbl">
-          <thead><tr><th scope="col">Form of energy</th><th scope="col">Meaning</th><th scope="col">Example</th></tr></thead>
-          <tbody>
-            <tr><td><strong>kinetic</strong></td><td>the energy of a moving object</td><td>a moving vehicle</td></tr>
-            <tr><td><strong>potential</strong></td><td>energy stored when an object is raised up</td><td>a raised lift cage</td></tr>
-            <tr><td><strong>electrical</strong></td><td>energy carried by an electric current</td><td>current in a motor</td></tr>
-            <tr><td><strong>heat (thermal)</strong></td><td>the energy a hot object has</td><td>hot water in a tank</td></tr>
-            <tr><td><strong>chemical</strong></td><td>energy stored in fuels and batteries</td><td>petrol, a battery</td></tr>
-            <tr><td><strong>light</strong></td><td>energy carried by light</td><td>a lamp or LED</td></tr>
-            <tr><td><strong>sound</strong></td><td>energy carried by sound waves</td><td>a buzzer or speaker</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <p>Measured in <strong>joules (J)</strong>, the common forms are: <strong>kinetic</strong> (moving), <strong>potential</strong> (raised up), <strong>electrical</strong> (a current), <strong>heat</strong> (hot objects), <strong>chemical</strong> (fuels &amp; batteries), <strong>light</strong> and <strong>sound</strong>. As a system works, energy <strong>changes</strong> from one form to another (a motor: electrical → kinetic + heat).</p>
 
-      <div class="note">The <strong>four forms used in calculations at National 5</strong> are kinetic (<var>E</var><sub>k</sub>), potential (<var>E</var><sub>p</sub>), electrical (<var>E</var><sub>e</sub>) and heat (<var>E</var><sub>h</sub>).</div>
+      <div class="note">The <strong>four forms used in calculations at National 5</strong> are kinetic (<var>E</var><sub>k</sub>), potential (<var>E</var><sub>p</sub>), electrical (<var>E</var><sub>e</sub>) and heat (<var>E</var><sub>h</sub>). The booklet's full table of all seven forms is your reference.</div>
 
       <div class="widget" data-match data-prog-challenge="ch-match-forms" id="match-forms">
         <h3>Match the energy form</h3>
-        <p class="hint">Choose the form of energy for each example, then check. (Booklet p.3 task.)</p>
+        <p class="hint">Choose the form of energy for each example, then check.</p>
         <div class="match-rows">
           <label class="match-row"><span class="match-q">A car driving along a road.</span>
             <span class="match-ctl"><select data-answer="Kinetic"><option value="">Choose…</option><option>Kinetic</option><option>Potential</option><option>Electrical</option><option>Heat</option><option>Chemical</option><option>Light</option><option>Sound</option></select><span class="match-mark"></span></span></label>
@@ -514,21 +539,11 @@ title: Energy & Efficiency — National 5 Engineering Science
 
     <!-- ================= SECTION 2 ================= -->
     <section class="panel sec" id="s2" aria-labelledby="s2-title">
-      <span class="concept-tag">Section 2</span>
+      <span class="concept-tag">Concept 2</span>
       <h2 id="s2-title">Energy in systems: input, useful and wasted <span class="badge exam" title="Identifying useful and wasted energy and energy changes is tested most years (2024 Q7(b), Q9(c); 2025 Q10(d))">Exam</span></h2>
       <p class="keypoint">Almost every engineered product moves, heats, lights or sounds something — and all of these need energy. Engineers track what goes <strong>in</strong>, what useful energy comes <strong>out</strong>, and how much is <strong>wasted</strong>.</p>
 
-      <div class="tblwrap">
-        <table class="tbl">
-          <thead><tr><th scope="col">Word</th><th scope="col">Meaning</th></tr></thead>
-          <tbody>
-            <tr><td><strong>input energy</strong></td><td>the total energy supplied to a system</td></tr>
-            <tr><td><strong>useful output energy</strong></td><td>the energy that does the job the system was designed for</td></tr>
-            <tr><td><strong>wasted energy</strong></td><td>energy transferred to forms or places we do not want (usually heat or sound)</td></tr>
-            <tr><td><strong>efficiency</strong></td><td>how much of the input energy becomes useful output energy</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <p><strong>Input energy</strong> is the total supplied to a system. The <strong>useful output</strong> does the job it was designed for; the rest is <strong>wasted</strong>, usually as heat or sound. <strong>Efficiency</strong> measures how much of the input becomes useful output.</p>
 
       <h3>Energy-transformation block diagram</h3>
       <p class="lead">Engineers draw a block diagram to show how energy <strong>changes form</strong> — the input form on the left, the device in the middle, the <strong>useful</strong> output and the <strong>wasted</strong> output on the right.</p>
@@ -613,7 +628,7 @@ title: Energy & Efficiency — National 5 Engineering Science
 
     <!-- ================= SECTION 3 ================= -->
     <section class="panel sec" id="s3" aria-labelledby="s3-title">
-      <span class="concept-tag">Section 3</span>
+      <span class="concept-tag">Concept 3</span>
       <h2 id="s3-title">Conservation of energy <span class="badge exam" title="The conservation idea underpins energy-audit and efficiency questions every year">Exam</span></h2>
       <p class="keypoint">Energy <strong>cannot be created or destroyed</strong>. It can only be transferred from place to place or transformed from one form to another. So the total energy in a system always stays the same.</p>
 
@@ -626,6 +641,31 @@ title: Energy & Efficiency — National 5 Engineering Science
       </div>
 
       <div class="note">If you add up <strong>all</strong> the useful energy and <strong>all</strong> the wasted energy, you get back the input energy. Wasted energy is <strong>not destroyed</strong> — it is still energy, just not useful.</div>
+
+      <div class="widget" id="balSim" data-prog-challenge="ch-energy-balance">
+        <h3>⚖️ Energy balance — make it add up</h3>
+        <p class="hint">The input is fixed at <strong>1000 J</strong>. Share it between useful and wasted output. Energy can't be created or destroyed, so the two outputs must add up to exactly the input.</p>
+        <div class="kit-row">
+          <label for="bal-u">Useful output (J)</label>
+          <input type="range" id="bal-u" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules">
+          <input type="number" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules (number)">
+        </div>
+        <div class="kit-row">
+          <label for="bal-w">Wasted output (J)</label>
+          <input type="range" id="bal-w" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules">
+          <input type="number" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules (number)">
+        </div>
+        <div class="bal-track" role="img" aria-describedby="bal-status">
+          <div class="bal-fill"><div class="effsim-seg effsim-useful" id="bal-useful"></div><div class="effsim-seg effsim-wasted" id="bal-wasted"></div></div>
+          <div class="bal-target" style="left:66.667%"></div>
+        </div>
+        <p class="bal-status" id="bal-status" aria-live="polite"></p>
+        <div class="kit-task">
+          <strong>Challenge:</strong> set the outputs so they add up to exactly the 1000 J input.
+          <div class="kit-actions"><button type="button" id="bal-check">Check</button></div>
+          <p class="kit-fb" id="bal-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
 
       <div class="practice">
         <span class="practice-tag">Practice 3 — booklet p.15</span>
@@ -640,7 +680,7 @@ title: Energy & Efficiency — National 5 Engineering Science
 
     <!-- ================= SECTION 4 ================= -->
     <section class="panel sec" id="s4" aria-labelledby="s4-title">
-      <span class="concept-tag">Section 4</span>
+      <span class="concept-tag">Concept 4</span>
       <h2 id="s4-title">Energy calculations <span class="badge exam" title="About a third of every paper is calculations. Energy formulae appear every year: Ee=VIt (2024 Q12), Ek (2024 Q13), Ep (2025 Q10), Eh (2025 Q12)">Exam</span></h2>
       <p class="keypoint">The exam gives you the <strong>data booklet</strong> with these relationships. Your marks come from <strong>showing the working</strong>: substitute the numbers, rearrange if needed, then give the answer <strong>with a unit</strong>, rounded to 2 significant figures.</p>
 
@@ -653,6 +693,21 @@ title: Energy & Efficiency — National 5 Engineering Science
         <div class="eq-card"><div class="eq-name">Electrical energy</div><div class="eq-formula"><var>E</var><sub>e</sub> = <var>V</var> <var>I</var> <var>t</var></div><div class="eq-desc">voltage × current × time · J, V, A, s</div></div>
         <div class="eq-card"><div class="eq-name">Heat energy</div><div class="eq-formula"><var>E</var><sub>h</sub> = <var>c</var> <var>m</var> <var>ΔT</var></div><div class="eq-desc">spec. heat × mass × temp change</div></div>
         <div class="eq-card"><div class="eq-name">Power</div><div class="eq-formula"><var>P</var> = <span class="frac" aria-label="E over t"><span class="fr-n"><var>E</var></span><span class="fr-d"><var>t</var></span></span></div><div class="eq-desc">energy ÷ time · W, J, s</div></div>
+      </div>
+
+      <div class="widget" id="calcGen" data-prog-challenge="ch-energy-calc">
+        <h3>🎲 Calculation practice — endless questions</h3>
+        <p class="hint">A fresh energy calculation each time. Work it out (watch the units!), type the answer in joules, then check. Get one right to register this challenge.</p>
+        <p class="gen-q" id="gen-q" aria-live="polite">Loading…</p>
+        <p class="gen-given" id="gen-given"></p>
+        <div class="gen-actions">
+          <label for="gen-ans" class="visually-hidden">Your answer in joules</label>
+          <input type="number" id="gen-ans" inputmode="decimal" step="any" placeholder="answer" aria-label="Your answer in joules">
+          <span>J</span>
+          <button type="button" id="gen-check">Check</button>
+          <button type="button" id="gen-new">New question</button>
+        </div>
+        <p class="kit-fb" id="gen-fb" role="status" aria-live="polite"></p>
       </div>
 
       <h3>Work done — <var>E</var><sub>w</sub> = <var>F</var> <var>d</var></h3>
@@ -841,7 +896,7 @@ title: Energy & Efficiency — National 5 Engineering Science
 
     <!-- ================= SECTION 5 ================= -->
     <section class="panel sec" id="s5" aria-labelledby="s5-title">
-      <span class="concept-tag">Section 5</span>
+      <span class="concept-tag">Concept 5</span>
       <h2 id="s5-title">Efficiency &amp; energy audits <span class="badge exam" title="Efficiency is examined every year (2025 Q10(d)(i)) and is the basis of compare-and-recommend questions">Exam</span></h2>
       <p class="keypoint">Efficiency measures how much of the input energy becomes <strong>useful</strong> output energy. A more efficient system wastes less. <strong>No real system is 100% efficient.</strong></p>
 
@@ -895,6 +950,32 @@ title: Energy & Efficiency — National 5 Engineering Science
         </svg>
         <figcaption>Useful + wasted = input: 168 000 + 32 000 = 200 000 J. Efficiency = (168 000 ÷ 200 000) × 100 = 84%.</figcaption>
       </figure>
+
+      <div class="widget" id="effSim" data-prog-challenge="ch-efficiency-target">
+        <h3>⚡ Efficiency explorer — live</h3>
+        <p class="hint">Drag the input and useful energy. The efficiency and the energy bar (green = useful, amber = wasted) update instantly. Useful output can never beat the input.</p>
+        <div class="kit-row">
+          <label for="eff-in">Input energy (J)</label>
+          <input type="range" id="eff-in" data-sim="Ein" min="200" max="1000" step="50" value="1000" aria-label="Input energy in joules">
+          <input type="number" data-sim="Ein" min="200" max="1000" step="50" value="1000" aria-label="Input energy in joules (number)">
+        </div>
+        <div class="kit-row">
+          <label for="eff-out">Useful output (J)</label>
+          <input type="range" id="eff-out" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules">
+          <input type="number" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules (number)">
+        </div>
+        <div class="effsim-readout"><b id="eff-pct">—</b><span>efficiency = useful ÷ input × 100</span></div>
+        <div class="effsim-bar" role="img" aria-describedby="eff-desc">
+          <div class="effsim-seg effsim-useful" id="eff-useful"></div>
+          <div class="effsim-seg effsim-wasted" id="eff-wasted"></div>
+        </div>
+        <p id="eff-desc" class="effsim-readout" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
+        <div class="kit-task">
+          <strong>Challenge:</strong> set the device to <strong>60% efficient</strong> (within ±2%).
+          <div class="kit-actions"><button type="button" id="eff-check">Check</button></div>
+          <p class="kit-fb" id="eff-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
 
       <h3>Comparing solutions — the "choose the better one" question <span class="badge exam" title="Compare-and-recommend with efficiency calculations is a common extended question">Exam</span></h3>
       <p class="lead">A common exam task gives you two options and asks you to <strong>recommend</strong> one. Calculate each efficiency, then back your choice with the numbers <strong>and</strong> another reason (cost, lifetime, environment).</p>
@@ -1404,6 +1485,139 @@ title: Energy & Efficiency — National 5 Engineering Science
       });
     });
   })();
+  </script>
+
+  <!-- WP-2 — live efficiency + Sankey -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.WidgetKit) return;
+    var root = document.getElementById("effSim");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+    var lastEff = 0;
+
+    function render(s){
+      var Ein = Math.max(1, s.Ein);
+      var useful = Math.min(s.Eout, Ein);
+      var wasted = Ein - useful;
+      var eff = useful / Ein * 100;
+      lastEff = eff;
+      $("eff-pct").textContent = eff.toFixed(0) + "%";
+      $("eff-useful").style.width = eff.toFixed(1) + "%";
+      $("eff-wasted").style.width = (100 - eff).toFixed(1) + "%";
+      $("eff-useful").textContent = eff >= 18 ? "useful " + eff.toFixed(0) + "%" : "";
+      $("eff-wasted").textContent = (100 - eff) >= 18 ? "wasted " + (100 - eff).toFixed(0) + "%" : "";
+      var capped = s.Eout > Ein ? " (useful capped at the input)" : "";
+      $("eff-desc").textContent = "Useful " + useful + " J · wasted " + wasted + " J · " + eff.toFixed(0) + "% efficient" + capped;
+    }
+
+    window.WidgetKit.liveSim(root, { render: render });
+
+    var fb = $("eff-fb");
+    $("eff-check").addEventListener("click", function(){
+      if(Math.abs(lastEff - 60) <= 2){
+        fb.className = "kit-fb ok";
+        fb.textContent = "✓ " + lastEff.toFixed(0) + "% — that's 60% efficient: 60% of the input becomes useful energy and 40% is wasted, usually as heat and sound.";
+        if(window.Progress) Progress.complete("ch-efficiency-target");
+      } else {
+        fb.className = "kit-fb no";
+        fb.textContent = "✗ " + lastEff.toFixed(0) + "% — aim for 60%. Efficiency = useful ÷ input × 100, so for 60% the useful output must be 0.6 × the input.";
+        if(window.Progress) Progress.miss();
+      }
+    });
+  });
+  </script>
+
+  <!-- WP-10 — live energy-balance model -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.WidgetKit) return;
+    var root = document.getElementById("balSim");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+    var INPUT = 1000, SCALE = 1500, lastTotal = 0;
+
+    function render(s){
+      var Eu = s.Eu, Ew = s.Ew, total = Eu + Ew;
+      lastTotal = total;
+      $("bal-useful").style.width = (Eu / SCALE * 100).toFixed(1) + "%";
+      $("bal-wasted").style.width = (Ew / SCALE * 100).toFixed(1) + "%";
+      $("bal-useful").textContent = Eu >= 250 ? "useful " + Eu : "";
+      $("bal-wasted").textContent = Ew >= 250 ? "wasted " + Ew : "";
+      var st = $("bal-status");
+      if(total === INPUT){ st.className = "bal-status ok"; st.textContent = "✓ Balanced — the outputs add up to the 1000 J input."; }
+      else if(total < INPUT){ st.className = "bal-status off"; st.textContent = "Total out " + total + " J — short by " + (INPUT - total) + " J. Energy can't vanish; where does the rest go?"; }
+      else { st.className = "bal-status off"; st.textContent = "Total out " + total + " J — over by " + (total - INPUT) + " J. Energy can't be created."; }
+    }
+
+    window.WidgetKit.liveSim(root, { render: render });
+
+    var fb = $("bal-fb");
+    $("bal-check").addEventListener("click", function(){
+      if(lastTotal === INPUT){
+        fb.className = "kit-fb ok";
+        fb.textContent = "✓ Useful + wasted = 1000 J = the input. That's conservation of energy: every joule in is accounted for.";
+        if(window.Progress) Progress.complete("ch-energy-balance");
+      } else {
+        fb.className = "kit-fb no";
+        fb.textContent = "✗ The outputs add up to " + lastTotal + " J, not 1000 J. Adjust them so useful + wasted = the input exactly.";
+        if(window.Progress) Progress.miss();
+      }
+    });
+  });
+  </script>
+
+  <!-- WP-11 — scored energy-calculation generator -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    var root = document.getElementById("calcGen");
+    if(!root) return;
+    var $ = function(id){ return document.getElementById(id); };
+    function rint(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+    function half(a,b){ return a + Math.floor(Math.random()*((b-a)/0.5+1))*0.5; }
+
+    var GENS = [
+      function(){ var V=rint(3,12), I=half(0.5,5), t=rint(1,12)*10;
+        return { html:"<strong>Electrical energy.</strong> A component runs at "+V+" V, drawing "+I+" A, for "+t+" s. Calculate the electrical energy.",
+          given:"<var>E</var><sub>e</sub> = <var>V</var> <var>I</var> <var>t</var> = "+V+" × "+I+" × "+t, ans:V*I*t }; },
+      function(){ var m=half(0.5,5), v=rint(2,15);
+        return { html:"<strong>Kinetic energy.</strong> A mass of "+m+" kg moves at "+v+" m/s. Calculate its kinetic energy.",
+          given:"<var>E</var><sub>k</sub> = ½ <var>m</var> <var>v</var>² = ½ × "+m+" × "+v+"²", ans:0.5*m*v*v }; },
+      function(){ var m=rint(1,20), h=rint(1,10);
+        return { html:"<strong>Potential energy.</strong> A "+m+" kg load is raised "+h+" m (g = 9.8 N/kg). Calculate the gravitational potential energy.",
+          given:"<var>E</var><sub>p</sub> = <var>m</var> <var>g</var> <var>h</var> = "+m+" × 9.8 × "+h, ans:m*9.8*h }; },
+      function(){ var c=[500,900,4180][rint(0,2)], m=half(0.5,3), dT=rint(1,8)*5;
+        return { html:"<strong>Heat energy.</strong> "+m+" kg of a material (c = "+c+" J/kg°C) is heated by "+dT+" °C. Calculate the heat energy.",
+          given:"<var>E</var><sub>h</sub> = <var>c</var> <var>m</var> <var>ΔT</var> = "+c+" × "+m+" × "+dT, ans:c*m*dT }; }
+    ];
+
+    var cur = null;
+    function fmt(x){ return Math.round(x*100)/100; }
+    function newQ(){
+      cur = GENS[rint(0, GENS.length-1)]();
+      $("gen-q").innerHTML = cur.html;
+      $("gen-given").innerHTML = cur.given + " = ?";
+      $("gen-ans").value = "";
+      $("gen-fb").className = "kit-fb"; $("gen-fb").textContent = "";
+    }
+    $("gen-new").addEventListener("click", newQ);
+    $("gen-check").addEventListener("click", function(){
+      var v = parseFloat($("gen-ans").value);
+      var fb = $("gen-fb");
+      if(isNaN(v)){ fb.className = "kit-fb"; fb.textContent = "Type your answer (in joules) first."; return; }
+      var tol = Math.max(0.5, cur.ans*0.01);
+      if(Math.abs(v - cur.ans) <= tol){
+        fb.className = "kit-fb ok";
+        fb.textContent = "✓ Correct — " + fmt(cur.ans) + " J. Tap “New question” for another.";
+        if(window.Progress) Progress.complete("ch-energy-calc");
+      } else {
+        fb.className = "kit-fb no";
+        fb.textContent = "✗ Not quite — the answer is " + fmt(cur.ans) + " J. Check your working, then try a new one.";
+        if(window.Progress) Progress.miss();
+      }
+    });
+    newQ();
+  });
   </script>
 </body>
 </html>
