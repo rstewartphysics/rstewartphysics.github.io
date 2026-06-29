@@ -367,6 +367,14 @@ layout: none
 #meter-check { border:1px solid var(--accent); background:var(--accent); color:#fff; }
 #meter-reset { border:1px solid var(--border); background:var(--card); color:var(--text); }
 @media (max-width:480px){ .meter-slots { grid-template-columns:1fr; } }
+
+/* ===== Combined-resistance sim (WP-8) ===== */
+.combine-out { border:1px solid var(--border-soft); border-radius:12px; background:var(--surface-2); padding:.75rem .9rem; margin:.2rem 0 .3rem; text-align:center; }
+.combine-total b { display:block; font-size:1.7rem; font-weight:900; color:var(--accent-2); line-height:1.1; }
+.combine-total span { display:block; font-size:.76rem; font-weight:800; color:var(--muted); margin-top:.1rem; }
+.combine-work { font-family:"Times New Roman", Times, Georgia, serif; font-size:1.08rem; color:var(--text); margin:.55rem 0 .15rem; }
+.combine-work var { font-style:italic; }
+.combine-note { font-size:.82rem; font-weight:800; color:var(--muted); margin:.2rem 0 0; }
 </style>
 </head>
 <body>
@@ -1472,6 +1480,43 @@ layout: none
     </div>
 
     <span class="step-label try">Try</span>
+
+    <div class="widget" id="combineSim" data-prog-challenge="ch-combine-target">
+      <h3>🧮 Combine two resistors — live</h3>
+      <p class="hint">Drag the two resistors and flip the connection. The total — and the working behind it — update instantly. Notice how series always adds up, while parallel always gives less than the smaller resistor.</p>
+      <div class="csim">
+        <div class="csim-controls">
+          <div class="csim-row">
+            <label for="comb-r1">Resistor 1</label>
+            <input type="range" id="comb-r1" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms">
+            <input type="number" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label for="comb-r2">Resistor 2</label>
+            <input type="range" id="comb-r2" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms">
+            <input type="number" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label id="comb-mode-lab">Connection</label>
+            <div class="csim-toggle" role="group" aria-labelledby="comb-mode-lab">
+              <button type="button" data-sim-toggle="mode" data-value="series" aria-pressed="true">Series</button>
+              <button type="button" data-sim-toggle="mode" data-value="parallel" aria-pressed="false">Parallel</button>
+            </div>
+          </div>
+        </div>
+        <div class="combine-out">
+          <div class="combine-total"><b id="comb-rt">—</b><span>Total resistance R<sub>T</sub> (Ω)</span></div>
+          <p class="combine-work" id="comb-work" aria-live="polite"></p>
+          <p class="combine-note" id="comb-note"></p>
+        </div>
+        <div class="csim-task">
+          <strong>Challenge:</strong> make the total resistance <strong>less than 4 Ω</strong>. Only one of the two connections can do it — find out which.
+          <div class="meter-actions"><button type="button" id="comb-check">Check</button></div>
+          <p class="csim-fb" id="comb-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
     <div class="practice">
       <span class="practice-tag">Exam-style questions</span>
       <p class="stem"><strong>Q1 (3).</strong> A series circuit has a 9 V supply and resistors of 10 Ω and 20 Ω. (a) Total resistance? (b) Current?</p>
@@ -2745,6 +2790,49 @@ document.addEventListener("DOMContentLoaded", function(){
   });
   document.getElementById("meter-reset").addEventListener("click", function(){
     api.reset(); fb.className = "csim-fb"; light(false);
+  });
+});
+</script>
+
+<!-- WP-8 — live combined-resistance sim (L5) -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("combineSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var lastRt = 0;
+
+  function render(s){
+    var R1 = s.R1, R2 = s.R2, rt, work, note;
+    if(s.mode === "series"){
+      rt = R1 + R2;
+      work = "<var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub> = " + R1 + " + " + R2 + " = " + rt + " Ω";
+      note = "Series adds up — the total is larger than either resistor.";
+    } else {
+      rt = (R1 * R2) / (R1 + R2);
+      work = "<var>R</var><sub>T</sub> = (<var>R</var><sub>1</sub> × <var>R</var><sub>2</sub>) ÷ (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>) = (" + R1 + " × " + R2 + ") ÷ " + (R1 + R2) + " = " + rt.toFixed(2) + " Ω";
+      note = "Parallel — the total is smaller than the smaller resistor (" + Math.min(R1, R2) + " Ω).";
+    }
+    lastRt = rt;
+    $("comb-rt").textContent = (Math.round(rt * 100) / 100).toFixed(2);
+    $("comb-work").innerHTML = work;
+    $("comb-note").textContent = note;
+  }
+
+  window.WidgetKit.liveSim(root, { render: render });
+
+  var fb = $("comb-fb");
+  $("comb-check").addEventListener("click", function(){
+    if(lastRt < 4){
+      fb.className = "csim-fb ok";
+      fb.textContent = "✓ " + lastRt.toFixed(2) + " Ω — under 4 Ω. Only parallel can do this: it gives the charge two paths, so the total is always less than the smaller resistor. Series just adds up.";
+      if(window.Progress) Progress.complete("ch-combine-target");
+    } else {
+      fb.className = "csim-fb no";
+      fb.textContent = "✗ " + lastRt.toFixed(2) + " Ω is not below 4 Ω yet. Series only adds up — switch to parallel and use small resistors.";
+      if(window.Progress) Progress.miss();
+    }
   });
 });
 </script>
