@@ -17,6 +17,7 @@ layout: none
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/s3-physics.js" defer></script>
+  <script src="/assets/js/widget-kit.js" defer></script>
   <link rel="stylesheet" href="/assets/css/s3-physics.css?v=s3-20260616a">
 
 <style>
@@ -304,6 +305,76 @@ layout: none
   box-shadow: 0 8px 20px rgba(0,138,145,0.40);
 }
 @media (prefers-color-scheme: dark){ .subnav-cta { color: #04211b; } }
+
+/* ===== Live circuit sim (WP-3) ===== */
+.csim { margin:.4rem 0 .2rem; }
+.csim-controls { display:grid; gap:.6rem; margin:0 0 .8rem; }
+.csim-row { display:grid; grid-template-columns:auto 1fr 4.5rem; align-items:center; gap:.6rem; }
+.csim-row > label { font-weight:900; font-size:.9rem; color:var(--text); min-width:6.5rem; }
+.csim-row input[type=range] { width:100%; accent-color:var(--accent); min-height:32px; }
+.csim-row input[type=number] { width:100%; min-height:40px; padding:.3rem .4rem; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); text-align:center; }
+.csim-toggle { display:inline-flex; gap:.3rem; padding:.25rem; border:1px solid var(--border-soft); border-radius:12px; background:var(--card); }
+.csim-toggle button { flex:1; min-height:40px; padding:.4rem .9rem; border:0; border-radius:9px; background:transparent; color:var(--muted); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.csim-toggle button[aria-pressed=true] { background:var(--accent); color:#fff; }
+.csim-stage { border:1px solid var(--border-soft); border-radius:12px; background:var(--surface-2); padding:.5rem; }
+.csim-stage svg { width:100%; height:auto; display:block; }
+.csim-wire { stroke:var(--text); stroke-width:2.4; fill:none; stroke-linecap:round; stroke-linejoin:round; opacity:.55; }
+.csim-flow { stroke:var(--accent); stroke-width:3; fill:none; stroke-linecap:round; stroke-dasharray:2 12; }
+.csim-lamp-glow { fill:#ffcf6b; }
+.csim-lamp-ring { stroke:var(--text); stroke-width:2.4; fill:var(--card); }
+.csim-lamp-x { stroke:var(--text); stroke-width:2; opacity:.7; }
+.csim-cell-long { stroke:var(--text); stroke-width:2.4; }
+.csim-cell-short { stroke:var(--text); stroke-width:6; }
+.csim-meter { fill:var(--card); stroke:var(--accent-2); stroke-width:1.8; }
+.csim-meter-txt { fill:var(--accent-2); font-weight:900; font-family:var(--font-stack); font-size:11px; text-anchor:middle; }
+.csim-readouts { display:flex; flex-wrap:wrap; gap:8px; margin:.7rem 0 0; }
+.csim-stat { flex:1; min-width:90px; text-align:center; padding:.55rem .4rem; border:1px solid var(--border-soft); border-radius:12px; background:var(--card); }
+.csim-stat b { display:block; font-size:1.05rem; color:var(--text); font-weight:900; }
+.csim-stat span { display:block; font-size:.74rem; font-weight:800; color:var(--muted); margin-top:.15rem; }
+.csim-task { margin-top:.9rem; border:1px solid var(--border-accent); border-left:5px solid var(--c-try); border-radius:12px; background:var(--surface-2); padding:.75rem .9rem; }
+.csim-task .csim-task-row { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-top:.5rem; }
+.csim-task input[type=number] { width:5rem; min-height:40px; padding:.3rem .4rem; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); font-weight:900; text-align:center; }
+.csim-task button { min-height:44px; padding:.5rem 1rem; border:1px solid var(--accent); border-radius:10px; background:var(--accent); color:#fff; font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.csim-fb { margin:.6rem 0 0; font-weight:900; font-size:.9rem; min-height:1.2em; }
+.csim-fb.ok { color:var(--good); }
+.csim-fb.no { color:var(--bad, #d6336c); }
+@media (max-width:560px){ .csim-row { grid-template-columns:1fr; gap:.3rem; } .csim-row > label { min-width:0; } }
+@media (prefers-reduced-motion: reduce){ .csim-flow { stroke-dasharray:2 10; } }
+
+/* ===== V–I explorer (WP-4) ===== */
+.ohm-axis { stroke:var(--muted); stroke-width:1.6; stroke-linecap:round; }
+.ohm-grid { stroke:var(--border-soft); stroke-width:1; }
+.ohm-trace { stroke:var(--accent); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.ohm-dot { fill:var(--c-try); stroke:var(--card); stroke-width:1.5; }
+.ohm-axis-txt { fill:var(--muted); font-size:11px; font-weight:800; font-family:var(--font-stack); }
+.ohm-picks { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.6rem; }
+.ohm-picks button { min-height:44px; padding:.5rem .9rem; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.ohm-picks button[aria-pressed=true] { border-color:var(--accent); background:var(--surface-2); }
+
+/* ===== Meter drag-place (WP-5) ===== */
+.meter-tokens { display:flex; gap:.5rem; flex-wrap:wrap; margin:.5rem 0; }
+.meter-token { min-height:44px; padding:.5rem .9rem; border:1px solid var(--accent); border-radius:10px; background:var(--card); color:var(--accent); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.meter-token[aria-pressed=true] { background:var(--accent); color:#fff; }
+.meter-token:disabled { opacity:.45; cursor:default; }
+.meter-slots { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin:.6rem 0; }
+.meter-slot { min-height:74px; border:2px dashed var(--border); border-radius:12px; background:var(--card); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.25rem; padding:.5rem; text-align:center; font-weight:900; color:var(--text); cursor:pointer; }
+.meter-slot .slot-label { font-size:.78rem; font-weight:800; color:var(--muted); }
+.meter-slot.is-filled { border-style:solid; border-color:var(--accent); }
+.meter-slot.is-ok { border-color:var(--good); background:rgba(21,128,61,.10); }
+.meter-slot.is-no { border-color:var(--warm); background:rgba(194,65,12,.10); }
+.meter-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.3rem; }
+.meter-actions button { min-height:44px; padding:.5rem 1rem; border-radius:10px; font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+#meter-check { border:1px solid var(--accent); background:var(--accent); color:#fff; }
+#meter-reset { border:1px solid var(--border); background:var(--card); color:var(--text); }
+@media (max-width:480px){ .meter-slots { grid-template-columns:1fr; } }
+
+/* ===== Combined-resistance sim (WP-8) ===== */
+.combine-out { border:1px solid var(--border-soft); border-radius:12px; background:var(--surface-2); padding:.75rem .9rem; margin:.2rem 0 .3rem; text-align:center; }
+.combine-total b { display:block; font-size:1.7rem; font-weight:900; color:var(--accent-2); line-height:1.1; }
+.combine-total span { display:block; font-size:.76rem; font-weight:800; color:var(--muted); margin-top:.1rem; }
+.combine-work { font-family:"Times New Roman", Times, Georgia, serif; font-size:1.08rem; color:var(--text); margin:.55rem 0 .15rem; }
+.combine-work var { font-style:italic; }
+.combine-note { font-size:.82rem; font-weight:800; color:var(--muted); margin:.2rem 0 0; }
 </style>
 </head>
 <body>
@@ -621,6 +692,42 @@ layout: none
       <p><span class="wrong">Don't</span> put the ammeter across a component, and <span class="wrong">don't</span> put the voltmeter in the main line — a voltmeter has very high resistance and would block the current.</p>
     </div>
 
+    <div class="widget" id="meterPlace" data-prog-challenge="ch-meter-place">
+      <h3>🧲 Place the meters — drag or tap</h3>
+      <p class="hint">Tap a meter, then tap a position (or drag it across). Press <strong>Check</strong> — a wrong place shows what really happens to the circuit.</p>
+      <div class="meter-tokens">
+        <button class="meter-token" type="button" data-token="ammeter">Ammeter (A)</button>
+        <button class="meter-token" type="button" data-token="voltmeter">Voltmeter (V)</button>
+      </div>
+      <div class="meter-slots">
+        <div class="meter-slot" data-slot data-accept="ammeter" data-label="In the main line" data-placeholder="drop a meter" tabindex="0">
+          <span class="slot-label">① In the main line</span>
+          <span data-slot-face>—</span>
+        </div>
+        <div class="meter-slot" data-slot data-accept="voltmeter" data-label="Across the lamp" data-placeholder="drop a meter" tabindex="0">
+          <span class="slot-label">② Across the lamp</span>
+          <span data-slot-face>—</span>
+        </div>
+      </div>
+      <div class="csim-stage">
+        <svg viewBox="0 0 240 130" role="img" aria-label="A simple circuit whose lamp lights only when the meters are placed correctly">
+          <defs><filter id="meter-blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>
+          <path class="csim-wire" d="M30,30 L210,30 L210,105 L30,105 L30,78 M30,58 L30,30"/>
+          <line class="csim-cell-long" x1="18" y1="58" x2="42" y2="58"/>
+          <line class="csim-cell-short" x1="24" y1="78" x2="36" y2="78"/>
+          <circle class="csim-lamp-glow" id="meter-bulb-glow" cx="120" cy="30" r="13" fill-opacity="0.08" filter="url(#meter-blur)"/>
+          <circle class="csim-lamp-ring" cx="120" cy="30" r="11"/>
+          <line class="csim-lamp-x" x1="112.2" y1="22.2" x2="127.8" y2="37.8"/>
+          <line class="csim-lamp-x" x1="127.8" y1="22.2" x2="112.2" y2="37.8"/>
+        </svg>
+      </div>
+      <div class="meter-actions">
+        <button type="button" id="meter-check">Check</button>
+        <button type="button" id="meter-reset">Reset</button>
+      </div>
+      <p class="csim-fb" id="meter-fb" data-kit-status role="status" aria-live="polite"></p>
+    </div>
+
     <div class="widget" data-prog-challenge="ch-predict-parallel">
       <h3>Predict first — before you read the rules</h3>
       <p class="hint">Have a go before scrolling on. Predicting first makes the rule stick — you don't lose points for a wrong guess.</p>
@@ -694,6 +801,107 @@ layout: none
     <p><strong>Everyday uses:</strong> Christmas-style series strings share one path; house sockets are in <strong>parallel</strong> so each appliance gets the full mains voltage and can switch on independently.</p>
 
     <span class="step-label try">Try</span>
+
+    <div class="widget" id="circuitSim" data-prog-challenge="ch-sim-parallel-equal">
+      <h3>⚡ Live circuit — change it and watch</h3>
+      <p class="hint">Drag the sliders and flip between series and parallel. The current dots, lamp brightness and the meter readings all update live — no submit needed. The dots move faster where more current flows.</p>
+
+      <div class="csim">
+        <div class="csim-controls">
+          <div class="csim-row">
+            <label for="csim-v">Supply voltage</label>
+            <input type="range" id="csim-v" data-sim="V" min="1" max="12" step="1" value="6" aria-label="Supply voltage in volts">
+            <input type="number" data-sim="V" min="1" max="12" step="1" value="6" aria-label="Supply voltage in volts (number)">
+          </div>
+          <div class="csim-row">
+            <label for="csim-r1">Lamp 1 resistance</label>
+            <input type="range" id="csim-r1" data-sim="R1" min="1" max="20" step="1" value="4" aria-label="Lamp 1 resistance in ohms">
+            <input type="number" data-sim="R1" min="1" max="20" step="1" value="4" aria-label="Lamp 1 resistance in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label for="csim-r2">Lamp 2 resistance</label>
+            <input type="range" id="csim-r2" data-sim="R2" min="1" max="20" step="1" value="6" aria-label="Lamp 2 resistance in ohms">
+            <input type="number" data-sim="R2" min="1" max="20" step="1" value="6" aria-label="Lamp 2 resistance in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label id="csim-mode-lab">Connection</label>
+            <div class="csim-toggle" role="group" aria-labelledby="csim-mode-lab">
+              <button type="button" data-sim-toggle="mode" data-value="series" aria-pressed="true">Series</button>
+              <button type="button" data-sim-toggle="mode" data-value="parallel" aria-pressed="false">Parallel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="csim-stage">
+          <svg viewBox="0 0 320 190" role="img" aria-label="Circuit diagram that updates as you change the controls">
+            <defs><filter id="csim-blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>
+            <!-- SERIES layout -->
+            <g id="csim-series">
+              <path class="csim-wire" d="M45,45 L285,45 L285,150 L45,150 L45,98 M45,88 L45,45"/>
+              <line class="csim-cell-long"  x1="33" y1="88" x2="57" y2="88"/>
+              <line class="csim-cell-short" x1="39" y1="98" x2="51" y2="98"/>
+              <path class="csim-flow" id="csim-flow-s" d="M45,45 L285,45 L285,150 L45,150 L45,98 M45,88 L45,45"/>
+              <!-- lamp 1 -->
+              <g>
+                <circle class="csim-lamp-glow" id="csim-glow-s1" cx="130" cy="45" r="13" fill-opacity="0.1" filter="url(#csim-blur)"/>
+                <circle class="csim-lamp-ring" cx="130" cy="45" r="11"/>
+                <line class="csim-lamp-x" x1="122.2" y1="37.2" x2="137.8" y2="52.8"/>
+                <line class="csim-lamp-x" x1="137.8" y1="37.2" x2="122.2" y2="52.8"/>
+              </g>
+              <!-- lamp 2 -->
+              <g>
+                <circle class="csim-lamp-glow" id="csim-glow-s2" cx="210" cy="45" r="13" fill-opacity="0.1" filter="url(#csim-blur)"/>
+                <circle class="csim-lamp-ring" cx="210" cy="45" r="11"/>
+                <line class="csim-lamp-x" x1="202.2" y1="37.2" x2="217.8" y2="52.8"/>
+                <line class="csim-lamp-x" x1="217.8" y1="37.2" x2="202.2" y2="52.8"/>
+              </g>
+            </g>
+            <!-- PARALLEL layout -->
+            <g id="csim-parallel" style="display:none">
+              <path class="csim-wire" d="M45,45 L250,45 M45,150 L250,150 M45,98 L45,150 M45,45 L45,88 M120,45 L120,150 M200,45 L200,150"/>
+              <line class="csim-cell-long"  x1="33" y1="88" x2="57" y2="88"/>
+              <line class="csim-cell-short" x1="39" y1="98" x2="51" y2="98"/>
+              <path class="csim-flow" id="csim-flow-pt" d="M45,45 L200,45 M200,150 L45,150 L45,98 M45,88 L45,45"/>
+              <path class="csim-flow" id="csim-flow-p1" d="M120,45 L120,150"/>
+              <path class="csim-flow" id="csim-flow-p2" d="M200,45 L200,150"/>
+              <!-- lamp 1 -->
+              <g>
+                <circle class="csim-lamp-glow" id="csim-glow-p1" cx="120" cy="97" r="13" fill-opacity="0.1" filter="url(#csim-blur)"/>
+                <circle class="csim-lamp-ring" cx="120" cy="97" r="11"/>
+                <line class="csim-lamp-x" x1="112.2" y1="89.2" x2="127.8" y2="104.8"/>
+                <line class="csim-lamp-x" x1="127.8" y1="89.2" x2="112.2" y2="104.8"/>
+              </g>
+              <!-- lamp 2 -->
+              <g>
+                <circle class="csim-lamp-glow" id="csim-glow-p2" cx="200" cy="97" r="13" fill-opacity="0.1" filter="url(#csim-blur)"/>
+                <circle class="csim-lamp-ring" cx="200" cy="97" r="11"/>
+                <line class="csim-lamp-x" x1="192.2" y1="89.2" x2="207.8" y2="104.8"/>
+                <line class="csim-lamp-x" x1="207.8" y1="89.2" x2="192.2" y2="104.8"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="csim-readouts" aria-live="polite">
+          <div class="csim-stat"><b id="csim-i">—</b><span>Supply current (A)</span></div>
+          <div class="csim-stat"><b id="csim-v1">—</b><span>Lamp 1 voltage (V)</span></div>
+          <div class="csim-stat"><b id="csim-i1">—</b><span>Lamp 1 current (A)</span></div>
+          <div class="csim-stat"><b id="csim-v2">—</b><span>Lamp 2 voltage (V)</span></div>
+          <div class="csim-stat"><b id="csim-i2">—</b><span>Lamp 2 current (A)</span></div>
+        </div>
+
+        <div class="csim-task">
+          <strong>Challenge:</strong> set the circuit to <strong>parallel</strong> and make both lamps <strong>equally bright</strong>. Then read the voltage across each lamp and enter it.
+          <div class="csim-task-row">
+            <label for="csim-ans">Voltage across each lamp =</label>
+            <input type="number" id="csim-ans" min="0" max="12" step="1" aria-label="Voltage across each lamp in volts">
+            <span>V</span>
+            <button type="button" id="csim-check">Check</button>
+          </div>
+          <p class="csim-fb" id="csim-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
 
     <div class="widget">
       <h3>🔧 Circuit builder (PhET)</h3>
@@ -1137,26 +1345,57 @@ layout: none
 
     <span class="step-label try">Try</span>
 
-    <div class="widget" data-prog-challenge="ch-graph">
-      <h3>Graph challenge — compare the gradients</h3>
-      <p class="hint">Both lines are V (up) against I (across). Remember the gradient = resistance.</p>
-      <svg viewBox="0 0 160 120" role="img" aria-label="Two straight lines from the origin: line A is steep, line B is shallow" style="width:100%; max-width:260px; display:block; margin:.3rem auto;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="20" y1="105" x2="150" y2="105"/>
-        <line x1="20" y1="105" x2="20" y2="10"/>
-        <line x1="20" y1="105" x2="70" y2="15" stroke="var(--accent)" stroke-width="3"/>
-        <text x="72" y="16" font-size="11" fill="var(--accent)" stroke="none" font-weight="700">A</text>
-        <line x1="20" y1="105" x2="145" y2="55" stroke="var(--c-check)" stroke-width="3"/>
-        <text x="148" y="55" font-size="11" fill="var(--c-check)" stroke="none" font-weight="700">B</text>
-        <text x="140" y="118" font-size="10" fill="currentColor" stroke="none">I</text>
-        <text x="6" y="16" font-size="10" fill="currentColor" stroke="none">V</text>
-      </svg>
-      <p style="font-weight:800; margin:.3rem 0;">Which resistor has the <strong>higher resistance</strong>?</p>
-      <div class="predict-btns" data-graph="1">
-        <button class="wbtn" type="button" data-ok="1">A — the steeper line</button>
-        <button class="wbtn" type="button" data-ok="0">B — the shallower line</button>
-        <button class="wbtn" type="button" data-ok="0">They are equal</button>
+    <div class="widget" id="ohmSim" data-prog-challenge="ch-graph-live">
+      <h3>📈 V–I explorer — draw the graph yourself</h3>
+      <p class="hint">Drag <strong>V</strong> and the line draws itself. Switch between a fixed resistor and a filament lamp — one stays straight, the other bends as it heats. The gradient (V ÷ I) is the resistance.</p>
+      <div class="csim">
+        <div class="csim-controls">
+          <div class="csim-row">
+            <label for="ohm-v">Voltage V</label>
+            <input type="range" id="ohm-v" data-sim="V" min="0" max="12" step="0.5" value="6" aria-label="Voltage in volts">
+            <input type="number" data-sim="V" min="0" max="12" step="0.5" value="6" aria-label="Voltage in volts (number)">
+          </div>
+          <div class="csim-row">
+            <label for="ohm-r">Resistance R (cold)</label>
+            <input type="range" id="ohm-r" data-sim="R" min="2" max="20" step="1" value="4" aria-label="Cold resistance in ohms">
+            <input type="number" data-sim="R" min="2" max="20" step="1" value="4" aria-label="Cold resistance in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label id="ohm-mode-lab">Component</label>
+            <div class="csim-toggle" role="group" aria-labelledby="ohm-mode-lab">
+              <button type="button" data-sim-toggle="comp" data-value="ohmic" aria-pressed="true">Fixed resistor</button>
+              <button type="button" data-sim-toggle="comp" data-value="lamp" aria-pressed="false">Filament lamp</button>
+            </div>
+          </div>
+        </div>
+        <div class="csim-stage">
+          <svg viewBox="0 0 230 180" role="img" aria-label="V against I graph that draws as you change the voltage">
+            <line class="ohm-grid" x1="35" y1="64" x2="215" y2="64"/>
+            <line class="ohm-grid" x1="35" y1="107" x2="215" y2="107"/>
+            <line class="ohm-grid" x1="95" y1="20" x2="95" y2="150"/>
+            <line class="ohm-grid" x1="155" y1="20" x2="155" y2="150"/>
+            <line class="ohm-axis" x1="35" y1="150" x2="215" y2="150"/>
+            <line class="ohm-axis" x1="35" y1="150" x2="35" y2="20"/>
+            <path class="ohm-trace" id="ohm-trace" d=""/>
+            <circle class="ohm-dot" id="ohm-dot" cx="35" cy="150" r="4.5"/>
+            <text class="ohm-axis-txt" x="205" y="166">I (A)</text>
+            <text class="ohm-axis-txt" x="12" y="26">V (V)</text>
+          </svg>
+        </div>
+        <div class="csim-readouts" aria-live="polite">
+          <div class="csim-stat"><b id="ohm-i">—</b><span>Current I (A)</span></div>
+          <div class="csim-stat"><b id="ohm-rnow">—</b><span>Resistance now (Ω)</span></div>
+          <div class="csim-stat"><b id="ohm-shape">—</b><span>Line shape</span></div>
+        </div>
+        <div class="csim-task">
+          <strong>Challenge:</strong> sweep V for <strong>both</strong> the fixed resistor and the lamp, then say which trace is <strong>ohmic</strong> (constant resistance — its gradient never changes).
+          <div class="ohm-picks" role="group" aria-label="Which trace is ohmic">
+            <button type="button" data-ohm-pick="line" aria-pressed="false">The straight line</button>
+            <button type="button" data-ohm-pick="curve" aria-pressed="false">The curve that steepens</button>
+          </div>
+          <p class="csim-fb" id="ohm-fb" role="status" aria-live="polite"></p>
+        </div>
       </div>
-      <p class="fb-line" id="graph-fb" aria-live="polite"></p>
     </div>
 
     <div class="widget" data-prog-challenge="ch-predict-r">
@@ -1241,6 +1480,43 @@ layout: none
     </div>
 
     <span class="step-label try">Try</span>
+
+    <div class="widget" id="combineSim" data-prog-challenge="ch-combine-target">
+      <h3>🧮 Combine two resistors — live</h3>
+      <p class="hint">Drag the two resistors and flip the connection. The total — and the working behind it — update instantly. Notice how series always adds up, while parallel always gives less than the smaller resistor.</p>
+      <div class="csim">
+        <div class="csim-controls">
+          <div class="csim-row">
+            <label for="comb-r1">Resistor 1</label>
+            <input type="range" id="comb-r1" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms">
+            <input type="number" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label for="comb-r2">Resistor 2</label>
+            <input type="range" id="comb-r2" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms">
+            <input type="number" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label id="comb-mode-lab">Connection</label>
+            <div class="csim-toggle" role="group" aria-labelledby="comb-mode-lab">
+              <button type="button" data-sim-toggle="mode" data-value="series" aria-pressed="true">Series</button>
+              <button type="button" data-sim-toggle="mode" data-value="parallel" aria-pressed="false">Parallel</button>
+            </div>
+          </div>
+        </div>
+        <div class="combine-out">
+          <div class="combine-total"><b id="comb-rt">—</b><span>Total resistance R<sub>T</sub> (Ω)</span></div>
+          <p class="combine-work" id="comb-work" aria-live="polite"></p>
+          <p class="combine-note" id="comb-note"></p>
+        </div>
+        <div class="csim-task">
+          <strong>Challenge:</strong> make the total resistance <strong>less than 4 Ω</strong>. Only one of the two connections can do it — find out which.
+          <div class="meter-actions"><button type="button" id="comb-check">Check</button></div>
+          <p class="csim-fb" id="comb-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
     <div class="practice">
       <span class="practice-tag">Exam-style questions</span>
       <p class="stem"><strong>Q1 (3).</strong> A series circuit has a 9 V supply and resistors of 10 Ω and 20 Ω. (a) Total resistance? (b) Current?</p>
@@ -2140,10 +2416,6 @@ buildGAR();
       });
     });
   }
-  singlePick('[data-prog-challenge="ch-graph"]','graph-fb',
-    "Correct — steeper line = bigger gradient = higher resistance (gradient = R).",
-    "Not quite — the gradient is the resistance, so the steeper line (A) has the higher resistance.",
-    "ch-graph");
   singlePick('[data-prog-challenge="ch-error"]','err-fb',
     "Right — he flipped it. I = V ÷ R = 10 ÷ 2 = 5 A.",
     "Look again — current is I = V ÷ R = 10 ÷ 2 = 5 A, so 0.2 A is wrong because the formula was upside down.",
@@ -2340,6 +2612,229 @@ matchNew();
   }, { rootMargin: "-25% 0px -65% 0px" });
   Object.keys(map).forEach(function(id){ var s = document.getElementById(id); if(s) obs.observe(s); });
 })();
+</script>
+
+<!-- WP-3 — live series/parallel circuit sim -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("circuitSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var gSeries = $("csim-series"), gPar = $("csim-parallel");
+
+  function compute(s){
+    var V=s.V, R1=s.R1, R2=s.R2, o={ mode:s.mode };
+    if(s.mode==="series"){
+      var I=V/(R1+R2);
+      o.I=I; o.I1=I; o.I2=I; o.V1=I*R1; o.V2=I*R2;
+    } else {
+      o.I1=V/R1; o.I2=V/R2; o.I=o.I1+o.I2; o.V1=V; o.V2=V;
+    }
+    return o;
+  }
+  function fmt(x){ return (Math.round(x*100)/100).toFixed(2); }
+  function bright(i){ return Math.max(0.05, Math.min(1, i/4)); }
+
+  var last = {};
+  function render(state){
+    var o = compute(state); last = o;
+    gSeries.style.display = state.mode==="series" ? "" : "none";
+    gPar.style.display    = state.mode==="parallel" ? "" : "none";
+    $("csim-i").textContent  = fmt(o.I);
+    $("csim-v1").textContent = fmt(o.V1);
+    $("csim-i1").textContent = fmt(o.I1);
+    $("csim-v2").textContent = fmt(o.V2);
+    $("csim-i2").textContent = fmt(o.I2);
+    if(state.mode==="series"){
+      $("csim-glow-s1").setAttribute("fill-opacity", bright(o.I1));
+      $("csim-glow-s2").setAttribute("fill-opacity", bright(o.I2));
+    } else {
+      $("csim-glow-p1").setAttribute("fill-opacity", bright(o.I1));
+      $("csim-glow-p2").setAttribute("fill-opacity", bright(o.I2));
+    }
+  }
+
+  var sim = window.WidgetKit.liveSim(root, { render: render });
+
+  /* current-flow dots: march the dashed overlays, speed proportional to current */
+  var flows = [
+    { el:$("csim-flow-s"),  mode:"series",   cur:function(o){ return o.I;  } },
+    { el:$("csim-flow-pt"), mode:"parallel", cur:function(o){ return o.I;  } },
+    { el:$("csim-flow-p1"), mode:"parallel", cur:function(o){ return o.I1; } },
+    { el:$("csim-flow-p2"), mode:"parallel", cur:function(o){ return o.I2; } }
+  ];
+  var offs = [0,0,0,0], lastT = 0;
+  if(!window.WidgetKit.reducedMotion()){
+    (function tick(t){
+      if(!lastT){ lastT = t; }
+      var dt = (t-lastT)/1000; lastT = t;
+      flows.forEach(function(f,i){
+        if(f.mode !== last.mode){ return; }
+        var speed = Math.min(70, (f.cur(last)||0)*12);
+        offs[i] -= speed*dt;
+        f.el.style.strokeDashoffset = offs[i];
+      });
+      requestAnimationFrame(tick);
+    })(0);
+  }
+
+  /* scored challenge: parallel + equal brightness + read off the (full-supply) voltage */
+  var fb = $("csim-fb");
+  function setFb(ok, msg){ fb.className = "csim-fb " + (ok?"ok":"no"); fb.textContent = (ok?"✓ ":"✗ ")+msg; }
+  $("csim-check").addEventListener("click", function(){
+    var s = sim.state;
+    if(s.mode !== "parallel"){ setFb(false, "First switch the circuit to parallel."); if(window.Progress) Progress.miss(); return; }
+    if(s.R1 !== s.R2){ setFb(false, "Equal brightness needs equal resistance — set Lamp 1 and Lamp 2 to the same value."); if(window.Progress) Progress.miss(); return; }
+    var ans = parseFloat($("csim-ans").value);
+    if(isNaN(ans)){ fb.className="csim-fb no"; fb.textContent="Read each lamp's voltage from the meter above, then type it in."; return; }
+    if(Math.round(ans) === Math.round(s.V)){
+      setFb(true, "Correct — in parallel each branch gets the full supply voltage ("+s.V+" V), and with equal resistance both lamps are equally bright.");
+      if(window.Progress) Progress.complete("ch-sim-parallel-equal");
+    } else {
+      setFb(false, "Not quite — in parallel each lamp gets the FULL supply voltage. Read the Lamp 1 / Lamp 2 voltage again.");
+      if(window.Progress) Progress.miss();
+    }
+  });
+});
+</script>
+
+<!-- WP-4 — live Ohm's-law explorer + V–I graph -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("ohmSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var trace = $("ohm-trace"), dot = $("ohm-dot");
+  var seen = { ohmic:false, lamp:false };
+
+  var X0=35, X1=215, Y0=150, Y1=20, IMAX=6, VMAX=12;
+  function mapX(I){ return X0 + (Math.max(0,Math.min(IMAX,I))/IMAX)*(X1-X0); }
+  function mapY(V){ return Y0 - (Math.max(0,Math.min(VMAX,V))/VMAX)*(Y0-Y1); }
+  function Iof(V,R,comp){ return comp==="lamp" ? V/(R*(1+1.5*V/VMAX)) : V/R; }
+  function Rof(V,R,comp){ return comp==="lamp" ? R*(1+1.5*V/VMAX) : R; }
+
+  function render(s){
+    var V=s.V, R=s.R, comp=s.comp;
+    seen[comp] = true;
+    var n=24, d="";
+    for(var i=0;i<=n;i++){
+      var u = V*i/n, Iu = Iof(u,R,comp);
+      d += (i?" L":"M") + mapX(Iu).toFixed(1) + "," + mapY(u).toFixed(1);
+    }
+    trace.setAttribute("d", d);
+    var Iv = Iof(V,R,comp);
+    dot.setAttribute("cx", mapX(Iv).toFixed(1));
+    dot.setAttribute("cy", mapY(V).toFixed(1));
+    $("ohm-i").textContent = Iv.toFixed(2);
+    $("ohm-rnow").textContent = Rof(V,R,comp).toFixed(1);
+    $("ohm-shape").textContent = comp==="lamp" ? "curved" : "straight";
+  }
+
+  window.WidgetKit.liveSim(root, { render: render });
+
+  var fb = $("ohm-fb");
+  function setFb(ok, msg){ fb.className = "csim-fb " + (ok?"ok":"no"); fb.textContent = (ok?"✓ ":"✗ ")+msg; }
+  [].forEach.call(root.querySelectorAll("[data-ohm-pick]"), function(btn){
+    btn.addEventListener("click", function(){
+      if(!(seen.ohmic && seen.lamp)){
+        fb.className="csim-fb no";
+        fb.textContent="Sweep V for both the fixed resistor AND the lamp first, so you can compare the two traces.";
+        return;
+      }
+      [].forEach.call(root.querySelectorAll("[data-ohm-pick]"), function(b){ b.setAttribute("aria-pressed", b===btn ? "true":"false"); });
+      if(btn.getAttribute("data-ohm-pick")==="line"){
+        setFb(true, "Correct — the fixed resistor gives a straight line: its gradient (V ÷ I = R) is constant, so it's ohmic. The lamp's line bends because its resistance rises as it heats.");
+        if(window.Progress) Progress.complete("ch-graph-live");
+      } else {
+        setFb(false, "Not quite — the ohmic component keeps a constant gradient, which is the straight line. The curve steepens because the lamp's resistance changes.");
+        if(window.Progress) Progress.miss();
+      }
+    });
+  });
+});
+</script>
+
+<!-- WP-5 — drag-to-place the meters -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("meterPlace");
+  if(!root) return;
+  var glow = document.getElementById("meter-bulb-glow");
+  var fb = document.getElementById("meter-fb");
+
+  function validate(s){
+    var main = s[0], across = s[1];
+    var perSlot = [ main==="ammeter", across==="voltmeter" ];
+    var ok = perSlot[0] && perSlot[1];
+    var msg;
+    if(ok){ msg = "Correct! The ammeter sits in the line (it measures the current through it); the voltmeter sits across the lamp (it measures the voltage). The lamp lights."; }
+    else if(main==="voltmeter"){ msg = "No current — a voltmeter's very high resistance blocks the main line, so the lamp stays dark."; }
+    else if(across==="ammeter"){ msg = "Risky — an ammeter has almost no resistance, so placed across the lamp it short-circuits it."; }
+    else { msg = "Not quite — the ammeter goes in the main line; the voltmeter goes across the lamp."; }
+    return { ok:ok, perSlot:perSlot, msg:msg };
+  }
+
+  function light(on){ glow.setAttribute("fill-opacity", on ? "1" : "0.08"); }
+
+  var api = window.WidgetKit.dragPlace(root, { validate: validate });
+
+  document.getElementById("meter-check").addEventListener("click", function(){
+    var r = api.check();
+    if(!r || r.msg === "empty"){ fb.className = "csim-fb"; light(false); return; }
+    fb.className = "csim-fb " + (r.ok ? "ok" : "no");
+    light(r.ok);
+    if(window.Progress){ r.ok ? Progress.complete("ch-meter-place") : Progress.miss(); }
+  });
+  document.getElementById("meter-reset").addEventListener("click", function(){
+    api.reset(); fb.className = "csim-fb"; light(false);
+  });
+});
+</script>
+
+<!-- WP-8 — live combined-resistance sim (L5) -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("combineSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var lastRt = 0;
+
+  function render(s){
+    var R1 = s.R1, R2 = s.R2, rt, work, note;
+    if(s.mode === "series"){
+      rt = R1 + R2;
+      work = "<var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub> = " + R1 + " + " + R2 + " = " + rt + " Ω";
+      note = "Series adds up — the total is larger than either resistor.";
+    } else {
+      rt = (R1 * R2) / (R1 + R2);
+      work = "<var>R</var><sub>T</sub> = (<var>R</var><sub>1</sub> × <var>R</var><sub>2</sub>) ÷ (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>) = (" + R1 + " × " + R2 + ") ÷ " + (R1 + R2) + " = " + rt.toFixed(2) + " Ω";
+      note = "Parallel — the total is smaller than the smaller resistor (" + Math.min(R1, R2) + " Ω).";
+    }
+    lastRt = rt;
+    $("comb-rt").textContent = (Math.round(rt * 100) / 100).toFixed(2);
+    $("comb-work").innerHTML = work;
+    $("comb-note").textContent = note;
+  }
+
+  window.WidgetKit.liveSim(root, { render: render });
+
+  var fb = $("comb-fb");
+  $("comb-check").addEventListener("click", function(){
+    if(lastRt < 4){
+      fb.className = "csim-fb ok";
+      fb.textContent = "✓ " + lastRt.toFixed(2) + " Ω — under 4 Ω. Only parallel can do this: it gives the charge two paths, so the total is always less than the smaller resistor. Series just adds up.";
+      if(window.Progress) Progress.complete("ch-combine-target");
+    } else {
+      fb.className = "csim-fb no";
+      fb.textContent = "✗ " + lastRt.toFixed(2) + " Ω is not below 4 Ω yet. Series only adds up — switch to parallel and use small resistors.";
+      if(window.Progress) Progress.miss();
+    }
+  });
+});
 </script>
 
 </body>

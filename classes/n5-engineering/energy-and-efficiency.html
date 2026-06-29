@@ -490,7 +490,7 @@ title: Energy & Efficiency — National 5 Engineering Science
 
       <div class="note">The <strong>four forms used in calculations at National 5</strong> are kinetic (<var>E</var><sub>k</sub>), potential (<var>E</var><sub>p</sub>), electrical (<var>E</var><sub>e</sub>) and heat (<var>E</var><sub>h</sub>).</div>
 
-      <div class="widget" data-match id="match-forms">
+      <div class="widget" data-match data-prog-challenge="ch-match-forms" id="match-forms">
         <h3>Match the energy form</h3>
         <p class="hint">Choose the form of energy for each example, then check. (Booklet p.3 task.)</p>
         <div class="match-rows">
@@ -554,7 +554,7 @@ title: Energy & Efficiency — National 5 Engineering Science
         <figcaption>Useful output (green) does the job; wasted output (red) is lost, usually as heat or sound.</figcaption>
       </figure>
 
-      <div class="widget" data-builder id="build-transform">
+      <div class="widget" data-builder data-prog-challenge="ch-build-transform" id="build-transform">
         <h3>Build the energy diagram</h3>
         <p class="hint">An electric motor turns electrical energy into movement. Tap a block to place it; tap a placed block to remove it. One block is not needed.</p>
         <div class="build-row">
@@ -577,7 +577,7 @@ title: Energy & Efficiency — National 5 Engineering Science
         <div class="score" data-out aria-live="polite"></div>
       </div>
 
-      <div class="widget" data-match id="match-iuw">
+      <div class="widget" data-match data-prog-challenge="ch-match-iuw" id="match-iuw">
         <h3>Useful or wasted?</h3>
         <p class="hint">For each energy output, decide whether it is the useful output or wasted energy, then check.</p>
         <div class="match-rows">
@@ -1116,6 +1116,7 @@ title: Energy & Efficiency — National 5 Engineering Science
         });
         out.textContent = done===0 ? "Choose at least one answer first."
           : right+" of "+rows.length+" correct"+(right<rows.length ? " — fix the ✗ rows and check again." : " — well done!");
+        w.dataset.result = done===0 ? "none" : (right<rows.length ? "partial" : "correct");
       });
       w.querySelector("[data-clear]").addEventListener("click", function(){
         rows.forEach(function(s){ s.value=""; var m=markOf(s); m.textContent=""; m.className="match-mark"; });
@@ -1168,7 +1169,7 @@ title: Energy & Efficiency — National 5 Engineering Science
         });
       });
       w.querySelector("[data-check]").addEventListener("click", function(){
-        if(slots.every(isEmpty)){ out.textContent="Place some blocks first."; return; }
+        if(slots.every(isEmpty)){ out.textContent="Place some blocks first."; w.dataset.result="none"; return; }
         var right=0;
         slots.forEach(function(s){
           var ok=(!isEmpty(s) && word(s).textContent===s.dataset.answer);
@@ -1179,6 +1180,7 @@ title: Energy & Efficiency — National 5 Engineering Science
         });
         out.textContent= right===slots.length ? "All "+slots.length+" blocks correct — well done!"
           : right+" of "+slots.length+" blocks correct — the ✗ spaces need a different block.";
+        w.dataset.result = right===slots.length ? "correct" : "partial";
       });
       w.querySelector("[data-clear]").addEventListener("click", function(){
         slots.forEach(function(s){ word(s).textContent="—"; s.classList.remove("filled"); setLabel(s); });
@@ -1373,6 +1375,34 @@ title: Energy & Efficiency — National 5 Engineering Science
         opened=[];
       });
     })();
+  })();
+  </script>
+
+  <!-- ============================================================
+       Gamification engine hook — reports the existing match /
+       builder widgets to the shared progress engine (assets/js/progress.js).
+       ============================================================ -->
+  <script>
+  (function(){
+    "use strict";
+    function award(id, correct){
+      if(!window.Progress) return;
+      if(correct){ window.Progress.complete(id); } else { window.Progress.miss(); }
+    }
+    document.addEventListener("DOMContentLoaded", function(){
+      if(window.Progress){ window.Progress.markSeen("eng-energy"); }
+    });
+    /* read each widget's result after its own check handler has run */
+    [].forEach.call(document.querySelectorAll("[data-match][data-prog-challenge], [data-builder][data-prog-challenge]"), function(w){
+      var ch=w.getAttribute("data-prog-challenge");
+      var btn=w.querySelector("[data-check]");
+      if(!btn) return;
+      btn.addEventListener("click", function(){
+        var r=w.dataset.result;
+        if(!r || r==="none") return;
+        award(ch, r==="correct");
+      });
+    });
   })();
   </script>
 </body>
