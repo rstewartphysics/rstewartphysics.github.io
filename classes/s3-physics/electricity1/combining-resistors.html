@@ -1,0 +1,760 @@
+---
+layout: none
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#eaf7fa" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0d1f1a" media="(prefers-color-scheme: dark)" />
+<title>Electricity 1 · Part C – Combining resistors</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/s3-physics.js" defer></script>
+  <script src="/assets/js/widget-kit.js" defer></script>
+  <link rel="stylesheet" href="/assets/css/s3-physics.css?v=s3-20260616a">
+
+<style>
+/* ============================================================
+   ELECTRICITY 1 · PART C — widget styling (teal S3 theme)
+   Loads after s3-physics.css so it wins.
+   ============================================================ */
+:root {
+  --c-learn: var(--accent);   /* teal  — learn content */
+  --c-try:   #b8860b;         /* amber — interactives / try */
+  --c-check: #2b59ff;         /* blue  — check / quiz */
+  --c-ex:    var(--good);     /* green — worked examples */
+  --ok: var(--good);
+  --no: var(--warm);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --c-try:#ffca6f; --c-check:#5fa0ff; }
+}
+/* feature colour on the worked-example edge */
+.worked { border-left-color: var(--c-ex); }
+
+/* colour key */
+.beta-hud { background:var(--surface-2); border-color:var(--border-accent); }
+.colour-key { display:flex; flex-wrap:wrap; gap:.55rem; margin:.6rem 0 0; }
+.ck { display:inline-flex; align-items:center; gap:.35rem; font-weight:800; font-size:.8rem; color:var(--muted); }
+.ck::before { content:""; width:.85em; height:.85em; border-radius:3px; background:var(--ckc, var(--accent)); }
+.ck.learn{ --ckc:var(--c-learn); } .ck.try{ --ckc:var(--c-try); } .ck.check{ --ckc:var(--c-check); } .ck.ex{ --ckc:var(--c-ex); }
+
+/* interactive widget shell (mirrors Higher .widget) */
+.widget {
+  margin: 1rem 0; padding: 1rem;
+  border: 1px solid var(--border-accent);
+  border-left: 5px solid var(--c-try);
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.widget h3 { margin:0 0 .2rem; font-size:1rem; font-weight:900; color:var(--text); }
+.widget .hint { color:var(--muted); font-weight:800; font-size:.9rem; margin:0 0 .7rem; }
+.btnrow { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.8rem; }
+.wbtn {
+  display:inline-flex; align-items:center; gap:.4rem; min-height:48px;
+  padding:.55rem .95rem; border-radius:10px; border:1px solid var(--border-accent);
+  background:var(--card); color:var(--text); font-weight:900;
+  font-family:var(--font-stack); font-size:1rem; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.wbtn:hover { border-color:var(--border-strong); }
+.wbtn.primary { background:linear-gradient(135deg,var(--cta-1),var(--cta-2)); color:#fff; border-color:transparent; }
+.wbtn.primary:hover { filter:brightness(1.06); }
+.wbtn:disabled { opacity:.4; cursor:not-allowed; }
+.fb-line { margin-top:.7rem; font-weight:900; min-height:1.2em; }
+
+/* tap-to-order builder */
+.ord-slots { display:grid; gap:.5rem; margin-top:.3rem; }
+.ord-slot {
+  display:flex; align-items:center; gap:.5rem; min-height:48px; padding:.55rem .7rem;
+  border:2px dashed var(--border); border-radius:10px; background:var(--card);
+  color:var(--muted); font-weight:900; font-family:var(--font-stack);
+  font-size:.95rem; cursor:pointer; text-align:left; width:100%;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.ord-slot .step-n { color:var(--accent-2); flex-shrink:0; }
+.ord-slot.filled { border-style:solid; color:var(--text); }
+.ord-slot.ok { border-color:var(--ok); }
+.ord-slot.no { border-color:var(--no); }
+.ord-bank { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.7rem; }
+.ord-tile {
+  min-height:48px; padding:.5rem .85rem; border:1px solid var(--border-accent);
+  border-radius:10px; background:var(--card); color:var(--text);
+  font-weight:900; font-family:var(--font-stack); font-size:.92rem; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.ord-tile:hover { border-color:var(--border-strong); }
+.ord-tile:disabled { opacity:.35; cursor:not-allowed; }
+
+/* ---- practice callout (mirror Higher) ---- */
+.practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+.practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+.practice .stem { margin: .15rem 0 0; font-weight: 800; color: var(--text); }
+
+/* ---- 30-second check (retrieval) ---- */
+.quickcheck { border-left-color: var(--c-check); }
+.quickcheck h3 .qc-rocket { font-size:1.1rem; }
+.qc-done { font-weight:900; color:var(--good); margin-top:.6rem; min-height:1.2em; }
+
+/* ---- inline per-lesson self-check ---- */
+.self-check { margin-top:.8rem; padding:.7rem .85rem; border:1px solid var(--border-accent); border-left:5px solid var(--c-check); border-radius:14px; background:var(--surface-2); }
+.self-check-lead { margin:0 0 .2rem; font-weight:900; color:var(--text); }
+.gar-legend { margin:.1rem 0 .5rem; font-weight:800; color:var(--muted); font-size:.8rem; }
+.gar-btn.e { font-size:.95rem; }
+.gar-btn.e.on { background:#7c3aed; color:#fff; border-color:transparent; }
+@media (prefers-color-scheme: dark){ .gar-btn.e.on { background:#a78bfa; color:#1b1030; } }
+
+/* ===== combine-resistors live-sim ===== */
+.csim { margin:.4rem 0 .2rem; }
+.csim-controls { display:grid; gap:.6rem; margin:0 0 .8rem; }
+.csim-row { display:grid; grid-template-columns:auto 1fr 4.5rem; align-items:center; gap:.6rem; }
+.csim-row > label { font-weight:900; font-size:.9rem; color:var(--text); min-width:6.5rem; }
+.csim-row input[type=range] { width:100%; accent-color:var(--accent); min-height:32px; }
+.csim-row input[type=number] { width:100%; min-height:40px; padding:.3rem .4rem; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); text-align:center; }
+.csim-toggle { display:inline-flex; gap:.3rem; padding:.25rem; border:1px solid var(--border-soft); border-radius:12px; background:var(--card); }
+.csim-toggle button { flex:1; min-height:40px; padding:.4rem .9rem; border:0; border-radius:9px; background:transparent; color:var(--muted); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.csim-toggle button[aria-pressed=true] { background:var(--accent); color:#fff; }
+.csim-task { margin-top:.9rem; border:1px solid var(--border-accent); border-left:5px solid var(--c-try); border-radius:12px; background:var(--surface-2); padding:.75rem .9rem; }
+.csim-task button { min-height:44px; padding:.5rem 1rem; border:1px solid var(--accent); border-radius:10px; background:var(--accent); color:#fff; font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.csim-fb { margin:.6rem 0 0; font-weight:900; font-size:.9rem; min-height:1.2em; }
+.csim-fb.ok { color:var(--good); }
+.csim-fb.no { color:var(--bad, #d6336c); }
+.meter-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.3rem; }
+@media (max-width:560px){ .csim-row { grid-template-columns:1fr; gap:.3rem; } .csim-row > label { min-width:0; } }
+.combine-out { border:1px solid var(--border-soft); border-radius:12px; background:var(--surface-2); padding:.75rem .9rem; margin:.2rem 0 .3rem; text-align:center; }
+.combine-total b { display:block; font-size:1.7rem; font-weight:900; color:var(--accent-2); line-height:1.1; }
+.combine-total span { display:block; font-size:.76rem; font-weight:800; color:var(--muted); margin-top:.1rem; }
+.combine-work { font-family:"Times New Roman", Times, Georgia, serif; font-size:1.08rem; color:var(--text); margin:.55rem 0 .15rem; }
+.combine-work var { font-style:italic; }
+.combine-note { font-size:.82rem; font-weight:800; color:var(--muted); margin:.2rem 0 0; }
+
+/* ---- "N5 / Going further" marker ---- */
+.going-further { border:1px solid var(--accent-2); border-left:5px solid var(--accent-2); border-radius:12px; background:var(--surface-2); padding:.6rem .85rem; margin:.2rem 0 1rem; font-weight:800; color:var(--text); font-size:.9rem; }
+.gf-pill { display:inline-block; font-size:.68rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2)); padding:2px 9px; border-radius:999px; margin-right:.45rem; }
+
+/* ---- part stepper (mirrors Higher sub-nav; teal-themed) ---- */
+.subnav-wrap {
+  position: sticky; top: 0; z-index: 320;
+  padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+  background: var(--subnav-wrap-bg, rgba(234,247,250,0.80));
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  border-bottom: 1px solid var(--border-soft);
+}
+@media (prefers-color-scheme: dark){
+  .subnav-wrap { background: var(--subnav-wrap-bg, rgba(13,31,26,0.82)); }
+}
+.subnav {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 10px; border-radius: 16px;
+  border: 1px solid var(--border-accent);
+  background: var(--card);
+}
+.subnav-links {
+  display: flex; gap: 12px; flex-wrap: nowrap; overflow: auto;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; min-width: 0;
+}
+.subnav-links::-webkit-scrollbar { display: none; }
+.subnav-link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  text-decoration: none; font-weight: 900; color: var(--text);
+  padding: 8px 4px; border-bottom: 3px solid transparent;
+  white-space: nowrap; opacity: 0.95; font-size: 1rem;
+}
+.subnav-link:hover { opacity: 1; border-bottom-color: var(--accent); }
+.subnav-link.is-active { opacity: 1; border-bottom-color: var(--accent); }
+.subnav-link.soon { color: var(--muted); opacity: .6; cursor: default; }
+.subnav-link.soon:hover { border-bottom-color: transparent; }
+.subnav-cta {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: .35rem;
+  padding: 7px 14px; min-height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff; font-weight: 900; font-size: .95rem; text-decoration: none;
+  white-space: nowrap; box-shadow: 0 6px 16px rgba(0,138,145,0.30);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.subnav-cta:hover, .subnav-cta:focus-visible {
+  transform: translateY(-1px); filter: brightness(1.06);
+  box-shadow: 0 8px 20px rgba(0,138,145,0.40);
+}
+@media (prefers-color-scheme: dark){ .subnav-cta { color: #04211b; } }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  {% include site-menu.html %}
+
+<!-- BANNER -->
+<div class="banner-wrap">
+  <img src="/assets/s3-physics-banner.jpeg" alt="S3 Physics banner" class="banner">
+  <div class="banner-overlay-text">
+    <h1>Electricity 1 · Part C — Combining resistors</h1>
+  </div>
+</div>
+
+<!-- PART STEPPER -->
+<div class="subnav-wrap">
+  <nav class="subnav" aria-label="Electricity 1 parts">
+    <div class="subnav-links">
+      <a class="subnav-link" href="/classes/s3-physics/electricity1/circuits-symbols-meters.html">A · Symbols &amp; meters</a>
+      <a class="subnav-link" href="/classes/s3-physics/electricity1/resistance-ohms-law.html">B · Resistance &amp; Ohm's law</a>
+      <a class="subnav-link is-active" href="/classes/s3-physics/electricity1/combining-resistors.html" aria-current="page">C · Combining resistors</a>
+      <a class="subnav-link" href="/classes/s3-physics/electricity1/practice.html">Practice</a>
+    </div>
+    <a class="subnav-cta" href="/classes/s3-physics/electricity1.html">Electricity 1 hub</a>
+  </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="page-wrap" id="mainContent">
+<h1 class="visually-hidden">Electricity 1 · Part C — Combining resistors</h1>
+
+<a href="/classes/s3-physics/electricity1.html" class="back-to-s3">⬅ Back to Electricity 1</a>
+
+<div class="topic-box">
+
+<h2>⑤⑥ Combining resistors</h2>
+<p class="section-sub">Total resistance in series and parallel sets, then combination circuits — always solving the parallel part first.</p>
+
+<section class="info-card beta-hud" aria-label="Activity colour key">
+  <div class="colour-key" aria-hidden="true">
+    <span class="ck learn">Learn</span>
+    <span class="ck try">Interactives</span>
+    <span class="ck check">Check / quiz</span>
+    <span class="ck ex">Worked examples</span>
+  </div>
+</section>
+
+<p>
+  <a href="/classes/s3-physics/RS Electricity B1 N5 2025.pdf"
+     target="_blank"
+     class="download-btn">
+     📘 Download the Full Booklet (PDF)
+  </a>
+</p>
+
+<!-- ---------- L5 ---------- -->
+<div class="collapsible-panel" id="l5">
+<details>
+  <summary>
+    <span class="summary-icon">⑤</span>
+    <span class="summary-text">L5 — Combining resistors (basic)</span>
+  </summary>
+
+  <div class="info-card">
+
+    <span class="step-label">Learn</span>
+    <p><strong>Series — resistances add up:</strong></p>
+    <p style="text-align:center;"><strong>R<sub>T</sub> = R₁ + R₂ + …</strong></p>
+    <div class="worked">
+      <p>10 Ω and 20 Ω in series: R<sub>T</sub> = 10 + 20 = <strong>30 Ω</strong>.</p>
+      <p>Adding more in series <strong>increases</strong> total resistance, so the current gets <strong>smaller</strong>.</p>
+    </div>
+
+    <p><strong>Parallel (equal resistors) — quick method:</strong></p>
+    <p style="text-align:center;"><strong>R<sub>T</sub> = R₁ ÷ (number of branches)</strong></p>
+    <div class="worked">
+      <p>Four 12 Ω resistors in parallel: R<sub>T</sub> = 12 ÷ 4 = <strong>3 Ω</strong>.</p>
+      <p>The total is always <strong>smaller than the smallest</strong> resistor. Adding a branch gives the current another path, so total current <strong>increases</strong>.</p>
+    </div>
+
+    <span class="step-label try">Try</span>
+
+    <div class="widget" id="combineSim" data-prog-challenge="ch-combine-target">
+      <h3>🧮 Combine two resistors — beat the target</h3>
+      <p class="hint"><strong>Challenge below:</strong> get the total under 4 Ω. Set the two resistors and the connection — the total and its working update instantly, so you can see why series always adds up while parallel always gives less than the smaller resistor.</p>
+      <div class="csim">
+        <div class="csim-controls">
+          <div class="csim-row">
+            <label for="comb-r1">Resistor 1</label>
+            <input type="range" id="comb-r1" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms">
+            <input type="number" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label for="comb-r2">Resistor 2</label>
+            <input type="range" id="comb-r2" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms">
+            <input type="number" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms (number)">
+          </div>
+          <div class="csim-row">
+            <label id="comb-mode-lab">Connection</label>
+            <div class="csim-toggle" role="group" aria-labelledby="comb-mode-lab">
+              <button type="button" data-sim-toggle="mode" data-value="series" aria-pressed="true">Series</button>
+              <button type="button" data-sim-toggle="mode" data-value="parallel" aria-pressed="false">Parallel</button>
+            </div>
+          </div>
+        </div>
+        <div class="combine-out">
+          <div class="combine-total"><b id="comb-rt">—</b><span>Total resistance R<sub>T</sub> (Ω)</span></div>
+          <p class="combine-work" id="comb-work" aria-live="polite"></p>
+          <p class="combine-note" id="comb-note"></p>
+        </div>
+        <div class="csim-task">
+          <strong>Challenge:</strong> make the total resistance <strong>less than 4 Ω</strong>. Only one of the two connections can do it — find out which.
+          <div class="meter-actions"><button type="button" id="comb-check">Check</button></div>
+          <p class="csim-fb" id="comb-fb" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Exam-style questions</span>
+      <p class="stem"><strong>Q1 (3).</strong> A series circuit has a 9 V supply and resistors of 10 Ω and 20 Ω. (a) Total resistance? (b) Current?</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>(a) R<sub>T</sub> = 10 + 20 = <strong>30 Ω</strong></p>
+        <p>(b) I = V ÷ R = 9 ÷ 30 = <strong>0.30 A</strong></p>
+      </div></details>
+      <p class="stem" style="margin-top:.8rem;"><strong>Q2 (4).</strong> Two 40 Ω resistors in parallel across 12 V. (a) Total resistance? (b) Current in each branch?</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>(a) Equal pair: 40 ÷ 2 = <strong>20 Ω</strong></p>
+        <p>(b) Each branch: I = 12 ÷ 40 = <strong>0.30 A</strong></p>
+      </div></details>
+    </div>
+
+    <span class="step-label">See</span>
+    <div class="video-grid">
+      <div class="video-card">
+        <p class="video-title">Adding resistors in series</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/4t560bFk8DM" title="Adding resistors in series"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © The Other Mr Stewart (YouTube @mrstewartphysics), via YouTube</p></div>
+      </div>
+    </div>
+
+    <div class="widget quickcheck" data-prog-challenge="ch-check-l5">
+      <h3><span class="qc-rocket" aria-hidden="true">🚀</span> 30-second check — L5</h3>
+      <p class="hint">Three quick ones. Answer all three to register this check.</p>
+      <div id="check-l5"></div>
+      <p class="qc-done" id="check-l5-done" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label check">Check</span>
+    <p>Predict, then (in class) measure the total resistance for series and equal-value parallel sets.</p>
+    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L5"></div></div>
+
+  </div>
+
+</details>
+</div>
+
+<!-- ---------- L6 ---------- -->
+<div class="collapsible-panel" id="l6">
+<details>
+  <summary>
+    <span class="summary-icon">⑥</span>
+    <span class="summary-text">L6 — Combining resistors (tricky)</span>
+  </summary>
+
+  <div class="info-card">
+
+    <p class="going-further"><span class="gf-pill">N5 · Going further</span> Combination circuits and the reciprocal method stretch beyond the core S3 work — useful for N5 revision. The core S3 outcome is series and equal-value parallel sets (Part C, L5).</p>
+
+    <span class="step-label">Learn</span>
+    <p><strong>Parallel with different values — reciprocal method:</strong></p>
+    <p style="text-align:center;"><strong>1 / R<sub>T</sub> = 1/R₁ + 1/R₂ + …</strong></p>
+
+    <p><strong>Which method do I use?</strong></p>
+    <ul>
+      <li>Resistors one after another → <strong>series</strong>: add them.</li>
+      <li>Parallel, all the <strong>same</strong> value → divide one value by the number of branches.</li>
+      <li>Parallel, <strong>different</strong> values → reciprocal method, then flip your answer.</li>
+    </ul>
+
+    <div class="worked">
+      <p><strong>Combination worked example</strong> (1 kΩ ∥ 1.5 kΩ, then in series with 2.2 kΩ):</p>
+      <p><em>Step 1 — parallel pair:</em></p>
+      <p>1/R<sub>p</sub> = 1/1000 + 1/1500 = 0.001666…</p>
+      <p>R<sub>p</sub> = <strong>600 Ω</strong></p>
+      <p><em>Step 2 — add the series resistor:</em></p>
+      <p>R<sub>T</sub> = R<sub>p</sub> + R₃ = 600 + 2200 = <strong>2.8 kΩ</strong></p>
+    </div>
+    <p><strong>Method:</strong> always solve the <em>parallel</em> part first, then add anything in series with it.</p>
+
+    <div class="widget" data-prog-challenge="ch-order-combo">
+      <h3>Order the steps — combination circuit</h3>
+      <p class="hint">A parallel pair is in series with another resistor. Tap the steps into the right order to find the total resistance. Tap a placed step to clear it.</p>
+      <div class="ord-slots">
+        <button type="button" class="ord-slot"><span class="step-n">1.</span> <span class="ord-word">—</span></button>
+        <button type="button" class="ord-slot"><span class="step-n">2.</span> <span class="ord-word">—</span></button>
+        <button type="button" class="ord-slot"><span class="step-n">3.</span> <span class="ord-word">—</span></button>
+        <button type="button" class="ord-slot"><span class="step-n">4.</span> <span class="ord-word">—</span></button>
+      </div>
+      <div class="ord-bank">
+        <button type="button" class="ord-tile" data-word="Add the series resistor: R_T = R_p + R₃">Add the series resistor: R_T = R_p + R₃</button>
+        <button type="button" class="ord-tile" data-word="Find the parallel pair: 1/R_p = 1/R₁ + 1/R₂">Find the parallel pair: 1/R_p = 1/R₁ + 1/R₂</button>
+        <button type="button" class="ord-tile" data-word="State the total resistance R_T">State the total resistance R_T</button>
+        <button type="button" class="ord-tile" data-word="Flip 1/R_p to get R_p">Flip 1/R_p to get R_p</button>
+      </div>
+      <div class="btnrow"><button class="wbtn primary" type="button" id="ord-check">Check order</button><button class="wbtn" type="button" id="ord-reset">Reset</button></div>
+      <p class="fb-line" id="ord-fb" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label try">Try</span>
+    <div class="practice">
+      <span class="practice-tag">Exam-style questions</span>
+      <p class="stem"><strong>Q1 (4).</strong> 9 V across 30 Ω ∥ 15 Ω. (a) Total resistance? (b) Current in the 15 Ω branch?</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>(a) 1/R<sub>T</sub> = 1/30 + 1/15 = 0.1 → R<sub>T</sub> = <strong>10 Ω</strong></p>
+        <p>(b) Branch voltage is the full 9 V: I = 9 ÷ 15 = <strong>0.60 A</strong></p>
+      </div></details>
+      <p class="stem" style="margin-top:.8rem;"><strong>Q2 (4).</strong> 12 V supply, 6 Ω in series with a 12 Ω ∥ 12 Ω pair. Total resistance and supply current?</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>Parallel pair = 6 Ω; total = 6 + 6 = <strong>12 Ω</strong>; I = 12 ÷ 12 = <strong>1 A</strong>.</p>
+      </div></details>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Booklet answers — combination circuits</span>
+      <details class="reveal"><summary>Check your booklet combination-circuit answers (p.11)</summary><div class="reveal-body">
+        <p><strong>Series rule:</strong> R<sub>T</sub> = R₁ + R₂ + …  <strong>Parallel rule:</strong> 1/R<sub>T</sub> = 1/R₁ + 1/R₂ + …</p>
+        <p>① 100 Ω ∥ 200 Ω = 66.7 Ω, + 750 Ω = <strong>≈ 817 Ω</strong></p>
+        <p>② 3.5 kΩ ∥ 1.5 kΩ = 1.05 kΩ, + 10 kΩ = <strong>≈ 11.05 kΩ</strong></p>
+        <p>③ (1 kΩ + 2.2 kΩ) = 3.2 kΩ, ∥ 1.5 kΩ = <strong>≈ 1.02 kΩ</strong></p>
+        <p>④ (7.5 kΩ + 2.2 kΩ) = 9.7 kΩ, ∥ 750 Ω = <strong>≈ 696 Ω</strong></p>
+        <p>(Always combine the parallel part first.)</p>
+      </div></details>
+    </div>
+
+    <details class="reveal" style="margin-top:1rem;">
+      <summary>🔥 Stretch — power (beyond Block 1)</summary>
+      <div class="reveal-body">
+        <p><strong>C1.</strong> 0.5 A flows through 20 Ω. Find the power and the energy transferred in 40 s.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body">
+          <p>P = I²R = 0.5² × 20 = <strong>5 W</strong>; E = P × t = 5 × 40 = <strong>200 J</strong>.</p>
+        </div></details>
+        <p style="margin-top:.6rem;"><strong>C2.</strong> A 50 Ω resistor dissipates 12.5 W. Find the voltage across it.</p>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body">
+          <p>V = √(P × R) = √(12.5 × 50) = √625 = <strong>25 V</strong>.</p>
+        </div></details>
+      </div>
+    </details>
+
+    <span class="step-label">See</span>
+    <div class="video-grid">
+      <div class="video-card">
+        <p class="video-title">Adding resistors in parallel</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/14GTzFPsfzw" title="Adding resistors in parallel"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © The Other Mr Stewart (YouTube @mrstewartphysics), via YouTube</p></div>
+      </div>
+      <div class="video-card">
+        <p class="video-title">Combination circuit calculations</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/6H_4pfxWfiI" title="Combination circuit calculations"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © Mr Bell – Practical Electronics, via YouTube</p></div>
+      </div>
+    </div>
+
+    <div class="widget quickcheck" data-prog-challenge="ch-check-l6">
+      <h3><span class="qc-rocket" aria-hidden="true">🚀</span> 30-second check — L6</h3>
+      <p class="hint">Three quick ones. Answer all three to register this check.</p>
+      <div id="check-l6"></div>
+      <p class="qc-done" id="check-l6-done" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label check">Check</span>
+    <p>Can you find the total resistance of a combination circuit, parallel part first?</p>
+    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L6"></div></div>
+
+  </div>
+
+</details>
+</div>
+
+<p data-credit-note style="font-size:0.82rem;opacity:0.78;margin-top:1.5rem;">Sources &amp; credits: The RS Electricity B1 booklet © R Stewart, 2025. Videos © The Other Mr Stewart (YouTube @mrstewartphysics) and Mr Bell – Practical Electronics, via YouTube.</p>
+
+</div>
+</main>
+
+{% include site-footer.html %}
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+
+<!-- Generic self-marking quiz builder + kept 30-second checks -->
+<script>
+function buildQuiz(containerId, questions, scoreId, opts2) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  opts2 = opts2 || {};
+  let score = 0, answered = 0;
+  questions.forEach((q, qi) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-q';
+
+    const p = document.createElement('p');
+    p.innerHTML = '<strong>Q' + (qi + 1) + '.</strong> ' + q.q;
+    wrap.appendChild(p);
+
+    const opts = document.createElement('div');
+    opts.className = 'quiz-opts';
+    const fb = document.createElement('div');
+    fb.className = 'quiz-fb';
+
+    q.opts.forEach((o, oi) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'quiz-opt';
+      b.textContent = o;
+      b.addEventListener('click', () => {
+        if (wrap.dataset.done) return;
+        wrap.dataset.done = '1';
+        answered++;
+        if (oi === q.a) {
+          b.classList.add('correct');
+          fb.className = 'quiz-fb fb-correct';
+          fb.textContent = 'Correct — ' + q.why;
+          score++;
+        } else {
+          b.classList.add('wrong');
+          fb.className = 'quiz-fb fb-incorrect';
+          const hint = (q.hints && q.hints[oi]) ? q.hints[oi] : q.why;
+          fb.textContent = 'Not quite. ' + hint;
+          opts.children[q.a].classList.add('correct');
+        }
+        Array.from(opts.children).forEach(x => x.disabled = true);
+        if (answered === questions.length) {
+          if (scoreId) {
+            document.getElementById(scoreId).textContent = 'Score: ' + score + ' / ' + questions.length;
+          }
+          if (opts2.challenge && window.S3Beta) {
+            window.S3Beta.complete(opts2.challenge, opts2.pts || 10);
+          }
+        }
+      });
+      opts.appendChild(b);
+    });
+
+    wrap.appendChild(opts);
+    wrap.appendChild(fb);
+    c.appendChild(wrap);
+  });
+}
+
+buildQuiz('check-l5', [
+  { q: 'Two resistors in series: the total resistance is…', opts: ['Their sum', 'Smaller than either', 'Their average'], a: 0, why: 'In series, R_T = R₁ + R₂ + …' },
+  { q: 'Four equal 12 Ω resistors in parallel give…', opts: ['48 Ω', '3 Ω', '12 Ω'], a: 1, why: 'Equal parallel: 12 ÷ 4 = 3 Ω.' },
+  { q: 'Adding more resistors in series makes the current…', opts: ['Larger', 'Smaller', 'Unchanged'], a: 1, why: 'More resistance, same voltage → smaller current.' }
+], 'check-l5-done', { challenge: 'ch-check-l5', pts: 10 });
+
+buildQuiz('check-l6', [
+  { q: 'In a combination circuit, you should first solve the…', opts: ['Series part', 'Parallel part', 'Largest resistor'], a: 1, why: 'Always combine the parallel part first, then add the series resistor.' },
+  { q: 'For different parallel resistors you use…', opts: ['R_T = R₁ + R₂', '1/R_T = 1/R₁ + 1/R₂', 'R_T = R₁ ÷ 2'], a: 1, why: 'Different values need the reciprocal method.' },
+  { q: 'A parallel total is always…', opts: ['Bigger than the biggest', 'Smaller than the smallest', 'Equal to the average'], a: 1, why: 'Parallel total is smaller than the smallest branch resistor.' }
+], 'check-l6-done', { challenge: 'ch-check-l6', pts: 10 });
+</script>
+
+<!-- Green / Amber / Red self-check (saved on device) -->
+<script>
+const garCriteria = [
+  { level: 'L5', items: [
+    { id: 'l5a', t: 'I can find total resistance in series and equal-value parallel circuits.' }
+  ]},
+  { level: 'L6', items: [
+    { id: 'l6a', t: 'I can find total resistance in combination circuits.' }
+  ]}
+];
+
+var GAR_LEVELS = [
+  { col:'r', icon:'🔴', label:'Need help' },
+  { col:'a', icon:'🟠', label:'Practising' },
+  { col:'g', icon:'🟢', label:'Secure' },
+  { col:'e', icon:'⭐', label:'Can explain it to someone else' }
+];
+
+function setGarButtons(row, val) {
+  GAR_LEVELS.forEach(lv => {
+    const b = row.querySelector('.gar-btn.' + lv.col);
+    if (b) b.classList.toggle('on', lv.col === val);
+  });
+}
+
+function buildGAR() {
+  garCriteria.forEach(group => {
+    const c = document.querySelector('[data-gar-level="' + group.level + '"]');
+    if (!c) return;
+
+    const legend = document.createElement('p');
+    legend.className = 'gar-legend';
+    legend.textContent = '🔴 need help · 🟠 practising · 🟢 secure · ⭐ can explain it';
+    c.appendChild(legend);
+
+    group.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'gar-row';
+
+      const crit = document.createElement('span');
+      crit.className = 'gar-crit';
+      crit.textContent = item.t;
+
+      const btns = document.createElement('div');
+      btns.className = 'gar-btns';
+
+      GAR_LEVELS.forEach(lv => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'gar-btn ' + lv.col;
+        b.textContent = lv.icon;
+        b.setAttribute('aria-label', lv.label);
+        b.title = lv.label;
+        b.addEventListener('click', () => {
+          localStorage.setItem('s3e1c-gar-' + item.id, lv.col);
+          setGarButtons(row, lv.col);
+        });
+        btns.appendChild(b);
+      });
+
+      row.appendChild(crit);
+      row.appendChild(btns);
+      c.appendChild(row);
+
+      const saved = localStorage.getItem('s3e1c-gar-' + item.id);
+      if (saved) setGarButtons(row, saved);
+    });
+  });
+}
+
+buildGAR();
+</script>
+
+<!-- ============================================================
+     Progress bridge + L5–L6 self-assessment widgets
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function fb(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"fb-correct":"fb-incorrect"); el.textContent=(ok?"✓ ":"✗ ")+msg; }
+
+  /* Points, streak and badges are owned by the shared engine (assets/js/progress.js)
+     via the s3-physics config. S3Beta is a thin shim; the engine auto-counts the
+     [data-prog-challenge] elements and unlocks the page badge (elec1c) when complete. */
+  function award(id, pts, correct){
+    if(!window.Progress) return;
+    if(correct){ window.Progress.complete(id); } else { window.Progress.miss(); }
+  }
+  window.S3Beta = {
+    award: award,
+    complete: function(id, pts){ award(id, pts, true); },
+    isDone: function(id){ return !!(window.Progress && window.Progress.challengeDone(id)); },
+    refresh: function(){}
+  };
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.Progress){ window.Progress.markSeen("elec1c"); }
+  });
+
+  /* ---- single-open accordion (lesson panels default-closed) ---- */
+  (function(){
+    var panels = [].slice.call(document.querySelectorAll('.collapsible-panel > details'));
+    panels.forEach(function(d){
+      d.addEventListener('toggle', function(){
+        if(d.open){ panels.forEach(function(o){ if(o!==d) o.open=false; }); }
+      });
+    });
+  })();
+
+  /* ---- tap-to-order: combination circuit ---- */
+  (function(){
+    var w=document.querySelector('[data-prog-challenge="ch-order-combo"]'); if(!w) return;
+    var CORRECT=[
+      "Find the parallel pair: 1/R_p = 1/R₁ + 1/R₂",
+      "Flip 1/R_p to get R_p",
+      "Add the series resistor: R_T = R_p + R₃",
+      "State the total resistance R_T"
+    ];
+    var slotWrap=w.querySelector(".ord-slots");
+    var slots=[].slice.call(w.querySelectorAll(".ord-slot"));
+    var bank=w.querySelector(".ord-bank");
+    function tileFor(word){ var r=null; [].forEach.call(bank.querySelectorAll(".ord-tile"), function(t){ if(t.getAttribute("data-word")===word) r=t; }); return r; }
+    function place(word){
+      for(var i=0;i<slots.length;i++){
+        if(!slots[i].getAttribute("data-word")){
+          slots[i].setAttribute("data-word", word);
+          slots[i].querySelector(".ord-word").textContent=word;
+          slots[i].classList.add("filled");
+          return true;
+        }
+      }
+      return false;
+    }
+    function clearSlot(slot){
+      var word=slot.getAttribute("data-word"); if(!word) return;
+      slot.removeAttribute("data-word");
+      slot.querySelector(".ord-word").textContent="—";
+      slot.classList.remove("filled","ok","no");
+      var t=tileFor(word); if(t) t.disabled=false;
+    }
+    bank.addEventListener("click", function(e){
+      var t=e.target.closest(".ord-tile"); if(!t||t.disabled) return;
+      if(place(t.getAttribute("data-word"))) t.disabled=true;
+    });
+    slotWrap.addEventListener("click", function(e){
+      var s=e.target.closest(".ord-slot"); if(!s) return;
+      clearSlot(s);
+    });
+    $("ord-check").addEventListener("click", function(){
+      var filled=slots.every(function(s){ return s.getAttribute("data-word"); });
+      if(!filled){ fb($("ord-fb"), false, "Place all four steps first."); return; }
+      var allOk=true;
+      slots.forEach(function(s,i){
+        var ok=s.getAttribute("data-word")===CORRECT[i];
+        s.classList.toggle("ok",ok); s.classList.toggle("no",!ok);
+        if(!ok) allOk=false;
+      });
+      if(allOk){ fb($("ord-fb"), true, "Correct — parallel pair, flip it, add the series resistor, then state R_T."); award("ch-order-combo",10,true); }
+      else { fb($("ord-fb"), false, "Not in order yet — tap a step to clear it and rethink the sequence."); award("ch-order-combo",0,false); }
+    });
+    $("ord-reset").addEventListener("click", function(){
+      slots.forEach(clearSlot);
+      var f=$("ord-fb"); if(f){ f.textContent=""; f.className="fb-line"; }
+    });
+  })();
+})();
+</script>
+
+<!-- live combined-resistance sim (L5) -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("combineSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var lastRt = 0;
+
+  function render(s){
+    var R1 = s.R1, R2 = s.R2, rt, work, note;
+    if(s.mode === "series"){
+      rt = R1 + R2;
+      work = "<var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub> = " + R1 + " + " + R2 + " = " + rt + " Ω";
+      note = "Series adds up — the total is larger than either resistor.";
+    } else {
+      rt = (R1 * R2) / (R1 + R2);
+      work = "<var>R</var><sub>T</sub> = (<var>R</var><sub>1</sub> × <var>R</var><sub>2</sub>) ÷ (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>) = (" + R1 + " × " + R2 + ") ÷ " + (R1 + R2) + " = " + rt.toFixed(2) + " Ω";
+      note = "Parallel — the total is smaller than the smaller resistor (" + Math.min(R1, R2) + " Ω).";
+    }
+    lastRt = rt;
+    $("comb-rt").textContent = (Math.round(rt * 100) / 100).toFixed(2);
+    $("comb-work").innerHTML = work;
+    $("comb-note").textContent = note;
+  }
+
+  window.WidgetKit.liveSim(root, { render: render });
+
+  var fb = $("comb-fb");
+  $("comb-check").addEventListener("click", function(){
+    if(lastRt < 4){
+      fb.className = "csim-fb ok";
+      fb.textContent = "✓ " + lastRt.toFixed(2) + " Ω — under 4 Ω. Only parallel can do this: it gives the charge two paths, so the total is always less than the smaller resistor. Series just adds up.";
+      if(window.Progress) Progress.complete("ch-combine-target");
+    } else {
+      fb.className = "csim-fb no";
+      fb.textContent = "✗ " + lastRt.toFixed(2) + " Ω is not below 4 Ω yet. Series only adds up — switch to parallel and use small resistors.";
+      if(window.Progress) Progress.miss();
+    }
+  });
+});
+</script>
+
+</body>
+</html>

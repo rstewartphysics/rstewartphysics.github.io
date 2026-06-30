@@ -16,9 +16,18 @@
   }
 
   var TOPIC = [
-    { id: "elec1", name: "Circuit Starter", emoji: "⚡", section: "Electricity", unlock: "page",
-      href: "/classes/s3-physics/electricity1.html",
-      cond: "Finish every challenge on Electricity 1" }
+    { id: "elec1a", name: "Symbols & Meters", emoji: "🔌", section: "Electricity", unlock: "page",
+      href: "/classes/s3-physics/electricity1/circuits-symbols-meters.html",
+      cond: "Finish every challenge in Electricity 1 · Part A" },
+    { id: "elec1b", name: "Resistance & Ohm's Law", emoji: "🎚️", section: "Electricity", unlock: "page",
+      href: "/classes/s3-physics/electricity1/resistance-ohms-law.html",
+      cond: "Finish every challenge in Electricity 1 · Part B" },
+    { id: "elec1c", name: "Combining Resistors", emoji: "🧮", section: "Electricity", unlock: "page",
+      href: "/classes/s3-physics/electricity1/combining-resistors.html",
+      cond: "Finish every challenge in Electricity 1 · Part C" },
+    { id: "elec1-test", name: "Circuit Tested", emoji: "🎯", section: "Electricity", unlock: "page",
+      href: "/classes/s3-physics/electricity1/practice.html",
+      cond: "Finish the Electricity 1 practice quiz" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });
