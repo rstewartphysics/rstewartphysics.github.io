@@ -1,0 +1,1304 @@
+---
+layout: none
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#eaf7fa" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0d1f1a" media="(prefers-color-scheme: dark)" />
+<title>Electricity 1 · Part B – Resistance &amp; Ohm's law</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/s3-physics.js" defer></script>
+  <script src="/assets/js/widget-kit.js" defer></script>
+  <link rel="stylesheet" href="/assets/css/s3-physics.css?v=s3-20260616a">
+
+<style>
+/* ============================================================
+   ELECTRICITY 1 · PART B — widget styling (teal S3 theme)
+   Loads after s3-physics.css so it wins.
+   ============================================================ */
+:root {
+  --c-learn: var(--accent);   /* teal  — learn content */
+  --c-try:   #b8860b;         /* amber — interactives / try */
+  --c-check: #2b59ff;         /* blue  — check / quiz */
+  --c-ex:    var(--good);     /* green — worked examples */
+  --ok: var(--good);
+  --no: var(--warm);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --c-try:#ffca6f; --c-check:#5fa0ff; }
+}
+/* feature colour on the worked-example edge */
+.worked { border-left-color: var(--c-ex); }
+
+/* colour key */
+.beta-hud { background:var(--surface-2); border-color:var(--border-accent); }
+.colour-key { display:flex; flex-wrap:wrap; gap:.55rem; margin:.6rem 0 0; }
+.ck { display:inline-flex; align-items:center; gap:.35rem; font-weight:800; font-size:.8rem; color:var(--muted); }
+.ck::before { content:""; width:.85em; height:.85em; border-radius:3px; background:var(--ckc, var(--accent)); }
+.ck.learn{ --ckc:var(--c-learn); } .ck.try{ --ckc:var(--c-try); } .ck.check{ --ckc:var(--c-check); } .ck.ex{ --ckc:var(--c-ex); }
+
+/* interactive widget shell (mirrors Higher .widget) */
+.widget {
+  margin: 1rem 0; padding: 1rem;
+  border: 1px solid var(--border-accent);
+  border-left: 5px solid var(--c-try);
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.widget h3 { margin:0 0 .2rem; font-size:1rem; font-weight:900; color:var(--text); }
+.widget .hint { color:var(--muted); font-weight:800; font-size:.9rem; margin:0 0 .7rem; }
+.btnrow { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.8rem; }
+.wbtn {
+  display:inline-flex; align-items:center; gap:.4rem; min-height:48px;
+  padding:.55rem .95rem; border-radius:10px; border:1px solid var(--border-accent);
+  background:var(--card); color:var(--text); font-weight:900;
+  font-family:var(--font-stack); font-size:1rem; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.wbtn:hover { border-color:var(--border-strong); }
+.wbtn.primary { background:linear-gradient(135deg,var(--cta-1),var(--cta-2)); color:#fff; border-color:transparent; }
+.wbtn.primary:hover { filter:brightness(1.06); }
+.wbtn:disabled { opacity:.4; cursor:not-allowed; }
+.fb-line { margin-top:.7rem; font-weight:900; min-height:1.2em; }
+
+/* predict & justify */
+.predict-btns { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.3rem; }
+.predict-fb { margin-top:.7rem; }
+.predict-btns .wbtn.active { border-color:var(--accent); background:var(--surface-2); }
+
+/* ---- equation cards (mirror Higher .eq-card) ---- */
+.eq-cards { display:grid; gap:.7rem; grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr)); margin:.8rem 0; }
+.eq-card { border:1px solid var(--border-accent); border-left:5px solid var(--c-learn); border-radius:14px; background:var(--surface-2); padding:.75rem .9rem; }
+.eq-name { font-weight:900; color:var(--accent-2); font-size:.85rem; margin:0 0 .25rem; text-transform:uppercase; letter-spacing:.02em; }
+.eq-formula { font-family:"Times New Roman",Times,Georgia,serif; font-size:1.5rem; font-weight:700; color:var(--text); text-align:center; margin:.2rem 0; }
+.eq-formula var { font-style:italic; }
+.eq-desc { font-size:.85rem; color:var(--muted); font-weight:800; margin:.35rem 0 0; }
+
+/* ---- worked examples (centred, aligned on the = sign) — mirror Higher ---- */
+.example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+.ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+.ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+.marks { display: inline-block; font-size: .74rem; font-weight: 900; letter-spacing: .03em; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 8px; margin-left: .45rem; white-space: nowrap; vertical-align: middle; }
+.calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+.calc var, .ms var { font-style: italic; font-family: inherit; }
+.calc-row { display: contents; }
+.calc .lhs { text-align: right; white-space: nowrap; }
+.calc .eq { text-align: center; }
+.calc .rhs { text-align: left; white-space: nowrap; }
+.calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+.calc .note-cell:not(:empty)::before { content: "← "; }
+.ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+.ex-flow .calc { grid-column: 2; justify-self: center; }
+.ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+.ex-conv var { font-style: italic; }
+.ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+.ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+.ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+@media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; } }
+@media (max-width: 600px) {
+  .calc { grid-template-columns: auto auto auto; }
+  .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+  .calc .note-cell:empty { display: none; }
+  .calc .note-cell:not(:empty)::before { content: "↳ "; }
+}
+
+/* ---- practice callout (mirror Higher) ---- */
+.practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+.practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+.practice .stem { margin: .15rem 0 0; font-weight: 800; color: var(--text); }
+.ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+/* ---- misconception / common-mistake box ---- */
+.misconception { border:1px solid var(--no); border-left:5px solid var(--no); border-radius:14px; background:rgba(194,65,12,0.07); padding:.8rem 1rem; margin:1rem 0; }
+.misconception h4 { margin:0 0 .35rem; font-weight:900; color:var(--warm); font-size:.95rem; display:flex; align-items:center; gap:.4rem; }
+.misconception p { margin:.2rem 0; font-weight:800; color:var(--text); }
+.misconception .wrong { color:var(--warm); font-weight:900; }
+.misconception .right { color:var(--good); font-weight:900; }
+@media (prefers-color-scheme: dark){ .misconception { background:rgba(255,157,110,0.10); } }
+
+/* ---- formula triangle ---- */
+.tri { width:240px; max-width:100%; aspect-ratio:1.15 / 1; margin:.6rem auto; display:flex; flex-direction:column; gap:3px; background:var(--c-learn); clip-path:polygon(50% 0, 0 100%, 100% 100%); -webkit-clip-path:polygon(50% 0, 0 100%, 100% 100%); }
+.tri-row { display:flex; gap:3px; }
+.tri-row.top { flex:1; }
+.tri-row.bot { flex:1.35; }
+.tri-cell { flex:1; min-height:48px; display:flex; align-items:center; justify-content:center; font-family:"Times New Roman",Times,Georgia,serif; font-size:1.9rem; font-style:italic; font-weight:700; background:var(--card); color:var(--text); border:0; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.tri-row.top .tri-cell { align-items:flex-end; padding-bottom:.15rem; }
+.tri-cell:hover { background:var(--surface-2); }
+.tri-cell.active { background:var(--c-learn); color:#fff; }
+.tri-cell:focus-visible { outline:var(--focus-ring, 3px solid var(--accent-2)); outline-offset:-3px; }
+.tri-caption { text-align:center; color:var(--muted); font-weight:800; font-size:.8rem; margin:.2rem 0 0; }
+.tri-result { margin-top:.7rem; text-align:center; min-height:1.4em; }
+.tri-result .tri-eq { font-family:"Times New Roman",Times,Georgia,serif; font-size:1.35rem; font-weight:700; color:var(--text); }
+.tri-result .tri-eq var { font-style:italic; }
+
+/* ---- worked-example fading (fill the missing steps) ---- */
+.fade-line { display:flex; flex-wrap:wrap; align-items:center; gap:.35rem; font-family:"Times New Roman",Times,Georgia,serif; font-size:1.18rem; color:var(--text); margin:.35rem 0; }
+.fade-line var { font-style:italic; }
+.fade-in { width:6em; min-height:42px; font-family:var(--font-stack); font-size:1rem; font-weight:800; text-align:center; border:2px solid var(--border-accent); border-radius:9px; background:var(--card); color:var(--text); padding:.25rem; }
+.fade-in.ok { border-color:var(--ok); }
+.fade-in.no { border-color:var(--no); }
+
+/* ---- 30-second check (retrieval) ---- */
+.quickcheck { border-left-color: var(--c-check); }
+.quickcheck h3 .qc-rocket { font-size:1.1rem; }
+.qc-done { font-weight:900; color:var(--good); margin-top:.6rem; min-height:1.2em; }
+
+/* ---- realistic resistor diagram ---- */
+.resistor-real { width:100%; max-width:300px; height:auto; display:block; margin:.5rem auto; }
+
+/* ---- colour-band pickers + previews ---- */
+.band-pick { display:grid; gap:.5rem; max-width:360px; margin:.4rem 0; }
+.band-pick label { font-weight:800; color:var(--text); display:flex; align-items:center; gap:.5rem; }
+.band-pick select { flex:1; min-height:44px; }
+.band-preview { display:flex; gap:.4rem; align-items:flex-end; margin:.5rem 0; min-height:60px; }
+.band-preview .cc-band { width:24px; height:56px; border-radius:4px; border:1px solid rgba(0,0,0,0.3); }
+.cc-band { width:26px; height:60px; border-radius:4px; border:1px solid rgba(0,0,0,0.3); }
+.cc-target { font-size:1.3rem; font-weight:900; margin:.4rem 0; color:var(--text); }
+
+/* ---- inline per-lesson self-check ---- */
+.self-check { margin-top:.8rem; padding:.7rem .85rem; border:1px solid var(--border-accent); border-left:5px solid var(--c-check); border-radius:14px; background:var(--surface-2); }
+.self-check-lead { margin:0 0 .2rem; font-weight:900; color:var(--text); }
+.gar-legend { margin:.1rem 0 .5rem; font-weight:800; color:var(--muted); font-size:.8rem; }
+.gar-btn.e { font-size:.95rem; }
+.gar-btn.e.on { background:#7c3aed; color:#fff; border-color:transparent; }
+@media (prefers-color-scheme: dark){ .gar-btn.e.on { background:#a78bfa; color:#1b1030; } }
+
+/* ===== V–I explorer (live-sim) ===== */
+.csim { margin:.4rem 0 .2rem; }
+.csim-controls { display:grid; gap:.6rem; margin:0 0 .8rem; }
+.csim-row { display:grid; grid-template-columns:auto 1fr 4.5rem; align-items:center; gap:.6rem; }
+.csim-row > label { font-weight:900; font-size:.9rem; color:var(--text); min-width:6.5rem; }
+.csim-row input[type=range] { width:100%; accent-color:var(--accent); min-height:32px; }
+.csim-row input[type=number] { width:100%; min-height:40px; padding:.3rem .4rem; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); text-align:center; }
+.csim-toggle { display:inline-flex; gap:.3rem; padding:.25rem; border:1px solid var(--border-soft); border-radius:12px; background:var(--card); }
+.csim-toggle button { flex:1; min-height:40px; padding:.4rem .9rem; border:0; border-radius:9px; background:transparent; color:var(--muted); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.csim-toggle button[aria-pressed=true] { background:var(--accent); color:#fff; }
+.csim-stage { border:1px solid var(--border-soft); border-radius:12px; background:var(--surface-2); padding:.5rem; }
+.csim-stage svg { width:100%; height:auto; display:block; }
+.csim-readouts { display:flex; flex-wrap:wrap; gap:8px; margin:.7rem 0 0; }
+.csim-stat { flex:1; min-width:90px; text-align:center; padding:.55rem .4rem; border:1px solid var(--border-soft); border-radius:12px; background:var(--card); }
+.csim-stat b { display:block; font-size:1.05rem; color:var(--text); font-weight:900; }
+.csim-stat span { display:block; font-size:.74rem; font-weight:800; color:var(--muted); margin-top:.15rem; }
+.csim-task { margin-top:.9rem; border:1px solid var(--border-accent); border-left:5px solid var(--c-try); border-radius:12px; background:var(--surface-2); padding:.75rem .9rem; }
+.csim-fb { margin:.6rem 0 0; font-weight:900; font-size:.9rem; min-height:1.2em; }
+.csim-fb.ok { color:var(--good); }
+.csim-fb.no { color:var(--bad, #d6336c); }
+@media (max-width:560px){ .csim-row { grid-template-columns:1fr; gap:.3rem; } .csim-row > label { min-width:0; } }
+.ohm-axis { stroke:var(--muted); stroke-width:1.6; stroke-linecap:round; }
+.ohm-grid { stroke:var(--border-soft); stroke-width:1; }
+.ohm-trace { stroke:var(--accent); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.ohm-dot { fill:var(--c-try); stroke:var(--card); stroke-width:1.5; }
+.ohm-axis-txt { fill:var(--muted); font-size:11px; font-weight:800; font-family:var(--font-stack); }
+.ohm-picks { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.6rem; }
+.ohm-picks button { min-height:44px; padding:.5rem .9rem; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--text); font-weight:900; font-family:var(--font-stack); cursor:pointer; }
+.ohm-picks button[aria-pressed=true] { border-color:var(--accent); background:var(--surface-2); }
+@media (min-width:720px){
+  #ohmSim .csim {
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    column-gap:1.3rem; align-items:start;
+  }
+  #ohmSim .csim-controls { grid-column:1; grid-row:1; }
+  #ohmSim .csim-stage { grid-column:2; grid-row:1; max-width:430px; }
+  #ohmSim .csim-readouts, #ohmSim .csim-task { grid-column:1 / -1; }
+}
+
+/* ---- optional "Explore" disclosure ---- */
+.explore { border:1px dashed var(--border-accent); border-radius:14px; background:var(--card); margin:1rem 0; }
+.explore > summary { list-style:none; cursor:pointer; padding:.8rem 1rem; font-weight:900; color:var(--text); display:flex; align-items:center; gap:.5rem; min-height:48px; -webkit-tap-highlight-color:transparent; }
+.explore > summary::-webkit-details-marker { display:none; }
+.explore > summary::after { content:"▾"; margin-left:auto; color:var(--muted); }
+.explore[open] > summary::after { content:"▴"; }
+.explore .explore-tag { font-size:.7rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; color:var(--accent-2); border:1px solid var(--border-accent); border-radius:999px; padding:2px 9px; }
+.explore-body { padding:0 1rem 1rem; }
+
+/* ---- "N5 / Going further" marker ---- */
+.going-further { border:1px solid var(--accent-2); border-left:5px solid var(--accent-2); border-radius:12px; background:var(--surface-2); padding:.6rem .85rem; margin:.2rem 0 1rem; font-weight:800; color:var(--text); font-size:.9rem; }
+.gf-pill { display:inline-block; font-size:.68rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2)); padding:2px 9px; border-radius:999px; margin-right:.45rem; }
+
+/* ---- part stepper (mirrors Higher sub-nav; teal-themed) ---- */
+.subnav-wrap {
+  position: sticky; top: 0; z-index: 320;
+  padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+  background: var(--subnav-wrap-bg, rgba(234,247,250,0.80));
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  border-bottom: 1px solid var(--border-soft);
+}
+@media (prefers-color-scheme: dark){
+  .subnav-wrap { background: var(--subnav-wrap-bg, rgba(13,31,26,0.82)); }
+}
+.subnav {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 10px; border-radius: 16px;
+  border: 1px solid var(--border-accent);
+  background: var(--card);
+}
+.subnav-links {
+  display: flex; gap: 12px; flex-wrap: nowrap; overflow: auto;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; min-width: 0;
+}
+.subnav-links::-webkit-scrollbar { display: none; }
+.subnav-link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  text-decoration: none; font-weight: 900; color: var(--text);
+  padding: 8px 4px; border-bottom: 3px solid transparent;
+  white-space: nowrap; opacity: 0.95; font-size: 1rem;
+}
+.subnav-link:hover { opacity: 1; border-bottom-color: var(--accent); }
+.subnav-link.is-active { opacity: 1; border-bottom-color: var(--accent); }
+.subnav-link.soon { color: var(--muted); opacity: .6; cursor: default; }
+.subnav-link.soon:hover { border-bottom-color: transparent; }
+.subnav-cta {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: .35rem;
+  padding: 7px 14px; min-height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff; font-weight: 900; font-size: .95rem; text-decoration: none;
+  white-space: nowrap; box-shadow: 0 6px 16px rgba(0,138,145,0.30);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.subnav-cta:hover, .subnav-cta:focus-visible {
+  transform: translateY(-1px); filter: brightness(1.06);
+  box-shadow: 0 8px 20px rgba(0,138,145,0.40);
+}
+@media (prefers-color-scheme: dark){ .subnav-cta { color: #04211b; } }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  {% include site-menu.html %}
+
+<!-- BANNER -->
+<div class="banner-wrap">
+  <img src="/assets/s3-physics-banner.jpeg" alt="S3 Physics banner" class="banner">
+  <div class="banner-overlay-text">
+    <h1>Electricity 1 · Part B — Resistance &amp; Ohm's law</h1>
+  </div>
+</div>
+
+<!-- PART STEPPER -->
+<div class="subnav-wrap">
+  <nav class="subnav" aria-label="Electricity 1 parts">
+    <div class="subnav-links">
+      <a class="subnav-link" href="/classes/s3-physics/electricity1/circuits-symbols-meters.html">A · Symbols &amp; meters</a>
+      <a class="subnav-link is-active" href="/classes/s3-physics/electricity1/resistance-ohms-law.html" aria-current="page">B · Resistance &amp; Ohm's law</a>
+      <a class="subnav-link" href="/classes/s3-physics/electricity1/combining-resistors.html">C · Combining resistors</a>
+      <a class="subnav-link" href="/classes/s3-physics/electricity1/practice.html">Practice</a>
+    </div>
+    <a class="subnav-cta" href="/classes/s3-physics/electricity1.html">Electricity 1 hub</a>
+  </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="page-wrap" id="mainContent">
+<h1 class="visually-hidden">Electricity 1 · Part B — Resistance and Ohm's law</h1>
+
+<a href="/classes/s3-physics/electricity1.html" class="back-to-s3">⬅ Back to Electricity 1</a>
+
+<div class="topic-box">
+
+<h2>③④ Resistance &amp; Ohm's law</h2>
+<p class="section-sub">Resistance and the colour code, then Ohm's law (<var>V</var> = <var>I</var><var>R</var>) used three ways — with V–I graphs and temperature effects for going further.</p>
+
+<section class="info-card beta-hud" aria-label="Activity colour key">
+  <div class="colour-key" aria-hidden="true">
+    <span class="ck learn">Learn</span>
+    <span class="ck try">Interactives</span>
+    <span class="ck check">Check / quiz</span>
+    <span class="ck ex">Worked examples</span>
+  </div>
+</section>
+
+<p>
+  <a href="/classes/s3-physics/RS Electricity B1 N5 2025.pdf"
+     target="_blank"
+     class="download-btn">
+     📘 Download the Full Booklet (PDF)
+  </a>
+</p>
+
+<!-- ---------- L3 ---------- -->
+<div class="collapsible-panel" id="l3">
+<details>
+  <summary>
+    <span class="summary-icon">③</span>
+    <span class="summary-text">L3 — Resistance &amp; colour codes</span>
+  </summary>
+
+  <div class="info-card">
+
+    <span class="step-label">Learn</span>
+    <p><strong>Resistance</strong> is a measure of how <strong>difficult</strong> it is for charge to flow through a material. Symbol <strong>R</strong>, unit <strong>ohm (Ω)</strong>.</p>
+
+    <div class="symbol-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
+      <div class="symbol-card">
+        <svg class="ckt-symbol" viewBox="0 0 100 60" role="img" aria-label="Circuit symbol for a resistor" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="0" y1="30" x2="28" y2="30"/>
+          <rect x="28" y="20" width="44" height="20"/>
+          <line x1="72" y1="30" x2="100" y2="30"/>
+        </svg>
+        <span class="sym-name">Resistor</span>
+        <span class="sym-fn">Limits / sets the current (BS = plain rectangle)</span>
+      </div>
+      <div class="symbol-card">
+        <svg class="ckt-symbol" viewBox="0 0 100 60" role="img" aria-label="Circuit symbol for a variable resistor" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="0" y1="30" x2="28" y2="30"/>
+          <rect x="28" y="20" width="44" height="20"/>
+          <line x1="72" y1="30" x2="100" y2="30"/>
+          <line x1="22" y1="48" x2="78" y2="12"/>
+          <line x1="78" y1="12" x2="69" y2="13"/>
+          <line x1="78" y1="12" x2="76" y2="21"/>
+        </svg>
+        <span class="sym-name">Variable resistor</span>
+        <span class="sym-fn">Resistor you can adjust (arrow through the box)</span>
+      </div>
+    </div>
+
+    <h3>Reading the colour code</h3>
+    <p>The first two bands are <strong>digits</strong>, the third is the <strong>multiplier</strong> (how many zeros / power of ten), and the fourth is the <strong>tolerance</strong>.</p>
+    <div class="worked">
+      <p><strong>Example — Orange, Orange, Brown, Gold</strong></p>
+      <p>Orange = 3, Orange = 3 → digits give <strong>33</strong></p>
+      <p>Brown = ×10 → 33 × 10 = <strong>330 Ω</strong></p>
+      <p>Gold = <strong>±5%</strong> tolerance</p>
+    </div>
+
+    <figure style="margin:.6rem 0;">
+      <svg class="resistor-real" viewBox="0 0 300 96" role="img" aria-label="A real resistor showing four colour bands: orange, orange, brown then a gold tolerance band, reading 330 ohms">
+        <line x1="0" y1="48" x2="66" y2="48" stroke="#9aa0a6" stroke-width="4"/>
+        <line x1="234" y1="48" x2="300" y2="48" stroke="#9aa0a6" stroke-width="4"/>
+        <rect x="66" y="22" width="168" height="52" rx="14" fill="#e6d3a8" stroke="#b89a5e" stroke-width="2"/>
+        <rect x="66" y="18" width="20" height="60" rx="9" fill="#d9c089" stroke="#b89a5e" stroke-width="2"/>
+        <rect x="214" y="18" width="20" height="60" rx="9" fill="#d9c089" stroke="#b89a5e" stroke-width="2"/>
+        <rect x="104" y="22" width="13" height="52" fill="#e07b1a"/>
+        <rect x="126" y="22" width="13" height="52" fill="#e07b1a"/>
+        <rect x="148" y="22" width="13" height="52" fill="#7b4a12"/>
+        <rect x="192" y="22" width="13" height="52" fill="#c9a227"/>
+      </svg>
+      <figcaption style="text-align:center; color:var(--muted); font-weight:800; font-size:.85rem;">A real resistor has slightly <strong>wider ends</strong>. Bands read left→right: orange, orange, brown, gold = <strong>330 Ω ±5%</strong>.</figcaption>
+    </figure>
+
+    <p><strong>Tip — bands:</strong> Black0 Brown1 Red2 Orange3 Yellow4 Green5 Blue6 Violet7 Grey8 White9.</p>
+
+    <span class="step-label try">Try</span>
+
+    <div class="widget">
+      <h3>Colour code → value</h3>
+      <p class="hint">A free tool to check yourself with — set the four bands and read the value. Watch the resistor update as you choose.</p>
+      <div class="band-preview" id="fwdBands" aria-hidden="true"></div>
+      <div class="band-pick">
+        <label>1st digit <select id="band1"></select></label>
+        <label>2nd digit <select id="band2"></select></label>
+        <label>Multiplier <select id="bandMult"></select></label>
+        <label>Tolerance
+          <select id="bandTol">
+            <option value="±1%">Brown (±1%)</option>
+            <option value="±2%">Red (±2%)</option>
+            <option value="±5%">Gold (±5%)</option>
+            <option value="±10%">Silver (±10%)</option>
+          </select>
+        </label>
+      </div>
+      <p style="margin:.6rem 0 0;"><strong>Value:</strong> <span id="resVal" style="font-size:1.3rem; font-weight:900; color:var(--accent-2);">—</span></p>
+    </div>
+
+    <div class="widget" data-prog-challenge="ch-colour-reverse">
+      <h3>Reverse challenge — value → bands</h3>
+      <p class="hint">Now go the other way. Pick the first three bands that make the target value, then check.</p>
+      <p class="cc-target" id="revTarget">Press "New target".</p>
+      <div class="band-preview" id="revBands" aria-hidden="true"></div>
+      <div class="band-pick">
+        <label>1st digit <select id="rev1"></select></label>
+        <label>2nd digit <select id="rev2"></select></label>
+        <label>Multiplier <select id="revMult"></select></label>
+      </div>
+      <div class="btnrow"><button class="wbtn primary" type="button" id="rev-check">Check</button><button class="wbtn" type="button" id="rev-new">New target</button></div>
+      <p class="fb-line" id="rev-fb" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label">See</span>
+    <div class="video-grid">
+      <div class="video-card">
+        <p class="video-title">Resistor colour-band questions</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/0m-jg2NvUO8" title="Resistor colour band questions"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © Mr Bell – Practical Electronics, via YouTube</p></div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Booklet answers — resistance &amp; colour codes</span>
+      <details class="reveal"><summary>Check your booklet resistance &amp; colour-code table</summary><div class="reveal-body">
+        <p><strong>Resistance:</strong> a measure of how <strong>difficult</strong> it is for charge to flow through a material.</p>
+        <table class="rule-table">
+          <tr><th>Bands</th><th>Quoted value</th><th>Tolerance</th></tr>
+          <tr><td>Orange Orange Brown Silver</td><td>330 Ω</td><td>±10%</td></tr>
+          <tr><td>Green Blue Red Silver</td><td>5600 Ω = 5.6 kΩ</td><td>±10%</td></tr>
+          <tr><td>Brown Green Orange Gold</td><td>15 000 Ω = 15 kΩ</td><td>±5%</td></tr>
+          <tr><td>Red Black Orange Gold</td><td>20 000 Ω = 20 kΩ</td><td>±5%</td></tr>
+        </table>
+        <p>Reverse examples: 470 Ω = Yellow Violet Brown; 820 Ω = Grey Red Brown; 390 kΩ = Orange White Yellow.</p>
+      </div></details>
+    </div>
+
+    <div class="widget quickcheck" data-prog-challenge="ch-check-l3">
+      <h3><span class="qc-rocket" aria-hidden="true">🚀</span> 30-second check — L3</h3>
+      <p class="hint">Three quick ones. Answer all three to register this check.</p>
+      <div id="check-l3"></div>
+      <p class="qc-done" id="check-l3-done" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label check">Check</span>
+    <p>Can you turn a colour code into a value <em>and</em> a value back into colours?</p>
+    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L3"></div></div>
+
+  </div>
+
+</details>
+</div>
+
+<!-- ---------- L4a ---------- -->
+<div class="collapsible-panel" id="l4a">
+<details>
+  <summary>
+    <span class="summary-icon">④</span>
+    <span class="summary-text">L4a — Ohm's Law: equations &amp; calculations</span>
+  </summary>
+
+  <div class="info-card">
+
+    <span class="step-label">Learn</span>
+    <p>Ohm's Law links the three quantities. Learn the one relationship, then rearrange it:</p>
+
+    <div class="eq-cards">
+      <div class="eq-card">
+        <p class="eq-name">Find voltage</p>
+        <p class="eq-formula"><var>V</var> = <var>I</var> × <var>R</var></p>
+        <p class="eq-desc">volts = amps × ohms</p>
+      </div>
+      <div class="eq-card">
+        <p class="eq-name">Find current</p>
+        <p class="eq-formula"><var>I</var> = <var>V</var> ÷ <var>R</var></p>
+        <p class="eq-desc">amps = volts ÷ ohms</p>
+      </div>
+      <div class="eq-card">
+        <p class="eq-name">Find resistance</p>
+        <p class="eq-formula"><var>R</var> = <var>V</var> ÷ <var>I</var></p>
+        <p class="eq-desc">ohms = volts ÷ amps</p>
+      </div>
+    </div>
+
+    <!-- Optional helper: formula triangle (off the assessment spine) -->
+    <details class="explore">
+      <summary><span class="explore-tag">Explore · optional</span> Formula-triangle helper</summary>
+      <div class="explore-body">
+        <p class="hint">A memory aid only — SQA marks reward <em>rearranging</em> the relationship, so practise that above. <var>V</var> sits on top; <var>I</var> and <var>R</var> sit underneath (so <var>V</var> = <var>I</var> × <var>R</var>). Tap what you're solving for and the triangle shows the rearranged formula.</p>
+        <div class="tri" role="group" aria-label="Ohm's law formula triangle">
+          <div class="tri-row top"><button type="button" class="tri-cell" data-solve="V">V</button></div>
+          <div class="tri-row bot"><button type="button" class="tri-cell" data-solve="I">I</button><button type="button" class="tri-cell" data-solve="R">R</button></div>
+        </div>
+        <p class="tri-caption">Top ÷ bottom, or bottom × bottom.</p>
+        <p class="tri-result" id="tri-result" aria-live="polite"></p>
+      </div>
+    </details>
+
+    <div class="misconception">
+      <h4>⚠ Common mistakes — Ohm's Law</h4>
+      <p>To find current it's <span class="right"><var>I</var> = <var>V</var> ÷ <var>R</var></span>, <span class="wrong">not</span> <var>I</var> = <var>R</var> ÷ <var>V</var>.</p>
+      <p>Convert units <em>before</em> you calculate: <span class="right">2 mA = 0.002 A</span> <span class="wrong">(not 2 A, not 0.2 A)</span> and <span class="right">4.7 kΩ = 4700 Ω</span>.</p>
+    </div>
+
+    <div class="example">
+      <span class="ex-type">Example 1 — fully worked</span>
+      <div class="ex-q">A current of 0.2 A flows through a 33 Ω resistor. Find the voltage across it. <span class="marks">3 marks</span></div>
+      <div class="calc">
+        <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs"><var>I</var> <var>R</var></span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">0.2 × 33</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs"><var>V</var></span><span class="eq">=</span><span class="rhs">6.6 V</span><span class="note-cell"></span></div>
+      </div>
+    </div>
+
+    <div class="widget" data-prog-challenge="ch-fade">
+      <h3>Now you fill the gaps — fading practice</h3>
+      <p class="hint">Each example hides a bit more. Type the missing values, then check.</p>
+
+      <p class="hint">Lay it out the exam way: <strong>relationship</strong>, then <strong>numbers in</strong>, then the <strong>final answer with its unit</strong>.</p>
+
+      <div class="example">
+        <span class="ex-type">Example 2 — substitute &amp; solve</span>
+        <div class="ex-q">230 V is across a 5 Ω component. Find the current. <span class="marks">3 marks</span></div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs"><var>V</var> ÷ <var>R</var></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs">230 ÷ 5</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>I</var></span><span class="eq">=</span><span class="rhs"><input class="fade-in" id="fd-2" inputmode="decimal" aria-label="Example 2 answer in amps"> A</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Example 3 — rearrange (watch the units)</span>
+        <div class="ex-q">8 V gives a current of 2 mA. Find the resistance. <span class="marks">3 marks</span></div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div>2 mA = <input class="fade-in" id="fd-3a" inputmode="decimal" aria-label="2 mA in amps"> A <span class="u">mA → A</span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs"><var>V</var> ÷ <var>I</var></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">8 ÷ <input class="fade-in" id="fd-3b" inputmode="decimal" aria-label="current used"></span><span class="note-cell">use the converted current</span></div>
+            <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs"><input class="fade-in" id="fd-3c" inputmode="decimal" aria-label="resistance in ohms"> Ω</span><span class="note-cell"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btnrow"><button class="wbtn primary" type="button" id="fade-check">Check</button><button class="wbtn" type="button" id="fade-reset">Reset</button></div>
+      <p class="fb-line" id="fade-fb" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label try">Try</span>
+
+    <div class="widget" data-prog-challenge="ch-error">
+      <h3>Spot the mistake</h3>
+      <p style="font-weight:800; margin:.3rem 0 .4rem;">Sam wants the current when <var>V</var> = 10 V and <var>R</var> = 2 Ω. He writes <strong>I = R ÷ V = 2 ÷ 10 = 0.2 A</strong>. What did he do wrong?</p>
+      <div class="predict-btns" data-err="1">
+        <button class="wbtn" type="button" data-ok="0">Nothing — 0.2 A is right</button>
+        <button class="wbtn" type="button" data-ok="1">He flipped the formula — it should be I = V ÷ R</button>
+        <button class="wbtn" type="button" data-ok="0">He should have multiplied V × R</button>
+      </div>
+      <p class="fb-line" id="err-fb" aria-live="polite"></p>
+    </div>
+
+    <div class="widget" data-prog-challenge="ch-vir">
+      <h3>Practice generator — random V = IR questions</h3>
+      <p class="hint">Get one right to register this challenge. Keep going for more practice.</p>
+      <div id="vir-question" style="font-size:1.15rem; font-weight:900; margin:.6rem 0; color:var(--text);">Press "New question".</div>
+      <input id="vir-answer" type="number" step="0.01" placeholder="Your answer" style="min-height:44px; width:180px;" />
+      <div class="btnrow"><button class="wbtn primary" type="button" onclick="checkVIR()">Check</button><button class="wbtn" type="button" onclick="newVIR()">New question</button></div>
+      <p class="fb-line" id="vir-feedback" aria-live="polite"></p>
+    </div>
+
+    <div class="widget" data-prog-challenge="ch-calc-ma">
+      <h3>Check your calculation — watch the units!</h3>
+      <p class="hint">A component carries a current of <strong>2 mA</strong> when the voltage across it is <strong>8 V</strong>. Work out the resistance in ohms, type it, then check — you'll get a hint if it's a common slip.</p>
+      <label style="font-weight:600;">Resistance R (Ω)
+        <input id="cma-ans" type="number" step="any" inputmode="decimal" style="width:160px; margin-left:.4rem;">
+      </label>
+      <div class="btnrow"><button class="wbtn primary" type="button" id="cma-check">Check</button></div>
+      <p class="fb-line" id="cma-fb" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label">See</span>
+    <div class="video-grid">
+      <div class="video-card">
+        <p class="video-title">Ohm's Law Demo and Graph</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/YwIsLgRx1OU" title="Ohm's Law Demo and Graph"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © The Other Mr Stewart (YouTube @mrstewartphysics), via YouTube</p></div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Booklet answers — calculations</span>
+      <details class="reveal"><summary>Check your booklet Ohm's law calculations</summary><div class="reveal-body"><div class="ms"><var>V</var> = <var>I</var> <var>R</var> = 0.2 × 33 = 6.6 V
+<var>I</var> = <var>V</var> ÷ <var>R</var> = 230 ÷ 5 = 46 A
+<var>R</var> = <var>V</var> ÷ <var>I</var> = 8 ÷ 0.002 = 4000 Ω (4 kΩ)</div></div></details>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Exam-style question</span>
+      <p class="stem"><strong>Q (4).</strong> A resistor gives 150 mA at 3.0 V. (a) Find its resistance. (b) Why repeat the readings? (c) Give one source of random uncertainty.</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>(a) R = V ÷ I = 3.0 ÷ 0.150 = <strong>20 Ω</strong></p>
+        <p>(b) Repeats reduce the effect of random variation / improve reliability.</p>
+        <p>(c) Fluctuating meter reading / meter sensitivity / loose contact.</p>
+      </div></details>
+    </div>
+
+    <span class="step-label check">Check</span>
+    <p>Can you use V = IR all three ways, watching units (mA → A, kΩ → Ω), laid out the exam way?</p>
+    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L4a"></div></div>
+
+  </div>
+
+</details>
+</div>
+
+<!-- ---------- L4b ---------- -->
+<div class="collapsible-panel" id="l4b">
+<details>
+  <summary>
+    <span class="summary-icon">④</span>
+    <span class="summary-text">L4b — V–I graphs, temperature &amp; experiment</span>
+  </summary>
+
+  <div class="info-card">
+
+    <p class="going-further"><span class="gf-pill">N5 · Going further</span> V–I graphs and temperature effects stretch beyond the core S3 work — useful for N5 revision. The core S3 outcome is Ohm's law (Part B, L4a).</p>
+
+    <span class="step-label">Learn</span>
+    <h3>The V–I experiment</h3>
+    <p>Measure the current through a component for several voltages, then <strong>plot V (up) against I (across)</strong>. A <strong>steeper line means higher resistance</strong>, and the <strong>gradient = R</strong>.</p>
+    <div class="vi-graphs">
+      <div class="vi-card">
+        <svg class="vi-svg" viewBox="0 0 130 110" role="img" aria-label="Straight line through the origin" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="15" y1="95" x2="122" y2="95"/>
+          <line x1="15" y1="95" x2="15" y2="8"/>
+          <line x1="15" y1="95" x2="110" y2="18" stroke="var(--phys-accent)" stroke-width="3"/>
+          <text x="120" y="108" font-size="11" fill="currentColor" stroke="none">I</text>
+          <text x="2" y="14" font-size="11" fill="currentColor" stroke="none">V</text>
+        </svg>
+        <p><strong>Fixed resistor</strong> — straight line through the origin. Resistance is constant (ohmic).</p>
+      </div>
+      <div class="vi-card">
+        <svg class="vi-svg" viewBox="0 0 130 110" role="img" aria-label="Upward curving line" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="15" y1="95" x2="122" y2="95"/>
+          <line x1="15" y1="95" x2="15" y2="8"/>
+          <path d="M15,95 C 55,90 90,72 110,18" stroke="var(--phys-accent)" stroke-width="3"/>
+          <text x="120" y="108" font-size="11" fill="currentColor" stroke="none">I</text>
+          <text x="2" y="14" font-size="11" fill="currentColor" stroke="none">V</text>
+        </svg>
+        <p><strong>Filament lamp</strong> — curve gets steeper. As it heats up its resistance <em>rises</em> (non-ohmic).</p>
+      </div>
+    </div>
+
+    <h3>Temperature &amp; resistance</h3>
+    <ul>
+      <li><strong>Wire / conductor / filament:</strong> hotter → resistance <strong>increases</strong> (atoms vibrate more and get in the way of the charge).</li>
+      <li><strong>Thermistor:</strong> hotter → resistance <strong>decreases</strong> (more charge carriers become free).</li>
+    </ul>
+
+    <!-- Optional exploration: V–I explorer (off the assessment spine) -->
+    <details class="explore">
+      <summary><span class="explore-tag">Explore · optional</span> V–I explorer — draw the graph yourself</summary>
+      <div class="explore-body">
+        <div class="widget" id="ohmSim" style="margin-top:.4rem;">
+          <p class="hint">Drag <strong>V</strong> and the line draws itself. Switch between a fixed resistor and a filament lamp — one stays straight, the other bends as it heats. The gradient (V ÷ I) is the resistance.</p>
+          <div class="csim">
+            <div class="csim-controls">
+              <div class="csim-row">
+                <label for="ohm-v">Voltage V</label>
+                <input type="range" id="ohm-v" data-sim="V" min="0" max="12" step="0.5" value="6" aria-label="Voltage in volts">
+                <input type="number" data-sim="V" min="0" max="12" step="0.5" value="6" aria-label="Voltage in volts (number)">
+              </div>
+              <div class="csim-row">
+                <label for="ohm-r">Resistance R (cold)</label>
+                <input type="range" id="ohm-r" data-sim="R" min="2" max="20" step="1" value="4" aria-label="Cold resistance in ohms">
+                <input type="number" data-sim="R" min="2" max="20" step="1" value="4" aria-label="Cold resistance in ohms (number)">
+              </div>
+              <div class="csim-row">
+                <label id="ohm-mode-lab">Component</label>
+                <div class="csim-toggle" role="group" aria-labelledby="ohm-mode-lab">
+                  <button type="button" data-sim-toggle="comp" data-value="ohmic" aria-pressed="true">Fixed resistor</button>
+                  <button type="button" data-sim-toggle="comp" data-value="lamp" aria-pressed="false">Filament lamp</button>
+                </div>
+              </div>
+            </div>
+            <div class="csim-stage">
+              <svg viewBox="0 0 230 180" role="img" aria-label="V against I graph that draws as you change the voltage">
+                <line class="ohm-grid" x1="35" y1="64" x2="215" y2="64"/>
+                <line class="ohm-grid" x1="35" y1="107" x2="215" y2="107"/>
+                <line class="ohm-grid" x1="95" y1="20" x2="95" y2="150"/>
+                <line class="ohm-grid" x1="155" y1="20" x2="155" y2="150"/>
+                <line class="ohm-axis" x1="35" y1="150" x2="215" y2="150"/>
+                <line class="ohm-axis" x1="35" y1="150" x2="35" y2="20"/>
+                <path class="ohm-trace" id="ohm-trace" d=""/>
+                <circle class="ohm-dot" id="ohm-dot" cx="35" cy="150" r="4.5"/>
+                <text class="ohm-axis-txt" x="205" y="166">I (A)</text>
+                <text class="ohm-axis-txt" x="12" y="26">V (V)</text>
+              </svg>
+            </div>
+            <div class="csim-readouts" aria-live="polite">
+              <div class="csim-stat"><b id="ohm-i">—</b><span>Current I (A)</span></div>
+              <div class="csim-stat"><b id="ohm-rnow">—</b><span>Resistance now (Ω)</span></div>
+              <div class="csim-stat"><b id="ohm-shape">—</b><span>Line shape</span></div>
+            </div>
+            <div class="csim-task">
+              <strong>Spot it:</strong> sweep V for <strong>both</strong> the fixed resistor and the lamp, then say which trace is <strong>ohmic</strong> (constant resistance — its gradient never changes).
+              <div class="ohm-picks" role="group" aria-label="Which trace is ohmic">
+                <button type="button" data-ohm-pick="line" aria-pressed="false">The straight line</button>
+                <button type="button" data-ohm-pick="curve" aria-pressed="false">The curve that steepens</button>
+              </div>
+              <p class="csim-fb" id="ohm-fb" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <span class="step-label try">Try</span>
+
+    <div class="widget" data-prog-challenge="ch-predict-r">
+      <h3>Predict &amp; justify</h3>
+      <p style="font-weight:600; margin:.2rem 0 .5rem;">A fixed resistor is added <strong>in series</strong> with a lamp, with the same supply voltage. What happens to the current in the circuit?</p>
+      <div class="predict-btns">
+        <button class="wbtn" type="button" data-pred="0">Increases</button>
+        <button class="wbtn" type="button" data-pred="1">Decreases</button>
+        <button class="wbtn" type="button" data-pred="0">Stays the same</button>
+      </div>
+      <div class="predict-fb" id="predr-fb" hidden></div>
+    </div>
+
+    <span class="step-label">See</span>
+    <div class="video-grid">
+      <div class="video-card">
+        <p class="video-title">Resistance of a filament lamp</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/BSYu_hx__Lo" title="Resistance of a filament lamp"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © The Other Mr Stewart (YouTube @mrstewartphysics), via YouTube</p></div>
+      </div>
+      <div class="video-card">
+        <p class="video-title">Non-ohmic conductor demonstration</p>
+        <div class="video-embed"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/0ETqVlyTyfA" title="Non-ohmic conductor demonstration"></iframe><p class="vid-credit" style="margin:.35rem 0 0;font-size:0.8rem;opacity:0.75;">Video © The Other Mr Stewart (YouTube @mrstewartphysics), via YouTube</p></div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Booklet answers — graphs &amp; temperature</span>
+      <details class="reveal"><summary>Check your booklet graph &amp; temperature answers</summary><div class="reveal-body">
+        <p><strong>Graphs:</strong> a fixed resistor = a straight line through the origin (ohmic); a filament lamp / non-ohmic conductor = a curve that gets steeper as it heats.</p>
+        <p><strong>Temperature:</strong> a fixed resistor / conductor — resistance <strong>rises</strong> as temperature rises; a thermistor — resistance <strong>falls</strong> as temperature rises.</p>
+      </div></details>
+    </div>
+
+    <div class="practice">
+      <span class="practice-tag">Exam-style questions</span>
+      <p class="stem"><strong>Q1 (4).</strong> A thermistor warms and its resistance falls from 8 kΩ to 2 kΩ. (a) What happens to the current? (b) Explain using charge carriers.</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>(a) Current <strong>increases</strong> (lower resistance, same voltage).</p>
+        <p>(b) As temperature rises, more charge carriers are released, so resistance drops.</p>
+      </div></details>
+      <p class="stem" style="margin-top:.8rem;"><strong>Q2 (3).</strong> A filament lamp's resistance rises as the voltage across it rises. Explain why.</p>
+      <details class="reveal"><summary>Mark scheme</summary><div class="reveal-body">
+        <p>More current heats the filament; the hotter filament's atoms vibrate more, opposing the flow, so resistance increases.</p>
+      </div></details>
+    </div>
+
+    <div class="widget quickcheck" data-prog-challenge="ch-check-l4b">
+      <h3><span class="qc-rocket" aria-hidden="true">🚀</span> 30-second check — L4b</h3>
+      <p class="hint">Three quick ones. Answer all three to register this check.</p>
+      <div id="check-l4b"></div>
+      <p class="qc-done" id="check-l4b-done" aria-live="polite"></p>
+    </div>
+
+    <span class="step-label check">Check</span>
+    <p>Can you read a V–I graph (gradient = R) and state both temperature rules?</p>
+    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L4b"></div></div>
+
+  </div>
+
+</details>
+</div>
+
+<p data-credit-note style="font-size:0.82rem;opacity:0.78;margin-top:1.5rem;">Sources &amp; credits: The RS Electricity B1 booklet © R Stewart, 2025. Videos © Mr Bell – Practical Electronics and The Other Mr Stewart (YouTube @mrstewartphysics), via YouTube.</p>
+
+</div>
+</main>
+
+{% include site-footer.html %}
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+
+<!-- Generic self-marking quiz builder + kept 30-second checks -->
+<script>
+function buildQuiz(containerId, questions, scoreId, opts2) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  opts2 = opts2 || {};
+  let score = 0, answered = 0;
+  questions.forEach((q, qi) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-q';
+
+    const p = document.createElement('p');
+    p.innerHTML = '<strong>Q' + (qi + 1) + '.</strong> ' + q.q;
+    wrap.appendChild(p);
+
+    const opts = document.createElement('div');
+    opts.className = 'quiz-opts';
+    const fb = document.createElement('div');
+    fb.className = 'quiz-fb';
+
+    q.opts.forEach((o, oi) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'quiz-opt';
+      b.textContent = o;
+      b.addEventListener('click', () => {
+        if (wrap.dataset.done) return;
+        wrap.dataset.done = '1';
+        answered++;
+        if (oi === q.a) {
+          b.classList.add('correct');
+          fb.className = 'quiz-fb fb-correct';
+          fb.textContent = 'Correct — ' + q.why;
+          score++;
+        } else {
+          b.classList.add('wrong');
+          fb.className = 'quiz-fb fb-incorrect';
+          const hint = (q.hints && q.hints[oi]) ? q.hints[oi] : q.why;
+          fb.textContent = 'Not quite. ' + hint;
+          opts.children[q.a].classList.add('correct');
+        }
+        Array.from(opts.children).forEach(x => x.disabled = true);
+        if (answered === questions.length) {
+          if (scoreId) {
+            document.getElementById(scoreId).textContent = 'Score: ' + score + ' / ' + questions.length;
+          }
+          if (opts2.challenge && window.S3Beta) {
+            window.S3Beta.complete(opts2.challenge, opts2.pts || 10);
+          }
+        }
+      });
+      opts.appendChild(b);
+    });
+
+    wrap.appendChild(opts);
+    wrap.appendChild(fb);
+    c.appendChild(wrap);
+  });
+}
+
+buildQuiz('check-l3', [
+  { q: 'What is the unit of resistance?', opts: ['Ampere (A)', 'Ohm (Ω)', 'Volt (V)'], a: 1, why: 'Resistance is measured in ohms (Ω).' },
+  { q: 'On a 4-band resistor, the third band is the…', opts: ['First digit', 'Multiplier', 'Tolerance'], a: 1, why: 'Bands 1–2 are digits, band 3 is the multiplier, band 4 is tolerance.' },
+  { q: 'Brown, Black, Red gives…', opts: ['12 Ω', '1000 Ω', '120 Ω'], a: 1, why: 'Brown1 Black0 = 10, ×100 (red) = 1000 Ω.',
+    hints: ['That ignores the multiplier band.', '', 'Red is ×100, not ×10.'] }
+], 'check-l3-done', { challenge: 'ch-check-l3', pts: 10 });
+
+buildQuiz('check-l4b', [
+  { q: 'On a V–I graph, the gradient gives the…', opts: ['Current', 'Resistance', 'Voltage'], a: 1, why: 'Gradient of V against I = resistance.' },
+  { q: 'A steeper V–I line means the resistance is…', opts: ['Higher', 'Lower', 'Zero'], a: 0, why: 'Steeper gradient = higher resistance.' },
+  { q: 'A conductor is heated. Its resistance usually…', opts: ['Increases', 'Decreases', 'Stays the same'], a: 0, why: 'Hotter conductor → atoms vibrate more → higher resistance.' }
+], 'check-l4b-done', { challenge: 'ch-check-l4b', pts: 10 });
+</script>
+
+<!-- Resistor colour code calculator (free tool) + reverse challenge -->
+<script>
+const digits = [
+  "Black (0)","Brown (1)","Red (2)","Orange (3)",
+  "Yellow (4)","Green (5)","Blue (6)",
+  "Violet (7)","Grey (8)","White (9)"
+];
+const multipliers = [
+  "Black (×1)","Brown (×10)","Red (×100)","Orange (×1k)",
+  "Yellow (×10k)","Green (×100k)","Blue (×1M)",
+  "Gold (×0.1)","Silver (×0.01)"
+];
+const multiplierValues = [1,10,100,1e3,1e4,1e5,1e6,0.1,0.01];
+const digitHex = ['#1a1a1a','#7b4a12','#c0392b','#e07b1a','#e6c200','#1a9e57','#2b59ff','#7a3fbf','#888888','#f2f2f2'];
+const multHex  = ['#1a1a1a','#7b4a12','#c0392b','#e07b1a','#e6c200','#1a9e57','#2b59ff','#c9a227','#c0c0c0'];
+const tolHex   = { '±1%':'#7b4a12', '±2%':'#c0392b', '±5%':'#c9a227', '±10%':'#c0c0c0' };
+
+function populateSelect(id, arr) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  arr.forEach((t, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+function fmtOhm(value) {
+  if (value >= 1e6) return (value/1e6) + " MΩ";
+  if (value >= 1e3) return (value/1e3) + " kΩ";
+  return value + " Ω";
+}
+function bandSwatch(hex) {
+  const d = document.createElement('div');
+  d.className = 'cc-band';
+  d.style.background = hex;
+  return d;
+}
+
+/* ---- forward calculator: colours -> value ---- */
+populateSelect("band1", digits);
+populateSelect("band2", digits);
+populateSelect("bandMult", multipliers);
+
+function updateResistor() {
+  const b1 = parseInt(document.getElementById("band1").value);
+  const b2 = parseInt(document.getElementById("band2").value);
+  const mult = parseInt(document.getElementById("bandMult").value);
+  const tol = document.getElementById("bandTol").value;
+
+  const value = (b1 * 10 + b2) * multiplierValues[mult];
+  document.getElementById("resVal").textContent = `${fmtOhm(value)}  ${tol}`;
+
+  const prev = document.getElementById("fwdBands");
+  if (prev) {
+    prev.innerHTML = "";
+    prev.appendChild(bandSwatch(digitHex[b1]));
+    prev.appendChild(bandSwatch(digitHex[b2]));
+    prev.appendChild(bandSwatch(multHex[mult]));
+    prev.appendChild(bandSwatch(tolHex[tol] || '#c9a227'));
+  }
+}
+["band1","band2","bandMult","bandTol"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("change", updateResistor);
+});
+updateResistor();
+
+/* ---- reverse challenge: value -> bands ---- */
+(function(){
+  if (!document.getElementById("rev1")) return;
+  populateSelect("rev1", digits);
+  populateSelect("rev2", digits);
+  populateSelect("revMult", multipliers);
+  let revTargetVal = 0;
+
+  function updateRevPreview() {
+    const prev = document.getElementById("revBands");
+    prev.innerHTML = "";
+    prev.appendChild(bandSwatch(digitHex[parseInt(document.getElementById("rev1").value)]));
+    prev.appendChild(bandSwatch(digitHex[parseInt(document.getElementById("rev2").value)]));
+    prev.appendChild(bandSwatch(multHex[parseInt(document.getElementById("revMult").value)]));
+  }
+  function newTarget() {
+    const d1 = Math.floor(Math.random()*9) + 1;   /* avoid leading black */
+    const d2 = Math.floor(Math.random()*10);
+    const m  = Math.floor(Math.random()*7);        /* ×1 … ×1M */
+    revTargetVal = (d1*10 + d2) * multiplierValues[m];
+    document.getElementById("revTarget").textContent = "Target: " + fmtOhm(revTargetVal) + "  (" + revTargetVal + " Ω)";
+    const fb = document.getElementById("rev-fb");
+    fb.textContent = ""; fb.className = "fb-line";
+    updateRevPreview();
+  }
+  function check() {
+    const b1 = parseInt(document.getElementById("rev1").value);
+    const b2 = parseInt(document.getElementById("rev2").value);
+    const m  = parseInt(document.getElementById("revMult").value);
+    const val = (b1*10 + b2) * multiplierValues[m];
+    const fb = document.getElementById("rev-fb");
+    if (Math.abs(val - revTargetVal) < 0.001) {
+      fb.className = "fb-line fb-correct";
+      fb.textContent = "✓ Correct — those bands make " + fmtOhm(revTargetVal) + ".";
+      if (window.S3Beta) window.S3Beta.complete("ch-colour-reverse", 10);
+    } else {
+      fb.className = "fb-line fb-incorrect";
+      fb.textContent = "✗ Those bands give " + fmtOhm(val) + ". Aim for " + fmtOhm(revTargetVal) + " — check your two digits, then the multiplier.";
+    }
+  }
+  ["rev1","rev2","revMult"].forEach(id => document.getElementById(id).addEventListener("change", updateRevPreview));
+  document.getElementById("rev-check").addEventListener("click", check);
+  document.getElementById("rev-new").addEventListener("click", newTarget);
+  newTarget();
+})();
+</script>
+
+<!-- V = I R practice generator -->
+<script>
+let currentAnswer = 0;
+
+function newVIR() {
+  const fb = document.getElementById("vir-feedback");
+  fb.textContent = "";
+  fb.className = "fb-line";
+  const type = Math.floor(Math.random() * 3);
+
+  let V = parseFloat((Math.random()*9 + 1).toFixed(1));
+  let I = parseFloat((Math.random()*0.9 + 0.1).toFixed(2));
+  let R = parseFloat((Math.random()*90 + 10).toFixed(0));
+
+  let question = "";
+  if (type === 0) {
+    V = I * R;
+    currentAnswer = parseFloat(V.toFixed(2));
+    question = `Find the voltage (in V) if the current is ${I} A and the resistance is ${R} Ω.`;
+  } else if (type === 1) {
+    I = V / R;
+    currentAnswer = parseFloat(I.toFixed(2));
+    question = `Find the current (in A) if the voltage is ${V} V and the resistance is ${R} Ω.`;
+  } else {
+    R = V / I;
+    currentAnswer = parseFloat(R.toFixed(2));
+    question = `Find the resistance (in Ω) if the voltage is ${V} V and the current is ${I} A.`;
+  }
+  document.getElementById("vir-question").textContent = question;
+}
+
+function checkVIR() {
+  const user = parseFloat(document.getElementById("vir-answer").value);
+  const fb = document.getElementById("vir-feedback");
+  if (isNaN(user)) {
+    fb.textContent = "Please enter a number.";
+    fb.className = "fb-line fb-warning";
+    return;
+  }
+  if (Math.abs(user - currentAnswer) < 0.05) {
+    fb.textContent = "Correct!";
+    fb.className = "fb-line fb-correct";
+    if (window.S3Beta) window.S3Beta.complete("ch-vir", 10);
+  } else {
+    fb.textContent = `Not quite. Correct answer = ${currentAnswer}`;
+    fb.className = "fb-line fb-incorrect";
+  }
+}
+</script>
+
+<!-- Green / Amber / Red self-check (saved on device) -->
+<script>
+const garCriteria = [
+  { level: 'L3', items: [
+    { id: 'l3a', t: 'I can use an ohmmeter and resistor colour codes.' }
+  ]},
+  { level: 'L4a', items: [
+    { id: 'l4a', t: 'I can use V = IR to find V, I or R, watching units.' }
+  ]},
+  { level: 'L4b', items: [
+    { id: 'l4b', t: 'I can read a V–I graph and describe temperature effects.' }
+  ]}
+];
+
+var GAR_LEVELS = [
+  { col:'r', icon:'🔴', label:'Need help' },
+  { col:'a', icon:'🟠', label:'Practising' },
+  { col:'g', icon:'🟢', label:'Secure' },
+  { col:'e', icon:'⭐', label:'Can explain it to someone else' }
+];
+
+function setGarButtons(row, val) {
+  GAR_LEVELS.forEach(lv => {
+    const b = row.querySelector('.gar-btn.' + lv.col);
+    if (b) b.classList.toggle('on', lv.col === val);
+  });
+}
+
+function buildGAR() {
+  garCriteria.forEach(group => {
+    const c = document.querySelector('[data-gar-level="' + group.level + '"]');
+    if (!c) return;
+
+    const legend = document.createElement('p');
+    legend.className = 'gar-legend';
+    legend.textContent = '🔴 need help · 🟠 practising · 🟢 secure · ⭐ can explain it';
+    c.appendChild(legend);
+
+    group.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'gar-row';
+
+      const crit = document.createElement('span');
+      crit.className = 'gar-crit';
+      crit.textContent = item.t;
+
+      const btns = document.createElement('div');
+      btns.className = 'gar-btns';
+
+      GAR_LEVELS.forEach(lv => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'gar-btn ' + lv.col;
+        b.textContent = lv.icon;
+        b.setAttribute('aria-label', lv.label);
+        b.title = lv.label;
+        b.addEventListener('click', () => {
+          localStorage.setItem('s3e1b-gar-' + item.id, lv.col);
+          setGarButtons(row, lv.col);
+        });
+        btns.appendChild(b);
+      });
+
+      row.appendChild(crit);
+      row.appendChild(btns);
+      c.appendChild(row);
+
+      const saved = localStorage.getItem('s3e1b-gar-' + item.id);
+      if (saved) setGarButtons(row, saved);
+    });
+  });
+}
+
+buildGAR();
+</script>
+
+<!-- ============================================================
+     Progress bridge + L3–L4 self-assessment widgets
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function fb(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"fb-correct":"fb-incorrect"); el.textContent=(ok?"✓ ":"✗ ")+msg; }
+  function fbset(el, ok, msg){ if(!el) return; el.className="fb-line "+(ok?"fb-correct":"fb-incorrect"); el.innerHTML=(ok?"✓ ":"✗ ")+msg; }
+
+  /* Points, streak and badges are owned by the shared engine (assets/js/progress.js)
+     via the s3-physics config. S3Beta is a thin shim; the engine auto-counts the
+     [data-prog-challenge] elements and unlocks the page badge (elec1b) when they
+     are all complete. Demoted Explore widgets (formula triangle, V–I explorer) are
+     untracked on purpose, so they never gate the badge. */
+  function award(id, pts, correct){
+    if(!window.Progress) return;
+    if(correct){ window.Progress.complete(id); } else { window.Progress.miss(); }
+  }
+  window.S3Beta = {
+    award: award,
+    complete: function(id, pts){ award(id, pts, true); },
+    isDone: function(id){ return !!(window.Progress && window.Progress.challengeDone(id)); },
+    refresh: function(){}
+  };
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.Progress){ window.Progress.markSeen("elec1b"); }
+  });
+
+  /* ---- single-open accordion (lesson panels default-closed) ---- */
+  (function(){
+    var panels = [].slice.call(document.querySelectorAll('.collapsible-panel > details'));
+    panels.forEach(function(d){
+      d.addEventListener('toggle', function(){
+        if(d.open){ panels.forEach(function(o){ if(o!==d) o.open=false; }); }
+      });
+    });
+  })();
+
+  /* ---- calc checker: mA trap ---- */
+  (function(){
+    var c=$("cma-check"); if(!c) return;
+    c.addEventListener("click", function(){
+      var v=parseFloat($("cma-ans").value);
+      if(isNaN(v)){ fb($("cma-fb"), false, "Type a number first."); return; }
+      if(Math.abs(v-4000)<1){ fb($("cma-fb"), true, "Correct — 2 mA = 0.002 A, so R = 8 ÷ 0.002 = 4000 Ω (4 kΩ)."); award("ch-calc-ma",10,true); return; }
+      var msg="Not yet. Convert 2 mA to 0.002 A first, then R = V ÷ I = 8 ÷ 0.002 = 4000 Ω.";
+      if(Math.abs(v-4)<0.1) msg="So close — but you used 2, not 0.002 A. Convert 2 mA → 0.002 A: 8 ÷ 0.002 = 4000 Ω.";
+      else if(Math.abs(v-0.25)<0.01) msg="That's I ÷ V. Resistance is R = V ÷ I = 8 ÷ 0.002 = 4000 Ω.";
+      else if(Math.abs(v-16)<0.1) msg="Looks like you multiplied. Use R = V ÷ I (after converting mA): 8 ÷ 0.002 = 4000 Ω.";
+      fb($("cma-fb"), false, msg); award("ch-calc-ma",0,false);
+    });
+  })();
+
+  /* ---- predict & justify: series resistor ---- */
+  (function(){
+    var pw=document.querySelector('[data-prog-challenge="ch-predict-r"]'); if(!pw) return;
+    [].forEach.call(pw.querySelectorAll(".predict-btns button"), function(b){
+      b.addEventListener("click", function(){
+        var ok=b.getAttribute("data-pred")==="1";
+        var box=$("predr-fb"); box.hidden=false;
+        box.innerHTML='<p class="fb-line '+(ok?"fb-correct":"fb-incorrect")+'">'+(ok?"✓ Correct — ":"✗ Not quite — it actually decreases. ")+'Adding a resistor in series increases the total resistance, and since I = V ÷ R with the same voltage, the current <strong>decreases</strong>.</p>';
+        [].forEach.call(pw.querySelectorAll(".predict-btns button"), function(x){ x.disabled=true; });
+        award("ch-predict-r",10,ok);
+      });
+    });
+  })();
+
+  /* ---- spot the mistake (single pick) ---- */
+  (function(){
+    var w=document.querySelector('[data-prog-challenge="ch-error"]'); if(!w) return;
+    var btns=[].slice.call(w.querySelectorAll(".predict-btns button")), box=$("err-fb");
+    btns.forEach(function(b){
+      b.addEventListener("click", function(){
+        btns.forEach(function(x){ x.classList.remove("active"); }); b.classList.add("active");
+        var ok=b.getAttribute("data-ok")==="1";
+        fbset(box, ok, ok?"Right — he flipped it. I = V ÷ R = 10 ÷ 2 = 5 A."
+          :"Look again — current is I = V ÷ R = 10 ÷ 2 = 5 A, so 0.2 A is wrong because the formula was upside down.");
+        if(ok) award("ch-error",10,true);
+      });
+    });
+  })();
+
+  /* ---- fading worked example ---- */
+  (function(){
+    var btn=$("fade-check"); if(!btn) return;
+    function num(id){ return parseFloat($(id).value); }
+    function mark(id, ok){ var e=$(id); e.classList.toggle("ok",ok); e.classList.toggle("no",!ok); return ok; }
+    btn.addEventListener("click", function(){
+      var box=$("fade-fb");
+      var a=mark("fd-2", Math.abs(num("fd-2")-46)<0.1);
+      var b=mark("fd-3a", Math.abs(num("fd-3a")-0.002)<0.0001);
+      var c=mark("fd-3b", Math.abs(num("fd-3b")-0.002)<0.0001);
+      var d=mark("fd-3c", Math.abs(num("fd-3c")-4000)<1);
+      if(a&&b&&c&&d){ fbset(box,true,"All correct — and notice you converted 2 mA to 0.002 A <em>before</em> dividing."); award("ch-fade",10,true); }
+      else {
+        var m="Check the boxes outlined in red. ";
+        if(!b||!c) m+="Remember 2 mA = 0.002 A. ";
+        if(!a) m+="Example 2: 230 ÷ 5 = 46. ";
+        if(!d) m+="Then 8 ÷ 0.002 = 4000. ";
+        fbset(box,false,m);
+      }
+    });
+    $("fade-reset").addEventListener("click", function(){
+      ["fd-2","fd-3a","fd-3b","fd-3c"].forEach(function(id){ var e=$(id); e.value=""; e.classList.remove("ok","no"); });
+      var box=$("fade-fb"); box.textContent=""; box.className="fb-line";
+    });
+  })();
+
+  /* ---- formula triangle (Explore — untracked helper) ---- */
+  (function(){
+    var tri=document.querySelector(".tri"); if(!tri) return;
+    var result=$("tri-result");
+    var EQ={
+      V:'You are finding <strong>V</strong>: <span class="tri-eq"><var>V</var> = <var>I</var> × <var>R</var></span> — multiply the two on the bottom.',
+      I:'You are finding <strong>I</strong>: <span class="tri-eq"><var>I</var> = <var>V</var> ÷ <var>R</var></span> — top divided by bottom.',
+      R:'You are finding <strong>R</strong>: <span class="tri-eq"><var>R</var> = <var>V</var> ÷ <var>I</var></span> — top divided by bottom.'
+    };
+    [].forEach.call(tri.querySelectorAll(".tri-cell"), function(btn){
+      btn.addEventListener("click", function(){
+        [].forEach.call(tri.querySelectorAll(".tri-cell"), function(b){ b.classList.remove("active"); });
+        btn.classList.add("active");
+        result.innerHTML=EQ[btn.getAttribute("data-solve")];
+      });
+    });
+  })();
+})();
+</script>
+
+<!-- V–I explorer (Explore — untracked live-sim) -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(!window.WidgetKit) return;
+  var root = document.getElementById("ohmSim");
+  if(!root) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var trace = $("ohm-trace"), dot = $("ohm-dot");
+  var seen = { ohmic:false, lamp:false };
+
+  var X0=35, X1=215, Y0=150, Y1=20, IMAX=6, VMAX=12;
+  function mapX(I){ return X0 + (Math.max(0,Math.min(IMAX,I))/IMAX)*(X1-X0); }
+  function mapY(V){ return Y0 - (Math.max(0,Math.min(VMAX,V))/VMAX)*(Y0-Y1); }
+  function Iof(V,R,comp){ return comp==="lamp" ? V/(R*(1+1.5*V/VMAX)) : V/R; }
+  function Rof(V,R,comp){ return comp==="lamp" ? R*(1+1.5*V/VMAX) : R; }
+
+  function render(s){
+    var V=s.V, R=s.R, comp=s.comp;
+    seen[comp] = true;
+    var n=24, d="";
+    for(var i=0;i<=n;i++){
+      var u = V*i/n, Iu = Iof(u,R,comp);
+      d += (i?" L":"M") + mapX(Iu).toFixed(1) + "," + mapY(u).toFixed(1);
+    }
+    trace.setAttribute("d", d);
+    var Iv = Iof(V,R,comp);
+    dot.setAttribute("cx", mapX(Iv).toFixed(1));
+    dot.setAttribute("cy", mapY(V).toFixed(1));
+    $("ohm-i").textContent = Iv.toFixed(2);
+    $("ohm-rnow").textContent = Rof(V,R,comp).toFixed(1);
+    $("ohm-shape").textContent = comp==="lamp" ? "curved" : "straight";
+  }
+
+  window.WidgetKit.liveSim(root, { render: render });
+
+  var fb = $("ohm-fb");
+  function setFb(ok, msg){ fb.className = "csim-fb " + (ok?"ok":"no"); fb.textContent = (ok?"✓ ":"✗ ")+msg; }
+  [].forEach.call(root.querySelectorAll("[data-ohm-pick]"), function(btn){
+    btn.addEventListener("click", function(){
+      if(!(seen.ohmic && seen.lamp)){
+        fb.className="csim-fb no";
+        fb.textContent="Sweep V for both the fixed resistor AND the lamp first, so you can compare the two traces.";
+        return;
+      }
+      [].forEach.call(root.querySelectorAll("[data-ohm-pick]"), function(b){ b.setAttribute("aria-pressed", b===btn ? "true":"false"); });
+      if(btn.getAttribute("data-ohm-pick")==="line"){
+        setFb(true, "Correct — the fixed resistor gives a straight line: its gradient (V ÷ I = R) is constant, so it's ohmic. The lamp's line bends because its resistance rises as it heats.");
+      } else {
+        setFb(false, "Not quite — the ohmic component keeps a constant gradient, which is the straight line. The curve steepens because the lamp's resistance changes.");
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
