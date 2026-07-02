@@ -32,7 +32,13 @@
       cond: "Finish every challenge on Pneumatics" },
     { id: "eng-structures", name: "Load Bearer", emoji: "🏗️", section: "N5 Engineering", unlock: "page",
       href: "/classes/n5-engineering/structures-and-materials.html",
-      cond: "Finish every challenge on Structures & materials" }
+      cond: "Finish every challenge on Structures & materials" },
+    { id: "eng-control", name: "Control Coder", emoji: "🤖", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering/logic-and-programmable-control.html",
+      cond: "Finish every challenge on Logic & programmable control" },
+    { id: "eng-assignment", name: "Assignment Ace", emoji: "📋", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering-assignment-prep.html",
+      cond: "Finish every challenge on Assignment Prep & Mixed Revision" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });
