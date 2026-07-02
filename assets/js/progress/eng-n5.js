@@ -20,7 +20,19 @@
       cond: "Finish every challenge on Engineering contexts & systems" },
     { id: "eng-energy", name: "Energy Engineer", emoji: "⚡", section: "N5 Engineering", unlock: "page",
       href: "/classes/n5-engineering/energy-and-efficiency.html",
-      cond: "Finish the challenge on Energy & efficiency" }
+      cond: "Finish the challenge on Energy & efficiency" },
+    { id: "eng-mechanisms", name: "Gear Master", emoji: "🔩", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering/mechanisms-and-drive-systems.html",
+      cond: "Finish every challenge on Mechanisms & drive systems" },
+    { id: "eng-electronics", name: "Circuit Builder", emoji: "🔌", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering/electronics-and-analogue-control.html",
+      cond: "Finish every challenge on Electronics & analogue control" },
+    { id: "eng-pneumatics", name: "Air Engineer", emoji: "💨", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering/pneumatics.html",
+      cond: "Finish every challenge on Pneumatics" },
+    { id: "eng-structures", name: "Load Bearer", emoji: "🏗️", section: "N5 Engineering", unlock: "page",
+      href: "/classes/n5-engineering/structures-and-materials.html",
+      cond: "Finish every challenge on Structures & materials" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });
