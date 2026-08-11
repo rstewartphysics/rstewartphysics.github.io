@@ -11,7 +11,7 @@ palette, not its blue): `classes/higher/electricity/current-pd-power-resistance.
 
 ## Site overview
 
-Static HTML on GitHub Pages via Jekyll. Audience: Scottish secondary pupils (S1–Advanced Higher),
+Static HTML on GitHub Pages via Jekyll. Audience: Scottish secondary pupils (S3–Advanced Higher),
 mostly on iPads/mobile. Pages use `layout: none` and carry their own inline CSS. The only shared
 files are the nav components and the two shared stylesheets (Engineering Science, Higher Physics).
 
@@ -51,6 +51,26 @@ Per-page `localStorage` keys use a unique topic prefix (e.g. `hp-cpr-`).
 (repo root) — the full construction spec: concept-block layout, equation cards with real 2-D
 fractions (`fr-n`/`fr-d`, never `num`/`den`), two worked examples per equation, `.calc` grid,
 question rules, UK SVG symbol/diagram rules, and the pre-commit checklist.
+
+### S3 Physics topic pages — filing structure
+
+S3 Physics is inline-themed (links `/assets/css/s3-physics.css`, not a shared topic sheet). When a
+topic grows too large for one page, split it into a **topic hub + lesson sub-pages in a subfolder**,
+keeping the original topic URL as the hub (established by the Electricity 1 split):
+
+```
+classes/s3-physics.html                              — the level hub
+classes/s3-physics/<topic>.html                      — topic hub (short: intro, booklet, links, part tiles)
+classes/s3-physics/<topic>/<lesson>.html             — the lesson pages (kebab-case of the part label)
+classes/s3-physics/<topic>/practice.html             — quiz + past papers for the topic
+classes/s3-physics/<topic>-tools.html                — shared interactive/tool assets
+```
+
+Conventions: the topic-hub URL is preserved (so existing links don't break); lesson files are
+kebab-case of their part label (e.g. `circuits-symbols-meters.html`); each lesson gets its **own
+per-page badge** (`unlock:"page"`) registered in `progress/s3-physics.js`, and the level-hub tile
+aggregates them via `data-prog-badges`. Per-page `localStorage` widget keys use a unique lesson
+prefix (e.g. `s3e1a-`). All asset/menu links stay absolute so the extra nesting depth is transparent.
 
 ---
 
@@ -308,11 +328,40 @@ Use `env(safe-area-inset-*)` wherever fixed controls sit near screen edges — t
 
 ---
 
-## Engineering Science — National 5 topic order
+## Engineering Science — National 5 topic pages
+
+**Topic order** (matches the hub tiles on `classes/n5-engineering-science.html`):
 
 1. Engineering Contexts & Systems · 2. Energy & Efficiency · 3. Electronics & Analogue Control ·
 4. Logic & Programmable Control · 5. Mechanisms & Drive Systems · 6. Pneumatics ·
 7. Structures & Materials · 8. Assignment Preparation & Mixed Revision
+
+**Filing & URLs.** Topic pages live at `classes/n5-engineering/<kebab-topic>.html` (e.g.
+`mechanisms-and-drive-systems.html`), except Topic 8 which is `classes/n5-engineering-assignment-prep.html`
+(kept at that pre-existing URL — it is also linked from the hub's resources row). All asset/menu
+links are absolute; never add topic pages to the nav drawer. Each page follows the Engineering
+Science convention: `<main class="container">`, links `/assets/css/engineering-science.css` +
+`/assets/js/widget-kit.js`, orange `--eng-*` tokens, and **`energy-and-efficiency.html` is the
+canonical template** to copy (concept-block `section.sec` panels with a collapse toggle, a mode-chooser
+bar, sticky sub-nav, a `#answers` booklet-check section of `details.reveal` answer keys, and a `#check`
+section = MC quiz + RAG self-check from the booklet success criteria). Per-page `localStorage` prefix
+is unique (`n5e2-`, `n5m5-`, `n5e3-`, `n5p6-`, `n5s7-`, `n5c4-`, `n5a8-`, …). Equation/`<var>`/`.frac`
+and UK-SVG-symbol rules are the same as the Higher/Electronics topic guides.
+
+**Status (all 8 topics live).** Built on branch **`n5-engineering-pages`** (July 2026): topics 3–8
+were authored from the source booklets, each with a flagship live widget (gear-train, Ohm's-law &
+voltage-divider, cylinder-force, beam-reactions, gate-playground) plus match/builder challenges wired
+to the progress engine, and NoStrainSim/NoPressureSim `.simcard` task cards where the booklet has
+▶ simulate-it tasks. **Every new page carries a `.beta-note` beta-testing banner under the back-link**
+(a deliberate, shared style — remove all of them together when the pages leave beta). The booklet-PDF
+buttons on topics 3/5/6/7 are `cta soon` placeholders until the PDFs land in
+`assets/engineering-science/national-5/<nn-topic>/`. **The build spec for these pages is
+`n5-engineering-pages-outline.md`** (repo root, git-excluded); its §8 is the phased build order.
+A sibling **`s3-engineering-pages-outline.md`** specs the S3 Engineering pages — that job is **not yet
+started**.
+
+To build/preview locally the repo uses **chruby** (system Ruby is too old):
+`source /opt/homebrew/opt/chruby/share/chruby/chruby.sh && chruby ruby-3.3.11 && bundle exec jekyll build`.
 
 ---
 
@@ -343,11 +392,16 @@ per-page **points / streak / section-challenge meter** + a **corner counter**, *
   two-tap inline confirm; status is never colour-only. All `page-checklist.md` a11y rules still apply.
 
 **Current status (rollout essentially complete — default on):** the shared engine `assets/js/progress.js`
-(`window.Progress`) is live with four subject configs — `progress/electronics.js`,
-`progress/higher-physics.js`, `progress/eng-n5.js`, `progress/eng-s3.js`. **Migrated and live:**
-**Electronics** (all pages + hub, via the lossless `migrateFrom` shim), **Higher Physics** (all 5
-electricity pages + hub aggregation on `classes/higher-physics.html`), and **Engineering Science** N5 +
-S3 live topic pages + their hubs. Each writes a single `progress-<ns>-v1` key. The legacy
+(`window.Progress`) is live with five subject configs — `progress/electronics.js`,
+`progress/higher-physics.js`, `progress/eng-n5.js`, `progress/eng-s3.js`, `progress/s3-physics.js`.
+**Migrated and live:** **Electronics** (all pages + hub, via the lossless `migrateFrom` shim),
+**Higher Physics** (all 5 electricity pages + hub aggregation on `classes/higher-physics.html`),
+**Engineering Science N5** (all 8 topic pages + hub — topics 3–8 added July 2026 on the
+`n5-engineering-pages` branch, badges `eng-electronics`/`eng-control`/`eng-mechanisms`/`eng-pneumatics`/`eng-structures`/`eng-assignment`
+joining the existing `eng-contexts`/`eng-energy` in `progress/eng-n5.js`), **S3** live topic pages + their hubs, and **S3 Physics** (Electricity 1 hub
++ its three lesson pages + practice under `classes/s3-physics/electricity1/`, four per-page badges
+`elec1a`/`elec1b`/`elec1c`/`elec1-test` aggregated on the S3 hub tile). Each writes a single
+`progress-<ns>-v1` key. The legacy
 `assets/js/electronics-progress.js` / `window.ElProgress` is **deprecated** (unreferenced, kept only for
 rollback — don't use on new pages). **Remaining:** Higher Engineering Science (Coming Soon — its
 `eng-higher.js` config drops in when those pages are built); coming-soon topic stubs stay unwired until
