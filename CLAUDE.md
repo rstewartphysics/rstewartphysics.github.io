@@ -11,7 +11,7 @@ palette, not its blue): `classes/higher/electricity/current-pd-power-resistance.
 
 ## Site overview
 
-Static HTML on GitHub Pages via Jekyll. Audience: Scottish secondary pupils (S1–Advanced Higher),
+Static HTML on GitHub Pages via Jekyll. Audience: Scottish secondary pupils (S3–Advanced Higher),
 mostly on iPads/mobile. Pages use `layout: none` and carry their own inline CSS. The only shared
 files are the nav components and the two shared stylesheets (Engineering Science, Higher Physics).
 
