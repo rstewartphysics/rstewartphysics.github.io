@@ -40,9 +40,11 @@ inventing structure, judging pedagogy/design, or touching many pages coherently,
       *Known pre-existing issue found, not from this branch:* `/assets/higher/Delta.png` is
       referenced as the favicon/apple-touch-icon on the Higher topic pages but **does not exist** —
       broken on `main` too. Fix in Phase 1.
-- [ ] **0.2 Tidy the working tree.** Commit the 1-line CLAUDE.md audience fix; delete
-      `Electricity Updates.rtf` (fully superseded by `website-fixes-plan.md`); commit or
-      `.gitignore` the four untracked planning files so the tree is clean. **Model: Haiku 4.5.**
+- [x] **0.2 Tidy the working tree.** ✅ **Done 2026-08-11.** Deleted `Electricity Updates.rtf`;
+      committed the five planning docs (electricity1-audit-and-improvements.md,
+      interactive-components-improvement-plan.md, legacy-wip-audit.csv, website-fixes-plan.md,
+      website-development-action-plan.md) at repo root as decision history; tree is now clean.
+      **Model: Haiku 4.5.**
 - [ ] **0.3 Branch triage.** Delete the 21 local branches already merged into main (plus their
       remotes and the stale `codex/*` remotes). Two branches are **not** contained anywhere:
       `home-coffee-float` (Buy-Me-a-Coffee float + electronics content fixes: costing/safety/
