@@ -45,12 +45,27 @@ inventing structure, judging pedagogy/design, or touching many pages coherently,
       interactive-components-improvement-plan.md, legacy-wip-audit.csv, website-fixes-plan.md,
       website-development-action-plan.md) at repo root as decision history; tree is now clean.
       **Model: Haiku 4.5.**
-- [ ] **0.3 Branch triage.** Delete the 21 local branches already merged into main (plus their
-      remotes and the stale `codex/*` remotes). Two branches are **not** contained anywhere:
-      `home-coffee-float` (Buy-Me-a-Coffee float + electronics content fixes: costing/safety/
-      wiring/testing tables + "Phase 1 quick wins") and `chore/copyright-cleanup-phase0-1`
-      (copyright-checklist progress notes). Diff each against main, harvest anything not already
-      re-landed, then delete. **Model: Sonnet 5** (harvest judgement), Haiku for the pruning.
+- [x] **0.3 Branch triage.** ✅ **Done 2026-08-11.** Harvested the two unmerged branches first:
+      diffed every file in both against current `main` before deleting anything.
+      **`home-coffee-float`** — fully superseded: the electronics costing/safety/wiring/testing
+      content, the WIP banners, the hub-link cleanups and the Topics-section removal all already
+      exist on `main`, done later via different (better) implementations. Nothing to harvest.
+      **`chore/copyright-cleanup-phase0-1`** — also fully superseded: the S1/S2 Science removal,
+      `LICENSE`, `CREDITS.md`, `credits.html`, the EA-booklet removal, the Buy-Me-a-Coffee link and
+      the provenance checklist are all already live on `main` (its `copyright-provenance-checklist.csv`
+      is byte-identical to the one committed in 0.2). Its `contact.html` predates the
+      already-merged About & Contact rewrite. `copyright-audit.md` and `electronics-revamp-plan.md`
+      are stale planning docs for jobs that shipped via other branches — no unshipped content.
+      *(This also disproved a claim in the original Phase 6 CLAUDE.md notes below: the nav drawer
+      does **not** still link a removed Science page — checked directly, no `/classes/science.html`
+      references exist anywhere on `main`.)*
+      Deleted 25 local branches (23 confirmed merged + 2 confirmed-superseded) and pruned 34 remote
+      branches (the same 23 plus 9 stale `codex/*`, `rstewartphysics-patch-1`, and `to-be-pulled` —
+      all verified fully merged or superseded before deletion, not just old). `git branch -d`
+      initially refused 4 already-merged branches because their remote-tracking refs were stale
+      (not because they weren't merged) — re-verified each with `git merge-base --is-ancestor` before
+      force-deleting. Repo now has exactly one branch, locally and on GitHub: `main`.
+      **Model: Sonnet 5** (harvest judgement + pruning).
 
 ---
 
@@ -180,11 +195,13 @@ double-check of the orphan greps before deleting anything.
 
 ## Phase 6 — CLAUDE.md & skills upkeep (after each phase, not one big rewrite)
 
-- [ ] **CLAUDE.md corrections now:** the Science subject no longer exists on the site — remove the
-      drawer-order entry (`/classes/science.html`), the Science colour-table row, and the Science
-      component/footer references; fix the drawer-order section to match the real
-      `_includes/site-menu.html` (Home · Physics group · Electronics · Engineering Science group ·
-      About & Contact). **Model: Sonnet 5.**
+- [ ] **CLAUDE.md corrections now:** the Science subject was already fully removed from the site
+      during the 0.3 branch audit (2026-08-11) — no `/classes/science.html` link exists anywhere on
+      `main`, confirmed by direct grep. What's actually stale is CLAUDE.md's own **menu-order and
+      colour-theme sections**, which still describe a "Science `/classes/science.html`" drawer entry
+      and a Science colour row that don't match the real `_includes/site-menu.html` (Home · Physics
+      group · Electronics · Engineering Science group · About & Contact). Fix CLAUDE.md's
+      description to match reality — the site itself needs no further change here. **Model: Sonnet 5.**
 - [ ] **After Phase 0 merge:** update the N5 Engineering status block (built → merged/live) and the
       S3 Physics section if anything moved. **Model: Haiku 4.5.**
 - [ ] **After Phase 2.5:** document the Electricity 2 split structure alongside the Electricity 1
