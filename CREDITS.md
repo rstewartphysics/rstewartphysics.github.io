@@ -26,7 +26,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
 - **PhET Interactive Simulations**, University of Colorado Boulder — embedded under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). <https://phet.colorado.edu>
 - **Qualifications Scotland (SQA)** — course specifications, past-paper and assessment material
-  reproduced for educational use. © Qualifications Scotland.
+  reproduced for educational use. © Qualifications Scotland. This includes the Higher Physics
+  past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and
+  Revised Higher), the Revised Higher specimen paper, and the corresponding marking instructions,
+  reproduced in support of SQA qualifications on a non-commercial basis.
 - **Embedded videos** — "The Other Mr Stewart" (YouTube [@mrstewartphysics](https://www.youtube.com/@mrstewartphysics))
   and Mr Bell – Practical Electronics. Videos remain © their respective creators and are embedded
   via YouTube; each clip is credited where it appears.
