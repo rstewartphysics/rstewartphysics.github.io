@@ -47,12 +47,34 @@ nav drawer.
    - `section.modebar` — "Choose how to use this page" (same three modes as energy page).
    - Concept sections: `<section class="panel sec" id="sN">` +
      `<span class="concept-tag">Concept N</span>` + `<h2>`.
-   - `#answers` — **Booklet check**: `details.reveal` blocks giving final answers to the
-     booklet's TRY THIS / PRACTICE questions (the booklets' Appendix answer keys where they
+   - **Exam-style practice belongs with its concept** (revised August 2026): each `section.sec`
+     ends with a `.practice` block — `.practice-tag` + a `.page-ref` booklet reference, then one
+     `.stem` per question with a `.marks` pill and its own `details.reveal` answer. Do **not**
+     collect them at the foot of the page; that was the original energy-page layout and it buried
+     them.
+   - `#recap` — **Everything on one screen**: the topic's relationships as `.eq-card`s, a `.warn`
+     list of what loses marks, and a unit-conversion `.tbl`.
+   - `#answers` — **Booklet answer keys only**: `details.reveal` blocks giving final answers to the
+     booklet's TRY THIS tasks (the booklets' Appendix answer keys where they
      exist; write them for 3, 4a, 4b, 5 which have none — final answers only, like the energy page).
    - `#check` — **Check yourself**: ~8–10 Q MC quiz + RAG self-check built from the booklet's
      success criteria.
 5. `{% include site-footer.html %}`.
+
+### Conventions confirmed by the Energy & Efficiency audit (August 2026)
+- **Past-paper references are visible text**, in an `.exam-ref` line under the section's
+  `.keypoint` — never a `title=` tooltip, which does not exist on a touch screen.
+- **Data-booklet notation leads**: `g = 9.8 ms⁻²`, `c = 4180 J kg⁻¹K⁻¹`, each glossed once.
+  Efficiency is printed in the booklet as a **ratio only** — flag the missing `× 100`.
+- **`--eng-ink-accent`** (light `#9a5410`, dark `#f5c97a`) is the accent for small text;
+  `--eng-orange` as text is ~3.4:1 and fails AA. Orange stays a background.
+- **Useful = `#15803d` green, wasted = `#b91c1c` red**, in SVG diagrams and live sim bars alike.
+- Widgets must not reward a physically impossible answer (a 100%-efficient system, a useful
+  output above the input) — refuse it and explain why.
+- Practice generators should exercise the traps the page teaches: minutes → seconds, ΔT from two
+  temperatures, rearranging, and answers whose unit is not the joule.
+- Close the page with a "Where this comes up next" `.resource-grid` — three cross-links, so a
+  finished topic is not a dead end.
 
 ### Equations, maths & diagrams (house rules)
 - Equation cards `.eq-cards`/`.eq-card`; serif equation font; every quantity symbol in `<var>`;

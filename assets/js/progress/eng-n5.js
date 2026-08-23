@@ -20,7 +20,7 @@
       cond: "Finish every challenge on Engineering contexts & systems" },
     { id: "eng-energy", name: "Energy Engineer", emoji: "⚡", section: "N5 Engineering", unlock: "page",
       href: "/classes/n5-engineering/energy-and-efficiency.html",
-      cond: "Finish the challenge on Energy & efficiency" },
+      cond: "Finish every challenge on Energy & efficiency" },
     { id: "eng-mechanisms", name: "Gear Master", emoji: "🔩", section: "N5 Engineering", unlock: "page",
       href: "/classes/n5-engineering/mechanisms-and-drive-systems.html",
       cond: "Finish every challenge on Mechanisms & drive systems" },
