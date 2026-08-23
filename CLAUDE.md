@@ -4,6 +4,9 @@ Design system, structure and conventions for mrstewartphysics.co.uk. Read before
 editing any page. This file holds the **rules and the map**; exact CSS values live in the files
 named below — open them rather than guessing.
 
+Global rules in `~/.claude/CLAUDE.md` apply on top of this — credits and references (§6) in
+particular, since everything here is published.
+
 **Canonical reference page** (copy its structure/components/conventions, but use the *subject's*
 palette, not its blue): `classes/higher/electricity/current-pd-power-resistance.html`.
 
@@ -30,7 +33,7 @@ index.html                            — home page
 
 ### Higher Physics topic pages — filing structure
 
-Grouped by SQA unit so new pages drop in cleanly:
+Grouped by course unit so new pages drop in cleanly:
 
 ```
 classes/higher-physics.html                      — the hub
@@ -311,6 +314,30 @@ to each page's footer text colour automatically.
 
 ---
 
+## Credits & copyright
+
+Global rules `~/.claude/CLAUDE.md` §6; this is the site-side mechanism. Nothing published goes out
+uncredited.
+
+- **Per-page sources line.** A page carrying material that isn't the site owner's gets a
+  `data-credit-note` paragraph under the content it credits. House wording and styling:
+  `classes/higher-physics.html` — "Sources &amp; credits: …", `font-size:0.82rem;opacity:0.78`.
+- **Both credit lists move together.** `CREDITS.md` (repo root, excluded from the build in
+  `_config.yml`) is the master; `classes/credits.html` is its public twin, linked from every footer.
+  Credited material added to a page means editing **both** in the same change.
+- **Provenance is logged.** `copyright-provenance-checklist.csv` records each asset as original /
+  with permission / to remove. A new third-party asset gets a row.
+- **Qualifications Scotland material** — past papers, marking instructions, course specifications,
+  data booklets and extracted images — is reproduced for educational use and credited with the exact
+  string `© Qualifications Scotland (SQA)`. Qualification names (National 5, Higher, Advanced
+  Higher) are unchanged; don't rewrite "SQA" where it is already established in a filename, an
+  asset's own branding, or this credit string.
+- **Colleagues' material only with permission** — named, with a year, as in `CREDITS.md`.
+- **Declare AI-generated assets** (banner and logo artwork), as `CREDITS.md` already does.
+- **Unknown provenance is not publishable.** Ask before it goes live.
+
+---
+
 ## Mobile breakpoints
 
 | Breakpoint | Changes |
@@ -343,10 +370,27 @@ links are absolute; never add topic pages to the nav drawer. Each page follows t
 Science convention: `<main class="container">`, links `/assets/css/engineering-science.css` +
 `/assets/js/widget-kit.js`, orange `--eng-*` tokens, and **`energy-and-efficiency.html` is the
 canonical template** to copy (concept-block `section.sec` panels with a collapse toggle, a mode-chooser
-bar, sticky sub-nav, a `#answers` booklet-check section of `details.reveal` answer keys, and a `#check`
-section = MC quiz + RAG self-check from the booklet success criteria). Per-page `localStorage` prefix
-is unique (`n5e2-`, `n5m5-`, `n5e3-`, `n5p6-`, `n5s7-`, `n5c4-`, `n5a8-`, …). Equation/`<var>`/`.frac`
-and UK-SVG-symbol rules are the same as the Higher/Electronics topic guides.
+bar, sticky sub-nav, a `#recap` one-screen summary, an `#answers` section of `details.reveal` booklet
+answer keys, and a `#check` section = MC quiz + RAG self-check from the booklet success criteria).
+Per-page `localStorage` prefix is unique (`n5e2-`, `n5m5-`, `n5e3-`, `n5p6-`, `n5s7-`, `n5c4-`,
+`n5a8-`, …). Equation/`<var>`/`.frac` and UK-SVG-symbol rules are the same as the Higher/Electronics
+topic guides.
+
+**Revised template conventions (August 2026 — from the Energy & Efficiency audit; topics 3–8 still
+need retrofitting):**
+- **Exam-style practice sits with the concept it tests**, as a `.practice` block (`.practice-tag` +
+  `.page-ref` booklet reference) at the foot of its `section.sec`, each question a `.stem` with a
+  `.marks` pill and its own `details.reveal` answer. `#answers` holds **booklet answer keys only**.
+- **Past-paper references are visible text, never a `title=` tooltip** — there is no hover on an
+  iPad. Use `.exam-ref` under the section's `.keypoint`, with each reference in its own `<b>`.
+- **Data-booklet notation leads**: `g = 9.8 ms⁻²`, `c = 4180 J kg⁻¹K⁻¹`, glossed once with the
+  familiar form. The booklet gives efficiency as a **ratio only** — say where the `× 100` is lost.
+- **Accent orange is a background, not small text.** `--eng-ink-accent` (light `#9a5410`, dark
+  `#f5c97a`) is the AA-safe text accent; `--eng-orange` on text is ~3.4:1 and fails.
+- **One colour grammar for energy**: useful `#15803d` green, wasted `#b91c1c` red, in both the SVG
+  block diagrams and the live sim bars.
+- A `#recap` section (relationships as `.eq-card`s, a `.warn` list of what loses marks, a unit-
+  conversion `.tbl`) and a "Where this comes up next" `.resource-grid` close the page.
 
 **Status (all 8 topics live).** Built on branch **`n5-engineering-pages`** (July 2026): topics 3–8
 were authored from the source booklets, each with a flagship live widget (gear-train, Ohm's-law &
