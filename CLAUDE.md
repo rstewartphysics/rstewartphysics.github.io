@@ -401,6 +401,13 @@ to the progress engine, and NoStrainSim/NoPressureSim `.simcard` task cards wher
 buttons on topics 3/5/6/7 are `cta soon` placeholders until the PDFs land in
 `assets/engineering-science/national-5/<nn-topic>/`. **The build spec for these pages is
 `n5-engineering-pages-outline.md`** (repo root, git-excluded); its §8 is the phased build order.
+**Unit 1 Question Bank** (`classes/n5-engineering/unit-1-question-bank.html`, linked from the hub's
+`#unit1` card): a 236-question random MCQ generator covering Topics 1–2, one question at a time with
+immediate right/wrong marking. It is **generated**, not hand-edited — the source bank and build script
+live in `~/claude-work/n5-eng-mcq-bank/` (`bank_src.md` + `build_all.py`, which writes this page
+directly into the repo). Edit the source and re-run the script; do not edit the page's embedded JSON.
+localStorage prefix `n5q1-`. No progress badge is wired to it.
+
 A sibling **`s3-engineering-pages-outline.md`** specs the S3 Engineering pages — that job is **not yet
 started**.
 
