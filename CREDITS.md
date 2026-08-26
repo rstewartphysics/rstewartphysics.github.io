@@ -33,6 +33,9 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and
   Revised Higher), the Revised Higher specimen paper, and the corresponding marking instructions,
   reproduced in support of SQA qualifications on a non-commercial basis.
+  It also covers the Higher Physics lesson-slide PDFs at `classes/higher/slides/`: the decks are
+  written by the site owner, but the past-paper questions, extracted figures and marking-instruction
+  links they carry are © Qualifications Scotland, reproduced for educational use.
 - **Embedded videos** — "The Other Mr Stewart" (YouTube [@mrstewartphysics](https://www.youtube.com/@mrstewartphysics))
   and Mr Bell – Practical Electronics. Videos remain © their respective creators and are embedded
   via YouTube; each clip is credited where it appears.
