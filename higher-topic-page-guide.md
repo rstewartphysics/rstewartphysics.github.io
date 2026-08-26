@@ -17,6 +17,11 @@ classes/higher/<unit>/<topic>.html
 - When the page is ready, **flip its hub placeholder** in `classes/higher-physics.html` from
   `<span class="topic-link soon">Label</span>` to
   `<a class="topic-link" href="/classes/higher/<unit>/<topic>.html">Label <span class="go" aria-hidden="true">→</span></a>`.
+- **If the topic's lesson slides are already published**, the page owes a pill link. Check
+  `classes/higher/slides/` for a matching PDF; if one is there, add the `.top-pills` row directly
+  under the `.backlink` — a "Class slides (PDF)" pill to that file and an "All lesson slides" pill
+  to `/classes/higher/slides.html`. `classes/higher/electricity/capacitors.html` is the reference.
+  As of 26 Aug 2026 `forces-on-charged-particles.html` is the one page that owes this.
 
 ## 2. Head / boilerplate (copy verbatim, change titles)
 
