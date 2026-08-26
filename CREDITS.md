@@ -12,7 +12,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
 
 ## Used with kind permission
 
-- **J Keegan** — National 5 Practical Electronics past-paper-style questions (2025).
+- **J Keegan** — National 5 Practical Electronics past-paper-style questions (2025), and the
+  *National 5 Practical Electronics Past Papers* compilation (November 2025), used to locate the
+  block-diagram questions in `classes/electronics/block-diagram-builder.html`. Questions and
+  marking instructions © Qualifications Scotland (SQA).
 - **S Woodhouse** — Block 3 practice questions and answers (2026).
 - **R Stewart & S Woodhouse** — Electricity Block 3 booklet (2026).
 - **Mr Davie** (September 2025 update by **Mr White**) — the Higher and National 5 Physics "Past

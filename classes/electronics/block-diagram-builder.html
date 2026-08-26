@@ -1,0 +1,1287 @@
+---
+layout: none
+title: Block Diagram Builder · National 5 Electronics
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Block Diagram Builder · National 5 Electronics</title>
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260623a">
+  <script src="/assets/js/site-menu.js" defer></script>
+  <style>
+    /* success/error tokens — everything else comes from electronics.css */
+    #bdb { --ok:#0f8a5f; --ok-bg:rgba(15,138,95,0.12); --bad:#c0392b; --bad-bg:rgba(192,57,43,0.10); }
+    @media (prefers-color-scheme: dark){
+      #bdb { --ok:#3ddc9a; --ok-bg:rgba(61,220,154,0.16); --bad:#ff8a7a; --bad-bg:rgba(255,138,122,0.14); }
+    }
+    #bdb p { margin: 0; }
+
+    /* beta notice */
+    .beta { border-left: 5px solid var(--warm); }
+    .beta h2 { color: var(--warm); }
+    .beta .lead.beta-short { display: none; }
+    .beta .beta-tag { display:inline-block; font-size:.7rem; font-weight:900; letter-spacing:.08em;
+      text-transform:uppercase; color:#fff; background:var(--warm); border-radius:999px;
+      padding:2px 9px; vertical-align:middle; margin-left:.4rem; }
+
+    /* a tool page needs its vertical space: slim banner strip, title in the page, no sub-nav */
+    .banner-wrap.is-tool { aspect-ratio: auto; height: 118px; }
+    .banner-wrap.is-tool .banner { height: 118px; object-fit: cover; }
+    .page-title { font-size: 1.32rem; font-weight: 900; margin: .1rem 0 .6rem; color: var(--text); }
+    #bdb .lede { color: var(--muted); font-weight: 800; font-size: .9rem; line-height: 1.5; margin: 0 0 12px; }
+    #bdb .lede kbd { font: inherit; font-family: ui-monospace, Menlo, monospace; font-size: .85em;
+      border: 1px solid var(--border-soft); border-radius: 5px; padding: 0 4px; background: var(--surface-2); }
+
+    /* Landscape tablet: the whole task must fit one screen — trim the page chrome. */
+    @media (min-width:821px) and (max-height:900px){
+      .banner-wrap.is-tool { height: 76px; }
+      .banner-wrap.is-tool .banner { height: 76px; }
+      .page-wrap { margin-top: .5rem; padding-bottom: 1.5rem; }
+      .page-title { font-size: 1.1rem; margin: 0 0 .4rem; }
+      .beta { padding: .5rem .85rem; }
+      .beta h2 { display: inline; font-size: .88rem; margin-right: .45rem; }
+      .beta .lead { display: inline; font-size: .82rem; line-height: 1.45; }
+      .beta .lead.beta-full { display: none; }
+      .beta .lead.beta-short { display: inline; }
+      #bdb .lede { display: none; }   /* the task box and the bank hint carry the instructions */
+      #bdb .picker { margin-bottom: 10px; }
+      #bdb .qtitle { font-size: 1.02rem; }
+      #bdb .scenario { font-size: .9rem; line-height: 1.45; }
+      #bdb .task { padding: 8px 11px; font-size: .85rem; margin-top: 8px; }
+    }
+    /* ---------------- Block Diagram Builder widget ---------------- */
+    #bdb .picker{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+    #bdb .qchips{display:flex;flex-wrap:wrap;gap:6px}
+    #bdb .qchip{border:1px solid var(--border); background:var(--card); color:var(--muted);
+      border-radius:999px; padding:5px 11px; font:600 .82rem/1 var(--font-stack);
+      cursor:pointer; transition:.15s;}
+    #bdb .qchip:hover{border-color:var(--border-strong);color:var(--text)}
+    #bdb .qchip[aria-current="true"]{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff;border-color:transparent}
+    #bdb .qchip.done::after{content:" ✓";color:var(--ok)}
+    #bdb .qchip[aria-current="true"].done::after{color:#eafff7}
+    #bdb .qhead{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+    #bdb .qtitle{margin:0;font-size:1.12rem}
+    #bdb .qsrc{font-size:.78rem;color:var(--muted);border:1px solid var(--border-soft);
+          background:var(--surface-2);padding:3px 9px;border-radius:999px;white-space:nowrap}
+    #bdb .scenario{margin:10px 0 0;line-height:1.55}
+    #bdb .scenario p{margin:0 0 7px}
+    #bdb .task{margin-top:10px;padding:10px 12px;border-left:3px solid var(--accent);
+          background:var(--surface-2);border-radius:0 10px 10px 0;font-size:.94rem}
+    #bdb .stage{position:relative;overflow:hidden auto;margin:16px 0 6px;overscroll-behavior-x:contain}
+    #bdb .stage::-webkit-scrollbar{height:9px}
+    #bdb .stage::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+    #bdb .track{position:relative;margin-inline:auto}
+    #bdb .canvas{position:relative;transform-origin:top left}
+    #bdb .panhint{font-size:.78rem;color:var(--muted);margin:2px 0 0;display:none}
+    #bdb .panhint.show{display:block}
+    #bdb .seclabel{position:absolute;text-align:center;font:700 .78rem/1 var(--font-stack);
+      letter-spacing:.14em;text-transform:uppercase;color:var(--accent-2);
+      padding-bottom:6px;}
+    @media (prefers-color-scheme: dark){
+      #bdb .seclabel{color:var(--accent)}
+    }
+    #bdb .secband{position:absolute;border-radius:14px;background:var(--surface-2);
+             border:1px dashed var(--border-accent)}
+    #bdb svg.wires{position:absolute;inset:0;pointer-events:none;overflow:visible}
+    #bdb svg.wires path, #bdb svg.wires line{fill:none;stroke:var(--muted);stroke-width:2.2;opacity:.72}
+    #bdb .slot{position:absolute; border-radius:12px;
+      border:2px dashed var(--border-strong); background:var(--card);
+      display:flex;align-items:center;justify-content:center;
+      padding:5px; cursor:pointer; transition:border-color .15s, box-shadow .15s, background .15s;}
+    #bdb .slot:focus-visible{outline:var(--focus-ring);outline-offset:var(--focus-offset)}
+    #bdb .slot .ph{font:600 .78rem/1.3 var(--font-stack);color:var(--muted);opacity:.75;text-align:center;padding:0 6px}
+    #bdb .slot.over{border-color:var(--accent);background:var(--surface-2);box-shadow:0 0 0 4px rgba(10,157,127,.16)}
+    #bdb .slot.filled{border-style:solid;border-color:var(--border-soft);padding:0}
+    #bdb .slot.mark-ok{border-color:var(--ok)!important;background:var(--ok-bg)}
+    #bdb .slot.mark-bad{border-color:var(--bad)!important;background:var(--bad-bg)}
+    #bdb .slot .verdict{position:absolute;top:-11px;right:-9px;width:24px;height:24px;border-radius:50%;
+      display:none;place-items:center;font:800 .82rem/1 var(--font-stack);color:#fff;z-index:5}
+    #bdb .slot.mark-ok .verdict{display:grid;background:var(--ok)}
+    #bdb .slot.mark-bad .verdict{display:grid;background:var(--bad)}
+    #bdb .block{width:170px;min-height:108px;border-radius:11px;
+      border:1px solid var(--border); background:var(--bg2);
+      box-shadow:var(--shadow-soft);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;padding:8px 9px;gap:3px;
+      cursor:grab;user-select:none;touch-action:none;overflow:hidden;
+      transition:transform .12s, box-shadow .12s, border-color .12s;}
+    #bdb .block:hover{border-color:var(--border-strong);transform:translateY(-1px)}
+    #bdb .block:focus-visible{outline:var(--focus-ring);outline-offset:2px}
+    #bdb .block .bl{font:700 .8rem/1.2 var(--font-stack)}
+    #bdb .block .bs{font:400 .655rem/1.3 var(--font-stack);color:var(--muted)}
+    #bdb .block.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(10,157,127,.28)}
+    #bdb .block.dragging{opacity:.3}
+    #bdb .slot .block{width:100%;height:100%;min-height:0;box-shadow:none;border:none;background:transparent}
+    #ghost{position:fixed;z-index:999;pointer-events:none;opacity:.95;
+           box-shadow:0 20px 40px rgba(0,0,0,.28);transform:rotate(-1.2deg)}
+    #bdb .workarea{display:grid;grid-template-columns:minmax(0,1fr) 212px;gap:16px;align-items:start;margin-top:14px}
+    #bdb .diagcol{min-width:0}
+    #bdb .bankcol{min-width:0;position:sticky;top:10px}
+    #bdb .bankhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+              flex-wrap:wrap;margin:0 0 6px}
+    #bdb .bankhead h3{margin:0;font-size:.92rem;letter-spacing:.02em}
+    #bdb .bankhead .hint{font-size:.74rem;color:var(--muted)}
+    #bdb .bank{display:flex;flex-direction:column;flex-wrap:nowrap;gap:9px;
+          padding:10px;border-radius:14px;border:1px dashed var(--border-soft);
+          background:var(--surface-2);
+          overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+          min-height:140px}
+    #bdb .bank::-webkit-scrollbar{width:9px}
+    #bdb .bank::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+    #bdb .bank.over{border-color:var(--accent);background:rgba(10,157,127,.1)}
+    #bdb .bankcol .block{width:100%;min-height:76px;flex:0 0 auto}
+    #bdb .bankcol .block .bl{font-size:.78rem}
+    @media (max-width:820px){
+      #bdb .workarea{grid-template-columns:1fr}
+      #bdb .bankcol{position:static}
+      #bdb .bank{flex-direction:row;flex-wrap:wrap;max-height:none!important;align-content:flex-start}
+      #bdb .bankcol .block{width:158px}
+    }
+    @media (min-width:821px) and (max-height:900px){
+      #bdb .scenario{font-size:.9rem;line-height:1.45}
+      #bdb .task{padding:8px 11px;font-size:.85rem;margin-top:8px}
+      #bdb .picker{margin-bottom:10px}
+    }
+    #bdb .controls{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+    #bdb .btn{border:1px solid var(--border); background:var(--card); color:var(--text);
+      padding:9px 16px; border-radius:11px; font:700 .88rem/1 var(--font-stack);
+      cursor:pointer; transition:.15s;}
+    #bdb .btn:hover{border-color:var(--border-strong)}
+    #bdb .btn:focus-visible{outline:var(--focus-ring);outline-offset:2px}
+    #bdb .btn.primary{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff;border-color:transparent}
+    #bdb .btn.primary:hover{filter:brightness(1.06)}
+    #bdb .btn.ghost{background:transparent}
+    #bdb .feedback{margin-top:14px;border-radius:14px;padding:0;overflow:hidden;display:none}
+    #bdb .feedback.show{display:block}
+    #bdb .fb-head{padding:11px 14px;font-weight:700;font-size:.95rem;display:flex;gap:10px;align-items:center}
+    #bdb .feedback.good .fb-head{background:var(--ok-bg);color:var(--ok)}
+    #bdb .feedback.bad .fb-head{background:var(--bad-bg);color:var(--bad)}
+    #bdb .fb-body{padding:12px 14px;background:var(--card);border:1px solid var(--border-soft);border-top:none;
+             border-radius:0 0 14px 14px;font-size:.9rem;line-height:1.55}
+    #bdb .fb-body ul{margin:6px 0 0;padding-left:20px}
+    #bdb .fb-body li{margin-bottom:4px}
+    #bdb .marks{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:5px}
+    #bdb .marks li{display:flex;gap:9px;align-items:flex-start}
+    #bdb .marks .m{flex:0 0 auto;font-weight:800}
+    #bdb .marks .yes{color:var(--ok)}
+    #bdb .marks .no{color:var(--bad)}
+    #bdb details.reveal{margin-top:12px;border:1px solid var(--border-soft);border-radius:12px;background:var(--card)}
+    #bdb details.reveal>summary{cursor:pointer;padding:10px 14px;font-weight:700;font-size:.88rem;list-style:none}
+    #bdb details.reveal>summary::-webkit-details-marker{display:none}
+    #bdb details.reveal>summary::before{content:"▸ ";color:var(--accent)}
+    #bdb details.reveal[open]>summary::before{content:"▾ "}
+    #bdb details.reveal .ms{padding:0 14px 14px;font-size:.87rem;line-height:1.55;color:var(--text)}
+    #bdb details.reveal .ms p{margin:0 0 7px}
+    #bdb table.tt{border-collapse:collapse;font-size:.8rem;margin:6px 10px 6px 0;display:inline-table;vertical-align:top}
+    #bdb table.tt caption{font-weight:700;font-size:.82rem;padding-bottom:4px;text-align:left}
+    #bdb table.tt th, #bdb table.tt td{border:1px solid var(--border-soft);padding:2px 8px;text-align:center}
+    #bdb table.tt th{background:var(--surface-2)}
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap is-tool is-hub">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Block Diagram Builder</h1>
+    </div>
+  </header>
+
+  <main class="page-wrap" id="mainContent">
+    <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics</a>
+    <h1 class="page-title">Block Diagram Builder</h1>
+
+    <section class="panel beta" aria-label="Beta notice">
+      <h2>⚠️ Beta <span class="beta-tag">testing</span></h2>
+      <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. The questions and answers
+        have been checked against the marking instructions, but if something looks wrong, or a block will not drop
+        where you expect, please tell Mr Stewart — do not assume your own answer is at fault.
+        Use it alongside past papers rather than instead of them.</p>
+      <p class="lead beta-short">New and still being tested — if something looks wrong, tell Mr Stewart rather than
+        assuming your own answer is at fault.</p>
+    </section>
+
+    <section class="panel" id="bdb" aria-label="Block diagram builder">
+      <p class="lede">Read the problem, then drag blocks from the bank into the <strong>input</strong>,
+      <strong>process</strong> and <strong>output</strong> sections. There are always more blocks than you need.
+      You can also tap a block and then tap a slot, or use <kbd>Tab</kbd> and <kbd>Enter</kbd>.</p>
+
+      <div class="picker" role="group" aria-label="Choose a question">
+        <div class="qchips" id="qchips"></div>
+      </div>
+
+      <section class="panel">
+        <div class="qhead">
+          <h2 class="qtitle" id="qtitle"></h2>
+          <span class="qsrc" id="qsrc"></span>
+        </div>
+        <div class="scenario" id="qscenario"></div>
+        <div class="task">Selecting from the blocks given below, complete the block diagram of an electronic
+          solution for this system. The input, process and output sections and the connecting arrows are
+          already drawn for you.</div>
+
+        <div class="workarea">
+        <div class="diagcol">
+        <p class="panhint" id="panhint">Scroll the diagram sideways to see all three sections.</p>
+        <div class="stage" id="stage">
+          <div class="track" id="track">
+          <div class="canvas" id="canvas">
+            <svg class="wires" id="wires" aria-hidden="true">
+              <defs>
+                <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                        orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" stroke="none"/>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+          </div>
+        </div>
+        </div>
+
+        <aside class="bankcol" aria-label="Block bank">
+          <div class="bankhead">
+            <h3>Block bank</h3>
+            <span class="hint">Drag or tap — more blocks than you need.</span>
+          </div>
+          <div class="bank" id="bank"></div>
+        </aside>
+        </div>
+
+        <div class="controls">
+          <button class="btn primary" id="btnCheck">Check my diagram</button>
+          <button class="btn" id="btnReset">Reset</button>
+          <button class="btn ghost" id="btnAnswer">Show the answer</button>
+          <button class="btn ghost" id="btnNext">Next question →</button>
+        </div>
+
+        <div class="feedback" id="feedback" role="status" aria-live="polite">
+          <div class="fb-head" id="fbHead"></div>
+          <div class="fb-body" id="fbBody"></div>
+        </div>
+
+        <details class="reveal" id="whyBox">
+          <summary>Why this is the answer</summary>
+          <div class="ms" id="whyBody"></div>
+        </details>
+
+        <details class="reveal">
+          <summary>SQA marking guidance for this style of question</summary>
+          <div class="ms">
+            <p>Six marks are available in the exam:</p>
+            <ul>
+              <li>1 mark — selecting <strong>both input devices</strong></li>
+              <li>1 mark — selecting the <strong>correct gates</strong></li>
+              <li>1 mark — selecting <strong>both output devices</strong></li>
+              <li>1 mark — correctly <strong>linking the inputs to the gates</strong></li>
+              <li>1 mark — correctly <strong>linking the gates to the outputs</strong></li>
+              <li>1 mark — correctly <strong>identifying the three sections</strong> of the system</li>
+            </ul>
+            <p>Arrows are not required on the connections, but every selected element must be shown as part of a
+            block diagram — a list or a table scores no more than 5. Do not draw logic gate symbols: write the
+            gate name in a box.</p>
+            <p>This builder gives you the links and the three sections, so it marks the three
+            <em>selection</em> marks. In the exam you draw the boxes, links and section labels yourself.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Logic gate truth tables</summary>
+          <div class="ms" id="ttBox"></div>
+        </details>
+      </section>
+    </section>
+
+    <section class="panel" aria-label="Sources and credits">
+      <h2>Sources &amp; credits</h2>
+      <p class="lead" data-credit-note><strong>Sources &amp; credits:</strong> Questions 1–6 are past-paper and
+        specimen questions © Qualifications Scotland (SQA), reproduced for educational use in support of SQA
+        qualifications on a non-commercial basis; located using the <em>National 5 Practical Electronics Past
+        Papers</em> compilation by <strong>J Keegan</strong> (November 2025), used with permission.
+        Questions 7–12 are original practice problems written for this site (© R Stewart, 2026).
+        Full site credits are on the <a href="/classes/credits.html">credits page</a>.</p>
+    </section>
+  </main>
+
+  {% include site-footer.html %}
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   Geometry
+   ============================================================ */
+const BW = 170, BH = 98, GX = 76, GY = 118, HEAD = 32, PADX = 10, PADY = 8;
+const colX = c => PADX + c*(BW+GX);
+const rowY = r => PADY + HEAD + r*GY;
+
+/* ============================================================
+   Data
+   ============================================================ */
+const b = (id,label,sub) => ({id,label,sub:sub||""});
+const s = (id,sec,col,row,answer,group) => ({id,sec,col,row,answer,group:group||null});
+
+const QUESTIONS = [
+{
+  id:"sqp-moisture",
+  title:"Greenhouse soil moisture",
+  src:"SQA specimen paper — Q8",
+  scenario:[
+    "An engineer designs a system to control the moisture of the soil in a greenhouse.",
+    "The system must include a sensor which will measure the moisture content of the soil and turn on a water sprinkler system if the soil is too dry. An LED indicator should be included to show when the system is operating. There should also be a manual shut-down switch to turn the system off when it is not required."
+  ],
+  blocks:[
+    b("moist","moisture sensor","logic 0 when dry"),
+    b("light","light sensor","logic 1 in light"),
+    b("switch","switch",""),
+    b("buzzer","buzzer",""),
+    b("led","LED",""),
+    b("sprink","water sprinkler",""),
+    b("not","NOT gate",""),
+    b("and","AND gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"moist"),
+    s("i2","in",0,2,"switch"),
+    s("p1","proc",1,0,"not"),
+    s("p2","proc",2,1,"and"),
+    s("o1","out",3,0,"sprink","O"),
+    s("o2","out",3,2,"led","O")
+  ],
+  edges:[["i1","p1"],["p1","p2"],["i2","p2"],["p2","o1"],["p2","o2"]],
+  why:[
+    "The moisture sensor gives <strong>logic 0 when the soil is dry</strong> — but we need a logic 1 to turn things on, so it must pass through a <strong>NOT gate</strong> first. The NOT gate output is 1 when the soil is dry.",
+    "The sprinkler should only run when the soil is dry <em>and</em> the manual switch is on, so those two signals are combined with an <strong>AND gate</strong>.",
+    "The AND gate feeds both outputs — the <strong>water sprinkler</strong> and the <strong>LED</strong> indicator — so the LED lights whenever the system is watering.",
+    "The light sensor, buzzer and XOR gate are not needed: nothing in the problem depends on light level or needs a sound."
+  ]
+},
+{
+  id:"pp-window",
+  title:"Greenhouse window opener",
+  src:"SQA past paper — Q10",
+  scenario:[
+    "An engineer designs a system to control the temperature within a greenhouse.",
+    "The system includes a sensor which measures the temperature within the greenhouse. If the temperature exceeds 24 °C this turns on a motor to open a window. An LED indicator lights when the window is open. There is also a manual switch to turn the whole system on and off."
+  ],
+  blocks:[
+    b("temp","temperature sensor","logic 1 when temperature is greater than 24 °C"),
+    b("lightsen","light sensor","logic 1 when light"),
+    b("msw","manual switch circuit","logic 1 when closed"),
+    b("ledc","LED circuit","requires a logic 1 to turn the LED on"),
+    b("motor","window motor","requires a logic 0 to turn the motor on"),
+    b("and","AND gate",""),
+    b("nor","NOR gate",""),
+    b("not","NOT gate",""),
+    b("or","OR gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"temp","I"),
+    s("i2","in",0,2,"msw","I"),
+    s("p1","proc",1,1,"and"),
+    s("p2","proc",2,2,"not"),
+    s("o1","out",3,0,"ledc"),
+    s("o2","out",3,2,"motor")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","o1"],["p1","p2"],["p2","o2"]],
+  why:[
+    "Both inputs already give <strong>logic 1</strong> for the condition we want (hot, and switched on), so they go straight into an <strong>AND gate</strong>: its output is 1 only when it is above 24 °C <em>and</em> the system is switched on.",
+    "The <strong>LED circuit needs a logic 1</strong>, so it can be driven directly from the AND gate.",
+    "The <strong>window motor needs a logic 0</strong>, so the AND gate output must be inverted by a <strong>NOT gate</strong> before it reaches the motor.",
+    "The light sensor is a distractor — the problem never mentions light."
+  ]
+},
+{
+  id:"pp-security",
+  title:"House security system",
+  src:"SQA past paper — Q9",
+  scenario:[
+    "A security system for a house requires a lamp and an alarm to turn on when movement is detected outside the house.",
+    "The security system only needs to operate at night."
+  ],
+  blocks:[
+    b("motion","motion sensor","logic 1 for motion"),
+    b("lightsen","light sensor","logic 1 in light"),
+    b("temp","temperature sensor","logic 1 for hot"),
+    b("lamp","lamp",""),
+    b("alarm","alarm",""),
+    b("dvd","dvd recorder",""),
+    b("cam","video camera",""),
+    b("and","AND gate",""),
+    b("not","NOT gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"motion"),
+    s("i2","in",0,2,"lightsen"),
+    s("p1","proc",1,2,"not"),
+    s("p2","proc",2,1,"and"),
+    s("o1","out",3,0,"lamp","O"),
+    s("o2","out",3,2,"alarm","O")
+  ],
+  edges:[["i1","p2"],["i2","p1"],["p1","p2"],["p2","o1"],["p2","o2"]],
+  why:[
+    "The light sensor gives <strong>logic 1 in light</strong>, but the system must work <strong>at night</strong>. Inverting it with a <strong>NOT gate</strong> gives logic 1 in darkness.",
+    "The system must fire only when there is movement <em>and</em> it is dark, so the motion sensor and the inverted light signal are combined with an <strong>AND gate</strong>.",
+    "One AND gate drives <strong>both</strong> outputs — the lamp and the alarm.",
+    "The temperature sensor, dvd recorder, video camera and XOR gate are all distractors."
+  ]
+},
+{
+  id:"pp2024-vase",
+  title:"Art gallery display case",
+  src:"SQA 2024 — Q10",
+  scenario:[
+    "A security system for an art gallery is required to protect an expensive vase.",
+    "The system must include a sensor that can detect if the vase has been lifted. When the vase is lifted, this will turn on an alarm and a motor which closes the shutter on the gallery door. There is also a master switch to turn the whole system on and off."
+  ],
+  blocks:[
+    b("press","pressure sensor","logic 0 with pressure"),
+    b("temp","temperature sensor","logic 1 when hot"),
+    b("master","master switch","logic 1 when closed"),
+    b("alarm","alarm","requires a logic 1 to turn on"),
+    b("led","LED","requires a logic 1 to turn on"),
+    b("shut","shutter motor","requires a logic 0 to turn on"),
+    b("and","AND gate",""),
+    b("nor","NOR gate",""),
+    b("not","NOT gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"press","I"),
+    s("i2","in",0,2,"master","I"),
+    s("p1","proc",1,1,"and"),
+    s("p2","proc",2,2,"not"),
+    s("o1","out",3,0,"alarm"),
+    s("o2","out",3,2,"shut")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","o1"],["p1","p2"],["p2","o2"]],
+  why:[
+    "Read the sensor carefully: <strong>logic 0 <em>with</em> pressure</strong>. While the vase sits on the pad there is pressure, so the output is 0. <strong>Lift the vase and the output becomes 1</strong> — which is exactly the signal we want, so no NOT gate is needed on the input.",
+    "The system must only respond while the master switch is closed, so the pressure sensor and master switch go into an <strong>AND gate</strong>.",
+    "The <strong>alarm needs a logic 1</strong>, so it is driven straight from the AND gate.",
+    "The <strong>shutter motor needs a logic 0</strong>, so the AND output is inverted by a <strong>NOT gate</strong> first.",
+    "A very common mistake is to put a NOT gate on the pressure sensor as well — that would sound the alarm whenever the vase was safely in place."
+  ]
+},
+{
+  id:"pp2025-gas",
+  title:"Gas pipeline shut-off",
+  src:"SQA 2025 — Q10",
+  scenario:[
+    "A gas pipeline mechanism is required to detect gas leaks. When a leak is detected, the gas should be switched off by a motor.",
+    "The system must include a gas sensor to monitor for any leaks. The gas can be switched off when either an engineer presses an emergency switch or when the gas sensor detects gas. If the gas is switched off, an audible alert should also be sounded."
+  ],
+  blocks:[
+    b("gas","gas sensor","logic 1 when gas detected"),
+    b("temp","temperature sensor","logic 1 when cold"),
+    b("emerg","emergency switch","logic 1 when pressed"),
+    b("alarm","alarm","requires a logic 1 to turn on"),
+    b("led","LED","requires a logic 1 to turn on"),
+    b("motor","motor","requires a logic 0 to turn on"),
+    b("and","AND gate",""),
+    b("or","OR gate",""),
+    b("nand","NAND gate",""),
+    b("not","NOT gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"gas","I"),
+    s("i2","in",0,2,"emerg","I"),
+    s("p1","proc",1,1,"or"),
+    s("p2","proc",2,2,"not"),
+    s("o1","out",3,0,"alarm"),
+    s("o2","out",3,2,"motor")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","o1"],["p1","p2"],["p2","o2"]],
+  why:[
+    "The word <strong>“either … or …”</strong> in the question is the clue: gas detected <em>or</em> the emergency switch pressed. That is an <strong>OR gate</strong>.",
+    "The <strong>alarm needs a logic 1</strong> and must sound whenever the gas is shut off, so it comes straight off the OR gate.",
+    "The <strong>motor needs a logic 0</strong> to turn on, so the OR gate output is inverted by a <strong>NOT gate</strong>.",
+    "A NAND gate is tempting because it inverts, but NAND only gives 0 when <em>both</em> inputs are 1 — the emergency switch on its own would then do nothing."
+  ]
+},
+{
+  id:"pp-incubator",
+  title:"Zoo egg incubator",
+  src:"SQA past paper — Q10",
+  scenario:[
+    "A zoo uses an incubator to keep eggs warm.",
+    "A safety system for the incubator requires an electric heater to turn on when the temperature in the incubator becomes too cold. When the heater is turned on during daylight hours an alarm should sound."
+  ],
+  blocks:[
+    b("temp","temperature sensor","logic 1 for hot"),
+    b("lightsen","light sensor","logic 1 for light"),
+    b("motion","motion sensor","logic 1 for motion"),
+    b("heat","heating element",""),
+    b("buzzer","buzzer",""),
+    b("lamp","lamp",""),
+    b("not","NOT gate",""),
+    b("and","AND gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"temp"),
+    s("i2","in",0,2,"lightsen"),
+    s("p1","proc",1,0,"not"),
+    s("p2","proc",2,2,"and"),
+    s("o1","out",3,0,"heat"),
+    s("o2","out",3,2,"buzzer")
+  ],
+  edges:[["i1","p1"],["p1","o1"],["p1","p2"],["i2","p2"],["p2","o2"]],
+  why:[
+    "The temperature sensor gives <strong>logic 1 for hot</strong>, so <strong>cold is logic 0</strong>. A <strong>NOT gate</strong> turns that into a logic 1 when the incubator is too cold — the signal that switches the <strong>heating element</strong> on.",
+    "The alarm must sound only when the heater is on <em>and</em> it is daylight, so the NOT gate output is also fed into an <strong>AND gate</strong> along with the light sensor.",
+    "Notice the NOT gate output does two jobs: it drives the heater directly and it feeds the AND gate. A block output can branch to more than one place.",
+    "The motion sensor, lamp and XOR gate are distractors."
+  ]
+},
+{
+  id:"own-seatbelt",
+  title:"Car seatbelt warning",
+  src:"Practice question",
+  scenario:[
+    "A car has a seatbelt warning system.",
+    "A buzzer must sound and a warning lamp must light when the engine is running and the driver's seatbelt is <strong>not</strong> fastened. When the belt is fastened, or the engine is off, nothing should happen."
+  ],
+  blocks:[
+    b("ign","ignition switch","logic 1 when engine running"),
+    b("belt","seatbelt sensor","logic 1 when belt fastened"),
+    b("seat","seat pressure sensor","logic 1 when seat occupied"),
+    b("lightsen","light sensor","logic 1 in light"),
+    b("buzzer","buzzer","requires a logic 1 to turn on"),
+    b("warn","warning lamp","requires a logic 1 to turn on"),
+    b("motor","window motor","requires a logic 0 to turn on"),
+    b("not","NOT gate",""),
+    b("and","AND gate",""),
+    b("or","OR gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"ign"),
+    s("i2","in",0,2,"belt"),
+    s("p1","proc",1,2,"not"),
+    s("p2","proc",2,1,"and"),
+    s("o1","out",3,0,"buzzer","O"),
+    s("o2","out",3,2,"warn","O")
+  ],
+  edges:[["i1","p2"],["i2","p1"],["p1","p2"],["p2","o1"],["p2","o2"]],
+  why:[
+    "The seatbelt sensor gives <strong>logic 1 when the belt <em>is</em> fastened</strong> — the opposite of what we want. A <strong>NOT gate</strong> gives logic 1 when the belt is <strong>unfastened</strong>.",
+    "The warning must only happen while the engine is running, so the ignition signal and the inverted belt signal are combined with an <strong>AND gate</strong>.",
+    "Both outputs need a logic 1, so the buzzer and the warning lamp are driven straight from the AND gate.",
+    "Watch out for the seat pressure sensor: it sounds useful, but the problem never asks whether anyone is sitting there."
+  ]
+},
+{
+  id:"own-freezer",
+  title:"Supermarket freezer monitor",
+  src:"Practice question",
+  scenario:[
+    "A supermarket freezer needs a safety monitor.",
+    "An alarm must sound if the freezer temperature rises above −18 °C <strong>or</strong> if the freezer door is left open. Whenever the alarm sounds, the cooling compressor must also be switched on."
+  ],
+  blocks:[
+    b("temp","temperature sensor","logic 1 when warmer than −18 °C"),
+    b("door","door switch","logic 1 when door open"),
+    b("moist","moisture sensor","logic 1 when wet"),
+    b("alarm","alarm","requires a logic 1 to turn on"),
+    b("comp","compressor","requires a logic 0 to turn on"),
+    b("heater","heater","requires a logic 1 to turn on"),
+    b("or","OR gate",""),
+    b("and","AND gate",""),
+    b("nor","NOR gate",""),
+    b("not","NOT gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"temp","I"),
+    s("i2","in",0,2,"door","I"),
+    s("p1","proc",1,1,"or"),
+    s("p2","proc",2,2,"not"),
+    s("o1","out",3,0,"alarm"),
+    s("o2","out",3,2,"comp")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","o1"],["p1","p2"],["p2","o2"]],
+  why:[
+    "“Too warm <strong>or</strong> door open” is an <strong>OR gate</strong> — either condition on its own is enough.",
+    "Both sensors already give logic 1 for the fault condition, so neither needs inverting before the OR gate.",
+    "The <strong>alarm needs a logic 1</strong>: connect it straight to the OR gate.",
+    "The <strong>compressor needs a logic 0</strong>, so a <strong>NOT gate</strong> is placed between the OR gate and the compressor.",
+    "A NOR gate would be wrong — it gives 0 when either input is 1, so the alarm would be silent exactly when there is a fault."
+  ]
+},
+{
+  id:"own-stairlight",
+  title:"Stair light with two switches",
+  src:"Practice question",
+  scenario:[
+    "A stair light is controlled by two switches, one at the top of the stairs and one at the bottom.",
+    "The stair lamp must be on when the two switches are in <strong>different</strong> positions, and off when they are in the same position — so either switch can change the light. A low-power night-light LED must be lit whenever the stair lamp is off."
+  ],
+  blocks:[
+    b("up","upstairs switch","logic 1 when up"),
+    b("down","downstairs switch","logic 1 when up"),
+    b("lightsen","light sensor","logic 1 in light"),
+    b("motion","motion sensor","logic 1 for motion"),
+    b("lamp","stair lamp","requires a logic 1 to turn on"),
+    b("night","night-light LED","requires a logic 1 to turn on"),
+    b("buzzer","buzzer","requires a logic 1 to turn on"),
+    b("xor","XOR gate",""),
+    b("not","NOT gate",""),
+    b("and","AND gate",""),
+    b("or","OR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"up","I"),
+    s("i2","in",0,2,"down","I"),
+    s("p1","proc",1,1,"xor"),
+    s("p2","proc",2,2,"not"),
+    s("o1","out",3,0,"lamp"),
+    s("o2","out",3,2,"night")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","o1"],["p1","p2"],["p2","o2"]],
+  why:[
+    "“On when the inputs are <strong>different</strong>” is the definition of an <strong>XOR gate</strong>: 1, 0 → 1 and 0, 1 → 1, but 0, 0 → 0 and 1, 1 → 0.",
+    "The <strong>stair lamp needs a logic 1</strong>, so it is driven directly by the XOR gate.",
+    "The night-light must be on when the lamp is off — the exact opposite — so the XOR output is inverted by a <strong>NOT gate</strong>.",
+    "An OR gate would leave the lamp stuck on once both switches were up, so you could never turn it off from the other end of the stairs."
+  ]
+},
+{
+  id:"own-feeder",
+  title:"Automatic pet feeder",
+  src:"Practice question",
+  scenario:[
+    "An automatic pet feeder dispenses food from a hopper.",
+    "The dispenser motor must run when the timer signals that it is feeding time <strong>and</strong> the bowl sensor shows the bowl is empty. An indicator LED must light while food is being dispensed.",
+    "Note the motor in this system requires a <strong>logic 0</strong> to turn on."
+  ],
+  blocks:[
+    b("timer","feeding timer","logic 1 at feeding time"),
+    b("bowl","bowl sensor","logic 1 when bowl empty"),
+    b("temp","temperature sensor","logic 1 when hot"),
+    b("motor","dispenser motor","requires a logic 0 to turn on"),
+    b("led","indicator LED","requires a logic 1 to turn on"),
+    b("buzzer","buzzer","requires a logic 1 to turn on"),
+    b("nand","NAND gate",""),
+    b("and","AND gate",""),
+    b("nor","NOR gate",""),
+    b("not","NOT gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"timer","I"),
+    s("i2","in",0,2,"bowl","I"),
+    s("p1","proc",1,1,"nand"),
+    s("p2","proc",2,2,"not"),
+    s("o1","out",3,0,"motor"),
+    s("o2","out",3,2,"led")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","o1"],["p1","p2"],["p2","o2"]],
+  why:[
+    "Both conditions must be true, and the motor needs a <strong>logic 0</strong>. A <strong>NAND gate</strong> does both jobs at once: its output is 0 only when both inputs are 1.",
+    "The <strong>indicator LED needs a logic 1</strong> while feeding, so the NAND output is inverted by a <strong>NOT gate</strong> to drive it.",
+    "There is a second correct solution in the exam: an <strong>AND gate</strong> driving the LED, with a NOT gate between the AND gate and the motor. In this diagram the motor is wired to the first gate, so the first gate must be the NAND.",
+    "A NAND gate is just an AND gate followed by a NOT gate — using one gate instead of two saves a chip and reduces cost."
+  ]
+},
+{
+  id:"own-museum",
+  title:"Museum display case",
+  src:"Practice question",
+  scenario:[
+    "A museum display case is protected by two sensors: a door sensor on the case and a motion sensor inside it.",
+    "An alarm must sound if <strong>either</strong> sensor is triggered. A green “secure” LED must be lit only when <strong>neither</strong> sensor is triggered."
+  ],
+  blocks:[
+    b("door","door sensor","logic 1 when door opened"),
+    b("motion","motion sensor","logic 1 when movement detected"),
+    b("lightsen","light sensor","logic 1 in light"),
+    b("alarm","alarm","requires a logic 1 to turn on"),
+    b("green","green LED","requires a logic 1 to turn on"),
+    b("shut","shutter motor","requires a logic 0 to turn on"),
+    b("or","OR gate",""),
+    b("nor","NOR gate",""),
+    b("and","AND gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"door","I"),
+    s("i2","in",0,2,"motion","I"),
+    s("p1","proc",1,0,"or"),
+    s("p2","proc",1,2,"nor"),
+    s("o1","out",2,0,"alarm"),
+    s("o2","out",2,2,"green")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["i1","p2"],["i2","p2"],["p1","o1"],["p2","o2"]],
+  why:[
+    "“<strong>Either</strong> sensor triggered” is an <strong>OR gate</strong> — it drives the alarm.",
+    "“<strong>Neither</strong> sensor triggered” is a <strong>NOR gate</strong> — its output is 1 only when both inputs are 0, which is exactly the secure condition for the green LED.",
+    "Both sensors feed <em>both</em> gates. One sensor output can be connected to several gates in a block diagram.",
+    "You could also build this with one OR gate and a NOT gate, but the NOR gate does it in a single package."
+  ]
+},
+{
+  id:"own-fire",
+  title:"Workshop fire system",
+  src:"Practice question — stretch",
+  scenario:[
+    "A school workshop has a fire detection system with a smoke sensor, a heat sensor and a master key switch that arms the system.",
+    "The sounder must operate when <strong>either</strong> the smoke sensor <strong>or</strong> the heat sensor is triggered, but <strong>only while the system is armed</strong>. Whenever the sounder operates, the electromagnetic door release must also operate so the fire doors can close.",
+    "The door release requires a <strong>logic 0</strong> to operate."
+  ],
+  blocks:[
+    b("smoke","smoke sensor","logic 1 when smoke detected"),
+    b("heat","heat sensor","logic 1 above 60 °C"),
+    b("key","master key switch","logic 1 when armed"),
+    b("lightsen","light sensor","logic 1 in light"),
+    b("sound","sounder","requires a logic 1 to turn on"),
+    b("release","door release","requires a logic 0 to turn on"),
+    b("led","LED","requires a logic 1 to turn on"),
+    b("or","OR gate",""),
+    b("and","AND gate",""),
+    b("not","NOT gate",""),
+    b("nor","NOR gate",""),
+    b("xor","XOR gate","")
+  ],
+  slots:[
+    s("i1","in",0,0,"smoke","I"),
+    s("i2","in",0,1,"heat","I"),
+    s("i3","in",0,3,"key"),
+    s("p1","proc",1,0.5,"or"),
+    s("p2","proc",2,1.6,"and"),
+    s("p3","proc",3,3,"not"),
+    s("o1","out",4,1.6,"sound"),
+    s("o2","out",4,3,"release")
+  ],
+  edges:[["i1","p1"],["i2","p1"],["p1","p2"],["i3","p2"],["p2","o1"],["p2","p3"],["p3","o2"]],
+  why:[
+    "Work through the sentence in order. “Smoke <strong>or</strong> heat” comes first — an <strong>OR gate</strong> combines the two detectors.",
+    "“…but <strong>only while armed</strong>” adds a second condition, so the OR gate output and the key switch go into an <strong>AND gate</strong>.",
+    "The <strong>sounder needs a logic 1</strong> and comes straight off the AND gate.",
+    "The <strong>door release needs a logic 0</strong>, so a <strong>NOT gate</strong> inverts the AND output before it reaches the release.",
+    "The order matters: if you AND'd smoke with the key switch first, a heat-only fire would never sound the alarm."
+  ]
+}
+];
+
+/* ============================================================
+   State
+   ============================================================ */
+const $  = id => document.getElementById(id);
+const canvas = $("canvas"), wires = $("wires"), bank = $("bank"), stage = $("stage");
+const STORE = "el-blk-done";
+let qi = 0, Q = null, selected = null, scale = 1;
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem(STORE) || "[]")); } catch(e){}
+
+function saveDone(){
+  try { localStorage.setItem(STORE, JSON.stringify([...done])); } catch(e){}
+}
+
+/* ============================================================
+   Build question chips
+   ============================================================ */
+function buildChips(){
+  $("qchips").innerHTML = "";
+  QUESTIONS.forEach((q,i)=>{
+    const c = document.createElement("button");
+    c.className = "qchip" + (done.has(q.id) ? " done" : "");
+    c.type = "button";
+    c.textContent = "Q" + (i+1);
+    c.title = q.title + " — " + q.src;
+    c.setAttribute("aria-current", i===qi ? "true" : "false");
+    c.addEventListener("click", ()=>load(i));
+    $("qchips").appendChild(c);
+  });
+}
+
+/* ============================================================
+   Block elements
+   ============================================================ */
+function makeBlock(def){
+  const el = document.createElement("div");
+  el.className = "block";
+  el.dataset.bid = def.id;
+  el.tabIndex = 0;
+  el.setAttribute("role","button");
+  el.setAttribute("aria-label", def.label + (def.sub ? ", " + def.sub : ""));
+  const l = document.createElement("span"); l.className = "bl"; l.textContent = def.label;
+  el.appendChild(l);
+  if (def.sub){
+    const t = document.createElement("span"); t.className = "bs"; t.textContent = def.sub;
+    el.appendChild(t);
+  }
+  return el;
+}
+
+function shuffle(a){
+  const r = a.slice();
+  for (let i=r.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; }
+  return r;
+}
+
+/* ============================================================
+   Layout the diagram
+   ============================================================ */
+const SEC_NAME = {in:"Input", proc:"Process", out:"Output"};
+
+function layout(){
+  // remove old slots / labels / bands (keep the svg)
+  [...canvas.querySelectorAll(".slot,.seclabel,.secband")].forEach(n=>n.remove());
+
+  const maxCol = Math.max(...Q.slots.map(s=>s.col));
+  const maxRow = Math.max(...Q.slots.map(s=>s.row));
+  const W = PADX*2 + maxCol*(BW+GX) + BW;
+  const H = PADY*2 + HEAD + maxRow*GY + BH;
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  wires.setAttribute("viewBox", "0 0 " + W + " " + H);
+  wires.setAttribute("width", W); wires.setAttribute("height", H);
+
+  // section bands + labels
+  ["in","proc","out"].forEach(sec=>{
+    const cols = Q.slots.filter(s=>s.sec===sec).map(s=>s.col);
+    if (!cols.length) return;
+    const x0 = colX(Math.min(...cols)) - 14;
+    const x1 = colX(Math.max(...cols)) + BW + 14;
+    const band = document.createElement("div");
+    band.className = "secband";
+    band.style.left = x0 + "px";
+    band.style.top  = (PADY + HEAD - 10) + "px";
+    band.style.width = (x1-x0) + "px";
+    band.style.height = (maxRow*GY + BH + 20) + "px";
+    canvas.appendChild(band);
+
+    const lab = document.createElement("div");
+    lab.className = "seclabel";
+    lab.textContent = SEC_NAME[sec];
+    lab.style.left = x0 + "px";
+    lab.style.top = PADY + "px";
+    lab.style.width = (x1-x0) + "px";
+    canvas.appendChild(lab);
+  });
+
+  // slots
+  Q.slots.forEach(sl=>{
+    const el = document.createElement("div");
+    el.className = "slot";
+    el.dataset.sid = sl.id;
+    el.tabIndex = 0;
+    el.setAttribute("role","button");
+    el.setAttribute("aria-label", SEC_NAME[sl.sec] + " block, empty");
+    el.style.left = colX(sl.col) + "px";
+    el.style.top  = rowY(sl.row) + "px";
+    el.style.width = BW + "px";
+    el.style.height = BH + "px";
+    const ph = document.createElement("span");
+    ph.className = "ph"; ph.textContent = "drop a block here";
+    el.appendChild(ph);
+    const v = document.createElement("span"); v.className = "verdict"; el.appendChild(v);
+    el.addEventListener("keydown", e=>{
+      if (e.key==="Enter" || e.key===" "){ e.preventDefault(); slotClick(el); }
+    });
+    canvas.appendChild(el);
+  });
+
+  drawWires();
+  fit();
+}
+
+function slotPos(id){
+  const sl = Q.slots.find(s=>s.id===id);
+  return {x:colX(sl.col), y:rowY(sl.row), col:sl.col, row:sl.row};
+}
+
+function drawWires(){
+  [...wires.querySelectorAll(".w")].forEach(n=>n.remove());
+
+  // Fan-out / fan-in: spread the connection points so crossing wires stay readable.
+  const out = {}, inc = {};
+  Q.edges.forEach(([f,t])=>{ (out[f]=out[f]||[]).push(t); (inc[t]=inc[t]||[]).push(f); });
+  const spread = (n,i) => (n<2) ? 0 : (i - (n-1)/2) * 20;
+
+  const laneUse = {};
+  Q.edges.forEach(([from,to])=>{
+    const a = slotPos(from), z = slotPos(to);
+    const fy = a.y + BH/2 + spread(out[from].length, out[from].indexOf(to));
+    const ty = z.y + BH/2 + spread(inc[to].length,  inc[to].indexOf(from));
+    const fx = a.x + BW, tx = z.x;
+    let d;
+    if (Math.abs(fy-ty) < 1){
+      d = "M " + fx + " " + fy + " L " + (tx-10) + " " + ty;
+    } else if (Math.abs(fy-ty) < 26){
+      // small offset (a fan-out or fan-in on the same row) — a gentle S reads better than an elbow
+      const ex = tx - 10, c1 = fx + (ex-fx)*0.4, c2 = fx + (ex-fx)*0.6;
+      d = "M " + fx + " " + fy + " C " + c1 + " " + fy + " " + c2 + " " + ty + " " + ex + " " + ty;
+    } else {
+      const k = "c" + a.col;
+      laneUse[k] = (laneUse[k]||0);
+      const lx = Math.min(fx + 22 + laneUse[k]*24, fx + GX - 20);
+      laneUse[k]++;
+      const dir = ty > fy ? 1 : -1, r = 10;
+      d = "M " + fx + " " + fy +
+          " L " + (lx-r) + " " + fy +
+          " Q " + lx + " " + fy + " " + lx + " " + (fy + dir*r) +
+          " L " + lx + " " + (ty - dir*r) +
+          " Q " + lx + " " + ty + " " + (lx+r) + " " + ty +
+          " L " + (tx-10) + " " + ty;
+    }
+    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("class","w");
+    path.setAttribute("d", d);
+    path.setAttribute("marker-end","url(#arw)");
+    path.style.color = "currentColor";
+    wires.appendChild(path);
+  });
+}
+
+const MIN_SCALE = 0.62;   // below this the block text stops being readable — pan instead
+
+function fit(){
+  const avail = stage.clientWidth;
+  const w = parseFloat(canvas.style.width), h = parseFloat(canvas.style.height);
+  scale = Math.min(1, Math.max(MIN_SCALE, avail / w));
+  // On a short landscape screen (a tablet held sideways) shrink a little further so the
+  // diagram and the buttons below it still fit without scrolling.
+  if (window.matchMedia("(min-width:821px) and (max-height:900px)").matches){
+    // distance from the top of the document, so the result does not depend on scroll position
+    const top = stage.getBoundingClientRect().top + window.scrollY;
+    const roomBelow = window.innerHeight - top - 78;   // 78px leaves the buttons on screen
+    if (roomBelow > 120) scale = Math.max(MIN_SCALE, Math.min(scale, roomBelow / h));
+  }
+  canvas.style.transform = "scale(" + scale + ")";
+  const track = $("track");
+  track.style.width  = (w * scale) + "px";
+  track.style.height = (h * scale) + "px";
+  const needsPan = (w * scale) > avail + 1;
+  stage.style.overflowX = needsPan ? "auto" : "hidden";
+  const stageH = h * scale + (needsPan ? 12 : 0);
+  stage.style.height = stageH + "px";
+  $("panhint").classList.toggle("show", needsPan);
+
+  // side-by-side: the bank scrolls within the height of the diagram
+  const sideBySide = window.matchMedia("(min-width:821px)").matches;
+  bank.style.maxHeight = sideBySide
+    ? Math.max(220, stageH + ($("panhint").classList.contains("show") ? 20 : 0)) + "px"
+    : "";
+}
+window.addEventListener("resize", ()=>{ if (Q) fit(); });
+
+/* ============================================================
+   Placement helpers
+   ============================================================ */
+function slotOf(blockEl){ const p = blockEl.parentElement; return p && p.classList.contains("slot") ? p : null; }
+
+function refreshSlot(slotEl){
+  const blk = slotEl.querySelector(".block");
+  const ph  = slotEl.querySelector(".ph");
+  if (blk){ slotEl.classList.add("filled"); if (ph) ph.style.display="none"; }
+  else    { slotEl.classList.remove("filled"); if (ph) ph.style.display=""; }
+  const sl = Q.slots.find(s=>s.id===slotEl.dataset.sid);
+  slotEl.setAttribute("aria-label",
+    SEC_NAME[sl.sec] + " block, " + (blk ? blk.querySelector(".bl").textContent : "empty"));
+}
+
+function toBank(blockEl){
+  const from = slotOf(blockEl);
+  bank.appendChild(blockEl);
+  if (from) refreshSlot(from);
+  clearMarks();
+}
+
+function place(blockEl, slotEl){
+  const occupant = slotEl.querySelector(".block");
+  const from = slotOf(blockEl);
+  if (occupant && occupant !== blockEl) bank.appendChild(occupant);
+  slotEl.insertBefore(blockEl, slotEl.querySelector(".verdict"));
+  if (from && from !== slotEl) refreshSlot(from);
+  refreshSlot(slotEl);
+  clearMarks();
+}
+
+function deselect(){ if (selected){ selected.classList.remove("selected"); selected = null; } }
+
+function blockClick(el){
+  if (slotOf(el)){
+    // a selected block dropped onto an occupied slot swaps with the block already there
+    if (selected && selected !== el){ place(selected, slotOf(el)); deselect(); return; }
+    toBank(el); deselect(); return;
+  }
+  if (selected === el) { deselect(); return; }
+  deselect();
+  selected = el; el.classList.add("selected");
+}
+
+function slotClick(slotEl){
+  if (selected){ place(selected, slotEl); deselect(); return; }
+  const blk = slotEl.querySelector(".block");
+  if (blk) toBank(blk);
+}
+
+/* ============================================================
+   Pointer dragging (mouse + touch)
+   ============================================================ */
+let drag = null, suppressClick = false;
+
+function onPointerDown(e){
+  suppressClick = false;   // never let a stale flag swallow a later tap
+  const el = e.target.closest(".block");
+  if (!el || e.button === 2) return;
+  drag = {el, id:e.pointerId, x0:e.clientX, y0:e.clientY, started:false, ghost:null, over:null};
+  try { el.setPointerCapture(e.pointerId); } catch(err){}
+  e.preventDefault();
+}
+
+function onPointerMove(e){
+  if (!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+  if (!drag.started){
+    if (Math.hypot(dx,dy) < 5) return;
+    drag.started = true;
+    const g = drag.el.cloneNode(true);
+    g.id = "ghost"; g.classList.add("block"); g.classList.remove("selected");
+    const r = drag.el.getBoundingClientRect();
+    g.style.width = BW + "px"; g.style.minHeight = BH + "px";
+    g.style.background = getComputedStyle(document.body).getPropertyValue("--bg2");
+    g.style.border = "1px solid var(--border-strong)";
+    g.style.borderRadius = "11px";
+    drag.gx = e.clientX - r.left; drag.gy = e.clientY - r.top;
+    document.body.appendChild(g);
+    drag.ghost = g;
+    drag.el.classList.add("dragging");
+    deselect();
+  }
+  drag.ghost.style.left = (e.clientX - drag.gx) + "px";
+  drag.ghost.style.top  = (e.clientY - drag.gy) + "px";
+
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  const slot = under && under.closest ? under.closest(".slot") : null;
+  const inBank = under && under.closest ? under.closest("#bank") : null;
+  if (drag.over && drag.over !== slot) drag.over.classList.remove("over");
+  bank.classList.toggle("over", !!inBank && !slot);
+  drag.over = slot;
+  if (slot) slot.classList.add("over");
+}
+
+function onPointerUp(e){
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  if (!d.started) return;          // a tap, not a drag — the click event handles it
+  suppressClick = true;            // ...but a real drag must not also count as a click
+  d.el.classList.remove("dragging");
+  if (d.ghost) d.ghost.remove();
+  bank.classList.remove("over");
+  if (d.over){
+    d.over.classList.remove("over");
+    place(d.el, d.over);
+  } else {
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    if (under && under.closest && under.closest("#bank")) toBank(d.el);
+  }
+}
+
+document.addEventListener("pointerdown", onPointerDown);
+document.addEventListener("pointermove", onPointerMove);
+document.addEventListener("pointerup",   onPointerUp);
+document.addEventListener("pointercancel", e=>{
+  if (!drag) return;
+  const d = drag; drag = null;
+  d.el.classList.remove("dragging");
+  if (d.ghost) d.ghost.remove();
+  if (d.over) d.over.classList.remove("over");
+  bank.classList.remove("over");
+});
+document.addEventListener("click", e=>{
+  if (suppressClick){ suppressClick = false; return; }
+  if (!e.target.closest) return;
+  const blk = e.target.closest(".block");
+  if (blk){ blockClick(blk); return; }
+  const slot = e.target.closest(".slot");
+  if (slot) slotClick(slot);
+});
+
+document.addEventListener("keydown", e=>{
+  const el = e.target.closest && e.target.closest(".block");
+  if (!el) return;
+  if (e.key==="Enter" || e.key===" "){ e.preventDefault(); blockClick(el); }
+  if (e.key==="Escape") deselect();
+});
+
+/* ============================================================
+   Checking
+   ============================================================ */
+function clearMarks(){
+  [...canvas.querySelectorAll(".slot")].forEach(s=>s.classList.remove("mark-ok","mark-bad"));
+  $("feedback").classList.remove("show");
+}
+
+function groupAnswers(g){
+  return new Set(Q.slots.filter(s=>s.group===g).map(s=>s.answer));
+}
+
+function evaluate(){
+  const res = {};
+  Q.slots.forEach(sl=>{
+    const el = canvas.querySelector('.slot[data-sid="'+sl.id+'"]');
+    const blk = el.querySelector(".block");
+    const got = blk ? blk.dataset.bid : null;
+    let ok;
+    if (!got) ok = false;
+    else if (sl.group) ok = groupAnswers(sl.group).has(got);
+    else ok = (got === sl.answer);
+    res[sl.id] = {ok, got, el};
+  });
+  return res;
+}
+
+function check(){
+  const res = evaluate();
+  Q.slots.forEach(sl=>{
+    const r = res[sl.id];
+    r.el.classList.remove("mark-ok","mark-bad");
+    r.el.classList.add(r.ok ? "mark-ok" : "mark-bad");
+    r.el.querySelector(".verdict").textContent = r.ok ? "✓" : "✗";
+  });
+
+  const secOK = sec => Q.slots.filter(s=>s.sec===sec).every(s=>res[s.id].ok);
+  const inOK = secOK("in"), procOK = secOK("proc"), outOK = secOK("out");
+  const marks = (inOK?1:0)+(procOK?1:0)+(outOK?1:0);
+  const all = inOK && procOK && outOK;
+
+  const fb = $("feedback");
+  fb.className = "feedback show " + (all ? "good" : "bad");
+  $("fbHead").innerHTML = all
+    ? "✓ Correct — " + marks + " of 3 selection marks"
+    : "Not quite — " + marks + " of 3 selection marks";
+
+  const li = (ok,txt) => '<li><span class="m ' + (ok?"yes":"no") + '">' + (ok?"✓":"✗") + "</span><span>" + txt + "</span></li>";
+  let body = '<ul class="marks">' +
+    li(inOK,  "Both <strong>input devices</strong> selected and in the right place") +
+    li(procOK,"Correct <strong>gates</strong> chosen and in the right order") +
+    li(outOK, "Both <strong>output devices</strong> selected and in the right place") +
+    "</ul>";
+
+  if (all){
+    body += "<p style='margin-top:10px'>In the exam you would also earn up to <strong>3 further marks</strong> for " +
+            "drawing the links between the blocks and labelling the three sections — those are given to you here.</p>";
+    if (!done.has(Q.id)){ done.add(Q.id); saveDone(); buildChips(); }
+  } else {
+    const tips = [];
+    if (!inOK)   tips.push("Check the <strong>logic condition written on each sensor</strong>. Does it already give a logic 1 for the condition you want, or does it need inverting?");
+    if (!procOK) tips.push("Ask what each gate must do: <em>both</em> conditions → AND; <em>either</em> condition → OR; <em>opposite</em> → NOT; <em>different</em> → XOR; <em>neither</em> → NOR.");
+    if (!outOK)  tips.push("Check whether each output needs a <strong>logic 1</strong> or a <strong>logic 0</strong> to turn on — that decides whether it sits after a NOT gate.");
+    body += "<p style='margin-top:10px'><strong>Try again:</strong></p><ul>" +
+            tips.map(t=>"<li>"+t+"</li>").join("") + "</ul>";
+  }
+  $("fbBody").innerHTML = body;
+  $("whyBox").open = all;
+}
+
+function showAnswer(){
+  // clear every slot first
+  [...canvas.querySelectorAll(".slot .block")].forEach(b=>bank.appendChild(b));
+  Q.slots.forEach(sl=>{
+    const slotEl = canvas.querySelector('.slot[data-sid="'+sl.id+'"]');
+    const blk = bank.querySelector('.block[data-bid="'+sl.answer+'"]');
+    if (blk) place(blk, slotEl);
+  });
+  [...canvas.querySelectorAll(".slot")].forEach(el=>{
+    el.classList.add("mark-ok");
+    el.querySelector(".verdict").textContent = "✓";
+  });
+  const fb = $("feedback");
+  fb.className = "feedback show good";
+  $("fbHead").textContent = "Model answer";
+  $("fbBody").innerHTML = "<p>This is one correct solution. Read the reasoning below, then press " +
+    "<strong>Reset</strong> and try to rebuild it without help.</p>";
+  $("whyBox").open = true;
+}
+
+function reset(){
+  [...canvas.querySelectorAll(".slot .block")].forEach(b=>bank.appendChild(b));
+  [...canvas.querySelectorAll(".slot")].forEach(refreshSlot);
+  clearMarks();
+  deselect();
+  $("whyBox").open = false;
+}
+
+/* ============================================================
+   Load a question
+   ============================================================ */
+function load(i, keepScroll){
+  qi = ((i % QUESTIONS.length) + QUESTIONS.length) % QUESTIONS.length;
+  Q = QUESTIONS[qi];
+  try { history.replaceState(null, "", "#q" + (qi+1)); } catch(e){}
+  $("qtitle").textContent = "Q" + (qi+1) + ". " + Q.title;
+  $("qsrc").textContent = Q.src;
+  $("qscenario").innerHTML = Q.scenario.map(p=>"<p>"+p+"</p>").join("");
+  $("whyBody").innerHTML = "<ul>" + Q.why.map(w=>"<li>"+w+"</li>").join("") + "</ul>";
+  $("whyBox").open = false;
+  bank.innerHTML = "";
+  shuffle(Q.blocks).forEach(def => bank.appendChild(makeBlock(def)));
+  layout();
+  clearMarks();
+  deselect();
+  buildChips();
+  if (!keepScroll) window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ============================================================
+   Truth tables
+   ============================================================ */
+function truthTables(){
+  const two = [[0,0],[0,1],[1,0],[1,1]];
+  const defs = [
+    ["AND",  two.map(([a,b])=>[a,b, a&&b ?1:0])],
+    ["OR",   two.map(([a,b])=>[a,b, (a||b)?1:0])],
+    ["NAND", two.map(([a,b])=>[a,b, (a&&b)?0:1])],
+    ["NOR",  two.map(([a,b])=>[a,b, (a||b)?0:1])],
+    ["XOR",  two.map(([a,b])=>[a,b, (a!==b)?1:0])]
+  ];
+  let html = "";
+  html += '<table class="tt"><caption>NOT</caption><tr><th>A</th><th>Q</th></tr>' +
+          "<tr><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td></tr></table>";
+  defs.forEach(([name,rows])=>{
+    html += '<table class="tt"><caption>'+name+'</caption><tr><th>A</th><th>B</th><th>Q</th></tr>' +
+      rows.map(r=>"<tr><td>"+r[0]+"</td><td>"+r[1]+"</td><td>"+r[2]+"</td></tr>").join("") + "</table>";
+  });
+  html += "<p style='margin-top:10px'><strong>Reading a problem:</strong> “both …” → AND · “either … or …” → OR · " +
+          "“not / opposite” → NOT · “different” → XOR · “neither” → NOR · " +
+          "“both, but an output that needs a logic 0” → NAND.</p>";
+  $("ttBox").innerHTML = html;
+}
+
+/* ============================================================
+   Wire up
+   ============================================================ */
+$("btnCheck").addEventListener("click", check);
+$("btnReset").addEventListener("click", reset);
+$("btnAnswer").addEventListener("click", showAnswer);
+$("btnNext").addEventListener("click", ()=>load(qi+1));
+
+function fromHash(){
+  const m = /^#q(\d+)$/.exec(location.hash || "");
+  return m ? Math.min(QUESTIONS.length, Math.max(1, parseInt(m[1],10))) - 1 : 0;
+}
+window.addEventListener("hashchange", ()=>{ const i = fromHash(); if (i !== qi) load(i, true); });
+
+truthTables();
+load(fromHash(), true);
+
+})();
+</script>
+</body>
+</html>

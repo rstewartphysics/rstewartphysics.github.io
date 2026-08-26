@@ -244,6 +244,40 @@ All banners are 3:1 `.jpeg` in `/assets/`. Topic pages reuse their subject's ban
 
 ---
 
+## Interactive pupil tasks — one-screen layout rule
+
+**Any page where a pupil *does* a task — drag-and-drop, sorting, matching, labelling, building,
+answering — must fit the question, the pieces and the working area on one landscape tablet screen
+(≈1180 × 760 CSS px) without scrolling.** Pupils work on iPads held sideways; if they have to scroll
+between reading the problem and reaching the pieces, they lose their place and the task stops
+working. Reference implementation: `classes/electronics/block-diagram-builder.html`.
+
+**The pattern**
+
+- **Pieces go beside the working area, never below it.** A CSS grid —
+  `grid-template-columns: minmax(0,1fr) 212px` — puts the working area left and a **scrollable**
+  piece bank right. The bank scrolls internally (`overflow-y:auto`), so a long list never pushes the
+  working area down. Below `821px` the grid collapses to one column and the bank wraps underneath.
+- **Order down the page:** problem text → working area + bank side by side → buttons. The pupil reads,
+  looks right, drags left.
+- **Scale the working area, do not crop it.** Render it at fixed logical coordinates inside a
+  `transform: scale()` wrapper and compute the factor from the space available — width *and*, on short
+  screens, remaining viewport height. Floor the scale (≈`0.62`) so text stays legible, and let the
+  wrapper pan horizontally below that rather than shrinking further.
+- **Reclaim vertical space on short landscape screens** with
+  `@media (min-width:821px) and (max-height:900px)`: slim the banner to a strip (~76px), drop the
+  duplicate overlay title (`is-hub`) and put the `<h1>` in the page, hide the intro paragraph, and
+  give any notice a one-line short form. No sticky sub-nav on a task page.
+- **Every task takes three inputs:** pointer drag (mouse *and* touch — use Pointer Events with
+  `touch-action:none`, never HTML5 drag-and-drop), tap-to-select then tap-to-place, and keyboard
+  (`Tab` + `Enter`). Handle taps through a delegated `click` listener, not `pointerup`, so assistive
+  technology works.
+
+**Check it before calling it done:** screenshot at 1180 × 760 and confirm the problem, the pieces and
+the working area are all visible at once.
+
+---
+
 ## Core component patterns
 
 Class names + purpose. **Exact CSS lives in the reference page / shared sheets — copy from there.**
