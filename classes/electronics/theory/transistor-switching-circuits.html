@@ -257,6 +257,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
     .ts-env .row { width: 100%; }
     .ts-env input[type="range"] { flex: 1; width: auto; min-width: 120px; }
     .ts-env .end { font-weight: 900; color: var(--accent-2); font-size: .82rem; white-space: nowrap; }
+    .circuit [hidden] { display: none; }
     .circuit .ts-led-glow { fill: #ffd33d; opacity: 0; transition: opacity .2s ease; }
     .circuit.is-on .ts-led-glow { opacity: .55; }
     .circuit .ts-led { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
@@ -434,12 +435,24 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
             <!-- voltage divider (left) -->
             <line class="wire" x1="72" y1="22" x2="72" y2="58"/>
             <rect class="res" x="58" y="58" width="28" height="42" rx="3"/>
-            <text id="ts-upper-label" x="94" y="83">R</text>
+            <g id="ts-upper-ldr" hidden>
+              <circle class="wire" cx="72" cy="79" r="26"/>
+              <line class="wire" x1="34" y1="49" x2="46" y2="61"/><path class="fill" d="M46 61 l-2 -9 l-7 4 z"/>
+              <line class="wire" x1="44" y1="41" x2="56" y2="53"/><path class="fill" d="M56 53 l-2 -9 l-7 4 z"/>
+            </g>
+            <polyline id="ts-upper-th" class="wire" points="50,104 50,98 94,58" hidden/>
+            <text id="ts-upper-label" x="104" y="83">R</text>
             <line class="wire" x1="72" y1="100" x2="72" y2="124"/>
             <circle class="node" cx="72" cy="124" r="3.4"/>
             <line class="wire" x1="72" y1="124" x2="72" y2="148"/>
             <rect class="res" x="58" y="148" width="28" height="42" rx="3"/>
-            <text id="ts-lower-label" x="94" y="173">LDR</text>
+            <g id="ts-lower-ldr" hidden>
+              <circle class="wire" cx="72" cy="169" r="26"/>
+              <line class="wire" x1="34" y1="139" x2="46" y2="151"/><path class="fill" d="M46 151 l-2 -9 l-7 4 z"/>
+              <line class="wire" x1="44" y1="131" x2="56" y2="143"/><path class="fill" d="M56 143 l-2 -9 l-7 4 z"/>
+            </g>
+            <polyline id="ts-lower-th" class="wire" points="50,194 50,188 94,148" hidden/>
+            <text id="ts-lower-label" x="104" y="173">LDR</text>
             <line class="wire" x1="72" y1="190" x2="72" y2="212"/>
             <!-- base resistor to transistor -->
             <line class="wire" x1="72" y1="124" x2="118" y2="124"/>
@@ -456,16 +469,19 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
             <!-- emitter to 0 V -->
             <line class="wire" x1="232" y1="156" x2="232" y2="212"/>
             <!-- collector up through LED to +V -->
-            <line class="wire" x1="232" y1="92" x2="232" y2="70"/>
-            <circle class="ts-led-glow" cx="232" cy="61" r="20"/>
-            <path class="ts-led" d="M222 52 L242 52 L232 70 Z"/>
-            <line class="wire" x1="222" y1="70" x2="242" y2="70"/>
-            <line class="wire" x1="246" y1="50" x2="255" y2="41"/>
-            <line class="wire" x1="251" y1="55" x2="260" y2="46"/>
-            <path class="fill" d="M255 41 l5 -1 l-1 5 z"/>
-            <path class="fill" d="M260 46 l5 -1 l-1 5 z"/>
-            <line class="wire" x1="232" y1="52" x2="232" y2="22"/>
-            <text x="262" y="66">LED</text>
+            <line class="wire" x1="232" y1="92" x2="232" y2="80"/>
+            <circle class="ts-led-glow" cx="232" cy="71" r="17"/>
+            <path class="ts-led" d="M222 62 L242 62 L232 80 Z"/>
+            <line class="wire" x1="222" y1="80" x2="242" y2="80"/>
+            <line class="wire" x1="246" y1="60" x2="255" y2="51"/>
+            <line class="wire" x1="251" y1="65" x2="260" y2="56"/>
+            <path class="fill" d="M255 51 l5 -1 l-1 5 z"/>
+            <path class="fill" d="M260 56 l5 -1 l-1 5 z"/>
+            <text x="264" y="76">LED</text>
+            <line class="wire" x1="232" y1="62" x2="232" y2="56"/>
+            <rect class="res" x="218" y="30" width="28" height="26" rx="3"/>
+            <text x="252" y="40"><tspan font-style="italic">R</tspan>s</text>
+            <line class="wire" x1="232" y1="30" x2="232" y2="22"/>
           </svg>
         </div>
 
@@ -759,6 +775,11 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
       $("ts-env-max").textContent = isLight ? "Bright" : "Hot";
       $("ts-lower-label").textContent = (arm === "lower") ? (isLight ? "LDR" : "Th") : "R";
       $("ts-upper-label").textContent = (arm === "upper") ? (isLight ? "LDR" : "Th") : "R";
+      ["upper","lower"].forEach(function(a){
+        var sensor = (arm === a);
+        $("ts-"+a+"-ldr").hidden = !(sensor && isLight);
+        $("ts-"+a+"-th").hidden  = !(sensor && !isLight);
+      });
     }
     function update(){
       var env = parseInt($("ts-env").value, 10);
