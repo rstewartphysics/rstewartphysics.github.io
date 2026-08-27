@@ -922,3 +922,60 @@ details.reveal .reveal-body li { margin: .25rem 0; }
   .eng-dense .legend{display:none}
   .eng-dense .toolbar{margin:.1rem 0 .5rem}
 }
+
+/* ---- measure ---------------------------------------------------------------
+   Changed 27 August 2026 at the teacher's instruction, replacing the "keep the
+   64ch cap" decision of 23 August.
+
+   The complaint was not that lines were short — it was that the column edge was
+   ragged. Prose and the tinted callouts stopped at ~570px while the widgets,
+   tables and block diagrams beside them ran the full 1060px, so a .note read as
+   a box that had been cut off rather than as a deliberate measure.
+
+   So the two are separated:
+     framed callouts  fill the content column, and line up with the other framed
+                      furniture — a box should end where the boxes end;
+     running prose    keeps a measure, widened 64ch -> 78ch (~660px), which is
+                      still inside the readable 55-80 character range that the
+                      original decision was protecting. */
+
+/* The callouts are <p> elements too, so the prose rule has to name them —
+   `.sec-body > p` (0,2,1) otherwise outranks `.eng-dense .keypoint` (0,2,0). */
+.eng-dense .lead,
+.eng-dense .sec-body > p:not(.exam-ref),
+.eng-dense .sec-body > ul,
+.eng-dense .sec-body > ol,
+.eng-dense .note,
+.eng-dense .keypoint{max-width:78ch}
+
+/* .exam-ref is the exception: a short reference strip ("2024 Q7(b) · 2025 Q10(d)"),
+   one or two lines, not something anyone reads across. It fills the column. */
+.eng-dense .exam-ref{max-width:none}
+
+/* ---- two columns above 1000px ----------------------------------------------
+   Brought forward from the Phase 6 gate on the teacher's instruction, 27 August
+   2026, because it is the actual answer to "the text does not fill the width".
+
+   The callouts float into the empty right-hand strip and the prose runs the full
+   column beside them. Floats keep source order, so a note still sits where its
+   paragraph put it — a grid would have had to re-place a flat content stream.
+
+   The original objection to two columns was that it does nothing below ~900px,
+   where the pupils are. It still does nothing there — measured: at iPad-portrait
+   width the page is pixel-identical with and without this block — but it costs
+   that case nothing, and the laptop and the projector stop showing half an empty
+   column. Energy page: 19,965px -> 18,377px, which is inside the 19,000 target.
+   Reverting is deleting this one block. */
+
+@media (min-width:1000px){
+  .eng-dense .sec-body > .keypoint,
+  .eng-dense .sec-body > .note,
+  .eng-dense .sec-body > .exam-ref{
+    float:right; clear:right; width:330px; max-width:330px;
+    margin:.15rem 0 .85rem 1.6rem; padding-right:.35rem;
+  }
+  .eng-dense .sec-body > p:not(.exam-ref),
+  .eng-dense .sec-body > ul,
+  .eng-dense .sec-body > ol{max-width:none}
+  .eng-dense .sec-body::after{content:"";display:block;clear:both}
+}
