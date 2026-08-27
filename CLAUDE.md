@@ -314,6 +314,77 @@ Class names + purpose. **Exact CSS lives in the reference page / shared sheets �
 
 ---
 
+## Hub tiles — the site standard (set 27 August 2026)
+
+**The goal this serves: every page on the site should look like the same site. What differs is the
+content and the theme colour — nothing else.** A component that exists in two subjects must be one
+component with two palettes, never two components.
+
+`assets/css/hub-tiles.css` is the shared navigation tile. It is **token-driven and subject-agnostic**
+— it reads `--accent`, `--card`, `--text`, `--muted`, `--border`, `--surface-2`, `--shadow-soft` and
+`--shadow`, all of which every subject sheet already defines. Link it and it themes itself.
+
+```html
+<div class="hub-grid">            <!-- .hub-grid.few for one or two tiles -->
+  <a class="hub-tile" href="…" data-prog-badges="…" aria-label="…">
+    <span class="tile-head">
+      <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-x"/></svg>
+      <span class="tile-name">Title</span>
+    </span>
+    <span class="tile-body">One line on what is inside.</span>
+  </a>
+</div>
+```
+
+**The whole tile is the link.** A hub therefore never carries a row of filled accent buttons — that
+was the old `.resource-card` + `.cta` pattern, and eight orange buttons in one view is exactly the
+"the accent means nothing" problem. The accent stays reserved for *do the one main thing on this
+page*. A hub should have **at most one** `.cta`.
+
+**Every tile carries a drawn mark** from its subject's icon sprite, so a topic is recognisable by the
+same symbol wherever it appears — the hub tile, the slides hub, the topic page.
+
+- Engineering's sprite is `_includes/eng-icons.html` (14 symbols), included once per page.
+- **Paint must be inline `style=` on every shape.** Document CSS cannot reach into a `<use>` shadow
+  tree and class-styled shapes render solid black. Custom properties *do* inherit in.
+- An icon's accent is `var(--ic-accent, <subject accent>)`, because on a coloured tile band the
+  accent colour would be invisible against the band. `.tile-head` sets `--ic-accent: currentColor`,
+  so inside a band the mark draws mono in the band's ink and keeps its colours anywhere else.
+- **Draw at 48×48 and then look at it at 34px.** Hairlines radiating from a circle read as a
+  sunburst; two stacked flowchart shapes merge into an hourglass; a dome over two lines reads as an
+  earth symbol. All three were caught only by rendering and zooming — see global CLAUDE.md §7.
+
+**Per-subject palette.** The four band colours rotate down a grid so a long list does not read as one
+block. A subject opts in by declaring them; without them every band is the subject accent:
+
+```css
+--tile-1: …; --tile-2: …; --tile-3: …; --tile-4: …;   /* the rotation */
+--tile-ink: …;                                        /* text/icon on the band */
+```
+
+**Check `--tile-ink` against all four bands** — it must reach 4.5:1 on every one. Engineering uses
+dark ink `#1c1408` on its banner colours: green 6.36:1, teal 6.21:1, orange 8.33:1, coral 5.07:1.
+
+**Progress badges are automatic.** `progress.js` appends its `.prog-chip` into
+`tile.querySelector(".tile-head") || tile`, so naming the header `.tile-head` puts the badge in the
+band with no extra code. Keep `data-prog-badges` on the tile itself.
+
+**A tile with nothing behind it yet** is `<span class="hub-tile soon">` — a `<span>`, never an
+`<a>`, so it is not focusable and not announced as a link.
+
+**Media variant.** `.tile-head.is-media` swaps the drawn mark for bespoke artwork (the level banners
+on `classes/engineering-science.html`). Use it only where real artwork exists for that tile; the
+drawn icon is the default.
+
+**Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
+are for navigating to a *page*, not for a list of PDFs.
+
+**Adopted so far:** all three Engineering Science hubs. Higher, Electronics, S3 Physics and Science
+still use their own inline `.class-tile` / `a.card` variants; bringing them across needs this sheet
+linked, the five tokens declared, and an icon sprite per subject.
+
+---
+
 ## Accessibility requirements (every page)
 
 - **Skip link** `<a class="skip-link" href="#mainContent">Skip to content</a>` — off-screen, visible
