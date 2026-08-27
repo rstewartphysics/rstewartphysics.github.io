@@ -14,6 +14,14 @@ other half is that Engineering and Higher have grown two different vocabularies 
 things — *here is a class deck*, *here is a booklet reference*, *here is a thing to do* — and ~35
 Engineering decks are about to land on a site that has nowhere to put them.
 
+**Status, 27 August 2026.** Phases 0, 1, 2, 3 and 6 are built, verified and pushed
+(branches `eng-phase0-component-sheet`, `eng-phase1-deck-links`, `eng-phase2-energy-density`).
+Phase 5's S3 half is written into `s3-engineering-pages-outline.md` §0.
+**Phase 4 is the only one outstanding** and is deliberately not done here — see §6 Phase 4:
+the page numbers come from each booklet at that booklet's deck build gate, and a standalone
+sweep would mean reading every booklet twice for two possibly different answers.
+Working state: `~/claude-work/eng-visual-coherence/STATE.md`.
+
 ---
 
 ## 0. What changed in this revision
@@ -159,10 +167,20 @@ waste.
    neutral outline.
 3. **Preamble:** cut hard. One-line intro; SQA credit to the page-foot credit note; Unit 1 slides
    becomes a button; mode chooser compressed to a row of chips.
-4. **Layout:** **de-box, do not restructure.** Keep the 64 ch cap — a shorter page is not worth
-   110-character lines for S4 pupils.
-5. **Two-column is deferred, not rejected.** Prototype it on the de-boxed page and look at a render
-   before deciding. Nothing in this revision reopens it.
+4. ~~**Layout:** de-box, do not restructure. Keep the 64 ch cap.~~ **SUPERSEDED 27 August 2026,
+   teacher's instruction on seeing the Phase 2 render:** blocks were "still cropping to the RHS of
+   the screen and not filling". The de-boxing stands; the cap does not. Reading text is now 78 ch
+   (~76 characters, still inside the range the original decision protected) and `.exam-ref` fills
+   the column. The diagnosis had been half right — the complaint was never that lines were short,
+   it was that the *column edge was ragged*: prose and callouts stopped at ~570 px while the
+   widgets, tables and diagrams beside them ran the full 1060 px.
+5. ~~**Two-column is deferred, not rejected.**~~ **BROUGHT FORWARD AND SHIPPED 27 August 2026**,
+   same instruction — it is the only thing that actually fills the width. Above 1000 px the
+   callouts float into the right-hand strip and prose runs full width beside them; floats rather
+   than a grid, so source order is preserved. The original objection was that it does nothing below
+   ~900 px where the pupils are. That is still true and now measured: **at iPad-portrait width the
+   page is pixel-identical with and without it.** It costs that case nothing and takes the energy
+   page from 19,965 px to 18,377 px, inside the height target. Reverting is deleting one CSS block.
 
 **Amended:**
 
@@ -423,12 +441,16 @@ the two hubs *do* use `.card`, `.cta` and `.resource-*` from the chrome sheet.
 
 ---
 
-### Phase 6 — two-column prototype *(decision gate, unchanged)*
+### Phase 6 — two columns *(DONE 27 August 2026 — gate answered)*
 
-Build the de-boxed energy page a second time in the scratchpad with `.keypoint` and `.exam-ref`
-floated into a right-hand column above 900 px. Render both at 1100 px and at iPad-portrait width,
-send both, decide. **Do not touch the repo until that decision.** It may prove unnecessary once the
-frames are gone — that was the reason for deferring it and it still stands.
+Prototyped in the scratchpad as specified, rendered at 1280 px and at iPad-portrait width, and
+shipped on the teacher's instruction. It did **not** prove unnecessary once the frames were gone:
+de-boxing alone left the page at 20,486 px and a ragged column edge. With it, 18,377 px and
+4,717 px per 1000 words — below Higher's 5,146.
+
+The measurement that settled the original objection: at iPad-portrait width the page is
+**pixel-identical** with and without the block, so the pupils on iPads lose nothing and the laptop
+and projector stop showing half an empty column.
 
 ---
 
@@ -498,8 +520,9 @@ Every other phase, per page:
 
 ## 10. Not doing
 
-- Two-column concept blocks (deferred to the Phase 6 gate).
-- Removing the 64 ch measure, or changing panel padding, body type or line-height — measured as fine.
+- ~~Two-column concept blocks~~ — shipped, see Phase 6.
+- ~~Removing the 64 ch measure~~ — widened to 78 ch on 27 August, see decision 4. Panel padding,
+  body type and line-height are unchanged and still measured as fine.
 - Rebuilding or restyling the Higher topic pages. Phase 1a *moves* their `.top-pill`/`.deck-card`
   CSS into the shared sheet unchanged; it changes nothing about how they look. Giving Higher the
   64 ch cap is a separate job with its own approval.

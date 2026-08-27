@@ -18,6 +18,72 @@ progression boxes. This is BGE-level: concrete, low-jargon, minimal maths.
 
 ---
 
+## 0. The finished N5 template — build to this, do not retrofit it later
+
+Added 27 August 2026, from `_notes/engineering-pages-visual-update-plan.md` Phase 5. The eight N5
+topic pages have been through the visual coherence pass; the S3 pages have not been written yet, so
+they should be built to the finished template and never need the retrofit.
+
+**Stylesheets — link both, in this order.**
+
+```html
+<link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-YYYYMMDDx">
+<link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-YYYYMMDDx">
+```
+
+`engineering-science.css` is the chrome (tokens, banner, subnav, `.container`, `.card`, `.cta`,
+and the deck-link layer). `engineering-topic.css` is the component layer extracted from the N5
+pages — `.panel`, `.sec`, `.keypoint`, `.note`, `.exam-ref`, `.example`, `.practice`, `.widget`,
+`.btn`, the maths components. **Do not paste a copy of either into the page.** Keep inline only
+what is genuinely unique to that page. Bump `?v=` in the same edit as any sheet change — a stale
+`?v=` silently serves the old CSS and makes a real change measure as no change.
+
+**`<body class="eng-dense">`** — this one class turns on the density pass: de-boxed `.note` and
+`.exam-ref`, un-nested `.widget`, the compact mode chooser, the 78ch measure, two columns above
+1000px, and the short-landscape treatment. Without it the page renders in the old boxed style.
+
+**Three button weights, and each means exactly one thing.**
+
+| Component | Means | Use for |
+|---|---|---|
+| `.cta` filled orange | do the main thing on this page | the booklet PDF. **At most one above the fold** |
+| `.reslink` teal chip | take this away | decks, booklets, data sheets, past papers, simulators |
+| `.btn` neutral outline | operate this control | widget buttons, and in-page `#anchor` jumps |
+
+Convert by destination, not by eye: an `<a>` whose href leaves the page is a `.reslink`; an `<a>`
+to a bare `#anchor` and every `<button>` stay `.btn`. Never `.btn.primary` on a widget's Check
+button — orange has to keep meaning one thing.
+
+**Booklet references are page numbers.** `.page-ref` reads `Booklet p.4` / `Booklet pp.13–14`,
+never `§1` (DECK-RULES **6a**, global to every deck and page: a pupil finds a page). Take the
+numbers from the booklet's own printed footer.
+
+**Past-paper references are visible text**, never a `title=` tooltip — there is no hover on an
+iPad. Use `.exam-ref` under the section's `.keypoint`, each reference in its own `<b>`.
+
+**Deck links.** When an S3 deck exists, it gets a `.reslink` in its lesson's section and a
+`.top-pills` row under the backlink, exactly as the N5 pages do. If S3 gains enough decks it gets
+its own `classes/s3-engineering/slides.html`, copied structurally from
+`classes/n5-engineering/slides.html`. Note for that page: paint in an SVG `<symbol>` must be
+inline `style=` on every shape — document CSS cannot reach into a `<use>` shadow tree and
+class-styled shapes render solid black.
+
+**Colour.** `--eng-orange` and `--eng-teal` both fail AA as text (3.4:1 and 2.94:1). Small text on
+accent uses `--eng-ink-accent` or `--eng-ink-teal`. Check contrast against **composited**
+backgrounds — a translucent tint read as opaque gives a false pass.
+
+**Any page where a pupil does a task** still obeys the one-screen rule in `CLAUDE.md`: question,
+pieces and working area on one 1180 × 760 landscape screen. On a topic page the working version of
+that rule is narrower — once the pupil has scrolled to a widget, its question, working area and
+Check button fit one screen. Long lists (a 10-question quiz, a RAG self-check) are exempt; they are
+lists, not tasks.
+
+**The banner is not slimmed to a strip on short landscape.** The task pages do that, but this art
+is 3:1 and carries the subject title, so a 15:1 strip crops through it. `engineering-topic.css`
+hides the image and turns its overlay into a slim title bar instead; inherit that, do not override it.
+
+---
+
 ## 1. Shared build recipe (every page)
 
 ### Files & URLs
