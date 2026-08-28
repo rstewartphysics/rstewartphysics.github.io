@@ -409,11 +409,17 @@ Include both on a hub that needs both.
 
 **A group can override the rotation.** Set `--tile-group` on a `.hub-grid` to give every tile in it
 one colour. Use it where the grouping already carries meaning: Higher colours by course unit
-(electricity azure, dynamic universe indigo, particles teal), Engineering rotates by position.
+(electricity azure, dynamic universe indigo, particles teal), Advanced Higher does the same
+(rotational bronze, quanta sienna, electromagnetism teal, and slate for the non-content strand —
+Researching Physics, slides and question pages — so a resource row never reads as a course unit),
+Engineering rotates by position.
 
 **Ink is per subject, and must be checked in BOTH themes.** Engineering uses dark ink on its banner
-colours; Higher uses white on its unit colours. A subject whose `--accent` lightens in dark mode
-needs an `--on-accent` token for anything filled with it — Higher's dark accent is a light blue, and
+colours; Higher and Advanced Higher use white on their unit colours. **A subject accent is not
+automatically usable as a band** — Advanced Higher's gold `#b8860b` is only 3.25:1 against white
+ink, so its unit-1 band is a darkened bronze `#8a6508` (5.32:1) and the accent stays off the bands
+entirely (quanta 7.31:1, electromagnetism 5.47:1, research 7.58:1). A subject whose `--accent`
+lightens in dark mode needs an `--on-accent` token for anything filled with it — Higher's dark accent is a light blue, and
 white text on it measured 1.88:1.
 
 ---
