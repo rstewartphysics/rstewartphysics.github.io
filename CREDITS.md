@@ -33,8 +33,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and
   Revised Higher), the Revised Higher specimen paper, and the corresponding marking instructions,
   reproduced in support of SQA qualifications on a non-commercial basis.
-  It also covers the Higher Physics lesson-slide PDFs at `classes/higher/slides/` and the Advanced
-  Higher ones at `classes/adv/slides/`: the decks are written by the site owner, but the past-paper
+  It also covers the Higher Physics lesson-slide PDFs at `classes/higher/slides/`, the Advanced
+  Higher ones at `classes/adv/slides/`, the National 5 Engineering Science ones at
+  `assets/engineering-science/national-5/*/slides/`, and the National 5 Electronics ones at
+  `classes/electronics/slides/`: the decks are written by the site owner, but the past-paper
   questions, extracted figures, quoted marking-instruction wording and marking-instruction links
   they carry are © Qualifications Scotland, reproduced for educational use.
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
