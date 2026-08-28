@@ -18,9 +18,9 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   marking instructions © Qualifications Scotland (SQA).
 - **S Woodhouse** — Block 3 practice questions and answers (2026).
 - **R Stewart & S Woodhouse** — Electricity Block 3 booklet (2026).
-- **Mr Davie** (September 2025 update by **Mr White**) — the Higher and National 5 Physics "Past
-  Paper Finder" documents, shared freely by their authors. Past-paper questions and marking
-  instructions © Qualifications Scotland (SQA).
+- **Mr Davie** (September 2025 update by **Mr White**) — the Advanced Higher, Higher and National 5
+  Physics "Past Paper Finder" documents, shared freely by their authors. Past-paper questions and
+  marking instructions © Qualifications Scotland (SQA).
 - **Mr McDonald** (2024) — the National 5 Engineering Science "Past Paper Finder", shared freely by
   its author. Questions © Qualifications Scotland (SQA).
 
@@ -33,9 +33,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and
   Revised Higher), the Revised Higher specimen paper, and the corresponding marking instructions,
   reproduced in support of SQA qualifications on a non-commercial basis.
-  It also covers the Higher Physics lesson-slide PDFs at `classes/higher/slides/`: the decks are
-  written by the site owner, but the past-paper questions, extracted figures and marking-instruction
-  links they carry are © Qualifications Scotland, reproduced for educational use.
+  It also covers the Higher Physics lesson-slide PDFs at `classes/higher/slides/` and the Advanced
+  Higher ones at `classes/adv/slides/`: the decks are written by the site owner, but the past-paper
+  questions, extracted figures, quoted marking-instruction wording and marking-instruction links
+  they carry are © Qualifications Scotland, reproduced for educational use.
+- **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
+  Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
+  end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
+  University. <https://scholar.hw.ac.uk>
+- **BrightRed Publishing** — *Advanced Higher Physics Study Guide*. Not reproduced: the lesson
+  slides cite its page numbers for reading.
 - **Embedded videos** — "The Other Mr Stewart" (YouTube [@mrstewartphysics](https://www.youtube.com/@mrstewartphysics))
   and Mr Bell – Practical Electronics. Videos remain © their respective creators and are embedded
   via YouTube; each clip is credited where it appears.
