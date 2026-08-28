@@ -119,7 +119,7 @@ nav drawer.
 
 **Booklet:** `N5EngSci_Booklet_3_Electronics_and_Analogue_Control_FINAL.docx`.
 **Note:** substantial overlap with the site's Electronics subject pages — reuse component
-patterns (`.ttable`, `.sym-grid`) and SVG symbols from `classes/electronics/theory.html`, but
+patterns (`.ttable`, `.sym-grid`) and SVG symbols from `classes/electronics/theory/components-and-devices.html`, but
 keep content strictly N5 EngSci (BS symbols from the N5 data booklet; no BS1852/op-amps).
 
 **Subnav:** Circuits · Ohm's Law · Power · I/O Devices · Dividers · Transistor · Answers · Check
@@ -285,7 +285,7 @@ finished until every step in the per-phase checklist passes.
 | Phase | Page | Why this order | Extra phase-specific steps |
 |---|---|---|---|
 | **1** | Mechanisms & Drive Systems (5) | Most exam-central remaining calc topic; teacher answer key ready (`Booklet_5_Mechanisms_TEACHER_ANSWERS.md`) | Gear-train sim is the flagship widget — build it first, reuse its slider/readout pattern in later phases |
-| **2** | Electronics & Analogue Control (3) | Biggest content but heavy reuse: symbols/`.ttable`/`.sym-grid` from `classes/electronics/theory.html` | Write the missing answer key (booklet has none) |
+| **2** | Electronics & Analogue Control (3) | Biggest content but heavy reuse: symbols/`.ttable`/`.sym-grid` from `classes/electronics/theory/` | Write the missing answer key (booklet has none) |
 | **3** | Pneumatics (6) | Introduces the sim-task-card pattern (NoPressureSim) + the N/mm² units callout | Sim-card component built here is reused verbatim in Phase 4 |
 | **4** | Structures & Materials (7) | Shares Phase 3's sim-card pattern (NoStressSim) and units callout — build back-to-back | Scale-drawing answers shown as target ± tolerance |
 | **5** | Logic & Programmable Control (4) | Largest page (booklets 4a + 4b); do once all patterns are settled | Two-half page: gates/truth-tables then flowcharts/programming; write missing answer keys |
