@@ -1,0 +1,80 @@
+/* hub-tiles.css — the site standard for a hub navigation tile.
+   Set 27 August 2026. See CLAUDE.md "Hub tiles".
+
+   The whole tile is the link, so a hub never needs a row of filled accent
+   buttons: the accent stays reserved for "do the one main thing on this page".
+   Token-driven, so any subject can link this sheet and get its own palette —
+   it reads --accent, --card, --text, --muted, --border, --shadow-soft and the
+   four --tile-N rotation colours, all of which every subject sheet defines.
+
+   The header element is called .tile-head because progress.js appends its
+   .prog-chip badge into `.tile-head || tile` — naming it this puts the badge
+   in the header band with no extra code.
+
+   Markup:
+     <a class="hub-tile" href="…" data-prog-badges="…" aria-label="…">
+       <span class="tile-head">
+         <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-x"/></svg>
+         <span class="tile-name">Title</span>
+       </span>
+       <span class="tile-body">One line on what is inside.</span>
+     </a>
+   A tile with nothing behind it yet is a <span class="hub-tile soon"> — a span,
+   never an <a>, so it is not focusable and not announced as a link. */
+
+.hub-grid{display:grid;gap:14px;margin-top:14px;
+  grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+/* one or two tiles in a section would otherwise stretch into one enormous band */
+.hub-grid.few{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),360px));
+  justify-content:start}
+
+.hub-tile{display:flex;flex-direction:column;min-height:132px;overflow:hidden;
+  border:1px solid var(--border,rgba(0,0,0,.14));border-radius:16px;
+  background:var(--card,#fff);color:var(--text,#111);text-decoration:none;
+  box-shadow:var(--shadow-soft,0 8px 18px rgba(0,0,0,.10));
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease}
+a.hub-tile:hover,a.hub-tile:focus-visible{transform:translateY(-2px);
+  border-color:var(--accent,#666);box-shadow:var(--shadow,0 16px 36px rgba(0,0,0,.16))}
+a.hub-tile:active{transform:translateY(0)}
+
+/* A drawn icon's accent colour would vanish against a coloured band, so inside the
+   band the whole mark draws in the band's ink. On a white card it keeps its colours. */
+.tile-head{--ic-accent:currentColor;--ic-useful:currentColor;--ic-wasted:currentColor;
+  display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;
+  background:var(--tile-accent,var(--accent,#666));color:var(--tile-ink,#111);
+  border-bottom:1px solid rgba(0,0,0,.10);min-height:56px}
+.tile-ic{width:34px;height:34px;flex-shrink:0;display:block}
+.tile-name{font-weight:900;line-height:1.22;font-size:1rem;min-width:0;flex:1}
+
+/* media variant — for a tile whose identifying mark is bespoke artwork (the level
+   banners on the subject hub) rather than a drawn icon from the sprite. */
+.tile-head.is-media{padding:0;min-height:0;background:none;border-bottom:0;display:block}
+.tile-head.is-media .tile-media{display:block;width:100%;aspect-ratio:3/1;height:auto;
+  object-fit:cover;background:var(--surface-2,#eee)}
+.hub-tile.soon .tile-head.is-media .tile-media{filter:grayscale(.4);opacity:.75}
+.tile-head.is-media + .tile-name{display:block;padding:.7rem .85rem 0;font-weight:900;font-size:1.05rem}
+
+.tile-body{padding:.7rem .85rem .85rem;color:var(--muted,#555);
+  font-weight:800;font-size:.92rem;line-height:1.5;flex:1}
+
+/* the progress engine drops .prog-chip in here; keep it legible on the band */
+.tile-head .prog-chip{margin-left:auto;flex-shrink:0;background:rgba(255,255,255,.72);
+  color:#1c1408;border-radius:999px;padding:2px 9px;font-size:.7rem;font-weight:900;
+  letter-spacing:.02em;white-space:nowrap}
+
+.hub-tile.soon{opacity:.92;cursor:not-allowed}
+.hub-tile.soon .tile-head{background:var(--surface-2,#eee);color:var(--muted,#555);
+  border-bottom-style:dashed}
+.hub-tile.soon .tile-ic{opacity:.5}
+
+/* four-colour rotation, so a long grid does not read as one block */
+.hub-grid > .hub-tile:nth-child(4n+1){--tile-accent:var(--tile-1,var(--accent,#666))}
+.hub-grid > .hub-tile:nth-child(4n+2){--tile-accent:var(--tile-2,var(--accent,#666))}
+.hub-grid > .hub-tile:nth-child(4n+3){--tile-accent:var(--tile-3,var(--accent,#666))}
+.hub-grid > .hub-tile:nth-child(4n+4){--tile-accent:var(--tile-4,var(--accent,#666))}
+
+@media (prefers-reduced-motion: reduce){
+  .hub-tile{transition:none}
+  a.hub-tile:hover,a.hub-tile:focus-visible{transform:none}
+}
