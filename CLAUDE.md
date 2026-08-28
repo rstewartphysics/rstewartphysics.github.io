@@ -344,7 +344,11 @@ page*. A hub should have **at most one** `.cta`.
 **Every tile carries a drawn mark** from its subject's icon sprite, so a topic is recognisable by the
 same symbol wherever it appears — the hub tile, the slides hub, the topic page.
 
-- Engineering's sprite is `_includes/eng-icons.html` (14 symbols), included once per page.
+- Three sprites, included as needed: `_includes/resource-icons.html` (12 generic marks — slides,
+  notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper, doc),
+  `_includes/physics-icons.html` (18 topic marks shared across the Physics levels — S3 Electricity 1
+  and Higher current/p.d./resistance are the same idea, so they are the same mark),
+  `_includes/eng-icons.html` (14) and `_includes/electronics-icons.html` (3).
 - **Paint must be inline `style=` on every shape.** Document CSS cannot reach into a `<use>` shadow
   tree and class-styled shapes render solid black. Custom properties *do* inherit in.
 - An icon's accent is `var(--ic-accent, <subject accent>)`, because on a coloured tile band the
@@ -379,9 +383,13 @@ drawn icon is the default.
 **Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
 are for navigating to a *page*, not for a list of PDFs.
 
-**Adopted so far:** all three Engineering Science hubs, and Higher Physics. Electronics, S3 Physics
-and Science still use their own inline `.class-tile` / `a.card` variants; bringing them across needs
-this sheet linked, the tokens declared, and a subject sprite.
+**Adopted so far:** all three Engineering Science hubs, Higher Physics, Electronics and S3 Physics —
+74 tiles. Only the Science (S1/S2) hub still uses its own `a.card` / `.topic-tile` variants.
+
+**A tile may name its own colour.** The positional rotation sets `--tile-rot`, not `--tile-accent`,
+so a class on the tile (Electronics keeps its six `.t-*` section colours) always wins over the
+rotation regardless of stylesheet order. Write it at tile specificity — `.hub-tile.t-teal` — so it
+also beats the base `.hub-tile` declaration.
 
 **Two sprites, not one per page.** `_includes/resource-icons.html` holds the generic marks every
 subject needs — slides, notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper,
