@@ -11,8 +11,10 @@ SQA course spec C884 75 v3.0 (Jan 2026) in `assets/electronics/sqa-source-docs/`
 ## 1. Where files go
 
 ```
-classes/electronics.html                  — HUB (5 primary tiles + tools/resources row)
-classes/electronics/theory.html           — Circuit design: ALL theory (incl. symbols, logic, IC pin-outs)
+classes/electronics.html                  — HUB (11 course-section tiles + featured tool + tools/resources row)
+classes/electronics/theory/*.html          — Circuit design theory, six topics; linked straight from the hub.
+                                             There is no theory index page — the hub is the index.
+classes/electronics/block-diagram-builder.html — Featured tool: input/process/output block diagrams
 classes/electronics/simulation.html        — Using simulation software (why/when/how) + fault-finding + costing
 classes/electronics/construction.html      — Building: resistor codes, boards, soldering, cables, diagrams
 classes/electronics/testing.html           — Test equipment & methods
