@@ -184,7 +184,7 @@ the quick map; copy exact values from the source.
 | Electronics | `#00e6b3` teal-green | `#0b1f1a` (dark page) | `#00e6b3` bg | inline; `color-scheme: dark` |
 | National 5 | `#d74a84` pink | `#d74a84` | `#d74a84` bg / `#2a0a1a` text | inline per page |
 | Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | `#0a6fbf` bg, white | `assets/css/higher-physics.css` |
-| Advanced Higher | `#b8860b` gold | `#b8860b` | `#111827` bg, white | inline; cream→gold radial bg |
+| Advanced Higher | `#b8860b` gold | `#b8860b` | `#111827` bg, white | `assets/css/adv-higher-physics.css` |
 | Engineering Science | `#f28c28` orange | — | — | `assets/css/engineering-science.css` |
 
 - **Electronics** and **Engineering Science** are dark-capable; Engineering Science has full
@@ -383,8 +383,21 @@ drawn icon is the default.
 **Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
 are for navigating to a *page*, not for a list of PDFs.
 
-**Adopted so far:** all three Engineering Science hubs, Higher Physics, Electronics and S3 Physics —
-74 tiles. Only the Science (S1/S2) hub still uses its own `a.card` / `.topic-tile` variants.
+**Adopted so far:** all three Engineering Science hubs, Higher Physics, Electronics, S3 Physics and
+Advanced Higher — 104 tiles. Only the Science (S1/S2) hub still uses its own `a.card` /
+`.topic-tile` variants.
+
+**A subject sheet comes before the component sheet, and both come after `site-menu.css`.**
+`site-menu.css` defines a generic `.skip-link` at the same specificity as a subject's, so a subject
+sheet loaded before it silently loses. That is what an inline `<style>` block placed above the links
+does — the Advanced Higher page had a 3.25:1 skip link for exactly that reason, and extracting its
+CSS to a linked sheet in the right position fixed it.
+
+**Stage a course before its pages exist.** The Advanced Higher hub carries all 17 topics as inert
+`soon` tiles, grouped by unit and captioned, before a single topic page is written. Publishing one
+is then a flip — `<span class="hub-tile soon">` to `<a class="hub-tile" href="…">` — and it picks
+up its band colour automatically. A hub built this way shows a pupil the shape of the whole course
+on day one, and it stops the hub drifting from the build plan.
 
 **A tile may name its own colour.** The positional rotation sets `--tile-rot`, not `--tile-accent`,
 so a class on the tile (Electronics keeps its six `.t-*` section colours) always wins over the
