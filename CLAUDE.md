@@ -379,9 +379,23 @@ drawn icon is the default.
 **Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
 are for navigating to a *page*, not for a list of PDFs.
 
-**Adopted so far:** all three Engineering Science hubs. Higher, Electronics, S3 Physics and Science
-still use their own inline `.class-tile` / `a.card` variants; bringing them across needs this sheet
-linked, the five tokens declared, and an icon sprite per subject.
+**Adopted so far:** all three Engineering Science hubs, and Higher Physics. Electronics, S3 Physics
+and Science still use their own inline `.class-tile` / `a.card` variants; bringing them across needs
+this sheet linked, the tokens declared, and a subject sprite.
+
+**Two sprites, not one per page.** `_includes/resource-icons.html` holds the generic marks every
+subject needs — slides, notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper,
+doc — and each subject adds only its own topic marks (`eng-icons.html`, `higher-icons.html`).
+Include both on a hub that needs both.
+
+**A group can override the rotation.** Set `--tile-group` on a `.hub-grid` to give every tile in it
+one colour. Use it where the grouping already carries meaning: Higher colours by course unit
+(electricity azure, dynamic universe indigo, particles teal), Engineering rotates by position.
+
+**Ink is per subject, and must be checked in BOTH themes.** Engineering uses dark ink on its banner
+colours; Higher uses white on its unit colours. A subject whose `--accent` lightens in dark mode
+needs an `--on-accent` token for anything filled with it — Higher's dark accent is a light blue, and
+white text on it measured 1.88:1.
 
 ---
 
