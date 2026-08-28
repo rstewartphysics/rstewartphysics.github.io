@@ -379,9 +379,14 @@ drawn icon is the default.
 **Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
 are for navigating to a *page*, not for a list of PDFs.
 
-**Adopted so far:** all three Engineering Science hubs, and Higher Physics. Electronics, S3 Physics
-and Science still use their own inline `.class-tile` / `a.card` variants; bringing them across needs
-this sheet linked, the tokens declared, and a subject sprite.
+**Adopted so far:** all three Engineering Science hubs, Higher Physics and Electronics. S3 Physics
+and Science still use their own inline `a.card` variants; bringing them across needs this sheet
+linked, the tokens declared, and a subject sprite.
+
+**A tile may name its own colour.** The positional rotation sets `--tile-rot`, not `--tile-accent`,
+so a class on the tile (Electronics keeps its six `.t-*` section colours) always wins over the
+rotation regardless of stylesheet order. Write it at tile specificity — `.hub-tile.t-teal` — so it
+also beats the base `.hub-tile` declaration.
 
 **Two sprites, not one per page.** `_includes/resource-icons.html` holds the generic marks every
 subject needs — slides, notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper,
