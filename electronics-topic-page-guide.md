@@ -99,8 +99,7 @@ resistor here.
 per-page code. Electronics runs `assets/js/progress.js` + `assets/js/progress/electronics.js`
 (`window.Progress`) with neutral `data-prog-*` hooks: the badge wall, corner counter, `data-prog-badges`
 hub chips, and `data-prog-challenge` cloze/fill-in/quiz tracking. *(The legacy
-`assets/js/electronics-progress.js` / `window.ElProgress` is deprecated — unreferenced, kept only for
-rollback; don't add it to new pages.)* Wire a new page via **`/add-progress`**: the two `defer` scripts in
+`electronics-progress.js` / `window.ElProgress` engine has been deleted.)* Wire a new page via **`/add-progress`**: the two `defer` scripts in
 `<head>`, markup hooks, and the flagship widget's `markSeen`/`record` calls only — never hand-roll progress
 JS. See `progress-system-guide.md` (API) + `progress-system-rollout-plan.md` §5 (guardrails) before
 changing any progress/badge behaviour.

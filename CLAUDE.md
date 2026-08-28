@@ -26,7 +26,6 @@ assets/css/site-menu.css              — nav drawer styles (every page links it
 assets/js/site-menu.js                — nav drawer behaviour (every page links it)
 assets/css/engineering-science.css    — shared sheet for all Engineering Science pages
 assets/css/higher-physics.css         — shared sheet for Higher hub + topic pages
-assets/style.css                      — legacy/unused, do not reference
 classes/                              — all subject pages
 index.html                            — home page
 ```
@@ -66,7 +65,6 @@ classes/s3-physics.html                              — the level hub
 classes/s3-physics/<topic>.html                      — topic hub (short: intro, booklet, links, part tiles)
 classes/s3-physics/<topic>/<lesson>.html             — the lesson pages (kebab-case of the part label)
 classes/s3-physics/<topic>/practice.html             — quiz + past papers for the topic
-classes/s3-physics/<topic>-tools.html                — shared interactive/tool assets
 ```
 
 Conventions: the topic-hub URL is preserved (so existing links don't break); lesson files are
@@ -411,11 +409,17 @@ Include both on a hub that needs both.
 
 **A group can override the rotation.** Set `--tile-group` on a `.hub-grid` to give every tile in it
 one colour. Use it where the grouping already carries meaning: Higher colours by course unit
-(electricity azure, dynamic universe indigo, particles teal), Engineering rotates by position.
+(electricity azure, dynamic universe indigo, particles teal), Advanced Higher does the same
+(rotational bronze, quanta sienna, electromagnetism teal, and slate for the non-content strand —
+Researching Physics, slides and question pages — so a resource row never reads as a course unit),
+Engineering rotates by position.
 
 **Ink is per subject, and must be checked in BOTH themes.** Engineering uses dark ink on its banner
-colours; Higher uses white on its unit colours. A subject whose `--accent` lightens in dark mode
-needs an `--on-accent` token for anything filled with it — Higher's dark accent is a light blue, and
+colours; Higher and Advanced Higher use white on their unit colours. **A subject accent is not
+automatically usable as a band** — Advanced Higher's gold `#b8860b` is only 3.25:1 against white
+ink, so its unit-1 band is a darkened bronze `#8a6508` (5.32:1) and the accent stays off the bands
+entirely (quanta 7.31:1, electromagnetism 5.47:1, research 7.58:1). A subject whose `--accent`
+lightens in dark mode needs an `--on-accent` token for anything filled with it — Higher's dark accent is a light blue, and
 white text on it measured 1.88:1.
 
 ---
@@ -592,9 +596,9 @@ per-page **points / streak / section-challenge meter** + a **corner counter**, *
 joining the existing `eng-contexts`/`eng-energy` in `progress/eng-n5.js`), **S3** live topic pages + their hubs, and **S3 Physics** (Electricity 1 hub
 + its three lesson pages + practice under `classes/s3-physics/electricity1/`, four per-page badges
 `elec1a`/`elec1b`/`elec1c`/`elec1-test` aggregated on the S3 hub tile). Each writes a single
-`progress-<ns>-v1` key. The legacy
-`assets/js/electronics-progress.js` / `window.ElProgress` is **deprecated** (unreferenced, kept only for
-rollback — don't use on new pages). **Remaining:** Higher Engineering Science (Coming Soon — its
+`progress-<ns>-v1` key. The legacy `electronics-progress.js` engine and its `window.ElProgress` API
+have been deleted — `progress.js` + `progress/electronics.js` are the only electronics path.
+**Remaining:** Higher Engineering Science (Coming Soon — its
 `eng-higher.js` config drops in when those pages are built); coming-soon topic stubs stay unwired until
 they have content (behind-content guardrail). **New interactive pages ship with tracking by default** —
 run **`/add-progress`** and follow `progress-system-guide.md` (API) + the rollout plan's §5 guardrails;

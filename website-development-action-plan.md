@@ -170,21 +170,34 @@ One page per session, one commit per page, `.beta-note` while in beta, progress 
 All verified orphans unless marked "verify". **Model: Haiku 4.5** for the sweep, with a Sonnet-grade
 double-check of the orphan greps before deleting anything.
 
-- [ ] `classes/n5-engineering/engineering-contexts-and-systems-beta.html` — leftover beta
-      duplicate, nothing links to it → **delete**.
-- [ ] `classes/s3-physics/electricity1-tools.html` and `electricity-2-tools.html` — no page
-      references either (verify once more, including JS fetches) → **delete** and remove the
-      `<topic>-tools.html` line from CLAUDE.md's S3 filing structure if both go.
-- [ ] `assets/style.css` — legacy, unreferenced → **delete** + drop its CLAUDE.md mention.
-- [ ] `assets/js/electronics-progress.js` — deprecated shim kept for rollback; once Phase 0 has
-      merged and the site has been stable for a couple of weeks → **delete**.
-- [ ] `Electricity Updates.rtf` — superseded → **delete** (task 0.2).
-- [ ] **Archive completed planning docs** — `AUDIT-PLAN.md`, `electricity1-audit-and-improvements.md`,
+> **Status (2026-08-28): swept.** All deletions below carried out on branch
+> `site-tidy-ah-cards-intro-trim` after a fresh grep of every candidate.
+
+- [x] `classes/n5-engineering/engineering-contexts-and-systems-beta.html` — leftover beta
+      duplicate, nothing links to it → **deleted**.
+- [x] `classes/s3-physics/electricity1-tools.html` and `electricity-2-tools.html` — no page
+      referenced either → **deleted**; the `<topic>-tools.html` line is out of CLAUDE.md's S3
+      filing structure.
+- [x] `assets/style.css` — was already gone; its CLAUDE.md mention is now dropped too. The two
+      Jekyll pages that still linked it — `contact.md` (`/contact`) and `quick-links.md`
+      (`/quick-links`) — were **deleted**: they declare `layout: page` but the repo has no
+      `_layouts/`, nothing linked them, and `classes/contact.html` is the real contact page.
+- [x] `assets/js/electronics-progress.js` — deprecated shim, Phase 0 merged 11 Aug and stable
+      since → **deleted**; the comments in `electronics.css` and `electronics-topic-page-guide.md`
+      now point at `progress.js`.
+- [x] `Electricity Updates.rtf` — superseded → deleted (task 0.2).
+- [x] **Archive completed planning docs** — `AUDIT-PLAN.md`, `electricity1-audit-and-improvements.md`,
       `interactive-components-improvement-plan.md`, the three `electronics-*-plan.md` files, and
-      `website-fixes-plan.md` once Phase 1 lands. Move to `docs/archive/` (git-tracked, out of the
-      root) rather than delete — they hold decisions. **Keep live at root:** the two topic-page
-      guides, `progress-system-guide.md`, `progress-system-rollout-plan.md`, the two pages
-      outlines, the two audit CSVs (until Phase 3/5 complete), this plan.
+      `website-fixes-plan.md` moved to `docs/archive/` (git-tracked, out of the root) rather than
+      deleted — they hold decisions. **Kept live at root:** the two topic-page guides,
+      `progress-system-guide.md`, `progress-system-rollout-plan.md`, the two pages outlines, the
+      two audit CSVs (until Phase 3/5 complete), this plan.
+- [x] **Stop publishing the internal docs.** `_config.yml`'s `exclude` was missing nine planning
+      docs and both audit CSVs, so `AUDIT-PLAN.html`, `website-fixes-plan.html`,
+      `progress-system-rollout-plan.html`, `legacy-wip-audit.csv` and the rest were building into
+      `_site/` and going live. Added `progress-system-guide.md`, `progress-system-rollout-plan.md`,
+      `website-development-action-plan.md`, `legacy-wip-audit.csv`, `progress-hooks-audit.csv` and
+      `docs` to the exclude list — `docs/` needs it explicitly, since it is not an underscore dir.
 - [ ] `classes/engineering.html` + `classes/engineering/n5.html` — redirect stubs, orphaned
       internally but cheap insurance for old external bookmarks → **keep** (record the decision
       here so it isn't re-litigated).
