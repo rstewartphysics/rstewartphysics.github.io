@@ -83,12 +83,11 @@ inventing structure, judging pedagogy/design, or touching many pages coherently,
       mark it complete in the doc.*
 - [ ] **1.3 Higher: Semiconductors & p–n junctions** — still carries a WIP banner but has no
       written spec. Review the content, finalise, remove the banner. **Model: Sonnet 5.**
-- [ ] **1.4 `classes/higher/simulations.html`** — two "More Coming Soon" tiles are live links to
-      `#`. Make them inert spans (`.soon` pattern). **Model: Haiku 4.5.**
-- [ ] **1.4b Broken Higher favicon** — `/assets/higher/Delta.png` is referenced by
-      `<link rel="icon">` + `apple-touch-icon` on the Higher topic pages but no such file exists
-      (no `*delta*` anywhere in `assets/`). Either add the asset or drop the two `<link>` lines.
-      Found during the 0.1 link sweep. **Model: Haiku 4.5.**
+- [x] **1.4 `classes/higher/simulations.html`** ✅ **Done 28 Aug 2026.** The two tiles
+      converted to inert `<span class="class-tile soon">`.
+- [x] **1.4b Broken Higher favicon** ✅ **Done 28 Aug 2026.** No asset existed to add, so the
+      `<link rel="icon">` + `apple-touch-icon` lines were dropped from all six pages, and the
+      matching entry removed from the PWA manifest's `icons` array on the Higher hub.
 - [ ] **1.5 N5 Engineering booklet PDFs** — you supply the PDFs for topics 03/04/05/06/07 +
       assignment-prep (folders exist, empty). Then flip the five `cta soon` booklet buttons live
       and add the new PDFs to `copyright-provenance-checklist.csv`. **Model: Haiku 4.5** (after
