@@ -383,8 +383,15 @@ drawn icon is the default.
 **Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
 are for navigating to a *page*, not for a list of PDFs.
 
-**Adopted so far:** all three Engineering Science hubs, Higher Physics, Electronics and S3 Physics —
-74 tiles. Only the Science (S1/S2) hub still uses its own `a.card` / `.topic-tile` variants.
+**Adopted so far:** all three Engineering Science hubs, Higher Physics, Electronics, S3 Physics and
+Advanced Higher — 104 tiles. Only the Science (S1/S2) hub still uses its own `a.card` /
+`.topic-tile` variants.
+
+**Stage a course before its pages exist.** The Advanced Higher hub carries all 17 topics as inert
+`soon` tiles, grouped by unit and captioned, before a single topic page is written. Publishing one
+is then a flip — `<span class="hub-tile soon">` to `<a class="hub-tile" href="…">` — and it picks
+up its band colour automatically. A hub built this way shows a pupil the shape of the whole course
+on day one, and it stops the hub drifting from the build plan.
 
 **A tile may name its own colour.** The positional rotation sets `--tile-rot`, not `--tile-accent`,
 so a class on the tile (Electronics keeps its six `.t-*` section colours) always wins over the
