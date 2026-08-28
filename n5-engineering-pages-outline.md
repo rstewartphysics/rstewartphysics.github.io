@@ -1,5 +1,12 @@
 # N5 Engineering Science — build-spec outline for the 6 remaining topic pages
 
+**Status (28 Aug 2026): ✅ all 8 topics built and live.** This outline is fully executed — kept
+as the record of *why* each page is shaped the way it is (build-spec §2–§7), not as an open task
+list. For the current state of N5 Engineering (decks, publishing, what's still owed) see
+`ROADMAP.md` §0/§1a in `~/claude-work/`, not this file. The one still-open item this outline
+names is the topics 3–8 `.exam-ref` retrofit, tracked in
+`_notes/engineering-pages-visual-update-plan.md`, not here.
+
 Build-spec for the six "Coming soon" N5 Engineering topic pages (topics 3–8). Topics 1–2
 (`engineering-contexts-and-systems.html`, `energy-and-efficiency.html`) are live and are the
 **canonical templates** — copy their structure, chrome and progress wiring exactly.

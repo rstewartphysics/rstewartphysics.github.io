@@ -12,7 +12,17 @@ describe the *electronics* build that is now largely done — Phases 0–4 in gi
 pattern to a **site-wide standard**. **Phase 0 below exists to get the foundation right** before any
 rollout, so we never fork the engine five ways.
 
-Status: **plan only — no code written yet.**
+**Status (updated 28 Aug 2026): rollout essentially complete — this plan has done its job.**
+The engine, all five configs, S3 Physics, and the QA guardrails below are built and live — see
+CLAUDE.md's "Progress & badge system (site standard)" section for the current, accurate summary,
+and `progress-system-guide.md` for the real API (this document's §2.1 "target" API is now history,
+not a target). **What's still genuinely open:** Higher Engineering Science (`eng-higher.js`,
+waiting on those pages existing at all) and National 5 Physics (no config planned — that level has
+no topic pages either; see `ROADMAP.md` §0 in `~/claude-work/`). Kept at root, not archived,
+because §1 (decisions), §5 (guardrails) and §2 (architecture) are still the reference for any new
+subject joining the engine — read those sections, skip the rest.
+
+~~Status: plan only — no code written yet.~~ (superseded by the line above)
 
 ---
 
