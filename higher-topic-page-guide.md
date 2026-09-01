@@ -165,6 +165,14 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
   (`.node`) at every real node. **Voltmeter leads must land on the meter's circle terminals.**
 - **Graphs:** separate the curves so they don't overlap; put line names in a small **legend** (colour
   swatch + label) in clear space, not as text sitting on the trend-lines. Add axis labels and arrowheads.
+- **Every axis is labelled `quantity (unit)`, and the origin is marked `0`** — `time (s)`,
+  `velocity (m s⁻¹)`, `charge (C)`. The unit is always present and always bracketed; SI, in the
+  negative-index form (`m s⁻¹`, never `m/s`), unless the page is working in a stated teaching unit
+  (`time (ms)`), which the bracket then says. A **dimensionless axis is labelled `(no unit)`** —
+  refractive index, a ratio, a count — because a bare label reads as an omission. The `0` is drawn
+  once where the axes meet, even when no other value is ticked; on an axis with negative values it
+  sits on the zero line, not at the foot of the plot. Same rule on slides and in matplotlib exports —
+  `_deckkit/DECK-RULES.md` rule 33, one convention across all three renderers.
 - **Theme via CSS classes** so dark mode works: `.wire`/`.res`/`.node`/`.meter`/`text` use `var(--text)`
   / `var(--card)`; never hard-code black/white. Each SVG has `role="img"` + `<title>` (and a `<figcaption>`).
 
