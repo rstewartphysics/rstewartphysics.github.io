@@ -153,6 +153,7 @@ layout: none
 
 /* ---- realistic resistor diagram ---- */
 .resistor-real { width:100%; max-width:300px; height:auto; display:block; margin:.5rem auto; }
+.gfm-svg { width:100%; max-width:420px; height:auto; display:block; margin:.5rem auto; color:var(--text); }
 
 /* ---- colour-band pickers + previews ---- */
 .band-pick { display:grid; gap:.5rem; max-width:360px; margin:.4rem 0; }
@@ -388,6 +389,41 @@ layout: none
 
     <p><strong>Tip — bands:</strong> Black0 Brown1 Red2 Orange3 Yellow4 Green5 Blue6 Violet7 Grey8 White9.</p>
 
+    <h3>Maximum and minimum — using the tolerance</h3>
+    <p>Tolerance tells you how far the <strong>real</strong> resistance is allowed to be from the quoted value. A ±5% resistor is guaranteed to be within 5% of what its bands say — no more, no less. Exam questions ask for the <strong>maximum</strong> and <strong>minimum</strong> in almost the same breath as the value, so always work them out the same way: <strong>find the percentage of the quoted value, then add it and subtract it.</strong></p>
+
+    <div class="example">
+      <span class="ex-type">Example 1 — fully worked</span>
+      <div class="ex-q">Brown, Black, Red, Gold. State the resistance, the tolerance, and the maximum and minimum values. <span class="marks">4 marks</span></div>
+      <div class="calc">
+        <div class="calc-row"><span class="lhs">Digits</span><span class="eq">→</span><span class="rhs">Brown 1, Black 0 → 10</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">Quoted</span><span class="eq">=</span><span class="rhs">10 × 100 (Red) = 1000 Ω</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">Tolerance</span><span class="eq">=</span><span class="rhs">±5% (Gold)</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">5% of 1000</span><span class="eq">=</span><span class="rhs">50 Ω</span><span class="note-cell">find the tolerance in ohms first</span></div>
+        <div class="calc-row"><span class="lhs">Maximum</span><span class="eq">=</span><span class="rhs">1000 + 50 = 1050 Ω</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">Minimum</span><span class="eq">=</span><span class="rhs">1000 − 50 = 950 Ω</span><span class="note-cell"></span></div>
+      </div>
+    </div>
+
+    <div class="example">
+      <span class="ex-type">Example 2 — a different tolerance, and a kΩ value</span>
+      <div class="ex-q">Brown, Black, Orange, Silver. State the resistance, the tolerance, and the maximum and minimum values. <span class="marks">4 marks</span></div>
+      <div class="calc">
+        <div class="calc-row"><span class="lhs">Digits</span><span class="eq">→</span><span class="rhs">Brown 1, Black 0 → 10</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">Quoted</span><span class="eq">=</span><span class="rhs">10 × 1000 (Orange) = 10 000 Ω = 10 kΩ</span><span class="note-cell">orange = 3 zeros</span></div>
+        <div class="calc-row"><span class="lhs">Tolerance</span><span class="eq">=</span><span class="rhs">±10% (Silver)</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">10% of 10 000</span><span class="eq">=</span><span class="rhs">1000 Ω</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">Maximum</span><span class="eq">=</span><span class="rhs">10 000 + 1000 = 11 000 Ω = 11 kΩ</span><span class="note-cell"></span></div>
+        <div class="calc-row"><span class="lhs">Minimum</span><span class="eq">=</span><span class="rhs">10 000 − 1000 = 9000 Ω = 9 kΩ</span><span class="note-cell"></span></div>
+      </div>
+    </div>
+
+    <div class="misconception">
+      <h4>⚠ Common mistake — tolerance</h4>
+      <p>The percentage is <strong>of the quoted value</strong>, not a number of ohms you can guess. <span class="right">5% of 1000 Ω = 50 Ω</span>, so the range is <span class="right">950 Ω to 1050 Ω</span>.</p>
+      <p><span class="wrong">Don't</span> write "±5 Ω", and <span class="wrong">don't</span> forget that a bigger resistor gets a bigger spread — ±10% of 10 kΩ is a whole <strong>1000 Ω</strong> either way.</p>
+    </div>
+
     <span class="step-label try">Try</span>
 
     <div class="widget">
@@ -407,7 +443,9 @@ layout: none
           </select>
         </label>
       </div>
-      <p style="margin:.6rem 0 0;"><strong>Value:</strong> <span id="resVal" style="font-size:1.3rem; font-weight:900; color:var(--accent-2);">—</span></p>
+      <p style="margin:.6rem 0 0;"><strong>Quoted:</strong> <span id="resValQ" style="font-size:1.3rem; font-weight:900; color:var(--accent-2);">—</span></p>
+      <p style="margin:.2rem 0 0;"><strong>Maximum:</strong> <span id="resValMax" style="font-weight:900; color:var(--good);">—</span></p>
+      <p style="margin:.2rem 0 0;"><strong>Minimum:</strong> <span id="resValMin" style="font-weight:900; color:var(--good);">—</span></p>
     </div>
 
     <div class="widget" data-prog-challenge="ch-colour-reverse">
@@ -663,6 +701,293 @@ layout: none
         <p><strong>Filament lamp</strong> — curve gets steeper. As it heats up its resistance <em>rises</em> (non-ohmic).</p>
       </div>
     </div>
+
+
+    <div class="practice">
+      <span class="practice-tag">Drawing the graph — where the 3 marks are</span>
+      <p>Q9-style questions give you a table and 3 marks for the graph itself. The marks are not for the physics — they are for the <strong>drawing</strong>. You get one mark each for:</p>
+      <ol>
+        <li><strong>Axes labelled with the quantity <em>and</em> its unit, with a sensible scale.</strong> <em>voltage (V)</em> and <em>current (A)</em> — not just "V" and "I". A sensible scale uses at least half the graph paper and goes up in easy steps (1, 2, 5, 10 — never 3s or 7s).</li>
+        <li><strong>Points plotted accurately.</strong> Every point from the table, marked clearly with a dot or a small cross.</li>
+        <li><strong>A best-fit line or curve.</strong> One smooth line that follows the trend — <em>not</em> a dot-to-dot zig-zag, and <em>not</em> forced through the origin if the points don't go there.</li>
+      </ol>
+      <svg class="gfm-svg" viewBox="0 0 331.2 259.2" role="img" aria-label="V-I graph for a filament lamp: voltage up, current across, a curve through five points getting steeper as it heats, with callouts for axes labelled with units and a sensible scale, and points plotted with a smooth best-fit curve" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 259.2 
+L 331.2 259.2 
+L 331.2 0 
+L 0 0 
+L 0 259.2 
+z
+" style="fill: none; opacity: 0"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 34.2125 220.555 
+L 320.197895 220.555 
+L 320.197895 6 
+L 34.2125 6 
+L 34.2125 220.555 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 34.2125 220.555 
+L 34.2125 6 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m010684be94" d="M 0 0 
+L 0 3.5 
+" style="stroke: currentColor; stroke-width: 1.2"/>
+      </defs>
+      <g>
+       <use xlink:href="#m010684be94" x="34.2125" y="220.555" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="34.2125" y="234.928438" transform="rotate(-0 34.2125 234.928438)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 109.471814 220.555 
+L 109.471814 6 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m010684be94" x="109.471814" y="220.555" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="109.471814" y="234.928438" transform="rotate(-0 109.471814 234.928438)">0.1</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 184.731129 220.555 
+L 184.731129 6 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m010684be94" x="184.731129" y="220.555" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="184.731129" y="234.928438" transform="rotate(-0 184.731129 234.928438)">0.2</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 259.990443 220.555 
+L 259.990443 6 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m010684be94" x="259.990443" y="220.555" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="259.990443" y="234.928438" transform="rotate(-0 259.990443 234.928438)">0.3</text>
+     </g>
+    </g>
+    <g id="text_5">
+     <text style="fill: currentColor; font: 700 12px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="177.205197" y="249.74" transform="rotate(-0 177.205197 249.74)">current (A)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_9">
+      <path d="M 34.2125 220.555 
+L 320.197895 220.555 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <defs>
+       <path id="m52dcb42790" d="M 0 0 
+L -3.5 0 
+" style="stroke: currentColor; stroke-width: 1.2"/>
+      </defs>
+      <g>
+       <use xlink:href="#m52dcb42790" x="34.2125" y="220.555" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="27.2125" y="224.241719" transform="rotate(-0 27.2125 224.241719)">0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_11">
+      <path d="M 34.2125 173.912609 
+L 320.197895 173.912609 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m52dcb42790" x="34.2125" y="173.912609" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="27.2125" y="177.599327" transform="rotate(-0 27.2125 177.599327)">1</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_13">
+      <path d="M 34.2125 127.270217 
+L 320.197895 127.270217 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m52dcb42790" x="34.2125" y="127.270217" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="27.2125" y="130.956936" transform="rotate(-0 27.2125 130.956936)">2</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_15">
+      <path d="M 34.2125 80.627826 
+L 320.197895 80.627826 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#m52dcb42790" x="34.2125" y="80.627826" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="27.2125" y="84.314545" transform="rotate(-0 27.2125 84.314545)">3</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_17">
+      <path d="M 34.2125 33.985435 
+L 320.197895 33.985435 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: currentColor; stroke-opacity: 0.25; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#m52dcb42790" x="34.2125" y="33.985435" style="fill: currentColor; stroke: currentColor; stroke-width: 1.2"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="fill: currentColor; font: 10px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="27.2125" y="37.672154" transform="rotate(-0 27.2125 37.672154)">4</text>
+     </g>
+    </g>
+    <g id="text_11">
+     <text style="fill: currentColor; font: 700 12px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="15.3025" y="113.2775" transform="rotate(-90 15.3025 113.2775)">voltage (V)</text>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 34.2125 220.555 
+L 34.2125 6 
+" style="fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 34.2125 220.555 
+L 320.197895 220.555 
+" style="fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 34.2125 220.555 
+L 41.019875 219.733763 
+L 47.82725 218.692398 
+L 54.634626 217.430904 
+L 61.442001 215.949282 
+L 68.249376 214.247531 
+L 75.056751 212.325651 
+L 81.864126 210.183642 
+L 88.671501 207.821505 
+L 95.478877 205.23924 
+L 102.286252 202.436845 
+L 109.093627 199.414323 
+L 115.901002 196.171671 
+L 122.708377 192.708891 
+L 129.515752 189.025982 
+L 136.323128 185.122945 
+L 143.130503 180.999779 
+L 149.937878 176.656484 
+L 158.106728 171.15396 
+L 166.275578 165.334452 
+L 174.444429 159.197958 
+L 182.613279 152.744479 
+L 190.782129 145.974015 
+L 198.950979 138.886565 
+L 207.119829 131.48213 
+L 215.28868 123.76071 
+L 223.45753 115.722305 
+L 231.62638 107.366915 
+L 239.79523 98.694539 
+L 247.96408 89.705178 
+L 256.132931 80.398832 
+L 264.301781 70.775501 
+L 272.470631 60.835184 
+L 280.639481 50.577882 
+L 288.808331 40.003595 
+L 296.977182 29.112323 
+L 305.146032 17.904066 
+L 305.146032 17.904066 
+" clip-path="url(#p98350a99c6)" style="fill: none; stroke: var(--phys-accent); stroke-width: 2.6; stroke-linecap: round"/>
+   </g>
+   <g id="text_12">
+    <text style="fill: var(--good); font: 700 9.5px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="37.975466" y="24.757395" transform="rotate(-0 37.975466 24.757395)">axes labelled + units, sensible scale</text>
+   </g>
+   <g id="text_13">
+    <text style="fill: var(--good); font: 700 9.5px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(188.494095 176.345166)">✓ points plotted accurately</text>
+    <text style="fill: var(--good); font: 700 9.5px 'Trebuchet MS', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(188.494095 186.810307)">✓ smooth best-fit curve</text>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="md7d1e9b26a" d="M 0 3.391165 
+C 0.899347 3.391165 1.761981 3.03385 2.397916 2.397916 
+C 3.03385 1.761981 3.391165 0.899347 3.391165 0 
+C 3.391165 -0.899347 3.03385 -1.761981 2.397916 -2.397916 
+C 1.761981 -3.03385 0.899347 -3.391165 0 -3.391165 
+C -0.899347 -3.391165 -1.761981 -3.03385 -2.397916 -2.397916 
+C -3.03385 -1.761981 -3.391165 -0.899347 -3.391165 0 
+C -3.391165 0.899347 -3.03385 1.761981 -2.397916 2.397916 
+C -1.761981 3.03385 -0.899347 3.391165 0 3.391165 
+z
+" style="stroke: var(--phys-accent); stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#p98350a99c6)">
+     <use xlink:href="#md7d1e9b26a" x="34.2125" y="220.555" style="fill: #ffffff; stroke: var(--phys-accent); stroke-width: 2"/>
+     <use xlink:href="#md7d1e9b26a" x="147.101472" y="173.912609" style="fill: #ffffff; stroke: var(--phys-accent); stroke-width: 2"/>
+     <use xlink:href="#md7d1e9b26a" x="214.834855" y="127.270217" style="fill: #ffffff; stroke: var(--phys-accent); stroke-width: 2"/>
+     <use xlink:href="#md7d1e9b26a" x="259.990443" y="80.627826" style="fill: #ffffff; stroke: var(--phys-accent); stroke-width: 2"/>
+     <use xlink:href="#md7d1e9b26a" x="290.094169" y="33.985435" style="fill: #ffffff; stroke: var(--phys-accent); stroke-width: 2"/>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p98350a99c6">
+   <rect x="34.2125" y="6" width="285.985395" height="214.555"/>
+  </clipPath>
+ </defs>
+</svg>
+      <p style="text-align:center; color:var(--muted); font-weight:800; font-size:.85rem;">A filament lamp's V–I graph — a curve, getting steeper as it heats.</p>
+    </div>
+
+    <div class="misconception">
+      <h4>⚠ Watch out — mA on the axis</h4>
+      <p>Tables of lamp data are almost always in <strong>milliamps</strong>. If the question later asks for a resistance, you must convert: <span class="right">250 mA = 0.250 A</span>.</p>
+      <p>You <strong>may</strong> label the axis in mA and plot the mA values — that is fine and still earns the mark, as long as the unit on the axis says <strong>mA</strong>. What loses marks is labelling the axis "current (A)" and then plotting 250 on it.</p>
+    </div>
+
+    <p><strong>Either way up is fine.</strong> Our practicals plot <strong>V up, I across</strong>, because then the <strong>gradient is the resistance</strong>. A table that lists voltage first invites you to plot it the other way round. <strong>Both are accepted</strong> as long as each axis is labelled with its quantity and unit — so plot it whichever way you were taught, and label it properly.</p>
 
     <h3>Temperature &amp; resistance</h3>
     <ul>
@@ -926,7 +1251,11 @@ function updateResistor() {
   const tol = document.getElementById("bandTol").value;
 
   const value = (b1 * 10 + b2) * multiplierValues[mult];
-  document.getElementById("resVal").textContent = `${fmtOhm(value)}  ${tol}`;
+  const pct = parseFloat(tol); // "±5%" -> 5
+  const delta = value * pct / 100;
+  document.getElementById("resValQ").textContent = `${fmtOhm(value)}  ${tol}`;
+  document.getElementById("resValMax").textContent = fmtOhm(value + delta);
+  document.getElementById("resValMin").textContent = fmtOhm(value - delta);
 
   const prev = document.getElementById("fwdBands");
   if (prev) {
