@@ -39,6 +39,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   `classes/electronics/slides/`: the decks are written by the site owner, but the past-paper
   questions, extracted figures, quoted marking-instruction wording and marking-instruction links
   they carry are © Qualifications Scotland, reproduced for educational use.
+
+  **Reproduced figures, named individually** (first added 1 September 2026). The Higher Physics
+  *Semiconductors & p-n Junctions* deck reproduces four past-paper figures, each credited on the
+  slide it appears on:
+  - Higher Physics 2024, Paper 1 (multiple choice) Q23 — band structures of three solids.
+  - Higher Physics 2024, Paper 1 (multiple choice) Q25 — four LEDs on an a.c. supply.
+  - Higher Physics 2023, Paper 2 Q5(b)(iii) — energy band diagram for a red LED.
+  - Higher Physics 2012 Q30(b) — a p-n junction used as a photodiode.
+
+  All four are © Qualifications Scotland (SQA), reproduced for educational use.
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
