@@ -58,6 +58,18 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Higher Physics 2012 Q30(b) — a p-n junction used as a photodiode.
 
   All four are © Qualifications Scotland (SQA), reproduced for educational use.
+
+  The *Monitoring & Measuring AC* deck reproduces two more (added 2 September 2026):
+  - Higher Physics 2015, Paper 1 (multiple choice) Q17 — an oscilloscope with its Y-gain and
+    timebase dials.
+  - Higher Physics 2014 Q27 — an oscilloscope connected across one of two resistors.
+
+  The *Current, p.d., Power & Resistance* deck reproduces three more (added 2 September 2026):
+  - Higher Physics 2022 Q19 — a mixed series/parallel resistor network.
+  - Higher Physics 2016, Paper 1 (multiple choice) Q18 — a 3.0 kΩ / 7.0 kΩ potential divider.
+  - Higher Physics 2011 Q9 — a Wheatstone bridge.
+
+  All five are © Qualifications Scotland (SQA), reproduced for educational use.
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
