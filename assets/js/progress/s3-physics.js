@@ -27,7 +27,10 @@
       cond: "Finish every challenge in Electricity 1 · Part C" },
     { id: "elec1-test", name: "Circuit Tested", emoji: "🎯", section: "Electricity", unlock: "page",
       href: "/classes/s3-physics/electricity1/practice.html",
-      cond: "Finish the Electricity 1 practice quiz" }
+      cond: "Finish the Electricity 1 practice quiz" },
+    { id: "elec1-test-a", name: "Practice Test A", emoji: "📝", section: "Electricity",
+      href: "/classes/s3-physics/electricity1/practice-test-a.html",
+      cond: "Score 80% or more on Electricity 1 Practice Test A" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });

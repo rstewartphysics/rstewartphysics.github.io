@@ -40,6 +40,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   questions, extracted figures, quoted marking-instruction wording and marking-instruction links
   they carry are © Qualifications Scotland, reproduced for educational use.
 
+  It also covers the **practice tests** at `classes/s3-physics/electricity1/practice-test-*.html`.
+  Each question is either an adaptation of a National 5 Physics past-paper question — the physics
+  and the circuit kept, the numbers and the context changed — or original to this site. The parent
+  question for every adapted item is recorded in
+  `~/claude-work/practice-tests/n5-physics/<topic>/provenance.csv`. Past papers and marking
+  instructions © Qualifications Scotland (SQA), reproduced and adapted for educational use.
+  The circuit diagrams and graphs on those pages are drawn for this site (© R Stewart, 2026),
+  not reproduced from the papers.
+
   **Reproduced figures, named individually** (first added 1 September 2026). The Higher Physics
   *Semiconductors & p-n Junctions* deck reproduces four past-paper figures, each credited on the
   slide it appears on:
