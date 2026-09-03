@@ -30,7 +30,14 @@
       cond: "Finish the Electricity 1 practice quiz" },
     { id: "elec1-test-a", name: "Practice Test A", emoji: "📝", section: "Electricity",
       href: "/classes/s3-physics/electricity1/practice-test-a.html",
-      cond: "Score 80% or more on Electricity 1 Practice Test A" }
+      cond: "Score 80% or more on Electricity 1 Practice Test A" },
+    { id: "elec1-test-b", name: "Practice Test B", emoji: "📋", section: "Electricity",
+      href: "/classes/s3-physics/electricity1/practice-test-b.html",
+      cond: "Score 80% or more on Electricity 1 Practice Test B" },
+    { id: "elec1-graphs", name: "Graph Plotter", emoji: "📈", section: "Electricity",
+      unlock: "page",
+      href: "/classes/s3-physics/electricity1/graphing-practice.html",
+      cond: "Work through the Electricity 1 graphing practice" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });
