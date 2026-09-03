@@ -51,6 +51,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   site (© R Stewart, 2026), not reproduced from the papers. The graphing practice's method
   and data are original, written to match the V–I experiment examined at National 5.
 
+  Added 3 September 2026: the same applies to the **Higher Physics practice tests** at
+  `classes/higher/practice-tests/pw6-forces-on-charged-particles-*.html`, whose parents are
+  Higher Physics past papers (2016, 2017, 2018, 2022, 2023, 2024, 2025 and the specimen paper),
+  varied in the same way, with two original questions. Parents are recorded in
+  `~/claude-work/practice-tests/higher-physics/forces-on-charged-particles/provenance*.csv`.
+  The electric- and magnetic-field diagrams, the parallel plates and the linear-accelerator and
+  cyclotron drawings on those pages are drawn for this site (© R Stewart, 2026).
+
   **Reproduced figures, named individually** (first added 1 September 2026). The Higher Physics
   *Semiconductors & p-n Junctions* deck reproduces four past-paper figures, each credited on the
   slide it appears on:
