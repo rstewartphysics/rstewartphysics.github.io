@@ -9,8 +9,11 @@
    challenge on their page is complete (Higher pages have many small
    pass/fail challenges, not one scored flagship). Fresh start: no
    migrateFrom (the old per-page hp-*-beta- keys are left as-is).
-   Electricity unit only for now; Dynamic Universe and Particles &
-   Waves badges drop in here as those pages are built.
+   Electricity topic pages, plus the first Particles & Waves practice-test
+   pair. Practice tests are scored, not page-completed, so they carry no
+   unlock:"page" — the page calls Progress.record() and the badge unlocks at
+   80%. The rest of the Dynamic Universe and Particles & Waves badges drop in
+   here as those pages are built.
    ============================================================ */
 (function () {
   "use strict";
@@ -34,7 +37,13 @@
       cond: "Finish every challenge on Monitoring & measuring a.c." },
     { id: "hp-semi", name: "Junction Master", emoji: "💎", section: "Electricity", unlock: "page",
       href: "/classes/higher/electricity/semiconductors-pn-junctions.html",
-      cond: "Finish every challenge on Conductors, semiconductors & p–n junctions" }
+      cond: "Finish every challenge on Conductors, semiconductors & p–n junctions" },
+    { id: "hp-focp-test-a", name: "Field Worker", emoji: "📝", section: "Particles & Waves",
+      href: "/classes/higher/practice-tests/pw6-forces-on-charged-particles-a.html",
+      cond: "Score 80% or more on Forces on Charged Particles Practice Test A" },
+    { id: "hp-focp-test-b", name: "Beam Steerer", emoji: "🧲", section: "Particles & Waves",
+      href: "/classes/higher/practice-tests/pw6-forces-on-charged-particles-b.html",
+      cond: "Score 80% or more on Forces on Charged Particles Practice Test B" }
   ];
 
   var ELEC_IDS = TOPIC.filter(function (t) { return t.section === "Electricity"; })
