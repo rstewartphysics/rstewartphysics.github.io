@@ -64,7 +64,8 @@ keeping the original topic URL as the hub (established by the Electricity 1 spli
 classes/s3-physics.html                              — the level hub
 classes/s3-physics/<topic>.html                      — topic hub (short: intro, booklet, links, part tiles)
 classes/s3-physics/<topic>/<lesson>.html             — the lesson pages (kebab-case of the part label)
-classes/s3-physics/<topic>/practice.html             — quiz + past papers for the topic
+classes/s3-physics/<topic>/practice-test-a.html      — self-marking practice tests (generated)
+classes/s3-physics/<topic>/graphing-practice.html    — by-hand graphing practice (generated)
 ```
 
 Conventions: the topic-hub URL is preserved (so existing links don't break); lesson files are
@@ -594,8 +595,9 @@ per-page **points / streak / section-challenge meter** + a **corner counter**, *
 **Engineering Science N5** (all 8 topic pages + hub — topics 3–8 added July 2026 on the
 `n5-engineering-pages` branch, badges `eng-electronics`/`eng-control`/`eng-mechanisms`/`eng-pneumatics`/`eng-structures`/`eng-assignment`
 joining the existing `eng-contexts`/`eng-energy` in `progress/eng-n5.js`), **S3** live topic pages + their hubs, and **S3 Physics** (Electricity 1 hub
-+ its three lesson pages + practice under `classes/s3-physics/electricity1/`, four per-page badges
-`elec1a`/`elec1b`/`elec1c`/`elec1-test` aggregated on the S3 hub tile). Each writes a single
++ its three lesson pages, two practice tests and a graphing practice under
+`classes/s3-physics/electricity1/`, badges `elec1a`/`elec1b`/`elec1c`/`elec1-test-a`/`elec1-test-b`/`elec1-graphs`
+aggregated on the S3 hub tile). Each writes a single
 `progress-<ns>-v1` key. The legacy `electronics-progress.js` engine and its `window.ElProgress` API
 have been deleted — `progress.js` + `progress/electronics.js` are the only electronics path.
 **Remaining:** Higher Engineering Science (Coming Soon — its
@@ -603,6 +605,24 @@ have been deleted — `progress.js` + `progress/electronics.js` are the only ele
 they have content (behind-content guardrail). **New interactive pages ship with tracking by default** —
 run **`/add-progress`** and follow `progress-system-guide.md` (API) + the rollout plan's §5 guardrails;
 the `new-page` skill and the topic-page guides bake this in.
+
+---
+
+## Retired — remove on sight
+
+Things that have been withdrawn. **Whenever you touch a page for any reason, strip these if they are
+on it** — do not wait to be asked, and do not add them to a new page.
+
+- **"Mr Stewart's Materials" tiles and links** (retired 3 September 2026). The four hub tiles that
+  pointed at `classes/materials-unavailable.html` are gone from S3/N5, Physics, Higher and Advanced
+  Higher. The placeholder page itself is still there because three unrelated tiles use it; that is
+  the only reason to link it.
+- **The Electricity 1 practice quiz, its AI-tutor panel and the printable practice test.** Superseded
+  by the self-marking practice tests and the graphing practice.
+- **Explanatory "bumf".** A paragraph telling pupils how to use a page they can already see — "this
+  topic is split into three lesson pages plus a practice page, work through them in order" — is not
+  read and is not kept. Let the tiles and headings carry the structure. A note earns its place only
+  when it says something the layout cannot: a deadline, a warning, or what changed.
 
 ---
 
