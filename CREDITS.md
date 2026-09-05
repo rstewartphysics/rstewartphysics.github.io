@@ -88,6 +88,20 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Higher Physics 2011 Q9 — a Wheatstone bridge.
 
   All five are © Qualifications Scotland (SQA), reproduced for educational use.
+
+  The *Motion — Equations, Graphs & Projectiles* deck (added 5 September 2026) reproduces no
+  past-paper figures — its apparatus figure and all its graphs are drawn for this site
+  (© R Stewart, 2026) — but it works seven past-paper questions and opens six of its parts
+  with a past-paper starter, each credited on the slide it appears on:
+  - Higher Physics 2024, Paper 2 Q2(b); 2015, Section 1 Q2; 2013 Revised Higher, Section A Q1;
+    2025, Paper 1 Q1 — one worked question for each equation of motion.
+  - Higher Physics 2022, Paper 1 Q2 — the light-gate slope experiment.
+  - Higher Physics 2022, Paper 2 Q1(a) and Q1(a)(i) — the crossbar projectile.
+  - Starters: Higher Physics 2008, 2011, 2012, 2013 and 2015 Section A, and 2014 Revised
+    Higher Section A.
+  The deck also quotes the 2024 Higher Physics course report and the Higher Physics course
+  specification v3.0 (pp. 6 and 9). All are © Qualifications Scotland (SQA), reproduced for
+  educational use.
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
