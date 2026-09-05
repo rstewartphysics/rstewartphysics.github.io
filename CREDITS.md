@@ -60,9 +60,9 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   cyclotron drawings on those pages are drawn for this site (© R Stewart, 2026).
 
   Added 5 September 2026: and to the **Advanced Higher Physics practice tests** at
-  `classes/adv/practice-tests/shm-simple-harmonic-motion-*.html`, whose parents are Advanced
-  Higher Physics past papers (2016, 2020, 2023, 2024 and 2025), varied in the same way, with
-  two original questions. Parents are recorded in
+  `classes/adv/practice-tests/shm-simple-harmonic-motion-*.html` — the A+B pair — whose parents
+  are Advanced Higher Physics past papers (2016, 2017, 2020, 2022, 2023, 2024 and 2025), varied
+  in the same way, with three original questions across the pair. Parents are recorded in
   `~/claude-work/practice-tests/advanced-higher-physics/simple-harmonic-motion/provenance*.csv`.
   The mass–spring apparatus, the footbridge and the damping and displacement–time graphs on
   those pages are drawn for this site (© R Stewart, 2026).
