@@ -59,6 +59,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   The electric- and magnetic-field diagrams, the parallel plates and the linear-accelerator and
   cyclotron drawings on those pages are drawn for this site (© R Stewart, 2026).
 
+  Added 5 September 2026: and to the **Advanced Higher Physics practice tests** at
+  `classes/adv/practice-tests/shm-simple-harmonic-motion-*.html`, whose parents are Advanced
+  Higher Physics past papers (2016, 2020, 2023, 2024 and 2025), varied in the same way, with
+  two original questions. Parents are recorded in
+  `~/claude-work/practice-tests/advanced-higher-physics/simple-harmonic-motion/provenance*.csv`.
+  The mass–spring apparatus, the footbridge and the damping and displacement–time graphs on
+  those pages are drawn for this site (© R Stewart, 2026).
+
   **Reproduced figures, named individually** (first added 1 September 2026). The Higher Physics
   *Semiconductors & p-n Junctions* deck reproduces four past-paper figures, each credited on the
   slide it appears on:
