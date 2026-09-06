@@ -112,6 +112,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   and Mr Bell – Practical Electronics. Videos remain © their respective creators and are embedded
   via YouTube; each clip is credited where it appears.
 
+- **National 5 Electronics practical activity guide**
+  (`classes/electronics/practical-activity-guide.html`) — brief, stage guidance and hints written
+  by R Stewart, 2026. Task structure and marking-descriptor wording adapted from the National 5
+  Electronics practical activity (C884 75), © Qualifications Scotland (SQA), reproduced for
+  educational use. The National 5 Electronics topic mark (a DIL integrated circuit, line drawing) is drawn for
+  this site by R Stewart, 2026.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
