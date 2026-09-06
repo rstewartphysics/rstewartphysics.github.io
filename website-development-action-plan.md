@@ -126,9 +126,15 @@ Order is by visibility to pupils.
 ## Phase 3 — Bring the "down for checks" materials back online
 
 The whole offline story is: **8+ tiles** across index/physics/higher/adv-higher/s3-n5/s3-physics/
-electricity1 point at `materials-unavailable.html`, plus **all six** electronics demo-video links in
-`classes/electronics/videos.html`. The blocker is the copyright/provenance audit
+electricity1 point at `materials-unavailable.html`, plus the electronics demo-video links, now in
+`classes/electronics/practical-activity-guide.html`. The blocker is the copyright/provenance audit
 (`copyright-provenance-checklist.csv`) — several booklets are marked "Not mine — REMOVE".
+
+**Electronics videos, 6 Sep 2026:** `classes/electronics/videos.html` has been deleted. Its six
+clips were for the burglar alarm task, which is retired over credits/provenance. The replacement
+pillar drill task has seven placeholders on the new practical activity guide, which says on the
+page that they are not filmed yet — so these are no longer a provenance blocker, just work
+outstanding.
 
 - [ ] **3.1 Finish the provenance decisions** (the human step): for each CSV row decide
       mine / remove / seek permission. A model can prep the decision sheet — group rows, check
