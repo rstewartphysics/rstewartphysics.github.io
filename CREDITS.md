@@ -104,6 +104,12 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   The deck also quotes the 2024 Higher Physics course report and the Higher Physics course
   specification v3.0 (pp. 6 and 9). All are © Qualifications Scotland (SQA), reproduced for
   educational use.
+
+  Added 9 September 2026: the **National 5 Practical Electronics Data Sheet** (X860/75/12,
+  12 May 2025) is reproduced in full at `assets/electronics/datasheets/` and linked from the
+  Stripboard Builder tool, for pupils to look up IC pinouts (555 timer, 741 op-amp, the 74xx
+  logic-gate family) and the resistor colour-code table. © Qualifications Scotland (SQA),
+  reproduced for educational use.
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt

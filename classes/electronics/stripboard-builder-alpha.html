@@ -64,6 +64,7 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .seg button+button{border-left:1px solid var(--border)}
     #sbd .seg button[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff}
     #sbd .seg button[disabled]{opacity:.42;cursor:not-allowed}
+    #sbd .modedesc{flex-basis:100%;margin:0;font:600 .8rem/1.4 var(--font-stack);color:var(--muted)}
     #sbd .qchips{display:flex;flex-wrap:wrap;gap:6px}
     #sbd .qchip{border:1px solid var(--border);background:var(--card);color:var(--muted);
       border-radius:999px;padding:8px 13px;font:600 .82rem/1 var(--font-stack);cursor:pointer;min-height:34px}
@@ -95,6 +96,8 @@ title: Stripboard Builder · National 5 Electronics
       font:800 .72rem/1 var(--font-stack);color:var(--muted);
       text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
     #sbd .circkey{margin:2px 0 0;font:500 .66rem/1.25 var(--font-stack);color:var(--muted)}
+    #sbd .dslink{display:inline-block;margin-top:5px;font:700 .7rem/1 var(--font-stack);color:var(--accent)}
+    #sbd .dslink[hidden]{display:none}
     #sbd .zoombtn{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:3px 9px;font:700 .72rem/1 var(--font-stack);cursor:pointer}
     #sbd .stage{position:relative;overflow:auto hidden;overscroll-behavior-x:contain;
@@ -296,18 +299,18 @@ title: Stripboard Builder · National 5 Electronics
       </section>
     </div>
 
-    <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="convert">
-      <p class="lede" id="lede">Turn the circuit diagram into a stripboard layout. Pick a component, then tap a hole to place
-        it — or use the tools to cut a track, run a link wire or mark a test point. You can also drive the board
-        with the arrow keys and <kbd>Enter</kbd>.</p>
+    <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="trace">
+      <p class="lede" id="lede">Look at the board, then answer the question beside it: are the two named holes
+        electrically connected? Answer, and the board shows you the copper that makes it true or false.</p>
 
       <div class="bar">
         <div class="seg" role="group" aria-label="Mode">
-          <button type="button" id="mConvert" aria-pressed="true">Convert</button>
-          <button type="button" id="mTrace" aria-pressed="false">Trace</button>
+          <button type="button" id="mTrace" aria-pressed="true">Trace</button>
+          <button type="button" id="mConvert" aria-pressed="false">Convert</button>
           <button type="button" disabled title="Built later in phase 4">Fault-finder</button>
           <button type="button" disabled title="Built later in phase 4">Reverse</button>
         </div>
+        <p class="modedesc" id="modeDesc"></p>
         <div class="qchips" id="qchips" role="group" aria-label="Choose a question"></div>
       </div>
 
@@ -333,7 +336,7 @@ title: Stripboard Builder · National 5 Electronics
             </div>
             <div class="stage" id="stage">
               <div class="board" id="board" tabindex="0" role="application"
-                   aria-label="Stripboard. Arrow keys move the cursor, Enter uses the selected tool, Escape cancels."
+                   aria-label="Stripboard. Tap or click a hole to use the selected tool."
                    aria-describedby="liveMsg">
                 <div class="canvas" id="canvas">
                   <div id="gridLayer"></div>
@@ -352,6 +355,7 @@ title: Stripboard Builder · National 5 Electronics
               </div>
               <div class="cinner" id="cinner"></div>
               <p class="circkey">Ringed = net · plain blue = IC pin</p>
+              <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
             </div>
 
             <div class="tracewrap trace-only" id="traceWrap">
@@ -514,6 +518,10 @@ title: Stripboard Builder · National 5 Electronics
     // a 5 mm LED: legs one pitch apart, so they sit in adjacent holes
     "led-2":   { pins: [{ pin: "a", dr: 0, dc: 0 }, { pin: "k", dr: 0, dc: 1 }],
                  body: [], symmetric: false, polarised: ["a", "k"], kind: "axial", sym: "led" },
+    // an LDR: two legs, unpolarised, one pitch apart — same spacing as the
+    // LED, not the 2-way terminal block it used to be drawn as
+    "ldr-2":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 1 }],
+                 body: [], symmetric: true, kind: "axial", sym: "ldr" },
     "to92":    { pins: [{ pin: "e", dr: 0, dc: 0 }, { pin: "b", dr: 0, dc: 1 },
                         { pin: "c", dr: 0, dc: 2 }],
                  body: [], symmetric: false, kind: "to92" },
@@ -771,6 +779,50 @@ title: Stripboard Builder · National 5 Electronics
                faults: faults.concat(top.errors.map(e => Object.assign({ rank: 0 }, e)))
                              .sort((x, y) => x.rank - y.rank),
                warnings };
+    }
+
+    /* rank 0.6 — link wire colour convention: red/black reserved for the
+       supply rails, and no colour may be reused across two DIFFERENT
+       signals. Runs unconditionally, like the diagonal check — a layout-
+       convention fault, not an electrical one, so it applies whether or
+       not the netlist matches the target. */
+    {
+      const rootOfHole = h => {
+        const node = top.nodeOf.get(hid(parseRef(h)));
+        return node === undefined ? undefined : top.dsu.find(node);
+      };
+      const posComp = (q.components || []).find(c => c.pos);
+      const negComp = (q.components || []).find(c => c.neg);
+      const posPlacement = posComp && (attempt.placements || []).find(p => p.id === posComp.id);
+      const negPlacement = negComp && (attempt.placements || []).find(p => p.id === negComp.id);
+      const posRoot = posPlacement && rootOfHole(posPlacement.at);
+      const negRoot = negPlacement && rootOfHole(negPlacement.at);
+
+      const byColour = new Map();
+      for (const l of attempt.links || []) {
+        const root = rootOfHole(l.a);
+        if (root === undefined) continue;              // already reported: link-in-cut
+        if (l.colour === "red" && root !== posRoot)
+          faults.push({ rank: 0.6, code: "red-not-supply",
+            msg: `The red link ${l.a}–${l.b} is not on the +5 V rail. Red is reserved ` +
+                 `for +5 V — pick a different colour for this link.`, refs: [l.a, l.b] });
+        if (l.colour === "black" && root !== negRoot)
+          faults.push({ rank: 0.6, code: "black-not-supply",
+            msg: `The black link ${l.a}–${l.b} is not on the 0 V rail. Black is reserved ` +
+                 `for 0 V — pick a different colour for this link.`, refs: [l.a, l.b] });
+
+        if (!byColour.has(l.colour)) byColour.set(l.colour, new Map());
+        const byRootForColour = byColour.get(l.colour);
+        if (!byRootForColour.has(root)) byRootForColour.set(root, []);
+        byRootForColour.get(root).push(l.a + "–" + l.b);
+      }
+      for (const [colour, roots] of byColour) {
+        if (roots.size < 2) continue;
+        const allLinks = Array.from(roots.values()).reduce((a, b) => a.concat(b), []);
+        faults.push({ rank: 0.6, code: "colour-reused",
+          msg: `${colour[0].toUpperCase()}${colour.slice(1)} is used for ${roots.size} different ` +
+               `signals (${allLinks.join(", ")}). Give each signal its own link colour.`, refs: [] });
+      }
     }
 
     /* rank 7 — anything still in the bank */
@@ -1137,7 +1189,8 @@ title: Stripboard Builder · National 5 Electronics
 
   const LINK_COLOURS = {
     red: "#c0392b", black: "#2b2b2b", blue: "#2668b8", green: "#1d8a4e",
-    yellow: "#d3a017", orange: "#d2691e", white: "#8a8a8a"
+    yellow: "#d3a017", orange: "#d2691e", white: "#8a8a8a",
+    purple: "#8e44ad", brown: "#7b4a2a", grey: "#607078"
   };
 
   /* One palette table drives two outputs: the <style> block the page uses (CSS
@@ -1267,6 +1320,21 @@ title: Stripboard Builder · National 5 Electronics
       s += `<path class="sbd-body" d="${d}"/>`;
       return s;
     }
+    if (fp.sym === "ldr") {
+      // LDR footprint: a circle body with a resistor-style zigzag inside it
+      // and two leads — the diagonal "light" arrows are a SCHEMATIC symbol
+      // convention (sbd-circuit.js's ldr()), not part of what a pupil solders,
+      // so the board footprint stays a plain component body, unpolarised.
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2, rr = P * 0.42, zz = rr * 0.62;
+      s += `<circle class="sbd-body" cx="${n(cx)}" cy="${n(cy)}" r="${n(rr)}"/>`;
+      const pts = horiz
+        ? [[cx - zz, cy], [cx - zz * 0.5, cy - zz * 0.5], [cx, cy + zz * 0.5],
+           [cx + zz * 0.5, cy - zz * 0.5], [cx + zz, cy]]
+        : [[cx, cy - zz], [cx - zz * 0.5, cy - zz * 0.5], [cx + zz * 0.5, cy],
+           [cx - zz * 0.5, cy + zz * 0.5], [cx, cy + zz]];
+      s += `<path class="sbd-lead" d="M ${pts.map(z => n(z[0]) + " " + n(z[1])).join(" L ")}"/>`;
+      return s;
+    }
     if (fp.sym === "ecap") {
       const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2, rr = P * 0.42;
       const plus = cells.pins.find(z => z.pin === "+").hole;
@@ -1298,10 +1366,17 @@ title: Stripboard Builder · National 5 Electronics
     // row the package runs down the board and the notch is on the top edge
     if (p1.r === pLast.r) {
       const nx = (X(p1.c) + X(pLast.c)) / 2;
-      s += `<path class="sbd-lead" d="M ${n(nx - 5)} ${n(y)} a 5 5 0 0 1 10 0"/>`;
+      // sweep 0, not 1: the notch must dip INTO the package (increasing y,
+      // since the body extends downward from this top edge), not bulge out
+      // above it. Confirmed by rendering and looking, not by re-deriving the
+      // arc maths — the same maths was "fixed" once before and was still
+      // wrong (PLAN.md/STATE.md Phase 2), so this time it's a screenshot.
+      s += `<path class="sbd-lead" d="M ${n(nx - 5)} ${n(y)} a 5 5 0 0 0 10 0"/>`;
     } else {
       const ny = (Y(p1.r) + Y(pLast.r)) / 2;
-      s += `<path class="sbd-lead" d="M ${n(x)} ${n(ny - 5)} a 5 5 0 0 0 0 10"/>`;
+      // same fix, other axis: sweep 1 dips RIGHT into the body from the
+      // left edge, not left and out of it. Also confirmed by rendering.
+      s += `<path class="sbd-lead" d="M ${n(x)} ${n(ny - 5)} a 5 5 0 0 1 0 10"/>`;
     }
 
     const cx = x + w / 2, cy = y + h / 2;
@@ -1933,7 +2008,7 @@ title: Stripboard Builder · National 5 Electronics
      picture with a different gate shape, chip number and labels — the lift
      interlock, the kiln interlock and the car park sign — so they share one
      drawing rather than three that can drift apart.  `kind` is "and" or "or",
-     and the gate pin numbers are the same on a 74HC08 and a 74HC32.
+     and the gate pin numbers are the same on a 7408 and a 7432.
      ------------------------------------------------------------------------ */
   function twoGateChip(C, o) {
     const G = { w: 32, lead: 12 };
@@ -1981,7 +2056,7 @@ title: Stripboard Builder · National 5 Electronics
     scaffold: "blank",
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1" }
     ],
@@ -2028,7 +2103,7 @@ title: Stripboard Builder · National 5 Electronics
 
   /* ------------------------------------------------------------------------
      Q2 — Lift door interlock.  The spine of the bank (PLAN.md §5.1): a
-     3-input AND built from TWO gates of ONE 74HC08, so the pupil must
+     3-input AND built from TWO gates of ONE 7408, so the pupil must
      realise there is one chip, cut all seven tracks it crosses, and link
      gate a's output (pin 3) to gate b's input (pin 4).
      ------------------------------------------------------------------------ */
@@ -2045,11 +2120,11 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "A",    footprint: "term-1", name: "input A — door closed" },
       { id: "B",    footprint: "term-1", name: "input B — floor selected" },
       { id: "C",    footprint: "term-1", name: "input C — not overloaded" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — motor enable" }
     ],
@@ -2063,7 +2138,7 @@ title: Stripboard Builder · National 5 Electronics
       ["IC1.6", "R1.1"],
       ["R1.2", "LED1.a"]
     ],
-    // gates c and d of the 74HC08 are unused — a pupil who ties these spare
+    // gates c and d of the 7408 are unused — a pupil who ties these spare
     // inputs to 0 V has done the right thing and must not be failed for it (R1)
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.6"],
@@ -2088,12 +2163,12 @@ title: Stripboard Builder · National 5 Electronics
     },
     /* The dashed outline round the two gates is the whole point of the
        question: Yenka draws two AND symbols, but they are two gates of ONE
-       74HC08.  Drawn by the shared archetype (R5 checked against `target`). */
-    circuit: C => twoGateChip(C, { kind: "and", part: "74HC08",
+       7408.  Drawn by the shared archetype (R5 checked against `target`). */
+    circuit: C => twoGateChip(C, { kind: "and", part: "7408",
                                    in: ["A", "B", "C"], led: "LED1" }),
     why: [
       "There is <strong>one chip</strong>, not two. Yenka draws two AND gate symbols, " +
-      "but both live in the same 74HC08 — sharing pin 7 (0 V) and pin 14 (+5 V).",
+      "but both live in the same 7408 — sharing pin 7 (0 V) and pin 14 (+5 V).",
       "The chip sits <strong>across</strong> the tracks, so each opposite pair of pins " +
       "lands on the same track: pin 1 with pin 14, pin 2 with pin 13, and so on. " +
       "Every one of the seven tracks it crosses must be cut between the two rows of pins.",
@@ -2124,7 +2199,7 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V", footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",  footprint: "term-1", name: "0 V supply" },
+      { id: "0V",  footprint: "term-1", name: "0 V supply", neg: true },
       { id: "LDR", footprint: "term-2", name: "LDR1 terminal block", symmetric: true },
       { id: "R1",  footprint: "res-4",  name: "R1 (10 kΩ)" },
       { id: "OUT", footprint: "term-1", name: "output to the process board" }
@@ -2190,10 +2265,10 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "A",    footprint: "term-1", name: "A — guard closed" },
       { id: "B",    footprint: "term-1", name: "B — start pressed" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — run indicator" }
     ],
@@ -2224,7 +2299,7 @@ title: Stripboard Builder · National 5 Electronics
     circuit: C => {
       const g = C.andGate(120, 92, { w: 34, lead: 14, pins: ["1", "2", "3"] });
       const b =
-        C.chip(72, 62, 108, 62) + C.text(72, 56, "IC1  74HC08", { anchor: "start" }) +
+        C.chip(72, 62, 108, 62) + C.text(72, 56, "IC1  7408", { anchor: "start" }) +
         C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [160, 22]], "sbd-pos") +
         C.wire([[160, 22], [160, 62]], "sbd-pos") + C.node(160, 22) +
         C.text(165, 39, "14", { cls: "sbd-cnet", anchor: "start" }) +
@@ -2269,13 +2344,13 @@ title: Stripboard Builder · National 5 Electronics
     scenario: [
       "A float switch reads logic 1 while there is water in the tank and logic 0 when it " +
       "is empty. The warning LED has to come on when the tank IS empty, so the signal is " +
-      "inverted by one gate of a 74HC04."
+      "inverted by one gate of a 7404."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "IN",   footprint: "term-1", name: "IN — float switch" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC04", name: "IC1 — 74HC04 hex inverter" },
+      { id: "IC1",  footprint: "dip-14", part: "7404", name: "IC1 — 7404 hex inverter" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — tank empty" }
     ],
@@ -2306,7 +2381,7 @@ title: Stripboard Builder · National 5 Electronics
     circuit: C => {
       const g = C.notGate(118, 92, { pins: ["1", "2"] });
       const b =
-        C.chip(76, 66, 96, 54) + C.text(76, 60, "IC1  74HC04", { anchor: "start" }) +
+        C.chip(76, 66, 96, 54) + C.text(76, 60, "IC1  7404", { anchor: "start" }) +
         C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [156, 22]], "sbd-pos") +
         C.wire([[156, 22], [156, 66]], "sbd-pos") + C.node(156, 22) +
         C.text(161, 41, "14", { cls: "sbd-cnet", anchor: "start" }) +
@@ -2354,11 +2429,11 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "D",    footprint: "term-1", name: "D — door closed" },
       { id: "T",    footprint: "term-1", name: "T — timer running" },
       { id: "H",    footprint: "term-1", name: "H — below temperature" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — heater on" }
     ],
@@ -2391,11 +2466,11 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => twoGateChip(C, { kind: "and", part: "74HC08",
+    circuit: C => twoGateChip(C, { kind: "and", part: "7408",
                                    in: ["D", "T", "H"], led: "LED1" }),
     why: [
       "Three conditions, two gates, <strong>one chip</strong>. Gates a and b of the same " +
-      "74HC08 share pin 7 (0 V) and pin 14 (+5 V).",
+      "7408 share pin 7 (0 V) and pin 14 (+5 V).",
       "Every one of the seven tracks the chip crosses must be cut between its two rows of pins.",
       "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
       "They are next to each other on the package but on different tracks, so that join needs " +
@@ -2406,7 +2481,7 @@ title: Stripboard Builder · National 5 Electronics
   };
 
   /* ------------------------------------------------------------------------
-     Q7 — car park full sign.  The OR archetype, on a 74HC32.  Deliberately
+     Q7 — car park full sign.  The OR archetype, on a 7432.  Deliberately
      three BAY sensors lighting one sign, not a fault warning driving a lamp
      and a sounder — see PLAN.md §6.
      ------------------------------------------------------------------------ */
@@ -2422,11 +2497,11 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "S1",   footprint: "term-1", name: "S1 — bay 1 occupied" },
       { id: "S2",   footprint: "term-1", name: "S2 — bay 2 occupied" },
       { id: "S3",   footprint: "term-1", name: "S3 — bay 3 occupied" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC32", name: "IC1 — 74HC32 quad 2-input OR" },
+      { id: "IC1",  footprint: "dip-14", part: "7432", name: "IC1 — 7432 quad 2-input OR" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — FULL sign" }
     ],
@@ -2459,16 +2534,16 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => twoGateChip(C, { kind: "or", part: "74HC32",
+    circuit: C => twoGateChip(C, { kind: "or", part: "7432",
                                    in: ["S1", "S2", "S3"], led: "LED1" }),
     why: [
       "“Any one of three” is a 3-input OR, and there is no 3-input OR in the kit — so it is " +
-      "built from <strong>two 2-input OR gates</strong> of one 74HC32.",
+      "built from <strong>two 2-input OR gates</strong> of one 7432.",
       "One chip, not two: both gates share pin 7 (0 V) and pin 14 (+5 V), and every track the " +
       "package crosses must be cut between its two rows of pins.",
       "Gate a's output, <strong>pin 3</strong>, has to reach gate b's input, <strong>pin 4</strong>. " +
       "They sit side by side on the package but on different tracks, so it takes a link wire.",
-      "The 74HC32 has the same pinout as the 74HC08 — only the logic inside is different."
+      "The 7432 has the same pinout as the 7408 — only the logic inside is different."
     ]
   };
 
@@ -2489,7 +2564,7 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V", footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",  footprint: "term-1", name: "0 V supply" },
+      { id: "0V",  footprint: "term-1", name: "0 V supply", neg: true },
       { id: "SW",  footprint: "term-2", name: "SW1 — push switch", symmetric: true },
       { id: "R1",  footprint: "res-4",  name: "R1 (1 kΩ base resistor)" },
       { id: "Q1",  footprint: "to92",   name: "Q1 — BC548" },
@@ -2572,11 +2647,11 @@ title: Stripboard Builder · National 5 Electronics
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "SD",   footprint: "term-1", name: "SD — soil dry" },
       { id: "TK",   footprint: "term-1", name: "TK — tank not empty" },
       { id: "EN",   footprint: "term-1", name: "EN — system enabled" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (1 kΩ base resistor)" },
       { id: "Q1",   footprint: "to92",   name: "Q1 — BC548" },
       { id: "PUMP", footprint: "term-2", name: "PUMP — pump terminal block" }
@@ -2620,7 +2695,7 @@ title: Stripboard Builder · National 5 Electronics
       const gb = C.andGate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
       const q = C.npn(234, 246, { label: "Q1" });
       const b =
-        C.chip(62, 44, 140, 122) + C.text(62, 38, "IC1  74HC08", { anchor: "start" }) +
+        C.chip(62, 44, 140, 122) + C.text(62, 38, "IC1  7408", { anchor: "start" }) +
         C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [244, 20]], "sbd-pos") +
         C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
         C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
@@ -2647,7 +2722,7 @@ title: Stripboard Builder · National 5 Electronics
     },
     why: [
       "The three conditions are a 3-input AND, built from two gates of <strong>one</strong> " +
-      "74HC08 — the same one-chip idea as before.",
+      "7408 — the same one-chip idea as before.",
       "A logic gate cannot drive a pump, so its output goes through a base resistor into a " +
       "transistor. The transistor's three legs go in three consecutive holes, across the tracks.",
       "This board needs a <strong>test point</strong> on the process sub-system's output — " +
@@ -2671,14 +2746,14 @@ title: Stripboard Builder · National 5 Electronics
     scenario: [
       "Two sensors on a machine are active-low: each reads logic 0 when its condition is " +
       "true. Both have to be inverted before the rest of the system can use them.",
-      "One 74HC04 has six inverters in it, so both signals go through the same chip."
+      "One 7404 has six inverters in it, so both signals go through the same chip."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
-      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
       { id: "S1",   footprint: "term-1", name: "S1 — lid sensor" },
       { id: "S2",   footprint: "term-1", name: "S2 — float switch" },
-      { id: "IC1",  footprint: "dip-14", part: "74HC04", name: "IC1 — 74HC04 hex inverter" },
+      { id: "IC1",  footprint: "dip-14", part: "7404", name: "IC1 — 7404 hex inverter" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — lid open" },
       { id: "R2",   footprint: "res-4",  name: "R2 (270 Ω)" },
@@ -2724,7 +2799,7 @@ title: Stripboard Builder · National 5 Electronics
          junction dot is correct electrically and unreadable pedagogically —
          a pupil cannot tell a crossing from a join. */
       const b =
-        C.chip(76, 40, 96, 144) + C.text(76, 34, "IC1  74HC04", { anchor: "start" }) +
+        C.chip(76, 40, 96, 144) + C.text(76, 34, "IC1  7404", { anchor: "start" }) +
         C.term(44, 16, { label: "+5 V", pos: true }) + C.wire([[51, 16], [160, 16]], "sbd-pos") +
         C.wire([[160, 16], [160, 40]], "sbd-pos") + C.node(160, 16) +
         C.text(165, 33, "14", { cls: "sbd-cnet", anchor: "start" }) +
@@ -2753,7 +2828,7 @@ title: Stripboard Builder · National 5 Electronics
       return { w: 312, h: 312, body: b };
     },
     why: [
-      "Two signals, two gates, <strong>one chip</strong>. The 74HC04 holds six inverters and " +
+      "Two signals, two gates, <strong>one chip</strong>. The 7404 holds six inverters and " +
       "these are two of them — a pupil who draws two separate NOT symbols in Yenka must not " +
       "then put two chips on the board.",
       "The two signals never meet. They share only the package, pin 7 (0 V) and pin 14 (+5 V) " +
@@ -2883,22 +2958,30 @@ $("sbdBoardStyle").textContent = "#sbd svg{overflow:visible}\n" + R.STYLE;
 const STORE = "el-sbd-v1";                 // §8: unique localStorage prefix
 const BANK_HASH = QUESTIONS.map(q => q.id + ":" + q.target.length).join("|");
 const MIN_SCALE = 0.62;                    // below this the board labels stop being readable
-/* Red and black are reserved for the supply wiring, the same convention the
-   schematic now uses, so a link wire never comes out the colour of a rail. */
-const LINK_COLOURS = ["blue", "green", "orange", "yellow", "white"];
+/* A pupil can pick ANY colour, red and black included — the engine (rank 0.6)
+   is what actually enforces that red/black only land on the +5V/0V nets, so
+   the picker doesn't need to gatekeep. The auto-SUGGESTED colour skips red
+   and black, though: those are only right on a supply link, which is the
+   exception, not the default next link. */
+const LINK_COLOURS = ["blue", "green", "orange", "yellow", "white", "purple", "brown", "grey", "red", "black"];
+const AUTO_LINK_COLOURS = LINK_COLOURS.filter(c => c !== "red" && c !== "black");
 
 let qi = 0, Q = null, A = null;            // A is the pupil's attempt
 let tool = "place", sel = null, rot = 0;   // sel: component id waiting to be placed
 let linkStart = null, cur = { r: 0, c: 1 };
-let linkColour = LINK_COLOURS[0];          // pupil-chosen, shown while the Link tool is active
+let linkColour = AUTO_LINK_COLOURS[0];     // pupil-chosen, shown while the Link tool is active
 let marks = [], hl = [], showingAnswer = false, scale = 1;
 let done = new Set();
 
-let mode = "convert";                      // "convert" | "trace"
+let mode = "trace";                        // "convert" | "trace" — Trace is the warm-up, shown first
+const MODE_DESC = {
+  trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
+  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links."
+};
 let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
 const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
   "tap a hole to place it — or use the tools to cut a track, run a link wire or mark a test point. " +
-  "You can also drive the board with the arrow keys and Enter.";
+  "Tap a placed part again to pick it up and move it.";
 const TRACE_LEDE = "Look at the board, then answer the question beside it: are the two named holes " +
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
 
@@ -3189,8 +3272,10 @@ function renumberLinks(){ A.links.forEach((l, i) => { l.num = i + 1; }); }
 // so two links in a row default to different colours; a pupil can still
 // click a swatch to override before drawing the next one
 function nextLinkColour(){
-  const i = LINK_COLOURS.indexOf(linkColour);
-  linkColour = LINK_COLOURS[(i + 1) % LINK_COLOURS.length];
+  // if the pupil just deliberately used red/black, the next SUGGESTION still
+  // comes from the ordinary palette, not another supply colour
+  const i = AUTO_LINK_COLOURS.indexOf(linkColour);
+  linkColour = AUTO_LINK_COLOURS[i < 0 ? 0 : (i + 1) % AUTO_LINK_COLOURS.length];
   paintLinkColours();
 }
 function buildLinkColours(){
@@ -3405,6 +3490,7 @@ function load(i, keepScroll){
                              (Q.scenario ? "<p>" + taskLine() + "</p>" : "");
   $("whyBody").innerHTML = "<ul>" + Q.why.map(w => "<li>" + w + "</li>").join("") + "</ul>";
   $("whyBox").open = false;
+  setDatasheetLink();
   clearFeedback();
   drawCircuit();
   drawGrid();
@@ -3412,6 +3498,23 @@ function load(i, keepScroll){
   paint();
   fit();
   if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+const DATASHEET = "/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf";
+// which page of the SQA data sheet has this chip's pinout — pupils work out
+// which pins are power from the sheet themselves, the diagram doesn't say
+function datasheetPageFor(part){
+  if (!part) return null;
+  if (part === "555" || part === "741") return 3;
+  if (/^74/.test(part)) return 4;
+  return null;
+}
+function setDatasheetLink(){
+  const ic = (Q.components || []).find(c => datasheetPageFor(c.part));
+  const a = $("dsLink");
+  if (!ic){ a.hidden = true; return; }
+  a.href = DATASHEET + "#page=" + datasheetPageFor(ic.part);
+  a.hidden = false;
 }
 
 /* The instruction has to match the rung: telling a pupil to place every
@@ -3771,6 +3874,8 @@ function answerTrace(ans){
   say((correct ? "Correct. " : "Not quite. ") + TQ.why);
 }
 
+function setModeDesc(){ $("modeDesc").textContent = MODE_DESC[mode]; }
+
 function setMode(m){
   if (m === mode) return;
   mode = m;
@@ -3779,8 +3884,9 @@ function setMode(m){
   $("mTrace").setAttribute("aria-pressed", String(m === "trace"));
   $("lede").textContent = m === "convert" ? CONVERT_LEDE : TRACE_LEDE;
   $("board").setAttribute("aria-label", m === "convert"
-    ? "Stripboard. Arrow keys move the cursor, Enter uses the selected tool, Escape cancels."
+    ? "Stripboard. Tap or click a hole to use the selected tool."
     : "Stripboard, showing a fixed layout. Read only — answer the question beside it.");
+  setModeDesc();
   clearFeedback();
   if (m === "convert") load(qi, true); else loadTrace(ti, true);
 }
@@ -3803,7 +3909,18 @@ window.addEventListener("hashchange", () => {
 
 buildLinkColours();
 loadStore();
-load(fromHash(), true);
+// Trace is the default landing mode (it's the warm-up) — but a direct link to
+// a Convert question (#q3) still has to work, so it wins if present.
+if (/^#q\d+$/.test(location.hash || "")){
+  mode = "convert";
+  $("sbd").dataset.mode = "convert";
+  $("mConvert").setAttribute("aria-pressed", "true");
+  $("mTrace").setAttribute("aria-pressed", "false");
+  load(fromHash(), true);
+} else {
+  loadTrace(0, true);
+}
+setModeDesc();
 say("Ready.");
 
 })();
