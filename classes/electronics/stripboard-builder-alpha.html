@@ -154,6 +154,17 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;
       padding:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
     #sbd .swatch[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+    /* Test-point predictions.  Same shelf as the wire colours and the same
+       rule: it is only on screen while its own tool is, so it costs the
+       one-screen budget nothing the rest of the time. */
+    #sbd .tprow{gap:6px}
+    #sbd .tpitem{display:inline-flex;align-items:center;gap:4px;padding:1px 5px 1px 8px;
+      border:1.5px solid var(--border);border-radius:999px;background:var(--card)}
+    #sbd .tpitem>b{font:800 .74rem/1 var(--font-stack);color:var(--muted)}
+    #sbd .lvl{min-width:26px;min-height:26px;padding:0 7px;border-radius:999px;
+      border:1.5px solid var(--border);background:var(--card);cursor:pointer;
+      font:800 .8rem/1 var(--font-stack);color:var(--text)}
+    #sbd .lvl[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
     /* A tap has no hover, so on an iPad the on-board ghost never appears before
        the drop — a pupil has no way of knowing a 14-pin DIL covers 28 holes
        until it is already there.  So the selected tile opens out into the
@@ -360,6 +371,8 @@ title: Stripboard Builder · National 5 Electronics
             <div class="linkcolours conv-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
               <span class="lchint">Wire colour:</span>
             </div>
+            <div class="linkcolours tprow conv-only" id="tpRow" role="group"
+                 aria-label="What each test point will read" hidden></div>
             <div class="stage" id="stage">
               <div class="board" id="board" tabindex="0" role="application"
                    aria-label="Stripboard. Tap or click a hole to use the selected tool."
@@ -1073,6 +1086,36 @@ title: Stripboard Builder · National 5 Electronics
       }
     }
 
+    /* rank 8.5 — the reading the test point is FOR.
+       A test point that is placed but never predicted is half the job: QVSR
+       wants the expected value planned on the layout before the board is
+       built, so the pupil says what it will read and the tool marks it.  The
+       expected level is authored per NET (named by any pin on it), not per
+       hole, because the pupil chooses where on that net to put the probe. */
+    if (q.expect && q.expect.levels) {
+      for (const pin of Object.keys(q.expect.levels)) {
+        const root = netOfPin.get(pin);
+        if (root === undefined) continue;            // that net is not built yet
+        const tp = (attempt.testpoints || []).find(t => {
+          const n = top.nodeOf.get(hid(parseRef(t.at)));
+          return n !== undefined && top.dsu.find(n) === root;
+        });
+        if (!tp) continue;                           // rank 8 already reports the absence
+        const want = q.expect.levels[pin];
+        const got = tp.predict;
+        if (got !== 0 && got !== 1) {
+          faults.push({ rank: 8.5, code: "no-prediction",
+            msg: `${tp.id} is on ${label(q, pin)}, but you have not said what it will read. ` +
+                 `Work it out from the inputs — planning the expected reading is what the ` +
+                 `test point is for.`, refs: [pin] });
+        } else if (got !== want) {
+          faults.push({ rank: 8.5, code: "wrong-prediction",
+            msg: `${tp.id} is on ${label(q, pin)}. With ${inputsText(q)}, that point is ` +
+                 `logic ${want}, not logic ${got}.`, refs: [pin] });
+        }
+      }
+    }
+
     /* ------------------------------------------------------- warnings */
 
     // rank 9 — a cut that separates nothing
@@ -1134,6 +1177,11 @@ title: Stripboard Builder · National 5 Electronics
   function pupilIndex(targetNets, tNetOf, root, netOfPin) {
     for (const [id, r] of netOfPin) if (r === root && tNetOf.has(id)) return tNetOf.get(id);
     return -1;
+  }
+
+  // "A = 1, B = 1, C = 0" — the input condition a prediction is made under
+  function inputsText(q) {
+    return (q.expect && q.expect.inputs || []).map(i => i[0] + " = " + i[1]).join(", ");
   }
 
   // human-readable name for a pin, for the message catalogue
@@ -2221,6 +2269,14 @@ title: Stripboard Builder · National 5 Electronics
     // inputs to 0 V has done the right thing and must not be failed for it (R1)
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.6"],
+    /* The reading the test point is FOR (QVSR: the expected value is planned on
+       the layout before the board is built).  Authored per net, not per hole —
+       the pupil chooses where on that net to put the probe. */
+    expect: {
+      inputs: [["A", 1], ["B", 1], ["C", 0]],
+      note: "the door is closed and a floor is selected, but the car is overloaded",
+      levels: { "IC1.6": 0 }
+    },
     reference: {
       // the seven cuts are the column between the chip's two rows of pins
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
@@ -2238,7 +2294,7 @@ title: Stripboard Builder · National 5 Electronics
         { a: "H9", b: "I9", colour: "orange", num: 1 },   // pin 3 -> pin 4
         { a: "L6", b: "O6", colour: "black",  num: 2 }    // 0 V rail -> the LED cathode
       ],
-      testpoints: [{ id: "TP1", at: "K8" }]
+      testpoints: [{ id: "TP1", at: "K8", predict: 0 }]
     },
     /* The dashed outline round the two gates is the whole point of the
        question: Yenka draws two AND symbols, but they are two gates of ONE
@@ -2254,7 +2310,8 @@ title: Stripboard Builder · National 5 Electronics
       "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
       "They are next to each other on the package but on different tracks — adjacent " +
       "pins are <em>not</em> connected, so that join needs a link wire.",
-      "Gates c and d are unused. Their pins can be left, or tied to 0 V — either is accepted."
+      "Gates c and d are unused. Their pins can be left, or tied to 0 V — either is accepted.",
+      "With <strong>A = 1, B = 1, C = 0</strong> the first gate gives 1, but the second gate ANDs that with C, so <strong>TP1 reads logic 0</strong> — the lift stays put. Writing the expected reading on the layout is what makes the test point worth marking: on the real board, a 1 there tells you the fault is downstream of the chip, and a 0 tells you it is not."
     ]
   };
 
@@ -2739,6 +2796,11 @@ title: Stripboard Builder · National 5 Electronics
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.6"],
+    expect: {
+      inputs: [["SD", 1], ["TK", 1], ["EN", 1]],
+      note: "the soil is dry, the tank is not empty and the system is switched on",
+      levels: { "IC1.6": 1 }
+    },
     reference: {
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
       placements: [
@@ -2757,7 +2819,7 @@ title: Stripboard Builder · National 5 Electronics
         { a: "L7",  b: "M7",  colour: "black",  num: 2 },
         { a: "H26", b: "O26", colour: "green",  num: 3 }
       ],
-      testpoints: [{ id: "TP1", at: "K8" }]
+      testpoints: [{ id: "TP1", at: "K8", predict: 1 }]
     },
     circuit: (C, o) => {
       const G = { w: 32, lead: 12 };
@@ -2799,7 +2861,8 @@ title: Stripboard Builder · National 5 Electronics
       "pin 6, before the transistor. That is what you would put a meter probe on to find out " +
       "whether the fault is in the logic or in the pump driver.",
       "Plan the test points on the layout <em>before</em> you build. Adding them afterwards is " +
-      "what the verifiers' reports keep flagging."
+      "what the verifiers' reports keep flagging.",
+      "With <strong>SD = 1, TK = 1, EN = 1</strong> all three conditions are met, so <strong>TP1 reads logic 1</strong> and the transistor turns the pump on. If the pump stays off with a 1 at TP1, the fault is in the output sub-system, not the logic."
     ]
   };
 
@@ -2841,6 +2904,13 @@ title: Stripboard Builder · National 5 Electronics
     ],
     dontcare: ["IC1.5", "IC1.6", "IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.2", "IC1.4"],
+    /* Two test points with DIFFERENT expected readings, deliberately: an
+       active-low sensor that has tripped and one that has not. */
+    expect: {
+      inputs: [["S1", 0], ["S2", 1]],
+      note: "sensor 1 has tripped (active low) and sensor 2 has not",
+      levels: { "IC1.2": 1, "IC1.4": 0 }
+    },
     reference: {
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
       placements: [
@@ -2859,7 +2929,7 @@ title: Stripboard Builder · National 5 Electronics
         { a: "I8", b: "P8", colour: "green",  num: 2 },
         { a: "L9", b: "T9", colour: "orange", num: 3 }
       ],
-      testpoints: [{ id: "TP1", at: "G6" }, { id: "TP2", at: "P6" }]
+      testpoints: [{ id: "TP1", at: "G6", predict: 1 }, { id: "TP2", at: "P6", predict: 0 }]
     },
     circuit: (C, o) => {
       const g1 = C.notGate(118, 68, { pins: pinNos(o, ["1", "2"]) });
@@ -2903,7 +2973,8 @@ title: Stripboard Builder · National 5 Electronics
       "joined to the two inputs.",
       "Four inverters are unused. Leave their pins, or tie the unused <em>inputs</em> to 0 V — " +
       "either is accepted. Never tie an unused <em>output</em> to anything.",
-      "Each sub-system output gets its own numbered test point, planned before you build."
+      "Each sub-system output gets its own numbered test point, planned before you build.",
+      "With <strong>S1 = 0, S2 = 1</strong>, the inverters give <strong>TP1 = 1</strong> and <strong>TP2 = 0</strong> — one lamp on, one off. Two test points on one chip is the point of this board: they tell you which of the two signals has gone wrong."
     ]
   };
 
@@ -3083,7 +3154,9 @@ function sane(a){
   const out = { cuts: arr("cuts").filter(x => typeof x === "string"),
                 placements: arr("placements").filter(p => p && SBD.FOOTPRINTS[p.footprint]),
                 links: arr("links").filter(l => l && l.a && l.b),
-                testpoints: arr("testpoints").filter(t => t && t.at) };
+                testpoints: arr("testpoints").filter(t => t && t.at)
+                  .map(t => ({ id: t.id, at: t.at,
+                               predict: (t.predict === 0 || t.predict === 1) ? t.predict : null })) };
   try { SBD.topology(SBD.BOARDS[Q.board], out); } catch(e){ return null; }
   return out;
 }
@@ -3340,7 +3413,10 @@ function act(h){
 
 // test points and link wires are numbered in the order they were added, and the
 // numbers are what the wiring schedule refers to — so they must not develop gaps
-function renumberTps(){ A.testpoints.forEach((t, i) => { t.id = "TP" + (i + 1); }); }
+function renumberTps(){
+  A.testpoints.forEach((t, i) => { t.id = "TP" + (i + 1); });
+  if (tool === "tp") buildTpRow();
+}
 // numbers renumber on a removal; colours do NOT — a pupil chose each one, and
 // removing a different link should not repaint the ones that are left
 function renumberLinks(){ A.links.forEach((l, i) => { l.num = i + 1; }); }
@@ -3382,6 +3458,57 @@ function paintLinkColours(){
   $("linkColours").querySelectorAll(".swatch").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.colour === linkColour)));
 }
+
+/* ------------------------------------------------------ test-point readings
+   A test point exists so that somebody can say, before the board is built,
+   what it ought to read (QVSR).  So the tool asks: with the stated inputs, is
+   this point a 1 or a 0?  The engine marks it (rank 8.5).
+
+   The row lives on the same shelf as the wire colours and appears only while
+   the Test point tool is active, so it costs no height the rest of the time. */
+function buildTpRow(){
+  const el = $("tpRow");
+  el.textContent = "";
+  if (!Q.expect){ el.hidden = true; return; }
+  const hint = document.createElement("span");
+  hint.className = "lchint";
+  const conds = Q.expect.inputs.map(i => i[0] + " = " + i[1]).join(", ");
+  hint.textContent = A.testpoints.length
+    ? "With " + conds + ", what will each test point read?"
+    : "With " + conds + " — tap a hole to mark a test point.";
+  el.appendChild(hint);
+  for (const tp of A.testpoints){
+    const wrap = document.createElement("span");
+    wrap.className = "tpitem";
+    const name = document.createElement("b");
+    name.textContent = tp.id;
+    wrap.appendChild(name);
+    for (const v of [1, 0]){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "lvl";
+      b.textContent = String(v);
+      b.dataset.at = tp.at;
+      b.dataset.v = String(v);
+      b.setAttribute("aria-label", tp.id + " at " + tp.at + " reads logic " + v);
+      b.setAttribute("aria-pressed", String(tp.predict === v));
+      wrap.appendChild(b);
+    }
+    el.appendChild(wrap);
+  }
+}
+$("tpRow").addEventListener("click", e => {
+  const b = e.target.closest(".lvl");
+  if (!b) return;
+  const tp = A.testpoints.find(t => t.at === b.dataset.at);
+  if (!tp) return;
+  const v = +b.dataset.v;
+  tp.predict = tp.predict === v ? null : v;       // tapping the chosen one clears it
+  saveStore();
+  buildTpRow();
+  say(tp.predict === null ? tp.id + " reading cleared."
+                          : tp.id + " predicted to read logic " + tp.predict + ".");
+});
 
 let flashTimer = null;
 function flashHole(h){
@@ -3575,6 +3702,8 @@ function load(i, keepScroll){
   drawCircuit();
   drawGrid();
   buildChips();
+  $("tpRow").hidden = tool !== "tp" || !Q.expect;   // a stale row belongs to the last question
+  if (tool === "tp") buildTpRow();
   paint();
   fit();
   if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3610,9 +3739,13 @@ function taskLine(){
   if (tp) bits.push("mark the test point" + (Q.tpRequired.length > 1 ? "s" : "") +
                     " on the process output");
   const last = bits.pop();
+  const conds = Q.expect ? Q.expect.inputs.map(i => i[0] + " = " + i[1]).join(", ") : "";
   return "<strong>Your task:</strong> " +
     (Q.scaffold === "parts" ? "the components are already on the board — " : "") +
-    bits.join(", ") + (bits.length ? " and " : "") + last + ".";
+    bits.join(", ") + (bits.length ? " and " : "") + last + "." +
+    // a test point is only worth marking if you can say what it should read
+    (Q.expect ? " Then say what each test point will read with <strong>" + conds +
+                "</strong> — " + Q.expect.note + "." : "");
 }
 
 /* The scaffold decides how much of the board arrives already done (PLAN.md
@@ -3653,7 +3786,9 @@ function reset(){
   A = startingPoint();
   sel = null; rot = 0; linkStart = null; marks = []; hl = [];
   showingAnswer = false; $("btnAnswer").textContent = "Show the answer";
-  clearFeedback(); saveStore(); paint();
+  clearFeedback(); saveStore();
+  if (tool === "tp") buildTpRow();          // the old readings went with the old board
+  paint();
   say("Board cleared.");
 }
 
@@ -3782,6 +3917,8 @@ function setTool(t){
   if (t !== "place") sel = null;
   $("linkColours").hidden = t !== "link";
   if (t === "link") paintLinkColours();
+  $("tpRow").hidden = t !== "tp" || !Q.expect;
+  if (t === "tp") buildTpRow();
   drawBank();
   fit();
   paint();
@@ -3800,6 +3937,11 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.4", date: "9 Sep 2026", what:
+    "Test points now have to be predicted, not just placed. Where a question asks for one, you " +
+    "are given the input conditions and say whether each test point will read logic 1 or logic 0; " +
+    "Check marks it and tells you the right answer if you are wrong \u2014 which is what a test " +
+    "point is actually for. Q5, Q9 and Q10 carry the readings." },
   { v: "0.3", date: "9 Sep 2026", what:
     "Circuit diagrams rebuilt: two horizontal supply rails with the components cabled between them. " +
     "The dashed \u201csystem box\u201d, the net numbers and the wires to the chip\u2019s +5 V and 0 V pins are gone \u2014 " +
