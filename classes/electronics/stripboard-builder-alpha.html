@@ -215,9 +215,10 @@ title: Stripboard Builder · National 5 Electronics
     #sbd:not([data-mode="convert"]) .conv-only{display:none}
     #sbd:not([data-mode="trace"]) .trace-only{display:none}
     #sbd:not([data-mode="fault"]) .fault-only{display:none}
+    #sbd:not([data-mode="reverse"]) .rev-only{display:none}
     /* Fault-finder: the four named faults to choose between. */
-    #sbd .faultwrap{border:1px solid var(--border);border-radius:12px;background:var(--card);
-      padding:10px 12px}
+    #sbd .faultwrap,#sbd .revwrap{border:1px solid var(--border);border-radius:12px;
+      background:var(--card);padding:10px 12px}
     #sbd .faultq{margin:0 0 4px;font:900 .92rem/1.35 var(--font-stack);color:var(--text)}
     #sbd .faulthint{margin:0 0 9px;font:700 .76rem/1.35 var(--font-stack);color:var(--muted)}
     #sbd .faultopts{display:grid;gap:6px}
@@ -365,7 +366,7 @@ title: Stripboard Builder · National 5 Electronics
           <button type="button" id="mTrace" aria-pressed="true">Trace</button>
           <button type="button" id="mConvert" aria-pressed="false">Convert</button>
           <button type="button" id="mFault" aria-pressed="false">Fault-finder</button>
-          <button type="button" disabled title="Built later in phase 4">Reverse</button>
+          <button type="button" id="mReverse" aria-pressed="false">Reverse</button>
         </div>
         <p class="modedesc" id="modeDesc"></p>
         <div class="qchips" id="qchips" role="group" aria-label="Choose a question"></div>
@@ -423,6 +424,13 @@ title: Stripboard Builder · National 5 Electronics
               <p class="faulthint" id="faultHint"></p>
               <div class="faultopts" id="faultOpts" role="group" aria-label="What is wrong with this board"></div>
               <p style="margin:10px 0 0"><button type="button" class="btn primary" id="btnFault">Check my answer</button></p>
+            </div>
+
+            <div class="revwrap rev-only" id="revWrap">
+              <p class="faultq" id="revQ"></p>
+              <p class="faulthint" id="revHint"></p>
+              <div class="faultopts" id="revOpts" role="group" aria-label="Answer"></div>
+              <p style="margin:10px 0 0"><button type="button" class="btn primary" id="btnRev">Check my answer</button></p>
             </div>
 
             <div class="tracewrap trace-only" id="traceWrap">
@@ -3744,6 +3752,167 @@ title: Stripboard Builder · National 5 Electronics
   root.buildFault = buildFault;
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- reverse-questions.js ---- */
+/* ============================================================================
+   Stripboard Builder — Reverse bank (PLAN.md §4.1, Mode 4)
+   ----------------------------------------------------------------------------
+   Layout -> circuit: the direction CR25 singles out ("tasks converting from
+   layout to diagram require structured practice... start with simple circuits
+   and gradually increase complexity").  PLAN.md rules out a schematic editor,
+   so the items are structured questions ABOUT a finished board.
+
+   Three types, all of them DERIVED from the question record — the board is a
+   `reference` layout, and every answer is read out of `target` or out of the
+   engine's own connectivity.  Nothing is authored twice, so a Reverse item
+   cannot disagree with what Convert marks on the same board.
+
+     probe   tap the two holes you would measure across a component
+             (2025 Q7(b)(i) is exactly this)
+     rail    which components are connected to a supply rail
+     signal  which pin of the chip does this input actually reach
+
+   NOT built: PLAN's "which of these four circuit diagrams matches this board".
+   Three wrong diagrams per item is a large hand-drawing job with no automatic
+   correctness check — R5's manual gate, multiplied by three, for every item.
+   The three types above test the same reading of the copper and cost nothing
+   to keep true.  Recorded here rather than quietly dropped.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  const REVERSE_ITEMS = [
+    { id: "RV1", type: "probe", from: "led-resistor", part: "R1",
+      why: "The p.d. across a component is measured between the two nets its legs sit " +
+           "in — one probe on each side. On the board that means one probe anywhere on " +
+           "the track the first leg is in, and the other anywhere on the second leg's " +
+           "track. Both probes on one track would read zero, because that is one net." },
+
+    { id: "RV2", type: "probe", from: "led-resistor", part: "LED1",
+      why: "Same idea for the LED: one probe on the anode's track, one on the cathode's. " +
+           "A working red LED reads about 2 V across it, and the rest of the supply is " +
+           "dropped across the resistor." },
+
+    { id: "RV3", type: "rail", from: "led-resistor", rail: "0V",
+      why: "Follow the copper from the 0 V terminal: an unbroken track is one net, so " +
+           "everything with a leg in it is connected to 0 V." },
+
+    { id: "RV4", type: "signal", from: "lift-interlock", term: "A",
+      why: "Input A's track runs straight into the chip. Reading which pin it lands on " +
+           "is the whole of layout-to-circuit: the copper says which gate input this is." },
+
+    { id: "RV5", type: "probe", from: "lift-interlock", part: "R1",
+      why: "R1 sits between the chip's output and the LED. Measuring across it tells you " +
+           "whether the gate output is actually driving the LED, which is why the test " +
+           "point goes on that net." },
+
+    { id: "RV6", type: "rail", from: "lift-interlock", rail: "0V",
+      why: "The 0 V net on this board reaches more than one thing, and one of them is a " +
+           "chip pin. Every IC needs 0 V, and on the layout that is just another leg in " +
+           "the same track." },
+
+    { id: "RV7", type: "signal", from: "lift-interlock", term: "C",
+      why: "Input C skips the first gate entirely and goes to the SECOND one. That is what " +
+           "makes this a 3-input AND built from two 2-input gates — and it is the thing " +
+           "that is invisible unless you follow the copper." },
+
+    { id: "RV8", type: "rail", from: "lift-interlock", rail: "+5V",
+      why: "The +5 V net on this board does only one job: it feeds the chip's supply pin. " +
+           "Nothing else on the board is connected to it." },
+
+    { id: "RV9", type: "probe", from: "transistor-buzzer", part: "R1",
+      why: "R1 is the transistor's base resistor. Measuring across it shows how much of " +
+           "the switch's voltage is being dropped before the base." },
+
+    { id: "RV10", type: "signal", from: "two-inverters", term: "S2",
+      why: "Two unrelated signals share one package here. S2 does NOT go to the first " +
+           "inverter — following the copper is the only way to tell which of the six " +
+           "gates it actually reaches." }
+  ];
+
+  /* ------------------------------------------------------------------ derive */
+
+  function holeOfPin(attempt, pinId, SBD) {
+    const bits = pinId.split("."), comp = bits[0], pin = bits[1];
+    const pl = (attempt.placements || []).find(p => p.id === comp);
+    if (!pl) return null;
+    const cells = SBD.cellsOf(SBD.FOOTPRINTS[pl.footprint], SBD.parseRef(pl.at), pl.rot || 0);
+    const z = cells.pins.find(x => x.pin === pin);
+    return z ? SBD.ref(z.hole) : null;
+  }
+
+  // the target net that contains a given pin
+  const netWith = (q, pinId) => (q.target || []).find(net => net.indexOf(pinId) >= 0) || [];
+
+  function buildReverse(item, questions, SBD) {
+    const q = questions.find(x => x.id === item.from);
+    if (!q) throw new Error(item.id + ": no question " + item.from);
+    const attempt = q.reference, board = SBD.BOARDS[q.board];
+    const out = { item: item, q: q, attempt: attempt, type: item.type };
+
+    if (item.type === "probe") {
+      const fp = SBD.FOOTPRINTS[(q.components.find(c => c.id === item.part) || {}).footprint];
+      if (!fp || fp.pins.length !== 2)
+        throw new Error(item.id + ": " + item.part + " is not a two-pin part");
+      out.pins = fp.pins.map(p => item.part + "." + p.pin);
+      out.nets = out.pins.map(pid => {
+        const h = holeOfPin(attempt, pid, SBD);
+        if (!h) throw new Error(item.id + ": " + pid + " is not on the board");
+        return SBD.netOf(board, attempt, h) || [];
+      });
+      if (!out.nets[0].length || !out.nets[1].length)
+        throw new Error(item.id + ": a leg of " + item.part + " is in no net");
+      // a reference board must never short a part's own legs
+      if (out.nets[0].indexOf(out.nets[1][0]) >= 0)
+        throw new Error(item.id + ": both legs of " + item.part + " are in one net");
+      out.prompt = "Where would you put the two meter probes to measure the p.d. across " +
+                   item.part + "?";
+
+    } else if (item.type === "rail") {
+      const railNet = netWith(q, item.rail + ".1");
+      out.answer = [];
+      for (const pin of railNet) {
+        const comp = pin.split(".")[0];
+        if (comp !== item.rail && out.answer.indexOf(comp) < 0) out.answer.push(comp);
+      }
+      out.options = q.components.map(c => c.id).filter(id => id !== item.rail);
+      out.prompt = "Which of these are connected to the " +
+                   (item.rail === "+5V" ? "+5 V" : "0 V") + " rail on this board?";
+
+    } else if (item.type === "signal") {
+      const net = netWith(q, item.term + ".1");
+      const pin = net.find(p => /^IC\d+\./.test(p));
+      if (!pin) throw new Error(item.id + ": " + item.term + " reaches no chip pin");
+      out.answer = pin;
+      const chip = pin.split(".")[0];
+      /* Distractors are the chip's other SIGNAL pins.  Taking them in target
+         order handed every item the two supply pins, which a pupil rules out
+         without reading the board at all — so the supply nets are excluded. */
+      const supply = new Set();
+      for (const c of q.components || []) {
+        if (!c.pos && !c.neg) continue;
+        for (const p of netWith(q, c.id + ".1")) supply.add(p);
+      }
+      const pool = [];
+      for (const net of q.target) for (const p of net) {
+        if (p.split(".")[0] !== chip) continue;
+        if (p === pin || supply.has(p) || pool.indexOf(p) >= 0) continue;
+        pool.push(p);
+      }
+      // sorted by pin number, so the answer is not always the first button
+      out.options = [pin].concat(pool.slice(0, 3))
+        .sort((a, b) => (+a.split(".")[1]) - (+b.split(".")[1]));
+      out.prompt = "Follow the copper: which pin of " + chip + " does input " +
+                   item.term + " reach?";
+    } else {
+      throw new Error(item.id + ": unknown type " + item.type);
+    }
+    return out;
+  }
+
+  root.REVERSE_ITEMS = REVERSE_ITEMS;
+  root.buildReverse = buildReverse;
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
 
 <style id="sbdBoardStyle"></style>
@@ -3812,7 +3981,8 @@ let mode = "trace";                        // "convert" | "trace" — Trace is t
 const MODE_DESC = {
   trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
   convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it.",
-  fault: "One board, one fault. Find where it is, then say what it is — the skill the verifiers say is missing."
+  fault: "One board, one fault. Find where it is, then say what it is — the skill the verifiers say is missing.",
+  reverse: "The other direction: read a finished board and work out the circuit it builds. This is the one the exam asks."
 };
 let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
 const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
@@ -3822,6 +3992,8 @@ const TRACE_LEDE = "Look at the board, then answer the question beside it: are t
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
 const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
   "with it. Tap the hole where you think the fault is, choose what the fault is, and check.";
+const REVERSE_LEDE = "Every board here is correct. The question is what circuit it builds — " +
+  "follow the copper and answer, the way the question paper asks you to.";
 
 const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [], stage: 0 });
 
@@ -4028,6 +4200,7 @@ function fit(){
 function holeFromEvent(e){
   const boardId = mode === "convert" ? (Q && Q.board)
                 : mode === "fault"   ? (FI && FI.q.board)
+                : mode === "reverse" ? (RV && RV.q.board)
                 :                      (TQ && TQ.board);
   if (!boardId) return null;
   const sc = mode === "convert" ? scale : traceScale;
@@ -4332,7 +4505,15 @@ const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>
 /* ============================================================
    Check
    ============================================================ */
-function clearFeedback(){ $("feedback").classList.remove("show"); hl = []; }
+/* Blank the text as well as hiding the panel: hidden text is still in the
+   accessibility tree, and it left the last mode's verdict sitting under the
+   next mode's question. */
+function clearFeedback(){
+  $("feedback").classList.remove("show", "good", "bad");
+  $("fbHead").textContent = "";
+  $("fbBody").innerHTML = "";
+  hl = [];
+}
 
 function check(){
   if (showingAnswer){ say("That is the answer, not your board."); return; }
@@ -4572,6 +4753,17 @@ function toggleAnswer(){
 let focused = false;
 
 $("board").addEventListener("click", e => {
+  if (mode === "reverse"){
+    if (revAnswered || !RV || RV.type !== "probe") return;
+    const h = holeFromEvent(e);
+    if (!h) return;
+    const k = revTaps.findIndex(x => x.r === h.r && x.c === h.c);
+    if (k >= 0) revTaps.splice(k, 1);            // tap again to take a probe off
+    else { revTaps.push(h); if (revTaps.length > 2) revTaps.shift(); }
+    paintReverse();
+    say(revTaps.length + " probe" + (revTaps.length === 1 ? "" : "s") + " placed.");
+    return;
+  }
   if (mode === "fault"){
     if (faultAnswered || !FI || !FI.holes.length) return;
     const h = holeFromEvent(e);
@@ -4704,6 +4896,12 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.9", date: "9 Sep 2026", what:
+    "<strong>Reverse is open, so all four modes are now in.</strong> Reverse goes the other way: " +
+    "a correct finished board and no circuit diagram, and you work out what it builds \u2014 " +
+    "where you would put the two meter probes to measure across a part, which components are on " +
+    "a supply rail, and which pin of the chip an input actually reaches. This is the direction " +
+    "the question paper asks about." },
   { v: "0.8", date: "9 Sep 2026", what:
     "<strong>Fault-finder is open</strong> \u2014 the third mode. Ten finished boards, each with " +
     "exactly one thing wrong: tap the hole where you think the fault is, choose what the fault " +
@@ -4775,6 +4973,7 @@ $("btnAnswer").addEventListener("click", toggleAnswer);
 $("btnNext").addEventListener("click", () => {
   if (mode === "convert") load(qi + 1, true);
   else if (mode === "fault") loadFault(fi + 1, true);
+  else if (mode === "reverse") loadReverse(ri + 1, true);
   else loadTrace(ti + 1, true);
 });
 
@@ -4793,6 +4992,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && $("modal")
 window.addEventListener("resize", () => {
   if (mode === "convert") { if (Q) fit(); }
   else if (mode === "fault") { if (FI) fitFixed(FI.q.board); }
+  else if (mode === "reverse") { if (RV) fitFixed(RV.q.board); }
   else if (TQ) fitTrace();
 });
 
@@ -5081,6 +5281,159 @@ function answerFault(){
 $("btnFault").addEventListener("click", answerFault);
 $("mFault").addEventListener("click", () => setMode("fault"));
 
+
+/* ============================================================
+   Reverse — layout to circuit (PLAN.md §4.1, Mode 4)
+   ----------------------------------------------------------------------
+   Every board here is a CORRECT reference layout and every answer is derived
+   from the question record by `buildReverse()`, so nothing is authored twice.
+   Three item types: probe (tap the two holes you would measure across),
+   rail (which components are on a supply) and signal (which chip pin an
+   input actually reaches).
+   ============================================================ */
+let ri = 0, RV = null, revPicks = [], revTaps = [], revAnswered = false;
+
+const pinLabel = id => { const b = id.split("."); return b[0] + " pin " + b[1]; };
+const onNet = (net, h) => net.indexOf(SBD.ref(h)) >= 0;
+
+function buildReverseChips(){
+  const el = $("qchips");
+  el.innerHTML = "";
+  REVERSE_ITEMS.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qchip" + (done.has(item.id) ? " done" : "");
+    b.textContent = "R" + (i + 1);
+    if (i === ri) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", () => loadReverse(i, true));
+    el.appendChild(b);
+  });
+}
+
+function loadReverse(i, keepScroll){
+  ri = (i + REVERSE_ITEMS.length) % REVERSE_ITEMS.length;
+  RV = buildReverse(REVERSE_ITEMS[ri], QUESTIONS, SBD);
+  revPicks = []; revTaps = []; revAnswered = false;
+  $("btnRev").disabled = false;
+
+  $("qtitle").textContent = "Reverse " + (ri + 1) + ". " + RV.q.title;
+  $("qsrc").textContent = RV.q.board + " · " + SBD.BOARDS[RV.q.board].rows + " tracks × " +
+                          SBD.BOARDS[RV.q.board].cols + " holes";
+  $("qscenario").innerHTML = "<p>This board is correct and finished. Read the copper and " +
+    "work out what it does — there is no circuit diagram to look at.</p>";
+  $("revQ").textContent = RV.prompt;
+
+  const opts = $("revOpts");
+  opts.innerHTML = "";
+  if (RV.type === "probe"){
+    $("revHint").textContent = "Tap two holes on the board — one for each probe.";
+  } else {
+    const multi = RV.type === "rail";
+    $("revHint").textContent = multi ? "Choose every one that applies."
+                                     : "Choose one.";
+    const list = RV.type === "rail" ? RV.options : RV.options;
+    for (const val of list){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "fopt";
+      b.dataset.val = val;
+      b.setAttribute("aria-pressed", "false");
+      b.textContent = RV.type === "signal" ? pinLabel(val) : val;
+      b.addEventListener("click", () => {
+        if (revAnswered) return;
+        if (multi){
+          const k = revPicks.indexOf(val);
+          if (k >= 0) revPicks.splice(k, 1); else revPicks.push(val);
+        } else revPicks = [val];
+        opts.querySelectorAll(".fopt").forEach(x =>
+          x.setAttribute("aria-pressed", String(revPicks.indexOf(x.dataset.val) >= 0)));
+        say(b.textContent + (revPicks.indexOf(val) >= 0 ? " selected." : " cleared."));
+      });
+      opts.appendChild(b);
+    }
+  }
+
+  clearFeedback();
+  $("gridLayer").innerHTML = R.renderBoard({
+    board: RV.q.board, question: RV.q, attempt: RV.attempt, layer: "grid",
+    title: RV.q.board + " stripboard, component side" });
+  $("gridLayer").firstChild.classList.add("hitless");
+  buildReverseChips();
+  paintReverse();
+  fitFixed(RV.q.board);
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function paintReverse(){
+  let m = [];
+  if (!revAnswered){
+    m = revTaps.map(h => ({ r: h.r, c: h.c, kind: "hl" }));
+  } else if (RV.type === "probe"){
+    /* The reveal IS the answer: the two nets you measure between, in two
+       colours, so the boundary reads as a boundary (same idea as Trace). */
+    const mk = (net, kind) => net.map(rf => {
+      const h = SBD.parseRef(rf); return { r: h.r, c: h.c, kind: kind }; });
+    m = mk(RV.nets[0], "hl").concat(mk(RV.nets[1], "hl2"));
+  } else {
+    const pins = RV.type === "signal" ? [RV.answer]
+               : RV.answer.map(id => id + "." + (SBD.FOOTPRINTS[
+                   (RV.q.components.find(c => c.id === id) || {}).footprint] || { pins: [{}] }).pins[0].pin);
+    m = holesForOn(pins, RV.attempt).map(h => ({ r: h.r, c: h.c, kind: "hl" }));
+  }
+  $("liveLayer").innerHTML = R.renderBoard({
+    board: RV.q.board, question: RV.q, attempt: RV.attempt, layer: "live",
+    marks: m, title: RV.q.title });
+  const svg = $("liveLayer").firstChild;
+  svg.classList.add("hitless");
+  svg.setAttribute("aria-hidden", "true");
+}
+
+function answerReverse(){
+  if (revAnswered) return;
+  let correct, detail;
+  if (RV.type === "probe"){
+    if (revTaps.length !== 2){ say("Tap two holes first."); return; }
+    const [a, b] = revTaps;
+    correct = (onNet(RV.nets[0], a) && onNet(RV.nets[1], b)) ||
+              (onNet(RV.nets[1], a) && onNet(RV.nets[0], b));
+    detail = "One probe goes anywhere on <strong>" + esc(RV.pins[0]) + "</strong>'s track " +
+             "and the other anywhere on <strong>" + esc(RV.pins[1]) + "</strong>'s. The two " +
+             "nets are ringed in different colours below.";
+  } else if (RV.type === "rail"){
+    if (!revPicks.length){ say("Choose at least one first."); return; }
+    correct = revPicks.length === RV.answer.length &&
+              RV.answer.every(id => revPicks.indexOf(id) >= 0);
+    detail = "On this board the rail reaches <strong>" + esc(RV.answer.join(", ")) + "</strong>.";
+  } else {
+    if (!revPicks.length){ say("Choose one first."); return; }
+    correct = revPicks[0] === RV.answer;
+    detail = "It reaches <strong>" + esc(pinLabel(RV.answer)) + "</strong>.";
+  }
+
+  revAnswered = true;
+  $("btnRev").disabled = true;
+  $("revOpts").querySelectorAll(".fopt").forEach(b => {
+    b.disabled = true;
+    const isAns = RV.type === "rail" ? RV.answer.indexOf(b.dataset.val) >= 0
+                                     : b.dataset.val === RV.answer;
+    if (isAns) b.classList.add("right");
+    else if (revPicks.indexOf(b.dataset.val) >= 0) b.classList.add("wrong");
+  });
+
+  const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
+  fb.classList.add("show");
+  fb.classList.toggle("good", correct);
+  fb.classList.toggle("bad", !correct);
+  head.textContent = correct ? "✓ Correct" : "Not quite";
+  body.innerHTML = "<p>" + detail + "</p><p>" + REVERSE_ITEMS[ri].why + "</p>";
+
+  if (correct){ done.add(REVERSE_ITEMS[ri].id); buildReverseChips(); saveStore(); }
+  paintReverse();
+  say((correct ? "Correct. " : "Not quite. ") + REVERSE_ITEMS[ri].why);
+}
+$("btnRev").addEventListener("click", answerReverse);
+$("mReverse").addEventListener("click", () => setMode("reverse"));
+
 function setModeDesc(){ $("modeDesc").textContent = MODE_DESC[mode]; }
 
 function setMode(m){
@@ -5090,16 +5443,20 @@ function setMode(m){
   $("mConvert").setAttribute("aria-pressed", String(m === "convert"));
   $("mTrace").setAttribute("aria-pressed", String(m === "trace"));
   $("mFault").setAttribute("aria-pressed", String(m === "fault"));
+  $("mReverse").setAttribute("aria-pressed", String(m === "reverse"));
   $("lede").textContent = m === "convert" ? CONVERT_LEDE
-                        : m === "fault"   ? FAULT_LEDE : TRACE_LEDE;
+                        : m === "fault"   ? FAULT_LEDE
+                        : m === "reverse" ? REVERSE_LEDE : TRACE_LEDE;
   $("board").setAttribute("aria-label",
     m === "convert" ? "Stripboard. Tap or click a hole to use the selected tool."
     : m === "fault" ? "Stripboard, showing a finished layout with one fault. Tap the hole where you think the fault is."
+    : m === "reverse" ? "Stripboard, showing a correct layout. Tap holes to answer the question beside it."
     : "Stripboard, showing a fixed layout. Read only — answer the question beside it.");
   setModeDesc();
   clearFeedback();
   if (m === "convert") load(qi, true);
   else if (m === "fault") loadFault(fi, true);
+  else if (m === "reverse") loadReverse(ri, true);
   else loadTrace(ti, true);
 }
 $("mConvert").addEventListener("click", () => setMode("convert"));
