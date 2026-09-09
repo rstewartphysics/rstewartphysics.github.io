@@ -2127,34 +2127,41 @@ title: Stripboard Builder · National 5 Electronics
   }
 
 
-  /* A generic IC drawn as a labelled rectangle with NAMED pins — which is how
-     a 555 appears in every textbook and every past paper, and how it has to
-     appear here: the pupil reads "Trigger" off the diagram and finds pin 2 on
-     the data sheet.  That mapping is the skill, so the numbers are not given.
+  /* An IC drawn the way the classroom material draws it — the Yenka/EU square
+     symbol used throughout `classes/electronics/theory/logic-and-ics.html`,
+     which is the template for every circuit convention here: a plain box with
+     the part number in the middle and each PIN NUMBER inside the box at the
+     point its wire attaches.  No function names, no leads; wires meet the box
+     edge directly.  Pupils turn a number into a function on the data sheet,
+     which is the skill.
 
-     `left` and `right` are arrays of pin names, spaced evenly down each edge.
-     Returns the outer end of every lead, keyed by name, so the caller wires to
-     a point rather than to a coordinate it worked out for itself. */
+     `left` / `right` / `top` / `bottom` are arrays of `{ num, at }`, where `at`
+     is the fraction along that edge.  Returns each attachment point keyed by
+     pin number, so the caller wires to a pin rather than to a coordinate it
+     worked out for itself. */
   function icBlock(x, y, o) {
     o = o || {};
-    const left = o.left || [], right = o.right || [];
-    const rows = Math.max(left.length, right.length);
-    const w = o.w || 84, h = o.h || Math.max(56, rows * 22 + 16), lead = o.lead || 18;
+    const w = o.w || 70, h = o.h || 66;
     const x0 = x - w / 2, y0 = y - h / 2;
     let s = `<rect class="sbd-part" x="${n(x0)}" y="${n(y0)}" width="${n(w)}" ` +
-            `height="${n(h)}" rx="3"/>`;
-    const ends = {};
-    const place = (names, side) => names.forEach((name, i) => {
-      const py = y0 + h * (i + 1) / (names.length + 1);
-      const inner = side < 0 ? x0 : x0 + w, outer = inner + lead * side;
-      s += wire([[inner, py], [outer, py]]);
-      s += text(inner - side * 5, py + 3.5, name,
-                { cls: "sbd-cnet", anchor: side < 0 ? "start" : "end" });
-      ends[name] = [outer, py];
+            `height="${n(h)}" rx="2"/>`;
+    const at = {};
+    const put = (list, side) => (list || []).forEach(pin => {
+      let px, py, tx, ty, anchor;
+      if (side === "l") { px = x0;              py = y0 + h * pin.at;
+                          tx = x0 + 6;          ty = py + 4;      anchor = "start"; }
+      if (side === "r") { px = x0 + w;          py = y0 + h * pin.at;
+                          tx = x0 + w - 6;      ty = py + 4;      anchor = "end"; }
+      if (side === "t") { px = x0 + w * pin.at; py = y0;
+                          tx = px;              ty = y0 + 13;     anchor = "middle"; }
+      if (side === "b") { px = x0 + w * pin.at; py = y0 + h;
+                          tx = px;              ty = y0 + h - 5;  anchor = "middle"; }
+      s += text(tx, ty, pin.num, { cls: "sbd-cnet", anchor: anchor });
+      at[pin.num] = [px, py];
     });
-    place(left, -1); place(right, 1);
-    if (o.label) s += text(x, y0 - 7, o.label);
-    return { svg: s, at: ends };
+    put(o.left, "l"); put(o.right, "r"); put(o.top, "t"); put(o.bottom, "b");
+    if (o.name) s += text(x, y + 4, o.name);
+    return { svg: s, at: at };
   }
 
   /* An op-amp: the triangle with its two inputs marked.  Same reasoning as the
@@ -2172,7 +2179,13 @@ title: Stripboard Builder · National 5 Electronics
             text(bx + 9, inM + 4, "\u2212", { cls: "sbd-cnet", anchor: "start" }) +
             text(bx + 9, inP + 4, "+", { cls: "sbd-cnet", anchor: "start" });
     if (o.label) s += text(x, y0 - 7, o.label);
-    return { svg: s, minus: [x0, inM], plus: [x0, inP], out: [bx + w + lead, y] };
+    /* The supply connections are drawn (the classroom template draws them), so
+       hand back two points that actually sit ON the sloping edges — a wire
+       started at the bounding box's corner would begin in mid-air. */
+    const f = 0.62;                       // nearer the nose, leaving room for a label below
+    return { svg: s, minus: [x0, inM], plus: [x0, inP], out: [bx + w + lead, y],
+             vplus:  [bx + w * f, y0 + (h / 2) * f],
+             vminus: [bx + w * f, y0 + h - (h / 2) * f] };
   }
 
 
@@ -3104,47 +3117,62 @@ title: Stripboard Builder · National 5 Electronics
       testpoints: [{ id: "TP1", at: "H8", predict: 1 }]
     },
     circuit: (C, o) => {
-      /* Wider than the other diagrams because the 555's pin NAMES have to fit
-         inside the package — abbreviating them would break the one mapping the
-         question is about (name on the diagram -> pin number on the sheet). */
-      const TOP = 24, BOT = 288, XT = 320, XO = 262;
-      const ic = C.icBlock(150, 120, { w: 126, h: 96, label: "IC1  555",
-        left: ["Reset", "Trigger"], right: ["Discharge", "Threshold", "Output"] });
-      const RS = ic.at.Reset, T = ic.at.Trigger;
-      const DI = ic.at.Discharge, TH = ic.at.Threshold, OU = ic.at.Output;
+      /* Drawn exactly as the classroom material draws it (the 555 photographs
+         on classes/electronics/theory/logic-and-ics.html): a square box with
+         "555" in the middle and the pin NUMBER inside the box wherever a wire
+         meets it — 7, 6, 2 down the left, 4 and 8 on top, 3 on the right,
+         1 and 5 underneath.  Numbers, not function names: turning a number
+         into a function on the data sheet is the skill.
+
+         The supply pins ARE wired here, because the template wires them.  That
+         is not a contradiction of the gate questions: a distinctive-shape gate
+         symbol has no supply pins to draw, which is exactly why those
+         questions leave the pupil to work them out. */
+      const TOP = 24, BOT = 288, XT = 120, XO = 300;
+      const ic = C.icBlock(210, 150, { w: 70, h: 66, name: "555",
+        left:   [{ num: "7", at: 0.2 }, { num: "6", at: 0.5 }, { num: "2", at: 0.8 }],
+        top:    [{ num: "4", at: 0.35 }, { num: "8", at: 0.78 }],
+        right:  [{ num: "3", at: 0.5 }],
+        bottom: [{ num: "1", at: 0.35 }, { num: "5", at: 0.78 }] });
+      const P = ic.at;
       const b =
-        C.rail(RAIL_L, 356, TOP, { pos: true }) + C.rail(RAIL_L, 356, BOT) +
+        C.rail(RAIL_L, 320, TOP, { pos: true }) + C.rail(RAIL_L, 320, BOT) +
         ic.svg +
 
-        /* Reset tied to the supply is a design choice, not a power pin, so it
-           IS drawn.  Reset is the upper of the two left pins precisely so this
-           wire never has to cross the Trigger wire below it. */
-        C.wire([[RS[0], RS[1]], [58, RS[1]], [58, TOP]], "sbd-pos") + C.node(58, TOP) +
+        // pin 8 is the supply and pin 4 (Reset) is tied up to it
+        C.wire([[P["8"][0], P["8"][1]], [P["8"][0], TOP]], "sbd-pos") + C.node(P["8"][0], TOP) +
+        C.wire([[P["4"][0], P["4"][1]], [P["4"][0], TOP]], "sbd-pos") + C.node(P["4"][0], TOP) +
+        // pin 1 is 0 V; pin 5 (control voltage) is left open, which is normal
+        C.wire([[P["1"][0], P["1"][1]], [P["1"][0], BOT]]) + C.node(P["1"][0], BOT) +
 
-        // the push button pulls Trigger low
-        C.term(40, T[1], { side: "u", label: "TRIG" }) +
-        C.wire([[47, T[1]], [T[0], T[1]]]) +
+        // the timing chain: R1 from the rail into pin 7, pin 6 tied to it, C1 to 0 V
+        C.node(XT, TOP) + C.wire([[XT, TOP], [XT, 46]], "sbd-pos") +
+        C.res(XT, 74, { dir: "v", span: 56, label: "R1", value: "100 kΩ", labelLeft: true }) +
+        C.wire([[XT, 102], [XT, 200]]) +
+        C.wire([[XT, P["7"][1]], [P["7"][0], P["7"][1]]]) + C.node(XT, P["7"][1]) +
+        C.wire([[XT, P["6"][1]], [P["6"][0], P["6"][1]]]) + C.node(XT, P["6"][1]) +
+        C.ecap(XT, 228, { span: 56, label: "C1", value: "10 µF" }) +
+        C.wire([[XT, 256], [XT, BOT]]) + C.node(XT, BOT) +
 
-        // R1 from the rail into Discharge, with Threshold tied to the same net
-        C.node(XT, TOP) + C.wire([[XT, TOP], [XT, 40]], "sbd-pos") +
-        C.res(XT, 68, { dir: "v", span: 56, label: "R1", value: "100 kΩ" }) +
-        C.wire([[DI[0], DI[1]], [XT, DI[1]]]) + C.node(XT, DI[1]) +
-        C.wire([[TH[0], TH[1]], [XT, TH[1]]]) + C.node(XT, TH[1]) +
-        C.wire([[XT, DI[1]], [XT, 160]]) +
-        C.ecap(XT, 188, { span: 56, label: "C1", value: "10 µF" }) +
-        C.wire([[XT, 216], [XT, BOT]]) + C.node(XT, BOT) +
+        /* The trigger wire crosses the timing chain with no junction dot, which
+           is the template's convention for "these do not join" — the dot is the
+           only thing that means a connection. */
+        C.term(40, P["2"][1], { label: "TRIG" }) +
+        C.wire([[47, P["2"][1]], [P["2"][0], P["2"][1]]]) +
 
         // the output drives the stair light
-        C.wire([[OU[0], OU[1]], [XO, OU[1]], [XO, 176]]) +
+        C.wire([[P["3"][0], P["3"][1]], [XO, P["3"][1]], [XO, 176]]) +
         C.res(XO, 204, { dir: "v", span: 56, label: "R2", value: "270 Ω", labelLeft: true }) +
         C.wire([[XO, 232], [XO, 252]]) +
         C.led(XO, 268, { dir: "d", span: 32, label: "LED1" }) +
         C.wire([[XO, 284], [XO, BOT]]) + C.node(XO, BOT) +
 
-        nn(C, o, 110, TOP, 1) + nn(C, o, 200, BOT, 2) +
-        nn(C, o, XT, 140, 3) + nn(C, o, 58, T[1], 4) +
-        nn(C, o, 246, OU[1], 5) + nn(C, o, XO, 242, 6);
-      return { w: 380, h: 312, body: b };
+        nn(C, o, 70, TOP, 1) + nn(C, o, 150, BOT, 2) +
+        // on the stub into pin 7, NOT on the timing column: a ring sitting on the
+        // TRIG crossing would read as a junction dot
+        nn(C, o, 150, P["7"][1], 3) + nn(C, o, 80, P["2"][1], 4) +
+        nn(C, o, 272, P["3"][1], 5) + nn(C, o, XO, 242, 6);
+      return { w: 340, h: 316, body: b };
     },
     why: [
       "A <strong>monostable</strong> has one stable state. Pulling <strong>Trigger</strong> " +
@@ -3156,9 +3184,13 @@ title: Stripboard Builder · National 5 Electronics
       "two link wires to bring them together.",
       "<strong>Reset (pin 4) is tied to +5 V.</strong> Left floating it resets at random " +
       "and the light drops out early — a fault that looks like a duff chip.",
-      "The diagram gives pin <em>names</em>, not numbers. <strong>Trigger is pin 2, Output " +
-      "pin 3, Reset pin 4, Threshold pin 6 and Discharge pin 7</strong>; pins 1 and 8 are " +
-      "0 V and +5 V. All of it is on page 3 of the data sheet.",
+      "The 555 is drawn the standard way — a square with <strong>555</strong> in it and the " +
+      "<strong>pin number</strong> at every point a wire meets it. The numbers are all you " +
+      "get: page 3 of the data sheet turns them into <strong>2 Trigger, 3 Output, 4 Reset, " +
+      "6 Threshold, 7 Discharge</strong>, with 8 and 1 the supplies and 5 left open.",
+      "Notice that the trigger wire <strong>crosses</strong> the timing chain without a dot. " +
+      "A junction dot is the only thing that means a join — two wires crossing with no dot " +
+      "are not connected, on this diagram and in the exam.",
       "With the button just pressed the output is high, so <strong>TP1 reads logic 1</strong>. " +
       "A 0 there while the light is supposed to be on puts the fault in the timing parts, " +
       "not in the lamp."
@@ -3382,38 +3414,45 @@ title: Stripboard Builder · National 5 Electronics
       testpoints: [{ id: "TP1", at: "R18", predict: 1 }]
     },
     circuit: (C, o) => {
-      /* The two dividers sit on OPPOSITE sides of the op-amp.  Side by side on
-         the left, whichever one is further out has to send its wire across the
-         other's column — a crossing with no junction dot, which is right
-         electrically and unreadable to a pupil.  From the right, the reference
-         wire runs in a clear corridor above the triangle instead. */
-      const TOP = 24, BOT = 288, XS = 64, XR = 296, XO = 236;
-      // the label goes BELOW the triangle: above it, the reference wire runs
-      // through it on its way to the − input
-      const A = C.opamp(190, 150, {});
+      /* Laid out like the comparator on the theory page: both dividers side by
+         side on the left, op-amp to the right, reference to the − input and the
+         sensor to the +.  The reference wire crosses the sensor's column with
+         NO junction dot — which is the template's convention, and the only
+         thing that marks a real join is the dot.  (An earlier draft moved the
+         dividers apart to dodge the crossing; the classroom material does not,
+         and matching it beats tidying it.) */
+      const TOP = 24, BOT = 288, XREF = 70, XSEN = 150, XO = 312;
+      const A = C.opamp(236, 168, {});
+      const M = A.minus[1], P = A.plus[1];
       const b =
-        C.rail(RAIL_L, 302, TOP, { pos: true }) + C.rail(RAIL_L, 302, BOT) +
+        C.rail(RAIL_L, 336, TOP, { pos: true }) + C.rail(RAIL_L, 336, BOT) +
 
-        // sensing divider: R1 on top, the thermistor below, so cold reads high
-        C.node(XS, TOP) + C.wire([[XS, TOP], [XS, 46]], "sbd-pos") +
-        C.res(XS, 74, { dir: "v", span: 56, label: "R1", value: "10 kΩ", labelLeft: true }) +
-        C.wire([[XS, 102], [XS, 148]]) + C.node(XS, 120) +
-        // label to the side, clear of both the body and the sensing stroke
-        C.thermistor(XS, 176, { dir: "v", span: 56 }) +
-        C.text(88, 180, "TH1", { anchor: "start" }) +
-        C.wire([[XS, 204], [XS, BOT]]) + C.node(XS, BOT) +
+        // reference divider: two equal resistors, so the reference is half supply
+        C.node(XREF, TOP) + C.wire([[XREF, TOP], [XREF, 70]], "sbd-pos") +
+        C.res(XREF, 98, { dir: "v", span: 56, label: "R2", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XREF, 126], [XREF, M]]) + C.node(XREF, M) +
+        C.wire([[XREF, M], [XREF, 182]]) +
+        C.res(XREF, 210, { dir: "v", span: 56, label: "R3", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XREF, 238], [XREF, BOT]]) + C.node(XREF, BOT) +
 
-        // reference divider, on the far side
-        C.node(XR, TOP) + C.wire([[XR, TOP], [XR, 48]], "sbd-pos") +
-        C.res(XR, 76, { dir: "v", span: 56, label: "R2", value: "10 kΩ", labelLeft: true }) +
-        C.wire([[XR, 104], [XR, 118]]) + C.node(XR, 104) +
-        C.res(XR, 146, { dir: "v", span: 56, label: "R3", value: "10 kΩ", labelLeft: true }) +
-        C.wire([[XR, 174], [XR, BOT]]) + C.node(XR, BOT) +
+        // sensing divider: R1 on top, thermistor below, so COLD reads high
+        C.node(XSEN, TOP) + C.wire([[XSEN, TOP], [XSEN, 78]], "sbd-pos") +
+        C.res(XSEN, 106, { dir: "v", span: 56, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XSEN, 134], [XSEN, 182]]) + C.node(XSEN, P) +
+        C.thermistor(XSEN, 210, { dir: "v", span: 56 }) +
+        C.text(134, 214, "TH1", { anchor: "end" }) +
+        C.wire([[XSEN, 238], [XSEN, BOT]]) + C.node(XSEN, BOT) +
 
-        // sensing -> the + input (the lower one); reference -> the − input
-        C.wire([[XS, 120], [120, 120], [120, A.plus[1]], [A.plus[0], A.plus[1]]]) +
-        C.wire([[XR, 104], [A.minus[0], 104], [A.minus[0], A.minus[1]]]) +
-        A.svg + C.text(142, 202, "IC1  741") +
+        // reference to −, sensor to +; the first crosses the second's column
+        C.wire([[XREF, M], [A.minus[0], M]]) +
+        C.wire([[XSEN, P], [A.plus[0], P]]) +
+        A.svg + C.text(206, 236, "IC1  741") +
+
+        // the supply pins are drawn, as the template draws them
+        C.wire([[A.vplus[0], A.vplus[1]], [A.vplus[0], TOP]], "sbd-pos") +
+        C.node(A.vplus[0], TOP) +
+        C.wire([[A.vminus[0], A.vminus[1]], [A.vminus[0], BOT]]) +
+        C.node(A.vminus[0], BOT) +
 
         // the output drives the warning light
         C.wire([[A.out[0], A.out[1]], [XO, A.out[1]], [XO, 176]]) +
@@ -3422,10 +3461,10 @@ title: Stripboard Builder · National 5 Electronics
         C.led(XO, 268, { dir: "d", span: 32, label: "LED1" }) +
         C.wire([[XO, 284], [XO, BOT]]) + C.node(XO, BOT) +
 
-        nn(C, o, 170, TOP, 1) + nn(C, o, 170, BOT, 2) +
-        nn(C, o, 96, 120, 3) + nn(C, o, 200, 104, 4) +
-        nn(C, o, XO, 162, 5) + nn(C, o, XO, 242, 6);
-      return { w: 326, h: 312, body: b };
+        nn(C, o, 108, TOP, 1) + nn(C, o, 108, BOT, 2) +
+        nn(C, o, 178, P, 3) + nn(C, o, 106, M, 4) +
+        nn(C, o, 296, A.out[1], 5) + nn(C, o, XO, 242, 6);
+      return { w: 356, h: 316, body: b };
     },
     why: [
       "A <strong>comparator</strong> has no feedback: the output slams high when the " +
@@ -3699,12 +3738,22 @@ function drawCircuit(){
   $("cinner").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title + " — circuit diagram" });
   $("cinner").dataset.w = c.w;
   $("cinner").dataset.h = c.h;
+  /* The caption depends on how the chip is drawn.  A distinctive-shape gate
+     symbol has no supply pins on it at all, so those questions leave the pupil
+     to work them out; the 555's square symbol and the op-amp triangle show the
+     supplies, the way the classroom material draws them. */
   const chip = Q.components.find(p => /^dip-/.test(p.footprint));
+  const part = chip && chip.part;
   $("circKey").textContent = showingAnswer
-    ? "Ringed = net \u00b7 plain blue = IC pin"
-    : chip
-      ? "The chip's +5 V and 0 V pins are not drawn \u2014 find them on the data sheet."
-      : "Two supply rails. Every net between them becomes one track on the board.";
+    ? "Ringed = net \u00b7 plain blue = IC pin \u00b7 a dot means joined, a crossing does not"
+    : !chip
+      ? "Two supply rails. Every net between them becomes one track on the board."
+      // 4-digit 74-series only: /^74/ also matches the 741 op-amp
+      : /^74\d\d/.test(part)
+        ? "The chip's +5 V and 0 V pins are not drawn \u2014 find them on the data sheet."
+        : part === "555"
+          ? "The numbers are the chip's pins. The data sheet says what each one does."
+          : "The op-amp's pins are not numbered here \u2014 the data sheet says which is which.";
 }
 
 /* ------------------------------------------------------------------ fit
@@ -4242,7 +4291,7 @@ const DATASHEET = "/assets/electronics/datasheets/n5-practical-electronics-data-
 function datasheetPageFor(part){
   if (!part) return null;
   if (part === "555" || part === "741") return 3;
-  if (/^74/.test(part)) return 4;
+  if (/^74\d\d/.test(part)) return 4;      // 4-digit 74-series; /^74/ would catch the 741 too
   return null;
 }
 function setDatasheetLink(){
@@ -4472,6 +4521,11 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.7", date: "9 Sep 2026", what:
+    "The 555 is now the square numbered symbol you have already met in class \u2014 a box with " +
+    "555 in it and the pin number wherever a wire meets it \u2014 and the op-amp shows its supply " +
+    "connections. Both match the circuits on the Logic &amp; ICs theory page, which is now the " +
+    "reference for every diagram here. A dot means joined; wires crossing without a dot do not." },
   { v: "0.6", date: "9 Sep 2026", what:
     "Two new questions. Q11 is a 555 <strong>monostable</strong> \u2014 a stairwell light that " +
     "times itself out \u2014 and Q12 is a 741 <strong>comparator</strong> driving a frost warning. " +
