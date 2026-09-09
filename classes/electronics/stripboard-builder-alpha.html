@@ -212,8 +212,22 @@ title: Stripboard Builder · National 5 Electronics
        One page, two very different interaction models sharing the board and
        its sizing. `data-mode` on #sbd, not a class per element, so adding a
        mode later is one attribute value, not a sweep through the markup. */
-    #sbd[data-mode="trace"] .conv-only{display:none}
-    #sbd[data-mode="convert"] .trace-only{display:none}
+    #sbd:not([data-mode="convert"]) .conv-only{display:none}
+    #sbd:not([data-mode="trace"]) .trace-only{display:none}
+    #sbd:not([data-mode="fault"]) .fault-only{display:none}
+    /* Fault-finder: the four named faults to choose between. */
+    #sbd .faultwrap{border:1px solid var(--border);border-radius:12px;background:var(--card);
+      padding:10px 12px}
+    #sbd .faultq{margin:0 0 4px;font:900 .92rem/1.35 var(--font-stack);color:var(--text)}
+    #sbd .faulthint{margin:0 0 9px;font:700 .76rem/1.35 var(--font-stack);color:var(--muted)}
+    #sbd .faultopts{display:grid;gap:6px}
+    #sbd .fopt{display:block;width:100%;text-align:left;min-height:44px;padding:.5rem .65rem;
+      border:1.5px solid var(--border);border-radius:10px;background:var(--card);
+      font:700 .8rem/1.3 var(--font-stack);color:var(--text);cursor:pointer}
+    #sbd .fopt[aria-pressed="true"]{border-color:var(--accent);background:var(--tint)}
+    #sbd .fopt.right{border-color:var(--ok);background:var(--ok-bg)}
+    #sbd .fopt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+    #sbd .fopt:disabled{cursor:default}
 
     /* ---- Trace mode: the answer panel -------------------------------------
        Trace has no bank and no tool row — the board is fixed content, and the
@@ -350,7 +364,7 @@ title: Stripboard Builder · National 5 Electronics
         <div class="seg" role="group" aria-label="Mode">
           <button type="button" id="mTrace" aria-pressed="true">Trace</button>
           <button type="button" id="mConvert" aria-pressed="false">Convert</button>
-          <button type="button" disabled title="Built later in phase 4">Fault-finder</button>
+          <button type="button" id="mFault" aria-pressed="false">Fault-finder</button>
           <button type="button" disabled title="Built later in phase 4">Reverse</button>
         </div>
         <p class="modedesc" id="modeDesc"></p>
@@ -402,6 +416,13 @@ title: Stripboard Builder · National 5 Electronics
               <div class="cinner" id="cinner"></div>
               <p class="circkey" id="circKey"></p>
               <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
+            </div>
+
+            <div class="faultwrap fault-only" id="faultWrap">
+              <p class="faultq" id="faultQ"></p>
+              <p class="faulthint" id="faultHint"></p>
+              <div class="faultopts" id="faultOpts" role="group" aria-label="What is wrong with this board"></div>
+              <p style="margin:10px 0 0"><button type="button" class="btn primary" id="btnFault">Check my answer</button></p>
             </div>
 
             <div class="tracewrap trace-only" id="traceWrap">
@@ -3583,6 +3604,146 @@ title: Stripboard Builder · National 5 Electronics
   ];
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- fault-questions.js ---- */
+/* ============================================================================
+   Stripboard Builder — Fault-finder bank (PLAN.md §4.1, Mode 3)
+   ----------------------------------------------------------------------------
+   Every item is a CORRECT reference board with one thing broken.  The board,
+   the fault type and the places to ring are all derived by running the engine
+   over the mutated board — there is no second answer key, so a Fault-finder
+   item cannot drift from what Convert would say about the same board.  That is
+   the same reasoning as `reference` being asserted against `target` (R4), and
+   it is why this mode costs almost no new content (§13.4).
+
+   Only `apply` and the four choices are authored.  Everything a pupil is
+   marked against comes from `SBD.check()`.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  /* The pupil-facing catalogue: an engine code and the words for it.  Kept
+     here rather than on the page so the tests read the same list. */
+  const FAULT_NAMES = {
+    "dil-uncut":        "The tracks under the chip have not been cut",
+    "dil-along-tracks": "The chip lies along the tracks instead of across them",
+    "split":            "Two things that should be joined are on different tracks",
+    "merged":           "Two nets that should be separate have been joined",
+    "self-short":       "Both legs of one part are in the same track",
+    "floating":         "A pin is alone on its track",
+    "unplaced":         "A component has been left in the bank",
+    "no-testpoint":     "A test point is missing",
+    "no-prediction":    "A test point has no expected reading",
+    "wrong-prediction": "A test point's expected reading is wrong",
+    "reversed":         "A polarised part is fitted the wrong way round",
+    "diagonal-link":    "A link wire runs diagonally",
+    "colour-reused":    "Two different signals share one wire colour",
+    "red-not-supply":   "A red link wire is not on the +5 V rail",
+    "black-not-supply": "A black link wire is not on the 0 V rail",
+    "pointless-cut":    "A cut that separates nothing"
+  };
+
+  /* `choices` are authored, not generated: a distractor is only worth offering
+     if it is a mistake a pupil could actually believe, and picking those is a
+     judgement the code cannot make. */
+  const FAULT_ITEMS = [
+    { id: "FF1", from: "lift-interlock",
+      apply: a => { a.cuts = a.cuts.filter(c => c !== "H11"); },
+      choices: ["dil-uncut", "dil-along-tracks", "split", "self-short"],
+      why: "One track under the chip was never cut, so the two pins facing each other " +
+           "across it are still joined by copper. Every track the package crosses has to " +
+           "be cut between the two rows of pins — this is the single most common fault " +
+           "the verification reports pick up." },
+
+    { id: "FF2", from: "lift-interlock",
+      apply: a => { a.cuts = ["I7"]; a.placements.find(p => p.id === "IC1").rot = 90; },
+      choices: ["dil-along-tracks", "dil-uncut", "merged", "floating"],
+      why: "The chip has been laid ALONG a track, so all seven pins down one side share " +
+           "one piece of copper and are shorted together. A DIL package always sits " +
+           "across the tracks." },
+
+    { id: "FF3", from: "lift-interlock",
+      apply: a => { a.links = a.links.filter(l => l.a !== "H9"); },
+      choices: ["split", "merged", "floating", "unplaced"],
+      why: "Gate a's output and gate b's input are on different tracks and nothing joins " +
+           "them. Adjacent pins down one side of a chip are NOT connected to each other — " +
+           "that pair needs a link wire." },
+
+    { id: "FF4", from: "lift-interlock",
+      // straight, not diagonal: a diagonal link is its own (higher-ranked) fault,
+      // and this item is about the short, not the routing
+      apply: a => { a.links.push({ a: "F21", b: "O21", colour: "purple", num: 9 }); },
+      choices: ["merged", "split", "self-short", "pointless-cut"],
+      why: "A link wire has joined the +5 V rail to the 0 V rail. On a real board that is " +
+           "a dead short across the supply." },
+
+    { id: "FF5", from: "lift-interlock",
+      apply: a => { const r = a.placements.find(p => p.id === "R1");
+                    r.rot = 0; r.at = "E3"; },
+      choices: ["self-short", "split", "reversed", "floating"],
+      why: "Both legs of the resistor have landed in the same track, so the copper joins " +
+           "them and the resistor does nothing. A part has to sit ACROSS the tracks, or " +
+           "have a cut between its legs." },
+
+    { id: "FF6", from: "lift-interlock",
+      /* An extra cut in the wrong place, isolating pin 7 while the rest of the
+         0 V net stays joined — which is what "floating" means.  Moving a
+         terminal instead only ever splits a two-pin net, and rank 5 reports
+         that as "split". */
+      apply: a => { a.cuts.push("L9"); },
+      choices: ["floating", "split", "unplaced", "merged"],
+      why: "There is a cut in the wrong place. It has sliced the 0 V track between the " +
+           "chip's pin 7 and the rest of the 0 V net, leaving that pin on a stub of copper " +
+           "with nothing else on it. The rest of the 0 V net is still fine, which is what " +
+           "makes this one hard to spot." },
+
+    { id: "FF7", from: "two-inverters",
+      apply: a => { a.placements = a.placements.filter(p => p.id !== "LED2"); },
+      choices: ["unplaced", "split", "floating", "no-testpoint"],
+      why: "A component from the bill of materials never made it onto the board. A layout " +
+           "diagram has to show every part, or whoever builds it cannot." },
+
+    { id: "FF8", from: "greenhouse-irrigation",
+      apply: a => { a.testpoints = []; },
+      choices: ["no-testpoint", "no-prediction", "unplaced", "floating"],
+      why: "The layout has no test point on the process output. SQA: each sub-system input " +
+           "and output needs an appropriate test point, planned on the layout before the " +
+           "board is built — not added afterwards." },
+
+    { id: "FF9", from: "lift-interlock",
+      apply: a => { a.links = a.links.map(l =>
+                      l.a === "H9" ? { a: "H9", b: "I10", colour: l.colour, num: l.num } : l); },
+      choices: ["diagonal-link", "split", "merged", "self-short"],
+      why: "A link wire has been drawn at an angle. Link wires run straight — along a track " +
+           "or straight down between tracks — so that the wiring schedule can describe them " +
+           "and whoever builds the board can follow them." },
+
+    { id: "FF10", from: "lift-interlock",
+      apply: a => { a.links = a.links.map(l => Object.assign({}, l, { colour: "blue" })); },
+      choices: ["colour-reused", "red-not-supply", "split", "merged"],
+      why: "Both link wires are the same colour but they carry different signals. SQA: " +
+           "there should be different colours for different signals, and every wire " +
+           "coloured AND numbered." }
+  ];
+
+  /* Build one item: mutate, run the engine, and take its own top diagnostic as
+     the answer.  `refs` is what gets ringed on reveal. */
+  function buildFault(item, questions, SBD) {
+    const q = questions.find(x => x.id === item.from);
+    if (!q) throw new Error(item.id + ": no question " + item.from);
+    const attempt = JSON.parse(JSON.stringify(q.reference));
+    item.apply(attempt);
+    const res = SBD.check(q, attempt);
+    const top = res.faults[0] || res.warnings[0] || null;
+    return { item: item, q: q, attempt: attempt, res: res,
+             code: top && top.code, refs: (top && top.refs) || [],
+             msg: top && top.msg };
+  }
+
+  root.FAULT_NAMES = FAULT_NAMES;
+  root.FAULT_ITEMS = FAULT_ITEMS;
+  root.buildFault = buildFault;
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
 
 <style id="sbdBoardStyle"></style>
@@ -3650,7 +3811,8 @@ function paintStageBar(){
 let mode = "trace";                        // "convert" | "trace" — Trace is the warm-up, shown first
 const MODE_DESC = {
   trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
-  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it."
+  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it.",
+  fault: "One board, one fault. Find where it is, then say what it is — the skill the verifiers say is missing."
 };
 let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
 const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
@@ -3658,6 +3820,8 @@ const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a 
   "Tap a placed part again to pick it up and move it.";
 const TRACE_LEDE = "Look at the board, then answer the question beside it: are the two named holes " +
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
+const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
+  "with it. Tap the hole where you think the fault is, choose what the fault is, and check.";
 
 const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [], stage: 0 });
 
@@ -3673,7 +3837,8 @@ function loadStore(){
 function saveStore(){
   try {
     const work = loadStoreRaw();
-    work[Q.id] = A;
+    if (Q && A) work[Q.id] = A;        // the read-only modes have no board to save
+
     localStorage.setItem(STORE, JSON.stringify({ v:1, hash:BANK_HASH, done:[...done], work }));
   } catch(e){}
 }
@@ -3856,9 +4021,18 @@ function fit(){
 /* ============================================================
    Hit testing — one overlay, some arithmetic, never 888 listeners
    ============================================================ */
+/* Three modes now share the one board element, so this has to ask the CURRENT
+   mode which board is on screen and at what scale — it used to read Convert's
+   Q.board and Convert's scale unconditionally, which threw the moment a
+   read-only mode wanted a tap. */
 function holeFromEvent(e){
+  const boardId = mode === "convert" ? (Q && Q.board)
+                : mode === "fault"   ? (FI && FI.q.board)
+                :                      (TQ && TQ.board);
+  if (!boardId) return null;
+  const sc = mode === "convert" ? scale : traceScale;
   const box = $("canvas").getBoundingClientRect();
-  return R.holeAt(Q.board, (e.clientX - box.left) / scale, (e.clientY - box.top) / scale);
+  return R.holeAt(boardId, (e.clientX - box.left) / sc, (e.clientY - box.top) / sc);
 }
 
 /* what is in a hole — used by the tools, the remover and the announcer */
@@ -4398,6 +4572,15 @@ function toggleAnswer(){
 let focused = false;
 
 $("board").addEventListener("click", e => {
+  if (mode === "fault"){
+    if (faultAnswered || !FI || !FI.holes.length) return;
+    const h = holeFromEvent(e);
+    if (!h) return;
+    faultTap = h;
+    paintFault();
+    say("Marked " + SBD.ref(h) + ".");
+    return;
+  }
   if (mode !== "convert") return;
   const h = holeFromEvent(e);
   if (!h) return;
@@ -4521,6 +4704,12 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.8", date: "9 Sep 2026", what:
+    "<strong>Fault-finder is open</strong> \u2014 the third mode. Ten finished boards, each with " +
+    "exactly one thing wrong: tap the hole where you think the fault is, choose what the fault " +
+    "is from four named options, and check. Every board is a correct answer with one thing " +
+    "broken, and the marking is the same engine that marks your own layouts, so it will never " +
+    "claim a fault it would not report on your board." },
   { v: "0.7", date: "9 Sep 2026", what:
     "The 555 is now the square numbered symbol you have already met in class \u2014 a box with " +
     "555 in it and the pin number wherever a wire meets it \u2014 and the op-amp shows its supply " +
@@ -4584,7 +4773,9 @@ $("btnCheck").addEventListener("click", check);
 $("btnReset").addEventListener("click", reset);
 $("btnAnswer").addEventListener("click", toggleAnswer);
 $("btnNext").addEventListener("click", () => {
-  if (mode === "convert") load(qi + 1, true); else loadTrace(ti + 1, true);
+  if (mode === "convert") load(qi + 1, true);
+  else if (mode === "fault") loadFault(fi + 1, true);
+  else loadTrace(ti + 1, true);
 });
 
 $("btnBig").addEventListener("click", () => {
@@ -4600,7 +4791,9 @@ $("modal").addEventListener("click", e => { if (e.target === $("modal")) closeBi
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("modal").classList.contains("show")) closeBig(); });
 
 window.addEventListener("resize", () => {
-  if (mode === "convert") { if (Q) fit(); } else if (TQ) fitTrace();
+  if (mode === "convert") { if (Q) fit(); }
+  else if (mode === "fault") { if (FI) fitFixed(FI.q.board); }
+  else if (TQ) fitTrace();
 });
 
 /* ============================================================
@@ -4650,13 +4843,12 @@ function paintTrace(){
   svg.setAttribute("aria-hidden", "true");
 }
 
-/* A cut-down fit(): no circuit diagram competes for room, so this is only the
-   board-scale half of that function's job. Left separate rather than sharing
-   fit()'s body — that function is already tuned against measured screenshots
-   (STATE.md, Phase 3), and Trace's simpler layout does not need its circuit-
-   column math at all. */
-function fitTrace(){
-  const size = R.sizeOf(TQ.board);
+function fitTrace(){ fitFixed(TQ.board); }
+
+/* The board-scale half of fit(), for the two read-only modes: no circuit
+   diagram competes for room, so none of fit()'s circuit-column math applies. */
+function fitFixed(boardId){
+  const size = R.sizeOf(boardId);
   const availW = $("stage").clientWidth;
   let sb = Math.max(MIN_SCALE, Math.min(1, availW / size.w));
   let stageH = size.h * sb;
@@ -4740,10 +4932,154 @@ function answerTrace(ans){
   head.textContent = correct ? "✓ Correct" : "Not quite";
   body.innerHTML = "<p>" + TQ.why + "</p>";
 
-  if (correct) { done.add(TQ.id); buildTraceChips(); }
+  if (correct) { done.add(TQ.id); buildTraceChips(); saveStore(); }
   paintTrace();
   say((correct ? "Correct. " : "Not quite. ") + TQ.why);
 }
+
+
+/* ============================================================
+   Fault-finder — one board, one injected fault (PLAN.md §4.1, Mode 3)
+   ----------------------------------------------------------------------
+   The board, the fault and the places worth ringing all come from
+   `buildFault()` running the SAME `SBD.check()` Convert uses, so a
+   Fault-finder item cannot claim a fault Convert would not report on the same
+   board.  Nothing here re-derives an answer.
+   ============================================================ */
+let fi = 0, FI = null, faultPick = null, faultTap = null, faultAnswered = false;
+
+// a diagnostic's refs against the FAULT board, not the pupil's own attempt
+function holesForOn(refs, attempt){
+  const out = [];
+  for (const r of refs || []){
+    if (/^[A-Z]\d+$/.test(r)){ out.push(SBD.parseRef(r)); continue; }
+    const [comp, pin] = r.split(".");
+    const pl = (attempt.placements || []).find(x => x.id === comp);
+    if (!pl) continue;                         // e.g. a component left in the bank
+    const cells = SBD.cellsOf(SBD.FOOTPRINTS[pl.footprint], SBD.parseRef(pl.at), pl.rot || 0);
+    for (const z of cells.pins) if (pin === undefined || z.pin === pin) out.push(z.hole);
+  }
+  return out;
+}
+
+function buildFaultChips(){
+  const el = $("qchips");
+  el.innerHTML = "";
+  FAULT_ITEMS.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qchip" + (done.has(item.id) ? " done" : "");
+    b.textContent = "F" + (i + 1);
+    if (i === fi) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", () => loadFault(i, true));
+    el.appendChild(b);
+  });
+}
+
+function loadFault(i, keepScroll){
+  fi = (i + FAULT_ITEMS.length) % FAULT_ITEMS.length;
+  FI = buildFault(FAULT_ITEMS[fi], QUESTIONS, SBD);
+  FI.holes = holesForOn(FI.refs, FI.attempt);
+  faultPick = null; faultTap = null; faultAnswered = false;
+
+  $("qtitle").textContent = "Fault " + (fi + 1) + ". " + FI.q.title;
+  $("qsrc").textContent = FI.q.board + " · " + SBD.BOARDS[FI.q.board].rows + " tracks × " +
+                          SBD.BOARDS[FI.q.board].cols + " holes";
+  $("qscenario").innerHTML = "<p>This is somebody's finished layout for <strong>" +
+    esc(FI.q.title) + "</strong>. Exactly one thing is wrong with it.</p>";
+  $("faultQ").textContent = "What is wrong with this board?";
+  $("faultHint").textContent = FI.holes.length
+    ? "Tap the hole where you think the fault is, then choose what it is."
+    : "This fault is not in one particular hole — just choose what it is.";
+  $("btnFault").disabled = false;
+
+  const opts = $("faultOpts");
+  opts.innerHTML = "";
+  for (const code of FAULT_ITEMS[fi].choices){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "fopt";
+    b.dataset.code = code;
+    b.setAttribute("aria-pressed", "false");
+    b.textContent = FAULT_NAMES[code];
+    b.addEventListener("click", () => {
+      if (faultAnswered) return;
+      faultPick = code;
+      opts.querySelectorAll(".fopt").forEach(x =>
+        x.setAttribute("aria-pressed", String(x.dataset.code === code)));
+      say(FAULT_NAMES[code] + " selected.");
+    });
+    opts.appendChild(b);
+  }
+
+  clearFeedback();
+  $("gridLayer").innerHTML = R.renderBoard({
+    board: FI.q.board, question: FI.q, attempt: FI.attempt, layer: "grid",
+    title: FI.q.board + " stripboard, component side" });
+  $("gridLayer").firstChild.classList.add("hitless");
+  buildFaultChips();
+  paintFault();
+  fitFixed(FI.q.board);
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function paintFault(){
+  let fmarks = [];
+  if (!faultAnswered){
+    if (faultTap) fmarks = [{ r: faultTap.r, c: faultTap.c, kind: "hl" }];
+  } else {
+    // the real fault in amber; a wrong guess in the second colour beside it
+    fmarks = FI.holes.map(h => ({ r: h.r, c: h.c, kind: "hl" }));
+    if (faultTap && !FI.holes.some(h => h.r === faultTap.r && h.c === faultTap.c))
+      fmarks.push({ r: faultTap.r, c: faultTap.c, kind: "hl2" });
+  }
+  $("liveLayer").innerHTML = R.renderBoard({
+    board: FI.q.board, question: FI.q, attempt: FI.attempt, layer: "live",
+    marks: fmarks, title: FI.q.title });
+  const svg = $("liveLayer").firstChild;
+  svg.classList.add("hitless");
+  svg.setAttribute("aria-hidden", "true");
+}
+
+function answerFault(){
+  if (faultAnswered) return;
+  if (!faultPick){ say("Choose what the fault is first."); return; }
+  const needsPlace = FI.holes.length > 0;
+  if (needsPlace && !faultTap){ say("Tap the hole where you think the fault is first."); return; }
+
+  faultAnswered = true;
+  $("btnFault").disabled = true;
+  const placeOK = !needsPlace ||
+    FI.holes.some(h => h.r === faultTap.r && h.c === faultTap.c);
+  const nameOK = faultPick === FI.code;
+  const correct = placeOK && nameOK;
+
+  $("faultOpts").querySelectorAll(".fopt").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.code === FI.code) b.classList.add("right");
+    else if (b.dataset.code === faultPick) b.classList.add("wrong");
+  });
+
+  const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
+  fb.classList.add("show");
+  fb.classList.toggle("good", correct);
+  fb.classList.toggle("bad", !correct);
+  head.textContent = correct ? "✓ Found it"
+    : nameOK ? "Right fault, wrong place"
+    : placeOK ? "Right place, wrong fault"
+    : "Not quite";
+  body.innerHTML =
+    "<p><strong>" + esc(FAULT_NAMES[FI.code]) + ".</strong></p>" +
+    "<p>" + esc(FI.msg || "") + "</p>" +
+    "<p>" + FAULT_ITEMS[fi].why + "</p>" +
+    (needsPlace ? "<p class='msnote'>The board shows where it is.</p>" : "");
+
+  if (correct){ done.add(FAULT_ITEMS[fi].id); buildFaultChips(); saveStore(); }
+  paintFault();
+  say((correct ? "Correct. " : "Not quite. ") + FAULT_NAMES[FI.code]);
+}
+$("btnFault").addEventListener("click", answerFault);
+$("mFault").addEventListener("click", () => setMode("fault"));
 
 function setModeDesc(){ $("modeDesc").textContent = MODE_DESC[mode]; }
 
@@ -4753,13 +5089,18 @@ function setMode(m){
   $("sbd").dataset.mode = m;
   $("mConvert").setAttribute("aria-pressed", String(m === "convert"));
   $("mTrace").setAttribute("aria-pressed", String(m === "trace"));
-  $("lede").textContent = m === "convert" ? CONVERT_LEDE : TRACE_LEDE;
-  $("board").setAttribute("aria-label", m === "convert"
-    ? "Stripboard. Tap or click a hole to use the selected tool."
+  $("mFault").setAttribute("aria-pressed", String(m === "fault"));
+  $("lede").textContent = m === "convert" ? CONVERT_LEDE
+                        : m === "fault"   ? FAULT_LEDE : TRACE_LEDE;
+  $("board").setAttribute("aria-label",
+    m === "convert" ? "Stripboard. Tap or click a hole to use the selected tool."
+    : m === "fault" ? "Stripboard, showing a finished layout with one fault. Tap the hole where you think the fault is."
     : "Stripboard, showing a fixed layout. Read only — answer the question beside it.");
   setModeDesc();
   clearFeedback();
-  if (m === "convert") load(qi, true); else loadTrace(ti, true);
+  if (m === "convert") load(qi, true);
+  else if (m === "fault") loadFault(fi, true);
+  else loadTrace(ti, true);
 }
 $("mConvert").addEventListener("click", () => setMode("convert"));
 $("mTrace").addEventListener("click", () => setMode("trace"));
