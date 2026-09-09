@@ -82,14 +82,18 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
     #sbd .seg{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden}
     #sbd .seg button{border:0;background:var(--card);color:var(--muted);
-      padding:6px 13px;font:700 .8rem/1 var(--font-stack);cursor:pointer}
+      padding:6px 13px;font:700 .8rem/1 var(--font-stack);cursor:pointer;min-height:44px}
     #sbd .seg button+button{border-left:1px solid var(--border)}
     #sbd .seg button[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff}
     #sbd .seg button[disabled]{opacity:.42;cursor:not-allowed}
     #sbd .modedesc{flex-basis:100%;margin:0;font:600 .8rem/1.4 var(--font-stack);color:var(--muted)}
     #sbd .qchips{display:flex;flex-wrap:wrap;gap:6px}
+    /* Touch hygiene for everything tappable: no 300ms double-tap wait, no grey
+       flash box on iOS. */
+    #sbd button,#sbd .part{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
     #sbd .qchip{border:1px solid var(--border);background:var(--card);color:var(--muted);
-      border-radius:999px;padding:8px 13px;font:600 .82rem/1 var(--font-stack);cursor:pointer;min-height:34px}
+      border-radius:999px;padding:8px 13px;font:600 .82rem/1 var(--font-stack);cursor:pointer;
+      min-height:44px;min-width:44px}   /* single-digit chips (T1, F1, R1) fell 0.02px short on width */
     #sbd .qchip[aria-current="true"]{background:linear-gradient(135deg,#00c79a,#00705a);
       color:#fff;border-color:transparent}
     #sbd .qchip.done::after{content:" ✓";color:var(--ok)}
@@ -121,7 +125,8 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .dslink{display:inline-block;margin-top:5px;font:700 .7rem/1 var(--font-stack);color:var(--accent)}
     #sbd .dslink[hidden]{display:none}
     #sbd .zoombtn{border:1px solid var(--border);background:var(--card);color:var(--text);
-      border-radius:8px;padding:3px 9px;font:700 .72rem/1 var(--font-stack);cursor:pointer}
+      border-radius:8px;padding:3px 11px;font:700 .72rem/1 var(--font-stack);cursor:pointer;
+      min-height:44px}
     #sbd .stage{position:relative;overflow:auto hidden;overscroll-behavior-x:contain;
       border:1px solid var(--border-soft);border-radius:12px;background:var(--card)}
     #sbd .stage::-webkit-scrollbar{height:9px}
@@ -151,9 +156,14 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .linkcolours{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 8px}
     #sbd .linkcolours[hidden]{display:none}
     #sbd .lchint{font:700 .78rem/1 var(--font-stack);color:var(--muted)}
-    #sbd .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;
-      padding:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
-    #sbd .swatch[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+    /* A 26px dot is the right SIZE to look at and far too small to hit, so the
+       button is 44px and the colour lives in a dot inside it. */
+    #sbd .swatch{width:44px;height:44px;display:inline-flex;align-items:center;
+      justify-content:center;border:0;background:none;padding:0;cursor:pointer}
+    #sbd .swatch>i{display:block;width:26px;height:26px;border-radius:50%;
+      border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+    #sbd .swatch[aria-pressed="true"]>i{border-color:var(--text);
+      box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
     /* Test-point predictions.  Same shelf as the wire colours and the same
        rule: it is only on screen while its own tool is, so it costs the
        one-screen budget nothing the rest of the time. */
@@ -167,7 +177,7 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .tpitem{display:inline-flex;align-items:center;gap:4px;padding:1px 5px 1px 8px;
       border:1.5px solid var(--border);border-radius:999px;background:var(--card)}
     #sbd .tpitem>b{font:800 .74rem/1 var(--font-stack);color:var(--muted)}
-    #sbd .lvl{min-width:26px;min-height:26px;padding:0 7px;border-radius:999px;
+    #sbd .lvl{min-width:44px;min-height:44px;padding:0 7px;border-radius:999px;
       border:1.5px solid var(--border);background:var(--card);cursor:pointer;
       font:800 .8rem/1 var(--font-stack);color:var(--text)}
     #sbd .lvl[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -190,7 +200,7 @@ title: Stripboard Builder · National 5 Electronics
       text-align:center}
     #sbd .part .trot{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:4px 8px;font:700 .66rem/1 var(--font-stack);cursor:pointer;
-      flex:0 0 auto;min-height:28px}
+      flex:0 0 auto;min-height:44px}
     #sbd .bankhead{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:2px 0 0}
     #sbd .bankhead h3{margin:0;font-size:.86rem}
     #sbd .bankhead .hint{font-size:.71rem;color:var(--muted)}
@@ -201,7 +211,11 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .bank::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
     #sbd .part{border:1px solid var(--border);background:var(--bg2);border-radius:9px;
       padding:6px 7px;font:700 .74rem/1.25 var(--font-stack);color:var(--text);cursor:pointer;
-      text-align:left;user-select:none;touch-action:none;min-height:44px}
+      text-align:left;user-select:none;min-height:44px;
+      /* NOT touch-action:none — the bank scrolls, and a tile that eats the
+         gesture leaves a finger unable to scroll it. The site's touch-action:
+         none rule is for DRAG interactions; this tool is tap-to-select. */
+      touch-action:manipulation;-webkit-tap-highlight-color:transparent}
     #sbd .part .sub{display:block;font-weight:500;font-size:.66rem;color:var(--muted)}
     #sbd .part[aria-pressed="true"]{border-color:var(--accent);
       box-shadow:0 0 0 3px rgba(10,157,127,.28)}
@@ -246,7 +260,8 @@ title: Stripboard Builder · National 5 Electronics
     /* ---- controls and feedback ---------------------------------------- */
     #sbd .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
     #sbd .btn{border:1px solid var(--border);background:var(--card);color:var(--text);
-      padding:9px 15px;border-radius:11px;font:700 .86rem/1 var(--font-stack);cursor:pointer}
+      padding:9px 15px;border-radius:11px;font:700 .86rem/1 var(--font-stack);cursor:pointer;
+      min-height:44px}
     #sbd .btn:hover{border-color:var(--border-strong)}
     #sbd .btn:focus-visible{outline:var(--focus-ring);outline-offset:2px}
     #sbd .btn.primary{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff;border-color:transparent}
@@ -307,18 +322,24 @@ title: Stripboard Builder · National 5 Electronics
       .beta .lead.beta-full{display:none}
       .beta .lead.beta-short{display:inline}
       .beta .beta-tag{display:none}
-      #sbd{padding:10px 12px}
+      #sbd{padding:6px 10px}
       #sbd>.panel{padding:0;border:0;background:none;box-shadow:none;margin:0}
       #sbd .lede{display:none}
-      #sbd .scenario{font-size:.82rem;line-height:1.38;margin-top:5px}
-      #sbd .scenario p{margin:0 0 3px}
+      #sbd .scenario{font-size:.82rem;line-height:1.3;margin-top:3px}
+      #sbd .scenario p{margin:0 0 2px}
       #sbd .qtitle{font-size:.96rem}
       #sbd .bar{margin-bottom:4px}
-      /* the mode line is a whole extra row on a short screen, and the 24-track
-         board needs every pixel of it to stay above the 0.62 legibility floor */
-      #sbd .modedesc{font:600 .72rem/1.2 var(--font-stack)}
-      #sbd .workarea{margin-top:5px}
-      #sbd .controls{margin-top:6px}
+      /* Three rows above the board — tabs, mode line, question chips — is one
+         row more than a short screen can spare once every tap target is 44px.
+         Reordering puts the chips up beside the tabs and drops the mode line
+         underneath, which buys back a whole row without shrinking anything. */
+      #sbd .seg{order:1}
+      #sbd .qchips{order:2;flex:1 1 auto}
+      #sbd .modedesc{order:3;font:600 .72rem/1.2 var(--font-stack)}
+      #sbd .workarea{margin-top:4px}
+      #sbd .controls{margin-top:5px}
+      #sbd .stagebar{padding:.3rem .6rem;line-height:1.3;margin:-2px 0 5px}
+      #sbd .linkcolours{margin:-4px 0 4px}
       #sbd .circwrap{padding:4px 8px 2px}
       #sbd .circhead{margin-bottom:2px}
     }
@@ -504,8 +525,11 @@ title: Stripboard Builder · National 5 Electronics
         conventions — tracks running across the sheet, a cut marked as an <strong>X</strong> on the hole, ICs drawn
         as a labelled rectangle, link wires coloured and numbered — follow the <em>Stripboard Layout Planning
         Sheet</em> © 2002 Electronics in Meccano (eleinmec.com), which is the sheet used in the workshop; the
-        conventions are reproduced here, not the artwork. Circuits, diagrams and code are original work written for
-        this site, © R Stewart, 2026. Full site credits are on the
+        conventions are reproduced here, not the artwork. The task itself, the fault list and the wording quoted in
+        the feedback come from the National 5 Electronics (C884 75) course and assessment material and the
+        external verification reports, and the linked IC pin-out sheet is the National 5 data sheet X860/75/12 —
+        all © Qualifications Scotland (SQA), reproduced for educational use. Circuits, diagrams and code are
+        original work written for this site, © R Stewart, 2026. Full site credits are on the
         <a href="/classes/credits.html">credits page</a>.</p>
       <p class="lead">© R Stewart Physics, Electronics and Engineering</p>
     </section>
@@ -1147,7 +1171,7 @@ title: Stripboard Builder · National 5 Electronics
       if (uncovered.length) {
         faults.push({ rank: 8, code: "no-testpoint",
           msg: `No test point on ${uncovered.map(p => label(q, p)).join(", ")}. ` +
-               `SQA: each sub-system input and output needs an appropriate test point, ` +
+               `Qualifications Scotland: each sub-system input and output needs an appropriate test point, ` +
                `planned on the layout before you build.`,
           refs: uncovered });
       }
@@ -3713,7 +3737,7 @@ title: Stripboard Builder · National 5 Electronics
     { id: "FF8", from: "greenhouse-irrigation",
       apply: a => { a.testpoints = []; },
       choices: ["no-testpoint", "no-prediction", "unplaced", "floating"],
-      why: "The layout has no test point on the process output. SQA: each sub-system input " +
+      why: "The layout has no test point on the process output. Qualifications Scotland: each sub-system input " +
            "and output needs an appropriate test point, planned on the layout before the " +
            "board is built — not added afterwards." },
 
@@ -3728,7 +3752,7 @@ title: Stripboard Builder · National 5 Electronics
     { id: "FF10", from: "lift-interlock",
       apply: a => { a.links = a.links.map(l => Object.assign({}, l, { colour: "blue" })); },
       choices: ["colour-reused", "red-not-supply", "split", "merged"],
-      why: "Both link wires are the same colour but they carry different signals. SQA: " +
+      why: "Both link wires are the same colour but they carry different signals. Qualifications Scotland: " +
            "there should be different colours for different signals, and every wire " +
            "coloured AND numbered." }
   ];
@@ -4335,7 +4359,9 @@ function buildLinkColours(){
     const b = document.createElement("button");
     b.type = "button";
     b.className = "swatch";
-    b.style.background = R.LINK_COLOURS[name];
+    const dot = document.createElement("i");
+    dot.style.background = R.LINK_COLOURS[name];
+    b.appendChild(dot);
     b.dataset.colour = name;
     b.setAttribute("aria-label", name + " wire");
     b.setAttribute("aria-pressed", "false");
@@ -4465,7 +4491,12 @@ function drawBank(){
     b.setAttribute("aria-pressed", String(isSel));
     b.setAttribute("aria-disabled", String(isPlaced));
     b.dataset.id = c.id;
-    const sub = c.part || shortName(c);
+    /* Naming the socket where the pupil picks the part is the only place the
+       "do not solder an IC" finding can actually land — the bank holds a DIL
+       socket and nothing else, but until now nothing said so. */
+    const dil = /^dip-(\d+)$/.exec(c.footprint);
+    const sub = dil ? (c.part ? c.part + " · " : "") + dil[1] + "-pin DIL socket"
+                    : (c.part || shortName(c));
     const head = "<strong>" + esc(c.id) + "</strong>" +
                  (sub ? "<span class='sub'>" + esc(sub) + "</span>" : "");
     let html = head;
@@ -4623,8 +4654,12 @@ function load(i, keepScroll){
   $("qtitle").textContent = "Q" + (qi + 1) + ". " + Q.title;
   $("qsrc").textContent = Q.board + " · " + SBD.BOARDS[Q.board].rows + " tracks × " +
                           SBD.BOARDS[Q.board].cols + " holes";
+  /* A staged question's stage bar already says what to do now, so repeating a
+     task line above it is a wrapped line of duplicate instruction — and on a
+     short landscape screen that line is the difference between the 24-track
+     board fitting and panning. */
   $("qscenario").innerHTML = (Q.scenario || [taskLine()]).map(p => "<p>" + p + "</p>").join("") +
-                             (Q.scenario ? "<p>" + taskLine() + "</p>" : "");
+                             (Q.scenario && !Q.stages ? "<p>" + taskLine() + "</p>" : "");
   $("whyBody").innerHTML = "<ul>" + Q.why.map(w => "<li>" + w + "</li>").join("") + "</ul>";
   $("whyBox").open = false;
   setDatasheetLink();
@@ -4896,6 +4931,12 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.10", date: "9 Sep 2026", what:
+    "A touchscreen and rules pass over everything. <strong>Every button, chip, tab and swatch is " +
+    "now at least 44&nbsp;px</strong> \u2014 a lot of them were half that and fiddly on a finger \u2014 " +
+    "and the component bank scrolls under your thumb again (a tile was swallowing the gesture). " +
+    "The mode tabs and question numbers share one row so the board still fits. The IC is now " +
+    "named as a <strong>DIL socket</strong>, because you never solder an IC to stripboard." },
   { v: "0.9", date: "9 Sep 2026", what:
     "<strong>Reverse is open, so all four modes are now in.</strong> Reverse goes the other way: " +
     "a correct finished board and no circuit diagram, and you work out what it builds \u2014 " +
