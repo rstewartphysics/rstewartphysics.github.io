@@ -39,6 +39,28 @@ title: Stripboard Builder · National 5 Electronics
     #sbd p{margin:0}
 
     /* beta notice — same pattern as the Block Diagram Builder */
+    /* Alpha version chip + changelog.  The chip is in the title row so it
+       survives the short-landscape rules that strip the rest of the chrome —
+       a tester reporting a bug has to be able to say which build they saw. */
+    .verchip{flex:0 0 auto;align-self:center;font:800 .68rem/1 var(--font-stack);
+      letter-spacing:.04em;color:var(--accent);background:var(--tint);
+      border:1.5px solid var(--accent);border-radius:999px;padding:.32rem .6rem;
+      cursor:pointer;min-height:auto}
+    .verchip:hover,.verchip:focus-visible{background:var(--accent);color:#fff}
+    .verlog{margin:14px 0 0;border:1px solid var(--line);border-radius:12px;
+      background:var(--card);overflow:hidden}
+    .verlog>summary{cursor:pointer;padding:.6rem .9rem;font:800 .84rem/1.3 var(--font-stack);
+      color:var(--accent)}
+    .verlog[open]>summary{border-bottom:1px solid var(--line)}
+    .verlogwrap{overflow-x:auto;padding:0 .9rem .6rem}
+    .vertable{border-collapse:collapse;width:100%;font:500 .78rem/1.45 var(--font-stack)}
+    .vertable th,.vertable td{text-align:left;vertical-align:top;padding:.42rem .6rem;
+      border-bottom:1px solid var(--line)}
+    .vertable th{font-weight:800;color:var(--muted);font-size:.72rem;letter-spacing:.04em;
+      text-transform:uppercase;white-space:nowrap}
+    .vertable td:first-child{font-weight:800;white-space:nowrap;color:var(--accent)}
+    .vertable td:nth-child(2){white-space:nowrap;color:var(--muted)}
+    .vertable tr:last-child td{border-bottom:0}
     .beta{border-left:5px solid var(--warm)}
     .beta h2{color:var(--warm)}
     .beta .lead.beta-short{display:none}
@@ -259,9 +281,12 @@ title: Stripboard Builder · National 5 Electronics
       #sbd .scenario{font-size:.82rem;line-height:1.38;margin-top:5px}
       #sbd .scenario p{margin:0 0 3px}
       #sbd .qtitle{font-size:.96rem}
-      #sbd .bar{margin-bottom:6px}
-      #sbd .workarea{margin-top:7px}
-      #sbd .controls{margin-top:8px}
+      #sbd .bar{margin-bottom:4px}
+      /* the mode line is a whole extra row on a short screen, and the 24-track
+         board needs every pixel of it to stay above the 0.62 legibility floor */
+      #sbd .modedesc{font:600 .72rem/1.2 var(--font-stack)}
+      #sbd .workarea{margin-top:5px}
+      #sbd .controls{margin-top:6px}
       #sbd .circwrap{padding:4px 8px 2px}
       #sbd .circhead{margin-bottom:2px}
     }
@@ -289,13 +314,14 @@ title: Stripboard Builder · National 5 Electronics
     <div class="titlerow">
       <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics</a>
       <h1 class="page-title">Stripboard Builder</h1>
+      <button type="button" class="verchip" id="verChip"
+              aria-label="Alpha version — show what has changed"></button>
       <section class="panel beta" aria-label="Beta notice" id="betaBox">
       <h2>⚠️ Beta <span class="beta-tag">testing</span></h2>
       <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. It marks your board by
         working out what is actually connected to what, so any layout that is electrically correct will pass — but
         if something looks wrong, please tell Mr Stewart rather than assuming your own answer is at fault.</p>
-      <p class="lead beta-short">New and still being tested — if something looks wrong, tell Mr Stewart rather than
-        assuming your own answer is at fault.</p>
+      <p class="lead beta-short">Still being tested — if something looks wrong, tell Mr Stewart.</p>
       </section>
     </div>
 
@@ -354,7 +380,7 @@ title: Stripboard Builder · National 5 Electronics
                 <button type="button" class="zoombtn" id="btnBig">⤢ Enlarge</button>
               </div>
               <div class="cinner" id="cinner"></div>
-              <p class="circkey">Ringed = net · plain blue = IC pin</p>
+              <p class="circkey" id="circKey"></p>
               <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
             </div>
 
@@ -415,6 +441,13 @@ title: Stripboard Builder · National 5 Electronics
       </section>
     </section>
 
+    <details class="verlog" id="verLog">
+      <summary id="verSummary"></summary>
+      <div class="verlogwrap"><table class="vertable">
+        <thead><tr><th scope="col">Version</th><th scope="col">Date</th><th scope="col">What changed</th></tr></thead>
+        <tbody id="verBody"></tbody>
+      </table></div>
+    </details>
     <section class="panel" aria-label="Sources and credits">
       <h2>Sources &amp; credits</h2>
       <p class="lead" data-credit-note><strong>Sources &amp; credits:</strong> Board sizes and hole pitch are the
@@ -1935,14 +1968,22 @@ title: Stripboard Builder · National 5 Electronics
     return { svg: s, b: [x - r - 14, y], c: [x + 10, y - r - 12], e: [x + 10, y + r + 12] };
   }
 
-  // SPST switch: two contacts and a hinged blade
+  /* SPST switch: two contacts and a hinged blade.  Takes a direction for the
+     same reason the sounder and the motor do — drawn horizontal-only, a switch
+     in a vertical run has the wire passing straight through it and its own
+     contacts sticking out sideways into nothing. */
   function sw(x, y, o) {
     o = o || {};
-    const half = (o.span || 56) / 2;
-    let s = wire([[x - half, y], [x - 11, y]]) + wire([[x + 11, y], [x + half, y]]) +
-            node(x - 11, y) + node(x + 11, y) +
-            wire([[x - 11, y], [x + 9, y - 13]]);
-    if (o.label) s += text(x, y + 18, o.label);
+    const vert = o.dir === "v", half = (o.span || 56) / 2;
+    let s = vert
+      ? wire([[x, y - half], [x, y - 11]]) + wire([[x, y + 11], [x, y + half]]) +
+        node(x, y - 11) + node(x, y + 11) +
+        wire([[x, y + 11], [x + 13, y - 9]])          // blade hinged on the lower contact
+      : wire([[x - half, y], [x - 11, y]]) + wire([[x + 11, y], [x + half, y]]) +
+        node(x - 11, y) + node(x + 11, y) +
+        wire([[x - 11, y], [x + 9, y - 13]]);
+    if (o.label) s += vert ? text(x + 20, y + 4, o.label, { anchor: "start" })
+                           : text(x, y + 18, o.label);
     return s;
   }
 
@@ -1953,7 +1994,11 @@ title: Stripboard Builder · National 5 Electronics
   function sounder(x, y, o) {
     o = o || {};
     const vert = o.dir === "v", half = (o.span || 56) / 2, r = 15;
-    let s = vert ? wire([[x, y - half], [x, y - r]]) + wire([[x, y + r], [x, y + half]])
+    /* Vertical: the flat of the half-disc is the chord at y - 0.2r and the dome
+       bulges DOWN from it (sweep 0 on a left-to-right chord goes downward — read
+       off the render, not derived).  A lead stopping at y - r therefore ends in
+       mid-air short of the symbol, which is what the first two versions did. */
+    let s = vert ? wire([[x, y - half], [x, y - r * 0.2]]) + wire([[x, y + r], [x, y + half]])
                  : wire([[x - half, y], [x - r, y]]) + wire([[x + r, y], [x + half, y]]);
     // the flat faces the incoming lead, the dome faces away
     s += vert
@@ -1980,11 +2025,26 @@ title: Stripboard Builder · National 5 Electronics
     return s;
   }
 
+
+  /* A horizontal supply rail.  Real circuit diagrams hang their components
+     between two rails rather than routing a wire to a terminal block, and that
+     is what a pupil is asked to reproduce as the two supply tracks on the
+     board.  The label sits at the left-hand end, clear of the line: above the
+     +5 V rail, below the 0 V one, so neither ever collides with a component
+     hanging off it. */
+  function rail(x1, x2, y, o) {
+    o = o || {};
+    const pos = !!o.pos;
+    return wire([[x1, y], [x2, y]], pos ? "sbd-pos" : "sbd-wire") +
+      text(x1, y + (pos ? -9 : 18), o.label || (pos ? "+5 V" : "0 V"),
+           { anchor: "start", cls: pos ? "sbd-poslab" : "sbd-clab" });
+  }
+
   /* the dashed outline round the gates that share one package */
   const chip = (x, y, w, h) =>
     `<rect class="sbd-chip" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="6"/>`;
 
-  root.SBD.circuit = { wire, node, text, netnum, res, led, andGate, orGate, notGate,
+  root.SBD.circuit = { wire, node, text, netnum, rail, res, led, andGate, orGate, notGate,
                        ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
@@ -2002,6 +2062,30 @@ title: Stripboard Builder · National 5 Electronics
 (function (root) {
   "use strict";
 
+  /* ------------------------------------------------------------------------
+     Circuit-diagram conventions — rebuilt 9 Sep 2026 after alpha feedback.
+
+     Every diagram is now the picture a pupil meets in a question paper: two
+     horizontal supply rails with the components cabled between them.  Three
+     things that used to be drawn have gone:
+
+       * the dashed "system box" round the gates that share one package;
+       * the wires from the rails to the chip's Vcc and 0 V pins;
+       * the ringed net numbers, and the gate pin numbers.
+
+     The power wiring is gone because working out that a 7408 wants +5 V on
+     pin 14 and 0 V on pin 7 IS the skill being taught, and the data sheet the
+     page links to is where that is read.  The rails are still drawn and the
+     target netlist still demands both connections, so a pupil who never looks
+     at the sheet fails the check and is told which pin is floating.
+
+     Net numbers and pin numbers come back under `o.nets`, which is what "Show
+     the answer" passes — there they teach instead of giving the game away.
+     ------------------------------------------------------------------------ */
+  const RAIL_L = 26;                       // both rails start at this x
+  const pinNos = (o, arr) => (o && o.nets ? arr : null);
+  const nn = (C, o, x, y, num) => (o && o.nets ? C.netnum(x, y, num) : "");
+
 
   /* ------------------------------------------------------------------------
      The §5.1 archetype drawn once.  Three archetype questions are the same
@@ -2010,39 +2094,33 @@ title: Stripboard Builder · National 5 Electronics
      drawing rather than three that can drift apart.  `kind` is "and" or "or",
      and the gate pin numbers are the same on a 7408 and a 7432.
      ------------------------------------------------------------------------ */
-  function twoGateChip(C, o) {
+  function twoGateChip(C, spec, o) {
     const G = { w: 32, lead: 12 };
-    const gate = o.kind === "or" ? C.orGate : C.andGate;
-    const ga = gate(100, 74, Object.assign({ pins: ["1", "2", "3"] }, G));
-    const gb = gate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
+    const gate = spec.kind === "or" ? C.orGate : C.andGate;
+    const ga = gate(104, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
+    const gb = gate(160, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
+    const TOP = 24, BOT = 268, XO = 214;
     const body =
-      C.chip(62, 44, 140, 122) +
-      C.text(62, 38, "IC1  " + o.part, { anchor: "start" }) +
+      C.rail(RAIL_L, 240, TOP, { pos: true }) + C.rail(RAIL_L, 240, BOT) +
 
-      C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [186, 20]], "sbd-pos") +
-      C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
-      C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
-      C.term(44, 258, { label: "0 V" }) + C.wire([[51, 258], [212, 258]]) +
-      C.wire([[76, 166], [76, 258]]) + C.node(76, 258) +
-      C.text(81, 183, "7", { cls: "sbd-cnet", anchor: "start" }) +
+      C.term(40, 63, { label: spec.in[0] }) + C.wire([[47, 63], [82, 63]]) +
+      C.term(40, 85, { label: spec.in[1] }) + C.wire([[47, 85], [82, 85]]) +
+      C.term(40, 141, { label: spec.in[2] }) + C.wire([[47, 141], [138, 141]]) +
 
-      C.term(44, 63, { label: o.in[0] }) + C.wire([[51, 63], [78, 63]]) +
-      C.term(44, 85, { label: o.in[1] }) + C.wire([[51, 85], [78, 85]]) +
-      C.term(44, 143, { label: o.in[2] }) + C.wire([[51, 143], [134, 143]]) +
+      ga.svg + C.text(110, 46, "IC1a") +
+      gb.svg + C.text(166, 102, "IC1b") +
+      C.wire([[138, 74], [138, 119]]) +            // gate a's output down to pin 4
 
-      ga.svg + gb.svg +
-      C.wire([[134, 74], [134, 121]]) +            // gate a pin 3 straight down to pin 4
+      C.wire([[194, 130], [XO, 130], [XO, 152]]) +
+      C.res(XO, 180, { dir: "v", span: 56, label: "R1", value: "270 \u03a9", labelLeft: true }) +
+      C.wire([[XO, 208], [XO, 222]]) +
+      C.led(XO, 240, { dir: "d", span: 36, label: spec.led }) +
+      C.wire([[XO, 258], [XO, BOT]]) + C.node(XO, BOT) +
 
-      C.wire([[190, 132], [212, 132], [212, 156]]) +
-      C.res(212, 184, { dir: "v", span: 56, label: "R1", value: "270 \u03a9", labelLeft: true }) +
-      C.wire([[212, 212], [212, 220]]) +
-      C.led(212, 238, { dir: "d", span: 36, label: o.led }) +
-      C.wire([[212, 256], [212, 258]]) + C.node(212, 258) +
-
-      C.netnum(63, 63, 3) + C.netnum(63, 85, 4) + C.netnum(95, 143, 6) +
-      C.netnum(134, 100, 5) + C.netnum(212, 146, 7) + C.netnum(212, 216, 8) +
-      C.netnum(118, 20, 1) + C.netnum(150, 258, 2);
-    return { w: 258, h: 278, body: body };
+      nn(C, o, 63, 63, 3) + nn(C, o, 63, 85, 4) + nn(C, o, 95, 141, 6) +
+      nn(C, o, 138, 94, 5) + nn(C, o, XO, 141, 7) + nn(C, o, XO, 215, 8) +
+      nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2);
+    return { w: 258, h: 292, body: body };
   }
 
   /* ------------------------------------------------------------------------
@@ -2080,17 +2158,18 @@ title: Stripboard Builder · National 5 Electronics
     /* Circuit diagram (PLAN.md R5 — read pin by pin against `target` before the
        question is enabled).  Drawn portrait, because the board is limited by
        screen HEIGHT and the width beside it is what is going spare. */
-    circuit: C => {
+    circuit: (C, o) => {
+      const X = 132, TOP = 30, BOT = 216;
       const b =
-        C.term(150, 26, { side: "u", label: "+5 V", pos: true }) +
-        C.wire([[150, 33], [150, 92]], "sbd-pos") +
-        C.res(150, 122, { dir: "v", span: 60, label: "R1", value: "270 \u03a9" }) +
-        C.wire([[150, 152], [150, 184]]) +
-        C.led(150, 204, { dir: "d", span: 40, label: "LED1" }) +
-        C.wire([[150, 224], [150, 252]]) +
-        C.term(150, 259, { side: "r", label: "0 V" }) +
-        C.netnum(150, 62, 1) + C.netnum(150, 168, 2) + C.netnum(150, 238, 3);
-      return { w: 250, h: 280, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.node(X, TOP) + C.node(X, BOT) +
+        C.wire([[X, TOP], [X, 60]], "sbd-pos") +
+        C.res(X, 90, { dir: "v", span: 60, label: "R1", value: "270 \u03a9" }) +
+        C.wire([[X, 120], [X, 144]]) +
+        C.led(X, 164, { dir: "d", span: 40, label: "LED1" }) +
+        C.wire([[X, 184], [X, BOT]]) +
+        nn(C, o, X, 46, 1) + nn(C, o, X, 132, 2) + nn(C, o, X, 200, 3);
+      return { w: 258, h: 244, body: b };
     },
     why: [
       "The resistor and the LED are in series between +5 V and 0 V, so the board " +
@@ -2164,8 +2243,8 @@ title: Stripboard Builder · National 5 Electronics
     /* The dashed outline round the two gates is the whole point of the
        question: Yenka draws two AND symbols, but they are two gates of ONE
        7408.  Drawn by the shared archetype (R5 checked against `target`). */
-    circuit: C => twoGateChip(C, { kind: "and", part: "7408",
-                                   in: ["A", "B", "C"], led: "LED1" }),
+    circuit: (C, o) => twoGateChip(C, { kind: "and", part: "7408",
+                                       in: ["A", "B", "C"], led: "LED1" }, o),
     why: [
       "There is <strong>one chip</strong>, not two. Yenka draws two AND gate symbols, " +
       "but both live in the same 7408 — sharing pin 7 (0 V) and pin 14 (+5 V).",
@@ -2222,19 +2301,19 @@ title: Stripboard Builder · National 5 Electronics
       links: [],
       testpoints: []
     },
-    circuit: C => {
+    circuit: (C, o) => {
+      const X = 120, TOP = 30, BOT = 228;
       const b =
-        C.term(140, 26, { side: "u", label: "+5 V", pos: true }) +
-        C.wire([[140, 33], [140, 62]], "sbd-pos") +
-        C.ldr(140, 92, { dir: "v", span: 60, label: "LDR1" }) +
-        C.wire([[140, 122], [140, 152]]) +
-        C.node(140, 137) + C.wire([[140, 137], [206, 137]]) +
-        C.term(213, 137, { side: "r", label: "OUT" }) +
-        C.res(140, 182, { dir: "v", span: 60, label: "R1", value: "10 kΩ", labelLeft: true }) +
-        C.wire([[140, 212], [140, 240]]) +
-        C.term(140, 247, { side: "r", label: "0 V" }) +
-        C.netnum(140, 50, 1) + C.netnum(178, 137, 2) + C.netnum(140, 226, 3);
-      return { w: 258, h: 268, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.node(X, TOP) + C.node(X, BOT) +
+        C.wire([[X, TOP], [X, 56]], "sbd-pos") +
+        C.ldr(X, 86, { dir: "v", span: 60, label: "LDR1" }) +
+        C.wire([[X, 116], [X, 140]]) + C.node(X, 128) +
+        C.wire([[X, 128], [192, 128]]) + C.term(199, 128, { side: "r", label: "OUT" }) +
+        C.res(X, 170, { dir: "v", span: 60, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[X, 200], [X, BOT]]) +
+        nn(C, o, X, 44, 1) + nn(C, o, 160, 128, 2) + nn(C, o, X, 214, 3);
+      return { w: 258, h: 256, body: b };
     },
     why: [
       "There are three nets, so the board needs <strong>three tracks</strong>. The middle " +
@@ -2296,27 +2375,22 @@ title: Stripboard Builder · National 5 Electronics
       links: [],
       testpoints: []
     },
-    circuit: C => {
-      const g = C.andGate(120, 92, { w: 34, lead: 14, pins: ["1", "2", "3"] });
+    circuit: (C, o) => {
+      const g = C.andGate(120, 96, { w: 34, lead: 14, pins: pinNos(o, ["1", "2", "3"]) });
+      const TOP = 26, BOT = 234, XO = 206;
       const b =
-        C.chip(72, 62, 108, 62) + C.text(72, 56, "IC1  7408", { anchor: "start" }) +
-        C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [160, 22]], "sbd-pos") +
-        C.wire([[160, 22], [160, 62]], "sbd-pos") + C.node(160, 22) +
-        C.text(165, 39, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 246, { label: "0 V" }) + C.wire([[51, 246], [212, 246]]) +
-        C.wire([[92, 124], [92, 246]]) + C.node(92, 246) +
-        C.text(97, 141, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 81, { label: "A" }) + C.wire([[51, 81], [89, 81]]) +
-        C.term(44, 103, { label: "B" }) + C.wire([[51, 103], [89, 103]]) +
-        g.svg +
-        C.wire([[151, 92], [212, 92], [212, 116]]) +
-        C.res(212, 144, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
-        C.wire([[212, 172], [212, 182]]) +
-        C.led(212, 200, { dir: "d", span: 36, label: "LED1" }) +
-        C.wire([[212, 218], [212, 246]]) + C.node(212, 246) +
-        C.netnum(66, 81, 3) + C.netnum(66, 103, 4) + C.netnum(120, 22, 1) +
-        C.netnum(150, 246, 2) + C.netnum(212, 110, 5) + C.netnum(212, 178, 6);
-      return { w: 258, h: 268, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.term(42, 85, { label: "A" }) + C.wire([[49, 85], [96, 85]]) +
+        C.term(42, 107, { label: "B" }) + C.wire([[49, 107], [96, 107]]) +
+        g.svg + C.text(123, 62, "IC1a") +
+        C.wire([[158, 96], [XO, 96], [XO, 112]]) +
+        C.res(XO, 140, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 168], [XO, 180]]) +
+        C.led(XO, 198, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[XO, 216], [XO, BOT]]) + C.node(XO, BOT) +
+        nn(C, o, 66, 85, 3) + nn(C, o, 66, 107, 4) + nn(C, o, 120, TOP, 1) +
+        nn(C, o, 150, BOT, 2) + nn(C, o, 182, 96, 5) + nn(C, o, XO, 174, 6);
+      return { w: 258, h: 262, body: b };
     },
     why: [
       "The chip lies <strong>across</strong> the tracks, so pin 1 and pin 14 land on the same " +
@@ -2378,26 +2452,21 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => {
-      const g = C.notGate(118, 92, { pins: ["1", "2"] });
+    circuit: (C, o) => {
+      const g = C.notGate(118, 96, { pins: pinNos(o, ["1", "2"]) });
+      const TOP = 26, BOT = 234, XO = 206;
       const b =
-        C.chip(76, 66, 96, 54) + C.text(76, 60, "IC1  7404", { anchor: "start" }) +
-        C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [156, 22]], "sbd-pos") +
-        C.wire([[156, 22], [156, 66]], "sbd-pos") + C.node(156, 22) +
-        C.text(161, 41, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 246, { label: "0 V" }) + C.wire([[51, 246], [212, 246]]) +
-        C.wire([[92, 120], [92, 246]]) + C.node(92, 246) +
-        C.text(97, 137, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 92, { label: "IN" }) + C.wire([[51, 92], [92, 92]]) +
-        g.svg +
-        C.wire([[144, 92], [212, 92], [212, 116]]) +
-        C.res(212, 144, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
-        C.wire([[212, 172], [212, 182]]) +
-        C.led(212, 200, { dir: "d", span: 36, label: "LED1" }) +
-        C.wire([[212, 218], [212, 246]]) + C.node(212, 246) +
-        C.netnum(70, 92, 3) + C.netnum(120, 22, 1) + C.netnum(150, 246, 2) +
-        C.netnum(212, 110, 4) + C.netnum(212, 178, 5);
-      return { w: 258, h: 268, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.term(42, 96, { label: "IN" }) + C.wire([[49, 96], [90, 96]]) +
+        g.svg + C.text(121, 62, "IC1a") +
+        C.wire([[160, 96], [XO, 96], [XO, 112]]) +
+        C.res(XO, 140, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 168], [XO, 180]]) +
+        C.led(XO, 198, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[XO, 216], [XO, BOT]]) + C.node(XO, BOT) +
+        nn(C, o, 68, 96, 3) + nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) +
+        nn(C, o, 182, 96, 4) + nn(C, o, XO, 174, 5);
+      return { w: 258, h: 262, body: b };
     },
     why: [
       "The seven cuts are the same as ever — the chip crosses seven tracks and every one of " +
@@ -2466,8 +2535,8 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => twoGateChip(C, { kind: "and", part: "7408",
-                                   in: ["D", "T", "H"], led: "LED1" }),
+    circuit: (C, o) => twoGateChip(C, { kind: "and", part: "7408",
+                                       in: ["D", "T", "H"], led: "LED1" }, o),
     why: [
       "Three conditions, two gates, <strong>one chip</strong>. Gates a and b of the same " +
       "7408 share pin 7 (0 V) and pin 14 (+5 V).",
@@ -2534,8 +2603,8 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => twoGateChip(C, { kind: "or", part: "7432",
-                                   in: ["S1", "S2", "S3"], led: "LED1" }),
+    circuit: (C, o) => twoGateChip(C, { kind: "or", part: "7432",
+                                       in: ["S1", "S2", "S3"], led: "LED1" }, o),
     why: [
       "“Any one of three” is a 3-input OR, and there is no 3-input OR in the kit — so it is " +
       "built from <strong>two 2-input OR gates</strong> of one 7432.",
@@ -2594,27 +2663,28 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => {
-      const q = C.npn(150, 150, { label: "Q1" });
+    circuit: (C, o) => {
+      const q = C.npn(164, 160, { label: "Q1" });   // base 130,160 · collector 174,128 · emitter 174,192
+      const TOP = 26, BOT = 236, XS = 86, XQ = 174;
       const b =
-        C.term(44, 24, { label: "+5 V", pos: true }) + C.wire([[51, 24], [150, 24]], "sbd-pos") +
-        C.node(88, 24) + C.node(150, 24) +
-        C.wire([[88, 24], [88, 56]]) +
-        C.sw(88, 76, { span: 40, label: "SW1" }) +
-        C.wire([[88, 96], [88, 116]]) +
-        C.res(88, 144, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
-        C.wire([[88, 172], [88, 210], [136, 210]]) +
-        C.wire([[136, 210], [136, 150]]) +
-        C.wire([[150, 24], [150, 66]]) +
-        C.sounder(150, 90, { dir: "v", span: 48, label: "BUZ1" }) +
-        C.wire([[150, 114], [150, 118]]) +
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.node(XS, TOP) + C.node(XQ, TOP) +
+
+        C.wire([[XS, TOP], [XS, 54]], "sbd-pos") +
+        C.sw(XS, 72, { dir: "v", span: 36, label: "SW1" }) +
+        C.wire([[XS, 90], [XS, 118]]) +
+        C.res(XS, 146, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
+        C.wire([[XS, 174], [XS, 206], [130, 206], [130, 160]]) +
+
+        C.wire([[XQ, TOP], [XQ, 60]], "sbd-pos") +
+        C.sounder(XQ, 78, { dir: "v", span: 48, label: "BUZ1" }) +
+        C.wire([[XQ, 93], [XQ, 128]]) +
         q.svg +
-        C.wire([[160, 182], [160, 232]]) +
-        C.term(44, 232, { label: "0 V" }) + C.wire([[51, 232], [160, 232]]) +
-        C.node(160, 232) +
-        C.netnum(118, 24, 1) + C.netnum(88, 108, 2) + C.netnum(112, 210, 3) +
-        C.netnum(150, 130, 5) + C.netnum(110, 232, 4);
-      return { w: 258, h: 252, body: b };
+        C.wire([[XQ, 192], [XQ, BOT]]) + C.node(XQ, BOT) +
+
+        nn(C, o, 120, TOP, 1) + nn(C, o, XS, 104, 2) + nn(C, o, 108, 206, 3) +
+        nn(C, o, XQ, 114, 5) + nn(C, o, 120, BOT, 4);
+      return { w: 258, h: 260, body: b };
     },
     why: [
       "The transistor has <strong>three legs in three consecutive holes</strong>, so it must " +
@@ -2689,36 +2759,36 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: [{ id: "TP1", at: "K8" }]
     },
-    circuit: C => {
+    circuit: (C, o) => {
       const G = { w: 32, lead: 12 };
-      const ga = C.andGate(100, 74, Object.assign({ pins: ["1", "2", "3"] }, G));
-      const gb = C.andGate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
-      const q = C.npn(234, 246, { label: "Q1" });
+      const ga = C.andGate(104, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
+      const gb = C.andGate(160, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
+      const q = C.npn(240, 230, { label: "Q1" });  // base 206,230 · collector 250,198 · emitter 250,262
+      const TOP = 24, BOT = 286, XR = 206, XP = 250;
       const b =
-        C.chip(62, 44, 140, 122) + C.text(62, 38, "IC1  7408", { anchor: "start" }) +
-        C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [244, 20]], "sbd-pos") +
-        C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
-        C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.wire([[244, 20], [244, 130]], "sbd-pos") + C.node(244, 20) +
-        C.motor(244, 154, { dir: "v", span: 48, letter: "M", label: "PUMP", labelSide: "r" }) +
-        C.wire([[244, 178], [244, 214]]) +
-        C.term(44, 300, { label: "0 V" }) + C.wire([[51, 300], [244, 300]]) +
-        C.wire([[76, 166], [76, 300]]) + C.node(76, 300) +
-        C.text(81, 183, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 63, { label: "SD" }) + C.wire([[51, 63], [78, 63]]) +
-        C.term(44, 85, { label: "TK" }) + C.wire([[51, 85], [78, 85]]) +
-        C.term(44, 143, { label: "EN" }) + C.wire([[51, 143], [134, 143]]) +
-        ga.svg + gb.svg +
-        C.wire([[134, 74], [134, 121]]) +
-        C.wire([[190, 132], [206, 132], [206, 174]]) +
-        C.res(206, 202, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
-        C.wire([[206, 230], [206, 246], [200, 246]]) +
+        C.rail(RAIL_L, 292, TOP, { pos: true }) + C.rail(RAIL_L, 292, BOT) +
+
+        C.term(40, 63, { label: "SD" }) + C.wire([[47, 63], [82, 63]]) +
+        C.term(40, 85, { label: "TK" }) + C.wire([[47, 85], [82, 85]]) +
+        C.term(40, 141, { label: "EN" }) + C.wire([[47, 141], [138, 141]]) +
+        ga.svg + C.text(110, 46, "IC1a") +
+        gb.svg + C.text(166, 102, "IC1b") +
+        C.wire([[138, 74], [138, 119]]) +
+
+        C.wire([[194, 130], [XR, 130], [XR, 156]]) +
+        C.res(XR, 184, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
+        C.wire([[XR, 212], [XR, 230]]) +
         q.svg +
-        C.wire([[244, 278], [244, 300]]) + C.node(244, 300) +
-        C.netnum(63, 63, 3) + C.netnum(63, 85, 4) + C.netnum(95, 143, 6) +
-        C.netnum(134, 100, 5) + C.netnum(206, 154, 7) + C.netnum(206, 240, 8) +
-        C.netnum(150, 300, 2) + C.netnum(110, 20, 1) + C.netnum(244, 196, 9);
-      return { w: 306, h: 314, body: b };
+
+        C.node(XP, TOP) + C.wire([[XP, TOP], [XP, 142]], "sbd-pos") +
+        C.motor(XP, 166, { dir: "v", span: 48, letter: "M", label: "PUMP", labelSide: "r" }) +
+        C.wire([[XP, 190], [XP, 198]]) +
+        C.wire([[XP, 262], [XP, BOT]]) + C.node(XP, BOT) +
+
+        nn(C, o, 63, 63, 3) + nn(C, o, 63, 85, 4) + nn(C, o, 95, 141, 6) +
+        nn(C, o, 138, 94, 5) + nn(C, o, XR, 143, 7) + nn(C, o, XR, 221, 8) +
+        nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) + nn(C, o, XP, 110, 9);
+      return { w: 316, h: 310, body: b };
     },
     why: [
       "The three conditions are a 3-input AND, built from two gates of <strong>one</strong> " +
@@ -2791,41 +2861,38 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: [{ id: "TP1", at: "G6" }, { id: "TP2", at: "P6" }]
     },
-    circuit: C => {
-      const g1 = C.notGate(118, 70, { pins: ["1", "2"] });
-      const g2 = C.notGate(118, 150, { pins: ["3", "4"] });
-      /* Gate a's chain is the FAR one and gate b's the near one, so neither
+    circuit: (C, o) => {
+      const g1 = C.notGate(118, 68, { pins: pinNos(o, ["1", "2"]) });
+      const g2 = C.notGate(118, 148, { pins: pinNos(o, ["3", "4"]) });
+      /* Gate a drives the FAR column and gate b the near one, so neither
          output wire has to cross the other chain.  Two wires crossing with no
-         junction dot is correct electrically and unreadable pedagogically —
-         a pupil cannot tell a crossing from a join. */
+         junction dot is correct electrically and unreadable pedagogically — a
+         pupil cannot tell a crossing from a join. */
+      const TOP = 22, BOT = 286, XA = 258, XB = 186;
       const b =
-        C.chip(76, 40, 96, 144) + C.text(76, 34, "IC1  7404", { anchor: "start" }) +
-        C.term(44, 16, { label: "+5 V", pos: true }) + C.wire([[51, 16], [160, 16]], "sbd-pos") +
-        C.wire([[160, 16], [160, 40]], "sbd-pos") + C.node(160, 16) +
-        C.text(165, 33, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 296, { label: "0 V" }) + C.wire([[51, 296], [258, 296]]) +
-        C.wire([[92, 184], [92, 296]]) + C.node(92, 296) +
-        C.text(97, 201, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 70, { label: "S1" }) + C.wire([[51, 70], [92, 70]]) +
-        C.term(44, 150, { label: "S2" }) + C.wire([[51, 150], [92, 150]]) +
-        g1.svg + g2.svg +
+        C.rail(RAIL_L, 292, TOP, { pos: true }) + C.rail(RAIL_L, 292, BOT) +
 
-        C.wire([[144, 70], [258, 70], [258, 100]]) +
-        C.res(258, 128, { dir: "v", span: 56, label: "R1", value: "270 \u03a9" }) +
-        C.wire([[258, 156], [258, 206]]) +
-        C.led(258, 224, { dir: "d", span: 36, label: "LED1", labelSide: "d" }) +
-        C.wire([[258, 242], [258, 296]]) + C.node(258, 296) +
+        C.term(42, 68, { label: "S1" }) + C.wire([[49, 68], [90, 68]]) +
+        C.term(42, 148, { label: "S2" }) + C.wire([[49, 148], [90, 148]]) +
+        g1.svg + C.text(121, 46, "IC1a") +
+        g2.svg + C.text(121, 126, "IC1b") +
 
-        C.wire([[144, 150], [190, 150], [190, 152]]) +
-        C.res(190, 180, { dir: "v", span: 56, label: "R2", value: "270 \u03a9" }) +
-        C.wire([[190, 208], [190, 222]]) +
-        C.led(190, 240, { dir: "d", span: 36, label: "LED2" }) +
-        C.wire([[190, 258], [190, 296]]) + C.node(190, 296) +
+        C.wire([[160, 68], [XA, 68], [XA, 96]]) +
+        C.res(XA, 124, { dir: "v", span: 56, label: "R1", value: "270 \u03a9" }) +
+        C.wire([[XA, 152], [XA, 184]]) +
+        C.led(XA, 202, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[XA, 220], [XA, BOT]]) + C.node(XA, BOT) +
 
-        C.netnum(70, 70, 3) + C.netnum(70, 150, 6) + C.netnum(120, 16, 1) +
-        C.netnum(130, 296, 2) + C.netnum(258, 88, 4) + C.netnum(258, 180, 5) +
-        C.netnum(166, 150, 7) + C.netnum(190, 215, 8);
-      return { w: 312, h: 312, body: b };
+        C.wire([[160, 148], [XB, 148], [XB, 166]]) +
+        C.res(XB, 194, { dir: "v", span: 56, label: "R2", value: "270 \u03a9", labelLeft: true }) +
+        C.wire([[XB, 222], [XB, 242]]) +
+        C.led(XB, 260, { dir: "d", span: 36, label: "LED2" }) +
+        C.wire([[XB, 278], [XB, BOT]]) + C.node(XB, BOT) +
+
+        nn(C, o, 68, 68, 3) + nn(C, o, 68, 148, 6) + nn(C, o, 120, TOP, 1) +
+        nn(C, o, 130, BOT, 2) + nn(C, o, 210, 68, 4) + nn(C, o, XA, 168, 5) +
+        nn(C, o, 172, 148, 7) + nn(C, o, XB, 232, 8);
+      return { w: 316, h: 310, body: b };
     },
     why: [
       "Two signals, two gates, <strong>one chip</strong>. The 7404 holds six inverters and " +
@@ -2976,7 +3043,7 @@ let done = new Set();
 let mode = "trace";                        // "convert" | "trace" — Trace is the warm-up, shown first
 const MODE_DESC = {
   trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
-  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links."
+  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it."
 };
 let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
 const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
@@ -3048,11 +3115,24 @@ function drawLive(){
    draw — and re-fit only when the panel appears or goes, since that is the only
    time it changes the column's height. */
 let bankKey = null;
+
+/* The diagram has two states.  The working one is deliberately spare — no net
+   numbers, no gate pin numbers, and no wires from the rails to the chip's power
+   pins, because working those out from the data sheet IS the task.  "Show the
+   answer" turns all three on, where they teach instead of give the game away. */
+function circOpts(){ return { nets: showingAnswer }; }
+
 function drawCircuit(){
-  const c = Q.circuit(C);
+  const c = Q.circuit(C, circOpts());
   $("cinner").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title + " — circuit diagram" });
   $("cinner").dataset.w = c.w;
   $("cinner").dataset.h = c.h;
+  const chip = Q.components.find(p => /^dip-/.test(p.footprint));
+  $("circKey").textContent = showingAnswer
+    ? "Ringed = net \u00b7 plain blue = IC pin"
+    : chip
+      ? "The chip's +5 V and 0 V pins are not drawn \u2014 find them on the data sheet."
+      : "Two supply rails. Every net between them becomes one track on the board.";
 }
 
 /* ------------------------------------------------------------------ fit
@@ -3588,6 +3668,7 @@ function toggleAnswer(){
     $("fbBody").innerHTML = "<p>Any layout that joins the same things together is right. This one is the " +
       "reference solution; yours may put the same nets on different tracks.</p>";
   } else clearFeedback();
+  drawCircuit();
   paint();
   say(showingAnswer ? "Showing the reference layout." : "Back to your board.");
 }
@@ -3709,6 +3790,54 @@ document.querySelectorAll(".tool[data-tool]").forEach(b =>
   b.addEventListener("click", () => { setTool(b.dataset.tool); say(b.textContent.trim() + " tool selected."); }));
 $("btnRot").addEventListener("click", rotate);
 
+/* ============================================================
+   Alpha build stamp and changelog
+   ----------------------------------------------------------------------
+   Testers are pupils, and a bug report is worth much less without the build
+   it came from — so the version is on screen in every layout, including the
+   short-landscape one that strips the rest of the page chrome.  The table
+   below is the only place a version is written down; the chip reads from it,
+   so the two cannot disagree.
+   ============================================================ */
+const CHANGELOG = [
+  { v: "0.3", date: "9 Sep 2026", what:
+    "Circuit diagrams rebuilt: two horizontal supply rails with the components cabled between them. " +
+    "The dashed \u201csystem box\u201d, the net numbers and the wires to the chip\u2019s +5 V and 0 V pins are gone \u2014 " +
+    "the power pins are now yours to find on the data sheet. Net and pin numbers come back under \u201cShow the answer\u201d. " +
+    "Switch and buzzer symbols redrawn for vertical use. Move-a-part hint moved somewhere iPads actually show it. " +
+    "This version box added." },
+  { v: "0.2", date: "9 Sep 2026", what:
+    "Trace now opens first. IC notches point inwards. Ten link-wire colours, with the board checking that red and " +
+    "black are only used for +5 V and 0 V and that no one colour carries two different signals. Chips renamed to " +
+    "the data sheet\u2019s numbers (7408, 7432, 7404). Data sheet linked from every chip question. New LDR footprint. " +
+    "Parts now stand across the tracks by default. Diagonal link wires rejected. Arrow-key claim removed." },
+  { v: "0.1", date: "9 Sep 2026", what:
+    "First hidden alpha: Trace (10 items) and Convert (10 questions). Fault-finder and Reverse not built yet." }
+];
+const ALPHA_VERSION = CHANGELOG[0].v;
+
+(function buildVersionBox(){
+  $("verChip").textContent = "Alpha v" + ALPHA_VERSION;
+  $("verSummary").textContent = "What\u2019s changed \u2014 alpha v" + ALPHA_VERSION +
+    ", " + CHANGELOG[0].date;
+  const tb = $("verBody");
+  for (const c of CHANGELOG){
+    const tr = document.createElement("tr");
+    for (const cell of ["v", "date", "what"]){
+      const td = document.createElement("td");
+      td.textContent = cell === "v" ? "v" + c[cell] : c[cell];
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+  $("verChip").addEventListener("click", () => {
+    $("verLog").open = true;
+    $("verLog").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("verSummary").focus();
+  });
+  $("verSummary").setAttribute("tabindex", "-1");
+})();
+
 $("btnCheck").addEventListener("click", check);
 $("btnReset").addEventListener("click", reset);
 $("btnAnswer").addEventListener("click", toggleAnswer);
@@ -3717,7 +3846,7 @@ $("btnNext").addEventListener("click", () => {
 });
 
 $("btnBig").addEventListener("click", () => {
-  const c = Q.circuit(C);
+  const c = Q.circuit(C, circOpts());
   $("modalTitle").textContent = Q.title + " — circuit diagram";
   $("modalBody").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title });
   $("modal").classList.add("show");
