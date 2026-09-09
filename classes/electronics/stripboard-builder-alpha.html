@@ -2126,11 +2126,82 @@ title: Stripboard Builder · National 5 Electronics
            { anchor: "start", cls: pos ? "sbd-poslab" : "sbd-clab" });
   }
 
+
+  /* A generic IC drawn as a labelled rectangle with NAMED pins — which is how
+     a 555 appears in every textbook and every past paper, and how it has to
+     appear here: the pupil reads "Trigger" off the diagram and finds pin 2 on
+     the data sheet.  That mapping is the skill, so the numbers are not given.
+
+     `left` and `right` are arrays of pin names, spaced evenly down each edge.
+     Returns the outer end of every lead, keyed by name, so the caller wires to
+     a point rather than to a coordinate it worked out for itself. */
+  function icBlock(x, y, o) {
+    o = o || {};
+    const left = o.left || [], right = o.right || [];
+    const rows = Math.max(left.length, right.length);
+    const w = o.w || 84, h = o.h || Math.max(56, rows * 22 + 16), lead = o.lead || 18;
+    const x0 = x - w / 2, y0 = y - h / 2;
+    let s = `<rect class="sbd-part" x="${n(x0)}" y="${n(y0)}" width="${n(w)}" ` +
+            `height="${n(h)}" rx="3"/>`;
+    const ends = {};
+    const place = (names, side) => names.forEach((name, i) => {
+      const py = y0 + h * (i + 1) / (names.length + 1);
+      const inner = side < 0 ? x0 : x0 + w, outer = inner + lead * side;
+      s += wire([[inner, py], [outer, py]]);
+      s += text(inner - side * 5, py + 3.5, name,
+                { cls: "sbd-cnet", anchor: side < 0 ? "start" : "end" });
+      ends[name] = [outer, py];
+    });
+    place(left, -1); place(right, 1);
+    if (o.label) s += text(x, y0 - 7, o.label);
+    return { svg: s, at: ends };
+  }
+
+  /* An op-amp: the triangle with its two inputs marked.  Same reasoning as the
+     555 block — the symbol says which input is inverting, the data sheet says
+     which pin that is. */
+  function opamp(x, y, o) {
+    o = o || {};
+    const w = o.w || 56, h = o.h || 64, lead = o.lead || 18;
+    const x0 = x - (w + lead * 2) / 2, y0 = y - h / 2, bx = x0 + lead;
+    const inM = y0 + h * 0.28, inP = y0 + h * 0.72;
+    let s = `<polygon class="sbd-part" points="${n(bx)},${n(y0)} ${n(bx)},${n(y0 + h)} ` +
+            `${n(bx + w)},${n(y)}"/>` +
+            wire([[x0, inM], [bx, inM]]) + wire([[x0, inP], [bx, inP]]) +
+            wire([[bx + w, y], [bx + w + lead, y]]) +
+            text(bx + 9, inM + 4, "\u2212", { cls: "sbd-cnet", anchor: "start" }) +
+            text(bx + 9, inP + 4, "+", { cls: "sbd-cnet", anchor: "start" });
+    if (o.label) s += text(x, y0 - 7, o.label);
+    return { svg: s, minus: [x0, inM], plus: [x0, inP], out: [bx + w + lead, y] };
+  }
+
+
+  /* An electrolytic capacitor: one straight plate and one curved plate, with
+     the + on the straight one (BS/IEC).  Vertical only for now — that is the
+     only orientation the bank's questions need, and a horizontal-only symbol
+     dropped into a vertical run is a fault this project has already made
+     twice (the sounder and the motor). */
+  function ecap(x, y, o) {
+    o = o || {};
+    const half = (o.span || 56) / 2, w = 22, gap = 5;
+    let s = wire([[x, y - half], [x, y - gap]]) + wire([[x, y + gap], [x, y + half]]) +
+      `<line class="sbd-wire" x1="${n(x - w / 2)}" y1="${n(y - gap)}" ` +
+      `x2="${n(x + w / 2)}" y2="${n(y - gap)}"/>` +
+      // the curved plate is the negative one
+      `<path class="sbd-wire" d="M ${n(x - w / 2)} ${n(y + gap + 3)} ` +
+      `Q ${n(x)} ${n(y + gap - 4)} ${n(x + w / 2)} ${n(y + gap + 3)}"/>` +
+      text(x - w / 2 - 5, y - gap - 4, "+", { anchor: "end" });
+    if (o.label) s += text(x + w / 2 + 6, y - 3, o.label, { anchor: "start" });
+    if (o.value) s += text(x + w / 2 + 6, y + 12, o.value, { anchor: "start" });
+    return s;
+  }
+
   /* the dashed outline round the gates that share one package */
   const chip = (x, y, w, h) =>
     `<rect class="sbd-chip" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="6"/>`;
 
   root.SBD.circuit = { wire, node, text, netnum, rail, res, led, andGate, orGate, notGate,
+                       icBlock, opamp, ecap,
                        ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
@@ -2947,6 +3018,154 @@ title: Stripboard Builder · National 5 Electronics
   };
 
   /* ------------------------------------------------------------------------
+     Q11 — Stairwell light timer.  A 555 MONOSTABLE: press the button and the
+     light stays on for a fixed time, then goes off by itself.
+
+     §6 allows the 555 but never as a flasher — an astable clocking LEDs, and
+     especially with an LDR near it, is the bicycle-lights brief and stays out.
+     A one-shot triggered by a push button is neither that nor the pillar drill.
+
+     The diagram names the pins rather than numbering them: 1 Ground, 2
+     Trigger, 3 Output, 4 Reset, 5 Control Voltage, 6 Threshold, 7 Discharge,
+     8 Vcc — read off the SQA data sheet (X860/75/12, page 3), which the page
+     links to.  Turning a name into a pin number IS the task.
+     ------------------------------------------------------------------------ */
+  const timer555 = {
+    id: "timer-555",
+    title: "Stairwell light timer",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A stairwell light is switched on by a push button and turns itself off again after " +
+      "a fixed time, so it is never left burning.",
+      "IC1 is a 555 wired as a <strong>monostable</strong> — one press, one timed output " +
+      "pulse. R1 and C1 set how long it lasts."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
+      { id: "TRIG", footprint: "term-1", name: "Trigger — the push button" },
+      { id: "IC1",  footprint: "dip-8",  part: "555", name: "IC1 — 555 timer" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (100 kΩ) — timing" },
+      { id: "C1",   footprint: "ecap-4", name: "C1 (10 µF) — timing" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — the stair light" }
+    ],
+    target: [
+      ["+5V.1", "IC1.8", "IC1.4", "R1.1"],
+      ["0V.1", "IC1.1", "C1.-", "LED1.k"],
+      ["R1.2", "IC1.7", "IC1.6", "C1.+"],
+      ["TRIG.1", "IC1.2"],
+      // R2 is vertical with its pin 2 on the chip's output track
+      ["IC1.3", "R2.2"],
+      ["R2.1", "LED1.a"]
+    ],
+    // pin 5 (Control Voltage) is left open, which is ordinary practice
+    dontcare: ["IC1.5"],
+    tpRequired: ["IC1.3"],
+    expect: {
+      inputs: [["TRIG", 0]],
+      note: "the button has just been pressed, so Trigger is pulled low and the timed " +
+            "output pulse has started",
+      levels: { "IC1.3": 1 }
+    },
+    stages: [
+      { name: "The chip and its timing parts",
+        parts: ["+5V", "0V", "TRIG", "IC1", "R1", "C1"],
+        hint: "Place the 555 and cut all four tracks it crosses. Reset ties to +5 V, the " +
+              "timing resistor runs from +5 V to Discharge, and Threshold, Discharge and " +
+              "the capacitor's + leg all end up on one net." },
+      { name: "The output sub-system",
+        parts: ["R2", "LED1"],
+        hint: "Now the series resistor and the stair light on the Output pin — then the " +
+              "test point, and what it reads just after the button is pressed." }
+    ],
+    reference: {
+      cuts: ["F11", "G11", "H11", "I11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-8",  at: "F10", rot: 0 },
+        { id: "+5V",  footprint: "term-1", at: "A2" },
+        { id: "0V",   footprint: "term-1", at: "X2" },
+        { id: "TRIG", footprint: "term-1", at: "G3" },
+        { id: "R1",   footprint: "res-4",  at: "A22", rot: 90 },
+        { id: "R2",   footprint: "res-4",  at: "E4",  rot: 90 },
+        { id: "C1",   footprint: "ecap-4", at: "H26", rot: 90 },
+        { id: "LED1", footprint: "led-2",  at: "W28", rot: 90 }
+      ],
+      links: [
+        { a: "A16", b: "F16", colour: "red",   num: 1 },   // rail across to Vcc's track
+        { a: "A8",  b: "I8",  colour: "red",   num: 2 },   // rail across to Reset's track
+        { a: "D22", b: "G22", colour: "blue",  num: 3 },   // R1 down to Discharge
+        { a: "G20", b: "H20", colour: "blue",  num: 4 },   // Discharge across to Threshold
+        { a: "F6",  b: "K6",  colour: "black", num: 5 },   // the Ground pin out to the 0 V run
+        { a: "K30", b: "X30", colour: "black", num: 6 },   // that run down to the 0 V rail
+        { a: "E32", b: "W32", colour: "green", num: 7 }    // R2 across to the LED
+      ],
+      testpoints: [{ id: "TP1", at: "H8", predict: 1 }]
+    },
+    circuit: (C, o) => {
+      /* Wider than the other diagrams because the 555's pin NAMES have to fit
+         inside the package — abbreviating them would break the one mapping the
+         question is about (name on the diagram -> pin number on the sheet). */
+      const TOP = 24, BOT = 288, XT = 320, XO = 262;
+      const ic = C.icBlock(150, 120, { w: 126, h: 96, label: "IC1  555",
+        left: ["Reset", "Trigger"], right: ["Discharge", "Threshold", "Output"] });
+      const RS = ic.at.Reset, T = ic.at.Trigger;
+      const DI = ic.at.Discharge, TH = ic.at.Threshold, OU = ic.at.Output;
+      const b =
+        C.rail(RAIL_L, 356, TOP, { pos: true }) + C.rail(RAIL_L, 356, BOT) +
+        ic.svg +
+
+        /* Reset tied to the supply is a design choice, not a power pin, so it
+           IS drawn.  Reset is the upper of the two left pins precisely so this
+           wire never has to cross the Trigger wire below it. */
+        C.wire([[RS[0], RS[1]], [58, RS[1]], [58, TOP]], "sbd-pos") + C.node(58, TOP) +
+
+        // the push button pulls Trigger low
+        C.term(40, T[1], { side: "u", label: "TRIG" }) +
+        C.wire([[47, T[1]], [T[0], T[1]]]) +
+
+        // R1 from the rail into Discharge, with Threshold tied to the same net
+        C.node(XT, TOP) + C.wire([[XT, TOP], [XT, 40]], "sbd-pos") +
+        C.res(XT, 68, { dir: "v", span: 56, label: "R1", value: "100 kΩ" }) +
+        C.wire([[DI[0], DI[1]], [XT, DI[1]]]) + C.node(XT, DI[1]) +
+        C.wire([[TH[0], TH[1]], [XT, TH[1]]]) + C.node(XT, TH[1]) +
+        C.wire([[XT, DI[1]], [XT, 160]]) +
+        C.ecap(XT, 188, { span: 56, label: "C1", value: "10 µF" }) +
+        C.wire([[XT, 216], [XT, BOT]]) + C.node(XT, BOT) +
+
+        // the output drives the stair light
+        C.wire([[OU[0], OU[1]], [XO, OU[1]], [XO, 176]]) +
+        C.res(XO, 204, { dir: "v", span: 56, label: "R2", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 232], [XO, 252]]) +
+        C.led(XO, 268, { dir: "d", span: 32, label: "LED1" }) +
+        C.wire([[XO, 284], [XO, BOT]]) + C.node(XO, BOT) +
+
+        nn(C, o, 110, TOP, 1) + nn(C, o, 200, BOT, 2) +
+        nn(C, o, XT, 140, 3) + nn(C, o, 58, T[1], 4) +
+        nn(C, o, 246, OU[1], 5) + nn(C, o, XO, 242, 6);
+      return { w: 380, h: 312, body: b };
+    },
+    why: [
+      "A <strong>monostable</strong> has one stable state. Pulling <strong>Trigger</strong> " +
+      "low starts a single output pulse, and the pulse ends by itself once C1 has charged " +
+      "through R1 to two thirds of the supply — nothing has to switch it off.",
+      "<strong>Threshold, Discharge and C1's + leg are one net.</strong> That single " +
+      "connection is what makes it a timer, and it is the one most often missed on the " +
+      "layout: on the board they are two pins on opposite sides of the cut, so it takes " +
+      "two link wires to bring them together.",
+      "<strong>Reset (pin 4) is tied to +5 V.</strong> Left floating it resets at random " +
+      "and the light drops out early — a fault that looks like a duff chip.",
+      "The diagram gives pin <em>names</em>, not numbers. <strong>Trigger is pin 2, Output " +
+      "pin 3, Reset pin 4, Threshold pin 6 and Discharge pin 7</strong>; pins 1 and 8 are " +
+      "0 V and +5 V. All of it is on page 3 of the data sheet.",
+      "With the button just pressed the output is high, so <strong>TP1 reads logic 1</strong>. " +
+      "A 0 there while the light is supposed to be on puts the fault in the timing parts, " +
+      "not in the lamp."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
      Q10 — two inverters in one package.  The §5.1 archetype with no shared
      signal at all: one chip, two completely unrelated sensors, and four gates
      left unused.  Two test points, one per sub-system output.
@@ -3071,8 +3290,165 @@ title: Stripboard Builder · National 5 Electronics
     ]
   };
 
+
+  /* ------------------------------------------------------------------------
+     Q12 — Frost warning.  A 741 used as a COMPARATOR: a thermistor divider on
+     the non-inverting input, a fixed reference divider on the inverting one.
+
+     741 pinout (SQA data sheet X860/75/12, page 3): 1 and 5 Offset Null,
+     2 Inverting (−), 3 Non-Inverting (+), 4 V−, 6 Output, 7 V+, 8 NC.  Both
+     offset-null pins and the NC pin are left open, which is normal — they are
+     `dontcare`, so a pupil who ties them anywhere is not failed for it (R1).
+
+     The thermistor sits at the BOTTOM of its divider on purpose: as it gets
+     colder an NTC's resistance rises, so the divider output rises above the
+     reference and the output goes high when it is cold, which is the way round
+     a frost warning has to work.
+     ------------------------------------------------------------------------ */
+  const frostComparator = {
+    id: "frost-comparator",
+    title: "Frost warning",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A warning light comes on when the air temperature drops to freezing, so a road " +
+      "crew knows to grit.",
+      "IC1 is a 741 used as a <strong>comparator</strong>. R1 and TH1 form the sensing " +
+      "divider; R2 and R3 set the fixed reference the sensor is compared against."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
+      { id: "IC1",  footprint: "dip-8",  part: "741", name: "IC1 — 741 op-amp" },
+      // the thermistor is off-board on a 2-way terminal block, and either way round
+      { id: "TH1",  footprint: "term-2", symmetric: true, name: "TH1 — thermistor" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (10 kΩ)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — reference" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — reference" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — frost warning" }
+    ],
+    target: [
+      ["+5V.1", "IC1.7", "R1.1", "R2.1"],
+      ["0V.1", "IC1.4", "TH1.2", "R3.2", "LED1.k"],
+      ["R1.2", "TH1.1", "IC1.3"],
+      ["R2.2", "R3.1", "IC1.2"],
+      ["IC1.6", "R4.1"],
+      ["R4.2", "LED1.a"]
+    ],
+    // both offset-null pins and the NC pin are left open, which is normal
+    dontcare: ["IC1.1", "IC1.5", "IC1.8"],
+    tpRequired: ["IC1.6"],
+    expect: {
+      inputs: [["temperature", "cold"]],
+      note: "the thermistor is cold, so its resistance is high and the sensing divider " +
+            "sits above the reference",
+      levels: { "IC1.6": 1 }
+    },
+    stages: [
+      { name: "The two dividers and the chip",
+        parts: ["+5V", "0V", "IC1", "R1", "TH1", "R2", "R3"],
+        hint: "Place the 741 and cut all four tracks it crosses. The sensing divider goes " +
+              "to the + input and the reference divider to the − input — the data sheet " +
+              "says which pin is which." },
+      { name: "The output sub-system",
+        parts: ["R4", "LED1"],
+        hint: "Now the series resistor and the warning light on the op-amp's output — then " +
+              "the test point, and what it reads when it is cold." }
+    ],
+    reference: {
+      cuts: ["P11", "Q11", "R11", "S11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-8",  at: "P10", rot: 0 },
+        { id: "+5V",  footprint: "term-1", at: "A2" },
+        { id: "0V",   footprint: "term-1", at: "X2" },
+        { id: "R1",   footprint: "res-4",  at: "A4",  rot: 90 },   // legs A4 and D4
+        { id: "TH1",  footprint: "term-2", at: "D6",  rot: 90 },   // legs D6 and F6
+        { id: "R2",   footprint: "res-4",  at: "H16", rot: 90 },   // legs H16 and K16
+        { id: "R3",   footprint: "res-4",  at: "K18", rot: 90 },   // legs K18 and N18
+        { id: "R4",   footprint: "res-4",  at: "R28", rot: 90 },   // legs R28 and U28
+        { id: "LED1", footprint: "led-2",  at: "W30", rot: 90 }
+      ],
+      links: [
+        { a: "A18", b: "H18", colour: "red",    num: 1 },  // rail down to R2's top
+        { a: "A26", b: "Q26", colour: "red",    num: 2 },  // rail across to V+'s track
+        { a: "D9",  b: "R9",  colour: "blue",   num: 3 },  // sensing divider to the + input
+        { a: "K7",  b: "Q7",  colour: "orange", num: 4 },  // reference divider to the − input
+        { a: "F8",  b: "X8",  colour: "black",  num: 5 },  // thermistor's low end to 0 V
+        { a: "N20", b: "X20", colour: "black",  num: 6 },  // R3's low end to 0 V
+        { a: "S6",  b: "X6",  colour: "black",  num: 7 },  // V− pin to 0 V
+        { a: "U32", b: "W32", colour: "green",  num: 8 }   // R4 across to the LED
+      ],
+      testpoints: [{ id: "TP1", at: "R18", predict: 1 }]
+    },
+    circuit: (C, o) => {
+      /* The two dividers sit on OPPOSITE sides of the op-amp.  Side by side on
+         the left, whichever one is further out has to send its wire across the
+         other's column — a crossing with no junction dot, which is right
+         electrically and unreadable to a pupil.  From the right, the reference
+         wire runs in a clear corridor above the triangle instead. */
+      const TOP = 24, BOT = 288, XS = 64, XR = 296, XO = 236;
+      // the label goes BELOW the triangle: above it, the reference wire runs
+      // through it on its way to the − input
+      const A = C.opamp(190, 150, {});
+      const b =
+        C.rail(RAIL_L, 302, TOP, { pos: true }) + C.rail(RAIL_L, 302, BOT) +
+
+        // sensing divider: R1 on top, the thermistor below, so cold reads high
+        C.node(XS, TOP) + C.wire([[XS, TOP], [XS, 46]], "sbd-pos") +
+        C.res(XS, 74, { dir: "v", span: 56, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XS, 102], [XS, 148]]) + C.node(XS, 120) +
+        // label to the side, clear of both the body and the sensing stroke
+        C.thermistor(XS, 176, { dir: "v", span: 56 }) +
+        C.text(88, 180, "TH1", { anchor: "start" }) +
+        C.wire([[XS, 204], [XS, BOT]]) + C.node(XS, BOT) +
+
+        // reference divider, on the far side
+        C.node(XR, TOP) + C.wire([[XR, TOP], [XR, 48]], "sbd-pos") +
+        C.res(XR, 76, { dir: "v", span: 56, label: "R2", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XR, 104], [XR, 118]]) + C.node(XR, 104) +
+        C.res(XR, 146, { dir: "v", span: 56, label: "R3", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XR, 174], [XR, BOT]]) + C.node(XR, BOT) +
+
+        // sensing -> the + input (the lower one); reference -> the − input
+        C.wire([[XS, 120], [120, 120], [120, A.plus[1]], [A.plus[0], A.plus[1]]]) +
+        C.wire([[XR, 104], [A.minus[0], 104], [A.minus[0], A.minus[1]]]) +
+        A.svg + C.text(142, 202, "IC1  741") +
+
+        // the output drives the warning light
+        C.wire([[A.out[0], A.out[1]], [XO, A.out[1]], [XO, 176]]) +
+        C.res(XO, 204, { dir: "v", span: 56, label: "R4", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 232], [XO, 252]]) +
+        C.led(XO, 268, { dir: "d", span: 32, label: "LED1" }) +
+        C.wire([[XO, 284], [XO, BOT]]) + C.node(XO, BOT) +
+
+        nn(C, o, 170, TOP, 1) + nn(C, o, 170, BOT, 2) +
+        nn(C, o, 96, 120, 3) + nn(C, o, 200, 104, 4) +
+        nn(C, o, XO, 162, 5) + nn(C, o, XO, 242, 6);
+      return { w: 326, h: 312, body: b };
+    },
+    why: [
+      "A <strong>comparator</strong> has no feedback: the output slams high when the " +
+      "+ input is above the − input and low when it is below. Two potential dividers, " +
+      "one sensing and one fixed, are all it needs.",
+      "<strong>The thermistor is at the bottom of its divider on purpose.</strong> An NTC " +
+      "gets <em>more</em> resistive as it cools, so putting it at the bottom makes the " +
+      "divider voltage <em>rise</em> when it is cold — which is when the warning has to " +
+      "come on. Swap R1 and TH1 over and the light works back to front.",
+      "R2 and R3 are equal, so the reference sits at half the supply. Changing R3 changes " +
+      "the temperature the warning trips at, and nothing else.",
+      "The diagram marks the inputs <strong>+</strong> and <strong>−</strong>, not 3 and 2 " +
+      "— <strong>the + input is pin 3 and the − input is pin 2</strong>, with the supplies " +
+      "on pins 7 and 4. Page 3 of the data sheet. Pins 1, 5 and 8 are left open, which is " +
+      "normal, so it does not matter what happens to them.",
+      "Cold means the + input is above the reference, so <strong>TP1 reads logic 1</strong>. " +
+      "A 0 there on a frosty morning puts the fault in the sensing divider, not the lamp."
+    ]
+  };
+
   root.QUESTIONS = [ledResistor, ldrDivider, andGateLed, notGateLed, liftInterlock,
-                    kilnInterlock, carparkFull, transistorBuzzer, greenhouse, twoInverters];
+                    kilnInterlock, carparkFull, transistorBuzzer, greenhouse, twoInverters,
+                    timer555, frostComparator];
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- trace-questions.js ---- */
@@ -4096,6 +4472,11 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.6", date: "9 Sep 2026", what:
+    "Two new questions. Q11 is a 555 <strong>monostable</strong> \u2014 a stairwell light that " +
+    "times itself out \u2014 and Q12 is a 741 <strong>comparator</strong> driving a frost warning. " +
+    "Both diagrams give the pin NAMES (Trigger, Threshold, + and \u2212) and leave you to find the " +
+    "numbers on page 3 of the data sheet, which is where the real skill is." },
   { v: "0.5", date: "9 Sep 2026", what:
     "The five big questions (Q5, Q6, Q7, Q9, Q10) are now built one sub-system at a time. " +
     "Stage 1 is the inputs and the chip; the output sub-system\u2019s parts stay out of the bank " +
