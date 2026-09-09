@@ -157,6 +157,12 @@ title: Stripboard Builder · National 5 Electronics
     /* Test-point predictions.  Same shelf as the wire colours and the same
        rule: it is only on screen while its own tool is, so it costs the
        one-screen budget nothing the rest of the time. */
+    /* Sub-system staging: one line, because the board is what needs the height. */
+    #sbd .stagebar{margin:-2px 0 7px;padding:.4rem .7rem;border-left:4px solid var(--accent);
+      background:var(--tint);border-radius:0 8px 8px 0;
+      font:600 .8rem/1.4 var(--font-stack);color:var(--text)}
+    #sbd .stagebar[hidden]{display:none}
+    #sbd .stagebar b{color:var(--accent);font-weight:900}
     #sbd .tprow{gap:6px}
     #sbd .tpitem{display:inline-flex;align-items:center;gap:4px;padding:1px 5px 1px 8px;
       border:1.5px solid var(--border);border-radius:999px;background:var(--card)}
@@ -368,6 +374,7 @@ title: Stripboard Builder · National 5 Electronics
               <button type="button" class="tool" data-tool="erase" aria-pressed="false"><span class="k">⌫</span>Remove</button>
               <button type="button" class="tool" id="btnRot"><span class="k">⟳</span>Rotate</button>
             </div>
+            <p class="stagebar conv-only" id="stageBar" hidden></p>
             <div class="linkcolours conv-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
               <span class="lchint">Wire colour:</span>
             </div>
@@ -788,6 +795,37 @@ title: Stripboard Builder · National 5 Electronics
       if (sig.length) out.push(sig.sort().join("|"));
     }
     return out.sort();
+  }
+
+  /* ----------------------------------------------------------- stages
+     "It should be possible to do the switching board separate from the
+     process, and then the output."  A question with `stages` is checked one
+     sub-system at a time: each stage names the components unlocked by then,
+     and everything past it is folded into `dontcare` — which the comparison
+     already strips from BOTH partitions (R1).  So an early stage marks only
+     the wiring it covers, and a pupil who runs ahead and places the output
+     parts is not punished for it at stage 1.
+
+     `parts` is cumulative: stage k's set is stages 0..k unioned.  The last
+     stage is the whole question, unchanged, so the final check is exactly the
+     check a question without stages gets.  There is no second comparison and
+     no second target — a staged question cannot drift from its own answer. */
+  function stageOf(q, k) {
+    if (!q.stages || !q.stages.length) return q;
+    const last = q.stages.length - 1;
+    if (!(k >= 0) || k >= last) return q;
+    const unlocked = new Set();
+    for (let i = 0; i <= k; i++) for (const id of q.stages[i].parts) unlocked.add(id);
+    const dontcare = new Set(q.dontcare || []);
+    for (const net of q.target)
+      for (const pin of net) if (!unlocked.has(pin.split(".")[0])) dontcare.add(pin);
+    return Object.assign({}, q, {
+      components: (q.components || []).filter(c => unlocked.has(c.id)),
+      dontcare: [...dontcare],
+      tpRequired: [],          // a test point is planned once the output exists
+      expect: null,
+      stageIndex: k
+    });
   }
 
   /* --------------------------------------------------------------- check */
@@ -1230,7 +1268,7 @@ title: Stripboard Builder · National 5 Electronics
     return top.dsu.find(na) === top.dsu.find(nb);
   }
 
-  root.SBD = { BOARDS, FOOTPRINTS, segmentsOf, makeDSU, topology, netsOf,
+  root.SBD = { BOARDS, FOOTPRINTS, segmentsOf, makeDSU, topology, netsOf, stageOf,
                canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
                ref, parseRef, rowLetter, hid, cellsOf };
 
@@ -2277,6 +2315,20 @@ title: Stripboard Builder · National 5 Electronics
       note: "the door is closed and a floor is selected, but the car is overloaded",
       levels: { "IC1.6": 0 }
     },
+    /* Sub-system staging (§4.1 / the alpha feedback): the switching into the
+       chip is checked on its own before the output sub-system is unlocked. */
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "A", "B", "C", "IC1"],
+        hint: "Place the chip, cut every track it crosses, and get the three inputs " +
+              "onto the right pins — plus the link from gate a's output to gate b's input. " +
+              "The output sub-system unlocks once this checks clean." },
+      { name: "The output sub-system",
+        parts: ["R1", "LED1"],
+        hint: "Now add the resistor and the LED from the chip's output down to 0 V, mark the " +
+              "test point, and say what it will read — the Test point tool gives you the " +
+              "input conditions." }
+    ],
     reference: {
       // the seven cuts are the column between the chip's two rows of pins
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
@@ -2574,6 +2626,15 @@ title: Stripboard Builder · National 5 Electronics
       ["R1.2", "LED1.a"]
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "D", "T", "H", "IC1"],
+        hint: "Chip down, every track under it cut, the three inputs on the right pins and " +
+              "gate a's output linked to gate b's input." },
+      { name: "The output sub-system",
+        parts: ["R1", "LED1"],
+        hint: "Now the resistor and the LED from the chip's output down to 0 V." }
+    ],
     reference: {
       cuts: ["N11", "O11", "P11", "Q11", "R11", "S11", "T11"],
       placements: [
@@ -2642,6 +2703,15 @@ title: Stripboard Builder · National 5 Electronics
       ["R1.2", "LED1.a"]
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "S1", "S2", "S3", "IC1"],
+        hint: "Chip down, every track under it cut, the three bay sensors on the right pins " +
+              "and gate a's output linked to gate b's input." },
+      { name: "The output sub-system",
+        parts: ["R1", "LED1"],
+        hint: "Now the resistor and the sign indicator from the chip's output down to 0 V." }
+    ],
     reference: {
       cuts: ["F25", "G25", "H25", "I25", "J25", "K25", "L25"],
       placements: [
@@ -2801,6 +2871,16 @@ title: Stripboard Builder · National 5 Electronics
       note: "the soil is dry, the tank is not empty and the system is switched on",
       levels: { "IC1.6": 1 }
     },
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "SD", "TK", "EN", "IC1"],
+        hint: "Chip down, every track under it cut, the three inputs on the right pins and " +
+              "gate a's output linked to gate b's input." },
+      { name: "The output sub-system",
+        parts: ["R1", "Q1", "PUMP"],
+        hint: "Now the driver: the base resistor, the transistor and the pump — then the " +
+              "test point on the chip's output, and what it will read." }
+    ],
     reference: {
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
       placements: [
@@ -2911,6 +2991,19 @@ title: Stripboard Builder · National 5 Electronics
       note: "sensor 1 has tripped (active low) and sensor 2 has not",
       levels: { "IC1.2": 1, "IC1.4": 0 }
     },
+    /* Two unrelated signals through one package, so the stages are the two
+       chains rather than input-then-output: get the first sensor's chain right
+       and the second is the same job again, which is the lesson. */
+    stages: [
+      { name: "The chip and sensor 1",
+        parts: ["+5V", "0V", "S1", "IC1", "R1", "LED1"],
+        hint: "Place the chip, cut every track under it, and build sensor 1's chain right " +
+              "through to its indicator. Sensor 2 unlocks once this checks clean." },
+      { name: "Sensor 2's chain",
+        parts: ["S2", "R2", "LED2"],
+        hint: "Now the same again for sensor 2, on the second inverter of the SAME chip — " +
+              "then mark both test points and say what each will read." }
+    ],
     reference: {
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
       placements: [
@@ -3111,6 +3204,34 @@ let linkColour = AUTO_LINK_COLOURS[0];     // pupil-chosen, shown while the Link
 let marks = [], hl = [], showingAnswer = false, scale = 1;
 let done = new Set();
 
+let stage = 0;                             // which sub-system stage of a staged question
+
+/* A staged question is marked one sub-system at a time ("do the switching
+   board separate from the process, and then the output").  The engine does the
+   restriction — SBD.stageOf folds every later part into `dontcare` — so the
+   page never builds a second target and the two cannot drift. */
+function curQ(){ return Q.stages ? SBD.stageOf(Q, stage) : Q; }
+function lastStage(){ return !Q.stages || stage >= Q.stages.length - 1; }
+function unlockedIds(){
+  if (!Q.stages) return null;
+  const set = new Set();
+  for (let i = 0; i <= stage && i < Q.stages.length; i++)
+    for (const id of Q.stages[i].parts) set.add(id);
+  return set;
+}
+function bankParts(){
+  const u = unlockedIds();
+  return u ? Q.components.filter(c => u.has(c.id)) : Q.components;
+}
+function paintStageBar(){
+  const el = $("stageBar");
+  if (!Q.stages){ el.hidden = true; return; }
+  el.hidden = false;
+  const st = Q.stages[stage];
+  el.innerHTML = "<b>Stage " + (stage + 1) + " of " + Q.stages.length + " — " +
+    esc(st.name) + ".</b> " + esc(st.hint);
+}
+
 let mode = "trace";                        // "convert" | "trace" — Trace is the warm-up, shown first
 const MODE_DESC = {
   trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
@@ -3123,7 +3244,7 @@ const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a 
 const TRACE_LEDE = "Look at the board, then answer the question beside it: are the two named holes " +
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
 
-const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [] });
+const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [], stage: 0 });
 
 /* ---- storage: versioned, shape-checked, and disposable (R8) ---- */
 function loadStore(){
@@ -3156,7 +3277,9 @@ function sane(a){
                 links: arr("links").filter(l => l && l.a && l.b),
                 testpoints: arr("testpoints").filter(t => t && t.at)
                   .map(t => ({ id: t.id, at: t.at,
-                               predict: (t.predict === 0 || t.predict === 1) ? t.predict : null })) };
+                               predict: (t.predict === 0 || t.predict === 1) ? t.predict : null })),
+                // how far through a staged question this board got
+                stage: Number.isInteger(a.stage) ? a.stage : 0 };
   try { SBD.topology(SBD.BOARDS[Q.board], out); } catch(e){ return null; }
   return out;
 }
@@ -3554,12 +3677,12 @@ function drawBank(){
   /* paint() runs on every pointer move; rebuilding eight tiles and an inline
      SVG each time is wasted work, and re-measuring the open tile on every one
      of them thrashes layout.  Rebuild only when something in it changed. */
-  const key = Q.id + "|" + sel + "@" + rot + "|" + [...placed].sort().join(",");
+  const key = Q.id + "#" + stage + "|" + sel + "@" + rot + "|" + [...placed].sort().join(",");
   if (key === bankKey) return;
   bankKey = key;
   bank.innerHTML = "";
   let openTile = null;
-  for (const c of Q.components){
+  for (const c of bankParts()){
     const isPlaced = placed.has(c.id), isSel = sel === c.id;
     // a real <button> may not contain another one, and the open tile carries a
     // Rotate button, so the tile is a div that behaves like a button
@@ -3614,21 +3737,30 @@ function clearFeedback(){ $("feedback").classList.remove("show"); hl = []; }
 
 function check(){
   if (showingAnswer){ say("That is the answer, not your board."); return; }
-  const res = SBD.check(Q, A);
+  const res = SBD.check(curQ(), A);
   const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
   fb.classList.add("show");
   fb.classList.toggle("good", res.ok);
   fb.classList.toggle("bad", !res.ok);
 
   if (res.ok){
-    head.textContent = "✓ That board builds the circuit.";
-    let html = "<p>Every net on the circuit diagram is one connected run of copper on your board, and nothing " +
-      "is joined that should not be.</p>";
+    const more = !lastStage();
+    head.textContent = more
+      ? "✓ Stage " + (stage + 1) + " is right — " + Q.stages[stage].name.toLowerCase() + "."
+      : "✓ That board builds the circuit.";
+    let html = more
+      ? "<p>Everything this stage covers is wired correctly. The next sub-system\u2019s parts " +
+        "are now in the bank.</p>"
+      : "<p>Every net on the circuit diagram is one connected run of copper on your board, and nothing " +
+        "is joined that should not be.</p>";
     if (res.warnings.length)
-      html += "<p class='msnote'>Two things worth tidying before you build it:</p>" + list(res.warnings, "warn");
+      html += "<p class='msnote'>Worth tidying before you build it:</p>" + list(res.warnings, "warn");
+    if (more)
+      html += "<p style='margin-top:10px'><button type='button' class='btn' id='btnStage'>" +
+              "Next stage: " + esc(Q.stages[stage + 1].name) + " \u2192</button></p>";
     body.innerHTML = html;
-    done.add(Q.id);
-    buildChips();
+    if (!more){ done.add(Q.id); buildChips(); }
+    if (more) $("btnStage").addEventListener("click", nextStage);
   } else {
     const n = res.faults.length;
     head.textContent = n === 1 ? "1 thing to fix" : n + " things to fix";
@@ -3638,8 +3770,23 @@ function check(){
   }
   saveStore();
   wireFaultButtons(res);
-  say(res.ok ? "Correct. " + (res.warnings.length ? res.warnings.length + " suggestions." : "")
+  say(res.ok ? head.textContent + " " + (res.warnings.length ? res.warnings.length + " suggestions." : "")
              : res.faults.length + " faults found.");
+}
+
+function nextStage(){
+  if (lastStage()) return;
+  stage++;
+  A.stage = stage;
+  saveStore();
+  clearFeedback();
+  paintStageBar();
+  sel = null; bankKey = null;
+  drawBank();
+  if (tool === "tp") buildTpRow();
+  paint();
+  fit();
+  say("Stage " + (stage + 1) + ". " + Q.stages[stage].name + ". " + Q.stages[stage].hint);
 }
 
 function list(items, cls){
@@ -3689,6 +3836,9 @@ function load(i, keepScroll){
 
   const saved = sane(loadStoreRaw()[Q.id]);
   A = saved || startingPoint();
+  // a stage index from storage may name a stage this question no longer has
+  stage = Q.stages ? Math.max(0, Math.min(A.stage || 0, Q.stages.length - 1)) : 0;
+  A.stage = stage;
 
   $("qtitle").textContent = "Q" + (qi + 1) + ". " + Q.title;
   $("qsrc").textContent = Q.board + " · " + SBD.BOARDS[Q.board].rows + " tracks × " +
@@ -3702,6 +3852,7 @@ function load(i, keepScroll){
   drawCircuit();
   drawGrid();
   buildChips();
+  paintStageBar();
   $("tpRow").hidden = tool !== "tp" || !Q.expect;   // a stale row belongs to the last question
   if (tool === "tp") buildTpRow();
   paint();
@@ -3730,6 +3881,11 @@ function setDatasheetLink(){
    component when they are already on the board is the sort of thing that makes
    them distrust the rest of the page. */
 function taskLine(){
+  /* A staged question says what to do now in its stage bar, so the task line
+     gives only the overall aim — printing both is two wrapped lines of the
+     same instruction, and the board needs that height more. */
+  if (Q.stages) return "<strong>Your task:</strong> build this circuit on the board, " +
+    "one sub-system at a time — the stage below says which part you are on.";
   const tp = Q.tpRequired && Q.tpRequired.length;
   const links = (Q.reference.links || []).length > 0;
   const bits = [];
@@ -3784,6 +3940,9 @@ function buildChips(){
 
 function reset(){
   A = startingPoint();
+  stage = 0; A.stage = 0;                   // the later stages' parts just came off the board
+  bankKey = null;
+  paintStageBar();
   sel = null; rot = 0; linkStart = null; marks = []; hl = [];
   showingAnswer = false; $("btnAnswer").textContent = "Show the answer";
   clearFeedback(); saveStore();
@@ -3937,6 +4096,12 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.5", date: "9 Sep 2026", what:
+    "The five big questions (Q5, Q6, Q7, Q9, Q10) are now built one sub-system at a time. " +
+    "Stage 1 is the inputs and the chip; the output sub-system\u2019s parts stay out of the bank " +
+    "until stage 1 checks clean, so you are marked on the switching before you start on the " +
+    "output. A stage line under the tools says which part you are on, and where you got to is " +
+    "remembered if you close the page." },
   { v: "0.4", date: "9 Sep 2026", what:
     "Test points now have to be predicted, not just placed. Where a question asks for one, you " +
     "are given the input conditions and say whether each test point will read logic 1 or logic 0; " +
