@@ -1,0 +1,3812 @@
+---
+layout: none
+title: Stripboard Builder · National 5 Electronics
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Stripboard Builder · National 5 Electronics</title>
+  {% include site-head-icons.html %}
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260828b">
+  <script src="/assets/js/site-menu.js" defer></script>
+  <style>
+    /* ---- board and circuit palette -------------------------------------
+       The renderer emits var(--sbd-*, light-fallback), so light mode needs no
+       declarations at all; only the dark overrides live here.  One table in
+       sbd-render.js is the source of both, which is why an offline PNG and the
+       live page cannot differ in colour. */
+    @media (prefers-color-scheme: dark){
+      #sbd{
+        --sbd-track:#2a3a34; --sbd-hole:#0d1815; --sbd-holeline:#47574f;
+        --sbd-lab:#8fa39a;   --sbd-body:#17231e; --sbd-ink:#dcece5;
+        --sbd-icfill:#1c2b25; --sbd-cut:#ff8a7a; --sbd-tp:#6fc0f0;
+        --sbd-page:#0b1512;  --sbd-hl:#f0b429;   --sbd-hl2:#6fc0f0; --sbd-cur:#3ddc9a;
+      }
+    }
+    #sbd{ --ok:#0f8a5f; --ok-bg:rgba(15,138,95,.12); --bad:#c0392b; --bad-bg:rgba(192,57,43,.10);
+          --warn:#b8791d; --warn-bg:rgba(184,121,29,.12); }
+    @media (prefers-color-scheme: dark){
+      #sbd{ --ok:#3ddc9a; --ok-bg:rgba(61,220,154,.16); --bad:#ff8a7a; --bad-bg:rgba(255,138,122,.14);
+            --warn:#f0b429; --warn-bg:rgba(240,180,41,.16); }
+    }
+    #sbd p{margin:0}
+
+    /* beta notice — same pattern as the Block Diagram Builder */
+    .beta{border-left:5px solid var(--warm)}
+    .beta h2{color:var(--warm)}
+    .beta .lead.beta-short{display:none}
+    .beta .beta-tag{display:inline-block;font-size:.7rem;font-weight:900;letter-spacing:.08em;
+      text-transform:uppercase;color:#fff;background:var(--warm);border-radius:999px;
+      padding:2px 9px;vertical-align:middle;margin-left:.4rem}
+
+    /* a tool page needs its vertical space: slim banner, title in the page, no sub-nav */
+    .banner-wrap.is-tool{aspect-ratio:auto;height:118px}
+    .banner-wrap.is-tool .banner{height:118px;object-fit:cover}
+    .page-title{font-size:1.32rem;font-weight:900;margin:.1rem 0 .6rem;color:var(--text)}
+    .titlerow{display:block}
+    .titlerow .beta{margin-top:.2rem}
+    #sbd .lede{color:var(--muted);font-weight:800;font-size:.9rem;line-height:1.5;margin:0 0 12px}
+    #sbd kbd{font-family:ui-monospace,Menlo,monospace;font-size:.85em;
+      border:1px solid var(--border-soft);border-radius:5px;padding:0 4px;background:var(--surface-2)}
+
+    /* ---- mode + question chips ---------------------------------------- */
+    #sbd .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+    #sbd .seg{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    #sbd .seg button{border:0;background:var(--card);color:var(--muted);
+      padding:6px 13px;font:700 .8rem/1 var(--font-stack);cursor:pointer}
+    #sbd .seg button+button{border-left:1px solid var(--border)}
+    #sbd .seg button[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff}
+    #sbd .seg button[disabled]{opacity:.42;cursor:not-allowed}
+    #sbd .qchips{display:flex;flex-wrap:wrap;gap:6px}
+    #sbd .qchip{border:1px solid var(--border);background:var(--card);color:var(--muted);
+      border-radius:999px;padding:8px 13px;font:600 .82rem/1 var(--font-stack);cursor:pointer;min-height:34px}
+    #sbd .qchip[aria-current="true"]{background:linear-gradient(135deg,#00c79a,#00705a);
+      color:#fff;border-color:transparent}
+    #sbd .qchip.done::after{content:" ✓";color:var(--ok)}
+    #sbd .qchip[aria-current="true"].done::after{color:#eafff7}
+
+    #sbd .qhead{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+    #sbd .qtitle{margin:0;font-size:1.06rem}
+    #sbd .qsrc{font-size:.76rem;color:var(--muted);border:1px solid var(--border-soft);
+      background:var(--surface-2);padding:3px 9px;border-radius:999px;white-space:nowrap}
+    #sbd .scenario{margin:8px 0 0;line-height:1.5;font-size:.9rem}
+    #sbd .scenario p{margin:0 0 5px}
+
+    /* ---- working area -------------------------------------------------
+       Site rule: pieces beside the working area, never below.  Convert mode has
+       a third thing to place — the circuit diagram — and at 1180x760 there is
+       not room for a 24-track board AND a schematic side by side, so the
+       schematic is the compact strip above the board that PLAN.md §10 names as
+       the mitigation, and the bank keeps the right-hand column. */
+    #sbd .workarea{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:14px;
+      align-items:stretch;margin-top:10px}
+    #sbd .diagcol{min-width:0}
+    #sbd .circwrap{position:relative;border:1px solid var(--border-soft);border-radius:12px;
+      background:var(--card);padding:6px 8px 4px;overflow:hidden;flex:0 0 auto}
+    #sbd .circwrap .cinner{transform-origin:top left}
+    #sbd .circhead{display:flex;justify-content:space-between;align-items:center;gap:8px;
+      font:800 .72rem/1 var(--font-stack);color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    #sbd .circkey{margin:2px 0 0;font:500 .66rem/1.25 var(--font-stack);color:var(--muted)}
+    #sbd .zoombtn{border:1px solid var(--border);background:var(--card);color:var(--text);
+      border-radius:8px;padding:3px 9px;font:700 .72rem/1 var(--font-stack);cursor:pointer}
+    #sbd .stage{position:relative;overflow:auto hidden;overscroll-behavior-x:contain;
+      border:1px solid var(--border-soft);border-radius:12px;background:var(--card)}
+    #sbd .stage::-webkit-scrollbar{height:9px}
+    #sbd .stage::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+    #sbd .canvas{position:relative;transform-origin:top left}
+    #sbd .canvas svg{position:absolute;left:0;top:0;display:block}
+    #sbd .canvas svg.hitless{pointer-events:none}
+    #sbd .board{outline:none;position:relative}
+    #sbd .board:focus-visible{outline:var(--focus-ring);outline-offset:2px;border-radius:12px}
+    #sbd .panhint{font-size:.76rem;color:var(--muted);margin:3px 0 0;display:none}
+    #sbd .panhint.show{display:block}
+
+    /* ---- tools + bank -------------------------------------------------- */
+    #sbd .bankcol{min-width:0;display:flex;flex-direction:column;gap:8px;min-height:0}
+    #sbd .toolgrid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    #sbd .tool{border:1px solid var(--border);background:var(--card);color:var(--text);
+      border-radius:10px;padding:7px 12px;font:700 .78rem/1 var(--font-stack);cursor:pointer;
+      display:inline-flex;align-items:center;gap:7px;min-height:44px}
+    #sbd .tool[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);
+      color:#fff;border-color:transparent}
+    #sbd .tool .k{font-size:.92rem;line-height:1}
+    /* ---- link wire colour picker ---------------------------------------
+       Shown only while the Link wire tool is active. Auto-cycles to a
+       sensible next colour, but a pupil can override it before drawing —
+       the wiring schedule wants colours to mean something (which signal is
+       which), not just alternate. */
+    #sbd .linkcolours{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 8px}
+    #sbd .linkcolours[hidden]{display:none}
+    #sbd .lchint{font:700 .78rem/1 var(--font-stack);color:var(--muted)}
+    #sbd .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;
+      padding:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+    #sbd .swatch[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+    /* A tap has no hover, so on an iPad the on-board ghost never appears before
+       the drop — a pupil has no way of knowing a 14-pin DIL covers 28 holes
+       until it is already there.  So the selected tile opens out into the
+       preview, right under the finger that tapped it: the real footprint at the
+       rotation it will land in, how it lies, and Rotate.  Inside the bank, so
+       it scrolls with the bank and moves nothing else on the page. */
+    #sbd .part.open{grid-column:1/-1;border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(10,157,127,.22);cursor:default}
+    #sbd .part.open .thead{display:flex;justify-content:space-between;align-items:center;gap:6px}
+    /* A definite height, not max-height: an <svg> sized by max-height inside a
+       flex box contributes nothing to intrinsic sizing, so the grid row it sits
+       in collapses and the tile spills over the tiles below it. */
+    #sbd .part .tpv{display:flex;justify-content:center;align-items:center;
+      height:46px;margin:3px 0 1px}
+    #sbd .part .tpv svg{height:100%;width:auto;max-width:100%}
+    #sbd .part .tspan{display:block;font:600 .66rem/1.25 var(--font-stack);color:var(--muted);
+      text-align:center}
+    #sbd .part .trot{border:1px solid var(--border);background:var(--card);color:var(--text);
+      border-radius:8px;padding:4px 8px;font:700 .66rem/1 var(--font-stack);cursor:pointer;
+      flex:0 0 auto;min-height:28px}
+    #sbd .bankhead{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:2px 0 0}
+    #sbd .bankhead h3{margin:0;font-size:.86rem}
+    #sbd .bankhead .hint{font-size:.71rem;color:var(--muted)}
+    #sbd .bank{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start;
+      padding:8px;border-radius:12px;border:1px dashed var(--border-soft);background:var(--surface-2);
+      overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto}
+    #sbd .bank::-webkit-scrollbar{width:9px}
+    #sbd .bank::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+    #sbd .part{border:1px solid var(--border);background:var(--bg2);border-radius:9px;
+      padding:6px 7px;font:700 .74rem/1.25 var(--font-stack);color:var(--text);cursor:pointer;
+      text-align:left;user-select:none;touch-action:none;min-height:44px}
+    #sbd .part .sub{display:block;font-weight:500;font-size:.66rem;color:var(--muted)}
+    #sbd .part[aria-pressed="true"]{border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(10,157,127,.28)}
+    #sbd .part.gone{opacity:.34;text-decoration:line-through}
+    #sbd .bankempty{grid-column:1/-1;font-size:.76rem;color:var(--muted);padding:4px 2px}
+
+    /* ---- mode visibility --------------------------------------------------
+       One page, two very different interaction models sharing the board and
+       its sizing. `data-mode` on #sbd, not a class per element, so adding a
+       mode later is one attribute value, not a sweep through the markup. */
+    #sbd[data-mode="trace"] .conv-only{display:none}
+    #sbd[data-mode="convert"] .trace-only{display:none}
+
+    /* ---- Trace mode: the answer panel -------------------------------------
+       Trace has no bank and no tool row — the board is fixed content, and the
+       only input is "is it, or isn't it". Same column, same width as the
+       circuit box it replaces, so switching modes does not reflow the page. */
+    #sbd .tracewrap{border:1px solid var(--border-soft);border-radius:12px;
+      background:var(--card);padding:14px;display:flex;flex-direction:column;gap:12px}
+    #sbd .traceq{margin:0;font:800 .95rem/1.45 var(--font-stack);color:var(--text)}
+    #sbd .traceask{display:flex;flex-direction:column;gap:8px}
+    #sbd .traceask .btn{width:100%;text-align:center;min-height:44px}
+    #sbd .traceask .btn.right{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+    #sbd .traceask .btn.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+    #sbd .traceask .btn:disabled{cursor:default;opacity:.75}
+
+    /* ---- controls and feedback ---------------------------------------- */
+    #sbd .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    #sbd .btn{border:1px solid var(--border);background:var(--card);color:var(--text);
+      padding:9px 15px;border-radius:11px;font:700 .86rem/1 var(--font-stack);cursor:pointer}
+    #sbd .btn:hover{border-color:var(--border-strong)}
+    #sbd .btn:focus-visible{outline:var(--focus-ring);outline-offset:2px}
+    #sbd .btn.primary{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff;border-color:transparent}
+    #sbd .btn.ghost{background:transparent}
+    #sbd .feedback{margin-top:12px;border-radius:14px;overflow:hidden;display:none}
+    #sbd .feedback.show{display:block}
+    #sbd .fb-head{padding:10px 14px;font-weight:800;font-size:.93rem}
+    #sbd .feedback.good .fb-head{background:var(--ok-bg);color:var(--ok)}
+    #sbd .feedback.bad .fb-head{background:var(--bad-bg);color:var(--bad)}
+    #sbd .fb-body{padding:11px 14px;background:var(--card);border:1px solid var(--border-soft);
+      border-top:none;border-radius:0 0 14px 14px;font-size:.88rem;line-height:1.5}
+    #sbd .flist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    #sbd .flist button{width:100%;text-align:left;border:1px solid var(--border-soft);
+      background:var(--surface-2);border-radius:10px;padding:7px 10px;
+      font:600 .86rem/1.45 var(--font-stack);color:var(--text);cursor:pointer;display:flex;gap:8px}
+    #sbd .flist button:hover{border-color:var(--accent)}
+    #sbd .flist .dot{flex:0 0 auto;font-weight:900}
+    #sbd .flist .fault .dot{color:var(--bad)}
+    #sbd .flist .warn .dot{color:var(--warn)}
+    #sbd .msnote{margin-top:9px;font-size:.82rem;color:var(--muted)}
+    #sbd details.reveal{margin-top:10px;border:1px solid var(--border-soft);border-radius:12px;background:var(--card)}
+    #sbd details.reveal>summary{cursor:pointer;padding:9px 14px;font-weight:700;font-size:.86rem;list-style:none}
+    #sbd details.reveal>summary::-webkit-details-marker{display:none}
+    #sbd details.reveal>summary::before{content:"▸ ";color:var(--accent)}
+    #sbd details.reveal[open]>summary::before{content:"▾ "}
+    #sbd details.reveal .ms{padding:0 14px 13px;font-size:.86rem;line-height:1.5}
+    #sbd details.reveal .ms p{margin:0 0 7px}
+    #sbd details.reveal .ms ul{margin:5px 0 7px;padding-left:20px}
+    #sbd .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+    /* ---- enlarge overlay ---------------------------------------------- */
+    #sbd .modal{position:fixed;inset:0;z-index:200;background:rgba(4,14,11,.72);
+      display:none;place-items:center;padding:20px}
+    #sbd .modal.show{display:grid}
+    #sbd .modal .sheet{background:var(--card);border-radius:16px;padding:14px;max-width:min(1000px,94vw);
+      max-height:90vh;overflow:auto;box-shadow:0 30px 70px rgba(0,0,0,.4)}
+    #sbd .modal .sheet svg{width:100%;height:auto}
+    #sbd .modal .sheet h3{margin:0 0 8px;font-size:1rem}
+
+    /* ---- one-screen trim on a landscape tablet -------------------------
+       The 24-track board is 614 logical px tall.  At 1180x760, keeping the page
+       chrome the Block Diagram Builder keeps, it does not fit — measured, not
+       guessed.  So on a short landscape screen this page goes further than the
+       reference implementation: the banner goes entirely, the beta notice
+       becomes a line on the title row, and the two nested panels collapse to
+       one.  That is about 150px, which is the difference between a board at
+       0.45 scale and one at 0.70. */
+    @media (min-width:821px) and (max-height:900px){
+      .banner-wrap.is-tool{display:none}
+      .page-wrap{margin-top:.4rem;padding-bottom:.9rem}
+      .titlerow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:.3rem}
+      .titlerow .backlink{margin:0}
+      .page-title{font-size:1.06rem;margin:0}
+      .beta{padding:0;border:0;background:none;box-shadow:none;margin:0;border-radius:0;
+        flex:1 1 320px;min-width:0}
+      .beta h2{display:inline;font-size:.78rem;margin:0 .35rem 0 0}
+      .beta .lead{display:inline;font-size:.75rem;line-height:1.3;color:var(--muted)}
+      .beta .lead.beta-full{display:none}
+      .beta .lead.beta-short{display:inline}
+      .beta .beta-tag{display:none}
+      #sbd{padding:10px 12px}
+      #sbd>.panel{padding:0;border:0;background:none;box-shadow:none;margin:0}
+      #sbd .lede{display:none}
+      #sbd .scenario{font-size:.82rem;line-height:1.38;margin-top:5px}
+      #sbd .scenario p{margin:0 0 3px}
+      #sbd .qtitle{font-size:.96rem}
+      #sbd .bar{margin-bottom:6px}
+      #sbd .workarea{margin-top:7px}
+      #sbd .controls{margin-top:8px}
+      #sbd .circwrap{padding:4px 8px 2px}
+      #sbd .circhead{margin-bottom:2px}
+    }
+    @media (max-width:820px){
+      #sbd .workarea{grid-template-columns:1fr}
+      #sbd .bank{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));max-height:none!important}
+      #sbd .circwrap{max-width:340px}
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap is-tool is-hub">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Stripboard Builder</h1>
+    </div>
+  </header>
+
+  <main class="page-wrap" id="mainContent">
+    <div class="titlerow">
+      <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics</a>
+      <h1 class="page-title">Stripboard Builder</h1>
+      <section class="panel beta" aria-label="Beta notice" id="betaBox">
+      <h2>⚠️ Beta <span class="beta-tag">testing</span></h2>
+      <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. It marks your board by
+        working out what is actually connected to what, so any layout that is electrically correct will pass — but
+        if something looks wrong, please tell Mr Stewart rather than assuming your own answer is at fault.</p>
+      <p class="lead beta-short">New and still being tested — if something looks wrong, tell Mr Stewart rather than
+        assuming your own answer is at fault.</p>
+      </section>
+    </div>
+
+    <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="convert">
+      <p class="lede" id="lede">Turn the circuit diagram into a stripboard layout. Pick a component, then tap a hole to place
+        it — or use the tools to cut a track, run a link wire or mark a test point. You can also drive the board
+        with the arrow keys and <kbd>Enter</kbd>.</p>
+
+      <div class="bar">
+        <div class="seg" role="group" aria-label="Mode">
+          <button type="button" id="mConvert" aria-pressed="true">Convert</button>
+          <button type="button" id="mTrace" aria-pressed="false">Trace</button>
+          <button type="button" disabled title="Built later in phase 4">Fault-finder</button>
+          <button type="button" disabled title="Built later in phase 4">Reverse</button>
+        </div>
+        <div class="qchips" id="qchips" role="group" aria-label="Choose a question"></div>
+      </div>
+
+      <section class="panel">
+        <div class="qhead">
+          <h2 class="qtitle" id="qtitle"></h2>
+          <span class="qsrc" id="qsrc"></span>
+        </div>
+        <div class="scenario" id="qscenario"></div>
+
+        <div class="workarea">
+          <div class="diagcol" id="diagcolEl">
+            <div class="toolgrid conv-only" role="group" aria-label="Tool">
+              <button type="button" class="tool" data-tool="place" aria-pressed="true"><span class="k">▭</span>Place part</button>
+              <button type="button" class="tool" data-tool="cut" aria-pressed="false"><span class="k">✕</span>Track cut</button>
+              <button type="button" class="tool" data-tool="link" aria-pressed="false"><span class="k">╱</span>Link wire</button>
+              <button type="button" class="tool" data-tool="tp" aria-pressed="false"><span class="k">◎</span>Test point</button>
+              <button type="button" class="tool" data-tool="erase" aria-pressed="false"><span class="k">⌫</span>Remove</button>
+              <button type="button" class="tool" id="btnRot"><span class="k">⟳</span>Rotate</button>
+            </div>
+            <div class="linkcolours conv-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
+              <span class="lchint">Wire colour:</span>
+            </div>
+            <div class="stage" id="stage">
+              <div class="board" id="board" tabindex="0" role="application"
+                   aria-label="Stripboard. Arrow keys move the cursor, Enter uses the selected tool, Escape cancels."
+                   aria-describedby="liveMsg">
+                <div class="canvas" id="canvas">
+                  <div id="gridLayer"></div>
+                  <div id="liveLayer"></div>
+                </div>
+              </div>
+            </div>
+            <p class="panhint" id="panhint">Scroll the board sideways to see the rest of it.</p>
+          </div>
+
+          <aside class="bankcol" id="bankcolEl" aria-label="Circuit diagram, tools and components">
+            <div class="circwrap conv-only" id="circwrapTop">
+              <div class="circhead">
+                <span>Circuit</span>
+                <button type="button" class="zoombtn" id="btnBig">⤢ Enlarge</button>
+              </div>
+              <div class="cinner" id="cinner"></div>
+              <p class="circkey">Ringed = net · plain blue = IC pin</p>
+            </div>
+
+            <div class="tracewrap trace-only" id="traceWrap">
+              <p class="traceq" id="traceQ"></p>
+              <div class="traceask" id="traceAsk">
+                <button type="button" class="btn primary" id="btnYes">Yes — connected</button>
+                <button type="button" class="btn" id="btnNo">No — not connected</button>
+              </div>
+            </div>
+
+            <div class="bankhead conv-only">
+              <h3>Components</h3>
+              <span class="hint" id="bankhint">Tap one, then tap a hole.</span>
+            </div>
+            <div class="bank conv-only" id="bank"></div>
+
+          </aside>
+        </div>
+
+        <div class="controls">
+          <button class="btn primary conv-only" id="btnCheck">Check my layout</button>
+          <button class="btn conv-only" id="btnReset">Reset</button>
+          <button class="btn ghost conv-only" id="btnAnswer">Show the answer</button>
+          <button class="btn ghost" id="btnNext">Next question →</button>
+        </div>
+
+        <p class="sr" id="liveMsg" role="status" aria-live="polite"></p>
+
+        <div class="feedback" id="feedback">
+          <div class="fb-head" id="fbHead"></div>
+          <div class="fb-body" id="fbBody"></div>
+        </div>
+
+        <details class="reveal conv-only" id="whyBox">
+          <summary>Why this is the answer</summary>
+          <div class="ms" id="whyBody"></div>
+        </details>
+
+        <details class="reveal conv-only">
+          <summary>What the assessment is looking for</summary>
+          <div class="ms">
+            <p>This tool does <strong>not</strong> give you a mark. It tells you what is joined to what on your
+              board and where that differs from the circuit. The marks for your assignment come from your own
+              hand-drawn layout sheets, judged against the course assessment task descriptors:</p>
+            <ul>
+              <li><strong>Detailed component layout diagrams</strong> — every component shown as its
+                <em>footprint</em> in the hole it occupies, with its item ID, and every track cut marked.</li>
+              <li><strong>Use of test points</strong> — a numbered test point planned on the layout for each
+                sub-system input and output, <em>before</em> you build.</li>
+              <li>Link wires <strong>colour-coded and numbered</strong> to match your wiring schedule.</li>
+            </ul>
+            <p>The verifiers' reports flag the same faults every year: no cuts between the two rows of pins of an
+              IC, both legs of a component in one track, circuit symbols drawn instead of footprints, and no test
+              points at all.</p>
+          </div>
+        </details>
+      </section>
+    </section>
+
+    <section class="panel" aria-label="Sources and credits">
+      <h2>Sources &amp; credits</h2>
+      <p class="lead" data-credit-note><strong>Sources &amp; credits:</strong> Board sizes and hole pitch are the
+        real boards used in class (Rapid Electronics 34-0410 and 34-0411, datasheet 583629_v1). The drawing
+        conventions — tracks running across the sheet, a cut marked as an <strong>X</strong> on the hole, ICs drawn
+        as a labelled rectangle, link wires coloured and numbered — follow the <em>Stripboard Layout Planning
+        Sheet</em> © 2002 Electronics in Meccano (eleinmec.com), which is the sheet used in the workshop; the
+        conventions are reproduced here, not the artwork. Circuits, diagrams and code are original work written for
+        this site, © R Stewart, 2026. Full site credits are on the
+        <a href="/classes/credits.html">credits page</a>.</p>
+      <p class="lead">© R Stewart Physics, Electronics and Engineering</p>
+    </section>
+  </main>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Circuit diagram, enlarged">
+    <div class="sheet">
+      <h3 id="modalTitle"></h3>
+      <div id="modalBody"></div>
+      <p style="margin-top:10px"><button class="btn" id="btnBigClose">Close</button></p>
+    </div>
+  </div>
+
+  {% include site-footer.html %}
+
+<!-- ==========================================================================
+     The engine, the renderer, the circuit primitives and the question bank are
+     inlined verbatim by page/build.sh from engine/*.js — the same files the
+     test harness runs.  Never edit them here; edit the source and rebuild.
+     ========================================================================== -->
+<script>
+/* ---- sbd-engine.js ---- */
+/* ============================================================================
+   Stripboard Builder — netlist engine
+   ----------------------------------------------------------------------------
+   Reads the copper and works out which pins are electrically joined, then
+   compares that against the question's target netlist.  Any electrically valid
+   layout passes; the picture does not have to match anyone's.
+
+   Axioms (PLAN.md §12.1) — the renderer must agree with every one of these:
+     A1  tracks are ROWS and run horizontally
+     A2  a cut is an X ON a hole; that hole dies and the track splits either side
+     A3  rows are lettered from A, columns numbered from 1  ->  "H12"
+     A4  a pin occupies exactly one hole
+     A5  a body may cover holes it does not connect to; nothing else goes there
+     A6  a link wire joins two holes and nothing between them
+     A7  a DIL spans one track per pin-pair, rows 3 columns apart
+     A8  two pins in one hole is a placement error, not a short
+
+   Runs under JavaScriptCore and in the browser.  No dependencies.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  /* ---------------------------------------------------------------- boards */
+
+  const BOARDS = {
+    "34-0410": { id: "34-0410", rows: 9,  cols: 25, label: "small (9 tracks × 25 holes)" },
+    "34-0411": { id: "34-0411", rows: 24, cols: 37, label: "large (24 tracks × 37 holes)" }
+  };
+
+  /* ------------------------------------------------------------ hole refs */
+
+  const rowLetter = r => String.fromCharCode(65 + r);
+  const ref = h => rowLetter(h.r) + h.c;
+  const parseRef = s => {
+    const m = /^([A-Z])(\d+)$/.exec(String(s).trim().toUpperCase());
+    if (!m) throw new Error("bad hole ref: " + s);
+    return { r: m[1].charCodeAt(0) - 65, c: parseInt(m[2], 10) };
+  };
+  const hid = h => h.r * 1000 + h.c;
+
+  /* ----------------------------------------------------------- footprints
+     Canonical coordinates are (dr, dc) offsets from the placement origin.
+     rot 90 swaps them, which is how a part is turned onto/off the tracks.
+     `symmetric` marks a 2-pin part whose legs are interchangeable — the
+     comparison anonymises those pins (see canonicalise()).
+     A footprint's name is the number of holes it SPANS, legs included — a
+     resistor lying in 4 holes has its legs 3 pitches apart, not 4.  The old
+     definitions were a hole out in every axial part, which put a resistor
+     across 5 tracks and an LED across 4.  A 5 mm LED's leads are one 0.1 in
+     pitch apart, so its legs go in ADJACENT holes. */
+
+  function dil(n) {
+    const half = n / 2, pins = [], body = [];
+    for (let i = 0; i < half; i++) pins.push({ pin: String(i + 1), dr: i, dc: 0 });
+    for (let i = 0; i < half; i++) pins.push({ pin: String(n - i), dr: i, dc: 3 });
+    for (let i = 0; i < half; i++) { body.push({ dr: i, dc: 1 }); body.push({ dr: i, dc: 2 }); }
+    return { pins, body, symmetric: false, kind: "dil", pinCount: n };
+  }
+
+  const FOOTPRINTS = {
+    "res-4":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 3 }],
+                 body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }],
+                 symmetric: true, kind: "axial" },
+    "cap-8":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 7 }],
+                 body: [1,2,3,4,5,6].map(dc => ({ dr: 0, dc })),
+                 symmetric: true, kind: "axial" },
+    "ecap-4":  { pins: [{ pin: "+", dr: 0, dc: 0 }, { pin: "-", dr: 0, dc: 3 }],
+                 body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }],
+                 symmetric: false, polarised: ["+", "-"], kind: "axial", sym: "ecap" },
+    // a 5 mm LED: legs one pitch apart, so they sit in adjacent holes
+    "led-2":   { pins: [{ pin: "a", dr: 0, dc: 0 }, { pin: "k", dr: 0, dc: 1 }],
+                 body: [], symmetric: false, polarised: ["a", "k"], kind: "axial", sym: "led" },
+    "to92":    { pins: [{ pin: "e", dr: 0, dc: 0 }, { pin: "b", dr: 0, dc: 1 },
+                        { pin: "c", dr: 0, dc: 2 }],
+                 body: [], symmetric: false, kind: "to92" },
+    "term-1":  { pins: [{ pin: "1", dr: 0, dc: 0 }], body: [],
+                 symmetric: false, kind: "terminal" },
+    "term-2":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 2 }],
+                 body: [{ dr: 0, dc: 1 }], symmetric: false, kind: "terminal" },
+    "dip-8":   dil(8),
+    "dip-14":  dil(14),
+    "dip-16":  dil(16)
+  };
+
+  /* Four rotations, normalised so the shape always sits at the origin.
+     180 and 270 are how a polarised part gets fitted the wrong way round, so
+     they are not optional: without them "reversed LED" cannot be expressed. */
+  function cellsOf(fp, at, rot) {
+    const turn = (dr, dc) => rot === 90  ? [dc, -dr]
+                           : rot === 180 ? [-dr, -dc]
+                           : rot === 270 ? [-dc, dr]
+                           :               [dr, dc];
+    const all = fp.pins.map(p => ({ pin: p.pin, o: turn(p.dr, p.dc) }))
+      .concat((fp.body || []).map(b => ({ pin: null, o: turn(b.dr, b.dc) })));
+    let minR = Infinity, minC = Infinity;
+    for (const x of all) { if (x.o[0] < minR) minR = x.o[0]; if (x.o[1] < minC) minC = x.o[1]; }
+    const place = x => ({ r: at.r + x.o[0] - minR, c: at.c + x.o[1] - minC });
+    return {
+      pins: all.filter(x => x.pin !== null).map(x => ({ pin: x.pin, hole: place(x) })),
+      body: all.filter(x => x.pin === null).map(place)
+    };
+  }
+
+  /* ------------------------------------------------------------- segments
+     A2: the cut hole itself belongs to NO segment. */
+
+  function segmentsOf(row, cols, cutCols) {
+    const segs = [];
+    let from = null;
+    for (let c = 1; c <= cols; c++) {
+      if (cutCols.has(c)) {
+        if (from !== null) { segs.push({ from, to: c - 1 }); from = null; }
+      } else if (from === null) {
+        from = c;
+      }
+    }
+    if (from !== null) segs.push({ from, to: cols });
+    return segs;
+  }
+
+  /* ---------------------------------------------------------- union-find */
+
+  function makeDSU() {
+    const parent = new Map();
+    const find = x => {
+      if (!parent.has(x)) { parent.set(x, x); return x; }
+      let r = x;
+      while (parent.get(r) !== r) r = parent.get(r);
+      while (parent.get(x) !== r) { const n = parent.get(x); parent.set(x, r); x = n; }
+      return r;
+    };
+    return { find, union: (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent.set(ra, rb); } };
+  }
+
+  /* --------------------------------------------------------------- topology
+     Returns node ids per hole, the DSU after links, and any placement errors.
+     Placement errors are hard: the UI must refuse these drops, but the engine
+     never assumes the UI did its job. */
+
+  function topology(board, attempt) {
+    const cuts = new Set((attempt.cuts || []).map(s => hid(parseRef(s))));
+    const errors = [];
+
+    const cutColsByRow = new Map();
+    for (const k of cuts) {
+      const r = Math.floor(k / 1000), c = k % 1000;
+      if (!cutColsByRow.has(r)) cutColsByRow.set(r, new Set());
+      cutColsByRow.get(r).add(c);
+    }
+
+    // hole -> node key "r:i"
+    const nodeOf = new Map();
+    for (let r = 0; r < board.rows; r++) {
+      const segs = segmentsOf(r, board.cols, cutColsByRow.get(r) || new Set());
+      segs.forEach((s, i) => {
+        for (let c = s.from; c <= s.to; c++) nodeOf.set(r * 1000 + c, r + ":" + i);
+      });
+    }
+
+    const dsu = makeDSU();
+    for (const k of nodeOf.values()) dsu.find(k);
+
+    // occupancy: pins first (A8), then bodies (A5)
+    const pinAt = new Map(), bodyAt = new Map(), pins = [];
+    for (const p of attempt.placements || []) {
+      const fp = FOOTPRINTS[p.footprint];
+      if (!fp) { errors.push({ code: "no-footprint", msg: `unknown footprint "${p.footprint}" for ${p.id}` }); continue; }
+      const cells = cellsOf(fp, parseRef(p.at), p.rot || 0);
+
+      // pin cells carry their coordinates on .hole, body cells are bare {r,c} —
+      // flatten before the bounds test, or it silently never fires for pins
+      for (const cell of cells.pins.map(x => x.hole).concat(cells.body)) {
+        if (cell.r < 0 || cell.r >= board.rows || cell.c < 1 || cell.c > board.cols) {
+          errors.push({ code: "off-board", msg: `${p.id} falls off the board at ${rowLetter(cell.r)}${cell.c}`, refs: [p.id] });
+        }
+      }
+      for (const { pin, hole } of cells.pins) {
+        const k = hid(hole), id = p.id + "." + pin;
+        if (cuts.has(k)) errors.push({ code: "pin-in-cut", msg: `${id} is in ${ref(hole)}, where the copper has been cut away`, refs: [ref(hole)] });
+        if (pinAt.has(k)) errors.push({ code: "hole-clash", msg: `${id} and ${pinAt.get(k)} are both in ${ref(hole)} — two legs cannot share a hole`, refs: [ref(hole)] });
+        else pinAt.set(k, id);
+        pins.push({ id, comp: p.id, pin, hole, footprint: p.footprint, rot: p.rot || 0 });
+      }
+      for (const cell of cells.body) {
+        const k = hid(cell);
+        if (!bodyAt.has(k)) bodyAt.set(k, p.id);
+      }
+    }
+    for (const [k, id] of pinAt) {
+      if (bodyAt.has(k) && bodyAt.get(k) !== id.split(".")[0]) {
+        errors.push({ code: "under-body", msg: `${id} sits in ${ref({ r: Math.floor(k / 1000), c: k % 1000 })}, under ${bodyAt.get(k)} — you could not solder that`, refs: [] });
+      }
+    }
+
+    // A6: links merge segments
+    for (const l of attempt.links || []) {
+      const a = parseRef(l.a), b = parseRef(l.b);
+      const na = nodeOf.get(hid(a)), nb = nodeOf.get(hid(b));
+      if (na === undefined || nb === undefined) {
+        errors.push({ code: "link-in-cut", msg: `the link ${ref(a)}–${ref(b)} lands in a hole whose copper has been cut away`, refs: [] });
+        continue;
+      }
+      dsu.union(na, nb);
+    }
+
+    return { cuts, nodeOf, dsu, pins, pinAt, bodyAt, errors };
+  }
+
+  /* ------------------------------------------------------- drop-time check
+     R7 and R9: a leg in a hole under another part's body, or a part hanging
+     off the edge, must be refused when the pupil drops it — not reported as a
+     netlist fault, because neither is a wiring mistake and neither can be
+     built.  topology() re-checks all of this: the engine never assumes the UI
+     did its job (A8).  This is the UI half, so the refusal can name the reason.
+     `ignore` lets a part be dragged to a new place without clashing with the
+     copy of itself that is still on the board. */
+
+  function placeCheck(q, attempt, cand, ignore) {
+    const board = BOARDS[q.board];
+    const fp = FOOTPRINTS[cand.footprint];
+    if (!board) return { ok: false, msg: "unknown board" };
+    if (!fp) return { ok: false, msg: "unknown footprint " + cand.footprint };
+
+    const cells = cellsOf(fp, parseRef(cand.at), cand.rot || 0);
+    const mine = cells.pins.map(x => x.hole).concat(cells.body);
+
+    for (const cell of mine)
+      if (cell.r < 0 || cell.r >= board.rows || cell.c < 1 || cell.c > board.cols)
+        return { ok: false, msg: `${cand.id} would hang off the edge of the board.` };
+
+    const cuts = new Set((attempt.cuts || []).map(x => hid(parseRef(x))));
+    for (const { pin, hole } of cells.pins)
+      if (cuts.has(hid(hole)))
+        return { ok: false, msg: `${ref(hole)} has been cut — a leg soldered there ` +
+                                 `is connected to nothing.` };
+
+    for (const p of attempt.placements || []) {
+      if (p.id === cand.id || p.id === ignore) continue;
+      const other = FOOTPRINTS[p.footprint];
+      if (!other) continue;
+      const oc = cellsOf(other, parseRef(p.at), p.rot || 0);
+      const taken = new Map();
+      for (const { hole } of oc.pins) taken.set(hid(hole), "pin");
+      for (const cell of oc.body) if (!taken.has(hid(cell))) taken.set(hid(cell), "body");
+      for (const cell of mine) {
+        const what = taken.get(hid(cell));
+        if (!what) continue;
+        return { ok: false, msg: what === "pin" && cells.pins.some(z => hid(z.hole) === hid(cell))
+          ? `${ref(cell)} already has a leg of ${p.id} in it — two legs cannot share a hole.`
+          : `${cand.id} would overlap ${p.id} at ${ref(cell)}.` };
+      }
+    }
+    return { ok: true };
+  }
+
+  /* ---------------------------------------------------------------- nets */
+
+  function netsOf(top) {
+    const byRoot = new Map();
+    for (const p of top.pins) {
+      const node = top.nodeOf.get(hid(p.hole));
+      if (node === undefined) continue;              // already reported as pin-in-cut
+      const root = top.dsu.find(node);
+      if (!byRoot.has(root)) byRoot.set(root, []);
+      byRoot.get(root).push(p.id);
+    }
+    return byRoot;
+  }
+
+  /* -------------------------------------------------------- canonicalise
+     Two jobs, both of which must be done identically to the pupil's netlist
+     and the target or the comparison is meaningless:
+
+       - drop `dontcare` pins (PLAN.md R1): a spare gate input tied to 0 V is
+         good practice and must never fail a board;
+       - anonymise the pins of a symmetric 2-pin part to "ID.*", because for
+         such a part "which leg" carries no information (R3).  Multiplicity is
+         PRESERVED, so both legs in one net still reads as a different net.  */
+
+  function canonicalise(nets, symmetricComps, dontcare) {
+    const skip = new Set(dontcare || []);
+    const out = [];
+    for (const list of nets) {
+      const sig = [];
+      for (const id of list) {
+        if (skip.has(id)) continue;
+        const comp = id.split(".")[0];
+        sig.push(symmetricComps.has(comp) ? comp + ".*" : id);
+      }
+      if (sig.length) out.push(sig.sort().join("|"));
+    }
+    return out.sort();
+  }
+
+  /* --------------------------------------------------------------- check */
+
+  function check(q, attempt) {
+    const board = BOARDS[q.board];
+    if (!board) throw new Error("unknown board " + q.board);
+
+    const faults = [], warnings = [];
+    const top = topology(board, attempt);
+
+    /* rank 0.5 — a link wire that runs diagonally.  A real jumper CAN bridge
+       any two holes electrically, but the layout convention this tool teaches
+       (and the one the marking sheet expects) is that link wires run
+       straight — along a track, or straight down between tracks, never at an
+       angle.  Checked unconditionally, before anything else, and never
+       suppressed by a placement error: a diagonal wire is a layout-
+       convention fault, not an electrical one, so it is never accepted no
+       matter what else is right or wrong about the rest of the board. */
+    for (const l of attempt.links || []) {
+      const a = parseRef(l.a), b = parseRef(l.b);
+      if (a.r !== b.r && a.c !== b.c) {
+        faults.push({ rank: 0.5, code: "diagonal-link",
+          msg: `The link wire between ${ref(a)} and ${ref(b)} runs diagonally ` +
+               `— link wires must run straight, along a track or straight down ` +
+               `between tracks, never at an angle. This is a layout-convention ` +
+               `fault: it is never accepted, however the rest of the board reads.`,
+          refs: [l.a, l.b] });
+      }
+    }
+
+    // placement errors are structural; report and stop — nets are meaningless
+    if (top.errors.length) {
+      return { ok: false, stage: "placement",
+               faults: faults.concat(top.errors.map(e => Object.assign({ rank: 0 }, e)))
+                             .sort((x, y) => x.rank - y.rank),
+               warnings };
+    }
+
+    /* rank 7 — anything still in the bank */
+    const placed = new Set((attempt.placements || []).map(p => p.id));
+    const missing = (q.components || []).map(c => c.id).filter(id => !placed.has(id));
+    if (missing.length) {
+      faults.push({ rank: 7, code: "unplaced",
+        msg: missing.length === 1 ? `${missing[0]} has not been placed.`
+                                  : `${missing.join(", ")} have not been placed.`,
+        refs: missing });
+    }
+
+    const byRoot = netsOf(top);
+    const netOfPin = new Map();
+    for (const [rootKey, list] of byRoot) for (const id of list) netOfPin.set(id, rootKey);
+
+    /* ranks 2 and 1 — the DIL, checked structurally before any comparison,
+       because a chip laid the wrong way makes the partition diff unreadable */
+    const explained = new Set();
+    for (const p of attempt.placements || []) {
+      const fp = FOOTPRINTS[p.footprint];
+      if (!fp || fp.kind !== "dil") continue;
+      const half = fp.pinCount / 2;
+
+      const sideA = [], sideB = [];
+      for (let i = 1; i <= half; i++) sideA.push(p.id + "." + i);
+      for (let i = half + 1; i <= fp.pinCount; i++) sideB.push(p.id + "." + i);
+
+      for (const side of [sideA, sideB]) {
+        const roots = new Set(side.map(id => netOfPin.get(id)).filter(x => x !== undefined));
+        if (side.length > 2 && roots.size === 1) {
+          const trackOf = top.pins.find(x => x.id === side[0]);
+          faults.push({ rank: 2, code: "dil-along-tracks",
+            msg: `All ${side.length} pins down one side of ${p.id} are on track ` +
+                 `${rowLetter(trackOf.hole.r)} — they are shorted together. ` +
+                 `The chip has to sit across the tracks, not along them.`,
+            refs: [p.id] });
+          side.forEach(id => explained.add(id));
+        }
+      }
+
+      /* An uncut chip shorts EVERY track it crosses, so reporting one fault per
+         pin pair gives a pupil seven near-identical lines for a single mistake.
+         They are one fault — a missing column of cuts — and read as one. */
+      const uncut = [];
+      for (let i = 1; i <= half; i++) {
+        const a = p.id + "." + i, b = p.id + "." + (fp.pinCount + 1 - i);
+        if (explained.has(a) || explained.has(b)) continue;
+        const ra = netOfPin.get(a), rb = netOfPin.get(b);
+        if (ra !== undefined && ra === rb) {
+          uncut.push({ a, b, i, track: rowLetter(top.pins.find(x => x.id === a).hole.r) });
+          explained.add(a); explained.add(b);
+        }
+      }
+      if (uncut.length === 1) {
+        const u = uncut[0];
+        faults.push({ rank: 1, code: "dil-uncut",
+          msg: `${u.a.replace(".", " pin ")} and ${u.b.replace(".", " pin ")} are on the same ` +
+               `track (track ${u.track}). Cut every track the chip crosses, between the two ` +
+               `rows of pins.`,
+          refs: [u.a, u.b] });
+      } else if (uncut.length > 1) {
+        const tracks = uncut.map(u => u.track);
+        faults.push({ rank: 1, code: "dil-uncut",
+          msg: `${p.id} has no cuts under it: each pin is still joined to the pin opposite it ` +
+               `on ${uncut.length} tracks (${tracks[0]} to ${tracks[tracks.length - 1]}) — ` +
+               `pin ${uncut[0].i} to pin ${fp.pinCount + 1 - uncut[0].i}, and so on down the chip. ` +
+               `Cut every track the chip crosses, between the two rows of pins.`,
+          refs: uncut.reduce((acc, u) => acc.concat([u.a, u.b]), []) });
+      }
+    }
+
+    /* ------------------------------------------------ the netlist compare */
+
+    /* Whether the two legs are interchangeable is a property of the COMPONENT,
+       not of the footprint it happens to use (R3).  A 2-way terminal block is
+       the footprint for an LDR, a switch and a buzzer alike — the first two can
+       be wired either way round, the buzzer cannot.  So the record may say. */
+    const symmetric = new Set((q.components || [])
+      .filter(c => c.symmetric != null ? c.symmetric
+                                       : (FOOTPRINTS[c.footprint] || {}).symmetric)
+      .map(c => c.id));
+    const dontcare = new Set(q.dontcare || []);
+
+    const pupilNets = Array.from(byRoot.values());
+    const targetNets = q.target;
+
+    const tNetOf = new Map();
+    targetNets.forEach((net, i) => net.forEach(id => { if (!dontcare.has(id)) tNetOf.set(id, i); }));
+
+    const pupilSig  = canonicalise(pupilNets, symmetric, dontcare);
+    const targetSig = canonicalise(targetNets, symmetric, dontcare);
+    const match = pupilSig.length === targetSig.length &&
+                  pupilSig.every((s, i) => s === targetSig[i]);
+
+    /* Ranks 3 to 6 EXPLAIN a mismatch, so they only run when there is one.
+       They compare pin ids, which is deliberately blind to the symmetry the
+       match itself respects — a pupil who swaps a resistor's legs has the
+       right board, and without this gate they would be told two nets were
+       "merged".  Ranks 1, 2, 7 and 8 are structural and stay unconditional:
+       shorting an unused gate's output to 0 V leaves the netlist matching and
+       is still a real fault. */
+    /* A chip in the wrong orientation shorts whole sides together, so the
+       partition diff downstream is noise — it was advising a pupil to add link
+       wires between 0 V and pin 7.  Fix the chip, then re-check. */
+    const chipBroken = faults.some(f => f.rank === 1 || f.rank === 2);
+    if (!match && !chipBroken) {
+
+    /* rank 3 — a component shorted across itself */
+    for (const [, list] of byRoot) {
+      const byComp = new Map();
+      for (const id of list) {
+        if (dontcare.has(id)) continue;
+        const c = id.split(".")[0];
+        if (!byComp.has(c)) byComp.set(c, []);
+        byComp.get(c).push(id);
+      }
+      for (const [comp, ids] of byComp) {
+        if (ids.length < 2) continue;
+        if ((FOOTPRINTS[(q.components.find(x => x.id === comp) || {}).footprint] || {}).kind === "dil") continue;
+        const distinctInTarget = new Set(ids.map(id => tNetOf.get(id)));
+        if (distinctInTarget.size > 1) {
+          const track = rowLetter(top.pins.find(x => x.id === ids[0]).hole.r);
+          faults.push({ rank: 3, code: "self-short",
+            msg: `Both legs of ${comp} are in track ${track} — ${comp} is shorted out.`,
+            refs: ids });
+          ids.forEach(id => explained.add(id));
+        }
+      }
+    }
+
+    /* rank 4 — two target nets merged into one pupil net */
+    for (const [, list] of byRoot) {
+      const seen = new Map();
+      for (const id of list) {
+        if (dontcare.has(id) || explained.has(id)) continue;
+        const t = tNetOf.get(id);
+        if (t === undefined) continue;
+        if (!seen.has(t)) seen.set(t, id);
+      }
+      if (seen.size > 1) {
+        const [a, b] = Array.from(seen.values());
+        faults.push({ rank: 4, code: "merged",
+          msg: `${label(q, a)} and ${label(q, b)} are joined together, but they are ` +
+               `different parts of the circuit — you need a cut between them.`,
+          refs: [a, b] });
+        seen.forEach(id => explained.add(id));
+      }
+    }
+
+    /* ranks 6 and 5 — a target net split across pupil nets */
+    targetNets.forEach((net, i) => {
+      const live = net.filter(id => !dontcare.has(id) && netOfPin.has(id));
+      if (live.length < 2) return;
+      const groups = new Map();
+      for (const id of live) {
+        const r = netOfPin.get(id);
+        if (!groups.has(r)) groups.set(r, []);
+        groups.get(r).push(id);
+      }
+      if (groups.size < 2) return;
+      if (live.every(id => explained.has(id))) return;
+
+      /* "floating" is only the better message when the REST of the net is
+         joined up and one pin has been left behind.  If a net simply falls
+         into two lonely halves, the pupil needs "add a link wire", not
+         "this pin is floating" — so rank 5 wins that case. */
+      const gs = Array.from(groups.values());
+      const restJoined = gs.some(g => g.length > 1);
+      const solo = restJoined
+        ? gs.find(g => g.length === 1 && byRoot.get(netOfPin.get(g[0])).length === 1)
+        : null;
+      if (solo) {
+        const track = rowLetter(top.pins.find(x => x.id === solo[0]).hole.r);
+        faults.push({ rank: 6, code: "floating",
+          msg: `${label(q, solo[0])} is floating — nothing else is on track ${track}.`,
+          refs: [solo[0]] });
+      } else {
+        const picks = Array.from(groups.values()).map(g => g[0]);
+        const comp0 = picks[0].split(".")[0];
+        const sameChip = comp0 === picks[1].split(".")[0] &&
+          (FOOTPRINTS[((q.components || []).find(x => x.id === comp0) || {}).footprint] || {}).kind === "dil";
+        faults.push({ rank: 5, code: "split",
+          msg: `${label(q, picks[0])} and ${label(q, picks[1])} need to be joined but are on ` +
+               `different tracks — add a link wire.` +
+               (sameChip ? " Two pins next to each other on a chip are not connected to each other." : ""),
+          refs: picks.slice(0, 2) });
+      }
+      live.forEach(id => explained.add(id));
+    });
+
+    }  /* end if (!match && !chipBroken) */
+
+    if (chipBroken)
+      faults.push({ rank: 2.5, code: "chip-first",
+        msg: "Sort the chip and its track cuts out first — until they are right, " +
+             "the rest of the board cannot be checked properly.", refs: [] });
+
+    /* rank 8 — test points, only where the question asks for them */
+    if (q.tpRequired && q.tpRequired.length) {
+      const tpNets = new Set((attempt.testpoints || []).map(tp => {
+        const n = top.nodeOf.get(hid(parseRef(tp.at)));
+        return n === undefined ? null : top.dsu.find(n);
+      }).filter(Boolean));
+      const uncovered = q.tpRequired.filter(pin => {
+        const r = netOfPin.get(pin);
+        return r === undefined || !tpNets.has(r);
+      });
+      if (uncovered.length) {
+        faults.push({ rank: 8, code: "no-testpoint",
+          msg: `No test point on ${uncovered.map(p => label(q, p)).join(", ")}. ` +
+               `SQA: each sub-system input and output needs an appropriate test point, ` +
+               `planned on the layout before you build.`,
+          refs: uncovered });
+      }
+    }
+
+    /* ------------------------------------------------------- warnings */
+
+    // rank 9 — a cut that separates nothing
+    for (const s of attempt.cuts || []) {
+      const h = parseRef(s);
+      const left = top.nodeOf.get(hid({ r: h.r, c: h.c - 1 }));
+      const right = top.nodeOf.get(hid({ r: h.r, c: h.c + 1 }));
+      if (left === undefined || right === undefined) continue;
+      if (top.dsu.find(left) === top.dsu.find(right)) {
+        warnings.push({ rank: 9, code: "pointless-cut",
+          msg: `The cut at ${s} does nothing — both halves are joined again elsewhere.`, refs: [s] });
+      }
+    }
+
+    // rank 10 — polarised part the wrong way round
+    for (const p of attempt.placements || []) {
+      const fp = FOOTPRINTS[p.footprint];
+      if (!fp || !fp.polarised) continue;
+      const [hiPin, loPin] = fp.polarised.map(x => p.id + "." + x);
+      const th = tNetOf.get(hiPin), tl = tNetOf.get(loPin);
+      const ah = netOfPin.get(hiPin), al = netOfPin.get(loPin);
+      if (th === undefined || tl === undefined || ah === undefined || al === undefined) continue;
+      // nets are right but swapped between the two legs
+      const targetPair = [th, tl].join(">"), swapped = [tl, th].join(">");
+      const pupilPair = [pupilIndex(targetNets, tNetOf, ah, netOfPin), pupilIndex(targetNets, tNetOf, al, netOfPin)].join(">");
+      if (pupilPair === swapped && swapped !== targetPair) {
+        warnings.push({ rank: 10, code: "reversed",
+          msg: `${p.id} is connected to the right two nets but the wrong way round — ` +
+               `check which end is which.`, refs: [p.id] });
+      }
+    }
+
+    // rank 11 — a link running under a component body
+    for (const l of attempt.links || []) {
+      const a = parseRef(l.a), b = parseRef(l.b);
+      if (a.r !== b.r) continue;                       // only a same-row link lies along the board
+      const lo = Math.min(a.c, b.c), hi = Math.max(a.c, b.c);
+      for (let c = lo + 1; c < hi; c++) {
+        const owner = top.bodyAt.get(hid({ r: a.r, c }));
+        if (owner) {
+          warnings.push({ rank: 11, code: "link-under-body",
+            msg: `The link ${ref(a)}–${ref(b)} runs under ${owner} — on a real board you ` +
+                 `could not solder that.`, refs: [owner] });
+          break;
+        }
+      }
+    }
+
+    faults.sort((x, y) => x.rank - y.rank);
+
+    return {
+      ok: match && faults.length === 0,
+      match, stage: "netlist", faults, warnings,
+      pupilSig, targetSig
+    };
+  }
+
+  // which target net a pupil-net root corresponds to, by majority of its pins
+  function pupilIndex(targetNets, tNetOf, root, netOfPin) {
+    for (const [id, r] of netOfPin) if (r === root && tNetOf.has(id)) return tNetOf.get(id);
+    return -1;
+  }
+
+  // human-readable name for a pin, for the message catalogue
+  function label(q, pinId) {
+    const [comp, pin] = pinId.split(".");
+    const c = (q.components || []).find(x => x.id === comp);
+    const fp = c ? FOOTPRINTS[c.footprint] : null;
+    if (fp && fp.kind === "dil") return `${comp} pin ${pin}`;
+    return comp;
+  }
+
+  /* -------------------------------------------- netlist of a board, direct
+     Used by the golden tests: derive the netlist from a reference layout so it
+     can be asserted against the authored target (PLAN.md R4). */
+
+  function netlistOf(q, attempt) {
+    const board = BOARDS[q.board];
+    const top = topology(board, attempt);
+    if (top.errors.length) return { errors: top.errors, nets: null };
+    return { errors: [], nets: Array.from(netsOf(top).values()).map(l => l.slice().sort()) };
+  }
+
+  /* -------------------------------------------------- Trace mode primitives
+     "Are these two holes connected?" (PLAN.md §4.1, Mode 1) is the single idea
+     every other mode rests on, so it has to read off the same dsu Convert marks
+     against — never a second, hand-rolled flood fill that could disagree.
+     `netOf` also drives the reveal: every hole sharing the answer's root. */
+
+  function netOf(board, attempt, holeRef) {
+    const top = topology(board, attempt);
+    const node = top.nodeOf.get(hid(parseRef(holeRef)));
+    if (node === undefined) return null;          // off the board, or a cut hole (A2)
+    const root = top.dsu.find(node);
+    const holes = [];
+    for (const [k, nd] of top.nodeOf)
+      if (top.dsu.find(nd) === root) holes.push({ r: Math.floor(k / 1000), c: k % 1000 });
+    holes.sort((a, b) => a.r - b.r || a.c - b.c);
+    return holes.map(ref);
+  }
+
+  function sameNet(board, attempt, aRef, bRef) {
+    const top = topology(board, attempt);
+    const na = top.nodeOf.get(hid(parseRef(aRef)));
+    const nb = top.nodeOf.get(hid(parseRef(bRef)));
+    if (na === undefined || nb === undefined) return null;
+    return top.dsu.find(na) === top.dsu.find(nb);
+  }
+
+  root.SBD = { BOARDS, FOOTPRINTS, segmentsOf, makeDSU, topology, netsOf,
+               canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
+               ref, parseRef, rowLetter, hid, cellsOf };
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- sbd-render.js ---- */
+/* ============================================================================
+   Stripboard Builder — board renderer
+   ----------------------------------------------------------------------------
+   Pure function: board + layout -> SVG string.  No DOM, so the same code runs
+   under jsc for inspection and in the page.
+
+   Drawing conventions are the teacher's Electronics in Meccano planning sheet
+   (PLAN.md §4.3a), not invented here:
+     - tracks run horizontally, drawn as continuous rounded strips
+     - a cut is an X ON a hole, drawn over everything
+     - an IC is a labelled rectangle with the part number inside, notch at the
+       pin-1 end, and the column of cut X's showing through between its pin rows
+     - footprints, never circuit symbols
+     - link wires are coloured AND numbered
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  const { BOARDS, FOOTPRINTS, cellsOf, parseRef, ref, rowLetter, hid } = root.SBD;
+
+  const P = 24;          // grid pitch, logical px
+  const PAD_L = 52;      // room for row letters AND edge-terminal labels
+  const PAD_T = 26;      // room for column numbers
+  const PAD_R = 12, PAD_B = 12;
+
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const n = v => Math.round(v * 100) / 100;
+
+  // hole centre in logical px
+  const X = c => PAD_L + (c - 0.5) * P;
+  const Y = r => PAD_T + (r + 0.5) * P;
+
+  const LINK_COLOURS = {
+    red: "#c0392b", black: "#2b2b2b", blue: "#2668b8", green: "#1d8a4e",
+    yellow: "#d3a017", orange: "#d2691e", white: "#8a8a8a"
+  };
+
+  /* One palette table drives two outputs: the <style> block the page uses (CSS
+     custom properties, so the teal sheet can re-theme it) and the flattened
+     presentation attributes the offline preview needs.  MuPDF — which is how
+     these diagrams get inspected — does not apply CSS class selectors, so a
+     class-only SVG rasterises as solid black.  Keeping one table means the
+     thing I look at and the thing that ships cannot drift in colour.
+     `[token, fallback]` becomes var(--token, fallback); `[null, v]` is literal. */
+  const SANS = "ui-sans-serif, system-ui, -apple-system, Helvetica, sans-serif";
+  const MONO = "ui-monospace, Menlo, monospace";
+  const CLASSES = {
+    "sbd-track": { fill: ["--sbd-track", "#d7ded9"] },
+    "sbd-hole":  { fill: ["--sbd-hole", "#fbfdfc"], stroke: ["--sbd-holeline", "#b9c4bd"],
+                   "stroke-width": [null, "0.8"] },
+    "sbd-lab":   { fill: ["--sbd-lab", "#6b7a72"], "font-family": [null, SANS],
+                   "font-size": [null, "11px"], "font-weight": [null, "700"] },
+    "sbd-body":  { fill: ["--sbd-body", "#ffffff"], "fill-opacity": [null, "0.95"],
+                   stroke: ["--sbd-ink", "#1d2a24"], "stroke-width": [null, "1.6"] },
+    "sbd-lead":  { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
+                   "stroke-width": [null, "1.6"] },
+    "sbd-pin":   { fill: ["--sbd-ink", "#1d2a24"] },
+    "sbd-id":    { fill: ["--sbd-ink", "#1d2a24"], "font-family": [null, SANS],
+                   "font-size": [null, "11px"], "font-weight": [null, "800"] },
+    "sbd-pn":    { fill: ["--sbd-ink", "#1d2a24"], "font-family": [null, MONO],
+                   "font-size": [null, "8px"], "font-weight": [null, "700"] },
+    "sbd-ic":    { fill: ["--sbd-icfill", "#ffffff"], "fill-opacity": [null, "0.9"],
+                   stroke: ["--sbd-ink", "#1d2a24"], "stroke-width": [null, "1.8"] },
+    "sbd-cut":   { fill: [null, "none"], stroke: ["--sbd-cut", "#c0392b"],
+                   "stroke-width": [null, "2.6"], "stroke-linecap": [null, "round"] },
+    "sbd-tp":    { fill: [null, "none"], stroke: ["--sbd-tp", "#1d6fa5"],
+                   "stroke-width": [null, "2"] },
+    "sbd-tpl":   { fill: ["--sbd-tp", "#1d6fa5"], "font-family": [null, SANS],
+                   "font-size": [null, "9px"], "font-weight": [null, "800"] },
+    "sbd-lnum":  { fill: [null, "#ffffff"], "font-family": [null, SANS],
+                   "font-size": [null, "8px"], "font-weight": [null, "800"] },
+    "sbd-bg":    { fill: ["--sbd-page", "#fbfdfc"] },
+
+    /* highlight layer — used by the page to point at a fault, and by nothing
+       else; kept in the one palette table so it themes like everything else */
+    "sbd-hl":    { fill: [null, "none"], stroke: ["--sbd-hl", "#e08a00"],
+                   "stroke-width": [null, "2.6"] },
+    /* second highlight colour — Trace mode rings the OTHER net a different
+       colour when two tapped holes turn out not to be the same one, so the
+       boundary between them (a cut, a missing link) reads at a glance */
+    "sbd-hl2":   { fill: [null, "none"], stroke: ["--sbd-hl2", "#1d6fa5"],
+                   "stroke-width": [null, "2.6"] },
+    "sbd-cur":   { fill: [null, "none"], stroke: ["--sbd-cur", "#0a9d7f"],
+                   "stroke-width": [null, "2.4"] },
+    "sbd-ghost": { fill: ["--sbd-cur", "#0a9d7f"], "fill-opacity": [null, "0.22"],
+                   stroke: ["--sbd-cur", "#0a9d7f"], "stroke-width": [null, "1.4"] },
+    "sbd-gpin":  { fill: ["--sbd-cur", "#0a9d7f"], "fill-opacity": [null, "0.75"] },
+    "sbd-bad":   { fill: ["--sbd-cut", "#c0392b"], "fill-opacity": [null, "0.3"],
+                   stroke: ["--sbd-cut", "#c0392b"], "stroke-width": [null, "1.6"] },
+
+    /* circuit diagrams (PLAN.md §4.1: the diagram beside the board).  Same
+       table, so a schematic and a layout cannot drift apart in colour. */
+    "sbd-wire":  { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
+                   "stroke-width": [null, "1.8"], "stroke-linecap": [null, "round"] },
+    "sbd-part":  { fill: ["--sbd-body", "#ffffff"], stroke: ["--sbd-ink", "#1d2a24"],
+                   "stroke-width": [null, "1.8"] },
+    "sbd-node":  { fill: ["--sbd-ink", "#1d2a24"] },
+    "sbd-clab":  { fill: ["--sbd-ink", "#1d2a24"], "font-family": [null, SANS],
+                   "font-size": [null, "11px"], "font-weight": [null, "700"] },
+    /* Supply convention, the same one the wiring schedule uses: +5 V red,
+       0 V black.  Only the positive rail needs a class — everything else is
+       already drawn in ink. */
+    "sbd-pos":   { fill: [null, "none"], stroke: ["--sbd-pos", "#c0392b"],
+                   "stroke-width": [null, "1.8"], "stroke-linecap": [null, "round"] },
+    "sbd-posf":  { fill: ["--sbd-body", "#ffffff"], stroke: ["--sbd-pos", "#c0392b"],
+                   "stroke-width": [null, "1.8"] },
+    "sbd-poslab":{ fill: ["--sbd-pos", "#c0392b"], "font-family": [null, SANS],
+                   "font-size": [null, "11px"], "font-weight": [null, "700"] },
+    "sbd-posid": { fill: ["--sbd-pos", "#c0392b"], "font-family": [null, SANS],
+                   "font-size": [null, "11px"], "font-weight": [null, "800"] },
+    "sbd-chip":  { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
+                   "stroke-width": [null, "1.2"], "stroke-dasharray": [null, "5 4"] },
+    "sbd-cnet":  { fill: ["--sbd-tp", "#1d6fa5"], "font-family": [null, SANS],
+                   "font-size": [null, "10px"], "font-weight": [null, "800"] }
+  };
+
+  const STYLE = Object.keys(CLASSES).map(k => {
+    const decls = Object.keys(CLASSES[k]).map(prop => {
+      const [tok, fb] = CLASSES[k][prop];
+      return `${prop}:${tok ? `var(${tok}, ${fb})` : fb}`;
+    }).join(";");
+    return `  .${k}{${decls}}`;
+  }).join("\n");
+
+  // flatten class="sbd-x" to presentation attributes, for offline rasterising
+  function inlineClasses(svg) {
+    return svg.replace(/class="([\w-]+)"/g, (m, k) => {
+      const def = CLASSES[k];
+      if (!def) return m;
+      return Object.keys(def).map(p => `${p}="${def[p][1]}"`).join(" ");
+    });
+  }
+
+  /* ------------------------------------------------------------ components */
+
+  function drawAxial(p, fp, cells) {
+    // one body block between the two legs, leads out to each pin
+    const a = cells.pins[0].hole, b = cells.pins[1].hole;
+    const horiz = a.r === b.r;
+    const x1 = X(a.c), y1 = Y(a.r), x2 = X(b.c), y2 = Y(b.r);
+    const inset = P * 0.62;                     // leave a visible lead each end
+    const bx1 = horiz ? Math.min(x1, x2) + inset : x1 - P * 0.34;
+    const bx2 = horiz ? Math.max(x1, x2) - inset : x1 + P * 0.34;
+    const by1 = horiz ? y1 - P * 0.34 : Math.min(y1, y2) + inset;
+    const by2 = horiz ? y1 + P * 0.34 : Math.max(y1, y2) - inset;
+    let s = `<line class="sbd-lead" x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}"/>`;
+
+    if (fp.sym === "led") {
+      // LED: circular body with the cathode side flattened, so polarity reads
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2, rr = P * 0.42;
+      const k = cells.pins.find(z => z.pin === "k").hole;
+      const flatHoriz = horiz;
+      const sign = flatHoriz ? (X(k.c) > cx ? 1 : -1) : (Y(k.r) > cy ? 1 : -1);
+      // D-shape: round body, flat face on the cathode side, so which leg is
+      // which is readable without a label (the real LED's own convention)
+      const f = rr * 0.72;                       // where the flat cuts the circle
+      const d = flatHoriz
+        ? `M ${n(cx + sign * f)} ${n(cy - rr * 0.7)} A ${n(rr)} ${n(rr)} 0 ${sign > 0 ? "1 0" : "1 1"} ` +
+          `${n(cx + sign * f)} ${n(cy + rr * 0.7)} Z`
+        : `M ${n(cx - rr * 0.7)} ${n(cy + sign * f)} A ${n(rr)} ${n(rr)} 0 ${sign > 0 ? "1 1" : "1 0"} ` +
+          `${n(cx + rr * 0.7)} ${n(cy + sign * f)} Z`;
+      s += `<path class="sbd-body" d="${d}"/>`;
+      return s;
+    }
+    if (fp.sym === "ecap") {
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2, rr = P * 0.42;
+      const plus = cells.pins.find(z => z.pin === "+").hole;
+      s += `<circle class="sbd-body" cx="${n(cx)}" cy="${n(cy)}" r="${n(rr)}"/>`;
+      const ux = X(plus.c) - cx, uy = Y(plus.r) - cy;
+      const m = Math.sqrt(ux * ux + uy * uy) || 1;
+      const mx = cx + (ux / m) * rr * 0.44, my = cy + (uy / m) * rr * 0.44;
+      s += `<text class="sbd-id" x="${n(mx)}" y="${n(my + 3.5)}" text-anchor="middle">+</text>`;
+      return s;
+    }
+    s += `<rect class="sbd-body" x="${n(bx1)}" y="${n(by1)}" width="${n(bx2 - bx1)}" ` +
+         `height="${n(by2 - by1)}" rx="${n(P * 0.16)}"/>`;
+    return s;
+  }
+
+  function drawDil(p, fp, cells) {
+    const rs = cells.pins.map(z => z.hole.r), cs = cells.pins.map(z => z.hole.c);
+    const r0 = Math.min(...rs), r1 = Math.max(...rs);
+    const c0 = Math.min(...cs), c1 = Math.max(...cs);
+    const x = X(c0) - P * 0.42, y = Y(r0) - P * 0.42;
+    const w = X(c1) - X(c0) + P * 0.84, h = Y(r1) - Y(r0) + P * 0.84;
+    let s = `<rect class="sbd-ic" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="3"/>`;
+
+    // pin 1 and pin N are the two ends of the notched edge
+    const p1 = cells.pins.find(z => z.pin === "1").hole;
+    const pLast = cells.pins.find(z => z.pin === String(fp.pinCount)).hole;
+
+    // pin 1 and pin N are the two ends of the notched edge: if they share a
+    // row the package runs down the board and the notch is on the top edge
+    if (p1.r === pLast.r) {
+      const nx = (X(p1.c) + X(pLast.c)) / 2;
+      s += `<path class="sbd-lead" d="M ${n(nx - 5)} ${n(y)} a 5 5 0 0 1 10 0"/>`;
+    } else {
+      const ny = (Y(p1.r) + Y(pLast.r)) / 2;
+      s += `<path class="sbd-lead" d="M ${n(x)} ${n(ny - 5)} a 5 5 0 0 0 0 10"/>`;
+    }
+
+    const cx = x + w / 2, cy = y + h / 2;
+    /* h > w ties on a square package (dip-8 is 4 rows x 4 cols), so take the
+       orientation from the pins: pin 1 sharing a ROW with pin N means the two
+       pin columns run down the board. */
+    const vertical = p1.r === pLast.r;
+
+    /* Item ID above the package, part number below.  Neither goes inside: the
+       centre of a DIL is the cut column, and whether the cuts land at c+1 or
+       c+2 is the pupil's choice, so no inside position is reliably clear. */
+    s += `<text class="sbd-id" x="${n(cx)}" y="${n(y - 9)}" text-anchor="middle">${esc(p.id)}</text>`;
+    if (p.part)
+      s += `<text class="sbd-pn" x="${n(cx)}" y="${n(y + h + 12)}" text-anchor="middle">${esc(p.part)}</text>`;
+
+    /* pin numbers offset inward along the package's SHORT axis — offsetting
+       horizontally on a package that lies along the tracks bunches all seven
+       numbers into the middle */
+    for (const z of cells.pins) {
+      const px = X(z.hole.c), py = Y(z.hole.r);
+      const dx = vertical ? (px < cx ? 8 : -8) : 0;
+      const dy = vertical ? 3 : (py < cy ? 12 : -6);
+      s += `<text class="sbd-pn" x="${n(px + dx)}" y="${n(py + dy)}" text-anchor="middle">${z.pin}</text>`;
+    }
+    return s;
+  }
+
+  function drawTerminal(p, fp, cells) {
+    let s = "";
+    // +5 V is red, everything else is ink — the wiring-schedule convention the
+    // schematic uses, so the two pictures agree (§4.3a)
+    const box = p.pos ? "sbd-posf" : "sbd-body";
+    for (const z of cells.pins) {
+      const px = X(z.hole.c), py = Y(z.hole.r), k = P * 0.40;
+      s += `<rect class="${box}" x="${n(px - k)}" y="${n(py - k)}" width="${n(k * 2)}" ` +
+           `height="${n(k * 2)}" rx="2"/>` +
+           `<line class="sbd-lead" x1="${n(px - k * 0.5)}" y1="${n(py)}" x2="${n(px + k * 0.5)}" y2="${n(py)}"/>`;
+    }
+    return s;
+  }
+
+  function drawTo92(p, fp, cells) {
+    const xs = cells.pins.map(z => X(z.hole.c)), ys = cells.pins.map(z => Y(z.hole.r));
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const spanH = Math.max(...xs) - Math.min(...xs) > Math.max(...ys) - Math.min(...ys);
+    const rr = P * 0.72;
+    // D-shape: half round, one flat face — the TO-92 outline
+    const d = spanH
+      ? `M ${n(cx - rr)} ${n(cy + 3)} a ${n(rr)} ${n(rr)} 0 0 1 ${n(rr * 2)} 0 z`
+      : `M ${n(cx + 3)} ${n(cy - rr)} a ${n(rr)} ${n(rr)} 0 0 1 0 ${n(rr * 2)} z`;
+    return `<path class="sbd-body" d="${d}"/>`;
+  }
+
+  /* ------------------------------------------------------------------ main */
+
+  function renderBoard(o) {
+    const board = BOARDS[o.board];
+    if (!board) throw new Error("unknown board " + o.board);
+    const a = o.attempt || {};
+    const q = o.question || {};
+    const W = PAD_L + board.cols * P + PAD_R;
+    const H = PAD_T + board.rows * P + PAD_B;
+
+    const layers = { defs: "", grid: "", body: "", pin: "", cut: "", link: "", tp: "", id: "", hl: "" };
+
+    /* tracks and holes */
+    for (let r = 0; r < board.rows; r++) {
+      const th = P * 0.74;
+      layers.grid += `<rect class="sbd-track" x="${n(X(1) - P * 0.5)}" y="${n(Y(r) - th / 2)}" ` +
+        `width="${n(board.cols * P)}" height="${n(th)}" rx="${n(th / 2)}"/>`;
+      layers.grid += `<text class="sbd-lab" x="13" y="${n(Y(r) + 4)}" ` +
+        `text-anchor="middle">${rowLetter(r)}</text>`;
+    }
+    for (let r = 0; r < board.rows; r++)
+      for (let c = 1; c <= board.cols; c++)
+        layers.grid += `<circle class="sbd-hole" cx="${n(X(c))}" cy="${n(Y(r))}" r="${n(P * 0.15)}"/>`;
+    for (let c = 1; c <= board.cols; c++)
+      if (c === 1 || c % 5 === 0 || c === board.cols)
+        layers.grid += `<text class="sbd-lab" x="${n(X(c))}" y="${n(PAD_T - 9)}" ` +
+          `text-anchor="middle">${c}</text>`;
+
+    /* components */
+    for (const p of a.placements || []) {
+      const fp = FOOTPRINTS[p.footprint];
+      if (!fp) continue;
+      const comp = (q.components || []).find(c => c.id === p.id) || {};
+      const cells = cellsOf(fp, parseRef(p.at), p.rot || 0);
+      const withLabel = Object.assign({}, p, { label: comp.name || p.id, part: comp.part,
+                                             pos: comp.pos });
+
+      layers.body += fp.kind === "dil" ? drawDil(withLabel, fp, cells)
+                   : fp.kind === "terminal" ? drawTerminal(withLabel, fp, cells)
+                   : fp.kind === "to92" ? drawTo92(withLabel, fp, cells)
+                   : drawAxial(withLabel, fp, cells);
+
+      for (const z of cells.pins)
+        layers.pin += `<circle class="sbd-pin" cx="${n(X(z.hole.c))}" cy="${n(Y(z.hole.r))}" r="${n(P * 0.13)}"/>`;
+
+      // item ID, nudged clear of the part (A5: never over its own body)
+      if (fp.kind !== "dil") {
+        const rs = cells.pins.map(z => z.hole.r), cs = cells.pins.map(z => z.hole.c);
+        const midC = (Math.min(...cs) + Math.max(...cs)) / 2;
+        const topR = Math.min(...rs), botR = Math.max(...rs);
+        if (fp.kind === "terminal") {
+          // supply and signal terminals sit at the board edge and often stack in
+          // adjacent rows, so a label ABOVE lands on its neighbour's box
+          layers.id += `<text class="${comp.pos ? "sbd-posid" : "sbd-id"}" ` +
+            `x="${n(X(Math.min(...cs)) - P * 0.55)}" ` +
+            `y="${n(Y(topR) + 4)}" text-anchor="end">${esc(p.id)}</text>`;
+        } else {
+          // row A has the column numbers directly above it — label below instead
+          const above = topR > 0;
+          layers.id += `<text class="sbd-id" x="${n(X(midC))}" ` +
+            `y="${n(above ? Y(topR) - P * 0.55 : Y(botR) + P * 0.75)}" ` +
+            `text-anchor="middle">${esc(p.id)}</text>`;
+        }
+      }
+    }
+
+    /* cuts — drawn over the bodies, exactly as the planning sheet does */
+    for (const s of a.cuts || []) {
+      const h = parseRef(s), k = P * 0.28;
+      layers.cut += `<path class="sbd-cut" d="M ${n(X(h.c) - k)} ${n(Y(h.r) - k)} ` +
+        `l ${n(k * 2)} ${n(k * 2)} M ${n(X(h.c) + k)} ${n(Y(h.r) - k)} l ${n(-k * 2)} ${n(k * 2)}"/>`;
+    }
+
+    /* link wires — coloured AND numbered (QVSR 2024) */
+    for (const l of a.links || []) {
+      const p1 = parseRef(l.a), p2 = parseRef(l.b);
+      const col = LINK_COLOURS[l.colour] || LINK_COLOURS.blue;
+      const x1 = X(p1.c), y1 = Y(p1.r), x2 = X(p2.c), y2 = Y(p2.r);
+      layers.link += `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" ` +
+        `stroke="${col}" stroke-width="3.2" stroke-linecap="round"/>`;
+      if (l.num != null) {
+        const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+        layers.link += `<circle cx="${n(mx)}" cy="${n(my)}" r="6.5" fill="${col}"/>` +
+          `<text class="sbd-lnum" x="${n(mx)}" y="${n(my + 3)}" text-anchor="middle">${l.num}</text>`;
+      }
+    }
+
+    /* test points */
+    for (const tp of a.testpoints || []) {
+      const h = parseRef(tp.at);
+      layers.tp += `<circle class="sbd-tp" cx="${n(X(h.c))}" cy="${n(Y(h.r))}" r="${n(P * 0.34)}"/>` +
+        `<text class="sbd-tpl" x="${n(X(h.c))}" y="${n(Y(h.r) - P * 0.52)}" ` +
+        `text-anchor="middle">${esc(tp.id || "TP")}</text>`;
+    }
+
+    /* Marks are the page's pointer: `hl` rings a hole a diagnostic refers to,
+       `ghost` previews a drop, `cur` is the keyboard cursor.  All three go on
+       TOP: a highlight drawn under the parts is invisible exactly when it
+       matters, because a chip's pins are under its own package.  A ring rather
+       than a disc, so the pin it points at still reads. */
+    for (const m of o.marks || []) {
+      if (m.r < 0 || m.r >= board.rows || m.c < 1 || m.c > board.cols) continue;
+      const x = X(m.c), y = Y(m.r);
+      const box = (cls, f) => `<rect class="${cls}" x="${n(x - P * f)}" y="${n(y - P * f)}" ` +
+        `width="${n(P * f * 2)}" height="${n(P * f * 2)}" rx="3"/>`;
+      if (m.kind === "cur")
+        layers.cur = (layers.cur || "") + box("sbd-cur", 0.5);
+      else if (m.kind === "ghost" || m.kind === "bad")
+        layers.cur = (layers.cur || "") + box(m.kind === "bad" ? "sbd-bad" : "sbd-ghost", 0.42);
+      else if (m.kind === "gpin")
+        layers.cur = (layers.cur || "") +
+          `<circle class="sbd-gpin" cx="${n(x)}" cy="${n(y)}" r="${n(P * 0.19)}"/>`;
+      else if (m.kind === "hl2")
+        layers.hl += `<circle class="sbd-hl2" cx="${n(x)}" cy="${n(y)}" r="${n(P * 0.36)}"/>`;
+      else
+        layers.hl += `<circle class="sbd-hl" cx="${n(x)}" cy="${n(y)}" r="${n(P * 0.36)}"/>`;
+    }
+
+    /* Two layers, one function.  The 24 x 37 board has 888 <circle> holes —
+       cheap to draw once, but 76 KB of string re-serialised on every click if
+       the whole board is rebuilt each edit.  So the page stacks two <svg>s of
+       identical viewBox: `grid` is drawn once per question, `live` is
+       everything that changes.  Offline inspection and "show the answer" ask
+       for both at once, so what I look at is what the page assembles. */
+    const wantGrid = o.layer !== "live";
+    const wantLive = o.layer !== "grid";
+    const inner = (wantGrid ? layers.grid : "") +
+                  (wantLive ? layers.body + layers.pin + layers.cut + layers.link +
+                              layers.tp + layers.id + layers.hl + (layers.cur || "") : "");
+    const title = esc(o.title || `${board.id} stripboard layout, component side`);
+
+    const out = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" ` +
+      `width="${W}" height="${H}" role="img">` +
+      `<title>${title}</title>` +
+      (layers.defs ? `<defs>${layers.defs}</defs>` : "") +
+      (o.standalone ? `<rect class="sbd-bg" width="${W}" height="${H}"/>` : "") +
+      inner + `</svg>`;
+    // `inline` is for offline inspection only; the page keeps the classes so
+    // the shared teal sheet can re-theme every colour (guide §6)
+    if (o.inline) return inlineClasses(out);
+    return o.standalone
+      ? out.replace("><title", `><style>\n${STYLE}\n</style><title`)
+      : out;
+  }
+
+  /* ------------------------------------------------------------ part preview
+     One footprint on its own patch of board, drawn by the same drawers as the
+     real thing so it cannot show a different shape from the one that lands.
+
+     This exists because a tap has no hover: on an iPad the on-board ghost never
+     appears before the drop, so a pupil has no way of knowing that a 14-pin DIL
+     covers 28 holes until it is already there.  The preview goes where they are
+     already looking — beside the bank they just tapped. */
+
+  function renderPart(o) {
+    const fp = FOOTPRINTS[o.footprint];
+    if (!fp) return "";
+    const at = { r: 1, c: 2 };
+    const cells = cellsOf(fp, at, o.rot || 0);
+    const holes = cells.pins.map(z => z.hole).concat(cells.body);
+    const rs = holes.map(h => h.r), cs = holes.map(h => h.c);
+    const r0 = Math.min(...rs), r1 = Math.max(...rs);
+    const c0 = Math.min(...cs), c1 = Math.max(...cs);
+
+    // one hole of board all round, so it reads as sitting ON tracks
+    const x0 = X(c0 - 1) - P / 2, x1 = X(c1 + 1) + P / 2;
+    const y0 = Y(r0 - 1) - P / 2, y1 = Y(r1 + 1) + P / 2;
+    const W = x1 - x0, H = y1 - y0;
+
+    let g = "";
+    for (let r = r0 - 1; r <= r1 + 1; r++) {
+      const th = P * 0.74;
+      g += `<rect class="sbd-track" x="${n(x0)}" y="${n(Y(r) - th / 2)}" ` +
+           `width="${n(W)}" height="${n(th)}" rx="${n(th / 2)}"/>`;
+      for (let c = c0 - 1; c <= c1 + 1; c++)
+        g += `<circle class="sbd-hole" cx="${n(X(c))}" cy="${n(Y(r))}" r="${n(P * 0.15)}"/>`;
+    }
+
+    const p = { id: o.id, footprint: o.footprint, rot: o.rot || 0,
+                label: o.id, part: o.part, pos: o.pos };
+    g += fp.kind === "dil" ? drawDil(p, fp, cells)
+       : fp.kind === "terminal" ? drawTerminal(p, fp, cells)
+       : fp.kind === "to92" ? drawTo92(p, fp, cells)
+       : drawAxial(p, fp, cells);
+    for (const z of cells.pins)
+      g += `<circle class="sbd-pin" cx="${n(X(z.hole.c))}" cy="${n(Y(z.hole.r))}" r="${n(P * 0.13)}"/>`;
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${n(x0)} ${n(y0)} ${n(W)} ${n(H)}" ` +
+      `width="${n(W)}" height="${n(H)}" role="img"><title>${esc(o.id)}, ` +
+      `${r1 - r0 + 1} tracks by ${c1 - c0 + 1} holes</title>${g}</svg>`;
+  }
+
+  // how the footprint lies, in the words the planning sheet uses
+  function spanOf(footprint, rot) {
+    const fp = FOOTPRINTS[footprint];
+    if (!fp) return "";
+    const cells = cellsOf(fp, { r: 1, c: 2 }, rot || 0);
+    const holes = cells.pins.map(z => z.hole).concat(cells.body);
+    const rows = Math.max(...holes.map(h => h.r)) - Math.min(...holes.map(h => h.r)) + 1;
+    const cols = Math.max(...holes.map(h => h.c)) - Math.min(...holes.map(h => h.c)) + 1;
+    if (rows === 1 && cols === 1) return "one hole";
+    if (cols === 1) return "across " + rows + " tracks";
+    if (rows === 1) return "along one track, " + cols + " holes";
+    return rows + " tracks \u00d7 " + cols + " holes";
+  }
+
+  /* Logical size of a board's SVG, and the inverse of X()/Y().  The page needs
+     both: the size to compute the one-screen scale factor before anything is
+     drawn, the inverse to hit-test 888 holes with one transparent overlay and
+     some arithmetic instead of 888 listeners. */
+  function sizeOf(boardId) {
+    const b = BOARDS[boardId];
+    return { w: PAD_L + b.cols * P + PAD_R, h: PAD_T + b.rows * P + PAD_B,
+             rows: b.rows, cols: b.cols };
+  }
+
+  // logical px -> hole, or null if the point is outside the grid
+  function holeAt(boardId, x, y) {
+    const b = BOARDS[boardId];
+    const c = Math.round((x - PAD_L) / P + 0.5);
+    const r = Math.round((y - PAD_T) / P - 0.5);
+    if (r < 0 || r >= b.rows || c < 1 || c > b.cols) return null;
+    return { r, c };
+  }
+
+  root.SBD.render = { renderBoard, renderPart, spanOf, inlineClasses, STYLE, CLASSES,
+                      P, PAD_L, PAD_T, sizeOf, holeAt, centreOf: (r, c) => ({ x: X(c), y: Y(r) }),
+                      LINK_COLOURS };
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- sbd-circuit.js ---- */
+/* ============================================================================
+   Stripboard Builder — circuit diagram primitives
+   ----------------------------------------------------------------------------
+   Convert mode shows a circuit diagram beside the board (PLAN.md §4.1), and
+   the pupil's job is to turn one into the other.  So the two pictures must
+   obey the same drawing rules: UK/BS-IEC symbols, a plain rectangle resistor,
+   distinctive-shape gates, a junction dot at every real node.  They share the
+   palette table in sbd-render.js, so a wire cannot be one colour here and
+   another there.
+
+   Why primitives rather than one hand-written SVG per question: PLAN.md R5
+   says every diagram is read against its netlist by eye, and that check is
+   only trustworthy if the diagram is short enough to read.  A question's
+   diagram is a dozen lines of calls, each naming the net it draws.
+
+   Coordinates are plain logical px with y down.  Nothing here knows about the
+   board; nothing in the board renderer knows about this.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  const n = v => Math.round(v * 100) / 100;
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  /* ------------------------------------------------------------------ wires */
+
+  // polyline through [[x,y],…]; orthogonal runs are the caller's business.
+  // `cls` is how the +5 V rail becomes red (sbd-pos) without a second drawer.
+  const wire = (pts, cls) =>
+    `<polyline class="${cls || "sbd-wire"}" points="${pts.map(p => n(p[0]) + "," + n(p[1])).join(" ")}"/>`;
+
+  // a junction dot: drawn ONLY where wires really join (guide §7)
+  const node = (x, y) => `<circle class="sbd-node" cx="${n(x)}" cy="${n(y)}" r="3.2"/>`;
+
+  /* An arrow with its head DRAWN, not a <marker>.  MuPDF renders no markers,
+     and MuPDF is the only way these diagrams get inspected offline — a marker
+     arrowhead is invisible in every check and present only in the browser,
+     which is exactly the drift §7 exists to prevent.  A polygon is visible in
+     both. */
+  function arrow(x1, y1, x2, y2, o) {
+    o = o || {};
+    const k = o.size || 5;
+    const a = Math.atan2(y2 - y1, x2 - x1);
+    const p = (ang, r) => `${n(x2 - Math.cos(a + ang) * r)},${n(y2 - Math.sin(a + ang) * r)}`;
+    return wire([[x1, y1], [x2 - Math.cos(a) * k * 0.6, y2 - Math.sin(a) * k * 0.6]]) +
+      `<polygon class="sbd-node" points="${n(x2)},${n(y2)} ${p(0.42, k * 1.9)} ${p(-0.42, k * 1.9)}"/>`;
+  }
+
+  const text = (x, y, s, o) => {
+    o = o || {};
+    return `<text class="${o.cls || "sbd-clab"}" x="${n(x)}" y="${n(y)}" ` +
+           `text-anchor="${o.anchor || "middle"}">${esc(s)}</text>`;
+  };
+
+  /* A net number in a ring, sitting ON the wire it names.  Step ③ of the
+     conversion method is "number every net on the circuit diagram", so the
+     diagram arrives with that step already done — the pupil's job is the step
+     after it, giving each numbered net a track. */
+  const netnum = (x, y, num) =>
+    `<circle cx="${n(x)}" cy="${n(y)}" r="8" class="sbd-body"/>` +
+    `<text class="sbd-cnet" x="${n(x)}" y="${n(y + 3.4)}" text-anchor="middle">${esc(num)}</text>`;
+
+  /* -------------------------------------------------------------- symbols */
+
+  /* Resistor: a plain rectangle, never a zig-zag (global §7).  `at` is the
+     centre; leads run the full `span` so the caller can wire to the ends. */
+  function res(x, y, o) {
+    o = o || {};
+    const horiz = o.dir !== "v", L = 44, W = 16, span = o.span || 74;
+    const half = span / 2;
+    let s = horiz
+      ? wire([[x - half, y], [x + half, y]]) +
+        `<rect class="sbd-part" x="${n(x - L / 2)}" y="${n(y - W / 2)}" width="${L}" height="${W}" rx="2"/>`
+      : wire([[x, y - half], [x, y + half]]) +
+        `<rect class="sbd-part" x="${n(x - W / 2)}" y="${n(y - L / 2)}" width="${W}" height="${L}" rx="2"/>`;
+    const sx = o.labelLeft ? x - W / 2 - 6 : x + W / 2 + 6;
+    const anchor = o.labelLeft ? "end" : "start";
+    if (o.label) s += horiz ? text(x, y - W / 2 - 7, o.label) : text(sx, y - 3, o.label, { anchor });
+    if (o.value) s += horiz ? text(x, y + W / 2 + 14, o.value) : text(sx, y + 12, o.value, { anchor });
+    return s;
+  }
+
+  /* LED: triangle pointing at a cathode bar, plus the two emission arrows.
+     `dir` is the direction of conventional current, so "d" means the anode is
+     at the top — which is what the layout has to reproduce. */
+  function led(x, y, o) {
+    o = o || {};
+    const dir = o.dir || "d", span = o.span || 74, half = span / 2, k = 13;
+    const down = dir === "d", vert = down || dir === "u";
+    const sgn = (down || dir === "r") ? 1 : -1;
+    let s = vert ? wire([[x, y - half], [x, y + half]]) : wire([[x - half, y], [x + half, y]]);
+
+    // triangle: apex on the cathode side
+    const tri = vert
+      ? `${n(x - k)},${n(y - k * sgn)} ${n(x + k)},${n(y - k * sgn)} ${n(x)},${n(y + k * sgn)}`
+      : `${n(x - k * sgn)},${n(y - k)} ${n(x - k * sgn)},${n(y + k)} ${n(x + k * sgn)},${n(y)}`;
+    s += `<polygon class="sbd-part" points="${tri}"/>`;
+    // cathode bar across the apex
+    s += vert
+      ? `<line class="sbd-wire" x1="${n(x - k)}" y1="${n(y + k * sgn)}" x2="${n(x + k)}" y2="${n(y + k * sgn)}"/>`
+      : `<line class="sbd-wire" x1="${n(x + k * sgn)}" y1="${n(y - k)}" x2="${n(x + k * sgn)}" y2="${n(y + k)}"/>`;
+    // two emission arrows, the mark that makes it an LED and not a diode
+    const ax = x + (vert ? k + 4 : 0), ay = y + (vert ? 0 : -(k + 4));
+    for (let i = 0; i < 2; i++) {
+      const ox = vert ? 0 : i * 11 - 5, oy = vert ? i * 11 - 5 : 0;
+      s += arrow(ax + ox, ay + oy, ax + ox + 10, ay + oy - 10);
+    }
+    // which side a vertical part's label goes is the caller's business: it
+    // depends on what else is beside it, and getting it wrong buries the label
+    // under the neighbouring symbol
+    if (o.label) s += !vert ? text(x, y + k + 15, o.label)
+      // "r" has to clear the emission arrows, which are always on that side
+      : o.labelSide === "r" ? text(x + k + 24, y + 4, o.label, { anchor: "start" })
+      : o.labelSide === "d" ? text(x, y + half + 14, o.label)
+      :                       text(x - k - 8, y + 4, o.label, { anchor: "end" });
+    return s;
+  }
+
+  /* A 2-input AND gate, distinctive shape (flat back, semicircular nose) with
+     its DIL pin numbers on the leads — because "which gate of the one chip"
+     and "which pin" is the whole difficulty of §5.1. */
+  function andGate(x, y, o) {
+    o = o || {};
+    const w = o.w || 40, h = o.h || 44, r = h / 2, lead = o.lead || 16;
+    const x0 = x - (w + lead) / 2, y0 = y - h / 2;
+    const inA = y0 + h * 0.25, inB = y0 + h * 0.75;
+    let s = `<path class="sbd-part" d="M ${n(x0 + lead)} ${n(y0)} H ${n(x0 + lead + w - r)} ` +
+            `A ${r} ${r} 0 0 1 ${n(x0 + lead + w - r)} ${n(y0 + h)} H ${n(x0 + lead)} Z"/>`;
+    s += wire([[x0, inA], [x0 + lead, inA]]);
+    s += wire([[x0, inB], [x0 + lead, inB]]);
+    s += wire([[x0 + lead + w, y], [x0 + lead + w + lead, y]]);
+    if (o.pins) {
+      s += text(x0 + lead - 3, inA - 4, o.pins[0], { cls: "sbd-cnet", anchor: "end" });
+      s += text(x0 + lead - 3, inB + 11, o.pins[1], { cls: "sbd-cnet", anchor: "end" });
+      s += text(x0 + lead + w + 3, y - 5, o.pins[2], { cls: "sbd-cnet", anchor: "start" });
+    }
+    if (o.label) s += text(x0 + lead + w / 2 - 2, y + 4, o.label);
+    return {
+      svg: s,
+      a: [x0, inA], b: [x0, inB], out: [x0 + lead + w + lead, y]
+    };
+  }
+
+  /* An off-board connection: the labelled square pad the layout has a terminal
+     for.  These are the nets that leave the board on a numbered wire. */
+  function term(x, y, o) {
+    o = o || {};
+    const side = o.side || "l", s2 = 7;
+    const box = o.pos ? "sbd-posf" : "sbd-part", lab = { cls: o.pos ? "sbd-poslab" : "sbd-clab" };
+    let s = `<rect class="${box}" x="${n(x - s2)}" y="${n(y - s2)}" width="${s2 * 2}" ` +
+            `height="${s2 * 2}" rx="2"/>`;
+    if (o.label)
+      s += side === "l" ? text(x - s2 - 5, y + 4, o.label, { anchor: "end", cls: lab.cls })
+         : side === "r" ? text(x + s2 + 5, y + 4, o.label, { anchor: "start", cls: lab.cls })
+         : side === "u" ? text(x, y - s2 - 6, o.label, lab)
+         :                text(x, y + s2 + 14, o.label, lab);
+    return s;
+  }
+
+  // nothing needs a <defs> any more; arrowheads are drawn (see arrow())
+  const DEFS = "";
+
+  function wrap(o) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${o.w} ${o.h}" ` +
+      `width="${o.w}" height="${o.h}" role="img">` +
+      `<title>${esc(o.title || "circuit diagram")}</title>` +
+      (DEFS ? `<defs>${DEFS}</defs>` : "") +
+      (o.standalone ? `<rect class="sbd-bg" width="${o.w}" height="${o.h}"/>` : "") +
+      o.body + `</svg>`;
+  }
+
+  /* ---------------------------------------------- the rest of the symbols
+     BS/IEC throughout (global §7): a resistor is a rectangle, a gate keeps its
+     distinctive shape, and a sensing resistor is that same rectangle with the
+     sensing mark added — never a zig-zag, and never a US-style outline. */
+
+  // a resistor rectangle with the two arrows that make it light-dependent
+  function ldr(x, y, o) {
+    o = o || {};
+    let s = res(x, y, Object.assign({}, o, { label: null, value: null }));
+    // arrows pointing AT the body: light falling on it.  They come in from
+    // above for a horizontal LDR and from the left for a vertical one, so the
+    // symbol reads the same whichever way the divider is drawn.
+    const vert = o.dir === "v";
+    for (let i = 0; i < 2; i++) {
+      const d = i * 13 - 6;
+      if (vert) s += arrow(x - 40, y + d - 12, x - 28, y + d);
+      else      s += arrow(x + d - 17, y - 33, x + d - 5, y - 21);
+    }
+    if (o.label) s += vert ? text(x + 14, y - 4, o.label, { anchor: "start" })
+                           : text(x + 14, y - 24, o.label, { anchor: "start" });
+    if (o.value) s += vert ? text(x + 14, y + 12, o.value, { anchor: "start" })
+                           : text(x, y + 22, o.value);
+    return s;
+  }
+
+  // a resistor rectangle with the temperature stroke through it
+  function thermistor(x, y, o) {
+    o = o || {};
+    const horiz = (o.dir !== "v"), L = 44, W = 16;
+    let s = res(x, y, Object.assign({}, o, { label: null, value: null }));
+    s += wire([[x - L / 2 - 7, y + W / 2 + 7], [x + L / 2 + 7, y - W / 2 - 7]]);
+    s += wire([[x - L / 2 - 7, y + W / 2 + 7], [x - L / 2 + 3, y + W / 2 + 7]]);
+    if (o.label) s += text(x, y - W / 2 - 14, o.label);
+    if (o.value) s += text(x, y + W / 2 + 22, o.value);
+    return s;
+  }
+
+  /* The three gate shapes.  Each returns its lead ends so the caller wires to
+     a point rather than to a coordinate it worked out itself. */
+  function gateBody(kind, x, y, o) {
+    o = o || {};
+    const w = o.w || 40, h = o.h || 44, r = h / 2, lead = o.lead || 16;
+    const x0 = x - (w + lead) / 2, y0 = y - h / 2;
+    const bx = x0 + lead, bw = w;
+    let d;
+    if (kind === "and")
+      d = `M ${n(bx)} ${n(y0)} H ${n(bx + bw - r)} A ${r} ${r} 0 0 1 ${n(bx + bw - r)} ` +
+          `${n(y0 + h)} H ${n(bx)} Z`;
+    else                                            // or: curved back, pointed nose
+      d = `M ${n(bx)} ${n(y0)} Q ${n(bx + bw * 0.62)} ${n(y0 + h * 0.06)} ${n(bx + bw)} ${n(y)} ` +
+          `Q ${n(bx + bw * 0.62)} ${n(y0 + h * 0.94)} ${n(bx)} ${n(y0 + h)} ` +
+          `Q ${n(bx + bw * 0.28)} ${n(y)} ${n(bx)} ${n(y0)} Z`;
+    const inA = y0 + h * 0.25, inB = y0 + h * 0.75;
+    // an OR gate's curved back means its input leads have to reach further in
+    const back = kind === "or" ? bx + bw * 0.16 : bx;
+    let s = `<path class="sbd-part" d="${d}"/>` +
+            wire([[x0, inA], [back, inA]]) + wire([[x0, inB], [back, inB]]) +
+            wire([[bx + bw, y], [bx + bw + lead, y]]);
+    if (o.pins) {
+      s += text(bx - 3, inA - 4, o.pins[0], { cls: "sbd-cnet", anchor: "end" });
+      s += text(bx - 3, inB + 11, o.pins[1], { cls: "sbd-cnet", anchor: "end" });
+      s += text(bx + bw + 3, y - 5, o.pins[2], { cls: "sbd-cnet", anchor: "start" });
+    }
+    return { svg: s, a: [x0, inA], b: [x0, inB], out: [bx + bw + lead, y] };
+  }
+  const andGate2 = (x, y, o) => gateBody("and", x, y, o);
+  const orGate = (x, y, o) => gateBody("or", x, y, o);
+
+  // NOT: triangle with the inverting bubble on its nose
+  function notGate(x, y, o) {
+    o = o || {};
+    const w = o.w || 34, h = o.h || 34, lead = o.lead || 14, rb = 4;
+    const x0 = x - (w + lead + rb * 2) / 2, y0 = y - h / 2;
+    const bx = x0 + lead;
+    let s = `<polygon class="sbd-part" points="${n(bx)},${n(y0)} ${n(bx)},${n(y0 + h)} ` +
+            `${n(bx + w)},${n(y)}"/>` +
+            `<circle class="sbd-part" cx="${n(bx + w + rb)}" cy="${n(y)}" r="${rb}"/>` +
+            wire([[x0, y], [bx, y]]) +
+            wire([[bx + w + rb * 2, y], [bx + w + rb * 2 + lead, y]]);
+    if (o.pins) {
+      s += text(bx - 3, y - 5, o.pins[0], { cls: "sbd-cnet", anchor: "end" });
+      s += text(bx + w + rb * 2 + 3, y - 5, o.pins[1], { cls: "sbd-cnet", anchor: "start" });
+    }
+    return { svg: s, a: [x0, y], out: [bx + w + rb * 2 + lead, y] };
+  }
+
+  // NPN transistor: base bar on the left, emitter arrow pointing out
+  function npn(x, y, o) {
+    o = o || {};
+    const r = 20, bx = x - 7;                       // the base bar
+    let s = `<circle class="sbd-part" cx="${n(x)}" cy="${n(y)}" r="${r}"/>` +
+            wire([[bx, y - 11], [bx, y + 11]]) +          // base bar
+            wire([[x - r - 14, y], [bx, y]]) +            // base lead
+            wire([[bx, y - 6], [x + 10, y - 15], [x + 10, y - r - 12]]) +   // collector
+            wire([[bx, y + 6], [x + 10, y + 15], [x + 10, y + r + 12]]);    // emitter
+    // the arrow that makes it NPN, on the emitter, pointing away from the base
+    s += `<polygon class="sbd-node" points="${n(x + 2.5)},${n(y + 9)} ${n(x + 9)},${n(y + 8.5)} ` +
+         `${n(x + 6)},${n(y + 15)}"/>`;
+    if (o.label) s += text(x + r + 6, y - 4, o.label, { anchor: "start" });
+    return { svg: s, b: [x - r - 14, y], c: [x + 10, y - r - 12], e: [x + 10, y + r + 12] };
+  }
+
+  // SPST switch: two contacts and a hinged blade
+  function sw(x, y, o) {
+    o = o || {};
+    const half = (o.span || 56) / 2;
+    let s = wire([[x - half, y], [x - 11, y]]) + wire([[x + 11, y], [x + half, y]]) +
+            node(x - 11, y) + node(x + 11, y) +
+            wire([[x - 11, y], [x + 9, y - 13]]);
+    if (o.label) s += text(x, y + 18, o.label);
+    return s;
+  }
+
+  /* sounder: the BS shape — a half-disc on its flat.  Both this and motor()
+     take a direction: drawn horizontal-only, a symbol in a vertical run has the
+     wire passing straight through it and its own leads sticking out sideways
+     into nothing, which is what the first draft of two questions did. */
+  function sounder(x, y, o) {
+    o = o || {};
+    const vert = o.dir === "v", half = (o.span || 56) / 2, r = 15;
+    let s = vert ? wire([[x, y - half], [x, y - r]]) + wire([[x, y + r], [x, y + half]])
+                 : wire([[x - half, y], [x - r, y]]) + wire([[x + r, y], [x + half, y]]);
+    // the flat faces the incoming lead, the dome faces away
+    s += vert
+      ? `<path class="sbd-part" d="M ${n(x - r)} ${n(y - r * 0.2)} A ${r} ${r} 0 0 0 ` +
+        `${n(x + r)} ${n(y - r * 0.2)} Z"/>` +
+        wire([[x, y - r * 0.2], [x, y + r]])
+      : `<path class="sbd-part" d="M ${n(x - r)} ${n(y)} A ${r} ${r} 0 0 1 ${n(x + r)} ${n(y)} Z"/>`;
+    if (o.label) s += vert ? text(x + r + 6, y + 4, o.label, { anchor: "start" })
+                           : text(x, y + 16, o.label);
+    return s;
+  }
+
+  // motor or pump: a circle with its letter
+  function motor(x, y, o) {
+    o = o || {};
+    const vert = o.dir === "v", half = (o.span || 56) / 2, r = 15;
+    let s = vert ? wire([[x, y - half], [x, y - r]]) + wire([[x, y + r], [x, y + half]])
+                 : wire([[x - half, y], [x - r, y]]) + wire([[x + r, y], [x + half, y]]);
+    s += `<circle class="sbd-part" cx="${n(x)}" cy="${n(y)}" r="${r}"/>` +
+         text(x, y + 4, o.letter || "M");
+    if (o.label) s += !vert ? text(x, y + r + 15, o.label)
+      : o.labelSide === "l" ? text(x - r - 6, y + 4, o.label, { anchor: "end" })
+      :                       text(x + r + 6, y + 4, o.label, { anchor: "start" });
+    return s;
+  }
+
+  /* the dashed outline round the gates that share one package */
+  const chip = (x, y, w, h) =>
+    `<rect class="sbd-chip" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="6"/>`;
+
+  root.SBD.circuit = { wire, node, text, netnum, res, led, andGate, orGate, notGate,
+                       ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS };
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- questions.js ---- */
+/* ============================================================================
+   Stripboard Builder — authored questions
+   ----------------------------------------------------------------------------
+   One record per circuit (PLAN.md §12.5).  Convert, Fault-finder and Reverse
+   are all generated from this, so they cannot drift apart.
+
+   `reference` exists to be asserted against `target` by the golden tests
+   (R4): a question whose reference layout does not produce its own target
+   netlist is not publishable.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+
+  /* ------------------------------------------------------------------------
+     The §5.1 archetype drawn once.  Three archetype questions are the same
+     picture with a different gate shape, chip number and labels — the lift
+     interlock, the kiln interlock and the car park sign — so they share one
+     drawing rather than three that can drift apart.  `kind` is "and" or "or",
+     and the gate pin numbers are the same on a 74HC08 and a 74HC32.
+     ------------------------------------------------------------------------ */
+  function twoGateChip(C, o) {
+    const G = { w: 32, lead: 12 };
+    const gate = o.kind === "or" ? C.orGate : C.andGate;
+    const ga = gate(100, 74, Object.assign({ pins: ["1", "2", "3"] }, G));
+    const gb = gate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
+    const body =
+      C.chip(62, 44, 140, 122) +
+      C.text(62, 38, "IC1  " + o.part, { anchor: "start" }) +
+
+      C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [186, 20]], "sbd-pos") +
+      C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
+      C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
+      C.term(44, 258, { label: "0 V" }) + C.wire([[51, 258], [212, 258]]) +
+      C.wire([[76, 166], [76, 258]]) + C.node(76, 258) +
+      C.text(81, 183, "7", { cls: "sbd-cnet", anchor: "start" }) +
+
+      C.term(44, 63, { label: o.in[0] }) + C.wire([[51, 63], [78, 63]]) +
+      C.term(44, 85, { label: o.in[1] }) + C.wire([[51, 85], [78, 85]]) +
+      C.term(44, 143, { label: o.in[2] }) + C.wire([[51, 143], [134, 143]]) +
+
+      ga.svg + gb.svg +
+      C.wire([[134, 74], [134, 121]]) +            // gate a pin 3 straight down to pin 4
+
+      C.wire([[190, 132], [212, 132], [212, 156]]) +
+      C.res(212, 184, { dir: "v", span: 56, label: "R1", value: "270 \u03a9", labelLeft: true }) +
+      C.wire([[212, 212], [212, 220]]) +
+      C.led(212, 238, { dir: "d", span: 36, label: o.led }) +
+      C.wire([[212, 256], [212, 258]]) + C.node(212, 258) +
+
+      C.netnum(63, 63, 3) + C.netnum(63, 85, 4) + C.netnum(95, 143, 6) +
+      C.netnum(134, 100, 5) + C.netnum(212, 146, 7) + C.netnum(212, 216, 8) +
+      C.netnum(118, 20, 1) + C.netnum(150, 258, 2);
+    return { w: 258, h: 278, body: body };
+  }
+
+  /* ------------------------------------------------------------------------
+     Q1 — LED and series resistor.  Small board, no IC, and deliberately NO
+     CUTS at all: proves the engine never demands a cut it does not need.
+     ------------------------------------------------------------------------ */
+  const ledResistor = {
+    id: "led-resistor",
+    title: "LED and series resistor",
+    board: "34-0410",
+    scaffold: "blank",
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1" }
+    ],
+    target: [
+      ["+5V.1", "R1.1"],
+      ["R1.2", "LED1.a"],
+      ["0V.1", "LED1.k"]
+    ],
+    dontcare: [],
+    reference: {
+      cuts: [],
+      placements: [
+        { id: "+5V",  footprint: "term-1", at: "A2" },
+        { id: "R1",   footprint: "res-4",  at: "A5", rot: 90 },   // legs A5 and D5
+        { id: "LED1", footprint: "led-2",  at: "D8", rot: 90 },   // legs D8 and E8
+        { id: "0V",   footprint: "term-1", at: "E2" }
+      ],
+      links: [],
+      testpoints: []
+    },
+    /* Circuit diagram (PLAN.md R5 — read pin by pin against `target` before the
+       question is enabled).  Drawn portrait, because the board is limited by
+       screen HEIGHT and the width beside it is what is going spare. */
+    circuit: C => {
+      const b =
+        C.term(150, 26, { side: "u", label: "+5 V", pos: true }) +
+        C.wire([[150, 33], [150, 92]], "sbd-pos") +
+        C.res(150, 122, { dir: "v", span: 60, label: "R1", value: "270 \u03a9" }) +
+        C.wire([[150, 152], [150, 184]]) +
+        C.led(150, 204, { dir: "d", span: 40, label: "LED1" }) +
+        C.wire([[150, 224], [150, 252]]) +
+        C.term(150, 259, { side: "r", label: "0 V" }) +
+        C.netnum(150, 62, 1) + C.netnum(150, 168, 2) + C.netnum(150, 238, 3);
+      return { w: 250, h: 280, body: b };
+    },
+    why: [
+      "The resistor and the LED are in series between +5 V and 0 V, so the board " +
+      "needs three nets and each one becomes a track.",
+      "Both legs of a part must land in <strong>different</strong> tracks, or the part " +
+      "is shorted out — which is why the resistor and the LED both sit across the " +
+      "tracks rather than along one."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q2 — Lift door interlock.  The spine of the bank (PLAN.md §5.1): a
+     3-input AND built from TWO gates of ONE 74HC08, so the pupil must
+     realise there is one chip, cut all seven tracks it crosses, and link
+     gate a's output (pin 3) to gate b's input (pin 4).
+     ------------------------------------------------------------------------ */
+  const liftInterlock = {
+    id: "lift-interlock",
+    title: "Lift door interlock",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A lift may only move when three conditions are all met: the door is closed, " +
+      "a floor has been selected, and the car is not overloaded.",
+      "Each condition arrives at the process board as a logic 1. The output drives " +
+      "the motor-enable indicator."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "A",    footprint: "term-1", name: "input A — door closed" },
+      { id: "B",    footprint: "term-1", name: "input B — floor selected" },
+      { id: "C",    footprint: "term-1", name: "input C — not overloaded" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — motor enable" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14"],
+      ["0V.1", "IC1.7", "LED1.k"],
+      ["A.1", "IC1.1"],
+      ["B.1", "IC1.2"],
+      ["IC1.3", "IC1.4"],
+      ["C.1", "IC1.5"],
+      ["IC1.6", "R1.1"],
+      ["R1.2", "LED1.a"]
+    ],
+    // gates c and d of the 74HC08 are unused — a pupil who ties these spare
+    // inputs to 0 V has done the right thing and must not be failed for it (R1)
+    dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    tpRequired: ["IC1.6"],
+    reference: {
+      // the seven cuts are the column between the chip's two rows of pins
+      cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "F10" },   // pins 1-7 in col 10, 14-8 in col 13
+        { id: "A",    footprint: "term-1", at: "F2" },
+        { id: "B",    footprint: "term-1", at: "G2" },
+        { id: "C",    footprint: "term-1", at: "J2" },
+        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "+5V",  footprint: "term-1", at: "F20" },   // right of the cut, with pin 14
+        { id: "R1",   footprint: "res-4",  at: "K3", rot: 90 },   // legs K3 (pin 6) and N3
+        { id: "LED1", footprint: "led-2",  at: "N5", rot: 90 }    // legs N5 (anode) and O5
+      ],
+      links: [
+        { a: "H9", b: "I9", colour: "orange", num: 1 },   // pin 3 -> pin 4
+        { a: "L6", b: "O6", colour: "black",  num: 2 }    // 0 V rail -> the LED cathode
+      ],
+      testpoints: [{ id: "TP1", at: "K8" }]
+    },
+    /* The dashed outline round the two gates is the whole point of the
+       question: Yenka draws two AND symbols, but they are two gates of ONE
+       74HC08.  Drawn by the shared archetype (R5 checked against `target`). */
+    circuit: C => twoGateChip(C, { kind: "and", part: "74HC08",
+                                   in: ["A", "B", "C"], led: "LED1" }),
+    why: [
+      "There is <strong>one chip</strong>, not two. Yenka draws two AND gate symbols, " +
+      "but both live in the same 74HC08 — sharing pin 7 (0 V) and pin 14 (+5 V).",
+      "The chip sits <strong>across</strong> the tracks, so each opposite pair of pins " +
+      "lands on the same track: pin 1 with pin 14, pin 2 with pin 13, and so on. " +
+      "Every one of the seven tracks it crosses must be cut between the two rows of pins.",
+      "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
+      "They are next to each other on the package but on different tracks — adjacent " +
+      "pins are <em>not</em> connected, so that join needs a link wire.",
+      "Gates c and d are unused. Their pins can be left, or tied to 0 V — either is accepted."
+    ]
+  };
+
+
+  /* ------------------------------------------------------------------------
+     Q2 — LDR potential divider.  Small board, still no cuts, but the middle
+     net has THREE things on it: this is where "a net is a track" starts to do
+     real work.  The LDR is off the board on a 2-way terminal block, which is
+     the conversion the pupil has to make — a symbol on the diagram becomes a
+     connector on the layout.
+     ------------------------------------------------------------------------ */
+  const ldrDivider = {
+    id: "ldr-divider",
+    title: "Light sensor divider",
+    board: "34-0410",
+    scaffold: "blank",
+    scenario: [
+      "A light-dependent resistor and a fixed resistor form a potential divider on " +
+      "the input sub-system board. The output goes off to the process board.",
+      "The LDR itself is not on the board — it is wired to a 2-way terminal block."
+    ],
+    components: [
+      { id: "+5V", footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",  footprint: "term-1", name: "0 V supply" },
+      { id: "LDR", footprint: "term-2", name: "LDR1 terminal block", symmetric: true },
+      { id: "R1",  footprint: "res-4",  name: "R1 (10 kΩ)" },
+      { id: "OUT", footprint: "term-1", name: "output to the process board" }
+    ],
+    target: [
+      ["+5V.1", "LDR.1"],
+      ["LDR.2", "R1.1", "OUT.1"],
+      ["R1.2", "0V.1"]
+    ],
+    dontcare: [],
+    reference: {
+      cuts: [],
+      placements: [
+        { id: "+5V", footprint: "term-1", at: "A2" },
+        { id: "LDR", footprint: "term-2", at: "A5", rot: 90 },   // A5 and C5
+        { id: "R1",  footprint: "res-4",  at: "C8", rot: 90 },   // C8 and F8
+        { id: "OUT", footprint: "term-1", at: "C12" },
+        { id: "0V",  footprint: "term-1", at: "F2" }
+      ],
+      links: [],
+      testpoints: []
+    },
+    circuit: C => {
+      const b =
+        C.term(140, 26, { side: "u", label: "+5 V", pos: true }) +
+        C.wire([[140, 33], [140, 62]], "sbd-pos") +
+        C.ldr(140, 92, { dir: "v", span: 60, label: "LDR1" }) +
+        C.wire([[140, 122], [140, 152]]) +
+        C.node(140, 137) + C.wire([[140, 137], [206, 137]]) +
+        C.term(213, 137, { side: "r", label: "OUT" }) +
+        C.res(140, 182, { dir: "v", span: 60, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[140, 212], [140, 240]]) +
+        C.term(140, 247, { side: "r", label: "0 V" }) +
+        C.netnum(140, 50, 1) + C.netnum(178, 137, 2) + C.netnum(140, 226, 3);
+      return { w: 258, h: 268, body: b };
+    },
+    why: [
+      "There are three nets, so the board needs <strong>three tracks</strong>. The middle " +
+      "one carries three things — the LDR, the resistor and the output — and they all go " +
+      "in the same track.",
+      "The LDR is drawn as a component but built as a <strong>terminal block</strong>: the " +
+      "layout shows the connector that is soldered to the board, not the sensor on the end " +
+      "of the wires.",
+      "No track needs cutting. A cut is only needed where two different nets would otherwise " +
+      "share a track."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q3 — one AND gate driving an LED.  The first chip, and the first question
+     that needs cuts: the components arrive placed, so the whole task is the
+     column of seven cuts between the chip's two rows of pins.  Chosen so that
+     the output chain reaches 0 V exactly, and no link wire is needed.
+     ------------------------------------------------------------------------ */
+  const andGateLed = {
+    id: "and-gate-led",
+    title: "Guard and start button",
+    board: "34-0411",
+    scaffold: "parts",
+    scenario: [
+      "A machine may only run when the guard is closed AND the start button is pressed. " +
+      "Both signals arrive at the process board as a logic 1."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "A",    footprint: "term-1", name: "A — guard closed" },
+      { id: "B",    footprint: "term-1", name: "B — start pressed" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — run indicator" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14"],
+      ["0V.1", "IC1.7", "LED1.k"],
+      ["A.1", "IC1.1"],
+      ["B.1", "IC1.2"],
+      ["IC1.3", "R1.1"],
+      ["R1.2", "LED1.a"]
+    ],
+    dontcare: ["IC1.4", "IC1.5", "IC1.6", "IC1.8", "IC1.9",
+               "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    reference: {
+      cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "F10" },
+        { id: "A",    footprint: "term-1", at: "F2" },
+        { id: "B",    footprint: "term-1", at: "G2" },
+        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "+5V",  footprint: "term-1", at: "F20" },
+        { id: "R1",   footprint: "res-4",  at: "H3", rot: 90 },   // H3 (pin 3) to K3
+        { id: "LED1", footprint: "led-2",  at: "K5", rot: 90 }    // K5 anode, L5 cathode
+      ],
+      links: [],
+      testpoints: []
+    },
+    circuit: C => {
+      const g = C.andGate(120, 92, { w: 34, lead: 14, pins: ["1", "2", "3"] });
+      const b =
+        C.chip(72, 62, 108, 62) + C.text(72, 56, "IC1  74HC08", { anchor: "start" }) +
+        C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [160, 22]], "sbd-pos") +
+        C.wire([[160, 22], [160, 62]], "sbd-pos") + C.node(160, 22) +
+        C.text(165, 39, "14", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 246, { label: "0 V" }) + C.wire([[51, 246], [212, 246]]) +
+        C.wire([[92, 124], [92, 246]]) + C.node(92, 246) +
+        C.text(97, 141, "7", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 81, { label: "A" }) + C.wire([[51, 81], [89, 81]]) +
+        C.term(44, 103, { label: "B" }) + C.wire([[51, 103], [89, 103]]) +
+        g.svg +
+        C.wire([[151, 92], [212, 92], [212, 116]]) +
+        C.res(212, 144, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
+        C.wire([[212, 172], [212, 182]]) +
+        C.led(212, 200, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[212, 218], [212, 246]]) + C.node(212, 246) +
+        C.netnum(66, 81, 3) + C.netnum(66, 103, 4) + C.netnum(120, 22, 1) +
+        C.netnum(150, 246, 2) + C.netnum(212, 110, 5) + C.netnum(212, 178, 6);
+      return { w: 258, h: 268, body: b };
+    },
+    why: [
+      "The chip lies <strong>across</strong> the tracks, so pin 1 and pin 14 land on the same " +
+      "track, pin 2 and pin 13 on the next, and so on. Every one of the seven tracks it " +
+      "crosses has to be cut between the two rows of pins.",
+      "Without those cuts, pin 14 (+5 V) is joined straight to pin 1 (an input) and pin 7 " +
+      "(0 V) to pin 8 — the chip would be destroyed and the circuit could never work.",
+      "The cuts go <strong>under the chip</strong>. On your layout sheet they are the column " +
+      "of X's drawn inside the chip outline.",
+      "Only one of the four AND gates is used. The other three have their pins left as they " +
+      "are, which is why nothing else is connected to pins 4, 5, 6 and 8 to 13."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q4 — one NOT gate.  Same seven cuts, but now the output chain does NOT
+     reach: pin 2 is five tracks from pin 7 and a resistor plus an LED spans
+     four, so one link wire is unavoidable.  That is the rung after cuts-only.
+     ------------------------------------------------------------------------ */
+  const notGateLed = {
+    id: "not-gate-led",
+    title: "Tank empty warning",
+    board: "34-0411",
+    scaffold: "parts",
+    scenario: [
+      "A float switch reads logic 1 while there is water in the tank and logic 0 when it " +
+      "is empty. The warning LED has to come on when the tank IS empty, so the signal is " +
+      "inverted by one gate of a 74HC04."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "IN",   footprint: "term-1", name: "IN — float switch" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC04", name: "IC1 — 74HC04 hex inverter" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — tank empty" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14"],
+      ["0V.1", "IC1.7", "LED1.k"],
+      ["IN.1", "IC1.1"],
+      ["IC1.2", "R1.1"],
+      ["R1.2", "LED1.a"]
+    ],
+    dontcare: ["IC1.3", "IC1.4", "IC1.5", "IC1.6", "IC1.8", "IC1.9",
+               "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    reference: {
+      cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "F10" },
+        { id: "IN",   footprint: "term-1", at: "F2" },
+        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "+5V",  footprint: "term-1", at: "F20" },
+        { id: "R1",   footprint: "res-4",  at: "G3", rot: 90 },   // G3 (pin 2) to J3
+        { id: "LED1", footprint: "led-2",  at: "J5", rot: 90 }    // J5 anode, K5 cathode
+      ],
+      links: [
+        { a: "K7", b: "L7", colour: "blue", num: 1 }              // LED cathode to 0 V
+      ],
+      testpoints: []
+    },
+    circuit: C => {
+      const g = C.notGate(118, 92, { pins: ["1", "2"] });
+      const b =
+        C.chip(76, 66, 96, 54) + C.text(76, 60, "IC1  74HC04", { anchor: "start" }) +
+        C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [156, 22]], "sbd-pos") +
+        C.wire([[156, 22], [156, 66]], "sbd-pos") + C.node(156, 22) +
+        C.text(161, 41, "14", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 246, { label: "0 V" }) + C.wire([[51, 246], [212, 246]]) +
+        C.wire([[92, 120], [92, 246]]) + C.node(92, 246) +
+        C.text(97, 137, "7", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 92, { label: "IN" }) + C.wire([[51, 92], [92, 92]]) +
+        g.svg +
+        C.wire([[144, 92], [212, 92], [212, 116]]) +
+        C.res(212, 144, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
+        C.wire([[212, 172], [212, 182]]) +
+        C.led(212, 200, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[212, 218], [212, 246]]) + C.node(212, 246) +
+        C.netnum(70, 92, 3) + C.netnum(120, 22, 1) + C.netnum(150, 246, 2) +
+        C.netnum(212, 110, 4) + C.netnum(212, 178, 5);
+      return { w: 258, h: 268, body: b };
+    },
+    why: [
+      "The seven cuts are the same as ever — the chip crosses seven tracks and every one of " +
+      "them has to be cut between the rows of pins.",
+      "This time the parts do <strong>not</strong> reach. Pin 2 and pin 7 are five tracks " +
+      "apart, but a resistor spans four holes and an LED two, so the chain stops one track " +
+      "short of 0 V. That last join is a <strong>link wire</strong>.",
+      "That is the normal reason for a link: two things belong on the same net but the " +
+      "components cannot physically bridge the gap. Colour it and number it, so it matches " +
+      "your wiring schedule."
+    ]
+  };
+
+
+  /* ------------------------------------------------------------------------
+     Q6 — kiln interlock.  The same archetype as the lift, on a different part
+     of the board, so a pupil who has done Q5 has to think rather than copy.
+     ------------------------------------------------------------------------ */
+  const kilnInterlock = {
+    id: "kiln-interlock",
+    title: "Kiln door interlock",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A kiln will only heat when three conditions are all met: the door is closed, the " +
+      "firing timer is running, and the temperature is below the set limit.",
+      "Each condition arrives at the process board as a logic 1. The output drives the " +
+      "heater-on indicator."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "D",    footprint: "term-1", name: "D — door closed" },
+      { id: "T",    footprint: "term-1", name: "T — timer running" },
+      { id: "H",    footprint: "term-1", name: "H — below temperature" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — heater on" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14"],
+      ["0V.1", "IC1.7", "LED1.k"],
+      ["D.1", "IC1.1"],
+      ["T.1", "IC1.2"],
+      ["IC1.3", "IC1.4"],
+      ["H.1", "IC1.5"],
+      ["IC1.6", "R1.1"],
+      ["R1.2", "LED1.a"]
+    ],
+    dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    reference: {
+      cuts: ["N11", "O11", "P11", "Q11", "R11", "S11", "T11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "N10" },
+        { id: "D",    footprint: "term-1", at: "N2" },
+        { id: "T",    footprint: "term-1", at: "O2" },
+        { id: "H",    footprint: "term-1", at: "R2" },
+        { id: "0V",   footprint: "term-1", at: "T2" },
+        { id: "+5V",  footprint: "term-1", at: "N20" },
+        { id: "R1",   footprint: "res-4",  at: "S3", rot: 90 },
+        { id: "LED1", footprint: "led-2",  at: "V5", rot: 90 }
+      ],
+      links: [
+        { a: "P9", b: "Q9", colour: "orange", num: 1 },
+        { a: "T6", b: "W6", colour: "black",  num: 2 }
+      ],
+      testpoints: []
+    },
+    circuit: C => twoGateChip(C, { kind: "and", part: "74HC08",
+                                   in: ["D", "T", "H"], led: "LED1" }),
+    why: [
+      "Three conditions, two gates, <strong>one chip</strong>. Gates a and b of the same " +
+      "74HC08 share pin 7 (0 V) and pin 14 (+5 V).",
+      "Every one of the seven tracks the chip crosses must be cut between its two rows of pins.",
+      "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
+      "They are next to each other on the package but on different tracks, so that join needs " +
+      "a link wire — adjacent pins are <em>not</em> connected.",
+      "You do not have to put the chip where this answer puts it. Any layout that joins the " +
+      "same things together is right."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q7 — car park full sign.  The OR archetype, on a 74HC32.  Deliberately
+     three BAY sensors lighting one sign, not a fault warning driving a lamp
+     and a sounder — see PLAN.md §6.
+     ------------------------------------------------------------------------ */
+  const carparkFull = {
+    id: "carpark-full",
+    title: "Car park full sign",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A small car park has three bays. A FULL sign lights when any one of the three bay " +
+      "sensors reads occupied — or any two, or all three.",
+      "Each sensor arrives at the process board as a logic 1."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "S1",   footprint: "term-1", name: "S1 — bay 1 occupied" },
+      { id: "S2",   footprint: "term-1", name: "S2 — bay 2 occupied" },
+      { id: "S3",   footprint: "term-1", name: "S3 — bay 3 occupied" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC32", name: "IC1 — 74HC32 quad 2-input OR" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — FULL sign" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14"],
+      ["0V.1", "IC1.7", "LED1.k"],
+      ["S1.1", "IC1.1"],
+      ["S2.1", "IC1.2"],
+      ["IC1.3", "IC1.4"],
+      ["S3.1", "IC1.5"],
+      ["IC1.6", "R1.1"],
+      ["R1.2", "LED1.a"]
+    ],
+    dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    reference: {
+      cuts: ["F25", "G25", "H25", "I25", "J25", "K25", "L25"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "F24" },
+        { id: "S1",   footprint: "term-1", at: "F2" },
+        { id: "S2",   footprint: "term-1", at: "G2" },
+        { id: "S3",   footprint: "term-1", at: "J2" },
+        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "+5V",  footprint: "term-1", at: "F32" },
+        { id: "R1",   footprint: "res-4",  at: "K5", rot: 90 },
+        { id: "LED1", footprint: "led-2",  at: "N7", rot: 90 }
+      ],
+      links: [
+        { a: "H22", b: "I22", colour: "orange", num: 1 },
+        { a: "L9",  b: "O9",  colour: "black",  num: 2 }
+      ],
+      testpoints: []
+    },
+    circuit: C => twoGateChip(C, { kind: "or", part: "74HC32",
+                                   in: ["S1", "S2", "S3"], led: "LED1" }),
+    why: [
+      "“Any one of three” is a 3-input OR, and there is no 3-input OR in the kit — so it is " +
+      "built from <strong>two 2-input OR gates</strong> of one 74HC32.",
+      "One chip, not two: both gates share pin 7 (0 V) and pin 14 (+5 V), and every track the " +
+      "package crosses must be cut between its two rows of pins.",
+      "Gate a's output, <strong>pin 3</strong>, has to reach gate b's input, <strong>pin 4</strong>. " +
+      "They sit side by side on the package but on different tracks, so it takes a link wire.",
+      "The 74HC32 has the same pinout as the 74HC08 — only the logic inside is different."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q8 — transistor switch.  Back to the small board, but the hardest one on
+     it: a three-legged part that must lie across the tracks, a track that has
+     to be cut where no chip is involved, and two link wires.
+     ------------------------------------------------------------------------ */
+  const transistorBuzzer = {
+    id: "transistor-buzzer",
+    title: "Buzzer switched by a transistor",
+    board: "34-0410",
+    scaffold: "blank",
+    scenario: [
+      "A push switch sounds a buzzer. The buzzer draws more current than the switch " +
+      "contacts should carry, so an NPN transistor does the switching.",
+      "The switch and the buzzer are both off the board, on 2-way terminal blocks."
+    ],
+    components: [
+      { id: "+5V", footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",  footprint: "term-1", name: "0 V supply" },
+      { id: "SW",  footprint: "term-2", name: "SW1 — push switch", symmetric: true },
+      { id: "R1",  footprint: "res-4",  name: "R1 (1 kΩ base resistor)" },
+      { id: "Q1",  footprint: "to92",   name: "Q1 — BC548" },
+      { id: "BUZ", footprint: "term-2", name: "BUZ1 — buzzer" }
+    ],
+    target: [
+      ["+5V.1", "SW.1", "BUZ.1"],
+      ["SW.2", "R1.1"],
+      ["R1.2", "Q1.b"],
+      ["0V.1", "Q1.e"],
+      ["Q1.c", "BUZ.2"]
+    ],
+    dontcare: [],
+    reference: {
+      cuts: ["I18"],
+      placements: [
+        { id: "0V",  footprint: "term-1", at: "D2" },
+        { id: "Q1",  footprint: "to92",   at: "D5", rot: 90 },   // e D5, b E5, c F5
+        { id: "R1",  footprint: "res-4",  at: "B8", rot: 90 },   // B8 and E8
+        { id: "+5V", footprint: "term-1", at: "G2" },
+        { id: "SW",  footprint: "term-2", at: "G12", rot: 90 },  // G12 and I12
+        { id: "BUZ", footprint: "term-2", at: "G20", rot: 90 }   // G20 and I20
+      ],
+      links: [
+        { a: "B14", b: "I14", colour: "blue",  num: 1 },
+        { a: "F22", b: "I22", colour: "green", num: 2 }
+      ],
+      testpoints: []
+    },
+    circuit: C => {
+      const q = C.npn(150, 150, { label: "Q1" });
+      const b =
+        C.term(44, 24, { label: "+5 V", pos: true }) + C.wire([[51, 24], [150, 24]], "sbd-pos") +
+        C.node(88, 24) + C.node(150, 24) +
+        C.wire([[88, 24], [88, 56]]) +
+        C.sw(88, 76, { span: 40, label: "SW1" }) +
+        C.wire([[88, 96], [88, 116]]) +
+        C.res(88, 144, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
+        C.wire([[88, 172], [88, 210], [136, 210]]) +
+        C.wire([[136, 210], [136, 150]]) +
+        C.wire([[150, 24], [150, 66]]) +
+        C.sounder(150, 90, { dir: "v", span: 48, label: "BUZ1" }) +
+        C.wire([[150, 114], [150, 118]]) +
+        q.svg +
+        C.wire([[160, 182], [160, 232]]) +
+        C.term(44, 232, { label: "0 V" }) + C.wire([[51, 232], [160, 232]]) +
+        C.node(160, 232) +
+        C.netnum(118, 24, 1) + C.netnum(88, 108, 2) + C.netnum(112, 210, 3) +
+        C.netnum(150, 130, 5) + C.netnum(110, 232, 4);
+      return { w: 258, h: 252, body: b };
+    },
+    why: [
+      "The transistor has <strong>three legs in three consecutive holes</strong>, so it must " +
+      "lie across the tracks — one leg per track. Laid along a track, all three legs would be " +
+      "shorted together.",
+      "Look at the order: emitter, base, collector. Which way round it goes decides which " +
+      "track each net lands on.",
+      "The switch and the buzzer are drawn as components but built as <strong>terminal " +
+      "blocks</strong> — the layout shows the connector soldered to the board.",
+      "One track here carries two different nets, so it has to be <strong>cut</strong> even " +
+      "though there is no chip on this board. A cut is needed wherever one strip of copper " +
+      "would otherwise join two things that must stay apart."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q9 — greenhouse irrigation.  Three inputs again, but the output is a pump
+     through a transistor rather than an LED, and the process output needs a
+     test point (the last rung of the ladder, PLAN.md §4.1).
+     ------------------------------------------------------------------------ */
+  const greenhouse = {
+    id: "greenhouse-irrigation",
+    title: "Greenhouse irrigation",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A greenhouse pump runs only when the soil is dry, the water tank is not empty and " +
+      "the system is switched on. All three arrive as logic 1.",
+      "The pump needs more current than a logic gate can supply, so a transistor switches it."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "SD",   footprint: "term-1", name: "SD — soil dry" },
+      { id: "TK",   footprint: "term-1", name: "TK — tank not empty" },
+      { id: "EN",   footprint: "term-1", name: "EN — system enabled" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC08", name: "IC1 — 74HC08 quad 2-input AND" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (1 kΩ base resistor)" },
+      { id: "Q1",   footprint: "to92",   name: "Q1 — BC548" },
+      { id: "PUMP", footprint: "term-2", name: "PUMP — pump terminal block" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14", "PUMP.1"],
+      ["0V.1", "IC1.7", "Q1.e"],
+      ["SD.1", "IC1.1"],
+      ["TK.1", "IC1.2"],
+      ["IC1.3", "IC1.4"],
+      ["EN.1", "IC1.5"],
+      ["IC1.6", "R1.1"],
+      ["R1.2", "Q1.b"],
+      ["Q1.c", "PUMP.2"]
+    ],
+    dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    tpRequired: ["IC1.6"],
+    reference: {
+      cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "F10" },
+        { id: "SD",   footprint: "term-1", at: "F2" },
+        { id: "TK",   footprint: "term-1", at: "G2" },
+        { id: "EN",   footprint: "term-1", at: "J2" },
+        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "+5V",  footprint: "term-1", at: "F20" },
+        { id: "PUMP", footprint: "term-2", at: "F24", rot: 90 },  // F24 and H24
+        { id: "R1",   footprint: "res-4",  at: "K5", rot: 90 },   // K5 (pin 6) and N5
+        { id: "Q1",   footprint: "to92",   at: "M3", rot: 90 }    // e M3, b N3, c O3
+      ],
+      links: [
+        { a: "H9",  b: "I9",  colour: "orange", num: 1 },
+        { a: "L7",  b: "M7",  colour: "black",  num: 2 },
+        { a: "H26", b: "O26", colour: "green",  num: 3 }
+      ],
+      testpoints: [{ id: "TP1", at: "K8" }]
+    },
+    circuit: C => {
+      const G = { w: 32, lead: 12 };
+      const ga = C.andGate(100, 74, Object.assign({ pins: ["1", "2", "3"] }, G));
+      const gb = C.andGate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
+      const q = C.npn(234, 246, { label: "Q1" });
+      const b =
+        C.chip(62, 44, 140, 122) + C.text(62, 38, "IC1  74HC08", { anchor: "start" }) +
+        C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [244, 20]], "sbd-pos") +
+        C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
+        C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
+        C.wire([[244, 20], [244, 130]], "sbd-pos") + C.node(244, 20) +
+        C.motor(244, 154, { dir: "v", span: 48, letter: "M", label: "PUMP", labelSide: "r" }) +
+        C.wire([[244, 178], [244, 214]]) +
+        C.term(44, 300, { label: "0 V" }) + C.wire([[51, 300], [244, 300]]) +
+        C.wire([[76, 166], [76, 300]]) + C.node(76, 300) +
+        C.text(81, 183, "7", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 63, { label: "SD" }) + C.wire([[51, 63], [78, 63]]) +
+        C.term(44, 85, { label: "TK" }) + C.wire([[51, 85], [78, 85]]) +
+        C.term(44, 143, { label: "EN" }) + C.wire([[51, 143], [134, 143]]) +
+        ga.svg + gb.svg +
+        C.wire([[134, 74], [134, 121]]) +
+        C.wire([[190, 132], [206, 132], [206, 174]]) +
+        C.res(206, 202, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
+        C.wire([[206, 230], [206, 246], [200, 246]]) +
+        q.svg +
+        C.wire([[244, 278], [244, 300]]) + C.node(244, 300) +
+        C.netnum(63, 63, 3) + C.netnum(63, 85, 4) + C.netnum(95, 143, 6) +
+        C.netnum(134, 100, 5) + C.netnum(206, 154, 7) + C.netnum(206, 240, 8) +
+        C.netnum(150, 300, 2) + C.netnum(110, 20, 1) + C.netnum(244, 196, 9);
+      return { w: 306, h: 314, body: b };
+    },
+    why: [
+      "The three conditions are a 3-input AND, built from two gates of <strong>one</strong> " +
+      "74HC08 — the same one-chip idea as before.",
+      "A logic gate cannot drive a pump, so its output goes through a base resistor into a " +
+      "transistor. The transistor's three legs go in three consecutive holes, across the tracks.",
+      "This board needs a <strong>test point</strong> on the process sub-system's output — " +
+      "pin 6, before the transistor. That is what you would put a meter probe on to find out " +
+      "whether the fault is in the logic or in the pump driver.",
+      "Plan the test points on the layout <em>before</em> you build. Adding them afterwards is " +
+      "what the verifiers' reports keep flagging."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q10 — two inverters in one package.  The §5.1 archetype with no shared
+     signal at all: one chip, two completely unrelated sensors, and four gates
+     left unused.  Two test points, one per sub-system output.
+     ------------------------------------------------------------------------ */
+  const twoInverters = {
+    id: "two-inverters",
+    title: "Two active-low sensors",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "Two sensors on a machine are active-low: each reads logic 0 when its condition is " +
+      "true. Both have to be inverted before the rest of the system can use them.",
+      "One 74HC04 has six inverters in it, so both signals go through the same chip."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply" },
+      { id: "S1",   footprint: "term-1", name: "S1 — lid sensor" },
+      { id: "S2",   footprint: "term-1", name: "S2 — float switch" },
+      { id: "IC1",  footprint: "dip-14", part: "74HC04", name: "IC1 — 74HC04 hex inverter" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — lid open" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (270 Ω)" },
+      { id: "LED2", footprint: "led-2",  name: "LED2 — tank empty" }
+    ],
+    target: [
+      ["+5V.1", "IC1.14"],
+      ["0V.1", "IC1.7", "LED1.k", "LED2.k"],
+      ["S1.1", "IC1.1"],
+      ["IC1.2", "R1.1"],
+      ["R1.2", "LED1.a"],
+      ["S2.1", "IC1.3"],
+      ["IC1.4", "R2.1"],
+      ["R2.2", "LED2.a"]
+    ],
+    dontcare: ["IC1.5", "IC1.6", "IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    tpRequired: ["IC1.2", "IC1.4"],
+    reference: {
+      cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-14", at: "F10" },
+        { id: "S1",   footprint: "term-1", at: "F2" },
+        { id: "S2",   footprint: "term-1", at: "H2" },
+        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "+5V",  footprint: "term-1", at: "F20" },
+        { id: "R1",   footprint: "res-4",  at: "G3", rot: 90 },   // G3 (pin 2) to J3
+        { id: "LED1", footprint: "led-2",  at: "J5", rot: 90 },   // J5 anode, K5 cathode
+        { id: "R2",   footprint: "res-4",  at: "P3", rot: 90 },   // P3 to S3
+        { id: "LED2", footprint: "led-2",  at: "S5", rot: 90 }    // S5 anode, T5 cathode
+      ],
+      links: [
+        { a: "K7", b: "L7", colour: "blue",   num: 1 },
+        { a: "I8", b: "P8", colour: "green",  num: 2 },
+        { a: "L9", b: "T9", colour: "orange", num: 3 }
+      ],
+      testpoints: [{ id: "TP1", at: "G6" }, { id: "TP2", at: "P6" }]
+    },
+    circuit: C => {
+      const g1 = C.notGate(118, 70, { pins: ["1", "2"] });
+      const g2 = C.notGate(118, 150, { pins: ["3", "4"] });
+      /* Gate a's chain is the FAR one and gate b's the near one, so neither
+         output wire has to cross the other chain.  Two wires crossing with no
+         junction dot is correct electrically and unreadable pedagogically —
+         a pupil cannot tell a crossing from a join. */
+      const b =
+        C.chip(76, 40, 96, 144) + C.text(76, 34, "IC1  74HC04", { anchor: "start" }) +
+        C.term(44, 16, { label: "+5 V", pos: true }) + C.wire([[51, 16], [160, 16]], "sbd-pos") +
+        C.wire([[160, 16], [160, 40]], "sbd-pos") + C.node(160, 16) +
+        C.text(165, 33, "14", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 296, { label: "0 V" }) + C.wire([[51, 296], [258, 296]]) +
+        C.wire([[92, 184], [92, 296]]) + C.node(92, 296) +
+        C.text(97, 201, "7", { cls: "sbd-cnet", anchor: "start" }) +
+        C.term(44, 70, { label: "S1" }) + C.wire([[51, 70], [92, 70]]) +
+        C.term(44, 150, { label: "S2" }) + C.wire([[51, 150], [92, 150]]) +
+        g1.svg + g2.svg +
+
+        C.wire([[144, 70], [258, 70], [258, 100]]) +
+        C.res(258, 128, { dir: "v", span: 56, label: "R1", value: "270 \u03a9" }) +
+        C.wire([[258, 156], [258, 206]]) +
+        C.led(258, 224, { dir: "d", span: 36, label: "LED1", labelSide: "d" }) +
+        C.wire([[258, 242], [258, 296]]) + C.node(258, 296) +
+
+        C.wire([[144, 150], [190, 150], [190, 152]]) +
+        C.res(190, 180, { dir: "v", span: 56, label: "R2", value: "270 \u03a9" }) +
+        C.wire([[190, 208], [190, 222]]) +
+        C.led(190, 240, { dir: "d", span: 36, label: "LED2" }) +
+        C.wire([[190, 258], [190, 296]]) + C.node(190, 296) +
+
+        C.netnum(70, 70, 3) + C.netnum(70, 150, 6) + C.netnum(120, 16, 1) +
+        C.netnum(130, 296, 2) + C.netnum(258, 88, 4) + C.netnum(258, 180, 5) +
+        C.netnum(166, 150, 7) + C.netnum(190, 215, 8);
+      return { w: 312, h: 312, body: b };
+    },
+    why: [
+      "Two signals, two gates, <strong>one chip</strong>. The 74HC04 holds six inverters and " +
+      "these are two of them — a pupil who draws two separate NOT symbols in Yenka must not " +
+      "then put two chips on the board.",
+      "The two signals never meet. They share only the package, pin 7 (0 V) and pin 14 (+5 V) " +
+      "— which is exactly why the seven cuts matter: without them the two outputs would be " +
+      "joined to the two inputs.",
+      "Four inverters are unused. Leave their pins, or tie the unused <em>inputs</em> to 0 V — " +
+      "either is accepted. Never tie an unused <em>output</em> to anything.",
+      "Each sub-system output gets its own numbered test point, planned before you build."
+    ]
+  };
+
+  root.QUESTIONS = [ledResistor, ldrDivider, andGateLed, notGateLed, liftInterlock,
+                    kilnInterlock, carparkFull, transistorBuzzer, greenhouse, twoInverters];
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- trace-questions.js ---- */
+/* ============================================================================
+   Stripboard Builder — Trace mode bank  (PLAN.md §4.1, Mode 1)
+   ----------------------------------------------------------------------------
+   "Are these two holes connected?" — the single idea the other three modes
+   rest on: a node on the circuit diagram is a copper track on the board, and a
+   cut splits it in two.
+
+   Every `given` layout below is the REAL reference layout of a Convert
+   question (led-resistor, lift-interlock), reused verbatim rather than
+   re-authored — a second hand-drawn copy of the same board is exactly the kind
+   of thing that drifts.  Item 8 is the one deliberate exception: it clones
+   lift-interlock's layout with one cut removed, to show the fault that cut
+   prevents.
+
+   `connected` is the claim; the golden test in tests.js asserts it against
+   `SBD.sameNet()` for every item, so a wrong answer here fails the harness
+   before it ever reaches a pupil (R4's rule, applied to this bank too).
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  const smallBoard = clone(root.QUESTIONS.find(q => q.id === "led-resistor").reference);
+  const liftBoard  = clone(root.QUESTIONS.find(q => q.id === "lift-interlock").reference);
+
+  // same board, minus the one cut that keeps IC1 pin 1 apart from pin 14 —
+  // item 8's whole point is that removing it shorts the two together
+  const liftUncutRow = clone(liftBoard);
+  liftUncutRow.cuts = liftUncutRow.cuts.filter(c => c !== "F11");
+
+  // `source` names the Convert question whose `components` the page borrows
+  // for drawing (item IDs, part numbers) — never copied, only looked up, so a
+  // renamed footprint or relabelled component cannot go stale here.
+  function item(id, title, board, given, source, a, b, connected, why) {
+    return { id, title, board, given, source, a, b, connected, why };
+  }
+
+  root.TRACE_QUESTIONS = [
+    item("trace-1", "Same track", "34-0410", smallBoard, "led-resistor", "A2", "A5", true,
+      "A2 and A5 are both on track A, and nothing cuts track A between them — " +
+      "every hole on an unbroken track is the same node."),
+
+    item("trace-2", "A resistor's own two legs", "34-0410", smallBoard, "led-resistor", "A5", "D5", false,
+      "R1's legs sit in tracks A and D. A component only joins what its legs " +
+      "are wired to elsewhere on the board — its own body never joins two " +
+      "tracks by itself."),
+
+    item("trace-3", "Same track, further along", "34-0410", smallBoard, "led-resistor", "E2", "E8", true,
+      "E2 and E8 are both on track E, with no cut anywhere between them — the " +
+      "whole 0 V rail, from the supply terminal to the LED's cathode, is one " +
+      "piece of copper."),
+
+    item("trace-4", "An LED's own two legs", "34-0410", smallBoard, "led-resistor", "D8", "E8", false,
+      "LED1's anode and cathode sit in tracks D and E. Like the resistor, the " +
+      "component itself is what joins them electrically — the copper does not."),
+
+    item("trace-5", "The two supply rails", "34-0410", smallBoard, "led-resistor", "A2", "E2", false,
+      "+5 V (track A) and 0 V (track E) are on different tracks with nothing " +
+      "linking them — exactly as they must be. If they were the same node, " +
+      "R1 and LED1 would be shorted out."),
+
+    item("trace-6", "One cut, one column", "34-0411", liftBoard, "lift-interlock", "K3", "K10", true,
+      "Track K has one cut, at column 11. Everything to its LEFT — columns 1 " +
+      "to 10 — is still one piece of copper, so a hole at column 3 and a hole " +
+      "at column 10 are the same node. This is IC1 pin 6 joined to R1's pin 1, " +
+      "exactly as the circuit needs."),
+
+    item("trace-7", "Either side of the chip's cut", "34-0411", liftBoard, "lift-interlock", "F10", "F13", false,
+      "IC1 pin 1 (F10) and pin 14 (F13) are on the same row, but the cut at " +
+      "F11 sits between them — that is exactly what stops the chip's two " +
+      "sides shorting together."),
+
+    item("trace-8", "The same chip, before it's cut", "34-0411", liftUncutRow, "lift-interlock", "F10", "F13", true,
+      "Take away that one cut and pin 1 and pin 14 become the same node — " +
+      "input A shorted straight to the +5 V rail. This is the fault Convert " +
+      "mode reports as “IC1 pin 1 and IC1 pin 14 are on the same track”. " +
+      "One missing cut is enough to cause it."),
+
+    item("trace-9", "Through a link wire", "34-0411", liftBoard, "lift-interlock", "H10", "I10", true,
+      "H10 (gate a's pin 3) and I10 (gate b's pin 4) are on different tracks. " +
+      "But H9 sits on the same unbroken run of track H as H10, link wire ① " +
+      "joins H9 to I9, and I9 sits on the same unbroken run of track I as I10 " +
+      "— so the connection makes it across in three hops."),
+
+    item("trace-10", "Two separate inputs", "34-0411", liftBoard, "lift-interlock", "F2", "J2", false,
+      "Input A (F2) and input C (J2) are on different tracks with no link " +
+      "between them — exactly as they should be. They are two independent " +
+      "signals into two different gates of IC1.")
+  ];
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+</script>
+
+<style id="sbdBoardStyle"></style>
+
+<script>
+(function(){
+"use strict";
+
+const $ = id => document.getElementById(id);
+const R = SBD.render, C = SBD.circuit;
+
+/* the renderer's palette table, emitted once as real CSS so the board themes
+   with the rest of the page instead of carrying baked-in colours */
+$("sbdBoardStyle").textContent = "#sbd svg{overflow:visible}\n" + R.STYLE;
+
+/* ============================================================
+   State
+   ============================================================ */
+const STORE = "el-sbd-v1";                 // §8: unique localStorage prefix
+const BANK_HASH = QUESTIONS.map(q => q.id + ":" + q.target.length).join("|");
+const MIN_SCALE = 0.62;                    // below this the board labels stop being readable
+/* Red and black are reserved for the supply wiring, the same convention the
+   schematic now uses, so a link wire never comes out the colour of a rail. */
+const LINK_COLOURS = ["blue", "green", "orange", "yellow", "white"];
+
+let qi = 0, Q = null, A = null;            // A is the pupil's attempt
+let tool = "place", sel = null, rot = 0;   // sel: component id waiting to be placed
+let linkStart = null, cur = { r: 0, c: 1 };
+let linkColour = LINK_COLOURS[0];          // pupil-chosen, shown while the Link tool is active
+let marks = [], hl = [], showingAnswer = false, scale = 1;
+let done = new Set();
+
+let mode = "convert";                      // "convert" | "trace"
+let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
+const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
+  "tap a hole to place it — or use the tools to cut a track, run a link wire or mark a test point. " +
+  "You can also drive the board with the arrow keys and Enter.";
+const TRACE_LEDE = "Look at the board, then answer the question beside it: are the two named holes " +
+  "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
+
+const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [] });
+
+/* ---- storage: versioned, shape-checked, and disposable (R8) ---- */
+function loadStore(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (!raw || raw.v !== 1 || raw.hash !== BANK_HASH) return {};
+    done = new Set(Array.isArray(raw.done) ? raw.done : []);
+    return (raw.work && typeof raw.work === "object") ? raw.work : {};
+  } catch(e){ return {}; }
+}
+function saveStore(){
+  try {
+    const work = loadStoreRaw();
+    work[Q.id] = A;
+    localStorage.setItem(STORE, JSON.stringify({ v:1, hash:BANK_HASH, done:[...done], work }));
+  } catch(e){}
+}
+function loadStoreRaw(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE) || "null");
+    return (raw && raw.v === 1 && raw.hash === BANK_HASH && raw.work) ? raw.work : {};
+  } catch(e){ return {}; }
+}
+// an attempt read back from storage is data from last term, not a promise
+function sane(a){
+  if (!a || typeof a !== "object") return null;
+  const arr = k => Array.isArray(a[k]) ? a[k] : [];
+  const out = { cuts: arr("cuts").filter(x => typeof x === "string"),
+                placements: arr("placements").filter(p => p && SBD.FOOTPRINTS[p.footprint]),
+                links: arr("links").filter(l => l && l.a && l.b),
+                testpoints: arr("testpoints").filter(t => t && t.at) };
+  try { SBD.topology(SBD.BOARDS[Q.board], out); } catch(e){ return null; }
+  return out;
+}
+
+/* ============================================================
+   Drawing
+   ============================================================ */
+function drawGrid(){
+  const size = R.sizeOf(Q.board);
+  $("canvas").style.width  = size.w + "px";
+  $("canvas").style.height = size.h + "px";
+  $("gridLayer").innerHTML = R.renderBoard({ board: Q.board, layer: "grid",
+    title: Q.board + " stripboard, component side" });
+  $("gridLayer").firstChild.classList.add("hitless");
+}
+
+function drawLive(){
+  const shown = showingAnswer ? Q.reference : A;
+  $("liveLayer").innerHTML = R.renderBoard({
+    board: Q.board, question: Q, attempt: shown, layer: "live", marks,
+    title: "your layout" });
+  const svg = $("liveLayer").firstChild;
+  svg.classList.add("hitless");
+  svg.setAttribute("aria-hidden", "true");
+}
+
+/* The side preview, kept in step with the selection and the rotation.  paint()
+   runs on every pointer move, so redraw only when there is something new to
+   draw — and re-fit only when the panel appears or goes, since that is the only
+   time it changes the column's height. */
+let bankKey = null;
+function drawCircuit(){
+  const c = Q.circuit(C);
+  $("cinner").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title + " — circuit diagram" });
+  $("cinner").dataset.w = c.w;
+  $("cinner").dataset.h = c.h;
+}
+
+/* ------------------------------------------------------------------ fit
+   Three things compete for the same vertical strip: the schematic, the board
+   and the buttons.  The board wins — it is what the pupil is working on — and
+   the schematic takes whatever is left, down to a readable minimum, with
+   "Enlarge" for the rest.  PLAN.md §10 chose this over a side-by-side panel. */
+function fit(){
+  const size = R.sizeOf(Q.board);
+  const availW = $("stage").clientWidth;
+  const cw = +$("cinner").dataset.w, ch = +$("cinner").dataset.h;
+
+  /* Floor the scale everywhere, not only on a landscape tablet: below about
+     0.62 the row letters and item IDs stop being readable, and a board you
+     cannot read is worse than one you have to scroll.  Narrow screens pan. */
+  let sb = Math.max(MIN_SCALE, Math.min(1, availW / size.w));
+  let stageH = size.h * sb;
+
+  /* On a short landscape screen there is one fixed strip to divide between the
+     schematic, the board and the buttons.  Order of preference: the buttons
+     stay on screen; the board gets what it needs down to MIN_SCALE; the
+     schematic takes what is left, with Enlarge for the rest.  If even that is
+     not enough the board PANS inside the stage rather than shrinking into
+     illegibility or pushing the buttons off the bottom — panning is the site
+     rule's own answer to a working area that will not fit. */
+  const stageTop = $("stage").getBoundingClientRect().top + window.scrollY;
+  const room = window.innerHeight - stageTop - 62;   // 62px keeps the buttons on screen
+  if (window.matchMedia("(min-width:821px) and (max-height:900px)").matches && room > 180){
+    sb = Math.max(MIN_SCALE, Math.min(sb, room / size.h));
+    stageH = Math.max(200, Math.min(size.h * sb, room));
+  }
+
+  /* The schematic sits in the side column, so it costs the board no height.
+     The column may be TALLER than the board — on the small board it usually is
+     — but never taller than the room that keeps the buttons on screen, which
+     is the thing the one-screen rule actually protects.  Width first, then
+     whatever height that leaves once the bank has its minimum, with Enlarge
+     for anything smaller than comfortable. */
+  const colW = $("circwrapTop").clientWidth - 18;
+  const colRoom = room > 180 ? room : stageH;
+
+  /* How much the bank needs is measured, not guessed: the tiles are two to a
+     row and their height depends on whether the component has a second line.
+     The schematic is capped so at least two rows of parts always show — the
+     rest scrolls, which is what the bank is for. */
+  const tiles = $("bank").children.length;
+  const openTileEl = $("bank").querySelector(".part.open");
+  const closedTileEl = Array.from($("bank").children).find(c => c !== openTileEl);
+  const rowH = closedTileEl ? closedTileEl.offsetHeight + 6 : 50;
+  /* The preview panel sits UNDER the bank, pinned to the bottom of the column:
+     appearing costs the bank some scroll height, which is what the bank is for,
+     and leaves the schematic exactly where it was.  Nothing reflows when a
+     pupil taps a part.
+
+     BUT the open tile's own height varies by component — an LED or a chip's
+     preview is much taller than a two-pin terminal's — and MUST be measured,
+     not assumed uniform with the closed rows (that assumption was the bug: a
+     resistor's 97px-tall open tile pushed the tile after it below the bank's
+     reserved height, off-screen and unclickable, on a 4-part question small
+     enough that "one row of closed tiles plus the open one" is most of the
+     bank). Closed tiles pair two to a row; the open one takes a whole row. */
+  const closedCount = tiles - (openTileEl ? 1 : 0);
+  const openH = openTileEl ? openTileEl.offsetHeight + 6 : 0;
+  const CHROME = 44 + 26;                          // circuit box heading and border, bank heading
+  const bankWant = Math.ceil(closedCount / 2) * rowH + openH + 18;
+  /* Two rows of closed parts normally; with one open, its REAL height plus one
+     closed row, so the open tile is never clipped — the bank still scrolls for
+     anything beyond that, which is what it is for. */
+  const bankFloor = openTileEl
+    ? Math.min(bankWant, openH + rowH + 24)
+    : Math.min(bankWant, Math.max(2 * rowH + 18, 138));
+  $("bank").style.minHeight = bankFloor + "px";
+
+  const cs = Math.max(0.5, Math.min(1, colW / cw, (colRoom - CHROME - bankFloor) / ch));
+  const sideH = Math.min(colRoom, Math.max(stageH, ch * cs + CHROME + bankWant));
+
+  scale = sb;
+  $("cinner").style.transform = "scale(" + cs + ")";
+  $("cinner").style.height = Math.round(ch * cs) + "px";
+  $("canvas").style.transform = "scale(" + scale + ")";
+  const w = size.w * scale, h = size.h * scale;
+  $("board").style.width = w + "px";
+  $("board").style.height = h + "px";
+
+  const panX = w > availW + 1, panY = h > stageH + 1;
+  $("stage").style.overflowX = panX ? "auto" : "hidden";
+  $("stage").style.overflowY = panY ? "auto" : "hidden";
+  $("stage").style.height = Math.round(stageH + (panX ? 11 : 0)) + "px";
+  /* The side column is content-sized, so on its own it would set the row
+     height and push the buttons off the bottom.  Pin it to the board column. */
+  $("bankcolEl").style.height = window.matchMedia("(min-width:821px)").matches
+    ? Math.round(sideH + (panX ? 11 : 0)) + "px" : "";
+
+  $("panhint").classList.toggle("show", panX || panY);
+  $("panhint").textContent = panY
+    ? "Scroll the board to reach the tracks below, or press Enlarge on the diagram for more room."
+    : "Scroll the board sideways to see the rest of it.";
+}
+
+/* ============================================================
+   Hit testing — one overlay, some arithmetic, never 888 listeners
+   ============================================================ */
+function holeFromEvent(e){
+  const box = $("canvas").getBoundingClientRect();
+  return R.holeAt(Q.board, (e.clientX - box.left) / scale, (e.clientY - box.top) / scale);
+}
+
+/* what is in a hole — used by the tools, the remover and the announcer */
+function atHole(h){
+  const key = SBD.ref(h);
+  if ((A.cuts || []).includes(key)) return { kind: "cut", key };
+  const tp = (A.testpoints || []).find(t => t.at === key);
+  if (tp) return { kind: "tp", key, tp };
+  for (const p of A.placements){
+    const cells = SBD.cellsOf(SBD.FOOTPRINTS[p.footprint], SBD.parseRef(p.at), p.rot || 0);
+    const pin = cells.pins.find(z => z.hole.r === h.r && z.hole.c === h.c);
+    if (pin) return { kind: "pin", key, p, pin: pin.pin };
+    if (cells.body.some(z => z.r === h.r && z.c === h.c)) return { kind: "body", key, p };
+  }
+  const link = (A.links || []).find(l => l.a === key || l.b === key);
+  if (link) return { kind: "link", key, link };
+  return { kind: "empty", key };
+}
+
+function describe(h){
+  const what = atHole(h), where = "track " + SBD.rowLetter(h.r) + ", column " + h.c;
+  if (what.kind === "cut")  return where + ", track cut";
+  if (what.kind === "tp")   return where + ", test point " + what.tp.id;
+  if (what.kind === "pin")  return where + ", " + what.p.id + " pin " + what.pin;
+  if (what.kind === "body") return where + ", under " + what.p.id;
+  if (what.kind === "link") return where + ", link wire " + what.link.num;
+  return where + ", empty";
+}
+function say(msg){ $("liveMsg").textContent = msg; }
+
+/* ============================================================
+   The tools
+   ============================================================ */
+function act(h){
+  if (showingAnswer) { say("Turn the answer off before editing your board."); return; }
+  const what = atHole(h), key = what.key;
+
+  if (tool === "cut"){
+    /* Only a PIN blocks a cut.  Under a body is exactly where the cuts belong:
+       the seven cuts an IC needs run between its two rows of pins, under the
+       package — that is the column of X's on the planning sheet. */
+    if (what.kind === "pin"){
+      say("You cannot cut " + key + " — " + what.p.id + " pin " + what.pin + " is soldered there."); return;
+    }
+    const i = A.cuts.indexOf(key);
+    if (i >= 0){ A.cuts.splice(i, 1); say("Cut removed at " + key + "."); }
+    else { A.cuts.push(key); say("Track cut at " + key + "."); }
+
+  } else if (tool === "tp"){
+    const i = A.testpoints.findIndex(t => t.at === key);
+    if (i >= 0){ A.testpoints.splice(i, 1); renumberTps(); say("Test point removed from " + key + "."); }
+    else { A.testpoints.push({ id: "TP", at: key }); renumberTps();
+           say("Test point " + A.testpoints.find(t => t.at === key).id + " at " + key + "."); }
+
+  } else if (tool === "link"){
+    if (!linkStart){ linkStart = key; say("Link wire started at " + key + ". Tap the other end."); }
+    else if (linkStart === key){ linkStart = null; say("Link wire cancelled."); }
+    else {
+      const num = A.links.length + 1;
+      A.links.push({ a: linkStart, b: key, colour: linkColour, num });
+      say("Link wire " + num + " from " + linkStart + " to " + key + ", " + linkColour + ".");
+      linkStart = null;
+      nextLinkColour();
+    }
+
+  } else if (tool === "erase"){
+    if (what.kind === "cut"){ A.cuts.splice(A.cuts.indexOf(key), 1); say("Cut removed at " + key + "."); }
+    else if (what.kind === "tp"){ A.testpoints = A.testpoints.filter(t => t.at !== key);
+      renumberTps(); say("Test point removed."); }
+    else if (what.kind === "pin" || what.kind === "body"){
+      A.placements = A.placements.filter(p => p.id !== what.p.id); say(what.p.id + " taken off the board."); }
+    else if (what.kind === "link"){ A.links = A.links.filter(l => l !== what.link);
+      renumberLinks(); say("Link wire removed."); }
+    else say("Nothing at " + key + " to remove.");
+
+  } else {                                    /* place */
+    if (!sel){
+      // tapping a part you have already placed picks it up again, rotation and all
+      if (what.kind === "pin" || what.kind === "body"){
+        sel = what.p.id; rot = what.p.rot || 0;
+        A.placements = A.placements.filter(p => p.id !== what.p.id);
+        say(sel + " picked up. Tap a hole to put it down.");
+      } else say("Pick a component from the list first.");
+    } else {
+      const comp = Q.components.find(c => c.id === sel);
+      const cand = { id: sel, footprint: comp.footprint, at: key, rot };
+      const v = SBD.placeCheck(Q, A, cand);
+      if (!v.ok){ say("Cannot place there. " + v.msg); flashHole(h); }
+      else {
+        A.placements.push(cand);
+        say(sel + " placed at " + key + ".");
+        sel = null; rot = 0;
+      }
+    }
+  }
+  clearFeedback();
+  saveStore();
+  paint();
+}
+
+// test points and link wires are numbered in the order they were added, and the
+// numbers are what the wiring schedule refers to — so they must not develop gaps
+function renumberTps(){ A.testpoints.forEach((t, i) => { t.id = "TP" + (i + 1); }); }
+// numbers renumber on a removal; colours do NOT — a pupil chose each one, and
+// removing a different link should not repaint the ones that are left
+function renumberLinks(){ A.links.forEach((l, i) => { l.num = i + 1; }); }
+
+/* ============================================================
+   Link wire colour picker
+   ============================================================ */
+// cycles the SUGGESTED colour on to the next in the palette after each link,
+// so two links in a row default to different colours; a pupil can still
+// click a swatch to override before drawing the next one
+function nextLinkColour(){
+  const i = LINK_COLOURS.indexOf(linkColour);
+  linkColour = LINK_COLOURS[(i + 1) % LINK_COLOURS.length];
+  paintLinkColours();
+}
+function buildLinkColours(){
+  const el = $("linkColours");
+  LINK_COLOURS.forEach(name => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "swatch";
+    b.style.background = R.LINK_COLOURS[name];
+    b.dataset.colour = name;
+    b.setAttribute("aria-label", name + " wire");
+    b.setAttribute("aria-pressed", "false");
+    el.appendChild(b);
+  });
+  el.addEventListener("click", e => {
+    const b = e.target.closest(".swatch");
+    if (!b) return;
+    linkColour = b.dataset.colour;
+    paintLinkColours();
+    say(linkColour + " wire selected.");
+  });
+}
+function paintLinkColours(){
+  $("linkColours").querySelectorAll(".swatch").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.colour === linkColour)));
+}
+
+let flashTimer = null;
+function flashHole(h){
+  hl = [{ r: h.r, c: h.c, kind: "hl" }];
+  paint();
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { hl = []; paint(); }, 1100);
+}
+
+/* ============================================================
+   Painting
+   ============================================================ */
+/* `hl` is the only thing that persists between paints — the holes a diagnostic
+   points at, until the next edit clears them.  The cursor and the half-drawn
+   link wire are derived fresh every time, so they cannot accumulate. */
+function paint(){
+  marks = hl.slice();
+  if (linkStart){ const h = SBD.parseRef(linkStart); marks.push({ r: h.r, c: h.c, kind: "hl" }); }
+  marks = marks.concat(ghostCells());
+  if (focused || !sel) marks.push({ r: cur.r, c: cur.c, kind: focused ? "cur" : "ghost" });
+  drawLive();
+  drawBank();
+}
+
+/* With a part selected, show the WHOLE footprint where it would land, not one
+   cell — a 14-pin DIL covers 28 holes and "tap a hole to place it" is no use if
+   you cannot see which 28.  Turns red when the drop would be refused, so a
+   pupil sees the clash before making it rather than reading about it after. */
+function ghostCells(){
+  if (tool !== "place" || !sel || showingAnswer) return [];
+  const comp = Q.components.find(c => c.id === sel);
+  const fp = SBD.FOOTPRINTS[comp.footprint];
+  const cells = SBD.cellsOf(fp, cur, rot);
+  const ok = SBD.placeCheck(Q, A, { id: sel, footprint: comp.footprint,
+                                    at: SBD.ref(cur), rot: rot }).ok;
+  return cells.pins.map(z => ({ r: z.hole.r, c: z.hole.c, kind: ok ? "gpin" : "bad" }))
+    .concat(cells.body.map(z => ({ r: z.r, c: z.c, kind: ok ? "ghost" : "bad" })));
+}
+
+function drawBank(){
+  const placed = new Set(A.placements.map(p => p.id));
+  const bank = $("bank");
+  /* paint() runs on every pointer move; rebuilding eight tiles and an inline
+     SVG each time is wasted work, and re-measuring the open tile on every one
+     of them thrashes layout.  Rebuild only when something in it changed. */
+  const key = Q.id + "|" + sel + "@" + rot + "|" + [...placed].sort().join(",");
+  if (key === bankKey) return;
+  bankKey = key;
+  bank.innerHTML = "";
+  let openTile = null;
+  for (const c of Q.components){
+    const isPlaced = placed.has(c.id), isSel = sel === c.id;
+    // a real <button> may not contain another one, and the open tile carries a
+    // Rotate button, so the tile is a div that behaves like a button
+    const b = document.createElement("div");
+    b.className = "part" + (isPlaced ? " gone" : "") + (isSel ? " open" : "");
+    b.setAttribute("role", "button");
+    b.setAttribute("tabindex", isPlaced ? "-1" : "0");
+    b.setAttribute("aria-pressed", String(isSel));
+    b.setAttribute("aria-disabled", String(isPlaced));
+    b.dataset.id = c.id;
+    const sub = c.part || shortName(c);
+    const head = "<strong>" + esc(c.id) + "</strong>" +
+                 (sub ? "<span class='sub'>" + esc(sub) + "</span>" : "");
+    let html = head;
+    if (isSel){
+      html = "<div class='thead'><span>" + head + "</span>" +
+             "<button type='button' class='trot'>⟳ Rotate</button></div>" +
+             "<div class='tpv'>" + R.renderPart({ id: c.id, footprint: c.footprint,
+               rot: rot, part: c.part, pos: c.pos }) + "</div>" +
+             "<span class='tspan'>Lies " + esc(R.spanOf(c.footprint, rot)) + "</span>";
+      openTile = b;
+    }
+    b.innerHTML = html;
+    bank.appendChild(b);
+  }
+  /* The opened tile needs an explicit height: a grid row will not size itself
+     to an item whose height comes from inline SVG content, so without this the
+     row stays at min-height and the tile spills over the tiles below it.
+     Measured rather than hard-coded, because the head wraps to two lines for
+     some parts and one for others. */
+  if (openTile){
+    openTile.style.height = openTile.scrollHeight + "px";
+    // and put it at the top of the bank, so all of it is visible
+    bank.scrollTop += openTile.getBoundingClientRect().top - bank.getBoundingClientRect().top;
+  }
+  if (!Q.components.length) bank.innerHTML = "<p class='bankempty'>Nothing to place.</p>";
+  // the preview panel says what is selected and how it lies, so this stays put
+  $("bankhint").textContent = "Tap one, then tap a hole.";
+}
+function shortName(c){
+  const m = /^[^(]*\(([^)]*)\)/.exec(c.name || "");
+  if (m) return m[1];
+  const d = /—\s*(.*)$/.exec(c.name || "");
+  return d ? d[1] : "";
+}
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ============================================================
+   Check
+   ============================================================ */
+function clearFeedback(){ $("feedback").classList.remove("show"); hl = []; }
+
+function check(){
+  if (showingAnswer){ say("That is the answer, not your board."); return; }
+  const res = SBD.check(Q, A);
+  const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
+  fb.classList.add("show");
+  fb.classList.toggle("good", res.ok);
+  fb.classList.toggle("bad", !res.ok);
+
+  if (res.ok){
+    head.textContent = "✓ That board builds the circuit.";
+    let html = "<p>Every net on the circuit diagram is one connected run of copper on your board, and nothing " +
+      "is joined that should not be.</p>";
+    if (res.warnings.length)
+      html += "<p class='msnote'>Two things worth tidying before you build it:</p>" + list(res.warnings, "warn");
+    body.innerHTML = html;
+    done.add(Q.id);
+    buildChips();
+  } else {
+    const n = res.faults.length;
+    head.textContent = n === 1 ? "1 thing to fix" : n + " things to fix";
+    body.innerHTML = "<p>Tap a line to see where it is on the board.</p>" +
+      list(res.faults, "fault") +
+      (res.warnings.length ? "<p class='msnote'>Also worth checking:</p>" + list(res.warnings, "warn") : "");
+  }
+  saveStore();
+  wireFaultButtons(res);
+  say(res.ok ? "Correct. " + (res.warnings.length ? res.warnings.length + " suggestions." : "")
+             : res.faults.length + " faults found.");
+}
+
+function list(items, cls){
+  return "<ul class='flist'>" + items.map((f, i) =>
+    "<li class='" + cls + "'><button type='button' data-k='" + cls + i + "'>" +
+    "<span class='dot'>" + (cls === "fault" ? "✕" : "!") + "</span><span>" + esc(f.msg) + "</span>" +
+    "</button></li>").join("") + "</ul>";
+}
+
+function wireFaultButtons(res){
+  const all = { fault: res.faults, warn: res.warnings };
+  $("fbBody").querySelectorAll("button[data-k]").forEach(b => {
+    const k = b.dataset.k, kind = k.startsWith("fault") ? "fault" : "warn";
+    const f = all[kind][parseInt(k.replace(kind, ""), 10)];
+    b.addEventListener("click", () => {
+      hl = holesFor(f.refs || []).map(h => ({ r: h.r, c: h.c, kind: "hl" }));
+      paint();
+      say(f.msg);
+    });
+  });
+}
+
+/* a diagnostic refers to a hole ("F11"), a pin ("IC1.6") or a whole component
+   ("IC1") — resolve any of them to the holes worth ringing */
+function holesFor(refs){
+  const out = [];
+  for (const r of refs){
+    if (/^[A-Z]\d+$/.test(r)){ out.push(SBD.parseRef(r)); continue; }
+    const [comp, pin] = r.split(".");
+    const p = A.placements.find(x => x.id === comp);
+    if (!p) continue;
+    const cells = SBD.cellsOf(SBD.FOOTPRINTS[p.footprint], SBD.parseRef(p.at), p.rot || 0);
+    for (const z of cells.pins) if (pin === undefined || z.pin === pin) out.push(z.hole);
+  }
+  return out;
+}
+
+/* ============================================================
+   Load, reset, answer
+   ============================================================ */
+function load(i, keepScroll){
+  qi = (i + QUESTIONS.length) % QUESTIONS.length;
+  Q = QUESTIONS[qi];
+  showingAnswer = false;
+  $("btnAnswer").textContent = "Show the answer";
+  sel = null; rot = 0; linkStart = null; marks = []; hl = []; bankKey = null; cur = { r: 0, c: 1 };
+
+  const saved = sane(loadStoreRaw()[Q.id]);
+  A = saved || startingPoint();
+
+  $("qtitle").textContent = "Q" + (qi + 1) + ". " + Q.title;
+  $("qsrc").textContent = Q.board + " · " + SBD.BOARDS[Q.board].rows + " tracks × " +
+                          SBD.BOARDS[Q.board].cols + " holes";
+  $("qscenario").innerHTML = (Q.scenario || [taskLine()]).map(p => "<p>" + p + "</p>").join("") +
+                             (Q.scenario ? "<p>" + taskLine() + "</p>" : "");
+  $("whyBody").innerHTML = "<ul>" + Q.why.map(w => "<li>" + w + "</li>").join("") + "</ul>";
+  $("whyBox").open = false;
+  clearFeedback();
+  drawCircuit();
+  drawGrid();
+  buildChips();
+  paint();
+  fit();
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* The instruction has to match the rung: telling a pupil to place every
+   component when they are already on the board is the sort of thing that makes
+   them distrust the rest of the page. */
+function taskLine(){
+  const tp = Q.tpRequired && Q.tpRequired.length;
+  const links = (Q.reference.links || []).length > 0;
+  const bits = [];
+  if (Q.scaffold !== "parts") bits.push("place every component");
+  bits.push("cut the tracks that need cutting");
+  if (links) bits.push("add the link wires");
+  if (tp) bits.push("mark the test point" + (Q.tpRequired.length > 1 ? "s" : "") +
+                    " on the process output");
+  const last = bits.pop();
+  return "<strong>Your task:</strong> " +
+    (Q.scaffold === "parts" ? "the components are already on the board — " : "") +
+    bits.join(", ") + (bits.length ? " and " : "") + last + ".";
+}
+
+/* The scaffold decides how much of the board arrives already done (PLAN.md
+   §4.1's difficulty ladder).  Two values, describing what is GIVEN:
+
+     "parts"  the components are already placed; the pupil supplies the track
+              cuts, and the link wires if the circuit needs any
+     "blank"  an empty board
+
+   The ladder's four rungs come from those two plus the question's own content:
+   a "parts" question with no links in its answer is the cuts-only rung, one
+   with links is the cuts-and-links rung, and `tpRequired` makes the last rung.
+   The earlier "cuts-links" value handed the pupil the cuts, which is the
+   opposite of what §4.1 asks for. */
+function startingPoint(){
+  const a = blank();
+  if (Q.scaffold === "parts")
+    a.placements = JSON.parse(JSON.stringify(Q.reference.placements));
+  return a;
+}
+
+function buildChips(){
+  const el = $("qchips");
+  el.innerHTML = "";
+  QUESTIONS.forEach((q, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qchip" + (done.has(q.id) ? " done" : "");
+    b.textContent = "Q" + (i + 1);
+    b.title = q.title;
+    if (i === qi) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", () => load(i, true));
+    el.appendChild(b);
+  });
+}
+
+function reset(){
+  A = startingPoint();
+  sel = null; rot = 0; linkStart = null; marks = []; hl = [];
+  showingAnswer = false; $("btnAnswer").textContent = "Show the answer";
+  clearFeedback(); saveStore(); paint();
+  say("Board cleared.");
+}
+
+function toggleAnswer(){
+  showingAnswer = !showingAnswer;
+  $("btnAnswer").textContent = showingAnswer ? "Back to my board" : "Show the answer";
+  hl = [];
+  if (showingAnswer){
+    $("feedback").classList.add("show", "good");
+    $("feedback").classList.remove("bad");
+    $("fbHead").textContent = "One correct answer — not the only one";
+    $("fbBody").innerHTML = "<p>Any layout that joins the same things together is right. This one is the " +
+      "reference solution; yours may put the same nets on different tracks.</p>";
+  } else clearFeedback();
+  paint();
+  say(showingAnswer ? "Showing the reference layout." : "Back to your board.");
+}
+
+/* ============================================================
+   Input: pointer, tap and keyboard (all three, per the site rule)
+   ============================================================ */
+let focused = false;
+
+$("board").addEventListener("click", e => {
+  if (mode !== "convert") return;
+  const h = holeFromEvent(e);
+  if (!h) return;
+  cur = h;
+  $("board").focus();
+  act(h);
+});
+
+// hovering with a part selected previews where it would land
+$("board").addEventListener("pointermove", e => {
+  if (mode !== "convert") return;
+  if (e.pointerType === "touch" && !e.buttons) return;
+  const h = holeFromEvent(e);
+  if (!h || (h.r === cur.r && h.c === cur.c)) return;
+  cur = h;
+  paint();
+});
+
+$("board").addEventListener("focus", () => { if (mode !== "convert") return; focused = true; paint(); say(describe(cur)); });
+$("board").addEventListener("blur",  () => { if (mode !== "convert") return; focused = false; paint(); });
+
+$("board").addEventListener("keydown", e => {
+  if (mode !== "convert") return;
+  const b = SBD.BOARDS[Q.board];
+  const step = { ArrowUp:[-1,0], ArrowDown:[1,0], ArrowLeft:[0,-1], ArrowRight:[0,1] }[e.key];
+  if (step){
+    e.preventDefault();
+    cur = { r: Math.min(b.rows - 1, Math.max(0, cur.r + step[0])),
+            c: Math.min(b.cols, Math.max(1, cur.c + step[1])) };
+    paint();
+    say(describe(cur));
+  } else if (e.key === "Enter" || e.key === " "){
+    e.preventDefault(); act(cur);
+  } else if (e.key === "Escape"){
+    e.preventDefault();
+    if (linkStart){ linkStart = null; say("Link wire cancelled."); }
+    else if (sel){ sel = null; say("Selection cancelled."); }
+    paint();
+  } else if (e.key === "r" || e.key === "R"){
+    e.preventDefault(); rotate();
+  } else if (e.key === "Home"){ e.preventDefault(); cur = { r: cur.r, c: 1 }; paint(); say(describe(cur)); }
+  else if (e.key === "End"){ e.preventDefault(); cur = { r: cur.r, c: b.cols }; paint(); say(describe(cur)); }
+});
+
+function rotate(){
+  rot = (rot + 90) % 360;
+  const comp = sel && Q.components.find(c => c.id === sel);
+  say(comp ? sel + " turned — it now lies " + R.spanOf(comp.footprint, rot) + "."
+           : "Rotation set to " + rot + " degrees.");
+  drawBank();
+  fit();               // the open tile's own height can change on rotation
+  paint();
+}
+
+
+/* Components go down VERTICAL by default — across the tracks, the way the
+   planning sheet draws them — never lying flat along one track, which reads
+   as "it needs no cut" whether or not that is true. A DIL is the one
+   exception: at rot 0 it is ALREADY vertical (its two pin rows run down the
+   board), so defaulting it to 90 would hand a pupil the sideways-chip fault
+   before they have placed anything. */
+function defaultRotFor(footprint){
+  return (SBD.FOOTPRINTS[footprint] || {}).kind === "dil" ? 0 : 90;
+}
+
+$("bank").addEventListener("click", e => {
+  if (e.target.closest(".trot")){ rotate(); return; }
+  const b = e.target.closest(".part");
+  if (!b || b.getAttribute("aria-disabled") === "true") return;
+  const wasSel = sel;
+  sel = (sel === b.dataset.id) ? null : b.dataset.id;
+  if (sel && sel !== wasSel){
+    const c = Q.components.find(c => c.id === sel);
+    rot = defaultRotFor(c.footprint);
+  }
+  if (sel && tool !== "place") setTool("place");
+  const comp = sel && Q.components.find(c => c.id === sel);
+  say(comp ? sel + " selected — it lies " + R.spanOf(comp.footprint, rot) +
+             ". Tap a hole on the board, or press Enter with the cursor there."
+           : "Selection cleared.");
+  drawBank();
+  /* Opening a tile can need more room than the bank was last given — measured
+     against the REAL tile, not assumed (see fit()). Re-run it here, not just
+     on load/resize, or the reservation is only ever right by coincidence. */
+  fit();
+});
+
+// the tiles are divs, so Enter and Space have to be wired by hand
+$("bank").addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const t = e.target.closest(".trot, .part");
+  if (!t) return;
+  e.preventDefault();
+  t.click();
+});
+
+function setTool(t){
+  tool = t; linkStart = null;
+  document.querySelectorAll(".tool[data-tool]").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.tool === t)));
+  if (t !== "place") sel = null;
+  $("linkColours").hidden = t !== "link";
+  if (t === "link") paintLinkColours();
+  drawBank();
+  fit();
+  paint();
+}
+document.querySelectorAll(".tool[data-tool]").forEach(b =>
+  b.addEventListener("click", () => { setTool(b.dataset.tool); say(b.textContent.trim() + " tool selected."); }));
+$("btnRot").addEventListener("click", rotate);
+
+$("btnCheck").addEventListener("click", check);
+$("btnReset").addEventListener("click", reset);
+$("btnAnswer").addEventListener("click", toggleAnswer);
+$("btnNext").addEventListener("click", () => {
+  if (mode === "convert") load(qi + 1, true); else loadTrace(ti + 1, true);
+});
+
+$("btnBig").addEventListener("click", () => {
+  const c = Q.circuit(C);
+  $("modalTitle").textContent = Q.title + " — circuit diagram";
+  $("modalBody").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title });
+  $("modal").classList.add("show");
+  $("btnBigClose").focus();
+});
+const closeBig = () => { $("modal").classList.remove("show"); $("btnBig").focus(); };
+$("btnBigClose").addEventListener("click", closeBig);
+$("modal").addEventListener("click", e => { if (e.target === $("modal")) closeBig(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("modal").classList.contains("show")) closeBig(); });
+
+window.addEventListener("resize", () => {
+  if (mode === "convert") { if (Q) fit(); } else if (TQ) fitTrace();
+});
+
+/* ============================================================
+   Trace mode — "are these two holes connected?" (PLAN.md §4.1, Mode 1)
+   ----------------------------------------------------------------------
+   The board is fixed content here, never edited, so this half of the page
+   only ever draws it and answers one question about it — no tools, no bank,
+   no placeCheck. `SBD.netOf`/`SBD.sameNet` read the same dsu Convert marks
+   against, so what Trace calls "connected" and what Convert's Check button
+   calls a net can never disagree.
+   ============================================================ */
+function drawTraceGrid(){
+  const size = R.sizeOf(TQ.board);
+  $("canvas").style.width = size.w + "px";
+  $("canvas").style.height = size.h + "px";
+  $("gridLayer").innerHTML = R.renderBoard({ board: TQ.board, layer: "grid",
+    title: TQ.board + " stripboard, component side" });
+  $("gridLayer").firstChild.classList.add("hitless");
+}
+
+/* Before an answer: both named holes ringed the same colour — the question
+   text names them, so the rings only need to say "these two", not which is
+   which. After: the reveal. A correct "connected" claim has one net, so
+   flood-filling hole a's net covers hole b's too. A correct "not connected"
+   claim rings the two nets in DIFFERENT colours, so the boundary between them
+   — a cut, a link that was never drawn — reads as a boundary, not a guess. */
+function paintTrace(){
+  const src = QUESTIONS.find(q => q.id === TQ.source);
+  const ha = SBD.parseRef(TQ.a), hb = SBD.parseRef(TQ.b);
+  let tmarks;
+  if (traceAnswered === null){
+    tmarks = [{ r: ha.r, c: ha.c, kind: "hl" }, { r: hb.r, c: hb.c, kind: "hl" }];
+  } else if (TQ.connected){
+    tmarks = (SBD.netOf(SBD.BOARDS[TQ.board], TQ.given, TQ.a) || [])
+      .map(rf => { const h = SBD.parseRef(rf); return { r: h.r, c: h.c, kind: "hl" }; });
+  } else {
+    const netA = SBD.netOf(SBD.BOARDS[TQ.board], TQ.given, TQ.a) || [];
+    const netB = SBD.netOf(SBD.BOARDS[TQ.board], TQ.given, TQ.b) || [];
+    tmarks = netA.map(rf => { const h = SBD.parseRef(rf); return { r: h.r, c: h.c, kind: "hl" }; })
+      .concat(netB.map(rf => { const h = SBD.parseRef(rf); return { r: h.r, c: h.c, kind: "hl2" }; }));
+  }
+  $("liveLayer").innerHTML = R.renderBoard({
+    board: TQ.board, question: src, attempt: TQ.given, layer: "live", marks: tmarks,
+    title: TQ.title });
+  const svg = $("liveLayer").firstChild;
+  svg.classList.add("hitless");
+  svg.setAttribute("aria-hidden", "true");
+}
+
+/* A cut-down fit(): no circuit diagram competes for room, so this is only the
+   board-scale half of that function's job. Left separate rather than sharing
+   fit()'s body — that function is already tuned against measured screenshots
+   (STATE.md, Phase 3), and Trace's simpler layout does not need its circuit-
+   column math at all. */
+function fitTrace(){
+  const size = R.sizeOf(TQ.board);
+  const availW = $("stage").clientWidth;
+  let sb = Math.max(MIN_SCALE, Math.min(1, availW / size.w));
+  let stageH = size.h * sb;
+
+  const stageTop = $("stage").getBoundingClientRect().top + window.scrollY;
+  const room = window.innerHeight - stageTop - 62;
+  if (window.matchMedia("(min-width:821px) and (max-height:900px)").matches && room > 180){
+    sb = Math.max(MIN_SCALE, Math.min(sb, room / size.h));
+    stageH = Math.max(200, Math.min(size.h * sb, room));
+  }
+
+  traceScale = sb;
+  $("canvas").style.transform = "scale(" + traceScale + ")";
+  const w = size.w * traceScale, h = size.h * traceScale;
+  $("board").style.width = w + "px";
+  $("board").style.height = h + "px";
+
+  const panX = w > availW + 1, panY = h > stageH + 1;
+  $("stage").style.overflowX = panX ? "auto" : "hidden";
+  $("stage").style.overflowY = panY ? "auto" : "hidden";
+  $("stage").style.height = Math.round(stageH + (panX ? 11 : 0)) + "px";
+  $("bankcolEl").style.height = "";
+
+  $("panhint").classList.toggle("show", panX || panY);
+  $("panhint").textContent = panY
+    ? "Scroll the board to reach the tracks below."
+    : "Scroll the board sideways to see the rest of it.";
+}
+
+function buildTraceChips(){
+  const el = $("qchips");
+  el.innerHTML = "";
+  TRACE_QUESTIONS.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qchip" + (done.has(item.id) ? " done" : "");
+    b.textContent = "T" + (i + 1);
+    b.title = item.title;
+    if (i === ti) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", () => loadTrace(i, true));
+    el.appendChild(b);
+  });
+}
+
+function loadTrace(i, keepScroll){
+  ti = (i + TRACE_QUESTIONS.length) % TRACE_QUESTIONS.length;
+  TQ = TRACE_QUESTIONS[ti];
+  traceAnswered = null;
+  $("btnYes").disabled = false; $("btnNo").disabled = false;
+  $("btnYes").classList.remove("right", "wrong");
+  $("btnNo").classList.remove("right", "wrong");
+
+  $("qtitle").textContent = "Trace " + (ti + 1) + ". " + TQ.title;
+  $("qsrc").textContent = TQ.board + " · " + SBD.BOARDS[TQ.board].rows + " tracks × " +
+                          SBD.BOARDS[TQ.board].cols + " holes";
+  $("qscenario").innerHTML = "<p>This board is already wired — nothing to place or cut here.</p>";
+  $("traceQ").textContent = "Are hole " + TQ.a + " and hole " + TQ.b + " connected?";
+
+  clearFeedback();
+  drawTraceGrid();
+  buildTraceChips();
+  paintTrace();
+  fitTrace();
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function answerTrace(ans){
+  if (traceAnswered !== null) return;
+  traceAnswered = ans;
+  const correct = ans === TQ.connected;
+  $("btnYes").disabled = true; $("btnNo").disabled = true;
+  $("btnYes").classList.toggle("right", TQ.connected === true);
+  $("btnYes").classList.toggle("wrong", ans === true && !correct);
+  $("btnNo").classList.toggle("right", TQ.connected === false);
+  $("btnNo").classList.toggle("wrong", ans === false && !correct);
+
+  const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
+  fb.classList.add("show");
+  fb.classList.toggle("good", correct);
+  fb.classList.toggle("bad", !correct);
+  head.textContent = correct ? "✓ Correct" : "Not quite";
+  body.innerHTML = "<p>" + TQ.why + "</p>";
+
+  if (correct) { done.add(TQ.id); buildTraceChips(); }
+  paintTrace();
+  say((correct ? "Correct. " : "Not quite. ") + TQ.why);
+}
+
+function setMode(m){
+  if (m === mode) return;
+  mode = m;
+  $("sbd").dataset.mode = m;
+  $("mConvert").setAttribute("aria-pressed", String(m === "convert"));
+  $("mTrace").setAttribute("aria-pressed", String(m === "trace"));
+  $("lede").textContent = m === "convert" ? CONVERT_LEDE : TRACE_LEDE;
+  $("board").setAttribute("aria-label", m === "convert"
+    ? "Stripboard. Arrow keys move the cursor, Enter uses the selected tool, Escape cancels."
+    : "Stripboard, showing a fixed layout. Read only — answer the question beside it.");
+  clearFeedback();
+  if (m === "convert") load(qi, true); else loadTrace(ti, true);
+}
+$("mConvert").addEventListener("click", () => setMode("convert"));
+$("mTrace").addEventListener("click", () => setMode("trace"));
+$("btnYes").addEventListener("click", () => answerTrace(true));
+$("btnNo").addEventListener("click", () => answerTrace(false));
+
+/* ============================================================
+   Go
+   ============================================================ */
+function fromHash(){
+  const m = /^#q(\d+)$/.exec(location.hash || "");
+  return m ? Math.min(QUESTIONS.length, Math.max(1, parseInt(m[1], 10))) - 1 : 0;
+}
+window.addEventListener("hashchange", () => {
+  if (mode !== "convert") return;             // Trace has no deep links yet
+  const i = fromHash(); if (i !== qi) load(i, true);
+});
+
+buildLinkColours();
+loadStore();
+load(fromHash(), true);
+say("Ready.");
+
+})();
+</script>
+</body>
+</html>
