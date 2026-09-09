@@ -39,6 +39,28 @@ title: Stripboard Builder · National 5 Electronics
     #sbd p{margin:0}
 
     /* beta notice — same pattern as the Block Diagram Builder */
+    /* Alpha version chip + changelog.  The chip is in the title row so it
+       survives the short-landscape rules that strip the rest of the chrome —
+       a tester reporting a bug has to be able to say which build they saw. */
+    .verchip{flex:0 0 auto;align-self:center;font:800 .68rem/1 var(--font-stack);
+      letter-spacing:.04em;color:var(--accent);background:var(--tint);
+      border:1.5px solid var(--accent);border-radius:999px;padding:.32rem .6rem;
+      cursor:pointer;min-height:auto}
+    .verchip:hover,.verchip:focus-visible{background:var(--accent);color:#fff}
+    .verlog{margin:14px 0 0;border:1px solid var(--line);border-radius:12px;
+      background:var(--card);overflow:hidden}
+    .verlog>summary{cursor:pointer;padding:.6rem .9rem;font:800 .84rem/1.3 var(--font-stack);
+      color:var(--accent)}
+    .verlog[open]>summary{border-bottom:1px solid var(--line)}
+    .verlogwrap{overflow-x:auto;padding:0 .9rem .6rem}
+    .vertable{border-collapse:collapse;width:100%;font:500 .78rem/1.45 var(--font-stack)}
+    .vertable th,.vertable td{text-align:left;vertical-align:top;padding:.42rem .6rem;
+      border-bottom:1px solid var(--line)}
+    .vertable th{font-weight:800;color:var(--muted);font-size:.72rem;letter-spacing:.04em;
+      text-transform:uppercase;white-space:nowrap}
+    .vertable td:first-child{font-weight:800;white-space:nowrap;color:var(--accent)}
+    .vertable td:nth-child(2){white-space:nowrap;color:var(--muted)}
+    .vertable tr:last-child td{border-bottom:0}
     .beta{border-left:5px solid var(--warm)}
     .beta h2{color:var(--warm)}
     .beta .lead.beta-short{display:none}
@@ -132,6 +154,23 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;
       padding:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
     #sbd .swatch[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+    /* Test-point predictions.  Same shelf as the wire colours and the same
+       rule: it is only on screen while its own tool is, so it costs the
+       one-screen budget nothing the rest of the time. */
+    /* Sub-system staging: one line, because the board is what needs the height. */
+    #sbd .stagebar{margin:-2px 0 7px;padding:.4rem .7rem;border-left:4px solid var(--accent);
+      background:var(--tint);border-radius:0 8px 8px 0;
+      font:600 .8rem/1.4 var(--font-stack);color:var(--text)}
+    #sbd .stagebar[hidden]{display:none}
+    #sbd .stagebar b{color:var(--accent);font-weight:900}
+    #sbd .tprow{gap:6px}
+    #sbd .tpitem{display:inline-flex;align-items:center;gap:4px;padding:1px 5px 1px 8px;
+      border:1.5px solid var(--border);border-radius:999px;background:var(--card)}
+    #sbd .tpitem>b{font:800 .74rem/1 var(--font-stack);color:var(--muted)}
+    #sbd .lvl{min-width:26px;min-height:26px;padding:0 7px;border-radius:999px;
+      border:1.5px solid var(--border);background:var(--card);cursor:pointer;
+      font:800 .8rem/1 var(--font-stack);color:var(--text)}
+    #sbd .lvl[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
     /* A tap has no hover, so on an iPad the on-board ghost never appears before
        the drop — a pupil has no way of knowing a 14-pin DIL covers 28 holes
        until it is already there.  So the selected tile opens out into the
@@ -173,8 +212,22 @@ title: Stripboard Builder · National 5 Electronics
        One page, two very different interaction models sharing the board and
        its sizing. `data-mode` on #sbd, not a class per element, so adding a
        mode later is one attribute value, not a sweep through the markup. */
-    #sbd[data-mode="trace"] .conv-only{display:none}
-    #sbd[data-mode="convert"] .trace-only{display:none}
+    #sbd:not([data-mode="convert"]) .conv-only{display:none}
+    #sbd:not([data-mode="trace"]) .trace-only{display:none}
+    #sbd:not([data-mode="fault"]) .fault-only{display:none}
+    /* Fault-finder: the four named faults to choose between. */
+    #sbd .faultwrap{border:1px solid var(--border);border-radius:12px;background:var(--card);
+      padding:10px 12px}
+    #sbd .faultq{margin:0 0 4px;font:900 .92rem/1.35 var(--font-stack);color:var(--text)}
+    #sbd .faulthint{margin:0 0 9px;font:700 .76rem/1.35 var(--font-stack);color:var(--muted)}
+    #sbd .faultopts{display:grid;gap:6px}
+    #sbd .fopt{display:block;width:100%;text-align:left;min-height:44px;padding:.5rem .65rem;
+      border:1.5px solid var(--border);border-radius:10px;background:var(--card);
+      font:700 .8rem/1.3 var(--font-stack);color:var(--text);cursor:pointer}
+    #sbd .fopt[aria-pressed="true"]{border-color:var(--accent);background:var(--tint)}
+    #sbd .fopt.right{border-color:var(--ok);background:var(--ok-bg)}
+    #sbd .fopt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+    #sbd .fopt:disabled{cursor:default}
 
     /* ---- Trace mode: the answer panel -------------------------------------
        Trace has no bank and no tool row — the board is fixed content, and the
@@ -259,9 +312,12 @@ title: Stripboard Builder · National 5 Electronics
       #sbd .scenario{font-size:.82rem;line-height:1.38;margin-top:5px}
       #sbd .scenario p{margin:0 0 3px}
       #sbd .qtitle{font-size:.96rem}
-      #sbd .bar{margin-bottom:6px}
-      #sbd .workarea{margin-top:7px}
-      #sbd .controls{margin-top:8px}
+      #sbd .bar{margin-bottom:4px}
+      /* the mode line is a whole extra row on a short screen, and the 24-track
+         board needs every pixel of it to stay above the 0.62 legibility floor */
+      #sbd .modedesc{font:600 .72rem/1.2 var(--font-stack)}
+      #sbd .workarea{margin-top:5px}
+      #sbd .controls{margin-top:6px}
       #sbd .circwrap{padding:4px 8px 2px}
       #sbd .circhead{margin-bottom:2px}
     }
@@ -289,13 +345,14 @@ title: Stripboard Builder · National 5 Electronics
     <div class="titlerow">
       <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics</a>
       <h1 class="page-title">Stripboard Builder</h1>
+      <button type="button" class="verchip" id="verChip"
+              aria-label="Alpha version — show what has changed"></button>
       <section class="panel beta" aria-label="Beta notice" id="betaBox">
       <h2>⚠️ Beta <span class="beta-tag">testing</span></h2>
       <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. It marks your board by
         working out what is actually connected to what, so any layout that is electrically correct will pass — but
         if something looks wrong, please tell Mr Stewart rather than assuming your own answer is at fault.</p>
-      <p class="lead beta-short">New and still being tested — if something looks wrong, tell Mr Stewart rather than
-        assuming your own answer is at fault.</p>
+      <p class="lead beta-short">Still being tested — if something looks wrong, tell Mr Stewart.</p>
       </section>
     </div>
 
@@ -307,7 +364,7 @@ title: Stripboard Builder · National 5 Electronics
         <div class="seg" role="group" aria-label="Mode">
           <button type="button" id="mTrace" aria-pressed="true">Trace</button>
           <button type="button" id="mConvert" aria-pressed="false">Convert</button>
-          <button type="button" disabled title="Built later in phase 4">Fault-finder</button>
+          <button type="button" id="mFault" aria-pressed="false">Fault-finder</button>
           <button type="button" disabled title="Built later in phase 4">Reverse</button>
         </div>
         <p class="modedesc" id="modeDesc"></p>
@@ -331,9 +388,12 @@ title: Stripboard Builder · National 5 Electronics
               <button type="button" class="tool" data-tool="erase" aria-pressed="false"><span class="k">⌫</span>Remove</button>
               <button type="button" class="tool" id="btnRot"><span class="k">⟳</span>Rotate</button>
             </div>
+            <p class="stagebar conv-only" id="stageBar" hidden></p>
             <div class="linkcolours conv-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
               <span class="lchint">Wire colour:</span>
             </div>
+            <div class="linkcolours tprow conv-only" id="tpRow" role="group"
+                 aria-label="What each test point will read" hidden></div>
             <div class="stage" id="stage">
               <div class="board" id="board" tabindex="0" role="application"
                    aria-label="Stripboard. Tap or click a hole to use the selected tool."
@@ -354,8 +414,15 @@ title: Stripboard Builder · National 5 Electronics
                 <button type="button" class="zoombtn" id="btnBig">⤢ Enlarge</button>
               </div>
               <div class="cinner" id="cinner"></div>
-              <p class="circkey">Ringed = net · plain blue = IC pin</p>
+              <p class="circkey" id="circKey"></p>
               <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
+            </div>
+
+            <div class="faultwrap fault-only" id="faultWrap">
+              <p class="faultq" id="faultQ"></p>
+              <p class="faulthint" id="faultHint"></p>
+              <div class="faultopts" id="faultOpts" role="group" aria-label="What is wrong with this board"></div>
+              <p style="margin:10px 0 0"><button type="button" class="btn primary" id="btnFault">Check my answer</button></p>
             </div>
 
             <div class="tracewrap trace-only" id="traceWrap">
@@ -415,6 +482,13 @@ title: Stripboard Builder · National 5 Electronics
       </section>
     </section>
 
+    <details class="verlog" id="verLog">
+      <summary id="verSummary"></summary>
+      <div class="verlogwrap"><table class="vertable">
+        <thead><tr><th scope="col">Version</th><th scope="col">Date</th><th scope="col">What changed</th></tr></thead>
+        <tbody id="verBody"></tbody>
+      </table></div>
+    </details>
     <section class="panel" aria-label="Sources and credits">
       <h2>Sources &amp; credits</h2>
       <p class="lead" data-credit-note><strong>Sources &amp; credits:</strong> Board sizes and hole pitch are the
@@ -744,6 +818,37 @@ title: Stripboard Builder · National 5 Electronics
     return out.sort();
   }
 
+  /* ----------------------------------------------------------- stages
+     "It should be possible to do the switching board separate from the
+     process, and then the output."  A question with `stages` is checked one
+     sub-system at a time: each stage names the components unlocked by then,
+     and everything past it is folded into `dontcare` — which the comparison
+     already strips from BOTH partitions (R1).  So an early stage marks only
+     the wiring it covers, and a pupil who runs ahead and places the output
+     parts is not punished for it at stage 1.
+
+     `parts` is cumulative: stage k's set is stages 0..k unioned.  The last
+     stage is the whole question, unchanged, so the final check is exactly the
+     check a question without stages gets.  There is no second comparison and
+     no second target — a staged question cannot drift from its own answer. */
+  function stageOf(q, k) {
+    if (!q.stages || !q.stages.length) return q;
+    const last = q.stages.length - 1;
+    if (!(k >= 0) || k >= last) return q;
+    const unlocked = new Set();
+    for (let i = 0; i <= k; i++) for (const id of q.stages[i].parts) unlocked.add(id);
+    const dontcare = new Set(q.dontcare || []);
+    for (const net of q.target)
+      for (const pin of net) if (!unlocked.has(pin.split(".")[0])) dontcare.add(pin);
+    return Object.assign({}, q, {
+      components: (q.components || []).filter(c => unlocked.has(c.id)),
+      dontcare: [...dontcare],
+      tpRequired: [],          // a test point is planned once the output exists
+      expect: null,
+      stageIndex: k
+    });
+  }
+
   /* --------------------------------------------------------------- check */
 
   function check(q, attempt) {
@@ -1040,6 +1145,36 @@ title: Stripboard Builder · National 5 Electronics
       }
     }
 
+    /* rank 8.5 — the reading the test point is FOR.
+       A test point that is placed but never predicted is half the job: QVSR
+       wants the expected value planned on the layout before the board is
+       built, so the pupil says what it will read and the tool marks it.  The
+       expected level is authored per NET (named by any pin on it), not per
+       hole, because the pupil chooses where on that net to put the probe. */
+    if (q.expect && q.expect.levels) {
+      for (const pin of Object.keys(q.expect.levels)) {
+        const root = netOfPin.get(pin);
+        if (root === undefined) continue;            // that net is not built yet
+        const tp = (attempt.testpoints || []).find(t => {
+          const n = top.nodeOf.get(hid(parseRef(t.at)));
+          return n !== undefined && top.dsu.find(n) === root;
+        });
+        if (!tp) continue;                           // rank 8 already reports the absence
+        const want = q.expect.levels[pin];
+        const got = tp.predict;
+        if (got !== 0 && got !== 1) {
+          faults.push({ rank: 8.5, code: "no-prediction",
+            msg: `${tp.id} is on ${label(q, pin)}, but you have not said what it will read. ` +
+                 `Work it out from the inputs — planning the expected reading is what the ` +
+                 `test point is for.`, refs: [pin] });
+        } else if (got !== want) {
+          faults.push({ rank: 8.5, code: "wrong-prediction",
+            msg: `${tp.id} is on ${label(q, pin)}. With ${inputsText(q)}, that point is ` +
+                 `logic ${want}, not logic ${got}.`, refs: [pin] });
+        }
+      }
+    }
+
     /* ------------------------------------------------------- warnings */
 
     // rank 9 — a cut that separates nothing
@@ -1103,6 +1238,11 @@ title: Stripboard Builder · National 5 Electronics
     return -1;
   }
 
+  // "A = 1, B = 1, C = 0" — the input condition a prediction is made under
+  function inputsText(q) {
+    return (q.expect && q.expect.inputs || []).map(i => i[0] + " = " + i[1]).join(", ");
+  }
+
   // human-readable name for a pin, for the message catalogue
   function label(q, pinId) {
     const [comp, pin] = pinId.split(".");
@@ -1149,7 +1289,7 @@ title: Stripboard Builder · National 5 Electronics
     return top.dsu.find(na) === top.dsu.find(nb);
   }
 
-  root.SBD = { BOARDS, FOOTPRINTS, segmentsOf, makeDSU, topology, netsOf,
+  root.SBD = { BOARDS, FOOTPRINTS, segmentsOf, makeDSU, topology, netsOf, stageOf,
                canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
                ref, parseRef, rowLetter, hid, cellsOf };
 
@@ -1935,14 +2075,22 @@ title: Stripboard Builder · National 5 Electronics
     return { svg: s, b: [x - r - 14, y], c: [x + 10, y - r - 12], e: [x + 10, y + r + 12] };
   }
 
-  // SPST switch: two contacts and a hinged blade
+  /* SPST switch: two contacts and a hinged blade.  Takes a direction for the
+     same reason the sounder and the motor do — drawn horizontal-only, a switch
+     in a vertical run has the wire passing straight through it and its own
+     contacts sticking out sideways into nothing. */
   function sw(x, y, o) {
     o = o || {};
-    const half = (o.span || 56) / 2;
-    let s = wire([[x - half, y], [x - 11, y]]) + wire([[x + 11, y], [x + half, y]]) +
-            node(x - 11, y) + node(x + 11, y) +
-            wire([[x - 11, y], [x + 9, y - 13]]);
-    if (o.label) s += text(x, y + 18, o.label);
+    const vert = o.dir === "v", half = (o.span || 56) / 2;
+    let s = vert
+      ? wire([[x, y - half], [x, y - 11]]) + wire([[x, y + 11], [x, y + half]]) +
+        node(x, y - 11) + node(x, y + 11) +
+        wire([[x, y + 11], [x + 13, y - 9]])          // blade hinged on the lower contact
+      : wire([[x - half, y], [x - 11, y]]) + wire([[x + 11, y], [x + half, y]]) +
+        node(x - 11, y) + node(x + 11, y) +
+        wire([[x - 11, y], [x + 9, y - 13]]);
+    if (o.label) s += vert ? text(x + 20, y + 4, o.label, { anchor: "start" })
+                           : text(x, y + 18, o.label);
     return s;
   }
 
@@ -1953,7 +2101,11 @@ title: Stripboard Builder · National 5 Electronics
   function sounder(x, y, o) {
     o = o || {};
     const vert = o.dir === "v", half = (o.span || 56) / 2, r = 15;
-    let s = vert ? wire([[x, y - half], [x, y - r]]) + wire([[x, y + r], [x, y + half]])
+    /* Vertical: the flat of the half-disc is the chord at y - 0.2r and the dome
+       bulges DOWN from it (sweep 0 on a left-to-right chord goes downward — read
+       off the render, not derived).  A lead stopping at y - r therefore ends in
+       mid-air short of the symbol, which is what the first two versions did. */
+    let s = vert ? wire([[x, y - half], [x, y - r * 0.2]]) + wire([[x, y + r], [x, y + half]])
                  : wire([[x - half, y], [x - r, y]]) + wire([[x + r, y], [x + half, y]]);
     // the flat faces the incoming lead, the dome faces away
     s += vert
@@ -1980,11 +2132,110 @@ title: Stripboard Builder · National 5 Electronics
     return s;
   }
 
+
+  /* A horizontal supply rail.  Real circuit diagrams hang their components
+     between two rails rather than routing a wire to a terminal block, and that
+     is what a pupil is asked to reproduce as the two supply tracks on the
+     board.  The label sits at the left-hand end, clear of the line: above the
+     +5 V rail, below the 0 V one, so neither ever collides with a component
+     hanging off it. */
+  function rail(x1, x2, y, o) {
+    o = o || {};
+    const pos = !!o.pos;
+    return wire([[x1, y], [x2, y]], pos ? "sbd-pos" : "sbd-wire") +
+      text(x1, y + (pos ? -9 : 18), o.label || (pos ? "+5 V" : "0 V"),
+           { anchor: "start", cls: pos ? "sbd-poslab" : "sbd-clab" });
+  }
+
+
+  /* An IC drawn the way the classroom material draws it — the Yenka/EU square
+     symbol used throughout `classes/electronics/theory/logic-and-ics.html`,
+     which is the template for every circuit convention here: a plain box with
+     the part number in the middle and each PIN NUMBER inside the box at the
+     point its wire attaches.  No function names, no leads; wires meet the box
+     edge directly.  Pupils turn a number into a function on the data sheet,
+     which is the skill.
+
+     `left` / `right` / `top` / `bottom` are arrays of `{ num, at }`, where `at`
+     is the fraction along that edge.  Returns each attachment point keyed by
+     pin number, so the caller wires to a pin rather than to a coordinate it
+     worked out for itself. */
+  function icBlock(x, y, o) {
+    o = o || {};
+    const w = o.w || 70, h = o.h || 66;
+    const x0 = x - w / 2, y0 = y - h / 2;
+    let s = `<rect class="sbd-part" x="${n(x0)}" y="${n(y0)}" width="${n(w)}" ` +
+            `height="${n(h)}" rx="2"/>`;
+    const at = {};
+    const put = (list, side) => (list || []).forEach(pin => {
+      let px, py, tx, ty, anchor;
+      if (side === "l") { px = x0;              py = y0 + h * pin.at;
+                          tx = x0 + 6;          ty = py + 4;      anchor = "start"; }
+      if (side === "r") { px = x0 + w;          py = y0 + h * pin.at;
+                          tx = x0 + w - 6;      ty = py + 4;      anchor = "end"; }
+      if (side === "t") { px = x0 + w * pin.at; py = y0;
+                          tx = px;              ty = y0 + 13;     anchor = "middle"; }
+      if (side === "b") { px = x0 + w * pin.at; py = y0 + h;
+                          tx = px;              ty = y0 + h - 5;  anchor = "middle"; }
+      s += text(tx, ty, pin.num, { cls: "sbd-cnet", anchor: anchor });
+      at[pin.num] = [px, py];
+    });
+    put(o.left, "l"); put(o.right, "r"); put(o.top, "t"); put(o.bottom, "b");
+    if (o.name) s += text(x, y + 4, o.name);
+    return { svg: s, at: at };
+  }
+
+  /* An op-amp: the triangle with its two inputs marked.  Same reasoning as the
+     555 block — the symbol says which input is inverting, the data sheet says
+     which pin that is. */
+  function opamp(x, y, o) {
+    o = o || {};
+    const w = o.w || 56, h = o.h || 64, lead = o.lead || 18;
+    const x0 = x - (w + lead * 2) / 2, y0 = y - h / 2, bx = x0 + lead;
+    const inM = y0 + h * 0.28, inP = y0 + h * 0.72;
+    let s = `<polygon class="sbd-part" points="${n(bx)},${n(y0)} ${n(bx)},${n(y0 + h)} ` +
+            `${n(bx + w)},${n(y)}"/>` +
+            wire([[x0, inM], [bx, inM]]) + wire([[x0, inP], [bx, inP]]) +
+            wire([[bx + w, y], [bx + w + lead, y]]) +
+            text(bx + 9, inM + 4, "\u2212", { cls: "sbd-cnet", anchor: "start" }) +
+            text(bx + 9, inP + 4, "+", { cls: "sbd-cnet", anchor: "start" });
+    if (o.label) s += text(x, y0 - 7, o.label);
+    /* The supply connections are drawn (the classroom template draws them), so
+       hand back two points that actually sit ON the sloping edges — a wire
+       started at the bounding box's corner would begin in mid-air. */
+    const f = 0.62;                       // nearer the nose, leaving room for a label below
+    return { svg: s, minus: [x0, inM], plus: [x0, inP], out: [bx + w + lead, y],
+             vplus:  [bx + w * f, y0 + (h / 2) * f],
+             vminus: [bx + w * f, y0 + h - (h / 2) * f] };
+  }
+
+
+  /* An electrolytic capacitor: one straight plate and one curved plate, with
+     the + on the straight one (BS/IEC).  Vertical only for now — that is the
+     only orientation the bank's questions need, and a horizontal-only symbol
+     dropped into a vertical run is a fault this project has already made
+     twice (the sounder and the motor). */
+  function ecap(x, y, o) {
+    o = o || {};
+    const half = (o.span || 56) / 2, w = 22, gap = 5;
+    let s = wire([[x, y - half], [x, y - gap]]) + wire([[x, y + gap], [x, y + half]]) +
+      `<line class="sbd-wire" x1="${n(x - w / 2)}" y1="${n(y - gap)}" ` +
+      `x2="${n(x + w / 2)}" y2="${n(y - gap)}"/>` +
+      // the curved plate is the negative one
+      `<path class="sbd-wire" d="M ${n(x - w / 2)} ${n(y + gap + 3)} ` +
+      `Q ${n(x)} ${n(y + gap - 4)} ${n(x + w / 2)} ${n(y + gap + 3)}"/>` +
+      text(x - w / 2 - 5, y - gap - 4, "+", { anchor: "end" });
+    if (o.label) s += text(x + w / 2 + 6, y - 3, o.label, { anchor: "start" });
+    if (o.value) s += text(x + w / 2 + 6, y + 12, o.value, { anchor: "start" });
+    return s;
+  }
+
   /* the dashed outline round the gates that share one package */
   const chip = (x, y, w, h) =>
     `<rect class="sbd-chip" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="6"/>`;
 
-  root.SBD.circuit = { wire, node, text, netnum, res, led, andGate, orGate, notGate,
+  root.SBD.circuit = { wire, node, text, netnum, rail, res, led, andGate, orGate, notGate,
+                       icBlock, opamp, ecap,
                        ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
@@ -2002,6 +2253,30 @@ title: Stripboard Builder · National 5 Electronics
 (function (root) {
   "use strict";
 
+  /* ------------------------------------------------------------------------
+     Circuit-diagram conventions — rebuilt 9 Sep 2026 after alpha feedback.
+
+     Every diagram is now the picture a pupil meets in a question paper: two
+     horizontal supply rails with the components cabled between them.  Three
+     things that used to be drawn have gone:
+
+       * the dashed "system box" round the gates that share one package;
+       * the wires from the rails to the chip's Vcc and 0 V pins;
+       * the ringed net numbers, and the gate pin numbers.
+
+     The power wiring is gone because working out that a 7408 wants +5 V on
+     pin 14 and 0 V on pin 7 IS the skill being taught, and the data sheet the
+     page links to is where that is read.  The rails are still drawn and the
+     target netlist still demands both connections, so a pupil who never looks
+     at the sheet fails the check and is told which pin is floating.
+
+     Net numbers and pin numbers come back under `o.nets`, which is what "Show
+     the answer" passes — there they teach instead of giving the game away.
+     ------------------------------------------------------------------------ */
+  const RAIL_L = 26;                       // both rails start at this x
+  const pinNos = (o, arr) => (o && o.nets ? arr : null);
+  const nn = (C, o, x, y, num) => (o && o.nets ? C.netnum(x, y, num) : "");
+
 
   /* ------------------------------------------------------------------------
      The §5.1 archetype drawn once.  Three archetype questions are the same
@@ -2010,39 +2285,33 @@ title: Stripboard Builder · National 5 Electronics
      drawing rather than three that can drift apart.  `kind` is "and" or "or",
      and the gate pin numbers are the same on a 7408 and a 7432.
      ------------------------------------------------------------------------ */
-  function twoGateChip(C, o) {
+  function twoGateChip(C, spec, o) {
     const G = { w: 32, lead: 12 };
-    const gate = o.kind === "or" ? C.orGate : C.andGate;
-    const ga = gate(100, 74, Object.assign({ pins: ["1", "2", "3"] }, G));
-    const gb = gate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
+    const gate = spec.kind === "or" ? C.orGate : C.andGate;
+    const ga = gate(104, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
+    const gb = gate(160, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
+    const TOP = 24, BOT = 268, XO = 214;
     const body =
-      C.chip(62, 44, 140, 122) +
-      C.text(62, 38, "IC1  " + o.part, { anchor: "start" }) +
+      C.rail(RAIL_L, 240, TOP, { pos: true }) + C.rail(RAIL_L, 240, BOT) +
 
-      C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [186, 20]], "sbd-pos") +
-      C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
-      C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
-      C.term(44, 258, { label: "0 V" }) + C.wire([[51, 258], [212, 258]]) +
-      C.wire([[76, 166], [76, 258]]) + C.node(76, 258) +
-      C.text(81, 183, "7", { cls: "sbd-cnet", anchor: "start" }) +
+      C.term(40, 63, { label: spec.in[0] }) + C.wire([[47, 63], [82, 63]]) +
+      C.term(40, 85, { label: spec.in[1] }) + C.wire([[47, 85], [82, 85]]) +
+      C.term(40, 141, { label: spec.in[2] }) + C.wire([[47, 141], [138, 141]]) +
 
-      C.term(44, 63, { label: o.in[0] }) + C.wire([[51, 63], [78, 63]]) +
-      C.term(44, 85, { label: o.in[1] }) + C.wire([[51, 85], [78, 85]]) +
-      C.term(44, 143, { label: o.in[2] }) + C.wire([[51, 143], [134, 143]]) +
+      ga.svg + C.text(110, 46, "IC1a") +
+      gb.svg + C.text(166, 102, "IC1b") +
+      C.wire([[138, 74], [138, 119]]) +            // gate a's output down to pin 4
 
-      ga.svg + gb.svg +
-      C.wire([[134, 74], [134, 121]]) +            // gate a pin 3 straight down to pin 4
+      C.wire([[194, 130], [XO, 130], [XO, 152]]) +
+      C.res(XO, 180, { dir: "v", span: 56, label: "R1", value: "270 \u03a9", labelLeft: true }) +
+      C.wire([[XO, 208], [XO, 222]]) +
+      C.led(XO, 240, { dir: "d", span: 36, label: spec.led }) +
+      C.wire([[XO, 258], [XO, BOT]]) + C.node(XO, BOT) +
 
-      C.wire([[190, 132], [212, 132], [212, 156]]) +
-      C.res(212, 184, { dir: "v", span: 56, label: "R1", value: "270 \u03a9", labelLeft: true }) +
-      C.wire([[212, 212], [212, 220]]) +
-      C.led(212, 238, { dir: "d", span: 36, label: o.led }) +
-      C.wire([[212, 256], [212, 258]]) + C.node(212, 258) +
-
-      C.netnum(63, 63, 3) + C.netnum(63, 85, 4) + C.netnum(95, 143, 6) +
-      C.netnum(134, 100, 5) + C.netnum(212, 146, 7) + C.netnum(212, 216, 8) +
-      C.netnum(118, 20, 1) + C.netnum(150, 258, 2);
-    return { w: 258, h: 278, body: body };
+      nn(C, o, 63, 63, 3) + nn(C, o, 63, 85, 4) + nn(C, o, 95, 141, 6) +
+      nn(C, o, 138, 94, 5) + nn(C, o, XO, 141, 7) + nn(C, o, XO, 215, 8) +
+      nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2);
+    return { w: 258, h: 292, body: body };
   }
 
   /* ------------------------------------------------------------------------
@@ -2080,17 +2349,18 @@ title: Stripboard Builder · National 5 Electronics
     /* Circuit diagram (PLAN.md R5 — read pin by pin against `target` before the
        question is enabled).  Drawn portrait, because the board is limited by
        screen HEIGHT and the width beside it is what is going spare. */
-    circuit: C => {
+    circuit: (C, o) => {
+      const X = 132, TOP = 30, BOT = 216;
       const b =
-        C.term(150, 26, { side: "u", label: "+5 V", pos: true }) +
-        C.wire([[150, 33], [150, 92]], "sbd-pos") +
-        C.res(150, 122, { dir: "v", span: 60, label: "R1", value: "270 \u03a9" }) +
-        C.wire([[150, 152], [150, 184]]) +
-        C.led(150, 204, { dir: "d", span: 40, label: "LED1" }) +
-        C.wire([[150, 224], [150, 252]]) +
-        C.term(150, 259, { side: "r", label: "0 V" }) +
-        C.netnum(150, 62, 1) + C.netnum(150, 168, 2) + C.netnum(150, 238, 3);
-      return { w: 250, h: 280, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.node(X, TOP) + C.node(X, BOT) +
+        C.wire([[X, TOP], [X, 60]], "sbd-pos") +
+        C.res(X, 90, { dir: "v", span: 60, label: "R1", value: "270 \u03a9" }) +
+        C.wire([[X, 120], [X, 144]]) +
+        C.led(X, 164, { dir: "d", span: 40, label: "LED1" }) +
+        C.wire([[X, 184], [X, BOT]]) +
+        nn(C, o, X, 46, 1) + nn(C, o, X, 132, 2) + nn(C, o, X, 200, 3);
+      return { w: 258, h: 244, body: b };
     },
     why: [
       "The resistor and the LED are in series between +5 V and 0 V, so the board " +
@@ -2142,6 +2412,28 @@ title: Stripboard Builder · National 5 Electronics
     // inputs to 0 V has done the right thing and must not be failed for it (R1)
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.6"],
+    /* The reading the test point is FOR (QVSR: the expected value is planned on
+       the layout before the board is built).  Authored per net, not per hole —
+       the pupil chooses where on that net to put the probe. */
+    expect: {
+      inputs: [["A", 1], ["B", 1], ["C", 0]],
+      note: "the door is closed and a floor is selected, but the car is overloaded",
+      levels: { "IC1.6": 0 }
+    },
+    /* Sub-system staging (§4.1 / the alpha feedback): the switching into the
+       chip is checked on its own before the output sub-system is unlocked. */
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "A", "B", "C", "IC1"],
+        hint: "Place the chip, cut every track it crosses, and get the three inputs " +
+              "onto the right pins — plus the link from gate a's output to gate b's input. " +
+              "The output sub-system unlocks once this checks clean." },
+      { name: "The output sub-system",
+        parts: ["R1", "LED1"],
+        hint: "Now add the resistor and the LED from the chip's output down to 0 V, mark the " +
+              "test point, and say what it will read — the Test point tool gives you the " +
+              "input conditions." }
+    ],
     reference: {
       // the seven cuts are the column between the chip's two rows of pins
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
@@ -2159,13 +2451,13 @@ title: Stripboard Builder · National 5 Electronics
         { a: "H9", b: "I9", colour: "orange", num: 1 },   // pin 3 -> pin 4
         { a: "L6", b: "O6", colour: "black",  num: 2 }    // 0 V rail -> the LED cathode
       ],
-      testpoints: [{ id: "TP1", at: "K8" }]
+      testpoints: [{ id: "TP1", at: "K8", predict: 0 }]
     },
     /* The dashed outline round the two gates is the whole point of the
        question: Yenka draws two AND symbols, but they are two gates of ONE
        7408.  Drawn by the shared archetype (R5 checked against `target`). */
-    circuit: C => twoGateChip(C, { kind: "and", part: "7408",
-                                   in: ["A", "B", "C"], led: "LED1" }),
+    circuit: (C, o) => twoGateChip(C, { kind: "and", part: "7408",
+                                       in: ["A", "B", "C"], led: "LED1" }, o),
     why: [
       "There is <strong>one chip</strong>, not two. Yenka draws two AND gate symbols, " +
       "but both live in the same 7408 — sharing pin 7 (0 V) and pin 14 (+5 V).",
@@ -2175,7 +2467,8 @@ title: Stripboard Builder · National 5 Electronics
       "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
       "They are next to each other on the package but on different tracks — adjacent " +
       "pins are <em>not</em> connected, so that join needs a link wire.",
-      "Gates c and d are unused. Their pins can be left, or tied to 0 V — either is accepted."
+      "Gates c and d are unused. Their pins can be left, or tied to 0 V — either is accepted.",
+      "With <strong>A = 1, B = 1, C = 0</strong> the first gate gives 1, but the second gate ANDs that with C, so <strong>TP1 reads logic 0</strong> — the lift stays put. Writing the expected reading on the layout is what makes the test point worth marking: on the real board, a 1 there tells you the fault is downstream of the chip, and a 0 tells you it is not."
     ]
   };
 
@@ -2222,19 +2515,19 @@ title: Stripboard Builder · National 5 Electronics
       links: [],
       testpoints: []
     },
-    circuit: C => {
+    circuit: (C, o) => {
+      const X = 120, TOP = 30, BOT = 228;
       const b =
-        C.term(140, 26, { side: "u", label: "+5 V", pos: true }) +
-        C.wire([[140, 33], [140, 62]], "sbd-pos") +
-        C.ldr(140, 92, { dir: "v", span: 60, label: "LDR1" }) +
-        C.wire([[140, 122], [140, 152]]) +
-        C.node(140, 137) + C.wire([[140, 137], [206, 137]]) +
-        C.term(213, 137, { side: "r", label: "OUT" }) +
-        C.res(140, 182, { dir: "v", span: 60, label: "R1", value: "10 kΩ", labelLeft: true }) +
-        C.wire([[140, 212], [140, 240]]) +
-        C.term(140, 247, { side: "r", label: "0 V" }) +
-        C.netnum(140, 50, 1) + C.netnum(178, 137, 2) + C.netnum(140, 226, 3);
-      return { w: 258, h: 268, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.node(X, TOP) + C.node(X, BOT) +
+        C.wire([[X, TOP], [X, 56]], "sbd-pos") +
+        C.ldr(X, 86, { dir: "v", span: 60, label: "LDR1" }) +
+        C.wire([[X, 116], [X, 140]]) + C.node(X, 128) +
+        C.wire([[X, 128], [192, 128]]) + C.term(199, 128, { side: "r", label: "OUT" }) +
+        C.res(X, 170, { dir: "v", span: 60, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[X, 200], [X, BOT]]) +
+        nn(C, o, X, 44, 1) + nn(C, o, 160, 128, 2) + nn(C, o, X, 214, 3);
+      return { w: 258, h: 256, body: b };
     },
     why: [
       "There are three nets, so the board needs <strong>three tracks</strong>. The middle " +
@@ -2296,27 +2589,22 @@ title: Stripboard Builder · National 5 Electronics
       links: [],
       testpoints: []
     },
-    circuit: C => {
-      const g = C.andGate(120, 92, { w: 34, lead: 14, pins: ["1", "2", "3"] });
+    circuit: (C, o) => {
+      const g = C.andGate(120, 96, { w: 34, lead: 14, pins: pinNos(o, ["1", "2", "3"]) });
+      const TOP = 26, BOT = 234, XO = 206;
       const b =
-        C.chip(72, 62, 108, 62) + C.text(72, 56, "IC1  7408", { anchor: "start" }) +
-        C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [160, 22]], "sbd-pos") +
-        C.wire([[160, 22], [160, 62]], "sbd-pos") + C.node(160, 22) +
-        C.text(165, 39, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 246, { label: "0 V" }) + C.wire([[51, 246], [212, 246]]) +
-        C.wire([[92, 124], [92, 246]]) + C.node(92, 246) +
-        C.text(97, 141, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 81, { label: "A" }) + C.wire([[51, 81], [89, 81]]) +
-        C.term(44, 103, { label: "B" }) + C.wire([[51, 103], [89, 103]]) +
-        g.svg +
-        C.wire([[151, 92], [212, 92], [212, 116]]) +
-        C.res(212, 144, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
-        C.wire([[212, 172], [212, 182]]) +
-        C.led(212, 200, { dir: "d", span: 36, label: "LED1" }) +
-        C.wire([[212, 218], [212, 246]]) + C.node(212, 246) +
-        C.netnum(66, 81, 3) + C.netnum(66, 103, 4) + C.netnum(120, 22, 1) +
-        C.netnum(150, 246, 2) + C.netnum(212, 110, 5) + C.netnum(212, 178, 6);
-      return { w: 258, h: 268, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.term(42, 85, { label: "A" }) + C.wire([[49, 85], [96, 85]]) +
+        C.term(42, 107, { label: "B" }) + C.wire([[49, 107], [96, 107]]) +
+        g.svg + C.text(123, 62, "IC1a") +
+        C.wire([[158, 96], [XO, 96], [XO, 112]]) +
+        C.res(XO, 140, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 168], [XO, 180]]) +
+        C.led(XO, 198, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[XO, 216], [XO, BOT]]) + C.node(XO, BOT) +
+        nn(C, o, 66, 85, 3) + nn(C, o, 66, 107, 4) + nn(C, o, 120, TOP, 1) +
+        nn(C, o, 150, BOT, 2) + nn(C, o, 182, 96, 5) + nn(C, o, XO, 174, 6);
+      return { w: 258, h: 262, body: b };
     },
     why: [
       "The chip lies <strong>across</strong> the tracks, so pin 1 and pin 14 land on the same " +
@@ -2378,26 +2666,21 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => {
-      const g = C.notGate(118, 92, { pins: ["1", "2"] });
+    circuit: (C, o) => {
+      const g = C.notGate(118, 96, { pins: pinNos(o, ["1", "2"]) });
+      const TOP = 26, BOT = 234, XO = 206;
       const b =
-        C.chip(76, 66, 96, 54) + C.text(76, 60, "IC1  7404", { anchor: "start" }) +
-        C.term(44, 22, { label: "+5 V", pos: true }) + C.wire([[51, 22], [156, 22]], "sbd-pos") +
-        C.wire([[156, 22], [156, 66]], "sbd-pos") + C.node(156, 22) +
-        C.text(161, 41, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 246, { label: "0 V" }) + C.wire([[51, 246], [212, 246]]) +
-        C.wire([[92, 120], [92, 246]]) + C.node(92, 246) +
-        C.text(97, 137, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 92, { label: "IN" }) + C.wire([[51, 92], [92, 92]]) +
-        g.svg +
-        C.wire([[144, 92], [212, 92], [212, 116]]) +
-        C.res(212, 144, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
-        C.wire([[212, 172], [212, 182]]) +
-        C.led(212, 200, { dir: "d", span: 36, label: "LED1" }) +
-        C.wire([[212, 218], [212, 246]]) + C.node(212, 246) +
-        C.netnum(70, 92, 3) + C.netnum(120, 22, 1) + C.netnum(150, 246, 2) +
-        C.netnum(212, 110, 4) + C.netnum(212, 178, 5);
-      return { w: 258, h: 268, body: b };
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.term(42, 96, { label: "IN" }) + C.wire([[49, 96], [90, 96]]) +
+        g.svg + C.text(121, 62, "IC1a") +
+        C.wire([[160, 96], [XO, 96], [XO, 112]]) +
+        C.res(XO, 140, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 168], [XO, 180]]) +
+        C.led(XO, 198, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[XO, 216], [XO, BOT]]) + C.node(XO, BOT) +
+        nn(C, o, 68, 96, 3) + nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) +
+        nn(C, o, 182, 96, 4) + nn(C, o, XO, 174, 5);
+      return { w: 258, h: 262, body: b };
     },
     why: [
       "The seven cuts are the same as ever — the chip crosses seven tracks and every one of " +
@@ -2448,6 +2731,15 @@ title: Stripboard Builder · National 5 Electronics
       ["R1.2", "LED1.a"]
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "D", "T", "H", "IC1"],
+        hint: "Chip down, every track under it cut, the three inputs on the right pins and " +
+              "gate a's output linked to gate b's input." },
+      { name: "The output sub-system",
+        parts: ["R1", "LED1"],
+        hint: "Now the resistor and the LED from the chip's output down to 0 V." }
+    ],
     reference: {
       cuts: ["N11", "O11", "P11", "Q11", "R11", "S11", "T11"],
       placements: [
@@ -2466,8 +2758,8 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => twoGateChip(C, { kind: "and", part: "7408",
-                                   in: ["D", "T", "H"], led: "LED1" }),
+    circuit: (C, o) => twoGateChip(C, { kind: "and", part: "7408",
+                                       in: ["D", "T", "H"], led: "LED1" }, o),
     why: [
       "Three conditions, two gates, <strong>one chip</strong>. Gates a and b of the same " +
       "7408 share pin 7 (0 V) and pin 14 (+5 V).",
@@ -2516,6 +2808,15 @@ title: Stripboard Builder · National 5 Electronics
       ["R1.2", "LED1.a"]
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "S1", "S2", "S3", "IC1"],
+        hint: "Chip down, every track under it cut, the three bay sensors on the right pins " +
+              "and gate a's output linked to gate b's input." },
+      { name: "The output sub-system",
+        parts: ["R1", "LED1"],
+        hint: "Now the resistor and the sign indicator from the chip's output down to 0 V." }
+    ],
     reference: {
       cuts: ["F25", "G25", "H25", "I25", "J25", "K25", "L25"],
       placements: [
@@ -2534,8 +2835,8 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => twoGateChip(C, { kind: "or", part: "7432",
-                                   in: ["S1", "S2", "S3"], led: "LED1" }),
+    circuit: (C, o) => twoGateChip(C, { kind: "or", part: "7432",
+                                       in: ["S1", "S2", "S3"], led: "LED1" }, o),
     why: [
       "“Any one of three” is a 3-input OR, and there is no 3-input OR in the kit — so it is " +
       "built from <strong>two 2-input OR gates</strong> of one 7432.",
@@ -2594,27 +2895,28 @@ title: Stripboard Builder · National 5 Electronics
       ],
       testpoints: []
     },
-    circuit: C => {
-      const q = C.npn(150, 150, { label: "Q1" });
+    circuit: (C, o) => {
+      const q = C.npn(164, 160, { label: "Q1" });   // base 130,160 · collector 174,128 · emitter 174,192
+      const TOP = 26, BOT = 236, XS = 86, XQ = 174;
       const b =
-        C.term(44, 24, { label: "+5 V", pos: true }) + C.wire([[51, 24], [150, 24]], "sbd-pos") +
-        C.node(88, 24) + C.node(150, 24) +
-        C.wire([[88, 24], [88, 56]]) +
-        C.sw(88, 76, { span: 40, label: "SW1" }) +
-        C.wire([[88, 96], [88, 116]]) +
-        C.res(88, 144, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
-        C.wire([[88, 172], [88, 210], [136, 210]]) +
-        C.wire([[136, 210], [136, 150]]) +
-        C.wire([[150, 24], [150, 66]]) +
-        C.sounder(150, 90, { dir: "v", span: 48, label: "BUZ1" }) +
-        C.wire([[150, 114], [150, 118]]) +
+        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
+        C.node(XS, TOP) + C.node(XQ, TOP) +
+
+        C.wire([[XS, TOP], [XS, 54]], "sbd-pos") +
+        C.sw(XS, 72, { dir: "v", span: 36, label: "SW1" }) +
+        C.wire([[XS, 90], [XS, 118]]) +
+        C.res(XS, 146, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
+        C.wire([[XS, 174], [XS, 206], [130, 206], [130, 160]]) +
+
+        C.wire([[XQ, TOP], [XQ, 60]], "sbd-pos") +
+        C.sounder(XQ, 78, { dir: "v", span: 48, label: "BUZ1" }) +
+        C.wire([[XQ, 93], [XQ, 128]]) +
         q.svg +
-        C.wire([[160, 182], [160, 232]]) +
-        C.term(44, 232, { label: "0 V" }) + C.wire([[51, 232], [160, 232]]) +
-        C.node(160, 232) +
-        C.netnum(118, 24, 1) + C.netnum(88, 108, 2) + C.netnum(112, 210, 3) +
-        C.netnum(150, 130, 5) + C.netnum(110, 232, 4);
-      return { w: 258, h: 252, body: b };
+        C.wire([[XQ, 192], [XQ, BOT]]) + C.node(XQ, BOT) +
+
+        nn(C, o, 120, TOP, 1) + nn(C, o, XS, 104, 2) + nn(C, o, 108, 206, 3) +
+        nn(C, o, XQ, 114, 5) + nn(C, o, 120, BOT, 4);
+      return { w: 258, h: 260, body: b };
     },
     why: [
       "The transistor has <strong>three legs in three consecutive holes</strong>, so it must " +
@@ -2669,6 +2971,21 @@ title: Stripboard Builder · National 5 Electronics
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.6"],
+    expect: {
+      inputs: [["SD", 1], ["TK", 1], ["EN", 1]],
+      note: "the soil is dry, the tank is not empty and the system is switched on",
+      levels: { "IC1.6": 1 }
+    },
+    stages: [
+      { name: "Inputs and the chip",
+        parts: ["+5V", "0V", "SD", "TK", "EN", "IC1"],
+        hint: "Chip down, every track under it cut, the three inputs on the right pins and " +
+              "gate a's output linked to gate b's input." },
+      { name: "The output sub-system",
+        parts: ["R1", "Q1", "PUMP"],
+        hint: "Now the driver: the base resistor, the transistor and the pump — then the " +
+              "test point on the chip's output, and what it will read." }
+    ],
     reference: {
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
       placements: [
@@ -2687,38 +3004,38 @@ title: Stripboard Builder · National 5 Electronics
         { a: "L7",  b: "M7",  colour: "black",  num: 2 },
         { a: "H26", b: "O26", colour: "green",  num: 3 }
       ],
-      testpoints: [{ id: "TP1", at: "K8" }]
+      testpoints: [{ id: "TP1", at: "K8", predict: 1 }]
     },
-    circuit: C => {
+    circuit: (C, o) => {
       const G = { w: 32, lead: 12 };
-      const ga = C.andGate(100, 74, Object.assign({ pins: ["1", "2", "3"] }, G));
-      const gb = C.andGate(156, 132, Object.assign({ pins: ["4", "5", "6"] }, G));
-      const q = C.npn(234, 246, { label: "Q1" });
+      const ga = C.andGate(104, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
+      const gb = C.andGate(160, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
+      const q = C.npn(240, 230, { label: "Q1" });  // base 206,230 · collector 250,198 · emitter 250,262
+      const TOP = 24, BOT = 286, XR = 206, XP = 250;
       const b =
-        C.chip(62, 44, 140, 122) + C.text(62, 38, "IC1  7408", { anchor: "start" }) +
-        C.term(44, 20, { label: "+5 V", pos: true }) + C.wire([[51, 20], [244, 20]], "sbd-pos") +
-        C.wire([[186, 20], [186, 44]], "sbd-pos") + C.node(186, 20) +
-        C.text(191, 37, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.wire([[244, 20], [244, 130]], "sbd-pos") + C.node(244, 20) +
-        C.motor(244, 154, { dir: "v", span: 48, letter: "M", label: "PUMP", labelSide: "r" }) +
-        C.wire([[244, 178], [244, 214]]) +
-        C.term(44, 300, { label: "0 V" }) + C.wire([[51, 300], [244, 300]]) +
-        C.wire([[76, 166], [76, 300]]) + C.node(76, 300) +
-        C.text(81, 183, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 63, { label: "SD" }) + C.wire([[51, 63], [78, 63]]) +
-        C.term(44, 85, { label: "TK" }) + C.wire([[51, 85], [78, 85]]) +
-        C.term(44, 143, { label: "EN" }) + C.wire([[51, 143], [134, 143]]) +
-        ga.svg + gb.svg +
-        C.wire([[134, 74], [134, 121]]) +
-        C.wire([[190, 132], [206, 132], [206, 174]]) +
-        C.res(206, 202, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
-        C.wire([[206, 230], [206, 246], [200, 246]]) +
+        C.rail(RAIL_L, 292, TOP, { pos: true }) + C.rail(RAIL_L, 292, BOT) +
+
+        C.term(40, 63, { label: "SD" }) + C.wire([[47, 63], [82, 63]]) +
+        C.term(40, 85, { label: "TK" }) + C.wire([[47, 85], [82, 85]]) +
+        C.term(40, 141, { label: "EN" }) + C.wire([[47, 141], [138, 141]]) +
+        ga.svg + C.text(110, 46, "IC1a") +
+        gb.svg + C.text(166, 102, "IC1b") +
+        C.wire([[138, 74], [138, 119]]) +
+
+        C.wire([[194, 130], [XR, 130], [XR, 156]]) +
+        C.res(XR, 184, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
+        C.wire([[XR, 212], [XR, 230]]) +
         q.svg +
-        C.wire([[244, 278], [244, 300]]) + C.node(244, 300) +
-        C.netnum(63, 63, 3) + C.netnum(63, 85, 4) + C.netnum(95, 143, 6) +
-        C.netnum(134, 100, 5) + C.netnum(206, 154, 7) + C.netnum(206, 240, 8) +
-        C.netnum(150, 300, 2) + C.netnum(110, 20, 1) + C.netnum(244, 196, 9);
-      return { w: 306, h: 314, body: b };
+
+        C.node(XP, TOP) + C.wire([[XP, TOP], [XP, 142]], "sbd-pos") +
+        C.motor(XP, 166, { dir: "v", span: 48, letter: "M", label: "PUMP", labelSide: "r" }) +
+        C.wire([[XP, 190], [XP, 198]]) +
+        C.wire([[XP, 262], [XP, BOT]]) + C.node(XP, BOT) +
+
+        nn(C, o, 63, 63, 3) + nn(C, o, 63, 85, 4) + nn(C, o, 95, 141, 6) +
+        nn(C, o, 138, 94, 5) + nn(C, o, XR, 143, 7) + nn(C, o, XR, 221, 8) +
+        nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) + nn(C, o, XP, 110, 9);
+      return { w: 316, h: 310, body: b };
     },
     why: [
       "The three conditions are a 3-input AND, built from two gates of <strong>one</strong> " +
@@ -2729,7 +3046,175 @@ title: Stripboard Builder · National 5 Electronics
       "pin 6, before the transistor. That is what you would put a meter probe on to find out " +
       "whether the fault is in the logic or in the pump driver.",
       "Plan the test points on the layout <em>before</em> you build. Adding them afterwards is " +
-      "what the verifiers' reports keep flagging."
+      "what the verifiers' reports keep flagging.",
+      "With <strong>SD = 1, TK = 1, EN = 1</strong> all three conditions are met, so <strong>TP1 reads logic 1</strong> and the transistor turns the pump on. If the pump stays off with a 1 at TP1, the fault is in the output sub-system, not the logic."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Q11 — Stairwell light timer.  A 555 MONOSTABLE: press the button and the
+     light stays on for a fixed time, then goes off by itself.
+
+     §6 allows the 555 but never as a flasher — an astable clocking LEDs, and
+     especially with an LDR near it, is the bicycle-lights brief and stays out.
+     A one-shot triggered by a push button is neither that nor the pillar drill.
+
+     The diagram names the pins rather than numbering them: 1 Ground, 2
+     Trigger, 3 Output, 4 Reset, 5 Control Voltage, 6 Threshold, 7 Discharge,
+     8 Vcc — read off the SQA data sheet (X860/75/12, page 3), which the page
+     links to.  Turning a name into a pin number IS the task.
+     ------------------------------------------------------------------------ */
+  const timer555 = {
+    id: "timer-555",
+    title: "Stairwell light timer",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A stairwell light is switched on by a push button and turns itself off again after " +
+      "a fixed time, so it is never left burning.",
+      "IC1 is a 555 wired as a <strong>monostable</strong> — one press, one timed output " +
+      "pulse. R1 and C1 set how long it lasts."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
+      { id: "TRIG", footprint: "term-1", name: "Trigger — the push button" },
+      { id: "IC1",  footprint: "dip-8",  part: "555", name: "IC1 — 555 timer" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (100 kΩ) — timing" },
+      { id: "C1",   footprint: "ecap-4", name: "C1 (10 µF) — timing" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — the stair light" }
+    ],
+    target: [
+      ["+5V.1", "IC1.8", "IC1.4", "R1.1"],
+      ["0V.1", "IC1.1", "C1.-", "LED1.k"],
+      ["R1.2", "IC1.7", "IC1.6", "C1.+"],
+      ["TRIG.1", "IC1.2"],
+      // R2 is vertical with its pin 2 on the chip's output track
+      ["IC1.3", "R2.2"],
+      ["R2.1", "LED1.a"]
+    ],
+    // pin 5 (Control Voltage) is left open, which is ordinary practice
+    dontcare: ["IC1.5"],
+    tpRequired: ["IC1.3"],
+    expect: {
+      inputs: [["TRIG", 0]],
+      note: "the button has just been pressed, so Trigger is pulled low and the timed " +
+            "output pulse has started",
+      levels: { "IC1.3": 1 }
+    },
+    stages: [
+      { name: "The chip and its timing parts",
+        parts: ["+5V", "0V", "TRIG", "IC1", "R1", "C1"],
+        hint: "Place the 555 and cut all four tracks it crosses. Reset ties to +5 V, the " +
+              "timing resistor runs from +5 V to Discharge, and Threshold, Discharge and " +
+              "the capacitor's + leg all end up on one net." },
+      { name: "The output sub-system",
+        parts: ["R2", "LED1"],
+        hint: "Now the series resistor and the stair light on the Output pin — then the " +
+              "test point, and what it reads just after the button is pressed." }
+    ],
+    reference: {
+      cuts: ["F11", "G11", "H11", "I11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-8",  at: "F10", rot: 0 },
+        { id: "+5V",  footprint: "term-1", at: "A2" },
+        { id: "0V",   footprint: "term-1", at: "X2" },
+        { id: "TRIG", footprint: "term-1", at: "G3" },
+        { id: "R1",   footprint: "res-4",  at: "A22", rot: 90 },
+        { id: "R2",   footprint: "res-4",  at: "E4",  rot: 90 },
+        { id: "C1",   footprint: "ecap-4", at: "H26", rot: 90 },
+        { id: "LED1", footprint: "led-2",  at: "W28", rot: 90 }
+      ],
+      links: [
+        { a: "A16", b: "F16", colour: "red",   num: 1 },   // rail across to Vcc's track
+        { a: "A8",  b: "I8",  colour: "red",   num: 2 },   // rail across to Reset's track
+        { a: "D22", b: "G22", colour: "blue",  num: 3 },   // R1 down to Discharge
+        { a: "G20", b: "H20", colour: "blue",  num: 4 },   // Discharge across to Threshold
+        { a: "F6",  b: "K6",  colour: "black", num: 5 },   // the Ground pin out to the 0 V run
+        { a: "K30", b: "X30", colour: "black", num: 6 },   // that run down to the 0 V rail
+        { a: "E32", b: "W32", colour: "green", num: 7 }    // R2 across to the LED
+      ],
+      testpoints: [{ id: "TP1", at: "H8", predict: 1 }]
+    },
+    circuit: (C, o) => {
+      /* Drawn exactly as the classroom material draws it (the 555 photographs
+         on classes/electronics/theory/logic-and-ics.html): a square box with
+         "555" in the middle and the pin NUMBER inside the box wherever a wire
+         meets it — 7, 6, 2 down the left, 4 and 8 on top, 3 on the right,
+         1 and 5 underneath.  Numbers, not function names: turning a number
+         into a function on the data sheet is the skill.
+
+         The supply pins ARE wired here, because the template wires them.  That
+         is not a contradiction of the gate questions: a distinctive-shape gate
+         symbol has no supply pins to draw, which is exactly why those
+         questions leave the pupil to work them out. */
+      const TOP = 24, BOT = 288, XT = 120, XO = 300;
+      const ic = C.icBlock(210, 150, { w: 70, h: 66, name: "555",
+        left:   [{ num: "7", at: 0.2 }, { num: "6", at: 0.5 }, { num: "2", at: 0.8 }],
+        top:    [{ num: "4", at: 0.35 }, { num: "8", at: 0.78 }],
+        right:  [{ num: "3", at: 0.5 }],
+        bottom: [{ num: "1", at: 0.35 }, { num: "5", at: 0.78 }] });
+      const P = ic.at;
+      const b =
+        C.rail(RAIL_L, 320, TOP, { pos: true }) + C.rail(RAIL_L, 320, BOT) +
+        ic.svg +
+
+        // pin 8 is the supply and pin 4 (Reset) is tied up to it
+        C.wire([[P["8"][0], P["8"][1]], [P["8"][0], TOP]], "sbd-pos") + C.node(P["8"][0], TOP) +
+        C.wire([[P["4"][0], P["4"][1]], [P["4"][0], TOP]], "sbd-pos") + C.node(P["4"][0], TOP) +
+        // pin 1 is 0 V; pin 5 (control voltage) is left open, which is normal
+        C.wire([[P["1"][0], P["1"][1]], [P["1"][0], BOT]]) + C.node(P["1"][0], BOT) +
+
+        // the timing chain: R1 from the rail into pin 7, pin 6 tied to it, C1 to 0 V
+        C.node(XT, TOP) + C.wire([[XT, TOP], [XT, 46]], "sbd-pos") +
+        C.res(XT, 74, { dir: "v", span: 56, label: "R1", value: "100 kΩ", labelLeft: true }) +
+        C.wire([[XT, 102], [XT, 200]]) +
+        C.wire([[XT, P["7"][1]], [P["7"][0], P["7"][1]]]) + C.node(XT, P["7"][1]) +
+        C.wire([[XT, P["6"][1]], [P["6"][0], P["6"][1]]]) + C.node(XT, P["6"][1]) +
+        C.ecap(XT, 228, { span: 56, label: "C1", value: "10 µF" }) +
+        C.wire([[XT, 256], [XT, BOT]]) + C.node(XT, BOT) +
+
+        /* The trigger wire crosses the timing chain with no junction dot, which
+           is the template's convention for "these do not join" — the dot is the
+           only thing that means a connection. */
+        C.term(40, P["2"][1], { label: "TRIG" }) +
+        C.wire([[47, P["2"][1]], [P["2"][0], P["2"][1]]]) +
+
+        // the output drives the stair light
+        C.wire([[P["3"][0], P["3"][1]], [XO, P["3"][1]], [XO, 176]]) +
+        C.res(XO, 204, { dir: "v", span: 56, label: "R2", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 232], [XO, 252]]) +
+        C.led(XO, 268, { dir: "d", span: 32, label: "LED1" }) +
+        C.wire([[XO, 284], [XO, BOT]]) + C.node(XO, BOT) +
+
+        nn(C, o, 70, TOP, 1) + nn(C, o, 150, BOT, 2) +
+        // on the stub into pin 7, NOT on the timing column: a ring sitting on the
+        // TRIG crossing would read as a junction dot
+        nn(C, o, 150, P["7"][1], 3) + nn(C, o, 80, P["2"][1], 4) +
+        nn(C, o, 272, P["3"][1], 5) + nn(C, o, XO, 242, 6);
+      return { w: 340, h: 316, body: b };
+    },
+    why: [
+      "A <strong>monostable</strong> has one stable state. Pulling <strong>Trigger</strong> " +
+      "low starts a single output pulse, and the pulse ends by itself once C1 has charged " +
+      "through R1 to two thirds of the supply — nothing has to switch it off.",
+      "<strong>Threshold, Discharge and C1's + leg are one net.</strong> That single " +
+      "connection is what makes it a timer, and it is the one most often missed on the " +
+      "layout: on the board they are two pins on opposite sides of the cut, so it takes " +
+      "two link wires to bring them together.",
+      "<strong>Reset (pin 4) is tied to +5 V.</strong> Left floating it resets at random " +
+      "and the light drops out early — a fault that looks like a duff chip.",
+      "The 555 is drawn the standard way — a square with <strong>555</strong> in it and the " +
+      "<strong>pin number</strong> at every point a wire meets it. The numbers are all you " +
+      "get: page 3 of the data sheet turns them into <strong>2 Trigger, 3 Output, 4 Reset, " +
+      "6 Threshold, 7 Discharge</strong>, with 8 and 1 the supplies and 5 left open.",
+      "Notice that the trigger wire <strong>crosses</strong> the timing chain without a dot. " +
+      "A junction dot is the only thing that means a join — two wires crossing with no dot " +
+      "are not connected, on this diagram and in the exam.",
+      "With the button just pressed the output is high, so <strong>TP1 reads logic 1</strong>. " +
+      "A 0 there while the light is supposed to be on puts the fault in the timing parts, " +
+      "not in the lamp."
     ]
   };
 
@@ -2771,6 +3256,26 @@ title: Stripboard Builder · National 5 Electronics
     ],
     dontcare: ["IC1.5", "IC1.6", "IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.2", "IC1.4"],
+    /* Two test points with DIFFERENT expected readings, deliberately: an
+       active-low sensor that has tripped and one that has not. */
+    expect: {
+      inputs: [["S1", 0], ["S2", 1]],
+      note: "sensor 1 has tripped (active low) and sensor 2 has not",
+      levels: { "IC1.2": 1, "IC1.4": 0 }
+    },
+    /* Two unrelated signals through one package, so the stages are the two
+       chains rather than input-then-output: get the first sensor's chain right
+       and the second is the same job again, which is the lesson. */
+    stages: [
+      { name: "The chip and sensor 1",
+        parts: ["+5V", "0V", "S1", "IC1", "R1", "LED1"],
+        hint: "Place the chip, cut every track under it, and build sensor 1's chain right " +
+              "through to its indicator. Sensor 2 unlocks once this checks clean." },
+      { name: "Sensor 2's chain",
+        parts: ["S2", "R2", "LED2"],
+        hint: "Now the same again for sensor 2, on the second inverter of the SAME chip — " +
+              "then mark both test points and say what each will read." }
+    ],
     reference: {
       cuts: ["F11", "G11", "H11", "I11", "J11", "K11", "L11"],
       placements: [
@@ -2789,43 +3294,40 @@ title: Stripboard Builder · National 5 Electronics
         { a: "I8", b: "P8", colour: "green",  num: 2 },
         { a: "L9", b: "T9", colour: "orange", num: 3 }
       ],
-      testpoints: [{ id: "TP1", at: "G6" }, { id: "TP2", at: "P6" }]
+      testpoints: [{ id: "TP1", at: "G6", predict: 1 }, { id: "TP2", at: "P6", predict: 0 }]
     },
-    circuit: C => {
-      const g1 = C.notGate(118, 70, { pins: ["1", "2"] });
-      const g2 = C.notGate(118, 150, { pins: ["3", "4"] });
-      /* Gate a's chain is the FAR one and gate b's the near one, so neither
+    circuit: (C, o) => {
+      const g1 = C.notGate(118, 68, { pins: pinNos(o, ["1", "2"]) });
+      const g2 = C.notGate(118, 148, { pins: pinNos(o, ["3", "4"]) });
+      /* Gate a drives the FAR column and gate b the near one, so neither
          output wire has to cross the other chain.  Two wires crossing with no
-         junction dot is correct electrically and unreadable pedagogically —
-         a pupil cannot tell a crossing from a join. */
+         junction dot is correct electrically and unreadable pedagogically — a
+         pupil cannot tell a crossing from a join. */
+      const TOP = 22, BOT = 286, XA = 258, XB = 186;
       const b =
-        C.chip(76, 40, 96, 144) + C.text(76, 34, "IC1  7404", { anchor: "start" }) +
-        C.term(44, 16, { label: "+5 V", pos: true }) + C.wire([[51, 16], [160, 16]], "sbd-pos") +
-        C.wire([[160, 16], [160, 40]], "sbd-pos") + C.node(160, 16) +
-        C.text(165, 33, "14", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 296, { label: "0 V" }) + C.wire([[51, 296], [258, 296]]) +
-        C.wire([[92, 184], [92, 296]]) + C.node(92, 296) +
-        C.text(97, 201, "7", { cls: "sbd-cnet", anchor: "start" }) +
-        C.term(44, 70, { label: "S1" }) + C.wire([[51, 70], [92, 70]]) +
-        C.term(44, 150, { label: "S2" }) + C.wire([[51, 150], [92, 150]]) +
-        g1.svg + g2.svg +
+        C.rail(RAIL_L, 292, TOP, { pos: true }) + C.rail(RAIL_L, 292, BOT) +
 
-        C.wire([[144, 70], [258, 70], [258, 100]]) +
-        C.res(258, 128, { dir: "v", span: 56, label: "R1", value: "270 \u03a9" }) +
-        C.wire([[258, 156], [258, 206]]) +
-        C.led(258, 224, { dir: "d", span: 36, label: "LED1", labelSide: "d" }) +
-        C.wire([[258, 242], [258, 296]]) + C.node(258, 296) +
+        C.term(42, 68, { label: "S1" }) + C.wire([[49, 68], [90, 68]]) +
+        C.term(42, 148, { label: "S2" }) + C.wire([[49, 148], [90, 148]]) +
+        g1.svg + C.text(121, 46, "IC1a") +
+        g2.svg + C.text(121, 126, "IC1b") +
 
-        C.wire([[144, 150], [190, 150], [190, 152]]) +
-        C.res(190, 180, { dir: "v", span: 56, label: "R2", value: "270 \u03a9" }) +
-        C.wire([[190, 208], [190, 222]]) +
-        C.led(190, 240, { dir: "d", span: 36, label: "LED2" }) +
-        C.wire([[190, 258], [190, 296]]) + C.node(190, 296) +
+        C.wire([[160, 68], [XA, 68], [XA, 96]]) +
+        C.res(XA, 124, { dir: "v", span: 56, label: "R1", value: "270 \u03a9" }) +
+        C.wire([[XA, 152], [XA, 184]]) +
+        C.led(XA, 202, { dir: "d", span: 36, label: "LED1" }) +
+        C.wire([[XA, 220], [XA, BOT]]) + C.node(XA, BOT) +
 
-        C.netnum(70, 70, 3) + C.netnum(70, 150, 6) + C.netnum(120, 16, 1) +
-        C.netnum(130, 296, 2) + C.netnum(258, 88, 4) + C.netnum(258, 180, 5) +
-        C.netnum(166, 150, 7) + C.netnum(190, 215, 8);
-      return { w: 312, h: 312, body: b };
+        C.wire([[160, 148], [XB, 148], [XB, 166]]) +
+        C.res(XB, 194, { dir: "v", span: 56, label: "R2", value: "270 \u03a9", labelLeft: true }) +
+        C.wire([[XB, 222], [XB, 242]]) +
+        C.led(XB, 260, { dir: "d", span: 36, label: "LED2" }) +
+        C.wire([[XB, 278], [XB, BOT]]) + C.node(XB, BOT) +
+
+        nn(C, o, 68, 68, 3) + nn(C, o, 68, 148, 6) + nn(C, o, 120, TOP, 1) +
+        nn(C, o, 130, BOT, 2) + nn(C, o, 210, 68, 4) + nn(C, o, XA, 168, 5) +
+        nn(C, o, 172, 148, 7) + nn(C, o, XB, 232, 8);
+      return { w: 316, h: 310, body: b };
     },
     why: [
       "Two signals, two gates, <strong>one chip</strong>. The 7404 holds six inverters and " +
@@ -2836,12 +3338,177 @@ title: Stripboard Builder · National 5 Electronics
       "joined to the two inputs.",
       "Four inverters are unused. Leave their pins, or tie the unused <em>inputs</em> to 0 V — " +
       "either is accepted. Never tie an unused <em>output</em> to anything.",
-      "Each sub-system output gets its own numbered test point, planned before you build."
+      "Each sub-system output gets its own numbered test point, planned before you build.",
+      "With <strong>S1 = 0, S2 = 1</strong>, the inverters give <strong>TP1 = 1</strong> and <strong>TP2 = 0</strong> — one lamp on, one off. Two test points on one chip is the point of this board: they tell you which of the two signals has gone wrong."
+    ]
+  };
+
+
+  /* ------------------------------------------------------------------------
+     Q12 — Frost warning.  A 741 used as a COMPARATOR: a thermistor divider on
+     the non-inverting input, a fixed reference divider on the inverting one.
+
+     741 pinout (SQA data sheet X860/75/12, page 3): 1 and 5 Offset Null,
+     2 Inverting (−), 3 Non-Inverting (+), 4 V−, 6 Output, 7 V+, 8 NC.  Both
+     offset-null pins and the NC pin are left open, which is normal — they are
+     `dontcare`, so a pupil who ties them anywhere is not failed for it (R1).
+
+     The thermistor sits at the BOTTOM of its divider on purpose: as it gets
+     colder an NTC's resistance rises, so the divider output rises above the
+     reference and the output goes high when it is cold, which is the way round
+     a frost warning has to work.
+     ------------------------------------------------------------------------ */
+  const frostComparator = {
+    id: "frost-comparator",
+    title: "Frost warning",
+    board: "34-0411",
+    scaffold: "blank",
+    scenario: [
+      "A warning light comes on when the air temperature drops to freezing, so a road " +
+      "crew knows to grit.",
+      "IC1 is a 741 used as a <strong>comparator</strong>. R1 and TH1 form the sensing " +
+      "divider; R2 and R3 set the fixed reference the sensor is compared against."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
+      { id: "IC1",  footprint: "dip-8",  part: "741", name: "IC1 — 741 op-amp" },
+      // the thermistor is off-board on a 2-way terminal block, and either way round
+      { id: "TH1",  footprint: "term-2", symmetric: true, name: "TH1 — thermistor" },
+      { id: "R1",   footprint: "res-4",  name: "R1 (10 kΩ)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — reference" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — reference" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — frost warning" }
+    ],
+    target: [
+      ["+5V.1", "IC1.7", "R1.1", "R2.1"],
+      ["0V.1", "IC1.4", "TH1.2", "R3.2", "LED1.k"],
+      ["R1.2", "TH1.1", "IC1.3"],
+      ["R2.2", "R3.1", "IC1.2"],
+      ["IC1.6", "R4.1"],
+      ["R4.2", "LED1.a"]
+    ],
+    // both offset-null pins and the NC pin are left open, which is normal
+    dontcare: ["IC1.1", "IC1.5", "IC1.8"],
+    tpRequired: ["IC1.6"],
+    expect: {
+      inputs: [["temperature", "cold"]],
+      note: "the thermistor is cold, so its resistance is high and the sensing divider " +
+            "sits above the reference",
+      levels: { "IC1.6": 1 }
+    },
+    stages: [
+      { name: "The two dividers and the chip",
+        parts: ["+5V", "0V", "IC1", "R1", "TH1", "R2", "R3"],
+        hint: "Place the 741 and cut all four tracks it crosses. The sensing divider goes " +
+              "to the + input and the reference divider to the − input — the data sheet " +
+              "says which pin is which." },
+      { name: "The output sub-system",
+        parts: ["R4", "LED1"],
+        hint: "Now the series resistor and the warning light on the op-amp's output — then " +
+              "the test point, and what it reads when it is cold." }
+    ],
+    reference: {
+      cuts: ["P11", "Q11", "R11", "S11"],
+      placements: [
+        { id: "IC1",  footprint: "dip-8",  at: "P10", rot: 0 },
+        { id: "+5V",  footprint: "term-1", at: "A2" },
+        { id: "0V",   footprint: "term-1", at: "X2" },
+        { id: "R1",   footprint: "res-4",  at: "A4",  rot: 90 },   // legs A4 and D4
+        { id: "TH1",  footprint: "term-2", at: "D6",  rot: 90 },   // legs D6 and F6
+        { id: "R2",   footprint: "res-4",  at: "H16", rot: 90 },   // legs H16 and K16
+        { id: "R3",   footprint: "res-4",  at: "K18", rot: 90 },   // legs K18 and N18
+        { id: "R4",   footprint: "res-4",  at: "R28", rot: 90 },   // legs R28 and U28
+        { id: "LED1", footprint: "led-2",  at: "W30", rot: 90 }
+      ],
+      links: [
+        { a: "A18", b: "H18", colour: "red",    num: 1 },  // rail down to R2's top
+        { a: "A26", b: "Q26", colour: "red",    num: 2 },  // rail across to V+'s track
+        { a: "D9",  b: "R9",  colour: "blue",   num: 3 },  // sensing divider to the + input
+        { a: "K7",  b: "Q7",  colour: "orange", num: 4 },  // reference divider to the − input
+        { a: "F8",  b: "X8",  colour: "black",  num: 5 },  // thermistor's low end to 0 V
+        { a: "N20", b: "X20", colour: "black",  num: 6 },  // R3's low end to 0 V
+        { a: "S6",  b: "X6",  colour: "black",  num: 7 },  // V− pin to 0 V
+        { a: "U32", b: "W32", colour: "green",  num: 8 }   // R4 across to the LED
+      ],
+      testpoints: [{ id: "TP1", at: "R18", predict: 1 }]
+    },
+    circuit: (C, o) => {
+      /* Laid out like the comparator on the theory page: both dividers side by
+         side on the left, op-amp to the right, reference to the − input and the
+         sensor to the +.  The reference wire crosses the sensor's column with
+         NO junction dot — which is the template's convention, and the only
+         thing that marks a real join is the dot.  (An earlier draft moved the
+         dividers apart to dodge the crossing; the classroom material does not,
+         and matching it beats tidying it.) */
+      const TOP = 24, BOT = 288, XREF = 70, XSEN = 150, XO = 312;
+      const A = C.opamp(236, 168, {});
+      const M = A.minus[1], P = A.plus[1];
+      const b =
+        C.rail(RAIL_L, 336, TOP, { pos: true }) + C.rail(RAIL_L, 336, BOT) +
+
+        // reference divider: two equal resistors, so the reference is half supply
+        C.node(XREF, TOP) + C.wire([[XREF, TOP], [XREF, 70]], "sbd-pos") +
+        C.res(XREF, 98, { dir: "v", span: 56, label: "R2", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XREF, 126], [XREF, M]]) + C.node(XREF, M) +
+        C.wire([[XREF, M], [XREF, 182]]) +
+        C.res(XREF, 210, { dir: "v", span: 56, label: "R3", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XREF, 238], [XREF, BOT]]) + C.node(XREF, BOT) +
+
+        // sensing divider: R1 on top, thermistor below, so COLD reads high
+        C.node(XSEN, TOP) + C.wire([[XSEN, TOP], [XSEN, 78]], "sbd-pos") +
+        C.res(XSEN, 106, { dir: "v", span: 56, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XSEN, 134], [XSEN, 182]]) + C.node(XSEN, P) +
+        C.thermistor(XSEN, 210, { dir: "v", span: 56 }) +
+        C.text(134, 214, "TH1", { anchor: "end" }) +
+        C.wire([[XSEN, 238], [XSEN, BOT]]) + C.node(XSEN, BOT) +
+
+        // reference to −, sensor to +; the first crosses the second's column
+        C.wire([[XREF, M], [A.minus[0], M]]) +
+        C.wire([[XSEN, P], [A.plus[0], P]]) +
+        A.svg + C.text(206, 236, "IC1  741") +
+
+        // the supply pins are drawn, as the template draws them
+        C.wire([[A.vplus[0], A.vplus[1]], [A.vplus[0], TOP]], "sbd-pos") +
+        C.node(A.vplus[0], TOP) +
+        C.wire([[A.vminus[0], A.vminus[1]], [A.vminus[0], BOT]]) +
+        C.node(A.vminus[0], BOT) +
+
+        // the output drives the warning light
+        C.wire([[A.out[0], A.out[1]], [XO, A.out[1]], [XO, 176]]) +
+        C.res(XO, 204, { dir: "v", span: 56, label: "R4", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 232], [XO, 252]]) +
+        C.led(XO, 268, { dir: "d", span: 32, label: "LED1" }) +
+        C.wire([[XO, 284], [XO, BOT]]) + C.node(XO, BOT) +
+
+        nn(C, o, 108, TOP, 1) + nn(C, o, 108, BOT, 2) +
+        nn(C, o, 178, P, 3) + nn(C, o, 106, M, 4) +
+        nn(C, o, 296, A.out[1], 5) + nn(C, o, XO, 242, 6);
+      return { w: 356, h: 316, body: b };
+    },
+    why: [
+      "A <strong>comparator</strong> has no feedback: the output slams high when the " +
+      "+ input is above the − input and low when it is below. Two potential dividers, " +
+      "one sensing and one fixed, are all it needs.",
+      "<strong>The thermistor is at the bottom of its divider on purpose.</strong> An NTC " +
+      "gets <em>more</em> resistive as it cools, so putting it at the bottom makes the " +
+      "divider voltage <em>rise</em> when it is cold — which is when the warning has to " +
+      "come on. Swap R1 and TH1 over and the light works back to front.",
+      "R2 and R3 are equal, so the reference sits at half the supply. Changing R3 changes " +
+      "the temperature the warning trips at, and nothing else.",
+      "The diagram marks the inputs <strong>+</strong> and <strong>−</strong>, not 3 and 2 " +
+      "— <strong>the + input is pin 3 and the − input is pin 2</strong>, with the supplies " +
+      "on pins 7 and 4. Page 3 of the data sheet. Pins 1, 5 and 8 are left open, which is " +
+      "normal, so it does not matter what happens to them.",
+      "Cold means the + input is above the reference, so <strong>TP1 reads logic 1</strong>. " +
+      "A 0 there on a frosty morning puts the fault in the sensing divider, not the lamp."
     ]
   };
 
   root.QUESTIONS = [ledResistor, ldrDivider, andGateLed, notGateLed, liftInterlock,
-                    kilnInterlock, carparkFull, transistorBuzzer, greenhouse, twoInverters];
+                    kilnInterlock, carparkFull, transistorBuzzer, greenhouse, twoInverters,
+                    timer555, frostComparator];
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- trace-questions.js ---- */
@@ -2937,6 +3604,146 @@ title: Stripboard Builder · National 5 Electronics
   ];
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- fault-questions.js ---- */
+/* ============================================================================
+   Stripboard Builder — Fault-finder bank (PLAN.md §4.1, Mode 3)
+   ----------------------------------------------------------------------------
+   Every item is a CORRECT reference board with one thing broken.  The board,
+   the fault type and the places to ring are all derived by running the engine
+   over the mutated board — there is no second answer key, so a Fault-finder
+   item cannot drift from what Convert would say about the same board.  That is
+   the same reasoning as `reference` being asserted against `target` (R4), and
+   it is why this mode costs almost no new content (§13.4).
+
+   Only `apply` and the four choices are authored.  Everything a pupil is
+   marked against comes from `SBD.check()`.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+
+  /* The pupil-facing catalogue: an engine code and the words for it.  Kept
+     here rather than on the page so the tests read the same list. */
+  const FAULT_NAMES = {
+    "dil-uncut":        "The tracks under the chip have not been cut",
+    "dil-along-tracks": "The chip lies along the tracks instead of across them",
+    "split":            "Two things that should be joined are on different tracks",
+    "merged":           "Two nets that should be separate have been joined",
+    "self-short":       "Both legs of one part are in the same track",
+    "floating":         "A pin is alone on its track",
+    "unplaced":         "A component has been left in the bank",
+    "no-testpoint":     "A test point is missing",
+    "no-prediction":    "A test point has no expected reading",
+    "wrong-prediction": "A test point's expected reading is wrong",
+    "reversed":         "A polarised part is fitted the wrong way round",
+    "diagonal-link":    "A link wire runs diagonally",
+    "colour-reused":    "Two different signals share one wire colour",
+    "red-not-supply":   "A red link wire is not on the +5 V rail",
+    "black-not-supply": "A black link wire is not on the 0 V rail",
+    "pointless-cut":    "A cut that separates nothing"
+  };
+
+  /* `choices` are authored, not generated: a distractor is only worth offering
+     if it is a mistake a pupil could actually believe, and picking those is a
+     judgement the code cannot make. */
+  const FAULT_ITEMS = [
+    { id: "FF1", from: "lift-interlock",
+      apply: a => { a.cuts = a.cuts.filter(c => c !== "H11"); },
+      choices: ["dil-uncut", "dil-along-tracks", "split", "self-short"],
+      why: "One track under the chip was never cut, so the two pins facing each other " +
+           "across it are still joined by copper. Every track the package crosses has to " +
+           "be cut between the two rows of pins — this is the single most common fault " +
+           "the verification reports pick up." },
+
+    { id: "FF2", from: "lift-interlock",
+      apply: a => { a.cuts = ["I7"]; a.placements.find(p => p.id === "IC1").rot = 90; },
+      choices: ["dil-along-tracks", "dil-uncut", "merged", "floating"],
+      why: "The chip has been laid ALONG a track, so all seven pins down one side share " +
+           "one piece of copper and are shorted together. A DIL package always sits " +
+           "across the tracks." },
+
+    { id: "FF3", from: "lift-interlock",
+      apply: a => { a.links = a.links.filter(l => l.a !== "H9"); },
+      choices: ["split", "merged", "floating", "unplaced"],
+      why: "Gate a's output and gate b's input are on different tracks and nothing joins " +
+           "them. Adjacent pins down one side of a chip are NOT connected to each other — " +
+           "that pair needs a link wire." },
+
+    { id: "FF4", from: "lift-interlock",
+      // straight, not diagonal: a diagonal link is its own (higher-ranked) fault,
+      // and this item is about the short, not the routing
+      apply: a => { a.links.push({ a: "F21", b: "O21", colour: "purple", num: 9 }); },
+      choices: ["merged", "split", "self-short", "pointless-cut"],
+      why: "A link wire has joined the +5 V rail to the 0 V rail. On a real board that is " +
+           "a dead short across the supply." },
+
+    { id: "FF5", from: "lift-interlock",
+      apply: a => { const r = a.placements.find(p => p.id === "R1");
+                    r.rot = 0; r.at = "E3"; },
+      choices: ["self-short", "split", "reversed", "floating"],
+      why: "Both legs of the resistor have landed in the same track, so the copper joins " +
+           "them and the resistor does nothing. A part has to sit ACROSS the tracks, or " +
+           "have a cut between its legs." },
+
+    { id: "FF6", from: "lift-interlock",
+      /* An extra cut in the wrong place, isolating pin 7 while the rest of the
+         0 V net stays joined — which is what "floating" means.  Moving a
+         terminal instead only ever splits a two-pin net, and rank 5 reports
+         that as "split". */
+      apply: a => { a.cuts.push("L9"); },
+      choices: ["floating", "split", "unplaced", "merged"],
+      why: "There is a cut in the wrong place. It has sliced the 0 V track between the " +
+           "chip's pin 7 and the rest of the 0 V net, leaving that pin on a stub of copper " +
+           "with nothing else on it. The rest of the 0 V net is still fine, which is what " +
+           "makes this one hard to spot." },
+
+    { id: "FF7", from: "two-inverters",
+      apply: a => { a.placements = a.placements.filter(p => p.id !== "LED2"); },
+      choices: ["unplaced", "split", "floating", "no-testpoint"],
+      why: "A component from the bill of materials never made it onto the board. A layout " +
+           "diagram has to show every part, or whoever builds it cannot." },
+
+    { id: "FF8", from: "greenhouse-irrigation",
+      apply: a => { a.testpoints = []; },
+      choices: ["no-testpoint", "no-prediction", "unplaced", "floating"],
+      why: "The layout has no test point on the process output. SQA: each sub-system input " +
+           "and output needs an appropriate test point, planned on the layout before the " +
+           "board is built — not added afterwards." },
+
+    { id: "FF9", from: "lift-interlock",
+      apply: a => { a.links = a.links.map(l =>
+                      l.a === "H9" ? { a: "H9", b: "I10", colour: l.colour, num: l.num } : l); },
+      choices: ["diagonal-link", "split", "merged", "self-short"],
+      why: "A link wire has been drawn at an angle. Link wires run straight — along a track " +
+           "or straight down between tracks — so that the wiring schedule can describe them " +
+           "and whoever builds the board can follow them." },
+
+    { id: "FF10", from: "lift-interlock",
+      apply: a => { a.links = a.links.map(l => Object.assign({}, l, { colour: "blue" })); },
+      choices: ["colour-reused", "red-not-supply", "split", "merged"],
+      why: "Both link wires are the same colour but they carry different signals. SQA: " +
+           "there should be different colours for different signals, and every wire " +
+           "coloured AND numbered." }
+  ];
+
+  /* Build one item: mutate, run the engine, and take its own top diagnostic as
+     the answer.  `refs` is what gets ringed on reveal. */
+  function buildFault(item, questions, SBD) {
+    const q = questions.find(x => x.id === item.from);
+    if (!q) throw new Error(item.id + ": no question " + item.from);
+    const attempt = JSON.parse(JSON.stringify(q.reference));
+    item.apply(attempt);
+    const res = SBD.check(q, attempt);
+    const top = res.faults[0] || res.warnings[0] || null;
+    return { item: item, q: q, attempt: attempt, res: res,
+             code: top && top.code, refs: (top && top.refs) || [],
+             msg: top && top.msg };
+  }
+
+  root.FAULT_NAMES = FAULT_NAMES;
+  root.FAULT_ITEMS = FAULT_ITEMS;
+  root.buildFault = buildFault;
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
 
 <style id="sbdBoardStyle"></style>
@@ -2973,10 +3780,39 @@ let linkColour = AUTO_LINK_COLOURS[0];     // pupil-chosen, shown while the Link
 let marks = [], hl = [], showingAnswer = false, scale = 1;
 let done = new Set();
 
+let stage = 0;                             // which sub-system stage of a staged question
+
+/* A staged question is marked one sub-system at a time ("do the switching
+   board separate from the process, and then the output").  The engine does the
+   restriction — SBD.stageOf folds every later part into `dontcare` — so the
+   page never builds a second target and the two cannot drift. */
+function curQ(){ return Q.stages ? SBD.stageOf(Q, stage) : Q; }
+function lastStage(){ return !Q.stages || stage >= Q.stages.length - 1; }
+function unlockedIds(){
+  if (!Q.stages) return null;
+  const set = new Set();
+  for (let i = 0; i <= stage && i < Q.stages.length; i++)
+    for (const id of Q.stages[i].parts) set.add(id);
+  return set;
+}
+function bankParts(){
+  const u = unlockedIds();
+  return u ? Q.components.filter(c => u.has(c.id)) : Q.components;
+}
+function paintStageBar(){
+  const el = $("stageBar");
+  if (!Q.stages){ el.hidden = true; return; }
+  el.hidden = false;
+  const st = Q.stages[stage];
+  el.innerHTML = "<b>Stage " + (stage + 1) + " of " + Q.stages.length + " — " +
+    esc(st.name) + ".</b> " + esc(st.hint);
+}
+
 let mode = "trace";                        // "convert" | "trace" — Trace is the warm-up, shown first
 const MODE_DESC = {
   trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
-  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links."
+  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it.",
+  fault: "One board, one fault. Find where it is, then say what it is — the skill the verifiers say is missing."
 };
 let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
 const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
@@ -2984,8 +3820,10 @@ const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a 
   "Tap a placed part again to pick it up and move it.";
 const TRACE_LEDE = "Look at the board, then answer the question beside it: are the two named holes " +
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
+const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
+  "with it. Tap the hole where you think the fault is, choose what the fault is, and check.";
 
-const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [] });
+const blank = () => ({ cuts: [], placements: [], links: [], testpoints: [], stage: 0 });
 
 /* ---- storage: versioned, shape-checked, and disposable (R8) ---- */
 function loadStore(){
@@ -2999,7 +3837,8 @@ function loadStore(){
 function saveStore(){
   try {
     const work = loadStoreRaw();
-    work[Q.id] = A;
+    if (Q && A) work[Q.id] = A;        // the read-only modes have no board to save
+
     localStorage.setItem(STORE, JSON.stringify({ v:1, hash:BANK_HASH, done:[...done], work }));
   } catch(e){}
 }
@@ -3016,7 +3855,11 @@ function sane(a){
   const out = { cuts: arr("cuts").filter(x => typeof x === "string"),
                 placements: arr("placements").filter(p => p && SBD.FOOTPRINTS[p.footprint]),
                 links: arr("links").filter(l => l && l.a && l.b),
-                testpoints: arr("testpoints").filter(t => t && t.at) };
+                testpoints: arr("testpoints").filter(t => t && t.at)
+                  .map(t => ({ id: t.id, at: t.at,
+                               predict: (t.predict === 0 || t.predict === 1) ? t.predict : null })),
+                // how far through a staged question this board got
+                stage: Number.isInteger(a.stage) ? a.stage : 0 };
   try { SBD.topology(SBD.BOARDS[Q.board], out); } catch(e){ return null; }
   return out;
 }
@@ -3048,11 +3891,34 @@ function drawLive(){
    draw — and re-fit only when the panel appears or goes, since that is the only
    time it changes the column's height. */
 let bankKey = null;
+
+/* The diagram has two states.  The working one is deliberately spare — no net
+   numbers, no gate pin numbers, and no wires from the rails to the chip's power
+   pins, because working those out from the data sheet IS the task.  "Show the
+   answer" turns all three on, where they teach instead of give the game away. */
+function circOpts(){ return { nets: showingAnswer }; }
+
 function drawCircuit(){
-  const c = Q.circuit(C);
+  const c = Q.circuit(C, circOpts());
   $("cinner").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title + " — circuit diagram" });
   $("cinner").dataset.w = c.w;
   $("cinner").dataset.h = c.h;
+  /* The caption depends on how the chip is drawn.  A distinctive-shape gate
+     symbol has no supply pins on it at all, so those questions leave the pupil
+     to work them out; the 555's square symbol and the op-amp triangle show the
+     supplies, the way the classroom material draws them. */
+  const chip = Q.components.find(p => /^dip-/.test(p.footprint));
+  const part = chip && chip.part;
+  $("circKey").textContent = showingAnswer
+    ? "Ringed = net \u00b7 plain blue = IC pin \u00b7 a dot means joined, a crossing does not"
+    : !chip
+      ? "Two supply rails. Every net between them becomes one track on the board."
+      // 4-digit 74-series only: /^74/ also matches the 741 op-amp
+      : /^74\d\d/.test(part)
+        ? "The chip's +5 V and 0 V pins are not drawn \u2014 find them on the data sheet."
+        : part === "555"
+          ? "The numbers are the chip's pins. The data sheet says what each one does."
+          : "The op-amp's pins are not numbered here \u2014 the data sheet says which is which.";
 }
 
 /* ------------------------------------------------------------------ fit
@@ -3155,9 +4021,18 @@ function fit(){
 /* ============================================================
    Hit testing — one overlay, some arithmetic, never 888 listeners
    ============================================================ */
+/* Three modes now share the one board element, so this has to ask the CURRENT
+   mode which board is on screen and at what scale — it used to read Convert's
+   Q.board and Convert's scale unconditionally, which threw the moment a
+   read-only mode wanted a tap. */
 function holeFromEvent(e){
+  const boardId = mode === "convert" ? (Q && Q.board)
+                : mode === "fault"   ? (FI && FI.q.board)
+                :                      (TQ && TQ.board);
+  if (!boardId) return null;
+  const sc = mode === "convert" ? scale : traceScale;
   const box = $("canvas").getBoundingClientRect();
-  return R.holeAt(Q.board, (e.clientX - box.left) / scale, (e.clientY - box.top) / scale);
+  return R.holeAt(boardId, (e.clientX - box.left) / sc, (e.clientY - box.top) / sc);
 }
 
 /* what is in a hole — used by the tools, the remover and the announcer */
@@ -3260,7 +4135,10 @@ function act(h){
 
 // test points and link wires are numbered in the order they were added, and the
 // numbers are what the wiring schedule refers to — so they must not develop gaps
-function renumberTps(){ A.testpoints.forEach((t, i) => { t.id = "TP" + (i + 1); }); }
+function renumberTps(){
+  A.testpoints.forEach((t, i) => { t.id = "TP" + (i + 1); });
+  if (tool === "tp") buildTpRow();
+}
 // numbers renumber on a removal; colours do NOT — a pupil chose each one, and
 // removing a different link should not repaint the ones that are left
 function renumberLinks(){ A.links.forEach((l, i) => { l.num = i + 1; }); }
@@ -3302,6 +4180,57 @@ function paintLinkColours(){
   $("linkColours").querySelectorAll(".swatch").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.colour === linkColour)));
 }
+
+/* ------------------------------------------------------ test-point readings
+   A test point exists so that somebody can say, before the board is built,
+   what it ought to read (QVSR).  So the tool asks: with the stated inputs, is
+   this point a 1 or a 0?  The engine marks it (rank 8.5).
+
+   The row lives on the same shelf as the wire colours and appears only while
+   the Test point tool is active, so it costs no height the rest of the time. */
+function buildTpRow(){
+  const el = $("tpRow");
+  el.textContent = "";
+  if (!Q.expect){ el.hidden = true; return; }
+  const hint = document.createElement("span");
+  hint.className = "lchint";
+  const conds = Q.expect.inputs.map(i => i[0] + " = " + i[1]).join(", ");
+  hint.textContent = A.testpoints.length
+    ? "With " + conds + ", what will each test point read?"
+    : "With " + conds + " — tap a hole to mark a test point.";
+  el.appendChild(hint);
+  for (const tp of A.testpoints){
+    const wrap = document.createElement("span");
+    wrap.className = "tpitem";
+    const name = document.createElement("b");
+    name.textContent = tp.id;
+    wrap.appendChild(name);
+    for (const v of [1, 0]){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "lvl";
+      b.textContent = String(v);
+      b.dataset.at = tp.at;
+      b.dataset.v = String(v);
+      b.setAttribute("aria-label", tp.id + " at " + tp.at + " reads logic " + v);
+      b.setAttribute("aria-pressed", String(tp.predict === v));
+      wrap.appendChild(b);
+    }
+    el.appendChild(wrap);
+  }
+}
+$("tpRow").addEventListener("click", e => {
+  const b = e.target.closest(".lvl");
+  if (!b) return;
+  const tp = A.testpoints.find(t => t.at === b.dataset.at);
+  if (!tp) return;
+  const v = +b.dataset.v;
+  tp.predict = tp.predict === v ? null : v;       // tapping the chosen one clears it
+  saveStore();
+  buildTpRow();
+  say(tp.predict === null ? tp.id + " reading cleared."
+                          : tp.id + " predicted to read logic " + tp.predict + ".");
+});
 
 let flashTimer = null;
 function flashHole(h){
@@ -3347,12 +4276,12 @@ function drawBank(){
   /* paint() runs on every pointer move; rebuilding eight tiles and an inline
      SVG each time is wasted work, and re-measuring the open tile on every one
      of them thrashes layout.  Rebuild only when something in it changed. */
-  const key = Q.id + "|" + sel + "@" + rot + "|" + [...placed].sort().join(",");
+  const key = Q.id + "#" + stage + "|" + sel + "@" + rot + "|" + [...placed].sort().join(",");
   if (key === bankKey) return;
   bankKey = key;
   bank.innerHTML = "";
   let openTile = null;
-  for (const c of Q.components){
+  for (const c of bankParts()){
     const isPlaced = placed.has(c.id), isSel = sel === c.id;
     // a real <button> may not contain another one, and the open tile carries a
     // Rotate button, so the tile is a div that behaves like a button
@@ -3407,21 +4336,30 @@ function clearFeedback(){ $("feedback").classList.remove("show"); hl = []; }
 
 function check(){
   if (showingAnswer){ say("That is the answer, not your board."); return; }
-  const res = SBD.check(Q, A);
+  const res = SBD.check(curQ(), A);
   const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
   fb.classList.add("show");
   fb.classList.toggle("good", res.ok);
   fb.classList.toggle("bad", !res.ok);
 
   if (res.ok){
-    head.textContent = "✓ That board builds the circuit.";
-    let html = "<p>Every net on the circuit diagram is one connected run of copper on your board, and nothing " +
-      "is joined that should not be.</p>";
+    const more = !lastStage();
+    head.textContent = more
+      ? "✓ Stage " + (stage + 1) + " is right — " + Q.stages[stage].name.toLowerCase() + "."
+      : "✓ That board builds the circuit.";
+    let html = more
+      ? "<p>Everything this stage covers is wired correctly. The next sub-system\u2019s parts " +
+        "are now in the bank.</p>"
+      : "<p>Every net on the circuit diagram is one connected run of copper on your board, and nothing " +
+        "is joined that should not be.</p>";
     if (res.warnings.length)
-      html += "<p class='msnote'>Two things worth tidying before you build it:</p>" + list(res.warnings, "warn");
+      html += "<p class='msnote'>Worth tidying before you build it:</p>" + list(res.warnings, "warn");
+    if (more)
+      html += "<p style='margin-top:10px'><button type='button' class='btn' id='btnStage'>" +
+              "Next stage: " + esc(Q.stages[stage + 1].name) + " \u2192</button></p>";
     body.innerHTML = html;
-    done.add(Q.id);
-    buildChips();
+    if (!more){ done.add(Q.id); buildChips(); }
+    if (more) $("btnStage").addEventListener("click", nextStage);
   } else {
     const n = res.faults.length;
     head.textContent = n === 1 ? "1 thing to fix" : n + " things to fix";
@@ -3431,8 +4369,23 @@ function check(){
   }
   saveStore();
   wireFaultButtons(res);
-  say(res.ok ? "Correct. " + (res.warnings.length ? res.warnings.length + " suggestions." : "")
+  say(res.ok ? head.textContent + " " + (res.warnings.length ? res.warnings.length + " suggestions." : "")
              : res.faults.length + " faults found.");
+}
+
+function nextStage(){
+  if (lastStage()) return;
+  stage++;
+  A.stage = stage;
+  saveStore();
+  clearFeedback();
+  paintStageBar();
+  sel = null; bankKey = null;
+  drawBank();
+  if (tool === "tp") buildTpRow();
+  paint();
+  fit();
+  say("Stage " + (stage + 1) + ". " + Q.stages[stage].name + ". " + Q.stages[stage].hint);
 }
 
 function list(items, cls){
@@ -3482,6 +4435,9 @@ function load(i, keepScroll){
 
   const saved = sane(loadStoreRaw()[Q.id]);
   A = saved || startingPoint();
+  // a stage index from storage may name a stage this question no longer has
+  stage = Q.stages ? Math.max(0, Math.min(A.stage || 0, Q.stages.length - 1)) : 0;
+  A.stage = stage;
 
   $("qtitle").textContent = "Q" + (qi + 1) + ". " + Q.title;
   $("qsrc").textContent = Q.board + " · " + SBD.BOARDS[Q.board].rows + " tracks × " +
@@ -3495,6 +4451,9 @@ function load(i, keepScroll){
   drawCircuit();
   drawGrid();
   buildChips();
+  paintStageBar();
+  $("tpRow").hidden = tool !== "tp" || !Q.expect;   // a stale row belongs to the last question
+  if (tool === "tp") buildTpRow();
   paint();
   fit();
   if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3506,7 +4465,7 @@ const DATASHEET = "/assets/electronics/datasheets/n5-practical-electronics-data-
 function datasheetPageFor(part){
   if (!part) return null;
   if (part === "555" || part === "741") return 3;
-  if (/^74/.test(part)) return 4;
+  if (/^74\d\d/.test(part)) return 4;      // 4-digit 74-series; /^74/ would catch the 741 too
   return null;
 }
 function setDatasheetLink(){
@@ -3521,6 +4480,11 @@ function setDatasheetLink(){
    component when they are already on the board is the sort of thing that makes
    them distrust the rest of the page. */
 function taskLine(){
+  /* A staged question says what to do now in its stage bar, so the task line
+     gives only the overall aim — printing both is two wrapped lines of the
+     same instruction, and the board needs that height more. */
+  if (Q.stages) return "<strong>Your task:</strong> build this circuit on the board, " +
+    "one sub-system at a time — the stage below says which part you are on.";
   const tp = Q.tpRequired && Q.tpRequired.length;
   const links = (Q.reference.links || []).length > 0;
   const bits = [];
@@ -3530,9 +4494,13 @@ function taskLine(){
   if (tp) bits.push("mark the test point" + (Q.tpRequired.length > 1 ? "s" : "") +
                     " on the process output");
   const last = bits.pop();
+  const conds = Q.expect ? Q.expect.inputs.map(i => i[0] + " = " + i[1]).join(", ") : "";
   return "<strong>Your task:</strong> " +
     (Q.scaffold === "parts" ? "the components are already on the board — " : "") +
-    bits.join(", ") + (bits.length ? " and " : "") + last + ".";
+    bits.join(", ") + (bits.length ? " and " : "") + last + "." +
+    // a test point is only worth marking if you can say what it should read
+    (Q.expect ? " Then say what each test point will read with <strong>" + conds +
+                "</strong> — " + Q.expect.note + "." : "");
 }
 
 /* The scaffold decides how much of the board arrives already done (PLAN.md
@@ -3571,9 +4539,14 @@ function buildChips(){
 
 function reset(){
   A = startingPoint();
+  stage = 0; A.stage = 0;                   // the later stages' parts just came off the board
+  bankKey = null;
+  paintStageBar();
   sel = null; rot = 0; linkStart = null; marks = []; hl = [];
   showingAnswer = false; $("btnAnswer").textContent = "Show the answer";
-  clearFeedback(); saveStore(); paint();
+  clearFeedback(); saveStore();
+  if (tool === "tp") buildTpRow();          // the old readings went with the old board
+  paint();
   say("Board cleared.");
 }
 
@@ -3588,6 +4561,7 @@ function toggleAnswer(){
     $("fbBody").innerHTML = "<p>Any layout that joins the same things together is right. This one is the " +
       "reference solution; yours may put the same nets on different tracks.</p>";
   } else clearFeedback();
+  drawCircuit();
   paint();
   say(showingAnswer ? "Showing the reference layout." : "Back to your board.");
 }
@@ -3598,6 +4572,15 @@ function toggleAnswer(){
 let focused = false;
 
 $("board").addEventListener("click", e => {
+  if (mode === "fault"){
+    if (faultAnswered || !FI || !FI.holes.length) return;
+    const h = holeFromEvent(e);
+    if (!h) return;
+    faultTap = h;
+    paintFault();
+    say("Marked " + SBD.ref(h) + ".");
+    return;
+  }
   if (mode !== "convert") return;
   const h = holeFromEvent(e);
   if (!h) return;
@@ -3701,6 +4684,8 @@ function setTool(t){
   if (t !== "place") sel = null;
   $("linkColours").hidden = t !== "link";
   if (t === "link") paintLinkColours();
+  $("tpRow").hidden = t !== "tp" || !Q.expect;
+  if (t === "tp") buildTpRow();
   drawBank();
   fit();
   paint();
@@ -3709,15 +4694,92 @@ document.querySelectorAll(".tool[data-tool]").forEach(b =>
   b.addEventListener("click", () => { setTool(b.dataset.tool); say(b.textContent.trim() + " tool selected."); }));
 $("btnRot").addEventListener("click", rotate);
 
+/* ============================================================
+   Alpha build stamp and changelog
+   ----------------------------------------------------------------------
+   Testers are pupils, and a bug report is worth much less without the build
+   it came from — so the version is on screen in every layout, including the
+   short-landscape one that strips the rest of the page chrome.  The table
+   below is the only place a version is written down; the chip reads from it,
+   so the two cannot disagree.
+   ============================================================ */
+const CHANGELOG = [
+  { v: "0.8", date: "9 Sep 2026", what:
+    "<strong>Fault-finder is open</strong> \u2014 the third mode. Ten finished boards, each with " +
+    "exactly one thing wrong: tap the hole where you think the fault is, choose what the fault " +
+    "is from four named options, and check. Every board is a correct answer with one thing " +
+    "broken, and the marking is the same engine that marks your own layouts, so it will never " +
+    "claim a fault it would not report on your board." },
+  { v: "0.7", date: "9 Sep 2026", what:
+    "The 555 is now the square numbered symbol you have already met in class \u2014 a box with " +
+    "555 in it and the pin number wherever a wire meets it \u2014 and the op-amp shows its supply " +
+    "connections. Both match the circuits on the Logic &amp; ICs theory page, which is now the " +
+    "reference for every diagram here. A dot means joined; wires crossing without a dot do not." },
+  { v: "0.6", date: "9 Sep 2026", what:
+    "Two new questions. Q11 is a 555 <strong>monostable</strong> \u2014 a stairwell light that " +
+    "times itself out \u2014 and Q12 is a 741 <strong>comparator</strong> driving a frost warning. " +
+    "Both diagrams give the pin NAMES (Trigger, Threshold, + and \u2212) and leave you to find the " +
+    "numbers on page 3 of the data sheet, which is where the real skill is." },
+  { v: "0.5", date: "9 Sep 2026", what:
+    "The five big questions (Q5, Q6, Q7, Q9, Q10) are now built one sub-system at a time. " +
+    "Stage 1 is the inputs and the chip; the output sub-system\u2019s parts stay out of the bank " +
+    "until stage 1 checks clean, so you are marked on the switching before you start on the " +
+    "output. A stage line under the tools says which part you are on, and where you got to is " +
+    "remembered if you close the page." },
+  { v: "0.4", date: "9 Sep 2026", what:
+    "Test points now have to be predicted, not just placed. Where a question asks for one, you " +
+    "are given the input conditions and say whether each test point will read logic 1 or logic 0; " +
+    "Check marks it and tells you the right answer if you are wrong \u2014 which is what a test " +
+    "point is actually for. Q5, Q9 and Q10 carry the readings." },
+  { v: "0.3", date: "9 Sep 2026", what:
+    "Circuit diagrams rebuilt: two horizontal supply rails with the components cabled between them. " +
+    "The dashed \u201csystem box\u201d, the net numbers and the wires to the chip\u2019s +5 V and 0 V pins are gone \u2014 " +
+    "the power pins are now yours to find on the data sheet. Net and pin numbers come back under \u201cShow the answer\u201d. " +
+    "Switch and buzzer symbols redrawn for vertical use. Move-a-part hint moved somewhere iPads actually show it. " +
+    "This version box added." },
+  { v: "0.2", date: "9 Sep 2026", what:
+    "Trace now opens first. IC notches point inwards. Ten link-wire colours, with the board checking that red and " +
+    "black are only used for +5 V and 0 V and that no one colour carries two different signals. Chips renamed to " +
+    "the data sheet\u2019s numbers (7408, 7432, 7404). Data sheet linked from every chip question. New LDR footprint. " +
+    "Parts now stand across the tracks by default. Diagonal link wires rejected. Arrow-key claim removed." },
+  { v: "0.1", date: "9 Sep 2026", what:
+    "First hidden alpha: Trace (10 items) and Convert (10 questions). Fault-finder and Reverse not built yet." }
+];
+const ALPHA_VERSION = CHANGELOG[0].v;
+
+(function buildVersionBox(){
+  $("verChip").textContent = "Alpha v" + ALPHA_VERSION;
+  $("verSummary").textContent = "What\u2019s changed \u2014 alpha v" + ALPHA_VERSION +
+    ", " + CHANGELOG[0].date;
+  const tb = $("verBody");
+  for (const c of CHANGELOG){
+    const tr = document.createElement("tr");
+    for (const cell of ["v", "date", "what"]){
+      const td = document.createElement("td");
+      td.textContent = cell === "v" ? "v" + c[cell] : c[cell];
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+  $("verChip").addEventListener("click", () => {
+    $("verLog").open = true;
+    $("verLog").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("verSummary").focus();
+  });
+  $("verSummary").setAttribute("tabindex", "-1");
+})();
+
 $("btnCheck").addEventListener("click", check);
 $("btnReset").addEventListener("click", reset);
 $("btnAnswer").addEventListener("click", toggleAnswer);
 $("btnNext").addEventListener("click", () => {
-  if (mode === "convert") load(qi + 1, true); else loadTrace(ti + 1, true);
+  if (mode === "convert") load(qi + 1, true);
+  else if (mode === "fault") loadFault(fi + 1, true);
+  else loadTrace(ti + 1, true);
 });
 
 $("btnBig").addEventListener("click", () => {
-  const c = Q.circuit(C);
+  const c = Q.circuit(C, circOpts());
   $("modalTitle").textContent = Q.title + " — circuit diagram";
   $("modalBody").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title });
   $("modal").classList.add("show");
@@ -3729,7 +4791,9 @@ $("modal").addEventListener("click", e => { if (e.target === $("modal")) closeBi
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("modal").classList.contains("show")) closeBig(); });
 
 window.addEventListener("resize", () => {
-  if (mode === "convert") { if (Q) fit(); } else if (TQ) fitTrace();
+  if (mode === "convert") { if (Q) fit(); }
+  else if (mode === "fault") { if (FI) fitFixed(FI.q.board); }
+  else if (TQ) fitTrace();
 });
 
 /* ============================================================
@@ -3779,13 +4843,12 @@ function paintTrace(){
   svg.setAttribute("aria-hidden", "true");
 }
 
-/* A cut-down fit(): no circuit diagram competes for room, so this is only the
-   board-scale half of that function's job. Left separate rather than sharing
-   fit()'s body — that function is already tuned against measured screenshots
-   (STATE.md, Phase 3), and Trace's simpler layout does not need its circuit-
-   column math at all. */
-function fitTrace(){
-  const size = R.sizeOf(TQ.board);
+function fitTrace(){ fitFixed(TQ.board); }
+
+/* The board-scale half of fit(), for the two read-only modes: no circuit
+   diagram competes for room, so none of fit()'s circuit-column math applies. */
+function fitFixed(boardId){
+  const size = R.sizeOf(boardId);
   const availW = $("stage").clientWidth;
   let sb = Math.max(MIN_SCALE, Math.min(1, availW / size.w));
   let stageH = size.h * sb;
@@ -3869,10 +4932,154 @@ function answerTrace(ans){
   head.textContent = correct ? "✓ Correct" : "Not quite";
   body.innerHTML = "<p>" + TQ.why + "</p>";
 
-  if (correct) { done.add(TQ.id); buildTraceChips(); }
+  if (correct) { done.add(TQ.id); buildTraceChips(); saveStore(); }
   paintTrace();
   say((correct ? "Correct. " : "Not quite. ") + TQ.why);
 }
+
+
+/* ============================================================
+   Fault-finder — one board, one injected fault (PLAN.md §4.1, Mode 3)
+   ----------------------------------------------------------------------
+   The board, the fault and the places worth ringing all come from
+   `buildFault()` running the SAME `SBD.check()` Convert uses, so a
+   Fault-finder item cannot claim a fault Convert would not report on the same
+   board.  Nothing here re-derives an answer.
+   ============================================================ */
+let fi = 0, FI = null, faultPick = null, faultTap = null, faultAnswered = false;
+
+// a diagnostic's refs against the FAULT board, not the pupil's own attempt
+function holesForOn(refs, attempt){
+  const out = [];
+  for (const r of refs || []){
+    if (/^[A-Z]\d+$/.test(r)){ out.push(SBD.parseRef(r)); continue; }
+    const [comp, pin] = r.split(".");
+    const pl = (attempt.placements || []).find(x => x.id === comp);
+    if (!pl) continue;                         // e.g. a component left in the bank
+    const cells = SBD.cellsOf(SBD.FOOTPRINTS[pl.footprint], SBD.parseRef(pl.at), pl.rot || 0);
+    for (const z of cells.pins) if (pin === undefined || z.pin === pin) out.push(z.hole);
+  }
+  return out;
+}
+
+function buildFaultChips(){
+  const el = $("qchips");
+  el.innerHTML = "";
+  FAULT_ITEMS.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qchip" + (done.has(item.id) ? " done" : "");
+    b.textContent = "F" + (i + 1);
+    if (i === fi) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", () => loadFault(i, true));
+    el.appendChild(b);
+  });
+}
+
+function loadFault(i, keepScroll){
+  fi = (i + FAULT_ITEMS.length) % FAULT_ITEMS.length;
+  FI = buildFault(FAULT_ITEMS[fi], QUESTIONS, SBD);
+  FI.holes = holesForOn(FI.refs, FI.attempt);
+  faultPick = null; faultTap = null; faultAnswered = false;
+
+  $("qtitle").textContent = "Fault " + (fi + 1) + ". " + FI.q.title;
+  $("qsrc").textContent = FI.q.board + " · " + SBD.BOARDS[FI.q.board].rows + " tracks × " +
+                          SBD.BOARDS[FI.q.board].cols + " holes";
+  $("qscenario").innerHTML = "<p>This is somebody's finished layout for <strong>" +
+    esc(FI.q.title) + "</strong>. Exactly one thing is wrong with it.</p>";
+  $("faultQ").textContent = "What is wrong with this board?";
+  $("faultHint").textContent = FI.holes.length
+    ? "Tap the hole where you think the fault is, then choose what it is."
+    : "This fault is not in one particular hole — just choose what it is.";
+  $("btnFault").disabled = false;
+
+  const opts = $("faultOpts");
+  opts.innerHTML = "";
+  for (const code of FAULT_ITEMS[fi].choices){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "fopt";
+    b.dataset.code = code;
+    b.setAttribute("aria-pressed", "false");
+    b.textContent = FAULT_NAMES[code];
+    b.addEventListener("click", () => {
+      if (faultAnswered) return;
+      faultPick = code;
+      opts.querySelectorAll(".fopt").forEach(x =>
+        x.setAttribute("aria-pressed", String(x.dataset.code === code)));
+      say(FAULT_NAMES[code] + " selected.");
+    });
+    opts.appendChild(b);
+  }
+
+  clearFeedback();
+  $("gridLayer").innerHTML = R.renderBoard({
+    board: FI.q.board, question: FI.q, attempt: FI.attempt, layer: "grid",
+    title: FI.q.board + " stripboard, component side" });
+  $("gridLayer").firstChild.classList.add("hitless");
+  buildFaultChips();
+  paintFault();
+  fitFixed(FI.q.board);
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function paintFault(){
+  let fmarks = [];
+  if (!faultAnswered){
+    if (faultTap) fmarks = [{ r: faultTap.r, c: faultTap.c, kind: "hl" }];
+  } else {
+    // the real fault in amber; a wrong guess in the second colour beside it
+    fmarks = FI.holes.map(h => ({ r: h.r, c: h.c, kind: "hl" }));
+    if (faultTap && !FI.holes.some(h => h.r === faultTap.r && h.c === faultTap.c))
+      fmarks.push({ r: faultTap.r, c: faultTap.c, kind: "hl2" });
+  }
+  $("liveLayer").innerHTML = R.renderBoard({
+    board: FI.q.board, question: FI.q, attempt: FI.attempt, layer: "live",
+    marks: fmarks, title: FI.q.title });
+  const svg = $("liveLayer").firstChild;
+  svg.classList.add("hitless");
+  svg.setAttribute("aria-hidden", "true");
+}
+
+function answerFault(){
+  if (faultAnswered) return;
+  if (!faultPick){ say("Choose what the fault is first."); return; }
+  const needsPlace = FI.holes.length > 0;
+  if (needsPlace && !faultTap){ say("Tap the hole where you think the fault is first."); return; }
+
+  faultAnswered = true;
+  $("btnFault").disabled = true;
+  const placeOK = !needsPlace ||
+    FI.holes.some(h => h.r === faultTap.r && h.c === faultTap.c);
+  const nameOK = faultPick === FI.code;
+  const correct = placeOK && nameOK;
+
+  $("faultOpts").querySelectorAll(".fopt").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.code === FI.code) b.classList.add("right");
+    else if (b.dataset.code === faultPick) b.classList.add("wrong");
+  });
+
+  const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
+  fb.classList.add("show");
+  fb.classList.toggle("good", correct);
+  fb.classList.toggle("bad", !correct);
+  head.textContent = correct ? "✓ Found it"
+    : nameOK ? "Right fault, wrong place"
+    : placeOK ? "Right place, wrong fault"
+    : "Not quite";
+  body.innerHTML =
+    "<p><strong>" + esc(FAULT_NAMES[FI.code]) + ".</strong></p>" +
+    "<p>" + esc(FI.msg || "") + "</p>" +
+    "<p>" + FAULT_ITEMS[fi].why + "</p>" +
+    (needsPlace ? "<p class='msnote'>The board shows where it is.</p>" : "");
+
+  if (correct){ done.add(FAULT_ITEMS[fi].id); buildFaultChips(); saveStore(); }
+  paintFault();
+  say((correct ? "Correct. " : "Not quite. ") + FAULT_NAMES[FI.code]);
+}
+$("btnFault").addEventListener("click", answerFault);
+$("mFault").addEventListener("click", () => setMode("fault"));
 
 function setModeDesc(){ $("modeDesc").textContent = MODE_DESC[mode]; }
 
@@ -3882,13 +5089,18 @@ function setMode(m){
   $("sbd").dataset.mode = m;
   $("mConvert").setAttribute("aria-pressed", String(m === "convert"));
   $("mTrace").setAttribute("aria-pressed", String(m === "trace"));
-  $("lede").textContent = m === "convert" ? CONVERT_LEDE : TRACE_LEDE;
-  $("board").setAttribute("aria-label", m === "convert"
-    ? "Stripboard. Tap or click a hole to use the selected tool."
+  $("mFault").setAttribute("aria-pressed", String(m === "fault"));
+  $("lede").textContent = m === "convert" ? CONVERT_LEDE
+                        : m === "fault"   ? FAULT_LEDE : TRACE_LEDE;
+  $("board").setAttribute("aria-label",
+    m === "convert" ? "Stripboard. Tap or click a hole to use the selected tool."
+    : m === "fault" ? "Stripboard, showing a finished layout with one fault. Tap the hole where you think the fault is."
     : "Stripboard, showing a fixed layout. Read only — answer the question beside it.");
   setModeDesc();
   clearFeedback();
-  if (m === "convert") load(qi, true); else loadTrace(ti, true);
+  if (m === "convert") load(qi, true);
+  else if (m === "fault") loadFault(fi, true);
+  else loadTrace(ti, true);
 }
 $("mConvert").addEventListener("click", () => setMode("convert"));
 $("mTrace").addEventListener("click", () => setMode("trace"));
