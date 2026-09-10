@@ -40,6 +40,9 @@
     { id: "pln-st", name: "Master Planner", emoji: "🗂️", section: "Planning", thr: 1,
       href: "/classes/electronics/planning.html",
       cond: "Sequence the five marked stages correctly" },
+    { id: "blk-bd", name: "System Sketcher", emoji: "\u{1F9F1}", section: "Planning",
+      href: "/classes/electronics/block-diagram-builder.html",
+      cond: "Solve 10 of the twelve system questions" },
     /* The two stripboard pages. `sbd-lp` is scored out of the four marked
        tasks — one right answer in each — because they are four ways of reading
        the same board and doing only one of them is not reading it. `sbd-bp` is
