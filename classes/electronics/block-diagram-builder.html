@@ -16,6 +16,8 @@ title: Block Diagram Builder · National 5 Electronics
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260828b">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/electronics.js" defer></script>
   <style>
     /* success/error tokens — everything else comes from electronics.css */
     #bdb { --ok:#0f8a5f; --ok-bg:rgba(15,138,95,0.12); --bad:#c0392b; --bad-bg:rgba(192,57,43,0.10); }
@@ -213,7 +215,7 @@ title: Block Diagram Builder · National 5 Electronics
         assuming your own answer is at fault.</p>
     </section>
 
-    <section class="panel" id="bdb" aria-label="Block diagram builder">
+    <section class="panel" id="bdb" aria-label="Block diagram builder" data-prog-challenge="blk-build">
       <p class="lede">Read the problem, then drag blocks from the bank into the <strong>input</strong>,
       <strong>process</strong> and <strong>output</strong> sections. There are always more blocks than you need.
       You can also tap a block and then tap a slot, or use <kbd>Tab</kbd> and <kbd>Enter</kbd>.</p>
@@ -790,7 +792,23 @@ try { done = new Set(JSON.parse(localStorage.getItem(STORE) || "[]")); } catch(e
 
 function saveDone(){
   try { localStorage.setItem(STORE, JSON.stringify([...done])); } catch(e){}
+  reportProgress();
 }
+
+/* The badge is the count of systems solved, out of twelve. record() fires the
+   unlock and achievement toasts itself, so nothing here toasts. The engine is
+   deferred, so every call is guarded. */
+const PROG_BADGE = "blk-bd", PROG_CHALLENGE = "blk-build";
+function reportProgress(){
+  if (!window.Progress) return;
+  Progress.record(PROG_BADGE, done.size, QUESTIONS.length);
+  if (done.size >= 10) Progress.complete(PROG_CHALLENGE);
+}
+window.addEventListener("DOMContentLoaded", function(){
+  if (!window.Progress) return;
+  Progress.markSeen(PROG_BADGE);
+  reportProgress();
+});
 
 /* ============================================================
    Build question chips
