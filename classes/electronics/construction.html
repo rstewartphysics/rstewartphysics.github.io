@@ -39,6 +39,25 @@ title: Circuit Construction — National 5 Electronics
     details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
 
     /* data tables */
+    /* Concept 5 — the worked method */
+    .mhead { margin: 1.4rem 0 .3rem; font-size: 1.05rem; }
+    .method { margin-top: .6rem; }
+    .msteps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+    .mstep { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2);
+             padding: .8rem .9rem; }
+    .mstep h4 { margin: 0 0 .35rem; font-size: 1rem; color: var(--text); }
+    .mstep p { margin: 0; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    /* Natural size, capped — not stretched. A circuit diagram is 344px wide and
+       blowing it up to the column width makes a poster of it; the board images
+       are wide already and fill the column on their own. */
+    .mstep img { display: block; width: auto; max-width: 100%; height: auto; margin: .7rem auto 0;
+                 border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+    .mnav { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+    .mcount { font-weight: 900; color: var(--muted); }
+    .mrules th, .mrules td { text-align: left; }
+    .msrc { font-size: .82rem; opacity: .78; margin-top: .4rem; }
+    .mcheck { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .mcheck li { margin-bottom: .25rem; }
     .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
     .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
     .dtable thead th { background: var(--surface-2); }
@@ -231,7 +250,13 @@ title: Circuit Construction — National 5 Electronics
           <tr><td class="l"><strong>PCB</strong></td><td class="l">soldered to a printed copper layout</td><td class="l">reliable, repeatable production</td></tr>
         </tbody>
       </table>
-      <div class="note info"><strong>Plan your layout:</strong> use the <a href="/classes/electronics/stripboard-builder.html">Stripboard builder</a> to position components and mark track cuts before you solder.</div>
+      <div class="note info"><strong>Plan your layout:</strong>
+        <a href="/classes/electronics/stripboard-builder.html">Learn to plan a stripboard schematic</a>
+        marks your work on the five things this is examined on &mdash; tracing what the copper joins,
+        converting a circuit diagram, finding the fault on a finished board, reading one backwards, and
+        choosing the test points. When you are planning a board of your own,
+        <a href="/classes/electronics/stripboard-planner.html">Plan your own stripboard schematic</a>
+        checks it could actually be built before you solder it.</div>
       <div class="practice">
         <span class="practice-tag">Practice 2</span>
         <p class="stem">State which board you would use to test an idea you expect to change several times, and why.</p>
@@ -316,14 +341,138 @@ title: Circuit Construction — National 5 Electronics
     <!-- C5 -->
     <section class="panel" id="c5" aria-label="Circuit and layout diagrams">
       <span class="concept-tag">Concept 5</span>
-      <h2>Circuit ↔ layout diagrams &amp; missing components</h2>
+      <h2>Circuit &harr; layout diagrams &amp; missing components</h2>
       <div class="notes">
         <ul>
           <li>A <strong>circuit diagram</strong> shows components as symbols and how they connect electrically.</li>
-          <li>A <strong>layout diagram</strong> shows where each part physically sits on the board and how the tracks/wires run.</li>
-          <li>You must be able to <strong>convert between the two</strong>, and <strong>complete</strong> a circuit diagram from a specification by adding any <strong>missing components</strong> (using the <a href="/classes/electronics/theory/components-and-devices.html#symbols">symbol reference</a>).</li>
+          <li>A <strong>layout diagram</strong> shows where each part physically sits on the board and how the tracks run.</li>
+          <li>You must be able to <strong>convert between the two</strong>, and <strong>complete</strong> a circuit
+            diagram from a specification by adding any <strong>missing components</strong> (using the
+            <a href="/classes/electronics/theory/components-and-devices.html#symbols">symbol reference</a>).</li>
         </ul>
       </div>
+
+      <h3 class="mhead">The conversion, one step at a time</h3>
+      <p class="notes">The thing that makes this work is <strong>a net is a track</strong>. A net is
+        everything joined together on the circuit diagram; a track is a strip of copper running the whole
+        width of the board. Convert a diagram by giving each net a track and then putting every leg that
+        belongs to that net into it. Everything else &mdash; the cuts, the link wires &mdash; follows from
+        that one idea.</p>
+
+      <div class="method" id="method">
+        <ol class="msteps" id="msteps">
+          <li class="mstep" data-step="1">
+            <h4>1 &middot; Section the circuit and label it</h4>
+            <p>Mark the printout into <strong>input</strong>, <strong>process</strong> and
+              <strong>output</strong>. You are not converting one big circuit; you are converting three
+              small ones that meet at known points.</p>
+            <img src="/assets/electronics/stripboard/method/step-diagram.svg" alt="The lift interlock circuit diagram: three switched inputs with pull-down resistors, two AND gates of one 7408, and an LED with its series resistor." loading="lazy">
+          </li>
+          <li class="mstep" data-step="2">
+            <h4>2 &middot; Give every part an item ID</h4>
+            <p>R1, R2, IC1, LED1 &mdash; every part, no exceptions. The IDs are what the wiring schedule
+              and your own layout refer to, and a part drawn but not labelled is a mark gone.</p>
+          </li>
+          <li class="mstep" data-step="3">
+            <h4>3 &middot; Number every net on the diagram</h4>
+            <p>Ring each junction and number it. Count them: that is how many tracks the board needs.
+              Two legs on the same number end up in the same track; two legs on different numbers must
+              not.</p>
+            <img src="/assets/electronics/stripboard/method/step-nets.svg" alt="The same circuit diagram with each net ringed and numbered one to eight." loading="lazy">
+          </li>
+          <li class="mstep" data-step="4">
+            <h4>4 &middot; Place the DIL socket, and cut every track it crosses</h4>
+            <p>The chip sits <strong>across</strong> the tracks, so each pin lands on the pin opposite it.
+              Cut every track between the two rows of pins &mdash; all seven for a 14-pin chip &mdash; or
+              pin&nbsp;1 is joined to pin&nbsp;14 and pin&nbsp;7 to pin&nbsp;8. Draw the cuts as X's inside
+              the chip outline. Solder a <strong>socket</strong>, never the chip itself.</p>
+            <img src="/assets/electronics/stripboard/method/step-chip.svg" alt="A blank stripboard with a 14-pin DIL socket placed across the tracks and an X marked on each of the seven tracks it crosses." loading="lazy">
+          </li>
+          <li class="mstep" data-step="5">
+            <h4>5 &middot; Give each net a track</h4>
+            <p>Write the net numbers down the edge of the sheet, one per track. Start with the ones the
+              chip has already decided for you &mdash; whichever track pin&nbsp;7 is on has to be 0&nbsp;V,
+              whichever pin&nbsp;14 is on has to be +5&nbsp;V &mdash; then fit the rest around them.</p>
+          </li>
+          <li class="mstep" data-step="6">
+            <h4>6 &middot; Place the parts, each leg in its net's track</h4>
+            <p>Now the layout is bookkeeping: put each leg in the track its net was given. Legs bend, so a
+              resistor will reach four holes to seven and a sensor two to four &mdash; use that to make a
+              part reach the track it needs.</p>
+            <img src="/assets/electronics/stripboard/method/step-parts.svg" alt="The same board with the input terminals, three pull-down resistors, the series resistor and the LED all placed." loading="lazy">
+          </li>
+          <li class="mstep" data-step="7">
+            <h4>7 &middot; Link the nets that could not be next to each other</h4>
+            <p>Some legs of one net end up on different tracks &mdash; a chip's output and the next gate's
+              input always do, because adjacent pins are not connected. Join them with a
+              <strong>link wire</strong>. Number each link and give it a colour, and keep
+              <strong>red for +5&nbsp;V and black for 0&nbsp;V</strong> so nothing else can use them.</p>
+            <img src="/assets/electronics/stripboard/method/step-links.svg" alt="The same board with nine link wires added, numbered, the 0 V links in black and the signal link in orange." loading="lazy">
+          </li>
+          <li class="mstep" data-step="8">
+            <h4>8 &middot; Mark and number the test points</h4>
+            <p>One on each sub-system input and output, marked on the layout <em>before</em> the board is
+              built, with the reading you expect written beside it. Added after soldering they are not
+              planning &mdash; they are poking.</p>
+            <img src="/assets/electronics/stripboard/method/step-testpoints.svg" alt="The finished layout with test point TP1 ringed on the chip's output track." loading="lazy">
+          </li>
+          <li class="mstep" data-step="9">
+            <h4>9 &middot; Check it before you solder</h4>
+            <p>Read your own board back: take each track in turn and list what is in it, then compare that
+              list with the numbered nets on the diagram. They either match or they do not.
+              <a href="/classes/electronics/stripboard-builder.html">Learn to plan a stripboard schematic</a>
+              does this marking for you, and
+              <a href="/classes/electronics/stripboard-planner.html">Plan your own stripboard schematic</a>
+              does it on a board of your own design.</p>
+          </li>
+        </ol>
+        <div class="mnav" id="mnav" hidden>
+          <button type="button" class="btn" id="mPrev">&larr; Back</button>
+          <span class="mcount" id="mCount" aria-live="polite">Step 1 of 9</span>
+          <button type="button" class="btn primary" id="mNext">Next &rarr;</button>
+          <button type="button" class="btn" id="mAll">Show all nine</button>
+        </div>
+      </div>
+
+      <h3 class="mhead">The layout rules, and where the mark comes from</h3>
+      <table class="dtable mrules">
+        <caption class="visually-hidden">Layout rules and the assessment requirement each one comes from</caption>
+        <thead><tr><th scope="col">Rule</th><th scope="col">Why it is a mark</th></tr></thead>
+        <tbody>
+          <tr><td>Every track the chip crosses is cut, between the two rows of pins</td>
+              <td>Detailed component layout diagrams &mdash; missing track cuts are the fault the external
+                  verification reports name most often</td></tr>
+          <tr><td>Every part carries its item ID, and the IDs match the wiring schedule</td>
+              <td>Detailed component layout diagrams &mdash; a part drawn but not labelled cannot be marked</td></tr>
+          <tr><td>Link wires are numbered, and coloured red for +5&nbsp;V, black for 0&nbsp;V, one colour per signal</td>
+              <td>Detailed component layout diagrams</td></tr>
+          <tr><td>A test point on each sub-system input and output, planned before building</td>
+              <td>Use of test points &mdash; and the expected reading written beside each one</td></tr>
+          <tr><td>Every gate input held: pulled down to 0&nbsp;V through a resistor, or tied straight to
+                  0&nbsp;V if the gate is spare</td>
+              <td>The board works. A TTL input joined to nothing is not a logic&nbsp;0 &mdash; it floats</td></tr>
+          <tr><td>Polarised parts the right way round; nothing shorted across the supply</td>
+              <td>The board survives being switched on</td></tr>
+        </tbody>
+      </table>
+      <p class="notes msrc">The two headings in the right-hand column are the assessment's own
+        &mdash; the course and assessment material for National&nbsp;5 Electronics (C884&nbsp;75) and the
+        external verification reports. &copy; Qualifications Scotland (SQA), reproduced for educational use.</p>
+
+      <h3 class="mhead">Mark your own layout</h3>
+      <p class="notes">Print this, or work down it on screen, before you hand a layout in.</p>
+      <ul class="mcheck">
+        <li>Every net on the circuit diagram is numbered, and the board has that many tracks in use.</li>
+        <li>Every part has an item ID, and it is the same ID on the layout and the wiring schedule.</li>
+        <li>Every track the chip crosses is cut, and the cuts are drawn inside the chip outline.</li>
+        <li>Every leg is in the track its net was given &mdash; checked track by track, not part by part.</li>
+        <li>Every link wire is numbered and coloured, red and black used for nothing but the supply.</li>
+        <li>Every gate input is held down to 0&nbsp;V unless another gate is driving it.</li>
+        <li>Polarised parts &mdash; LED, electrolytic capacitor, diode, transistor &mdash; are the right way round.</li>
+        <li>A test point on each sub-system input and output, numbered, with its expected reading.</li>
+        <li>Sheets attached to the booklet. They cannot be marked if they are not there.</li>
+      </ul>
+
       <div class="practice">
         <span class="practice-tag">Practice 5</span>
         <p class="stem">A specification says an LED must be protected from too much current. Its circuit diagram shows only the LED and supply. State the missing component and where it goes.</p>
@@ -371,6 +520,19 @@ title: Circuit Construction — National 5 Electronics
       <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
       <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
     </section>
+
+    <p data-credit-note style="font-size:0.82rem;opacity:0.78;">Sources &amp; credits: the layout method,
+      the fault list and the assessment requirements quoted on this page come from the National&nbsp;5
+      Electronics (C884&nbsp;75) course and assessment material and from the external verification
+      reports &mdash; &copy; Qualifications Scotland (SQA), reproduced for educational use. The worked
+      example is drawn by the same renderer as
+      <a href="/classes/electronics/stripboard-builder.html">Learn to plan a stripboard schematic</a>,
+      on the real boards used in class (Rapid Electronics 34&#8209;0410 and 34&#8209;0411, datasheet
+      583629_v1); its drawing conventions &mdash; tracks across the sheet, a cut marked as an X on the
+      hole, ICs as a labelled rectangle, link wires coloured and numbered &mdash; follow the
+      <em>Stripboard Layout Planning Sheet</em> &copy; 2002 Electronics in Meccano (eleinmec.com), the
+      conventions reproduced and not the artwork. Circuits, diagrams and code &copy; R&nbsp;Stewart, 2026.
+      Full site credits are on the <a href="/classes/credits.html">credits page</a>.</p>
   </main>
 
   {% include site-footer.html %}
@@ -645,6 +807,36 @@ title: Circuit Construction — National 5 Electronics
     build();
     if(window.Progress){ Progress.markSeen(BADGE); }
   })();
+
+  /* Concept 5's method steps through one at a time when JS is available; with
+     none, all nine stay on the page, which is also what prints. */
+  (function(){
+    var list = document.getElementById("msteps");
+    if (!list) return;
+    var steps = [].slice.call(list.querySelectorAll(".mstep"));
+    var nav = document.getElementById("mnav");
+    var count = document.getElementById("mCount");
+    var prev = document.getElementById("mPrev");
+    var next = document.getElementById("mNext");
+    var all  = document.getElementById("mAll");
+    var at = 0, showingAll = false;
+    nav.hidden = false;
+    function paint(){
+      steps.forEach(function(el, i){ el.hidden = !showingAll && i !== at; });
+      count.textContent = showingAll ? "All nine steps"
+                                     : "Step " + (at + 1) + " of " + steps.length;
+      prev.disabled = showingAll || at === 0;
+      next.disabled = showingAll || at === steps.length - 1;
+      all.textContent = showingAll ? "Show one at a time" : "Show all nine";
+    }
+    prev.addEventListener("click", function(){
+      if (at > 0){ at--; paint(); steps[at].scrollIntoView({ block: "nearest" }); } });
+    next.addEventListener("click", function(){
+      if (at < steps.length - 1){ at++; paint(); steps[at].scrollIntoView({ block: "nearest" }); } });
+    all.addEventListener("click", function(){ showingAll = !showingAll; paint(); });
+    paint();
+  })();
+
   </script>
 </body>
 </html>
