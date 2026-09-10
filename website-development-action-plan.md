@@ -127,7 +127,7 @@ Order is by visibility to pupils.
 
 The whole offline story is: **8+ tiles** across index/physics/higher/adv-higher/s3-n5/s3-physics/
 electricity1 point at `materials-unavailable.html`, plus the electronics demo-video links, now in
-`classes/electronics/practical-activity-guide.html`. The blocker is the copyright/provenance audit
+`classes/electronics/mock-practical-activity-guide.html`. The blocker is the copyright/provenance audit
 (`copyright-provenance-checklist.csv`) — several booklets are marked "Not mine — REMOVE".
 
 **Electronics videos, 6 Sep 2026:** `classes/electronics/videos.html` has been deleted. Its six
