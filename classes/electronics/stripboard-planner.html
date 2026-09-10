@@ -86,12 +86,30 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     /* ---- mode + question chips ---------------------------------------- */
     #sbd .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
     #sbd .seg{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    /* On a narrow screen the six tabs are wider than the strip, and it scrolled
+       sideways with nothing to say so: the last task sat off the right edge with
+       a 19px sliver showing, so nobody would ever find it. Below 560px the strip
+       WRAPS instead — every tab visible, nothing to discover. */
+    @media (max-width:560px){
+      /* overflow:hidden still clips to the rounded corners — the strip no longer
+         needs to scroll, because it wraps. */
+      #sbd .seg{display:flex;flex-wrap:wrap;border-radius:14px;overflow:hidden;gap:0}
+      #sbd .seg button{flex:1 1 auto;border-radius:0}
+      #sbd .seg button+button{border-left:1px solid var(--border)}
+      #sbd .seg button:nth-child(n+4){border-top:1px solid var(--border)}
+    }
     #sbd .seg button{border:0;background:var(--card);color:var(--muted);
       padding:6px 13px;font:700 .8rem/1 var(--font-stack);cursor:pointer;min-height:44px}
     #sbd .seg button+button{border-left:1px solid var(--border)}
     #sbd .seg button[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff}
     #sbd .seg button[disabled]{opacity:.42;cursor:not-allowed}
     #sbd .modedesc{flex-basis:100%;margin:0;font:600 .8rem/1.4 var(--font-stack);color:var(--muted)}
+    #sbd .smallscreen{display:none}
+    @media (max-width:560px){
+      #sbd .smallscreen{display:block;margin:0 0 10px;padding:9px 11px;border-radius:11px;
+        border:1px solid var(--border);border-left:4px solid var(--warn,var(--accent));
+        background:var(--tint);color:var(--text);font:700 .82rem/1.45 var(--font-stack)}
+    }
     #sbd .qchips{display:flex;flex-wrap:wrap;gap:6px}
     /* Touch hygiene for everything tappable: no 300ms double-tap wait, no grey
        flash box on iOS. */
@@ -486,6 +504,12 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     </div>
 
     <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="trace">
+      <!-- Shown only where the board would be too small to work on. Better to
+           say so than to let a pupil struggle on a phone and conclude the tool
+           is broken. -->
+      <p class="smallscreen" id="smallScreenNote">This tool is made for a
+        <strong>tablet or a computer</strong>. On a phone the board is too small to work on
+        comfortably &mdash; the tasks all still run, but come back to it on a bigger screen.</p>
       <p class="lede" id="lede">Look at the board, then answer the question beside it: are the two named holes
         electrically connected? Answer, and the board shows you the copper that makes it true or false.</p>
 
