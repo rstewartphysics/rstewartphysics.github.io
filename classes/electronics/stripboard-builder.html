@@ -44,15 +44,18 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     /* Alpha version chip + changelog.  The chip is in the title row so it
        survives the short-landscape rules that strip the rest of the chrome —
        a tester reporting a bug has to be able to say which build they saw. */
+    /* Looks like a badge, so it gets tapped like one — it needs a real hit area
+       even though the pill itself stays small. The padding does the work; the
+       pill's own size is unchanged. */
     .verchip{flex:0 0 auto;align-self:center;font:800 .68rem/1 var(--font-stack);
       letter-spacing:.04em;color:var(--accent);background:var(--tint);
       border:1.5px solid var(--accent);border-radius:999px;padding:.32rem .6rem;
-      cursor:pointer;min-height:auto}
+      cursor:pointer;min-height:44px;display:inline-flex;align-items:center}
     .verchip:hover,.verchip:focus-visible{background:var(--accent);color:#fff}
     .verlog{margin:14px 0 0;border:1px solid var(--line);border-radius:12px;
       background:var(--card);overflow:hidden}
-    .verlog>summary{cursor:pointer;padding:.6rem .9rem;font:800 .84rem/1.3 var(--font-stack);
-      color:var(--accent)}
+    .verlog>summary{cursor:pointer;padding:.6rem .9rem;min-height:44px;display:flex;
+      align-items:center;font:800 .84rem/1.3 var(--font-stack);color:var(--accent)}
     .verlog[open]>summary{border-bottom:1px solid var(--line)}
     .verlogwrap{overflow-x:auto;padding:0 .9rem .6rem}
     .vertable{border-collapse:collapse;width:100%;font:500 .78rem/1.45 var(--font-stack)}
@@ -83,12 +86,30 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     /* ---- mode + question chips ---------------------------------------- */
     #sbd .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
     #sbd .seg{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    /* On a narrow screen the six tabs are wider than the strip, and it scrolled
+       sideways with nothing to say so: the last task sat off the right edge with
+       a 19px sliver showing, so nobody would ever find it. Below 560px the strip
+       WRAPS instead — every tab visible, nothing to discover. */
+    @media (max-width:560px){
+      /* overflow:hidden still clips to the rounded corners — the strip no longer
+         needs to scroll, because it wraps. */
+      #sbd .seg{display:flex;flex-wrap:wrap;border-radius:14px;overflow:hidden;gap:0}
+      #sbd .seg button{flex:1 1 auto;border-radius:0}
+      #sbd .seg button+button{border-left:1px solid var(--border)}
+      #sbd .seg button:nth-child(n+4){border-top:1px solid var(--border)}
+    }
     #sbd .seg button{border:0;background:var(--card);color:var(--muted);
       padding:6px 13px;font:700 .8rem/1 var(--font-stack);cursor:pointer;min-height:44px}
     #sbd .seg button+button{border-left:1px solid var(--border)}
     #sbd .seg button[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff}
     #sbd .seg button[disabled]{opacity:.42;cursor:not-allowed}
     #sbd .modedesc{flex-basis:100%;margin:0;font:600 .8rem/1.4 var(--font-stack);color:var(--muted)}
+    #sbd .smallscreen{display:none}
+    @media (max-width:560px){
+      #sbd .smallscreen{display:block;margin:0 0 10px;padding:9px 11px;border-radius:11px;
+        border:1px solid var(--border);border-left:4px solid var(--warn,var(--accent));
+        background:var(--tint);color:var(--text);font:700 .82rem/1.45 var(--font-stack)}
+    }
     #sbd .qchips{display:flex;flex-wrap:wrap;gap:6px}
     /* Touch hygiene for everything tappable: no 300ms double-tap wait, no grey
        flash box on iOS. */
@@ -125,7 +146,10 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
     #sbd .circkey{margin:2px 0 0;font:500 .66rem/1.25 var(--font-stack);color:var(--muted)}
     #sbd .lcrule{display:block;font-weight:600;font-size:.66rem;color:var(--muted)}
-    #sbd .dslink{display:inline-block;margin-top:5px;font:700 .7rem/1 var(--font-stack);color:var(--accent)}
+    /* An 11px-tall link is not tappable on a tablet. The text stays the size it
+       was; the padding gives it a 44px target. */
+    #sbd .dslink{display:inline-flex;align-items:center;min-height:44px;margin-top:5px;
+      font:700 .7rem/1 var(--font-stack);color:var(--accent)}
     #sbd .dslink[hidden]{display:none}
     #sbd .zoombtn{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:3px 11px;font:700 .72rem/1 var(--font-stack);cursor:pointer;
@@ -370,7 +394,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     #sbd .flist .warn .dot{color:var(--warn)}
     #sbd .msnote{margin-top:9px;font-size:.82rem;color:var(--muted)}
     #sbd details.reveal{margin-top:10px;border:1px solid var(--border-soft);border-radius:12px;background:var(--card)}
-    #sbd details.reveal>summary{cursor:pointer;padding:9px 14px;font-weight:700;font-size:.86rem;list-style:none}
+    #sbd details.reveal>summary{cursor:pointer;padding:9px 14px;min-height:44px;display:flex;
+      align-items:center;font-weight:700;font-size:.86rem;list-style:none}
     #sbd details.reveal>summary::-webkit-details-marker{display:none}
     #sbd details.reveal>summary::before{content:"▸ ";color:var(--accent)}
     #sbd details.reveal[open]>summary::before{content:"▾ "}
@@ -380,13 +405,26 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     #sbd .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
     /* ---- enlarge overlay ---------------------------------------------- */
-    #sbd .modal{position:fixed;inset:0;z-index:200;background:rgba(4,14,11,.72);
+    /* The enlarged-diagram dialog is a child of <body>, NOT of #sbd — a dialog
+       has no business nested inside the content it covers. Every rule here was
+       scoped `#sbd .modal` and so matched nothing: the dialog was an ordinary
+       block sitting under the footer, its Close button was an unstyled 18px
+       control permanently in the tab order, and pressing Enlarge injected the
+       diagram a thousand pixels down the page where nobody would see it. It
+       looked, to a pupil, like the button did nothing. */
+    .sbd-modal{position:fixed;inset:0;z-index:200;background:rgba(4,14,11,.72);
       display:none;place-items:center;padding:20px}
-    #sbd .modal.show{display:grid}
-    #sbd .modal .sheet{background:var(--card);border-radius:16px;padding:14px;max-width:min(1000px,94vw);
-      max-height:90vh;overflow:auto;box-shadow:0 30px 70px rgba(0,0,0,.4)}
-    #sbd .modal .sheet svg{width:100%;height:auto}
-    #sbd .modal .sheet h3{margin:0 0 8px;font-size:1rem}
+    .sbd-modal.show{display:grid}
+    .sbd-modal .sheet{background:var(--card,#fff);color:var(--text,#12241d);border-radius:16px;
+      padding:14px;max-width:min(1000px,94vw);max-height:90vh;overflow:auto;
+      box-shadow:0 30px 70px rgba(0,0,0,.4)}
+    .sbd-modal .sheet svg{width:100%;height:auto}
+    .sbd-modal .sheet h3{margin:0 0 8px;font-size:1rem}
+    /* and its own button styling, for the same reason: #sbd .btn cannot reach it */
+    .sbd-modal .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+      border:1px solid var(--border,#cfe6db);background:var(--card,#fff);color:var(--text,#12241d);
+      padding:0 18px;border-radius:11px;font:700 .86rem/1 var(--font-stack,inherit);cursor:pointer}
+    .sbd-modal .btn:focus-visible{outline:3px solid var(--accent,#0b6b4f);outline-offset:2px}
 
     /* ---- one-screen trim on a landscape tablet -------------------------
        The 24-track board is 614 logical px tall.  At 1180x760, keeping the page
@@ -466,6 +504,12 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     </div>
 
     <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="trace">
+      <!-- Shown only where the board would be too small to work on. Better to
+           say so than to let a pupil struggle on a phone and conclude the tool
+           is broken. -->
+      <p class="smallscreen" id="smallScreenNote">This tool is made for a
+        <strong>tablet or a computer</strong>. On a phone the board is too small to work on
+        comfortably &mdash; the tasks all still run, but come back to it on a bigger screen.</p>
       <p class="lede" id="lede">Look at the board, then answer the question beside it: are the two named holes
         electrically connected? Answer, and the board shows you the copper that makes it true or false.</p>
 
@@ -672,7 +716,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     </section>
   </main>
 
-  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Circuit diagram, enlarged">
+  <div class="sbd-modal" id="modal" role="dialog" aria-modal="true" aria-label="Circuit diagram, enlarged">
     <div class="sheet">
       <h3 id="modalTitle"></h3>
       <div id="modalBody"></div>
