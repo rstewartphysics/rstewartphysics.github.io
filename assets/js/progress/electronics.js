@@ -40,6 +40,16 @@
     { id: "pln-st", name: "Master Planner", emoji: "🗂️", section: "Planning", thr: 1,
       href: "/classes/electronics/planning.html",
       cond: "Sequence the five marked stages correctly" },
+    /* The two stripboard pages. `sbd-lp` is scored out of the four marked
+       tasks — one right answer in each — because they are four ways of reading
+       the same board and doing only one of them is not reading it. `sbd-bp` is
+       a single pass: a board of the pupil's own design that checks clean. */
+    { id: "sbd-lp", name: "Layout Reader", emoji: "📐", section: "Planning",
+      href: "/classes/electronics/stripboard-builder.html",
+      cond: "Get one right in each of the five stripboard tasks" },
+    { id: "sbd-bp", name: "Board Planner", emoji: "🧰", section: "Planning", thr: 1,
+      href: "/classes/electronics/stripboard-planner.html",
+      cond: "Design a board of your own that checks clean" },
     { id: "con-cc", name: "Solder Master", emoji: "🪛", section: "Construction",
       href: "/classes/electronics/construction.html",
       cond: "Read 8/10 resistor colour codes" },
