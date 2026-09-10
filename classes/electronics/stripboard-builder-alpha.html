@@ -706,9 +706,28 @@ title: Stripboard Builder · National 5 Electronics
     // LED, not the 2-way terminal block it used to be drawn as
     "ldr-2":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 1 }],
                  body: [], symmetric: true, kind: "axial", sym: "ldr" },
+    // a thermistor bead is the same shape on the board as an LDR: a small disc
+    // on two leads.  The footprint is what a pupil solders, not the schematic
+    // symbol, so they share a drawing and are told apart by their item IDs.
+    "ther-2":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 1 }],
+                 body: [], symmetric: true, kind: "axial", sym: "ldr" },
+    // a 1N4001 is a small axial cylinder with a band at the cathode — the same
+    // span as a resistor, and polarised, so fitting it round the wrong way is
+    // a fault the engine already knows how to report (rank 10)
+    "diode-4": { pins: [{ pin: "a", dr: 0, dc: 0 }, { pin: "k", dr: 0, dc: 3 }],
+                 body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }],
+                 symmetric: false, polarised: ["a", "k"], kind: "axial", sym: "diode" },
     "to92":    { pins: [{ pin: "e", dr: 0, dc: 0 }, { pin: "b", dr: 0, dc: 1 },
                         { pin: "c", dr: 0, dc: 2 }],
                  body: [], symmetric: false, kind: "to92" },
+    // a horizontal preset: three pins on 0.1 in, wiper in the middle
+    "vres-3":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "w", dr: 0, dc: 1 },
+                        { pin: "2", dr: 0, dc: 2 }],
+                 body: [], symmetric: false, kind: "to92", sym: "preset" },
+    // a TO-220 MOSFET: gate, drain, source, again on 0.1 in
+    "mosfet-3": { pins: [{ pin: "g", dr: 0, dc: 0 }, { pin: "d", dr: 0, dc: 1 },
+                         { pin: "s", dr: 0, dc: 2 }],
+                 body: [], symmetric: false, kind: "to92", sym: "to220" },
     "term-1":  { pins: [{ pin: "1", dr: 0, dc: 0 }], body: [],
                  symmetric: false, kind: "terminal" },
     "term-2":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 2 }],
@@ -717,6 +736,41 @@ title: Stripboard Builder · National 5 Electronics
     "dip-14":  dil(14),
     "dip-16":  dil(16)
   };
+
+  /* ------------------------------------------------------------- gate pins
+     Which pins of a chip are gate INPUTS and which are gate OUTPUTS, read off
+     the National 5 Practical Electronics data sheet (X860/75/12, 12 May 2025)
+     page 4 — the same sheet the page links to, so a pupil can check every
+     number here against the drawing they are told to work from.
+
+     This exists for one rule: rank 2.2, "every gate input is held at a
+     definite level".  A TTL input left floating is not a nought — it drifts,
+     picks up noise from the board next to it and switches on its own, which is
+     why the course teaches a pull-down on every input that is not driven by
+     another gate.  Nothing else in the engine needs pin roles, so nothing else
+     reads this.
+
+     The quad 2-input parts share one pinout (in 1,2 → out 3, and so on round
+     the chip) EXCEPT the 7402, whose gates are drawn output-first: in 2,3 →
+     out 1.  That difference is the whole reason this is a table and not a
+     formula. */
+
+  const QUAD_GATES = [ { in: ["1", "2"], out: "3" }, { in: ["4", "5"], out: "6" },
+                       { in: ["9", "10"], out: "8" }, { in: ["12", "13"], out: "11" } ];
+  const GATES = {
+    "7400": QUAD_GATES, "7408": QUAD_GATES, "7432": QUAD_GATES, "7486": QUAD_GATES,
+    "7402": [ { in: ["2", "3"], out: "1" }, { in: ["5", "6"], out: "4" },
+              { in: ["8", "9"], out: "10" }, { in: ["11", "12"], out: "13" } ],
+    "7404": [ { in: ["1"], out: "2" }, { in: ["3"], out: "4" }, { in: ["5"], out: "6" },
+              { in: ["9"], out: "8" }, { in: ["11"], out: "10" }, { in: ["13"], out: "12" } ]
+  };
+
+  /* Not gates, but they drive a logic level just as hard, so an input fed from
+     one of them is driven and needs no pull-down: the 555's output is pin 3,
+     the 741's is pin 6 (data sheet p.3). */
+  const DRIVER_PINS = { "555": ["3"], "741": ["6"] };
+
+  const gatesOf = part => GATES[part] || null;
 
   /* Four rotations, normalised so the shape always sits at the origin.
      180 and 270 are how a polarised part gets fitted the wrong way round, so
@@ -996,12 +1050,137 @@ title: Stripboard Builder · National 5 Electronics
                warnings };
     }
 
+    /* rank 7 — anything still in the bank */
+    const placed = new Set((attempt.placements || []).map(p => p.id));
+    const missing = (q.components || []).map(c => c.id).filter(id => !placed.has(id));
+    if (missing.length) {
+      faults.push({ rank: 7, code: "unplaced",
+        msg: missing.length === 1 ? `${missing[0]} has not been placed.`
+                                  : `${missing.join(", ")} have not been placed.`,
+        refs: missing });
+    }
+
+    const byRoot = netsOf(top);
+    const netOfPin = new Map();
+    for (const [rootKey, list] of byRoot) for (const id of list) netOfPin.set(id, rootKey);
+
+    /* ranks 2 and 1 — the DIL, checked structurally before any comparison,
+       because a chip laid the wrong way makes the partition diff unreadable */
+    const explained = new Set();
+    for (const p of attempt.placements || []) {
+      const fp = FOOTPRINTS[p.footprint];
+      if (!fp || fp.kind !== "dil") continue;
+      const half = fp.pinCount / 2;
+
+      const sideA = [], sideB = [];
+      for (let i = 1; i <= half; i++) sideA.push(p.id + "." + i);
+      for (let i = half + 1; i <= fp.pinCount; i++) sideB.push(p.id + "." + i);
+
+      /* Both DIL checks below ask "is this pin joined to that one BY THE
+         COPPER", which is not the same question as "are they on one net".
+         Reported by a pupil testing the alpha: two spare gate inputs facing
+         each other across the package, each taken down to the 0 V rail by its
+         own link, are legitimately one net — and the old net-based test read
+         that as a missing cut and told them to cut a track that was already
+         cut.  `nodeOf` is the segment a hole sits in BEFORE links are merged
+         in, so it answers the question that was actually being asked. */
+      const segOf = id => {
+        const pin = top.pins.find(x => x.id === id);
+        return pin ? top.nodeOf.get(hid(pin.hole)) : undefined;
+      };
+
+      for (const side of [sideA, sideB]) {
+        const roots = new Set(side.map(segOf).filter(x => x !== undefined));
+        if (side.length > 2 && roots.size === 1) {
+          const trackOf = top.pins.find(x => x.id === side[0]);
+          faults.push({ rank: 2, code: "dil-along-tracks",
+            msg: `All ${side.length} pins down one side of ${p.id} are on track ` +
+                 `${rowLetter(trackOf.hole.r)} — they are shorted together. ` +
+                 `The chip has to sit across the tracks, not along them.`,
+            refs: [p.id] });
+          side.forEach(id => explained.add(id));
+        }
+      }
+
+      /* An uncut chip shorts EVERY track it crosses, so reporting one fault per
+         pin pair gives a pupil seven near-identical lines for a single mistake.
+         They are one fault — a missing column of cuts — and read as one. */
+      const uncut = [];
+      for (let i = 1; i <= half; i++) {
+        const a = p.id + "." + i, b = p.id + "." + (fp.pinCount + 1 - i);
+        if (explained.has(a) || explained.has(b)) continue;
+        const ra = segOf(a), rb = segOf(b);
+        if (ra !== undefined && ra === rb) {
+          uncut.push({ a, b, i, track: rowLetter(top.pins.find(x => x.id === a).hole.r) });
+          explained.add(a); explained.add(b);
+        }
+      }
+      if (uncut.length === 1) {
+        const u = uncut[0];
+        faults.push({ rank: 1, code: "dil-uncut",
+          msg: `${u.a.replace(".", " pin ")} and ${u.b.replace(".", " pin ")} are on the same ` +
+               `track (track ${u.track}). Cut every track the chip crosses, between the two ` +
+               `rows of pins.`,
+          refs: [u.a, u.b] });
+      } else if (uncut.length > 1) {
+        const tracks = uncut.map(u => u.track);
+        faults.push({ rank: 1, code: "dil-uncut",
+          msg: `${p.id} has no cuts under it: each pin is still joined to the pin opposite it ` +
+               `on ${uncut.length} tracks (${tracks[0]} to ${tracks[tracks.length - 1]}) — ` +
+               `pin ${uncut[0].i} to pin ${fp.pinCount + 1 - uncut[0].i}, and so on down the chip. ` +
+               `Cut every track the chip crosses, between the two rows of pins.`,
+          refs: uncut.reduce((acc, u) => acc.concat([u.a, u.b]), []) });
+      }
+    }
+
+    /* ------------------------------------------------ the netlist compare */
+
+    /* Whether the two legs are interchangeable is a property of the COMPONENT,
+       not of the footprint it happens to use (R3).  A 2-way terminal block is
+       the footprint for an LDR, a switch and a buzzer alike — the first two can
+       be wired either way round, the buzzer cannot.  So the record may say. */
+    const symmetric = new Set((q.components || [])
+      .filter(c => c.symmetric != null ? c.symmetric
+                                       : (FOOTPRINTS[c.footprint] || {}).symmetric)
+      .map(c => c.id));
+    const dontcare = new Set(q.dontcare || []);
+
+    const pupilNets = Array.from(byRoot.values());
+    const targetNets = q.target;
+
+    const tNetOf = new Map();
+    targetNets.forEach((net, i) => net.forEach(id => { if (!dontcare.has(id)) tNetOf.set(id, i); }));
+
+    const pupilSig  = canonicalise(pupilNets, symmetric, dontcare);
+    const targetSig = canonicalise(targetNets, symmetric, dontcare);
+    const match = pupilSig.length === targetSig.length &&
+                  pupilSig.every((s, i) => s === targetSig[i]);
+
+    /* Ranks 3 to 6 EXPLAIN a mismatch, so they only run when there is one.
+       They compare pin ids, which is deliberately blind to the symmetry the
+       match itself respects — a pupil who swaps a resistor's legs has the
+       right board, and without this gate they would be told two nets were
+       "merged".  Ranks 1, 2, 7 and 8 are structural and stay unconditional:
+       shorting an unused gate's output to 0 V leaves the netlist matching and
+       is still a real fault. */
+    /* A chip in the wrong orientation shorts whole sides together, so the
+       partition diff downstream is noise — it was advising a pupil to add link
+       wires between 0 V and pin 7.  Fix the chip, then re-check. */
+    const chipBroken = faults.some(f => f.rank === 1 || f.rank === 2);
+
     /* rank 0.6 — link wire colour convention: red/black reserved for the
        supply rails, and no colour may be reused across two DIFFERENT
        signals. Runs unconditionally, like the diagonal check — a layout-
        convention fault, not an electrical one, so it applies whether or
-       not the netlist matches the target. */
-    {
+       not the netlist matches the target.
+
+       It does stand down when the chip itself is broken.  A DIL laid along the
+       tracks shorts every pin down one side together, so a signal link can end
+       up sitting on the 0 V rail through no fault of its colour — and "that
+       orange link should be black" is a nonsense sentence to read on a board
+       whose chip is sideways.  Same reasoning as railsMerged below: when the
+       nets are meaningless, the rules that read them say nothing. */
+    if (!chipBroken) {
       const rootOfHole = h => {
         const node = top.nodeOf.get(hid(parseRef(h)));
         return node === undefined ? undefined : top.dsu.find(node);
@@ -1060,110 +1239,143 @@ title: Stripboard Builder · National 5 Electronics
       }
     }
 
-    /* rank 7 — anything still in the bank */
-    const placed = new Set((attempt.placements || []).map(p => p.id));
-    const missing = (q.components || []).map(c => c.id).filter(id => !placed.has(id));
-    if (missing.length) {
-      faults.push({ rank: 7, code: "unplaced",
-        msg: missing.length === 1 ? `${missing[0]} has not been placed.`
-                                  : `${missing.join(", ")} have not been placed.`,
-        refs: missing });
-    }
 
-    const byRoot = netsOf(top);
-    const netOfPin = new Map();
-    for (const [rootKey, list] of byRoot) for (const id of list) netOfPin.set(id, rootKey);
+    /* rank 2.2 — every gate input held at a definite level.
+       A TTL input that is joined to nothing does not read as a nought: it
+       floats, picks up whatever the tracks beside it are doing and switches on
+       its own, so a board built this way behaves differently every time it is
+       switched on.  The course's rule, and the one this checks, is that EVERY
+       gate input is held down — a spare input straight to 0 V, an input fed
+       from a switch or a sensor through a pull-down resistor to 0 V.  The one
+       input that needs nothing is one driven by another gate's output (or a
+       555 or 741 output), because that is already holding it at a level.
 
-    /* ranks 2 and 1 — the DIL, checked structurally before any comparison,
-       because a chip laid the wrong way makes the partition diff unreadable */
-    const explained = new Set();
-    for (const p of attempt.placements || []) {
-      const fp = FOOTPRINTS[p.footprint];
-      if (!fp || fp.kind !== "dil") continue;
-      const half = fp.pinCount / 2;
+       Target-independent and never suppressed by a netlist mismatch: like the
+       diagonal link and the link colours, it is a convention fault, so it is
+       reported however the rest of the board reads.  It does stand down when
+       the chip itself is broken (ranks 1 and 2) — with the chip laid along the
+       tracks or its cuts missing, every pin is on the wrong net and the answer
+       would be noise on top of noise.
 
-      const sideA = [], sideB = [];
-      for (let i = 1; i <= half; i++) sideA.push(p.id + "." + i);
-      for (let i = half + 1; i <= fp.pinCount; i++) sideB.push(p.id + "." + i);
+       Grouped per chip, not per pin, for the reason free-mode learned the hard
+       way: a freshly placed 14-pin chip has eight unheld inputs, and eight
+       near-identical lines bury every other fault on the panel. */
+    if (!chipBroken) {
+      const compOf = new Map((q.components || []).map(c => [c.id, c]));
+      const rootOf = id => netOfPin.get(id);
+      const pinsOn = root => (root === undefined ? [] : (byRoot.get(root) || []));
 
-      for (const side of [sideA, sideB]) {
-        const roots = new Set(side.map(id => netOfPin.get(id)).filter(x => x !== undefined));
-        if (side.length > 2 && roots.size === 1) {
-          const trackOf = top.pins.find(x => x.id === side[0]);
-          faults.push({ rank: 2, code: "dil-along-tracks",
-            msg: `All ${side.length} pins down one side of ${p.id} are on track ` +
-                 `${rowLetter(trackOf.hole.r)} — they are shorted together. ` +
-                 `The chip has to sit across the tracks, not along them.`,
-            refs: [p.id] });
-          side.forEach(id => explained.add(id));
+      // the 0 V net: whatever the 0 V terminal is sitting on
+      let zeroRoot;
+      for (const c of q.components || []) {
+        if (!c.neg) continue;
+        const fp = FOOTPRINTS[c.footprint] || { pins: [] };
+        for (const pin of fp.pins) {
+          const r = rootOf(c.id + "." + pin.pin);
+          if (r !== undefined) { zeroRoot = r; break; }
+        }
+        if (zeroRoot !== undefined) break;
+      }
+
+      // every pin on the board that drives a level
+      const drivers = new Set();
+      for (const pl of attempt.placements || []) {
+        const part = (compOf.get(pl.id) || {}).part;
+        const gs = gatesOf(part);
+        if (gs) gs.forEach(g => drivers.add(pl.id + "." + g.out));
+        (DRIVER_PINS[part] || []).forEach(pin => drivers.add(pl.id + "." + pin));
+      }
+
+      /* A resistance from this net to 0 V IS the pull-down.  An LDR counts:
+         the bottom leg of a light sensor's divider holds the input down in the
+         dark exactly as a fixed resistor does.  A capacitor does not — it
+         holds nothing at DC — and neither does a switch, which is the whole
+         reason the pull-down is needed in the first place. */
+      const PULLDOWN = { "res-4": true, "ldr-2": true };
+      /* Read the footprint off the PLACEMENT, not off q.components: a staged
+         question hands check() only the components unlocked so far, and a
+         pull-down that is on the board but belongs to a later stage would
+         otherwise go unrecognised and the board be failed for lacking it. */
+      const placedFp = new Map((attempt.placements || []).map(p => [p.id, p.footprint]));
+      const pulledDownTo0V = root => {
+        if (zeroRoot === undefined || root === undefined) return false;
+        for (const id of pinsOn(root)) {
+          const comp = id.split(".")[0], fpName = placedFp.get(comp);
+          if (!fpName || !PULLDOWN[fpName]) continue;
+          const fp = FOOTPRINTS[fpName];
+          for (const pin of fp.pins) {
+            const other = comp + "." + pin.pin;
+            if (other !== id && rootOf(other) === zeroRoot) return true;
+          }
+        }
+        return false;
+      };
+      /* An input whose target net names a part that is still in the bank is
+         not an unheld input — it is an unfinished one, and rank 7 says so in
+         the words the pupil needs.  This is also what keeps a staged question
+         honest: at stage 1 the later sub-system's pull-down does not exist yet. */
+      const awaitingParts = new Set();
+      for (const net of targetNets || []) {
+        if (!net.some(id => !placedFp.has(id.split(".")[0]))) continue;
+        net.forEach(id => awaitingParts.add(id));
+      }
+
+      /* Inputs the TARGET drives from a gate output: exempt, per above. */
+      const driven = new Set();
+      for (const net of targetNets || []) {
+        if (!net.some(id => drivers.has(id))) continue;
+        net.forEach(id => driven.add(id));
+      }
+
+      // no 0 V terminal on the board yet: there is nothing to pull down TO, and
+      // the missing rail is the fault worth reporting instead
+      if (zeroRoot !== undefined) {
+        for (const pl of attempt.placements || []) {
+          const c = compOf.get(pl.id) || {};
+          const gs = gatesOf(c.part);
+          if (!gs) continue;
+          const bare = [], floatingSignal = [];
+          for (const g of gs) for (const pin of g.in) {
+            const id = pl.id + "." + pin;
+            const root = rootOf(id);
+            if (root === undefined) continue;         // pin-in-cut: already reported
+            /* If the DESIGN says this input is driven by another gate, a
+               missing wire is a missing wire — rank 5 names it as a split and
+               says which two pins to join, which is the more useful sentence.
+               Free mode hands check() the pupil's own netlist as the target,
+               so nothing is exempted there unless the board really does drive
+               the pin. */
+            if (driven.has(id)) continue;
+            if (awaitingParts.has(id)) continue;
+            if (root === zeroRoot) continue;          // tied straight down
+            if (pinsOn(root).some(x => drivers.has(x))) continue;   // driven by an output
+            if (pulledDownTo0V(root)) continue;       // held down through a resistance
+            (pinsOn(root).length > 1 ? floatingSignal : bare).push(pin);
+          }
+          const list = ps => ps.length === 1 ? "pin " + ps[0]
+                    : "pins " + ps.slice(0, -1).join(", ") + " and " + ps[ps.length - 1];
+          if (bare.length)
+            faults.push({ rank: 2.2, code: "input-floating",
+              msg: `${pl.id} ${list(bare)} ${bare.length === 1 ? "is a gate input" :
+                   "are gate inputs"} joined to nothing. A gate input left floating is not a ` +
+                   `logic 0 — it drifts and switches on its own. Every input has to be held: ` +
+                   `take ${bare.length === 1 ? "it" : "them"} to 0 V, through a 10 kΩ ` +
+                   `pull-down resistor if ${bare.length === 1 ? "it is" : "they are"} fed by a ` +
+                   `switch or sensor, or straight to 0 V if ` +
+                   `${bare.length === 1 ? "the gate is spare" : "the gates are spare"}.`,
+              refs: bare.map(pin => pl.id + "." + pin) });
+          if (floatingSignal.length)
+            faults.push({ rank: 2.2, code: "input-no-pulldown",
+              msg: `${pl.id} ${list(floatingSignal)} ${floatingSignal.length === 1 ?
+                   "has" : "have"} no pull-down resistor. An input fed from a switch, a sensor ` +
+                   `or a terminal floats whenever that source is not driving it, so it needs a ` +
+                   `10 kΩ resistor from the input down to 0 V. Only an input driven by another ` +
+                   `gate's output can go without one.`,
+              refs: floatingSignal.map(pin => pl.id + "." + pin) });
         }
       }
-
-      /* An uncut chip shorts EVERY track it crosses, so reporting one fault per
-         pin pair gives a pupil seven near-identical lines for a single mistake.
-         They are one fault — a missing column of cuts — and read as one. */
-      const uncut = [];
-      for (let i = 1; i <= half; i++) {
-        const a = p.id + "." + i, b = p.id + "." + (fp.pinCount + 1 - i);
-        if (explained.has(a) || explained.has(b)) continue;
-        const ra = netOfPin.get(a), rb = netOfPin.get(b);
-        if (ra !== undefined && ra === rb) {
-          uncut.push({ a, b, i, track: rowLetter(top.pins.find(x => x.id === a).hole.r) });
-          explained.add(a); explained.add(b);
-        }
-      }
-      if (uncut.length === 1) {
-        const u = uncut[0];
-        faults.push({ rank: 1, code: "dil-uncut",
-          msg: `${u.a.replace(".", " pin ")} and ${u.b.replace(".", " pin ")} are on the same ` +
-               `track (track ${u.track}). Cut every track the chip crosses, between the two ` +
-               `rows of pins.`,
-          refs: [u.a, u.b] });
-      } else if (uncut.length > 1) {
-        const tracks = uncut.map(u => u.track);
-        faults.push({ rank: 1, code: "dil-uncut",
-          msg: `${p.id} has no cuts under it: each pin is still joined to the pin opposite it ` +
-               `on ${uncut.length} tracks (${tracks[0]} to ${tracks[tracks.length - 1]}) — ` +
-               `pin ${uncut[0].i} to pin ${fp.pinCount + 1 - uncut[0].i}, and so on down the chip. ` +
-               `Cut every track the chip crosses, between the two rows of pins.`,
-          refs: uncut.reduce((acc, u) => acc.concat([u.a, u.b]), []) });
-      }
     }
 
-    /* ------------------------------------------------ the netlist compare */
-
-    /* Whether the two legs are interchangeable is a property of the COMPONENT,
-       not of the footprint it happens to use (R3).  A 2-way terminal block is
-       the footprint for an LDR, a switch and a buzzer alike — the first two can
-       be wired either way round, the buzzer cannot.  So the record may say. */
-    const symmetric = new Set((q.components || [])
-      .filter(c => c.symmetric != null ? c.symmetric
-                                       : (FOOTPRINTS[c.footprint] || {}).symmetric)
-      .map(c => c.id));
-    const dontcare = new Set(q.dontcare || []);
-
-    const pupilNets = Array.from(byRoot.values());
-    const targetNets = q.target;
-
-    const tNetOf = new Map();
-    targetNets.forEach((net, i) => net.forEach(id => { if (!dontcare.has(id)) tNetOf.set(id, i); }));
-
-    const pupilSig  = canonicalise(pupilNets, symmetric, dontcare);
-    const targetSig = canonicalise(targetNets, symmetric, dontcare);
-    const match = pupilSig.length === targetSig.length &&
-                  pupilSig.every((s, i) => s === targetSig[i]);
-
-    /* Ranks 3 to 6 EXPLAIN a mismatch, so they only run when there is one.
-       They compare pin ids, which is deliberately blind to the symmetry the
-       match itself respects — a pupil who swaps a resistor's legs has the
-       right board, and without this gate they would be told two nets were
-       "merged".  Ranks 1, 2, 7 and 8 are structural and stay unconditional:
-       shorting an unused gate's output to 0 V leaves the netlist matching and
-       is still a real fault. */
-    /* A chip in the wrong orientation shorts whole sides together, so the
-       partition diff downstream is noise — it was advising a pupil to add link
-       wires between 0 V and pin 7.  Fix the chip, then re-check. */
-    const chipBroken = faults.some(f => f.rank === 1 || f.rank === 2);
     if (!match && !chipBroken) {
 
     /* rank 3 — a component shorted across itself */
@@ -1307,9 +1519,21 @@ title: Stripboard Builder · National 5 Electronics
 
     /* ------------------------------------------------------- warnings */
 
-    // rank 9 — a cut that separates nothing
+    /* rank 9 — a cut that separates nothing.  Never said of a cut UNDER a
+       chip: the convention is that every track a DIL package crosses is cut
+       between the two rows of pins, full stop, and a board that then takes the
+       two spare inputs facing each other down to the same 0 V rail would
+       otherwise be told its cut was pointless.  It is not — the rail joins
+       them, the copper does not. */
+    const underChip = new Set();
+    for (const p of attempt.placements || []) {
+      const fp = FOOTPRINTS[p.footprint];
+      if (!fp || fp.kind !== "dil") continue;
+      for (const cell of cellsOf(fp, parseRef(p.at), p.rot || 0).body) underChip.add(hid(cell));
+    }
     for (const s of attempt.cuts || []) {
       const h = parseRef(s);
+      if (underChip.has(hid(h))) continue;
       const left = top.nodeOf.get(hid({ r: h.r, c: h.c - 1 }));
       const right = top.nodeOf.get(hid({ r: h.r, c: h.c + 1 }));
       if (left === undefined || right === undefined) continue;
@@ -1419,7 +1643,8 @@ title: Stripboard Builder · National 5 Electronics
     return top.dsu.find(na) === top.dsu.find(nb);
   }
 
-  root.SBD = { BOARDS, FOOTPRINTS, segmentsOf, makeDSU, topology, netsOf, stageOf,
+  root.SBD = { BOARDS, FOOTPRINTS, GATES, DRIVER_PINS, gatesOf,
+               segmentsOf, makeDSU, topology, netsOf, stageOf,
                canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
                ref, parseRef, rowLetter, hid, cellsOf };
 
@@ -1536,6 +1761,10 @@ title: Stripboard Builder · National 5 Electronics
                    "font-size": [null, "11px"], "font-weight": [null, "700"] },
     "sbd-posid": { fill: ["--sbd-pos", "#c0392b"], "font-family": [null, SANS],
                    "font-size": [null, "11px"], "font-weight": [null, "800"] },
+    /* The polarity or orientation mark printed on a part: a diode's cathode
+       band, a TO-220's tab.  Solid ink, no outline — it is a marking on the
+       body, not another piece of the body. */
+    "sbd-mark":  { fill: ["--sbd-ink", "#1d2a24"], stroke: [null, "none"] },
     "sbd-chip":  { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
                    "stroke-width": [null, "1.2"], "stroke-dasharray": [null, "5 4"] },
     "sbd-cnet":  { fill: ["--sbd-tp", "#1d6fa5"], "font-family": [null, SANS],
@@ -1603,6 +1832,21 @@ title: Stripboard Builder · National 5 Electronics
         : [[cx, cy - zz], [cx - zz * 0.5, cy - zz * 0.5], [cx + zz * 0.5, cy],
            [cx - zz * 0.5, cy + zz * 0.5], [cx, cy + zz]];
       s += `<path class="sbd-lead" d="M ${pts.map(z => n(z[0]) + " " + n(z[1])).join(" L ")}"/>`;
+      return s;
+    }
+    if (fp.sym === "diode") {
+      // a cylinder with the cathode band on it — the band IS the polarity mark
+      // on a real diode, so the footprint carries nothing else
+      const k = cells.pins.find(z => z.pin === "k").hole;
+      s += `<rect class="sbd-body" x="${n(bx1)}" y="${n(by1)}" width="${n(bx2 - bx1)}" ` +
+           `height="${n(by2 - by1)}" rx="${n(P * 0.16)}"/>`;
+      const band = P * 0.22;
+      s += horiz
+        ? `<rect class="sbd-mark" x="${n(X(k.c) > (x1 + x2) / 2 ? bx2 - band - 1 : bx1 + 1)}" ` +
+          `y="${n(by1)}" width="${n(band)}" height="${n(by2 - by1)}"/>`
+        : `<rect class="sbd-mark" x="${n(bx1)}" ` +
+          `y="${n(Y(k.r) > (y1 + y2) / 2 ? by2 - band - 1 : by1 + 1)}" ` +
+          `width="${n(bx2 - bx1)}" height="${n(band)}"/>`;
       return s;
     }
     if (fp.sym === "ecap") {
@@ -1694,6 +1938,37 @@ title: Stripboard Builder · National 5 Electronics
     const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     const spanH = Math.max(...xs) - Math.min(...xs) > Math.max(...ys) - Math.min(...ys);
     const rr = P * 0.72;
+
+    // a preset: square body, screwdriver slot across it
+    if (fp.sym === "preset") {
+      const h = P * 0.62;
+      let g = `<rect class="sbd-body" x="${n(cx - (spanH ? P * 1.1 : h))}" ` +
+              `y="${n(cy - (spanH ? h : P * 1.1))}" ` +
+              `width="${n(spanH ? P * 2.2 : h * 2)}" height="${n(spanH ? h * 2 : P * 2.2)}" ` +
+              `rx="${n(P * 0.14)}"/>`;
+      g += `<line class="sbd-lead" x1="${n(cx - P * 0.3)}" y1="${n(cy - P * 0.3)}" ` +
+           `x2="${n(cx + P * 0.3)}" y2="${n(cy + P * 0.3)}"/>`;
+      return g;
+    }
+    /* A TO-220: rectangular body with the metal tab marked at the GATE end.
+       Marking the gate end rather than one fixed edge does two jobs — it
+       shows which way round the part has been fitted (g, d, s reverse when it
+       is rotated 180°, and a drawing that cannot show that is no use), and it
+       keeps the mark off the top edge, where the item ID is written. */
+    if (fp.sym === "to220") {
+      const h = P * 0.7, tab = P * 0.26;
+      const x = cx - (spanH ? P * 1.15 : h), y = cy - (spanH ? h : P * 1.15);
+      const w = spanH ? P * 2.3 : h * 2, ht = spanH ? h * 2 : P * 2.3;
+      const g = cells.pins.find(z => z.pin === "g").hole;
+      const atEnd = spanH ? X(g.c) > cx : Y(g.r) > cy;
+      return `<rect class="sbd-body" x="${n(x)}" y="${n(y)}" width="${n(w)}" ` +
+             `height="${n(ht)}" rx="${n(P * 0.12)}"/>` +
+             (spanH
+               ? `<rect class="sbd-mark" x="${n(atEnd ? x + w - tab : x)}" y="${n(y)}" ` +
+                 `width="${n(tab)}" height="${n(ht)}"/>`
+               : `<rect class="sbd-mark" x="${n(x)}" y="${n(atEnd ? y + ht - tab : y)}" ` +
+                 `width="${n(w)}" height="${n(tab)}"/>`);
+    }
     // D-shape: half round, one flat face — the TO-92 outline
     const d = spanH
       ? `M ${n(cx - rr)} ${n(cy + 3)} a ${n(rr)} ${n(rr)} 0 0 1 ${n(rr * 2)} 0 z`
@@ -2415,33 +2690,52 @@ title: Stripboard Builder · National 5 Electronics
      drawing rather than three that can drift apart.  `kind` is "and" or "or",
      and the gate pin numbers are the same on a 7408 and a 7432.
      ------------------------------------------------------------------------ */
+  /* Three switched inputs, so three 10 kΩ pull-downs — one per input, each
+     from the input wire straight down to 0 V.  They are what makes an open
+     switch read as logic 0 instead of leaving the pin floating, so they are
+     drawn as part of the circuit, not tucked away in a note.  The drawing has
+     to be wide enough to stand them side by side with their values legible:
+     the two upper drops cross the third input's wire on the way down, and a
+     crossing with no dot is not a join (the convention the topic pages use
+     throughout). */
+  /* One 10 kΩ pull-down, drawn from an input wire straight down to the 0 V
+     rail.  Shared, because every switched input on every board gets one and
+     they must all look identical. */
+  const pullDown = (C, x, y, label, bot) =>
+    C.wire([[x, y], [x, 162]]) + C.node(x, y) +
+    C.res(x, 190, { dir: "v", span: 56, label: label, value: "10 k\u03a9" }) +
+    C.wire([[x, 218], [x, bot]]) + C.node(x, bot);
+
   function twoGateChip(C, spec, o) {
     const G = { w: 32, lead: 12 };
     const gate = spec.kind === "or" ? C.orGate : C.andGate;
-    const ga = gate(104, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
-    const gb = gate(160, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
-    const TOP = 24, BOT = 268, XO = 214;
+    const ga = gate(190, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
+    const gb = gate(246, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
+    const TOP = 24, BOT = 268, XO = 300;
+    const pull = (x, y, label) => pullDown(C, x, y, label, BOT);
     const body =
-      C.rail(RAIL_L, 240, TOP, { pos: true }) + C.rail(RAIL_L, 240, BOT) +
+      C.rail(RAIL_L, 326, TOP, { pos: true }) + C.rail(RAIL_L, 326, BOT) +
 
-      C.term(40, 63, { label: spec.in[0] }) + C.wire([[47, 63], [82, 63]]) +
-      C.term(40, 85, { label: spec.in[1] }) + C.wire([[47, 85], [82, 85]]) +
-      C.term(40, 141, { label: spec.in[2] }) + C.wire([[47, 141], [138, 141]]) +
+      C.term(40, 63, { label: spec.in[0] }) + C.wire([[47, 63], [168, 63]]) +
+      C.term(40, 85, { label: spec.in[1] }) + C.wire([[47, 85], [168, 85]]) +
+      C.term(40, 141, { label: spec.in[2] }) + C.wire([[47, 141], [224, 141]]) +
+      pull(54, 63, spec.pulls[0]) + pull(120, 85, spec.pulls[1]) +
+      pull(186, 141, spec.pulls[2]) +
 
-      ga.svg + C.text(110, 46, "IC1a") +
-      gb.svg + C.text(166, 102, "IC1b") +
-      C.wire([[138, 74], [138, 119]]) +            // gate a's output down to pin 4
+      ga.svg + C.text(196, 46, "IC1a") +
+      gb.svg + C.text(252, 102, "IC1b") +
+      C.wire([[224, 74], [224, 119]]) +            // gate a's output down to pin 4
 
-      C.wire([[194, 130], [XO, 130], [XO, 152]]) +
+      C.wire([[280, 130], [XO, 130], [XO, 152]]) +
       C.res(XO, 180, { dir: "v", span: 56, label: "R1", value: "270 \u03a9", labelLeft: true }) +
       C.wire([[XO, 208], [XO, 222]]) +
       C.led(XO, 240, { dir: "d", span: 36, label: spec.led }) +
       C.wire([[XO, 258], [XO, BOT]]) + C.node(XO, BOT) +
 
-      nn(C, o, 63, 63, 3) + nn(C, o, 63, 85, 4) + nn(C, o, 95, 141, 6) +
-      nn(C, o, 138, 94, 5) + nn(C, o, XO, 141, 7) + nn(C, o, XO, 215, 8) +
-      nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2);
-    return { w: 258, h: 292, body: body };
+      nn(C, o, 150, 63, 3) + nn(C, o, 150, 85, 4) + nn(C, o, 150, 141, 6) +
+      nn(C, o, 224, 94, 5) + nn(C, o, XO, 141, 7) + nn(C, o, XO, 215, 8) +
+      nn(C, o, 170, TOP, 1) + nn(C, o, 220, BOT, 2);
+    return { w: 344, h: 292, body: body };
   }
 
   /* ------------------------------------------------------------------------
@@ -2516,7 +2810,10 @@ title: Stripboard Builder · National 5 Electronics
       "A lift may only move when three conditions are all met: the door is closed, " +
       "a floor has been selected, and the car is not overloaded.",
       "Each condition arrives at the process board as a logic 1. The output drives " +
-      "the motor-enable indicator."
+      "the motor-enable indicator.",
+      "All three conditions come from switches, so each input carries a 10 kΩ pull-down " +
+      "to 0 V — otherwise an open switch leaves the input floating rather than at logic 0. " +
+      "The two gates you are not using have their inputs tied straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -2526,20 +2823,25 @@ title: Stripboard Builder · National 5 Electronics
       { id: "C",    footprint: "term-1", name: "input C — not overloaded" },
       { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — pull-down on A" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — pull-down on B" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (10 kΩ) — pull-down on C" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — motor enable" }
     ],
     target: [
       ["+5V.1", "IC1.14"],
-      ["0V.1", "IC1.7", "LED1.k"],
-      ["A.1", "IC1.1"],
-      ["B.1", "IC1.2"],
+      ["0V.1", "IC1.7", "LED1.k", "R2.1", "R3.1", "R4.2"],
+      ["A.1", "IC1.1", "R2.2"],
+      ["B.1", "IC1.2", "R3.2"],
       ["IC1.3", "IC1.4"],
-      ["C.1", "IC1.5"],
+      ["C.1", "IC1.5", "R4.1"],
       ["IC1.6", "R1.1"],
       ["R1.2", "LED1.a"]
     ],
-    // gates c and d of the 7408 are unused — a pupil who ties these spare
-    // inputs to 0 V has done the right thing and must not be failed for it (R1)
+    /* Gates c and d are unused, and their INPUTS still have to be held at 0 V —
+       rank 2.2 enforces that on any board.  Where the pupil takes them down is
+       their own business, so the netlist comparison stays blind to them; the
+       spare outputs (8 and 11) drive nothing and are left alone. */
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     tpRequired: ["IC1.6"],
     /* The reading the test point is FOR (QVSR: the expected value is planned on
@@ -2554,7 +2856,7 @@ title: Stripboard Builder · National 5 Electronics
        chip is checked on its own before the output sub-system is unlocked. */
     stages: [
       { name: "Inputs and the chip",
-        parts: ["+5V", "0V", "A", "B", "C", "IC1"],
+        parts: ["+5V", "0V", "A", "B", "C", "IC1", "R2", "R3", "R4"],
         hint: "Place the chip, cut every track it crosses, and get the three inputs " +
               "onto the right pins — plus the link from gate a's output to gate b's input. " +
               "The output sub-system unlocks once this checks clean." },
@@ -2572,22 +2874,37 @@ title: Stripboard Builder · National 5 Electronics
         { id: "A",    footprint: "term-1", at: "F2" },
         { id: "B",    footprint: "term-1", at: "G2" },
         { id: "C",    footprint: "term-1", at: "J2" },
-        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "0V",   footprint: "term-1", at: "M2" },    // the 0 V rail, track M
         { id: "+5V",  footprint: "term-1", at: "F20" },   // right of the cut, with pin 14
+        // A and B pull down UPWARDS: three tracks below pin 1 is pin 4, which
+        // gate a drives, and three below pin 2 is pin 5, which C drives — a
+        // resistor either way would short a live net to 0 V.  C's pull-down
+        // has clear board below it and reaches the rail on its own.
+        { id: "R2",   footprint: "res-4",  at: "C4", rot: 90 },   // C4 (0 V) to F4 (pin 1)
+        { id: "R3",   footprint: "res-4",  at: "D6", rot: 90 },   // D6 (0 V) to G6 (pin 2)
+        { id: "R4",   footprint: "res-4",  at: "J8", rot: 90 },   // J8 (pin 5) to M8 (0 V rail)
         { id: "R1",   footprint: "res-4",  at: "K3", rot: 90 },   // legs K3 (pin 6) and N3
         { id: "LED1", footprint: "led-2",  at: "N5", rot: 90 }    // legs N5 (anode) and O5
       ],
       links: [
         { a: "H9", b: "I9", colour: "orange", num: 1 },   // pin 3 -> pin 4
-        { a: "L6", b: "O6", colour: "black",  num: 2 }    // 0 V rail -> the LED cathode
+        { a: "O4", b: "M4", colour: "black",  num: 2 },   // LED cathode -> the 0 V rail
+        { a: "C22", b: "M22", colour: "black", num: 3 },  // R2's far leg -> 0 V
+        { a: "D5", b: "M5", colour: "black",  num: 4 },   // R3's far leg -> 0 V
+        { a: "L7", b: "M7", colour: "black",  num: 5 },   // pin 7 -> 0 V
+        { a: "G14", b: "M14", colour: "black", num: 6 },  // spare pin 13
+        { a: "H15", b: "M15", colour: "black", num: 7 },  // spare pin 12
+        { a: "J16", b: "M16", colour: "black", num: 8 },  // spare pin 10
+        { a: "K17", b: "M17", colour: "black", num: 9 }   // spare pin 9
       ],
-      testpoints: [{ id: "TP1", at: "K8", predict: 0 }]
+      testpoints: [{ id: "TP1", at: "K4", predict: 0 }]
     },
     /* The dashed outline round the two gates is the whole point of the
        question: Yenka draws two AND symbols, but they are two gates of ONE
        7408.  Drawn by the shared archetype (R5 checked against `target`). */
     circuit: (C, o) => twoGateChip(C, { kind: "and", part: "7408",
-                                       in: ["A", "B", "C"], led: "LED1" }, o),
+                                       in: ["A", "B", "C"], pulls: ["R2", "R3", "R4"],
+                                       led: "LED1" }, o),
     why: [
       "There is <strong>one chip</strong>, not two. Yenka draws two AND gate symbols, " +
       "but both live in the same 7408 — sharing pin 7 (0 V) and pin 14 (+5 V).",
@@ -2597,7 +2914,14 @@ title: Stripboard Builder · National 5 Electronics
       "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
       "They are next to each other on the package but on different tracks — adjacent " +
       "pins are <em>not</em> connected, so that join needs a link wire.",
-      "Gates c and d are unused. Their pins can be left, or tied to 0 V — either is accepted.",
+      "Gates c and d are unused, but <strong>their inputs must still be tied to 0 V</strong> " +
+      "— pins 9, 10, 12 and 13. A floating TTL input is not a logic 0: it drifts, and it makes " +
+      "the chip draw current it should not. Their outputs (8 and 11) drive nothing, so they " +
+      "are left alone.",
+      "R2 and R3 pull <strong>upwards</strong>, onto tracks C and D. Three tracks below pin 1 " +
+      "is pin 4 — which gate a drives — and three below pin 2 is pin 5, which C drives. A " +
+      "resistor either way would tie a live net to 0 V. R4 has clear board below it, so it " +
+      "reaches the rail on its own.",
       "With <strong>A = 1, B = 1, C = 0</strong> the first gate gives 1, but the second gate ANDs that with C, so <strong>TP1 reads logic 0</strong> — the lift stays put. Writing the expected reading on the layout is what makes the test point worth marking: on the real board, a 1 there tells you the fault is downstream of the chip, and a 0 tells you it is not."
     ]
   };
@@ -2684,7 +3008,10 @@ title: Stripboard Builder · National 5 Electronics
     scaffold: "parts",
     scenario: [
       "A machine may only run when the guard is closed AND the start button is pressed. " +
-      "Both signals arrive at the process board as a logic 1."
+      "Both signals arrive at the process board as a logic 1.",
+      "Every gate input has to be held at a definite level: each input used carries a " +
+      "10 kΩ pull-down to 0 V, and the inputs of the three gates you are not using are " +
+      "tied straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -2693,16 +3020,22 @@ title: Stripboard Builder · National 5 Electronics
       { id: "B",    footprint: "term-1", name: "B — start pressed" },
       { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — pull-down on A" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — pull-down on B" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — run indicator" }
     ],
     target: [
       ["+5V.1", "IC1.14"],
-      ["0V.1", "IC1.7", "LED1.k"],
-      ["A.1", "IC1.1"],
-      ["B.1", "IC1.2"],
+      ["0V.1", "IC1.7", "LED1.k", "R2.2", "R3.2"],
+      ["A.1", "IC1.1", "R2.1"],
+      ["B.1", "IC1.2", "R3.1"],
       ["IC1.3", "R1.1"],
       ["R1.2", "LED1.a"]
     ],
+    /* The three spare gates: their INPUTS have to be held at 0 V (rank 2.2
+       enforces that on any board), but WHERE the pupil takes them down is
+       their own business, so the netlist comparison stays blind to them.  The
+       spare OUTPUTS — 6, 8 and 11 — drive nothing and are left alone. */
     dontcare: ["IC1.4", "IC1.5", "IC1.6", "IC1.8", "IC1.9",
                "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     reference: {
@@ -2711,30 +3044,55 @@ title: Stripboard Builder · National 5 Electronics
         { id: "IC1",  footprint: "dip-14", at: "F10" },
         { id: "A",    footprint: "term-1", at: "F2" },
         { id: "B",    footprint: "term-1", at: "G2" },
-        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "0V",   footprint: "term-1", at: "Q2" },            // the 0 V rail, track Q
         { id: "+5V",  footprint: "term-1", at: "F20" },
-        { id: "R1",   footprint: "res-4",  at: "H3", rot: 90 },   // H3 (pin 3) to K3
-        { id: "LED1", footprint: "led-2",  at: "K5", rot: 90 }    // K5 anode, L5 cathode
+        // R2 drops pin 1 onto track I — the same track as spare pin 4, so one
+        // black link down to the rail holds the pull-down AND the spare input
+        { id: "R2",   footprint: "res-4",  at: "F5", rot: 90 },   // F5 (pin 1) to I5
+        { id: "R3",   footprint: "res-4",  at: "G7", rot: 90 },   // G7 (pin 2) to J7
+        { id: "R1",   footprint: "res-4",  at: "M3", rot: 90 },   // M3 to P3
+        { id: "LED1", footprint: "led-2",  at: "P5", rot: 90 }    // P5 anode, Q5 cathode
       ],
-      links: [],
+      links: [
+        { a: "H4", b: "M4", colour: "orange", num: 1 },   // pin 3 -> the output sub-system
+        { a: "L9", b: "Q9", colour: "black",  num: 2 },   // pin 7 -> the 0 V rail
+        { a: "I6", b: "Q6", colour: "black",  num: 3 },   // R2's foot + spare pin 4
+        { a: "J8", b: "Q8", colour: "black",  num: 4 },   // R3's foot + spare pin 5
+        { a: "G14", b: "Q14", colour: "black", num: 5 },  // spare pin 13
+        { a: "H15", b: "Q15", colour: "black", num: 6 },  // spare pin 12
+        { a: "J16", b: "Q16", colour: "black", num: 7 },  // spare pin 10
+        { a: "K17", b: "Q17", colour: "black", num: 8 }   // spare pin 9
+      ],
       testpoints: []
     },
+    /* Both inputs carry a 10 kΩ pull-down to 0 V.  A switch or a guard contact
+       only ever DRIVES its input high — when it is open the pin is connected
+       to nothing at all, and a TTL input connected to nothing is not a nought,
+       it floats.  The pull-down is what makes "not pressed" mean logic 0, so
+       it is part of the circuit, not an optional extra. */
     circuit: (C, o) => {
-      const g = C.andGate(120, 96, { w: 34, lead: 14, pins: pinNos(o, ["1", "2", "3"]) });
-      const TOP = 26, BOT = 234, XO = 206;
+      const g = C.andGate(132, 96, { w: 34, lead: 14, pins: pinNos(o, ["1", "2", "3"]) });
+      const TOP = 26, BOT = 250, XO = 242, XA = 58, XB = 82;
       const b =
-        C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
-        C.term(42, 85, { label: "A" }) + C.wire([[49, 85], [96, 85]]) +
-        C.term(42, 107, { label: "B" }) + C.wire([[49, 107], [96, 107]]) +
-        g.svg + C.text(123, 62, "IC1a") +
-        C.wire([[158, 96], [XO, 96], [XO, 112]]) +
+        C.rail(RAIL_L, 264, TOP, { pos: true }) + C.rail(RAIL_L, 264, BOT) +
+        C.term(42, 85, { label: "A" }) + C.wire([[49, 85], [108, 85]]) +
+        C.term(42, 107, { label: "B" }) + C.wire([[49, 107], [108, 107]]) +
+        // A's pull-down crosses B's wire without a dot: crossing, not joined
+        C.wire([[XA, 85], [XA, 122]]) + C.node(XA, 85) +
+        C.res(XA, 150, { dir: "v", span: 56, label: "R2", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XA, 178], [XA, BOT]]) + C.node(XA, BOT) +
+        C.wire([[XB, 107], [XB, 167]]) + C.node(XB, 107) +
+        C.res(XB, 195, { dir: "v", span: 56, label: "R3", value: "10 kΩ" }) +
+        C.wire([[XB, 223], [XB, BOT]]) + C.node(XB, BOT) +
+        g.svg + C.text(135, 62, "IC1a") +
+        C.wire([[170, 96], [XO, 96], [XO, 112]]) +
         C.res(XO, 140, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
         C.wire([[XO, 168], [XO, 180]]) +
         C.led(XO, 198, { dir: "d", span: 36, label: "LED1" }) +
         C.wire([[XO, 216], [XO, BOT]]) + C.node(XO, BOT) +
-        nn(C, o, 66, 85, 3) + nn(C, o, 66, 107, 4) + nn(C, o, 120, TOP, 1) +
-        nn(C, o, 150, BOT, 2) + nn(C, o, 182, 96, 5) + nn(C, o, XO, 174, 6);
-      return { w: 258, h: 262, body: b };
+        nn(C, o, 100, 85, 3) + nn(C, o, 100, 107, 4) + nn(C, o, 132, TOP, 1) +
+        nn(C, o, 170, BOT, 2) + nn(C, o, 194, 96, 5) + nn(C, o, XO, 174, 6);
+      return { w: 282, h: 278, body: b };
     },
     why: [
       "The chip lies <strong>across</strong> the tracks, so pin 1 and pin 14 land on the same " +
@@ -2744,8 +3102,18 @@ title: Stripboard Builder · National 5 Electronics
       "(0 V) to pin 8 — the chip would be destroyed and the circuit could never work.",
       "The cuts go <strong>under the chip</strong>. On your layout sheet they are the column " +
       "of X's drawn inside the chip outline.",
-      "Only one of the four AND gates is used. The other three have their pins left as they " +
-      "are, which is why nothing else is connected to pins 4, 5, 6 and 8 to 13."
+      "Each input carries a <strong>10 kΩ pull-down</strong> to 0 V. A guard contact or a " +
+      "start button only ever drives its input HIGH — when it is not pressed the pin is " +
+      "connected to nothing, and a TTL input connected to nothing is not a logic 0. It " +
+      "floats, picks up whatever the tracks beside it are doing, and the machine starts on " +
+      "its own. The pull-down is what makes <em>not pressed</em> mean 0.",
+      "Only one of the four AND gates is used, but <strong>every unused input still has to " +
+      "be tied to 0 V</strong> — pins 4, 5, 9, 10, 12 and 13. A floating input on a spare " +
+      "gate is just as unreliable as one on a gate you are using, and it makes the chip draw " +
+      "current it should not. The spare <em>outputs</em> (6, 8 and 11) drive nothing, so they " +
+      "are left alone.",
+      "On the layout that is one black link per spare track down to the 0 V rail. R2's foot " +
+      "lands on track I, which is where pin 4 already is, so one link holds both."
     ]
   };
 
@@ -2762,7 +3130,10 @@ title: Stripboard Builder · National 5 Electronics
     scenario: [
       "A float switch reads logic 1 while there is water in the tank and logic 0 when it " +
       "is empty. The warning LED has to come on when the tank IS empty, so the signal is " +
-      "inverted by one gate of a 7404."
+      "inverted by one gate of a 7404.",
+      "The float switch only ever drives its input HIGH, so the input carries a 10 kΩ " +
+      "pull-down to 0 V. The five inverters you are not using have their inputs tied " +
+      "straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -2770,15 +3141,21 @@ title: Stripboard Builder · National 5 Electronics
       { id: "IN",   footprint: "term-1", name: "IN — float switch" },
       { id: "IC1",  footprint: "dip-14", part: "7404", name: "IC1 — 7404 hex inverter" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — pull-down on IN" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — tank empty" }
     ],
     target: [
       ["+5V.1", "IC1.14"],
-      ["0V.1", "IC1.7", "LED1.k"],
-      ["IN.1", "IC1.1"],
+      ["0V.1", "IC1.7", "LED1.k", "R2.1"],
+      ["IN.1", "IC1.1", "R2.2"],
       ["IC1.2", "R1.1"],
       ["R1.2", "LED1.a"]
     ],
+    /* The 7404's two columns ALTERNATE input and output — 1 in, 2 out, 3 in,
+       4 out — which is why the pull-down cannot simply drop three tracks from
+       pin 1 the way it does on a 7408: it would land on pin 4, an output, and
+       short it to 0 V.  It goes UP instead, onto track C, and one black link
+       brings 0 V to it. */
     dontcare: ["IC1.3", "IC1.4", "IC1.5", "IC1.6", "IC1.8", "IC1.9",
                "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     reference: {
@@ -2786,29 +3163,41 @@ title: Stripboard Builder · National 5 Electronics
       placements: [
         { id: "IC1",  footprint: "dip-14", at: "F10" },
         { id: "IN",   footprint: "term-1", at: "F2" },
-        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "0V",   footprint: "term-1", at: "M2" },            // the 0 V rail, track M
         { id: "+5V",  footprint: "term-1", at: "F20" },
-        { id: "R1",   footprint: "res-4",  at: "G3", rot: 90 },   // G3 (pin 2) to J3
-        { id: "LED1", footprint: "led-2",  at: "J5", rot: 90 }    // J5 anode, K5 cathode
+        { id: "R2",   footprint: "res-4",  at: "C4", rot: 90 },   // C4 (0 V) to F4 (pin 1)
+        { id: "R1",   footprint: "res-4",  at: "N5", rot: 90 },   // N5 to Q5
+        { id: "LED1", footprint: "led-2",  at: "Q7", rot: 90 }    // Q7 anode, R7 cathode
       ],
       links: [
-        { a: "K7", b: "L7", colour: "black", num: 1 }             // LED cathode to 0 V — black, it is a 0 V link
+        { a: "G3", b: "N3", colour: "orange", num: 1 },   // pin 2 -> the output sub-system
+        { a: "R4", b: "M4", colour: "black",  num: 2 },   // LED cathode -> 0 V
+        { a: "C6", b: "M6", colour: "black",  num: 3 },   // R2's far leg -> 0 V
+        { a: "H7", b: "M7", colour: "black",  num: 4 },   // spare pin 3
+        { a: "J8", b: "M8", colour: "black",  num: 5 },   // spare pin 5
+        { a: "L9", b: "M9", colour: "black",  num: 6 },   // pin 7 -> 0 V
+        { a: "G14", b: "M14", colour: "black", num: 7 },  // spare pin 13
+        { a: "I15", b: "M15", colour: "black", num: 8 },  // spare pin 11
+        { a: "K16", b: "M16", colour: "black", num: 9 }   // spare pin 9
       ],
       testpoints: []
     },
     circuit: (C, o) => {
       const g = C.notGate(118, 96, { pins: pinNos(o, ["1", "2"]) });
-      const TOP = 26, BOT = 234, XO = 206;
+      const TOP = 26, BOT = 234, XO = 206, XI = 62;
       const b =
         C.rail(RAIL_L, 236, TOP, { pos: true }) + C.rail(RAIL_L, 236, BOT) +
         C.term(42, 96, { label: "IN" }) + C.wire([[49, 96], [90, 96]]) +
+        C.wire([[XI, 96], [XI, 122]]) + C.node(XI, 96) +
+        C.res(XI, 150, { dir: "v", span: 56, label: "R2", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XI, 178], [XI, BOT]]) + C.node(XI, BOT) +
         g.svg + C.text(121, 62, "IC1a") +
         C.wire([[160, 96], [XO, 96], [XO, 112]]) +
         C.res(XO, 140, { dir: "v", span: 56, label: "R1", value: "270 Ω", labelLeft: true }) +
         C.wire([[XO, 168], [XO, 180]]) +
         C.led(XO, 198, { dir: "d", span: 36, label: "LED1" }) +
         C.wire([[XO, 216], [XO, BOT]]) + C.node(XO, BOT) +
-        nn(C, o, 68, 96, 3) + nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) +
+        nn(C, o, 82, 96, 3) + nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) +
         nn(C, o, 182, 96, 4) + nn(C, o, XO, 174, 5);
       return { w: 258, h: 262, body: b };
     },
@@ -2820,7 +3209,15 @@ title: Stripboard Builder · National 5 Electronics
       "short of 0 V. That last join is a <strong>link wire</strong>.",
       "That is the normal reason for a link: two things belong on the same net but the " +
       "components cannot physically bridge the gap. Colour it and number it, so it matches " +
-      "your wiring schedule."
+      "your wiring schedule.",
+      "R2 goes <strong>above</strong> the chip, not below it. A 7404's pins alternate — 1 is " +
+      "an input, 2 an output, 3 an input, 4 an output — so a resistor dropped three tracks " +
+      "from pin 1 would land on pin 4 and short an output to 0 V. Three tracks the other way " +
+      "is track C, which is empty, and one black link brings 0 V up to it.",
+      "The other five inverters are spare, and <strong>every one of their inputs still has to " +
+      "be tied to 0 V</strong> — pins 3, 5, 9, 11 and 13. An input left joined to nothing is " +
+      "not a logic 0: it floats. Their outputs (4, 6, 8, 10 and 12) drive nothing, so they are " +
+      "left alone."
     ]
   };
 
@@ -2838,7 +3235,9 @@ title: Stripboard Builder · National 5 Electronics
       "A kiln will only heat when three conditions are all met: the door is closed, the " +
       "firing timer is running, and the temperature is below the set limit.",
       "Each condition arrives at the process board as a logic 1. The output drives the " +
-      "heater-on indicator."
+      "heater-on indicator.",
+      "All three conditions come from switches, so each input carries a 10 kΩ pull-down to " +
+      "0 V. The two gates you are not using have their inputs tied straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -2848,22 +3247,25 @@ title: Stripboard Builder · National 5 Electronics
       { id: "H",    footprint: "term-1", name: "H — below temperature" },
       { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — pull-down on D" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — pull-down on T" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (10 kΩ) — pull-down on H" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — heater on" }
     ],
     target: [
       ["+5V.1", "IC1.14"],
-      ["0V.1", "IC1.7", "LED1.k"],
-      ["D.1", "IC1.1"],
-      ["T.1", "IC1.2"],
+      ["0V.1", "IC1.7", "LED1.k", "R2.1", "R3.1", "R4.2"],
+      ["D.1", "IC1.1", "R2.2"],
+      ["T.1", "IC1.2", "R3.2"],
       ["IC1.3", "IC1.4"],
-      ["H.1", "IC1.5"],
+      ["H.1", "IC1.5", "R4.1"],
       ["IC1.6", "R1.1"],
       ["R1.2", "LED1.a"]
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     stages: [
       { name: "Inputs and the chip",
-        parts: ["+5V", "0V", "D", "T", "H", "IC1"],
+        parts: ["+5V", "0V", "D", "T", "H", "IC1", "R2", "R3", "R4"],
         hint: "Chip down, every track under it cut, the three inputs on the right pins and " +
               "gate a's output linked to gate b's input." },
       { name: "The output sub-system",
@@ -2877,19 +3279,32 @@ title: Stripboard Builder · National 5 Electronics
         { id: "D",    footprint: "term-1", at: "N2" },
         { id: "T",    footprint: "term-1", at: "O2" },
         { id: "H",    footprint: "term-1", at: "R2" },
-        { id: "0V",   footprint: "term-1", at: "T2" },
+        { id: "0V",   footprint: "term-1", at: "U2" },            // the 0 V rail, track U
         { id: "+5V",  footprint: "term-1", at: "N20" },
+        // D and T pull upwards — three tracks below pin 1 is pin 4, which gate a
+        // drives, and three below pin 2 is pin 5, which H drives
+        { id: "R2",   footprint: "res-4",  at: "K4", rot: 90 },   // K4 (0 V) to N4 (pin 1)
+        { id: "R3",   footprint: "res-4",  at: "L5", rot: 90 },   // L5 (0 V) to O5 (pin 2)
+        { id: "R4",   footprint: "res-4",  at: "R8", rot: 90 },   // R8 (pin 5) to U8 (0 V rail)
         { id: "R1",   footprint: "res-4",  at: "S3", rot: 90 },
         { id: "LED1", footprint: "led-2",  at: "V5", rot: 90 }
       ],
       links: [
         { a: "P9", b: "Q9", colour: "orange", num: 1 },
-        { a: "T6", b: "W6", colour: "black",  num: 2 }
+        { a: "W4", b: "U4", colour: "black",  num: 2 },   // LED cathode -> the 0 V rail
+        { a: "K22", b: "U22", colour: "black", num: 3 },  // R2's far leg -> 0 V
+        { a: "L6", b: "U6", colour: "black",  num: 4 },   // R3's far leg -> 0 V
+        { a: "T7", b: "U7", colour: "black",  num: 5 },   // pin 7 -> 0 V
+        { a: "O14", b: "U14", colour: "black", num: 6 },  // spare pin 13
+        { a: "P15", b: "U15", colour: "black", num: 7 },  // spare pin 12
+        { a: "R16", b: "U16", colour: "black", num: 8 },  // spare pin 10
+        { a: "S17", b: "U17", colour: "black", num: 9 }   // spare pin 9
       ],
       testpoints: []
     },
     circuit: (C, o) => twoGateChip(C, { kind: "and", part: "7408",
-                                       in: ["D", "T", "H"], led: "LED1" }, o),
+                                       in: ["D", "T", "H"], pulls: ["R2", "R3", "R4"],
+                                       led: "LED1" }, o),
     why: [
       "Three conditions, two gates, <strong>one chip</strong>. Gates a and b of the same " +
       "7408 share pin 7 (0 V) and pin 14 (+5 V).",
@@ -2897,6 +3312,10 @@ title: Stripboard Builder · National 5 Electronics
       "Gate a's output is <strong>pin 3</strong> and gate b's input is <strong>pin 4</strong>. " +
       "They are next to each other on the package but on different tracks, so that join needs " +
       "a link wire — adjacent pins are <em>not</em> connected.",
+      "Every input carries a <strong>10 kΩ pull-down</strong>, and the two spare gates have " +
+      "their inputs (9, 10, 12 and 13) tied to 0 V. A TTL input joined to nothing is not a " +
+      "logic 0 — it floats, and a kiln interlock that starts on its own is the worst kind of " +
+      "fault to have.",
       "You do not have to put the chip where this answer puts it. Any layout that joins the " +
       "same things together is right."
     ]
@@ -2915,7 +3334,9 @@ title: Stripboard Builder · National 5 Electronics
     scenario: [
       "A small car park has three bays. A FULL sign lights when any one of the three bay " +
       "sensors reads occupied — or any two, or all three.",
-      "Each sensor arrives at the process board as a logic 1."
+      "Each sensor arrives at the process board as a logic 1.",
+      "Each sensor line carries a 10 kΩ pull-down to 0 V, so an empty bay reads as a proper " +
+      "logic 0. The two gates you are not using have their inputs tied straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -2925,22 +3346,25 @@ title: Stripboard Builder · National 5 Electronics
       { id: "S3",   footprint: "term-1", name: "S3 — bay 3 occupied" },
       { id: "IC1",  footprint: "dip-14", part: "7432", name: "IC1 — 7432 quad 2-input OR" },
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (10 kΩ) — pull-down on S1" },
+      { id: "R5",   footprint: "res-4",  name: "R5 (10 kΩ) — pull-down on S2" },
+      { id: "R6",   footprint: "res-4",  name: "R6 (10 kΩ) — pull-down on S3" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — FULL sign" }
     ],
     target: [
       ["+5V.1", "IC1.14"],
-      ["0V.1", "IC1.7", "LED1.k"],
-      ["S1.1", "IC1.1"],
-      ["S2.1", "IC1.2"],
+      ["0V.1", "IC1.7", "LED1.k", "R4.1", "R5.1", "R6.2"],
+      ["S1.1", "IC1.1", "R4.2"],
+      ["S2.1", "IC1.2", "R5.2"],
       ["IC1.3", "IC1.4"],
-      ["S3.1", "IC1.5"],
+      ["S3.1", "IC1.5", "R6.1"],
       ["IC1.6", "R1.1"],
       ["R1.2", "LED1.a"]
     ],
     dontcare: ["IC1.8", "IC1.9", "IC1.10", "IC1.11", "IC1.12", "IC1.13"],
     stages: [
       { name: "Inputs and the chip",
-        parts: ["+5V", "0V", "S1", "S2", "S3", "IC1"],
+        parts: ["+5V", "0V", "S1", "S2", "S3", "IC1", "R4", "R5", "R6"],
         hint: "Chip down, every track under it cut, the three bay sensors on the right pins " +
               "and gate a's output linked to gate b's input." },
       { name: "The output sub-system",
@@ -2954,19 +3378,32 @@ title: Stripboard Builder · National 5 Electronics
         { id: "S1",   footprint: "term-1", at: "F2" },
         { id: "S2",   footprint: "term-1", at: "G2" },
         { id: "S3",   footprint: "term-1", at: "J2" },
-        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "0V",   footprint: "term-1", at: "M2" },            // the 0 V rail, track M
         { id: "+5V",  footprint: "term-1", at: "F32" },
+        // S1 and S2 pull upwards — three tracks below pin 1 is pin 4, which
+        // gate a drives, and three below pin 2 is pin 5, which S3 drives
+        { id: "R4",   footprint: "res-4",  at: "C4", rot: 90 },   // C4 (0 V) to F4 (pin 1)
+        { id: "R5",   footprint: "res-4",  at: "D6", rot: 90 },   // D6 (0 V) to G6 (pin 2)
+        { id: "R6",   footprint: "res-4",  at: "J8", rot: 90 },   // J8 (pin 5) to M8 (0 V rail)
         { id: "R1",   footprint: "res-4",  at: "K5", rot: 90 },
         { id: "LED1", footprint: "led-2",  at: "N7", rot: 90 }
       ],
       links: [
         { a: "H22", b: "I22", colour: "orange", num: 1 },
-        { a: "L9",  b: "O9",  colour: "black",  num: 2 }
+        { a: "O9",  b: "M9",  colour: "black",  num: 2 },   // LED cathode -> the 0 V rail
+        { a: "C20", b: "M20", colour: "black",  num: 3 },   // R4's far leg -> 0 V
+        { a: "D3",  b: "M3",  colour: "black",  num: 4 },   // R5's far leg -> 0 V
+        { a: "L7",  b: "M7",  colour: "black",  num: 5 },   // pin 7 -> 0 V
+        { a: "G28", b: "M28", colour: "black", num: 6 },    // spare pin 13
+        { a: "H29", b: "M29", colour: "black", num: 7 },    // spare pin 12
+        { a: "J30", b: "M30", colour: "black", num: 8 },    // spare pin 10
+        { a: "K31", b: "M31", colour: "black", num: 9 }     // spare pin 9
       ],
       testpoints: []
     },
     circuit: (C, o) => twoGateChip(C, { kind: "or", part: "7432",
-                                       in: ["S1", "S2", "S3"], led: "LED1" }, o),
+                                       in: ["S1", "S2", "S3"], pulls: ["R4", "R5", "R6"],
+                                       led: "LED1" }, o),
     why: [
       "“Any one of three” is a 3-input OR, and there is no 3-input OR in the kit — so it is " +
       "built from <strong>two 2-input OR gates</strong> of one 7432.",
@@ -2974,7 +3411,12 @@ title: Stripboard Builder · National 5 Electronics
       "package crosses must be cut between its two rows of pins.",
       "Gate a's output, <strong>pin 3</strong>, has to reach gate b's input, <strong>pin 4</strong>. " +
       "They sit side by side on the package but on different tracks, so it takes a link wire.",
-      "The 7432 has the same pinout as the 7408 — only the logic inside is different."
+      "The 7432 has the same pinout as the 7408 — only the logic inside is different.",
+      "The pull-downs are numbered <strong>R4 to R6</strong>, not R2 and R3, because S1 to S3 " +
+      "have already taken those numbers on the sensor board. Item IDs run across the whole " +
+      "sub-system, not per board.",
+      "Both spare gates have their inputs (9, 10, 12 and 13) tied to 0 V. An input joined to " +
+      "nothing is not a logic 0 — it floats, and the FULL sign would light on its own."
     ]
   };
 
@@ -3075,7 +3517,9 @@ title: Stripboard Builder · National 5 Electronics
     scenario: [
       "A greenhouse pump runs only when the soil is dry, the water tank is not empty and " +
       "the system is switched on. All three arrive as logic 1.",
-      "The pump needs more current than a logic gate can supply, so a transistor switches it."
+      "The pump needs more current than a logic gate can supply, so a transistor switches it.",
+      "Each of the three inputs carries a 10 kΩ pull-down to 0 V, and the two gates you are " +
+      "not using have their inputs tied straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -3085,16 +3529,19 @@ title: Stripboard Builder · National 5 Electronics
       { id: "EN",   footprint: "term-1", name: "EN — system enabled" },
       { id: "IC1",  footprint: "dip-14", part: "7408", name: "IC1 — 7408 quad 2-input AND" },
       { id: "R1",   footprint: "res-4",  name: "R1 (1 kΩ base resistor)" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — pull-down on SD" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — pull-down on TK" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (10 kΩ) — pull-down on EN" },
       { id: "Q1",   footprint: "to92",   name: "Q1 — BC548" },
       { id: "PUMP", footprint: "term-2", name: "PUMP — pump terminal block" }
     ],
     target: [
       ["+5V.1", "IC1.14", "PUMP.1"],
-      ["0V.1", "IC1.7", "Q1.e"],
-      ["SD.1", "IC1.1"],
-      ["TK.1", "IC1.2"],
+      ["0V.1", "IC1.7", "Q1.e", "R2.1", "R3.1", "R4.2"],
+      ["SD.1", "IC1.1", "R2.2"],
+      ["TK.1", "IC1.2", "R3.2"],
       ["IC1.3", "IC1.4"],
-      ["EN.1", "IC1.5"],
+      ["EN.1", "IC1.5", "R4.1"],
       ["IC1.6", "R1.1"],
       ["R1.2", "Q1.b"],
       ["Q1.c", "PUMP.2"]
@@ -3108,7 +3555,7 @@ title: Stripboard Builder · National 5 Electronics
     },
     stages: [
       { name: "Inputs and the chip",
-        parts: ["+5V", "0V", "SD", "TK", "EN", "IC1"],
+        parts: ["+5V", "0V", "SD", "TK", "EN", "IC1", "R2", "R3", "R4"],
         hint: "Chip down, every track under it cut, the three inputs on the right pins and " +
               "gate a's output linked to gate b's input." },
       { name: "The output sub-system",
@@ -3123,36 +3570,52 @@ title: Stripboard Builder · National 5 Electronics
         { id: "SD",   footprint: "term-1", at: "F2" },
         { id: "TK",   footprint: "term-1", at: "G2" },
         { id: "EN",   footprint: "term-1", at: "J2" },
-        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "0V",   footprint: "term-1", at: "M2" },            // the 0 V rail, track M
         { id: "+5V",  footprint: "term-1", at: "F20" },
-        { id: "PUMP", footprint: "term-2", at: "F24", rot: 90 },  // F24 and H24
-        { id: "R1",   footprint: "res-4",  at: "K5", rot: 90 },   // K5 (pin 6) and N5
-        { id: "Q1",   footprint: "to92",   at: "M3", rot: 90 }    // e M3, b N3, c O3
+        /* The pump block used to sit on tracks F and H of the right-hand
+           segment — which put the collector node on pin 12's track. With every
+           spare input now tied to 0 V that would short the pump driver down, so
+           the block moves clear of the chip's tracks altogether. */
+        { id: "PUMP", footprint: "term-2", at: "R24", rot: 90 },  // R24 and T24
+        { id: "R2",   footprint: "res-4",  at: "C4", rot: 90 },   // C4 (0 V) to F4 (pin 1)
+        { id: "R3",   footprint: "res-4",  at: "D6", rot: 90 },   // D6 (0 V) to G6 (pin 2)
+        { id: "R4",   footprint: "res-4",  at: "J8", rot: 90 },   // J8 (pin 5) to M8 (0 V rail)
+        { id: "R1",   footprint: "res-4",  at: "K6", rot: 90 },   // K6 (pin 6) and N6
+        { id: "Q1",   footprint: "to92",   at: "M3", rot: 90 }    // e M3 (0 V rail), b N3, c O3
       ],
       links: [
         { a: "H9",  b: "I9",  colour: "orange", num: 1 },
-        { a: "L7",  b: "M7",  colour: "black",  num: 2 },
-        { a: "H26", b: "O26", colour: "green",  num: 3 }
+        { a: "L7",  b: "M7",  colour: "black",  num: 2 },   // pin 7 -> the 0 V rail
+        { a: "O32", b: "T32", colour: "green",  num: 3 },   // collector -> the pump block
+        { a: "F30", b: "R30", colour: "red",    num: 4 },   // +5 V -> the pump block
+        { a: "C20", b: "M20", colour: "black",  num: 5 },   // R2's far leg -> 0 V
+        { a: "D5",  b: "M5",  colour: "black",  num: 6 },   // R3's far leg -> 0 V
+        { a: "G14", b: "M14", colour: "black",  num: 7 },   // spare pin 13
+        { a: "H15", b: "M15", colour: "black",  num: 8 },   // spare pin 12
+        { a: "J16", b: "M16", colour: "black",  num: 9 },   // spare pin 10
+        { a: "K17", b: "M17", colour: "black",  num: 10 }   // spare pin 9
       ],
-      testpoints: [{ id: "TP1", at: "K8", predict: 1 }]
+      testpoints: [{ id: "TP1", at: "K4", predict: 1 }]
     },
     circuit: (C, o) => {
       const G = { w: 32, lead: 12 };
-      const ga = C.andGate(104, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
-      const gb = C.andGate(160, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
-      const q = C.npn(240, 230, { label: "Q1" });  // base 206,230 · collector 250,198 · emitter 250,262
-      const TOP = 24, BOT = 286, XR = 206, XP = 250;
+      const ga = C.andGate(190, 74, Object.assign({ pins: pinNos(o, ["1", "2", "3"]) }, G));
+      const gb = C.andGate(246, 130, Object.assign({ pins: pinNos(o, ["4", "5", "6"]) }, G));
+      const q = C.npn(326, 230, { label: "Q1" });  // base 292,230 · collector 336,198 · emitter 336,262
+      const TOP = 24, BOT = 286, XR = 292, XP = 336;
       const b =
-        C.rail(RAIL_L, 292, TOP, { pos: true }) + C.rail(RAIL_L, 292, BOT) +
+        C.rail(RAIL_L, 378, TOP, { pos: true }) + C.rail(RAIL_L, 378, BOT) +
 
-        C.term(40, 63, { label: "SD" }) + C.wire([[47, 63], [82, 63]]) +
-        C.term(40, 85, { label: "TK" }) + C.wire([[47, 85], [82, 85]]) +
-        C.term(40, 141, { label: "EN" }) + C.wire([[47, 141], [138, 141]]) +
-        ga.svg + C.text(110, 46, "IC1a") +
-        gb.svg + C.text(166, 102, "IC1b") +
-        C.wire([[138, 74], [138, 119]]) +
+        C.term(40, 63, { label: "SD" }) + C.wire([[47, 63], [168, 63]]) +
+        C.term(40, 85, { label: "TK" }) + C.wire([[47, 85], [168, 85]]) +
+        C.term(40, 141, { label: "EN" }) + C.wire([[47, 141], [224, 141]]) +
+        pullDown(C, 54, 63, "R2", BOT) + pullDown(C, 120, 85, "R3", BOT) +
+        pullDown(C, 186, 141, "R4", BOT) +
+        ga.svg + C.text(196, 46, "IC1a") +
+        gb.svg + C.text(252, 102, "IC1b") +
+        C.wire([[224, 74], [224, 119]]) +
 
-        C.wire([[194, 130], [XR, 130], [XR, 156]]) +
+        C.wire([[280, 130], [XR, 130], [XR, 156]]) +
         C.res(XR, 184, { dir: "v", span: 56, label: "R1", value: "1 k\u03a9", labelLeft: true }) +
         C.wire([[XR, 212], [XR, 230]]) +
         q.svg +
@@ -3162,10 +3625,10 @@ title: Stripboard Builder · National 5 Electronics
         C.wire([[XP, 190], [XP, 198]]) +
         C.wire([[XP, 262], [XP, BOT]]) + C.node(XP, BOT) +
 
-        nn(C, o, 63, 63, 3) + nn(C, o, 63, 85, 4) + nn(C, o, 95, 141, 6) +
-        nn(C, o, 138, 94, 5) + nn(C, o, XR, 143, 7) + nn(C, o, XR, 221, 8) +
-        nn(C, o, 120, TOP, 1) + nn(C, o, 150, BOT, 2) + nn(C, o, XP, 110, 9);
-      return { w: 316, h: 310, body: b };
+        nn(C, o, 150, 63, 3) + nn(C, o, 150, 85, 4) + nn(C, o, 150, 141, 6) +
+        nn(C, o, 224, 94, 5) + nn(C, o, XR, 143, 7) + nn(C, o, XR, 221, 8) +
+        nn(C, o, 170, TOP, 1) + nn(C, o, 240, BOT, 2) + nn(C, o, XP, 110, 9);
+      return { w: 402, h: 310, body: b };
     },
     why: [
       "The three conditions are a 3-input AND, built from two gates of <strong>one</strong> " +
@@ -3177,7 +3640,10 @@ title: Stripboard Builder · National 5 Electronics
       "whether the fault is in the logic or in the pump driver.",
       "Plan the test points on the layout <em>before</em> you build. Adding them afterwards is " +
       "what the verifiers' reports keep flagging.",
-      "With <strong>SD = 1, TK = 1, EN = 1</strong> all three conditions are met, so <strong>TP1 reads logic 1</strong> and the transistor turns the pump on. If the pump stays off with a 1 at TP1, the fault is in the output sub-system, not the logic."
+      "With <strong>SD = 1, TK = 1, EN = 1</strong> all three conditions are met, so <strong>TP1 reads logic 1</strong> and the transistor turns the pump on. If the pump stays off with a 1 at TP1, the fault is in the output sub-system, not the logic.",
+      "The pump block sits <strong>clear of the chip's tracks</strong>. Put it on the same " +
+      "tracks as the chip's right-hand pins and the collector ends up joined to pin 12 — a " +
+      "spare gate input that has to be tied to 0 V, which would short the driver out."
     ]
   };
 
@@ -3361,7 +3827,9 @@ title: Stripboard Builder · National 5 Electronics
     scenario: [
       "Two sensors on a machine are active-low: each reads logic 0 when its condition is " +
       "true. Both have to be inverted before the rest of the system can use them.",
-      "One 7404 has six inverters in it, so both signals go through the same chip."
+      "One 7404 has six inverters in it, so both signals go through the same chip.",
+      "Both sensor lines carry a 10 kΩ pull-down to 0 V, and the four inverters you are not " +
+      "using have their inputs tied straight to 0 V."
     ],
     components: [
       { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
@@ -3372,15 +3840,17 @@ title: Stripboard Builder · National 5 Electronics
       { id: "R1",   footprint: "res-4",  name: "R1 (270 Ω)" },
       { id: "LED1", footprint: "led-2",  name: "LED1 — lid open" },
       { id: "R2",   footprint: "res-4",  name: "R2 (270 Ω)" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (10 kΩ) — pull-down on S1" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (10 kΩ) — pull-down on S2" },
       { id: "LED2", footprint: "led-2",  name: "LED2 — tank empty" }
     ],
     target: [
       ["+5V.1", "IC1.14"],
-      ["0V.1", "IC1.7", "LED1.k", "LED2.k"],
-      ["S1.1", "IC1.1"],
+      ["0V.1", "IC1.7", "LED1.k", "LED2.k", "R3.1", "R4.1"],
+      ["S1.1", "IC1.1", "R3.2"],
       ["IC1.2", "R1.1"],
       ["R1.2", "LED1.a"],
-      ["S2.1", "IC1.3"],
+      ["S2.1", "IC1.3", "R4.2"],
       ["IC1.4", "R2.1"],
       ["R2.2", "LED2.a"]
     ],
@@ -3398,11 +3868,11 @@ title: Stripboard Builder · National 5 Electronics
        and the second is the same job again, which is the lesson. */
     stages: [
       { name: "The chip and sensor 1",
-        parts: ["+5V", "0V", "S1", "IC1", "R1", "LED1"],
+        parts: ["+5V", "0V", "S1", "IC1", "R1", "LED1", "R3"],
         hint: "Place the chip, cut every track under it, and build sensor 1's chain right " +
               "through to its indicator. Sensor 2 unlocks once this checks clean." },
       { name: "Sensor 2's chain",
-        parts: ["S2", "R2", "LED2"],
+        parts: ["S2", "R2", "LED2", "R4"],
         hint: "Now the same again for sensor 2, on the second inverter of the SAME chip — " +
               "then mark both test points and say what each will read." }
     ],
@@ -3412,52 +3882,68 @@ title: Stripboard Builder · National 5 Electronics
         { id: "IC1",  footprint: "dip-14", at: "F10" },
         { id: "S1",   footprint: "term-1", at: "F2" },
         { id: "S2",   footprint: "term-1", at: "H2" },
-        { id: "0V",   footprint: "term-1", at: "L2" },
+        { id: "0V",   footprint: "term-1", at: "M2" },            // the 0 V rail, track M
         { id: "+5V",  footprint: "term-1", at: "F20" },
-        { id: "R1",   footprint: "res-4",  at: "G3", rot: 90 },   // G3 (pin 2) to J3
-        { id: "LED1", footprint: "led-2",  at: "J5", rot: 90 },   // J5 anode, K5 cathode
-        { id: "R2",   footprint: "res-4",  at: "P3", rot: 90 },   // P3 to S3
-        { id: "LED2", footprint: "led-2",  at: "S5", rot: 90 }    // S5 anode, T5 cathode
+        /* Both pull-downs go UPWARDS. Three tracks below pin 1 is pin 4 and
+           three below pin 3 is pin 6 — both outputs, and a resistor onto either
+           would tie an output to 0 V. */
+        { id: "R3",   footprint: "res-4",  at: "C4", rot: 90 },   // C4 (0 V) to F4 (pin 1)
+        { id: "R4",   footprint: "res-4",  at: "E6", rot: 90 },   // E6 (0 V) to H6 (pin 3)
+        // both output chains hang below the 0 V rail, because every track
+        // between the two rows of chip pins is now spoken for
+        { id: "R1",   footprint: "res-4",  at: "N5", rot: 90 },   // N5 to Q5
+        { id: "LED1", footprint: "led-2",  at: "Q7", rot: 90 },   // Q7 anode, R7 cathode
+        { id: "R2",   footprint: "res-4",  at: "P8", rot: 90 },   // P8 to S8
+        { id: "LED2", footprint: "led-2",  at: "S10", rot: 90 }   // S10 anode, T10 cathode
       ],
       links: [
-        { a: "K7", b: "L7", colour: "black",  num: 1 },   // both of these land on the 0 V
-        { a: "I8", b: "P8", colour: "green",  num: 2 },   // rail, so both are black
-        { a: "L9", b: "T9", colour: "black",  num: 3 }
+        { a: "G9",  b: "N9",  colour: "orange", num: 1 },  // pin 2 -> chain 1
+        { a: "I3",  b: "P3",  colour: "green",  num: 2 },  // pin 4 -> chain 2
+        { a: "R6",  b: "M6",  colour: "black",  num: 3 },  // LED1 cathode -> 0 V
+        { a: "T4",  b: "M4",  colour: "black",  num: 4 },  // LED2 cathode -> 0 V
+        { a: "C20", b: "M20", colour: "black",  num: 5 },  // R3's far leg -> 0 V
+        { a: "E5",  b: "M5",  colour: "black",  num: 6 },  // R4's far leg -> 0 V
+        { a: "J7",  b: "M7",  colour: "black",  num: 7 },  // spare pin 5
+        { a: "L8",  b: "M8",  colour: "black",  num: 8 },  // pin 7 -> 0 V
+        { a: "G14", b: "M14", colour: "black",  num: 9 },  // spare pin 13
+        { a: "I15", b: "M15", colour: "black",  num: 10 }, // spare pin 11
+        { a: "K16", b: "M16", colour: "black",  num: 11 }  // spare pin 9
       ],
-      testpoints: [{ id: "TP1", at: "G6", predict: 1 }, { id: "TP2", at: "P6", predict: 0 }]
+      testpoints: [{ id: "TP1", at: "G3", predict: 1 }, { id: "TP2", at: "P2", predict: 0 }]
     },
     circuit: (C, o) => {
-      const g1 = C.notGate(118, 68, { pins: pinNos(o, ["1", "2"]) });
-      const g2 = C.notGate(118, 148, { pins: pinNos(o, ["3", "4"]) });
+      const g1 = C.notGate(178, 68, { pins: pinNos(o, ["1", "2"]) });
+      const g2 = C.notGate(178, 148, { pins: pinNos(o, ["3", "4"]) });
       /* Gate a drives the FAR column and gate b the near one, so neither
          output wire has to cross the other chain.  Two wires crossing with no
          junction dot is correct electrically and unreadable pedagogically — a
          pupil cannot tell a crossing from a join. */
-      const TOP = 22, BOT = 286, XA = 258, XB = 186;
+      const TOP = 22, BOT = 286, XA = 318, XB = 246;
       const b =
-        C.rail(RAIL_L, 292, TOP, { pos: true }) + C.rail(RAIL_L, 292, BOT) +
+        C.rail(RAIL_L, 352, TOP, { pos: true }) + C.rail(RAIL_L, 352, BOT) +
 
-        C.term(42, 68, { label: "S1" }) + C.wire([[49, 68], [90, 68]]) +
-        C.term(42, 148, { label: "S2" }) + C.wire([[49, 148], [90, 148]]) +
-        g1.svg + C.text(121, 46, "IC1a") +
-        g2.svg + C.text(121, 126, "IC1b") +
+        C.term(42, 68, { label: "S1" }) + C.wire([[49, 68], [150, 68]]) +
+        C.term(42, 148, { label: "S2" }) + C.wire([[49, 148], [150, 148]]) +
+        pullDown(C, 58, 68, "R3", BOT) + pullDown(C, 120, 148, "R4", BOT) +
+        g1.svg + C.text(181, 46, "IC1a") +
+        g2.svg + C.text(181, 126, "IC1b") +
 
-        C.wire([[160, 68], [XA, 68], [XA, 96]]) +
+        C.wire([[220, 68], [XA, 68], [XA, 96]]) +
         C.res(XA, 124, { dir: "v", span: 56, label: "R1", value: "270 \u03a9" }) +
         C.wire([[XA, 152], [XA, 184]]) +
         C.led(XA, 202, { dir: "d", span: 36, label: "LED1" }) +
         C.wire([[XA, 220], [XA, BOT]]) + C.node(XA, BOT) +
 
-        C.wire([[160, 148], [XB, 148], [XB, 166]]) +
+        C.wire([[220, 148], [XB, 148], [XB, 166]]) +
         C.res(XB, 194, { dir: "v", span: 56, label: "R2", value: "270 \u03a9", labelLeft: true }) +
         C.wire([[XB, 222], [XB, 242]]) +
         C.led(XB, 260, { dir: "d", span: 36, label: "LED2" }) +
         C.wire([[XB, 278], [XB, BOT]]) + C.node(XB, BOT) +
 
-        nn(C, o, 68, 68, 3) + nn(C, o, 68, 148, 6) + nn(C, o, 120, TOP, 1) +
-        nn(C, o, 130, BOT, 2) + nn(C, o, 210, 68, 4) + nn(C, o, XA, 168, 5) +
-        nn(C, o, 172, 148, 7) + nn(C, o, XB, 232, 8);
-      return { w: 316, h: 310, body: b };
+        nn(C, o, 140, 68, 3) + nn(C, o, 140, 148, 6) + nn(C, o, 150, TOP, 1) +
+        nn(C, o, 170, BOT, 2) + nn(C, o, 270, 68, 4) + nn(C, o, XA, 168, 5) +
+        nn(C, o, 232, 148, 7) + nn(C, o, XB, 232, 8);
+      return { w: 376, h: 310, body: b };
     },
     why: [
       "Two signals, two gates, <strong>one chip</strong>. The 7404 holds six inverters and " +
@@ -3466,8 +3952,11 @@ title: Stripboard Builder · National 5 Electronics
       "The two signals never meet. They share only the package, pin 7 (0 V) and pin 14 (+5 V) " +
       "— which is exactly why the seven cuts matter: without them the two outputs would be " +
       "joined to the two inputs.",
-      "Four inverters are unused. Leave their pins, or tie the unused <em>inputs</em> to 0 V — " +
-      "either is accepted. Never tie an unused <em>output</em> to anything.",
+      "Four inverters are unused, and <strong>every one of their inputs must be tied to 0 V</strong> " +
+      "— pins 5, 9, 11 and 13. Never tie an unused <em>output</em> to anything.",
+      "Both pull-downs go <strong>above</strong> the chip. A 7404's pins alternate input and " +
+      "output, so a resistor dropped three tracks from pin 1 lands on pin 4, and three from " +
+      "pin 3 lands on pin 6 — both outputs.",
       "Each sub-system output gets its own numbered test point, planned before you build.",
       "With <strong>S1 = 0, S2 = 1</strong>, the inverters give <strong>TP1 = 1</strong> and <strong>TP2 = 0</strong> — one lamp on, one off. Two test points on one chip is the point of this board: they tell you which of the two signals has gone wrong."
     ]
@@ -3760,6 +4249,8 @@ title: Stripboard Builder · National 5 Electronics
     "merged":           "Two nets that should be separate have been joined",
     "self-short":       "Both legs of one part are in the same track",
     "floating":         "A pin is alone on its track",
+    "input-floating":   "A gate input has been left joined to nothing",
+    "input-no-pulldown": "A gate input has no pull-down resistor to 0 V",
     "unplaced":         "A component has been left in the bank",
     "no-testpoint":     "A test point is missing",
     "no-prediction":    "A test point has no expected reading",
@@ -3776,8 +4267,12 @@ title: Stripboard Builder · National 5 Electronics
      if it is a mistake a pupil could actually believe, and picking those is a
      judgement the code cannot make. */
   const FAULT_ITEMS = [
+    /* The missing cut is F11, not H11: track H's right-hand half now carries
+       spare pin 12, which is tied to 0 V, so joining the two halves would put
+       the gate a -> gate b link on the 0 V rail and the link-colour rule would
+       be the loudest fault on the board rather than the missing cut. */
     { id: "FF1", from: "lift-interlock",
-      apply: a => { a.cuts = a.cuts.filter(c => c !== "H11"); },
+      apply: a => { a.cuts = a.cuts.filter(c => c !== "F11"); },
       choices: ["dil-uncut", "dil-along-tracks", "split", "self-short"],
       why: "One track under the chip was never cut, so the two pins facing each other " +
            "across it are still joined by copper. Every track the package crosses has to " +
@@ -3808,7 +4303,7 @@ title: Stripboard Builder · National 5 Electronics
 
     { id: "FF5", from: "lift-interlock",
       apply: a => { const r = a.placements.find(p => p.id === "R1");
-                    r.rot = 0; r.at = "E3"; },
+                    r.rot = 0; r.at = "B3"; },
       choices: ["self-short", "split", "reversed", "floating"],
       why: "Both legs of the resistor have landed in the same track, so the copper joins " +
            "them and the resistor does nothing. A part has to sit ACROSS the tracks, or " +
@@ -4126,6 +4621,14 @@ title: Stripboard Builder · National 5 Electronics
     { key: "ecap", prefix: "C",   footprint: "ecap-4", sub: "electrolytic — mind the + end",
       name: "electrolytic capacitor" },
     { key: "tr",   prefix: "Q",   footprint: "to92",   sub: "TO-92: e, b, c", name: "transistor" },
+    { key: "fet",  prefix: "Q",   footprint: "mosfet-3", sub: "TO-220: g, d, s",
+      name: "MOSFET (n-channel)" },
+    { key: "ther", prefix: "TH",  footprint: "ther-2", sub: "resistance falls as it warms",
+      name: "thermistor", symmetric: true },
+    { key: "dio",  prefix: "D",   footprint: "diode-4", sub: "band marks the cathode",
+      name: "diode" },
+    { key: "vres", prefix: "VR",  footprint: "vres-3", sub: "preset: wiper is the middle pin",
+      name: "variable resistor" },
     { key: "tb",   prefix: "TB",  footprint: "term-2", sub: "for an off-board part",
       name: "2-way terminal block", symmetric: true },
     { key: "7408", prefix: "IC",  footprint: "dip-14", part: "7408", sub: "quad 2-input AND",
@@ -4143,7 +4646,36 @@ title: Stripboard Builder · National 5 Electronics
     { key: "555",  prefix: "IC",  footprint: "dip-8",  part: "555",  sub: "timer",
       name: "555" },
     { key: "741",  prefix: "IC",  footprint: "dip-8",  part: "741",  sub: "op-amp",
-      name: "741" }
+      name: "741" },
+
+    /* Everything the course names that is NOT soldered to the board.  A motor,
+       a buzzer, a relay, a lamp: each is wired to a 2-way terminal block and
+       the block is what the layout shows — which is the conversion the course
+       actually asks for, and the reason they are not drawn as symbols here.
+       They are separate palette entries rather than one generic block so that
+       the item ID on the board says what is on the end of the wires (M1, BZ1),
+       the way a wiring schedule does.
+       Which of them may be wired either way round is a property of the PART,
+       not of the terminal block, so `symmetric` is set one at a time: a motor
+       runs backwards, a buzzer does not sound at all. */
+    { key: "sw",   prefix: "SW",  footprint: "term-2", sub: "off-board, on a 2-way block",
+      name: "switch", symmetric: true },
+    { key: "rly",  prefix: "RLY", footprint: "term-2", sub: "coil, off-board on a 2-way block",
+      name: "relay", symmetric: true },
+    { key: "mot",  prefix: "M",   footprint: "term-2", sub: "off-board, on a 2-way block",
+      name: "motor", symmetric: true },
+    { key: "sol",  prefix: "SOL", footprint: "term-2", sub: "off-board, on a 2-way block",
+      name: "solenoid", symmetric: true },
+    { key: "buz",  prefix: "BZ",  footprint: "term-2", sub: "polarised — off-board on a 2-way block",
+      name: "buzzer" },
+    { key: "lp",   prefix: "LP",  footprint: "term-2", sub: "off-board, on a 2-way block",
+      name: "lamp", symmetric: true },
+    { key: "spk",  prefix: "LS",  footprint: "term-2", sub: "off-board, on a 2-way block",
+      name: "loudspeaker", symmetric: true },
+    { key: "fuse", prefix: "FS",  footprint: "term-2", sub: "off-board, on a 2-way block",
+      name: "fuse", symmetric: true },
+    { key: "bat",  prefix: "BAT", footprint: "term-2", sub: "polarised — off-board on a 2-way block",
+      name: "battery pack" }
   ];
   const byKey = k => PALETTE.find(p => p.key === k);
 
@@ -4214,7 +4746,9 @@ title: Stripboard Builder · National 5 Electronics
     if (fp.polarised) return pin.comp + " " + (pin.pin === "a" ? "anode"
                                              : pin.pin === "k" ? "cathode"
                                              : pin.pin === "+" ? "+ end" : "− end");
-    if (fp.kind === "to92") return pin.comp + " " + ({ e: "emitter", b: "base", c: "collector" }[pin.pin] || pin.pin);
+    if (fp.kind === "to92") return pin.comp + " " +
+      ({ e: "emitter", b: "base", c: "collector", g: "gate", d: "drain", s: "source",
+         w: "wiper", "1": "end 1", "2": "end 2" }[pin.pin] || pin.pin);
     if (fp.kind === "terminal" && fp.pins.length === 1) return pin.comp;
     if (fp.symmetric || c.symmetric) return pin.comp;
     return pin.comp + " " + pin.pin;
@@ -5404,6 +5938,25 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.12", date: "10 Sep 2026", what:
+    "<strong>Every gate input has to be held at a definite level</strong>, and the board is now " +
+    "refused if one is left floating. An input fed from a switch or a sensor needs a 10 k\u03a9 " +
+    "pull-down resistor to 0 V; the inputs of a gate you are not using are tied straight to 0 V; " +
+    "only an input driven by another gate\u2019s output needs neither. A TTL input joined to " +
+    "nothing is not a logic 0 \u2014 it drifts, picks up whatever the tracks beside it are doing, " +
+    "and the sub-system behaves differently every time it is switched on. Reported from a Free " +
+    "build board that passed with all eight inputs of a 7432 in mid-air. " +
+    "<br>Every question with a chip in it has been <strong>rebuilt to the same rule</strong>, so " +
+    "the answers now carry their pull-downs and their spare-input ties, and two questions moved " +
+    "parts that were quietly sitting on a spare gate\u2019s pins. " +
+    "<br>Two engine faults this turned up are fixed: two spare inputs facing each other across the " +
+    "chip, each taken down to the 0 V rail, were being reported as a <em>missing cut</em>, and the " +
+    "cut under a chip was being called pointless. Both asked \u201care these on one net\u201d " +
+    "when the question was \u201care these joined by the copper\u201d. " +
+    "<br>Free build\u2019s parts box now holds <strong>every component the course names</strong>: " +
+    "thermistor, diode, variable resistor and MOSFET on the board, and switch, relay, motor, " +
+    "solenoid, buzzer, lamp, loudspeaker, fuse and battery on 2-way terminal blocks, which is how " +
+    "an off-board part actually reaches a stripboard." },
   { v: "0.11", date: "10 Sep 2026", what:
     "A fifth mode: <strong>Free build</strong>. A blank board, the whole parts box and nothing to " +
     "copy \u2014 pick either board size and build whatever you like. Nothing is marked, because there " +
@@ -6041,9 +6594,12 @@ function loadFree(keepScroll){
   $("qscenario").innerHTML =
     "<p>Nothing here is marked and there is no answer to copy. Build a sub-system you have " +
     "designed yourself, try out a layout before you commit it to your planning sheet, or just " +
-    "find out what a cut does. <strong>Check my layout</strong> will not tell you whether the " +
-    "circuit is a good one — it tells you whether the board could be built, and the panel beside " +
-    "it tells you what your copper has joined together.</p>";
+    "find out what a cut does. <strong>Check my layout</strong> cannot tell you whether the " +
+    "circuit does what you meant — there is no diagram to check it against. It tells you " +
+    "whether the board could be built and whether it keeps the rules that hold on every board: " +
+    "nothing shorted across the supply, every chip powered, and <strong>every gate input held " +
+    "down to 0 V unless another gate is driving it</strong>. The panel beside the board tells " +
+    "you what your copper has joined together.</p>";
   paintBoardPick();
   clearFeedback();
   drawGrid();
@@ -6270,7 +6826,8 @@ function checkFree(){
     head.textContent = "✓ That board could be built";
     body.innerHTML =
       "<p>Nothing here breaks the layout rules: every part sits in holes it can reach, the cuts do " +
-      "what cuts do, and the link wires are legal. <strong>This does not say the circuit works</strong> " +
+      "what cuts do, the link wires are legal, and every gate input is held at a definite level. " +
+      "<strong>This does not say the circuit works</strong> " +
       "\u2014 there is no circuit diagram to check it against. The panel beside the board says " +
       "what is joined to what.</p>" +
       (res.warnings.length
