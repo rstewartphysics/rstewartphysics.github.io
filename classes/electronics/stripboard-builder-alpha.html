@@ -122,6 +122,7 @@ title: Stripboard Builder · National 5 Electronics
       font:800 .72rem/1 var(--font-stack);color:var(--muted);
       text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
     #sbd .circkey{margin:2px 0 0;font:500 .66rem/1.25 var(--font-stack);color:var(--muted)}
+    #sbd .lcrule{display:block;font-weight:600;font-size:.66rem;color:var(--muted)}
     #sbd .dslink{display:inline-block;margin-top:5px;font:700 .7rem/1 var(--font-stack);color:var(--accent)}
     #sbd .dslink[hidden]{display:none}
     #sbd .zoombtn{border:1px solid var(--border);background:var(--card);color:var(--text);
@@ -204,7 +205,11 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .bankhead{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:2px 0 0}
     #sbd .bankhead h3{margin:0;font-size:.86rem}
     #sbd .bankhead .hint{font-size:.71rem;color:var(--muted)}
+    /* min-content, not auto: with `auto` the rows came out at the tiles' 44px
+       min-height and the longer sub-labels spilled over the bottom border —
+       measured in the live DOM, offsetHeight 44 against scrollHeight 62. */
     #sbd .bank{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start;
+      grid-auto-rows:min-content;
       padding:8px;border-radius:12px;border:1px dashed var(--border-soft);background:var(--surface-2);
       overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto}
     #sbd .bank::-webkit-scrollbar{width:9px}
@@ -230,6 +235,60 @@ title: Stripboard Builder · National 5 Electronics
     #sbd:not([data-mode="trace"]) .trace-only{display:none}
     #sbd:not([data-mode="fault"]) .fault-only{display:none}
     #sbd:not([data-mode="reverse"]) .rev-only{display:none}
+    #sbd:not([data-mode="free"]) .free-only{display:none}
+    /* Convert and Free build share the whole board-building rig — tools, bank,
+       Check, Reset — so those carry .build-only rather than one class per mode
+       and a duplicate of every rule. */
+    #sbd:not([data-mode="convert"]):not([data-mode="free"]) .build-only{display:none}
+    /* Free build has no question bank and nothing to be next. */
+    #sbd[data-mode="free"] .free-hide{display:none}
+
+    /* ---- Free build: the net read-back ------------------------------------
+       There is no target here, so nothing to mark against. What the column
+       shows instead — in the slot Convert gives the circuit diagram, at the
+       same width, so switching modes does not reflow the page — is the board's
+       OWN netlist, live. A link wire merging two nets is visible the instant
+       it is drawn, which is the one idea the whole tool exists to teach. */
+    #sbd .freewrap{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+      padding:9px 11px 10px;display:flex;flex-direction:column;min-height:0;gap:7px}
+    #sbd .boardpick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0}
+    #sbd .boardpick .bplab{font:800 .74rem/1.2 var(--font-stack);color:var(--muted)}
+    #sbd .bp{min-height:44px;padding:.35rem .6rem;border:1.5px solid var(--border);
+      border-radius:10px;background:var(--card);font:700 .74rem/1.25 var(--font-stack);
+      color:var(--text);cursor:pointer}
+    #sbd .bp[aria-pressed="true"]{border-color:var(--accent);background:var(--tint);font-weight:900}
+    /* The heading and its counts stack: side by side, "What is joined to what"
+       wrapped to two lines and the counts wrapped beside it, which read as one
+       mangled sentence. */
+    #sbd .nethead h3{margin:0;font-size:.84rem}
+    #sbd .nethead .hint{display:block;margin-top:1px;font-size:.68rem;color:var(--muted)}
+    #sbd .netlist{list-style:none;margin:0;padding:0 2px 0 0;display:grid;gap:5px;
+      overflow:auto;min-height:0}
+    #sbd .netlist::-webkit-scrollbar{width:9px}
+    #sbd .netlist::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+    #sbd .netrow{border:1px solid var(--border-soft);border-left-width:4px;border-radius:8px;
+      background:var(--bg2);padding:5px 7px}
+    #sbd .netrow .nline{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+    #sbd .netrow .nname{font:900 .74rem/1.3 var(--font-stack);color:var(--text)}
+    #sbd .netrow .nrun{font:700 .7rem/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;
+      color:var(--muted);text-align:right}
+    #sbd .netrow .nparts{margin:2px 0 0;font:600 .73rem/1.35 var(--font-stack);color:var(--text)}
+    #sbd .netrow .nwarn{font:700 .7rem/1.3 var(--font-stack);color:var(--bad)}
+    #sbd .netrow.pos{border-left-color:var(--bad)}
+    #sbd .netrow.neg{border-left-color:var(--border-strong)}
+    #sbd .netrow.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+    #sbd .netrow.solo{border-left-color:var(--border);border-style:dashed}
+    #sbd .netrow.solo .nname,#sbd .netrow.solo .nparts{color:var(--muted)}
+    #sbd .netempty{margin:0;font:600 .74rem/1.4 var(--font-stack);color:var(--muted)}
+    #sbd .part .phead{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+    #sbd .part .nid{font:800 .68rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent);
+      white-space:nowrap}
+    /* Both halves of the column flex, and both have a floor: the palette is a
+       fixed nineteen tiles and always scrolls, the net list grows with the
+       board. Without the floors the panel collapsed to nothing and its buttons
+       came down on top of the bank heading. */
+    #sbd[data-mode="free"] .freewrap{flex:1 1 66%;min-height:190px}
+    #sbd[data-mode="free"] .bank{flex:1 1 34%;min-height:110px}
     /* Fault-finder: the four named faults to choose between. */
     #sbd .faultwrap,#sbd .revwrap{border:1px solid var(--border);border-radius:12px;
       background:var(--card);padding:10px 12px}
@@ -271,6 +330,9 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .fb-head{padding:10px 14px;font-weight:800;font-size:.93rem}
     #sbd .feedback.good .fb-head{background:var(--ok-bg);color:var(--ok)}
     #sbd .feedback.bad .fb-head{background:var(--bad-bg);color:var(--bad)}
+    /* Neither right nor wrong: the button was pressed before there was anything
+       to check. It has to be VISIBLE — see nudge(). */
+    #sbd .feedback.nudge .fb-head{background:var(--tint);color:var(--text)}
     #sbd .fb-body{padding:11px 14px;background:var(--card);border:1px solid var(--border-soft);
       border-top:none;border-radius:0 0 14px 14px;font-size:.88rem;line-height:1.5}
     #sbd .flist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -388,9 +450,10 @@ title: Stripboard Builder · National 5 Electronics
           <button type="button" id="mConvert" aria-pressed="false">Convert</button>
           <button type="button" id="mFault" aria-pressed="false">Fault-finder</button>
           <button type="button" id="mReverse" aria-pressed="false">Reverse</button>
+          <button type="button" id="mFree" aria-pressed="false">Free build</button>
         </div>
         <p class="modedesc" id="modeDesc"></p>
-        <div class="qchips" id="qchips" role="group" aria-label="Choose a question"></div>
+        <div class="qchips free-hide" id="qchips" role="group" aria-label="Choose a question"></div>
       </div>
 
       <section class="panel">
@@ -402,7 +465,7 @@ title: Stripboard Builder · National 5 Electronics
 
         <div class="workarea">
           <div class="diagcol" id="diagcolEl">
-            <div class="toolgrid conv-only" role="group" aria-label="Tool">
+            <div class="toolgrid build-only" role="group" aria-label="Tool">
               <button type="button" class="tool" data-tool="place" aria-pressed="true"><span class="k">▭</span>Place part</button>
               <button type="button" class="tool" data-tool="cut" aria-pressed="false"><span class="k">✕</span>Track cut</button>
               <button type="button" class="tool" data-tool="link" aria-pressed="false"><span class="k">╱</span>Link wire</button>
@@ -411,8 +474,8 @@ title: Stripboard Builder · National 5 Electronics
               <button type="button" class="tool" id="btnRot"><span class="k">⟳</span>Rotate</button>
             </div>
             <p class="stagebar conv-only" id="stageBar" hidden></p>
-            <div class="linkcolours conv-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
-              <span class="lchint">Wire colour:</span>
+            <div class="linkcolours build-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
+              <span class="lchint">Wire colour <span class="lcrule">red = +5 V, black = 0 V</span></span>
             </div>
             <div class="linkcolours tprow conv-only" id="tpRow" role="group"
                  aria-label="What each test point will read" hidden></div>
@@ -440,6 +503,19 @@ title: Stripboard Builder · National 5 Electronics
               <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
             </div>
 
+            <div class="freewrap free-only" id="freeWrap">
+              <div class="boardpick" id="boardPick" role="group" aria-label="Board size">
+                <span class="bplab">Board:</span>
+                <button type="button" class="bp" data-board="34-0410" aria-pressed="true">9 × 25</button>
+                <button type="button" class="bp" data-board="34-0411" aria-pressed="false">24 × 37</button>
+              </div>
+              <div class="nethead">
+                <h3>What is joined to what</h3>
+                <span class="hint" id="netCount"></span>
+              </div>
+              <ul class="netlist" id="netList"></ul>
+            </div>
+
             <div class="faultwrap fault-only" id="faultWrap">
               <p class="faultq" id="faultQ"></p>
               <p class="faulthint" id="faultHint"></p>
@@ -462,20 +538,22 @@ title: Stripboard Builder · National 5 Electronics
               </div>
             </div>
 
-            <div class="bankhead conv-only">
+            <div class="bankhead build-only">
               <h3>Components</h3>
               <span class="hint" id="bankhint">Tap one, then tap a hole.</span>
             </div>
-            <div class="bank conv-only" id="bank"></div>
+            <div class="bank build-only" id="bank"></div>
+            <a class="dslink free-only" href="/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf"
+               target="_blank" rel="noopener">📄 IC datasheet — pinouts ↗</a>
 
           </aside>
         </div>
 
         <div class="controls">
-          <button class="btn primary conv-only" id="btnCheck">Check my layout</button>
-          <button class="btn conv-only" id="btnReset">Reset</button>
+          <button class="btn primary build-only" id="btnCheck">Check my layout</button>
+          <button class="btn build-only" id="btnReset">Reset</button>
           <button class="btn ghost conv-only" id="btnAnswer">Show the answer</button>
-          <button class="btn ghost" id="btnNext">Next question →</button>
+          <button class="btn ghost free-hide" id="btnNext">Next question →</button>
         </div>
 
         <p class="sr" id="liveMsg" role="status" aria-live="polite"></p>
@@ -935,6 +1013,12 @@ title: Stripboard Builder · National 5 Electronics
       const posRoot = posPlacement && rootOfHole(posPlacement.at);
       const negRoot = negPlacement && rootOfHole(negPlacement.at);
 
+      /* If a fault has shorted the two rails together they are ONE net, and
+         "which rail is this link on" has no answer — every link on it would be
+         reported as the wrong colour twice over. The short is the fault worth
+         reporting, so the colour-of-a-supply-link rules stand down. */
+      const railsMerged = posRoot !== undefined && posRoot === negRoot;
+
       const byColour = new Map();
       for (const l of attempt.links || []) {
         const root = rootOfHole(l.a);
@@ -947,6 +1031,20 @@ title: Stripboard Builder · National 5 Electronics
           faults.push({ rank: 0.6, code: "black-not-supply",
             msg: `The black link ${l.a}–${l.b} is not on the 0 V rail. Black is reserved ` +
                  `for 0 V — pick a different colour for this link.`, refs: [l.a, l.b] });
+        /* And the other way round, which is the half that was missing: the
+           convention reserves red and black FOR the supply, so a link that
+           lands on a supply rail has to use the supply's colour. Reported by a
+           pupil testing alpha v0.10 — a blue link onto the 0 V rail passed. */
+        if (!railsMerged && l.colour !== "red" && posRoot !== undefined && root === posRoot)
+          faults.push({ rank: 0.6, code: "supply-not-red",
+            msg: `The ${l.colour} link ${l.a}–${l.b} is on the +5 V rail, so it has to be ` +
+                 `red. Every link carrying +5 V is red, every link carrying 0 V is black, ` +
+                 `and no other link uses either colour.`, refs: [l.a, l.b] });
+        if (!railsMerged && l.colour !== "black" && negRoot !== undefined && root === negRoot)
+          faults.push({ rank: 0.6, code: "supply-not-black",
+            msg: `The ${l.colour} link ${l.a}–${l.b} is on the 0 V rail, so it has to be ` +
+                 `black. Every link carrying 0 V is black, every link carrying +5 V is red, ` +
+                 `and no other link uses either colour.`, refs: [l.a, l.b] });
 
         if (!byColour.has(l.colour)) byColour.set(l.colour, new Map());
         const byRootForColour = byColour.get(l.colour);
@@ -2694,7 +2792,7 @@ title: Stripboard Builder · National 5 Electronics
         { id: "LED1", footprint: "led-2",  at: "J5", rot: 90 }    // J5 anode, K5 cathode
       ],
       links: [
-        { a: "K7", b: "L7", colour: "blue", num: 1 }              // LED cathode to 0 V
+        { a: "K7", b: "L7", colour: "black", num: 1 }             // LED cathode to 0 V — black, it is a 0 V link
       ],
       testpoints: []
     },
@@ -3322,9 +3420,9 @@ title: Stripboard Builder · National 5 Electronics
         { id: "LED2", footprint: "led-2",  at: "S5", rot: 90 }    // S5 anode, T5 cathode
       ],
       links: [
-        { a: "K7", b: "L7", colour: "blue",   num: 1 },
-        { a: "I8", b: "P8", colour: "green",  num: 2 },
-        { a: "L9", b: "T9", colour: "orange", num: 3 }
+        { a: "K7", b: "L7", colour: "black",  num: 1 },   // both of these land on the 0 V
+        { a: "I8", b: "P8", colour: "green",  num: 2 },   // rail, so both are black
+        { a: "L9", b: "T9", colour: "black",  num: 3 }
       ],
       testpoints: [{ id: "TP1", at: "G6", predict: 1 }, { id: "TP2", at: "P6", predict: 0 }]
     },
@@ -3749,10 +3847,15 @@ title: Stripboard Builder · National 5 Electronics
            "or straight down between tracks — so that the wiring schedule can describe them " +
            "and whoever builds the board can follow them." },
 
-    { id: "FF10", from: "lift-interlock",
-      apply: a => { a.links = a.links.map(l => Object.assign({}, l, { colour: "blue" })); },
+    /* Two SIGNAL links share a colour. It has to be two signal links: recolouring
+       a supply link is a different fault now (a link on a rail must carry that
+       rail's colour), and lift-interlock has only one non-supply link, so this
+       item moved to the comparator, which has two. */
+    { id: "FF10", from: "frost-comparator",
+      apply: a => { a.links = a.links.map(l =>
+                      l.a === "K7" ? Object.assign({}, l, { colour: "blue" }) : l); },
       choices: ["colour-reused", "red-not-supply", "split", "merged"],
-      why: "Both link wires are the same colour but they carry different signals. Qualifications Scotland: " +
+      why: "Two link wires are the same colour but they carry different signals. Qualifications Scotland: " +
            "there should be different colours for different signals, and every wire " +
            "coloured AND numbered." }
   ];
@@ -3937,6 +4040,325 @@ title: Stripboard Builder · National 5 Electronics
   root.buildReverse = buildReverse;
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- free-mode.js ---- */
+/* ============================================================================
+   Stripboard Builder — Free mode (Mode 5)
+   ----------------------------------------------------------------------------
+   The other four modes all have an answer to mark against.  This one does not:
+   the pupil starts from a blank board and builds whatever they like, so there
+   is no target netlist and nothing to compare.
+
+   What CAN be said without a target is worth more than it sounds, and it is
+   exactly the half of the job the verification reports say pupils lose marks
+   on: whether the board could be built and whether it obeys the layout
+   conventions.  So Free mode reports two things:
+
+     1. WHAT IS JOINED TO WHAT — every net on the board, named, with the run of
+        copper it lives on and every leg sitting in it.  This is the whole idea
+        the tool teaches ("a node on the diagram is a track on the board"),
+        read back off the pupil's own board.
+     2. THE BUILD-QUALITY FAULTS — the target-independent half of SBD.check().
+
+   Derive, never author twice (the rule Fault-finder and Reverse already
+   follow): rather than re-implement the rules, freeCheck() hands SBD.check()
+   the pupil's OWN netlist as the target.  The comparison then matches by
+   construction, which silences exactly the ranks that need a target — 3 to 6
+   are inside `if (!match)`, rank 7 is silenced by naming only the placed parts,
+   and ranks 8/8.5/10 by having no tpRequired, no expect and nothing to compare
+   a polarity against.  Everything structural still fires: the diagonal link,
+   the link-colour convention, the chip laid along the tracks, the chip with no
+   cuts under it, the pointless cut, the link under a body, and every placement
+   error.  If a rank is ever added to check(), Free mode inherits it.
+
+   Two rules exist only here, because they only make sense without a target:
+
+     - `supply-short`  +5 V and 0 V on one net.  With a target this reads as a
+       merge; on a free board it is the one mistake that destroys hardware, so
+       it is named for what it is.
+     - `chip-unpowered`  a chip whose Vcc or Gnd pin is not on the supply rail.
+       In Convert the target demands those connections; here nothing does, and
+       "the chip is not powered" is the single most common reason a pupil's own
+       board does nothing at all.
+
+   The chip list and every pin number in POWER_PINS is read off the National 5
+   Practical Electronics data sheet (X860/75/12, 12 May 2025), pages 3 and 4 —
+   the same sheet the page links to.  The palette holds those eight chips and
+   no others on purpose: if it is not on the sheet, a pupil cannot look its
+   pinout up, so it has no business on the board.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const SBD = root.SBD;
+  if (!SBD) throw new Error("free-mode.js must load after sbd-engine.js");
+
+  /* --------------------------------------------------------- power pins
+     Data sheet p.4: all six 74-series parts are 14-pin, Vcc 14, Gnd 7.
+     p.3: the 555 is Vcc 8 / Ground 1; the 741 is V+ 7 / V− 4. */
+  const LOGIC = { vcc: "14", gnd: "7", footprint: "dip-14" };
+  const POWER_PINS = {
+    "7400": LOGIC, "7402": LOGIC, "7404": LOGIC,
+    "7408": LOGIC, "7432": LOGIC, "7486": LOGIC,
+    "555": { vcc: "8", gnd: "1", footprint: "dip-8" },
+    "741": { vcc: "7", gnd: "4", footprint: "dip-8" }
+  };
+
+  /* ------------------------------------------------------------ palette
+     `prefix` is the item-ID stem.  Item IDs are one of the ten faults the
+     course names, so they are never optional and never typed: the tool mints
+     the next free number the moment a part is picked.
+     Capacitors share the stem "C" whether they are polarised or not, because
+     that is how a real wiring schedule numbers them. */
+  const PALETTE = [
+    { key: "pos",  prefix: "+5V", only: true, footprint: "term-1", sub: "supply terminal",
+      name: "+5 V supply", pos: true },
+    { key: "neg",  prefix: "0V",  only: true, footprint: "term-1", sub: "supply terminal",
+      name: "0 V supply", neg: true },
+    { key: "in",   prefix: "IN",  footprint: "term-1", sub: "from a switch or sensor",
+      name: "input terminal" },
+    { key: "out",  prefix: "OUT", footprint: "term-1", sub: "to the next sub-system",
+      name: "output terminal" },
+    { key: "res",  prefix: "R",   footprint: "res-4",  sub: "resistor", name: "resistor" },
+    { key: "led",  prefix: "LED", footprint: "led-2",  sub: "5 mm LED, anode and cathode",
+      name: "LED" },
+    { key: "ldr",  prefix: "LDR", footprint: "ldr-2",  sub: "light-dependent resistor",
+      name: "LDR", symmetric: true },
+    { key: "cap",  prefix: "C",   footprint: "cap-8",  sub: "non-polarised", name: "capacitor" },
+    { key: "ecap", prefix: "C",   footprint: "ecap-4", sub: "electrolytic — mind the + end",
+      name: "electrolytic capacitor" },
+    { key: "tr",   prefix: "Q",   footprint: "to92",   sub: "TO-92: e, b, c", name: "transistor" },
+    { key: "tb",   prefix: "TB",  footprint: "term-2", sub: "for an off-board part",
+      name: "2-way terminal block", symmetric: true },
+    { key: "7408", prefix: "IC",  footprint: "dip-14", part: "7408", sub: "quad 2-input AND",
+      name: "7408" },
+    { key: "7432", prefix: "IC",  footprint: "dip-14", part: "7432", sub: "quad 2-input OR",
+      name: "7432" },
+    { key: "7400", prefix: "IC",  footprint: "dip-14", part: "7400", sub: "quad 2-input NAND",
+      name: "7400" },
+    { key: "7402", prefix: "IC",  footprint: "dip-14", part: "7402", sub: "quad 2-input NOR",
+      name: "7402" },
+    { key: "7486", prefix: "IC",  footprint: "dip-14", part: "7486", sub: "quad 2-input XOR",
+      name: "7486" },
+    { key: "7404", prefix: "IC",  footprint: "dip-14", part: "7404", sub: "hex NOT (inverter)",
+      name: "7404" },
+    { key: "555",  prefix: "IC",  footprint: "dip-8",  part: "555",  sub: "timer",
+      name: "555" },
+    { key: "741",  prefix: "IC",  footprint: "dip-8",  part: "741",  sub: "op-amp",
+      name: "741" }
+  ];
+  const byKey = k => PALETTE.find(p => p.key === k);
+
+  /* The next free item ID for a palette entry.  Numbers are reused once a part
+     comes off the board, so a pupil who places and removes a resistor six times
+     is not left starting at R7. */
+  function nextId(components, key) {
+    const spec = byKey(key);
+    if (!spec) return null;
+    const used = new Set((components || []).map(c => c.id));
+    if (spec.only) return used.has(spec.prefix) ? null : spec.prefix;
+    for (let n = 1; n < 100; n++) if (!used.has(spec.prefix + n)) return spec.prefix + n;
+    return null;
+  }
+
+  // a component record in the same shape the authored questions use, so every
+  // other part of the engine and the renderer treats it identically
+  function mint(components, key) {
+    const spec = byKey(key), id = nextId(components, key);
+    if (!id) return null;
+    // `key` is the palette entry it came from: the bank has to know which tile
+    // to open for a part the pupil taps on the board, and deriving that back
+    // from the footprint is ambiguous (four different parts are all term-1).
+    const c = { id, key, footprint: spec.footprint, name: id + " — " + spec.name };
+    if (spec.part) { c.part = spec.part; c.name = id + " — " + spec.part + " " + spec.sub; }
+    if (spec.pos) c.pos = true;
+    if (spec.neg) c.neg = true;
+    if (spec.symmetric) c.symmetric = true;
+    return c;
+  }
+
+  function freeQ(boardId, components) {
+    return {
+      id: "free", board: boardId, title: "Your own board",
+      components: (components || []).slice(),
+      target: [], dontcare: [], tpRequired: [], expect: null, why: [],
+      reference: { cuts: [], placements: [], links: [], testpoints: [] }
+    };
+  }
+
+  /* ----------------------------------------------------------- net report
+     Every net that has at least one leg in it, with the copper it lives on.
+     A net with no legs is bare track and says nothing, so it is dropped. */
+  function runsOf(holes) {
+    const byRow = new Map();
+    for (const h of holes) {
+      if (!byRow.has(h.r)) byRow.set(h.r, []);
+      byRow.get(h.r).push(h.c);
+    }
+    const out = [];
+    for (const r of [...byRow.keys()].sort((a, b) => a - b)) {
+      const cs = byRow.get(r).sort((a, b) => a - b);
+      let from = cs[0], prev = cs[0];
+      for (let i = 1; i <= cs.length; i++) {
+        if (i < cs.length && cs[i] === prev + 1) { prev = cs[i]; continue; }
+        out.push({ row: r, from, to: prev,
+                   text: SBD.rowLetter(r) + from + (prev === from ? "" : "–" + SBD.rowLetter(r) + prev) });
+        from = prev = cs[i];
+      }
+    }
+    return out;
+  }
+
+  function partLabel(q, pin) {
+    const c = (q.components || []).find(x => x.id === pin.comp) || {};
+    const fp = SBD.FOOTPRINTS[c.footprint] || {};
+    if (fp.kind === "dil") return pin.comp + " pin " + pin.pin;
+    if (fp.polarised) return pin.comp + " " + (pin.pin === "a" ? "anode"
+                                             : pin.pin === "k" ? "cathode"
+                                             : pin.pin === "+" ? "+ end" : "− end");
+    if (fp.kind === "to92") return pin.comp + " " + ({ e: "emitter", b: "base", c: "collector" }[pin.pin] || pin.pin);
+    if (fp.kind === "terminal" && fp.pins.length === 1) return pin.comp;
+    if (fp.symmetric || c.symmetric) return pin.comp;
+    return pin.comp + " " + pin.pin;
+  }
+
+  function netReport(boardId, attempt, components) {
+    const board = SBD.BOARDS[boardId];
+    const q = freeQ(boardId, components);
+    const top = SBD.topology(board, attempt);
+    if (top.errors.length) return null;
+
+    const byRoot = new Map();
+    const get = r => {
+      if (!byRoot.has(r)) byRoot.set(r, { holes: [], pins: [], tps: [], pos: false, neg: false });
+      return byRoot.get(r);
+    };
+    for (const [k, nd] of top.nodeOf)
+      get(top.dsu.find(nd)).holes.push({ r: Math.floor(k / 1000), c: k % 1000 });
+    for (const p of top.pins) {
+      const nd = top.nodeOf.get(SBD.hid(p.hole));
+      if (nd === undefined) continue;
+      const n = get(top.dsu.find(nd));
+      n.pins.push(p);
+      const c = (components || []).find(x => x.id === p.comp) || {};
+      if (c.pos) n.pos = true;
+      if (c.neg) n.neg = true;
+    }
+    for (const t of attempt.testpoints || []) {
+      const nd = top.nodeOf.get(SBD.hid(SBD.parseRef(t.at)));
+      if (nd !== undefined) get(top.dsu.find(nd)).tps.push(t.id);
+    }
+
+    const nets = [];
+    for (const n of byRoot.values()) {
+      if (!n.pins.length) continue;
+      nets.push({
+        role: n.pos && n.neg ? "shorted supply" : n.pos ? "+5 V" : n.neg ? "0 V" : null,
+        runs: runsOf(n.holes).map(x => x.text),
+        parts: n.pins.map(p => partLabel(q, p)).sort(),
+        tps: n.tps.slice().sort(),
+        holes: n.holes.map(SBD.ref),
+        lone: n.pins.length === 1
+      });
+    }
+    // supply rails first, then longest net first: the interesting ones at the top
+    nets.sort((a, b) => (a.role ? 0 : 1) - (b.role ? 0 : 1) || b.parts.length - a.parts.length);
+    return nets;
+  }
+
+  /* --------------------------------------------------------------- check */
+  function freeCheck(boardId, attempt, components) {
+    const placed = new Set((attempt.placements || []).map(p => p.id));
+    const comps = (components || []).filter(c => placed.has(c.id));
+    const base = freeQ(boardId, comps);
+
+    // the pupil's own netlist IS the target — see the header
+    const nl = SBD.netlistOf(base, attempt);
+    const q = Object.assign({}, base, { target: nl.nets || [] });
+    const res = SBD.check(q, attempt);
+
+    const faults = res.faults.slice(), warnings = res.warnings.slice();
+    const nets = netReport(boardId, attempt, comps);
+
+    if (nets) {
+      const posC = comps.find(c => c.pos), negC = comps.find(c => c.neg);
+      const shorted = nets.find(n => n.role === "shorted supply");
+      if (shorted)
+        faults.push({ rank: 0.4, code: "supply-short",
+          msg: "+5 V and 0 V are on the same run of copper (" + shorted.runs.join(", ") +
+               ") — that is a short across the supply. Cut the track between them.",
+          refs: shorted.holes.slice(0, 2) });
+
+      if (comps.length && (!posC || !negC))
+        warnings.push({ rank: 20, code: "no-supply",
+          msg: "There is no " + (!posC && !negC ? "+5 V or 0 V terminal" :
+               !posC ? "+5 V terminal" : "0 V terminal") + " on the board yet. " +
+               "Every sub-system needs both rails before it can do anything.", refs: [] });
+
+      /* A chip with no supply is the commonest reason an otherwise sensible
+         board is dead, and nothing else on this page would say so. */
+      const supplyNet = which => nets.find(n => n.role === which);
+      for (const c of comps) {
+        const pp = POWER_PINS[c.part];
+        if (!pp) continue;
+        const on = (pin, role) => {
+          const net = supplyNet(role);
+          if (!net) return true;                       // no rail placed: already warned
+          return net.parts.indexOf(c.id + " pin " + pin) >= 0;
+        };
+        const miss = [];
+        if (!on(pp.vcc, "+5 V")) miss.push("pin " + pp.vcc + " to +5 V");
+        if (!on(pp.gnd, "0 V")) miss.push("pin " + pp.gnd + " to 0 V");
+        if (miss.length)
+          warnings.push({ rank: 21, code: "chip-unpowered",
+            msg: c.id + " (" + c.part + ") is not powered: " + miss.join(" and ") +
+                 " is missing. The data sheet says which pins those are.",
+            refs: [c.id] });
+      }
+
+      /* A leg on a track with nothing else on it is worth saying — a forgotten
+         link wire is exactly what that looks like.  But reporting it leg by leg
+         buries every other line: a 14-pin chip placed on a blank board, which
+         is the FIRST thing a pupil does here, produced fourteen identical
+         warnings and pushed the real ones off the panel.  So they are grouped
+         by component, and a part that is not wired up at all — one the pupil
+         simply has not got to yet — says so in one line instead of one per
+         leg. */
+      const loneBy = new Map();
+      for (const n of nets) {
+        if (!n.lone) continue;
+        const id = String(n.parts[0]).split(" ")[0];
+        if (!loneBy.has(id)) loneBy.set(id, { labels: [], holes: [] });
+        loneBy.get(id).labels.push(n.parts[0]);
+        loneBy.get(id).holes.push(n.holes[0]);
+      }
+      for (const [id, e] of loneBy) {
+        const c = comps.find(x => x.id === id) || {};
+        const legs = ((SBD.FOOTPRINTS[c.footprint] || {}).pins || []).length;
+        // "all 1 of its legs" is not a sentence — a one-legged part (a supply
+        // terminal, an input) takes the labelled branch instead
+        const all = legs > 1 && e.labels.length >= legs;
+        warnings.push({ rank: 22, code: "lone-pin",
+          msg: all
+            ? id + " is not wired up yet — all " + legs + " of its legs are on tracks with " +
+              "nothing else on them."
+            : (e.labels.length === 1 ? e.labels[0] + " is" : e.labels.join(", ") + " are") +
+              " on a track with nothing else, so joined to nothing.",
+          refs: e.holes.slice(0, 4) });
+      }
+    }
+
+    faults.sort((x, y) => x.rank - y.rank);
+    warnings.sort((x, y) => x.rank - y.rank);
+    return { ok: faults.length === 0, stage: res.stage, faults, warnings, nets,
+             counts: { parts: (attempt.placements || []).length,
+                       cuts: (attempt.cuts || []).length,
+                       links: (attempt.links || []).length,
+                       tps: (attempt.testpoints || []).length,
+                       nets: nets ? nets.length : 0 } };
+  }
+
+  root.SBD.free = { PALETTE, POWER_PINS, byKey, nextId, mint, freeQ, netReport, freeCheck, runsOf };
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
 
 <style id="sbdBoardStyle"></style>
@@ -4006,7 +4428,8 @@ const MODE_DESC = {
   trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
   convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it.",
   fault: "One board, one fault. Find where it is, then say what it is — the skill the verifiers say is missing.",
-  reverse: "The other direction: read a finished board and work out the circuit it builds. This is the one the exam asks."
+  reverse: "The other direction: read a finished board and work out the circuit it builds. This is the one the exam asks.",
+  free: "A blank board and the whole parts box. Build whatever you like — the panel beside it reads your own board back to you."
 };
 let ti = 0, TQ = null, traceAnswered = null, traceScale = 1;
 const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
@@ -4016,6 +4439,9 @@ const TRACE_LEDE = "Look at the board, then answer the question beside it: are t
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
 const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
   "with it. Tap the hole where you think the fault is, choose what the fault is, and check.";
+const FREE_LEDE = "A blank board, the whole parts box and nothing to copy. Build what you like: the panel " +
+  "beside the board says what your copper has joined together, updating as you work, and Check tells you " +
+  "whether it could actually be built \u2014 there is no right answer here, so nothing is marked.";
 const REVERSE_LEDE = "Every board here is correct. The question is what circuit it builds — " +
   "follow the copper and answer, the way the question paper asks you to.";
 
@@ -4033,7 +4459,10 @@ function loadStore(){
 function saveStore(){
   try {
     const work = loadStoreRaw();
-    if (Q && A) work[Q.id] = A;        // the read-only modes have no board to save
+    // Free build has to save its PARTS as well as its layout — nothing else on
+    // the page knows what a board with no question is made of
+    if (mode === "free") work[FREE_KEY] = { board: freeBoard, comps: FREEC, a: A };
+    else if (Q && A) work[Q.id] = A;   // the read-only modes have no board to save
 
     localStorage.setItem(STORE, JSON.stringify({ v:1, hash:BANK_HASH, done:[...done], work }));
   } catch(e){}
@@ -4123,6 +4552,7 @@ function drawCircuit(){
    the schematic takes whatever is left, down to a readable minimum, with
    "Enlarge" for the rest.  PLAN.md §10 chose this over a side-by-side panel. */
 function fit(){
+  if (mode === "free") return fitFree();
   const size = R.sizeOf(Q.board);
   const availW = $("stage").clientWidth;
   const cw = +$("cinner").dataset.w, ch = +$("cinner").dataset.h;
@@ -4221,13 +4651,17 @@ function fit(){
    mode which board is on screen and at what scale — it used to read Convert's
    Q.board and Convert's scale unconditionally, which threw the moment a
    read-only mode wanted a tap. */
+// Convert and Free build are the two that EDIT a board; everything below that
+// asks "is this Convert?" really means "is the pupil building?"
+function building(){ return mode === "convert" || mode === "free"; }
+
 function holeFromEvent(e){
-  const boardId = mode === "convert" ? (Q && Q.board)
+  const boardId = building() ? (Q && Q.board)
                 : mode === "fault"   ? (FI && FI.q.board)
                 : mode === "reverse" ? (RV && RV.q.board)
                 :                      (TQ && TQ.board);
   if (!boardId) return null;
-  const sc = mode === "convert" ? scale : traceScale;
+  const sc = building() ? scale : traceScale;
   const box = $("canvas").getBoundingClientRect();
   return R.holeAt(boardId, (e.clientX - box.left) / sc, (e.clientY - box.top) / sc);
 }
@@ -4300,7 +4734,12 @@ function act(h){
     else if (what.kind === "tp"){ A.testpoints = A.testpoints.filter(t => t.at !== key);
       renumberTps(); say("Test point removed."); }
     else if (what.kind === "pin" || what.kind === "body"){
-      A.placements = A.placements.filter(p => p.id !== what.p.id); say(what.p.id + " taken off the board."); }
+      A.placements = A.placements.filter(p => p.id !== what.p.id);
+      /* In Convert the part goes back to the bank it came from. In Free build
+         there is no bank to go back to — the palette mints a new one on demand
+         — so removing it destroys it and frees its item number for reuse. */
+      if (mode === "free") dropPart(what.p.id);
+      say(what.p.id + " taken off the board."); }
     else if (what.kind === "link"){ A.links = A.links.filter(l => l !== what.link);
       renumberLinks(); say("Link wire removed."); }
     else say("Nothing at " + key + " to remove.");
@@ -4321,7 +4760,7 @@ function act(h){
       else {
         A.placements.push(cand);
         say(sel + " placed at " + key + ".");
-        sel = null; rot = 0;
+        sel = null; rot = 0; pending = null;
       }
     }
   }
@@ -4363,7 +4802,9 @@ function buildLinkColours(){
     dot.style.background = R.LINK_COLOURS[name];
     b.appendChild(dot);
     b.dataset.colour = name;
-    b.setAttribute("aria-label", name + " wire");
+    b.setAttribute("aria-label", name === "red" ? "red wire, for +5 V links only"
+                                : name === "black" ? "black wire, for 0 V links only"
+                                : name + " wire");
     b.setAttribute("aria-pressed", "false");
     el.appendChild(b);
   });
@@ -4452,6 +4893,7 @@ function paint(){
   if (focused || !sel) marks.push({ r: cur.r, c: cur.c, kind: focused ? "cur" : "ghost" });
   drawLive();
   drawBank();
+  if (mode === "free") paintNets();
 }
 
 /* With a part selected, show the WHOLE footprint where it would land, not one
@@ -4470,6 +4912,11 @@ function ghostCells(){
 }
 
 function drawBank(){
+  if (mode === "free") return drawFreeBank();
+  // Trace, Fault-finder and Reverse have no attempt at all. Nothing a pupil can
+  // press reaches here in those modes — the tool row is hidden — but setTool()
+  // calls this unconditionally, so a stray call should do nothing, not throw.
+  if (!A) return;
   const placed = new Set(A.placements.map(p => p.id));
   const bank = $("bank");
   /* paint() runs on every pointer move; rebuilding eight tiles and an inline
@@ -4540,17 +4987,41 @@ const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>
    accessibility tree, and it left the last mode's verdict sitting under the
    next mode's question. */
 function clearFeedback(){
-  $("feedback").classList.remove("show", "good", "bad");
+  $("feedback").classList.remove("show", "good", "bad", "nudge");
   $("fbHead").textContent = "";
   $("fbBody").innerHTML = "";
   hl = [];
 }
 
+/* A button that refuses silently is a broken button.
+   ---------------------------------------------------------------------------
+   Reported by a pupil testing alpha v0.10: "the check my answer buttons are
+   non clickable on fault finder and reverse". They were not — the handler ran,
+   found nothing chosen yet, and said so through say(), which writes to the
+   aria-live region. That region is `.sr`: visually hidden. So a sighted pupil
+   pressing Check before picking an option got no response of any kind, which
+   is indistinguishable from a dead button — and pressing Check first is the
+   obvious thing to do when you are not sure what the page wants.
+
+   Every refusal a BUTTON can produce now goes on screen as well as to the
+   live region. */
+function nudge(msg){
+  const fb = $("feedback");
+  fb.classList.remove("good", "bad");
+  fb.classList.add("show", "nudge");
+  $("fbHead").textContent = msg;
+  $("fbBody").innerHTML = "";
+  hl = [];
+  say(msg);
+}
+
 function check(){
-  if (showingAnswer){ say("That is the answer, not your board."); return; }
+  if (mode === "free") return checkFree();
+  if (showingAnswer){ nudge("That is the reference layout on screen, not your board \u2014 press \u201cBack to my board\u201d first."); return; }
   const res = SBD.check(curQ(), A);
   const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
   fb.classList.add("show");
+  fb.classList.remove("nudge");
   fb.classList.toggle("good", res.ok);
   fb.classList.toggle("bad", !res.ok);
 
@@ -4754,6 +5225,7 @@ function buildChips(){
 }
 
 function reset(){
+  if (mode === "free"){ resetFree(); return; }
   A = startingPoint();
   stage = 0; A.stage = 0;                   // the later stages' parts just came off the board
   bankKey = null;
@@ -4808,7 +5280,7 @@ $("board").addEventListener("click", e => {
     say("Marked " + SBD.ref(h) + ".");
     return;
   }
-  if (mode !== "convert") return;
+  if (!building()) return;
   const h = holeFromEvent(e);
   if (!h) return;
   cur = h;
@@ -4818,7 +5290,7 @@ $("board").addEventListener("click", e => {
 
 // hovering with a part selected previews where it would land
 $("board").addEventListener("pointermove", e => {
-  if (mode !== "convert") return;
+  if (!building()) return;
   if (e.pointerType === "touch" && !e.buttons) return;
   const h = holeFromEvent(e);
   if (!h || (h.r === cur.r && h.c === cur.c)) return;
@@ -4826,11 +5298,11 @@ $("board").addEventListener("pointermove", e => {
   paint();
 });
 
-$("board").addEventListener("focus", () => { if (mode !== "convert") return; focused = true; paint(); say(describe(cur)); });
-$("board").addEventListener("blur",  () => { if (mode !== "convert") return; focused = false; paint(); });
+$("board").addEventListener("focus", () => { if (!building()) return; focused = true; paint(); say(describe(cur)); });
+$("board").addEventListener("blur",  () => { if (!building()) return; focused = false; paint(); });
 
 $("board").addEventListener("keydown", e => {
-  if (mode !== "convert") return;
+  if (!building()) return;
   const b = SBD.BOARDS[Q.board];
   const step = { ArrowUp:[-1,0], ArrowDown:[1,0], ArrowLeft:[0,-1], ArrowRight:[0,1] }[e.key];
   if (step){
@@ -4877,6 +5349,7 @@ $("bank").addEventListener("click", e => {
   if (e.target.closest(".trot")){ rotate(); return; }
   const b = e.target.closest(".part");
   if (!b || b.getAttribute("aria-disabled") === "true") return;
+  if (mode === "free"){ pickFromPalette(b.dataset.key); return; }
   const wasSel = sel;
   sel = (sel === b.dataset.id) ? null : b.dataset.id;
   if (sel && sel !== wasSel){
@@ -4931,6 +5404,18 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "0.11", date: "10 Sep 2026", what:
+    "A fifth mode: <strong>Free build</strong>. A blank board, the whole parts box and nothing to " +
+    "copy \u2014 pick either board size and build whatever you like. Nothing is marked, because there " +
+    "is no answer: instead the panel beside the board reads your own board back to you as you work, " +
+    "naming every net, the run of copper it lives on and everything joined to it. " +
+    "<strong>Check my layout</strong> still tells you whether the board could actually be built " +
+    "\u2014 the same cut, link and footprint rules the other modes use. " +
+    "<br>Two bugs you reported are fixed. <strong>The Check buttons in Fault-finder and Reverse " +
+    "looked dead</strong> if you pressed them before choosing an answer \u2014 they were telling you " +
+    "what to do somewhere you could not see it, and now they say it on screen. And a " +
+    "<strong>link wire that lands on a supply rail now has to be the right colour</strong>: " +
+    "red for +5 V, black for 0 V. A blue wire onto the 0 V rail used to pass." },
   { v: "0.10", date: "9 Sep 2026", what:
     "A touchscreen and rules pass over everything. <strong>Every button, chip, tab and swatch is " +
     "now at least 44&nbsp;px</strong> \u2014 a lot of them were half that and fiddly on a finger \u2014 " +
@@ -5012,6 +5497,7 @@ $("btnCheck").addEventListener("click", check);
 $("btnReset").addEventListener("click", reset);
 $("btnAnswer").addEventListener("click", toggleAnswer);
 $("btnNext").addEventListener("click", () => {
+  if (mode === "free") return;                 // there is nothing to be next
   if (mode === "convert") load(qi + 1, true);
   else if (mode === "fault") loadFault(fi + 1, true);
   else if (mode === "reverse") loadReverse(ri + 1, true);
@@ -5031,7 +5517,7 @@ $("modal").addEventListener("click", e => { if (e.target === $("modal")) closeBi
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("modal").classList.contains("show")) closeBig(); });
 
 window.addEventListener("resize", () => {
-  if (mode === "convert") { if (Q) fit(); }
+  if (building()) { if (Q) fit(); }
   else if (mode === "fault") { if (FI) fitFixed(FI.q.board); }
   else if (mode === "reverse") { if (RV) fitFixed(RV.q.board); }
   else if (TQ) fitTrace();
@@ -5168,6 +5654,7 @@ function answerTrace(ans){
 
   const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
   fb.classList.add("show");
+  fb.classList.remove("nudge");
   fb.classList.toggle("good", correct);
   fb.classList.toggle("bad", !correct);
   head.textContent = correct ? "✓ Correct" : "Not quite";
@@ -5284,9 +5771,9 @@ function paintFault(){
 
 function answerFault(){
   if (faultAnswered) return;
-  if (!faultPick){ say("Choose what the fault is first."); return; }
+  if (!faultPick){ nudge("Choose what the fault is first, from the list on the right."); return; }
   const needsPlace = FI.holes.length > 0;
-  if (needsPlace && !faultTap){ say("Tap the hole where you think the fault is first."); return; }
+  if (needsPlace && !faultTap){ nudge("Tap the hole on the board where you think the fault is, then check."); return; }
 
   faultAnswered = true;
   $("btnFault").disabled = true;
@@ -5303,6 +5790,7 @@ function answerFault(){
 
   const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
   fb.classList.add("show");
+  fb.classList.remove("nudge");
   fb.classList.toggle("good", correct);
   fb.classList.toggle("bad", !correct);
   head.textContent = correct ? "✓ Found it"
@@ -5433,7 +5921,7 @@ function answerReverse(){
   if (revAnswered) return;
   let correct, detail;
   if (RV.type === "probe"){
-    if (revTaps.length !== 2){ say("Tap two holes first."); return; }
+    if (revTaps.length !== 2){ nudge("Tap two holes on the board — one for each probe — then check."); return; }
     const [a, b] = revTaps;
     correct = (onNet(RV.nets[0], a) && onNet(RV.nets[1], b)) ||
               (onNet(RV.nets[1], a) && onNet(RV.nets[0], b));
@@ -5441,12 +5929,12 @@ function answerReverse(){
              "and the other anywhere on <strong>" + esc(RV.pins[1]) + "</strong>'s. The two " +
              "nets are ringed in different colours below.";
   } else if (RV.type === "rail"){
-    if (!revPicks.length){ say("Choose at least one first."); return; }
+    if (!revPicks.length){ nudge("Choose at least one answer first."); return; }
     correct = revPicks.length === RV.answer.length &&
               RV.answer.every(id => revPicks.indexOf(id) >= 0);
     detail = "On this board the rail reaches <strong>" + esc(RV.answer.join(", ")) + "</strong>.";
   } else {
-    if (!revPicks.length){ say("Choose one first."); return; }
+    if (!revPicks.length){ nudge("Choose an answer first."); return; }
     correct = revPicks[0] === RV.answer;
     detail = "It reaches <strong>" + esc(pinLabel(RV.answer)) + "</strong>.";
   }
@@ -5475,6 +5963,334 @@ function answerReverse(){
 $("btnRev").addEventListener("click", answerReverse);
 $("mReverse").addEventListener("click", () => setMode("reverse"));
 
+/* ============================================================
+   Mode 5 — Free build (added after the alpha went out)
+   ------------------------------------------------------------
+   The other four modes mark against an answer. This one has none: a blank
+   board, the whole parts box, and whatever the pupil wants to build. Two
+   things can still be said without a target, and they are exactly the half of
+   the job the verification reports say marks are lost on:
+
+     * WHAT IS JOINED TO WHAT — the board's own netlist, read back live in the
+       column where Convert puts the circuit diagram. A link wire merging two
+       nets is visible the instant it is drawn, which is the one idea the whole
+       tool exists to teach.
+     * WHETHER IT COULD BE BUILT — on Check. Not a second rule set: freeCheck()
+       hands SBD.check() the pupil's own netlist as its target, so the
+       target-dependent ranks fall silent and every structural one still fires
+       (engine/free-mode.js explains the derivation). A rank added to check()
+       is inherited here for nothing.
+
+   Everything else — the board, the five tools, the ghost footprint preview,
+   the keyboard cursor, the storage — is Convert's code, unchanged.
+   ============================================================ */
+const FREE = SBD.free;
+const FREE_KEY = "__free";                 // its slot in the same versioned store
+const FREE_BOARDS = ["34-0410", "34-0411"];
+let freeBoard = FREE_BOARDS[0];            // the small board: it fits any screen at full scale
+const FREEC = [];                          // the parts minted so far — ONE array for the life of
+                                           // the page, because Q.components points at it
+let pending = null;                        // a minted part not yet put down
+let netSig = null;                         // paint() runs on every pointer move; the netlist only
+                                           // changes on an edit, so it is rebuilt on a signature
+
+function dropPart(id){
+  const i = FREEC.findIndex(c => c.id === id);
+  if (i >= 0) FREEC.splice(i, 1);
+}
+
+/* A free board read back from storage is last term's data, not a promise —
+   same rule as sane() applies to a question's attempt (R8). */
+function savedFree(){
+  try {
+    const rec = loadStoreRaw()[FREE_KEY];
+    if (!rec || typeof rec !== "object") return null;
+    if (FREE_BOARDS.indexOf(rec.board) < 0) return null;
+    const comps = (Array.isArray(rec.comps) ? rec.comps : [])
+      .filter(c => c && c.id && SBD.FOOTPRINTS[c.footprint] && FREE.byKey(c.key));
+    const a = rec.a && typeof rec.a === "object" ? rec.a : null;
+    if (!a) return null;
+    const arr = k => Array.isArray(a[k]) ? a[k] : [];
+    const ids = new Set(comps.map(c => c.id));
+    const out = { cuts: arr("cuts").filter(x => typeof x === "string"),
+                  // a placement whose part is gone would place a phantom
+                  placements: arr("placements").filter(x => x && ids.has(x.id) && SBD.FOOTPRINTS[x.footprint]),
+                  links: arr("links").filter(l => l && l.a && l.b),
+                  testpoints: arr("testpoints").filter(t => t && t.at).map(t => ({ id: t.id, at: t.at })),
+                  stage: 0 };
+    SBD.topology(SBD.BOARDS[rec.board], out);        // throws if it does not fit the board
+    return { board: rec.board, comps, a: out };
+  } catch(e){ return null; }
+}
+
+function loadFree(keepScroll){
+  const saved = savedFree();
+  if (saved) freeBoard = saved.board;
+  FREEC.length = 0;
+  if (saved) for (const c of saved.comps) FREEC.push(c);
+  Q = FREE.freeQ(freeBoard, FREEC);
+  Q.components = FREEC;                    // the palette mints straight into the question
+  A = saved ? saved.a : blank();
+  showingAnswer = false; stage = 0;
+  sel = null; pending = null; rot = 0; linkStart = null;
+  marks = []; hl = []; bankKey = null; netSig = null; cur = { r: 0, c: 1 };
+
+  $("qtitle").textContent = "Free build — your own board";
+  $("qsrc").textContent = freeBoard + " · " + SBD.BOARDS[freeBoard].rows + " tracks × " +
+                          SBD.BOARDS[freeBoard].cols + " holes";
+  $("qscenario").innerHTML =
+    "<p>Nothing here is marked and there is no answer to copy. Build a sub-system you have " +
+    "designed yourself, try out a layout before you commit it to your planning sheet, or just " +
+    "find out what a cut does. <strong>Check my layout</strong> will not tell you whether the " +
+    "circuit is a good one — it tells you whether the board could be built, and the panel beside " +
+    "it tells you what your copper has joined together.</p>";
+  paintBoardPick();
+  clearFeedback();
+  drawGrid();
+  paintStageBar();
+  $("tpRow").hidden = true;                // there is no expected reading without a circuit
+  paint();
+  fit();
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetFree(){
+  FREEC.length = 0;
+  A = blank();
+  sel = null; pending = null; rot = 0; linkStart = null;
+  marks = []; hl = []; bankKey = null; netSig = null;
+  clearFeedback(); saveStore(); paint(); fit();
+  say("Board cleared. Every part is back in the list.");
+}
+
+/* ---------------------------------------------------------------- palette */
+function pickFromPalette(key){
+  const selComp = sel && FREEC.find(c => c.id === sel);
+  const wasOpen = !!(selComp && selComp.key === key);
+  // an unplaced part from a previous tap is thrown away rather than left to
+  // eat an item number every time a pupil changes their mind
+  if (pending){ dropPart(pending); pending = null; }
+  sel = null; rot = 0;
+
+  if (wasOpen){ say("Selection cleared."); }
+  else {
+    const c = FREE.mint(FREEC, key);
+    if (!c) say("A board has one +5 V terminal and one 0 V terminal, and both are already on it.");
+    else {
+      FREEC.push(c);
+      sel = c.id; pending = c.id;
+      rot = defaultRotFor(c.footprint);
+      if (tool !== "place") setTool("place");
+      say(c.id + " selected — it lies " + R.spanOf(c.footprint, rot) +
+          ". Tap a hole on the board, or press Enter with the cursor there.");
+    }
+  }
+  bankKey = null;
+  drawBank(); fit(); paint(); saveStore();
+}
+
+function drawFreeBank(){
+  const bank = $("bank");
+  const key = "free|" + sel + "@" + rot + "|" + FREEC.map(c => c.id).join(",") +
+              "|" + A.placements.map(p => p.id).join(",");
+  if (key === bankKey) return;
+  bankKey = key;
+  bank.innerHTML = "";
+  const selComp = sel && FREEC.find(c => c.id === sel);
+  let openTile = null;
+
+  for (const spec of FREE.PALETTE){
+    const next = FREE.nextId(FREEC, spec.key);
+    const isOpen = !!(selComp && selComp.key === spec.key);
+    const spent = !next && !isOpen;              // the two supply terminals, once used
+    const b = document.createElement("div");
+    b.className = "part" + (spent ? " gone" : "") + (isOpen ? " open" : "");
+    b.setAttribute("role", "button");
+    b.setAttribute("tabindex", spent ? "-1" : "0");
+    b.setAttribute("aria-pressed", String(isOpen));
+    b.setAttribute("aria-disabled", String(spent));
+    b.dataset.key = spec.key;
+    /* Naming the socket where the pupil picks the chip is the only place the
+       "you never solder an IC" rule can actually land. */
+    const dil = /^dip-(\d+)$/.exec(spec.footprint);
+    const sub = spec.sub + (dil ? " · " + dil[1] + "-pin DIL socket" : "");
+    const head = "<span class='phead'><strong>" + esc(spec.name) + "</strong>" +
+                 "<span class='nid'>" + esc(isOpen ? selComp.id : (next || "—")) + "</span></span>" +
+                 "<span class='sub'>" + esc(sub) + "</span>";
+    b.innerHTML = !isOpen ? head
+      : "<div class='thead'><span>" + head + "</span>" +
+        "<button type='button' class='trot'>⟳ Rotate</button></div>" +
+        "<div class='tpv'>" + R.renderPart({ id: selComp.id, footprint: selComp.footprint,
+          rot: rot, part: selComp.part, pos: selComp.pos }) + "</div>" +
+        "<span class='tspan'>Lies " + esc(R.spanOf(selComp.footprint, rot)) + "</span>";
+    if (isOpen) openTile = b;
+    bank.appendChild(b);
+  }
+  if (openTile){
+    openTile.style.height = openTile.scrollHeight + "px";
+    bank.scrollTop += openTile.getBoundingClientRect().top - bank.getBoundingClientRect().top;
+  }
+  $("bankhint").textContent = "Tap one, then tap a hole.";
+}
+
+/* ------------------------------------------------------------- board size */
+function paintBoardPick(){
+  $("boardPick").querySelectorAll(".bp").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.board === freeBoard)));
+}
+$("boardPick").addEventListener("click", e => {
+  const b = e.target.closest(".bp");
+  if (!b || b.dataset.board === freeBoard) return;
+  // the two boards are different sizes, so nothing on one can be carried to the
+  // other — say so before it goes, rather than after
+  const used = A.placements.length || A.cuts.length || A.links.length || A.testpoints.length;
+  if (used && !window.confirm("Changing the board size clears what is on it. Carry on?")) return;
+  freeBoard = b.dataset.board;
+  FREEC.length = 0;
+  A = blank();
+  sel = null; pending = null; linkStart = null; marks = []; hl = [];
+  bankKey = null; netSig = null; cur = { r: 0, c: 1 };
+  Q = FREE.freeQ(freeBoard, FREEC);
+  Q.components = FREEC;
+  $("qsrc").textContent = freeBoard + " · " + SBD.BOARDS[freeBoard].rows + " tracks × " +
+                          SBD.BOARDS[freeBoard].cols + " holes";
+  paintBoardPick();
+  clearFeedback(); saveStore();
+  drawGrid(); paint(); fit();
+  say(freeBoard + " board, " + SBD.BOARDS[freeBoard].rows + " tracks by " +
+      SBD.BOARDS[freeBoard].cols + " holes. Board cleared.");
+});
+
+/* ------------------------------------------------------------ net read-back
+   The teaching payload of the mode. Nets carry no number on the circuit
+   diagram here — there is no diagram — so they are numbered in the order the
+   engine returns them: the two supply rails first, then the busiest net down
+   to the quietest, which is roughly the order a pupil built them in. */
+function paintNets(){
+  const sig = JSON.stringify([A.cuts, A.placements, A.links, (A.testpoints || []).map(t => t.at)]);
+  if (sig === netSig) return;
+  netSig = sig;
+
+  const list = $("netList"), count = $("netCount");
+  const nets = FREE.netReport(freeBoard, A, FREEC) || [];
+  count.textContent = A.placements.length
+    ? nets.length + (nets.length === 1 ? " net · " : " nets · ") + A.placements.length + " parts · " +
+      A.cuts.length + " cuts · " + A.links.length + " links"
+    : "";
+  if (!nets.length){
+    list.innerHTML = "<li><p class='netempty'>Nothing joined up yet. Pick a part from the list " +
+      "below and tap a hole \u2014 every track it lands on shows up here.</p></li>";
+    return;
+  }
+  /* Every unwired leg is, strictly, its own net — and on a board with a chip on
+     it that is fourteen rows of "joined to nothing" burying the four that
+     matter. They collapse into one row at the bottom, which is also the more
+     useful sentence: these are the legs still to be wired. The two supply rails
+     keep their own rows even when nothing is on them yet. */
+  const solo = nets.filter(nt => nt.lone && !nt.role);
+  const shown = nets.filter(nt => !(nt.lone && !nt.role));
+  let plain = 0;
+  list.innerHTML = shown.map(nt => {
+    const cls = nt.role === "+5 V" ? "pos" : nt.role === "0 V" ? "neg"
+              : nt.role === "shorted supply" ? "bad" : "";
+    const name = nt.role === "+5 V" ? "+5 V rail" : nt.role === "0 V" ? "0 V rail"
+               : nt.role === "shorted supply" ? "+5 V AND 0 V" : "Net " + (++plain);
+    return "<li class='netrow " + cls + "'>" +
+      "<div class='nline'><span class='nname'>" + esc(name) + "</span>" +
+      "<span class='nrun'>" + esc(nt.runs.join(" + ")) + "</span></div>" +
+      "<p class='nparts'>" + esc(nt.parts.join(", ")) +
+      (nt.tps.length ? " · " + esc(nt.tps.join(", ")) : "") +
+      (nt.lone ? " <span class='nwarn'>— joined to nothing else</span>" : "") + "</p></li>";
+  }).join("") +
+  (solo.length
+    ? "<li class='netrow solo'><div class='nline'><span class='nname'>Still to be wired</span>" +
+      "<span class='nrun'>" + solo.length + (solo.length === 1 ? " leg" : " legs") + "</span></div>" +
+      "<p class='nparts'>" + esc(solo.map(nt => nt.parts[0]).join(", ")) + "</p></li>"
+    : "");
+}
+
+/* --------------------------------------------------------------- fit, free
+   Convert's fit() divides the column between the schematic, the board and the
+   buttons. There is no schematic here, so this is the same board arithmetic
+   with that third party removed — the net panel and the palette split what is
+   left between them in CSS, not in JavaScript. */
+function fitFree(){
+  const size = R.sizeOf(Q.board);
+  const availW = $("stage").clientWidth;
+  let sb = Math.max(MIN_SCALE, Math.min(1, availW / size.w));
+  let stageH = size.h * sb;
+
+  const stageTop = $("stage").getBoundingClientRect().top + window.scrollY;
+  const room = window.innerHeight - stageTop - 62;      // 62px keeps the buttons on screen
+  if (window.matchMedia("(min-width:821px) and (max-height:900px)").matches && room > 180){
+    sb = Math.max(MIN_SCALE, Math.min(sb, room / size.h));
+    stageH = Math.max(200, Math.min(size.h * sb, room));
+  }
+
+  scale = sb;
+  $("canvas").style.transform = "scale(" + scale + ")";
+  const w = size.w * scale, h = size.h * scale;
+  $("board").style.width = w + "px";
+  $("board").style.height = h + "px";
+
+  const panX = w > availW + 1, panY = h > stageH + 1;
+  $("stage").style.overflowX = panX ? "auto" : "hidden";
+  $("stage").style.overflowY = panY ? "auto" : "hidden";
+  $("stage").style.height = Math.round(stageH + (panX ? 11 : 0)) + "px";
+  /* The column needs more than the board's own height: a net list worth reading
+     plus a few rows of the palette. It takes what the board leaves, up to the
+     room that keeps the buttons on screen — the same ceiling Convert uses. */
+  const want = 400;
+  $("bankcolEl").style.height = window.matchMedia("(min-width:821px)").matches
+    ? Math.round(Math.max(stageH, room > 180 ? Math.min(room, want) : want) + (panX ? 11 : 0)) + "px"
+    : "";
+
+  $("panhint").classList.toggle("show", panX || panY);
+  $("panhint").textContent = panY
+    ? "Scroll the board to reach the tracks below."
+    : "Scroll the board sideways to see the rest of it.";
+}
+
+/* ------------------------------------------------------------- check, free */
+function checkFree(){
+  const res = FREE.freeCheck(freeBoard, A, FREEC);
+  const fb = $("feedback"), head = $("fbHead"), body = $("fbBody");
+
+  if (!A.placements.length){
+    nudge("Nothing on the board yet — pick a part from the list and tap a hole to put it down.");
+    return;
+  }
+
+  fb.classList.add("show");
+  fb.classList.remove("nudge");
+  fb.classList.toggle("good", res.ok);
+  fb.classList.toggle("bad", !res.ok);
+
+  if (res.ok){
+    head.textContent = "✓ That board could be built";
+    body.innerHTML =
+      "<p>Nothing here breaks the layout rules: every part sits in holes it can reach, the cuts do " +
+      "what cuts do, and the link wires are legal. <strong>This does not say the circuit works</strong> " +
+      "\u2014 there is no circuit diagram to check it against. The panel beside the board says " +
+      "what is joined to what.</p>" +
+      (res.warnings.length
+        ? "<p class='msnote'>Worth looking at before you build it:</p>" + list(res.warnings, "warn")
+        : "");
+  } else {
+    const nf = res.faults.length;
+    head.textContent = nf === 1 ? "1 thing to fix" : nf + " things to fix";
+    body.innerHTML = "<p>Tap a line to see where it is on the board.</p>" +
+      list(res.faults, "fault") +
+      (res.warnings.length ? "<p class='msnote'>Also worth checking:</p>" + list(res.warnings, "warn") : "");
+  }
+  saveStore();
+  wireFaultButtons(res);
+  say(res.ok ? head.textContent + ". " + res.warnings.length + " suggestions."
+             : res.faults.length + " faults found.");
+}
+
+$("mFree").addEventListener("click", () => setMode("free"));
+
 function setModeDesc(){ $("modeDesc").textContent = MODE_DESC[mode]; }
 
 function setMode(m){
@@ -5485,11 +6301,13 @@ function setMode(m){
   $("mTrace").setAttribute("aria-pressed", String(m === "trace"));
   $("mFault").setAttribute("aria-pressed", String(m === "fault"));
   $("mReverse").setAttribute("aria-pressed", String(m === "reverse"));
+  $("mFree").setAttribute("aria-pressed", String(m === "free"));
   $("lede").textContent = m === "convert" ? CONVERT_LEDE
                         : m === "fault"   ? FAULT_LEDE
-                        : m === "reverse" ? REVERSE_LEDE : TRACE_LEDE;
+                        : m === "reverse" ? REVERSE_LEDE
+                        : m === "free"    ? FREE_LEDE : TRACE_LEDE;
   $("board").setAttribute("aria-label",
-    m === "convert" ? "Stripboard. Tap or click a hole to use the selected tool."
+    m === "convert" || m === "free" ? "Stripboard. Tap or click a hole to use the selected tool."
     : m === "fault" ? "Stripboard, showing a finished layout with one fault. Tap the hole where you think the fault is."
     : m === "reverse" ? "Stripboard, showing a correct layout. Tap holes to answer the question beside it."
     : "Stripboard, showing a fixed layout. Read only — answer the question beside it.");
@@ -5498,6 +6316,7 @@ function setMode(m){
   if (m === "convert") load(qi, true);
   else if (m === "fault") loadFault(fi, true);
   else if (m === "reverse") loadReverse(ri, true);
+  else if (m === "free") loadFree(true);
   else loadTrace(ti, true);
 }
 $("mConvert").addEventListener("click", () => setMode("convert"));
