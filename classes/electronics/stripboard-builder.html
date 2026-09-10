@@ -7248,7 +7248,10 @@ function checkFree(){
 }
 
 
-function setModeDesc(){ $("modeDesc").textContent = MODE_DESC[mode]; }
+/* The single-mode page removes this element, so the write is guarded: without
+   the guard the page threw here at boot and never drew its board — which is
+   what the Safari pass caught, and what nothing else would have. */
+function setModeDesc(){ const el = $("modeDesc"); if (el) el.textContent = MODE_DESC[mode]; }
 
 function setMode(m){
   if (m === mode) return;
@@ -7443,9 +7446,12 @@ loadStore();
 document.querySelectorAll("#modeSeg button").forEach(b => {
   if (!HAS(b.dataset.mode)) b.remove();
 });
-// a single-mode page has no mode bar at all: `hidden` loses to the .seg
-// display rule, so the element goes rather than being asked to hide
-if (VARIANT.modes.length < 2) $("modeSeg").remove();
+/* A single-mode page has no mode bar at all: `hidden` loses to the .seg
+   display rule, so the element goes rather than being asked to hide.  The mode
+   DESCRIPTION goes with it — it exists to say what the current tab is, and with
+   no tabs it just repeats the lede underneath it, which is what it looked like
+   in Safari at phone width: the same sentence twice, one under the other. */
+if (VARIANT.modes.length < 2){ $("modeSeg").remove(); $("modeDesc").remove(); }
 
 /* The chooser's cards are built from the same list the mode bar uses, so a mode
    can never appear in one and not the other. */
