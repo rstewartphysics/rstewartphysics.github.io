@@ -202,6 +202,8 @@ title: Stripboard Builder · National 5 Electronics
     #sbd .part .tcols{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
     #sbd .part .tcols .swatch{width:30px;height:30px}
     #sbd .part .tcols .swatch>i{width:18px;height:18px}
+    #sbd .part .tlen{border:1px solid var(--border);background:var(--card);color:var(--text);
+      border-radius:8px;padding:6px 9px;font:700 12px/1 inherit;cursor:pointer;white-space:nowrap}
     #sbd .part .trot{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:4px 8px;font:700 .66rem/1 var(--font-stack);cursor:pointer;
       flex:0 0 auto;min-height:44px}
@@ -692,10 +694,26 @@ title: Stripboard Builder · National 5 Electronics
     return { pins, body, symmetric: false, kind: "dil", pinCount: n };
   }
 
+  /* A two-legged part `holes` holes long: legs at each end, body in between.
+     The name is the number of holes it SPANS, legs included. */
+  function axial(holes, o) {
+    const body = [];
+    for (let dc = 1; dc < holes - 1; dc++) body.push({ dr: 0, dc });
+    return Object.assign({ pins: [{ pin: "1", dr: 0, dc: 0 },
+                                  { pin: "2", dr: 0, dc: holes - 1 }],
+                           body, kind: "axial" }, o || {});
+  }
+
   const FOOTPRINTS = {
-    "res-4":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 3 }],
-                 body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }],
-                 symmetric: true, kind: "axial" },
+    /* Axial parts come in more than one length, because on a real board you
+       bend the legs to reach: a resistor spans four holes to seven, and the two
+       sensors two to four.  Each length is its own footprint — the engine only
+       ever asks "which holes does this part occupy" — and AXIAL_LENGTHS below
+       says which ones are the same part at a different stretch. */
+    "res-4":   axial(4, { symmetric: true }),
+    "res-5":   axial(5, { symmetric: true }),
+    "res-6":   axial(6, { symmetric: true }),
+    "res-7":   axial(7, { symmetric: true }),
     /* Both capacitors are RADIAL: two legs one pitch apart, so they stand on
        two consecutive tracks the way they actually do in the kit.  The old
        axial spans (8 holes and 4) were the wrong part — nothing in the box
@@ -709,13 +727,14 @@ title: Stripboard Builder · National 5 Electronics
                  body: [], symmetric: false, polarised: ["a", "k"], kind: "axial", sym: "led" },
     // an LDR: two legs, unpolarised, one pitch apart — same spacing as the
     // LED, not the 2-way terminal block it used to be drawn as
-    "ldr-2":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 1 }],
-                 body: [], symmetric: true, kind: "axial", sym: "ldr" },
+    "ldr-2":   axial(2, { symmetric: true, sym: "ldr" }),
+    "ldr-3":   axial(3, { symmetric: true, sym: "ldr" }),
+    "ldr-4":   axial(4, { symmetric: true, sym: "ldr" }),
     // a thermistor: the body of a resistor with the sensing bar struck through
-    // it, on the same 4-hole span, so it reads as "a resistor that changes"
-    "ther-4":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 3 }],
-                 body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }],
-                 symmetric: true, kind: "axial", sym: "ther" },
+    // it, so it reads as "a resistor that changes"
+    "ther-2":  axial(2, { symmetric: true, sym: "ther" }),
+    "ther-3":  axial(3, { symmetric: true, sym: "ther" }),
+    "ther-4":  axial(4, { symmetric: true, sym: "ther" }),
     // a 1N4001 is a small axial cylinder with a band at the cathode — the same
     // span as a resistor, and polarised, so fitting it round the wrong way is
     // a fault the engine already knows how to report (rank 10)
@@ -752,6 +771,19 @@ title: Stripboard Builder · National 5 Electronics
     "dip-14":  dil(14),
     "dip-16":  dil(16)
   };
+
+  /* The same part at a different stretch.  The UI offers these as a length
+     control; the engine needs the list only to answer "is this one of them". */
+  const AXIAL_LENGTHS = {
+    res:  ["res-4", "res-5", "res-6", "res-7"],
+    ther: ["ther-2", "ther-3", "ther-4"],
+    ldr:  ["ldr-2", "ldr-3", "ldr-4"]
+  };
+  function lengthsOf(footprint) {
+    for (const k of Object.keys(AXIAL_LENGTHS))
+      if (AXIAL_LENGTHS[k].indexOf(footprint) >= 0) return AXIAL_LENGTHS[k];
+    return null;
+  }
 
   /* ------------------------------------------------------------- gate pins
      Which pins of a chip are gate INPUTS and which are gate OUTPUTS, read off
@@ -1307,7 +1339,9 @@ title: Stripboard Builder · National 5 Electronics
          dark exactly as a fixed resistor does.  A capacitor does not — it
          holds nothing at DC — and neither does a switch, which is the whole
          reason the pull-down is needed in the first place. */
-      const PULLDOWN = { "res-4": true, "ldr-2": true };
+      // any length of resistor, and an LDR's lower leg in a divider, holds an
+      // input down; a capacitor does not, and neither does a switch
+      const PULLDOWN = f => /^(res|ldr|ther)-\d+$/.test(f);
       /* Read the footprint off the PLACEMENT, not off q.components: a staged
          question hands check() only the components unlocked so far, and a
          pull-down that is on the board but belongs to a later stage would
@@ -1317,7 +1351,7 @@ title: Stripboard Builder · National 5 Electronics
         if (zeroRoot === undefined || root === undefined) return false;
         for (const id of pinsOn(root)) {
           const comp = id.split(".")[0], fpName = placedFp.get(comp);
-          if (!fpName || !PULLDOWN[fpName]) continue;
+          if (!fpName || !PULLDOWN(fpName)) continue;
           const fp = FOOTPRINTS[fpName];
           for (const pin of fp.pins) {
             const other = comp + "." + pin.pin;
@@ -1659,7 +1693,7 @@ title: Stripboard Builder · National 5 Electronics
     return top.dsu.find(na) === top.dsu.find(nb);
   }
 
-  root.SBD = { BOARDS, FOOTPRINTS, GATES, DRIVER_PINS, gatesOf,
+  root.SBD = { BOARDS, FOOTPRINTS, AXIAL_LENGTHS, lengthsOf, GATES, DRIVER_PINS, gatesOf,
                segmentsOf, makeDSU, topology, netsOf, stageOf,
                canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
                ref, parseRef, rowLetter, hid, cellsOf };
@@ -1815,7 +1849,11 @@ title: Stripboard Builder · National 5 Electronics
     const a = cells.pins[0].hole, b = cells.pins[1].hole;
     const horiz = a.r === b.r;
     const x1 = X(a.c), y1 = Y(a.r), x2 = X(b.c), y2 = Y(b.r);
-    const inset = P * 0.62;                     // leave a visible lead each end
+    /* Leave a visible lead each end — but never more than the legs are apart,
+       or a two-hole part (a thermistor bent right up, say) ends up with a body
+       of negative width and draws as nothing but its leads. */
+    const gap = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+    const inset = Math.min(P * 0.62, gap * 0.26);
     const bx1 = horiz ? Math.min(x1, x2) + inset : x1 - P * 0.34;
     const bx2 = horiz ? Math.max(x1, x2) - inset : x1 + P * 0.34;
     const by1 = horiz ? y1 - P * 0.34 : Math.min(y1, y2) + inset;
@@ -5046,6 +5084,28 @@ const FREE_TERM_COLOURS = AUTO_LINK_COLOURS;
 
 let qi = 0, Q = null, A = null;            // A is the pupil's attempt
 let tool = "place", sel = null, rot = 0;   // sel: component id waiting to be placed
+/* The chosen LENGTH of the selected part, as a footprint name, or null for the
+   part's own.  A resistor's legs get bent to reach on a real board — four holes
+   to seven — and the two sensors stretch two to four, so the length is a choice
+   the pupil makes at the moment of placing, exactly like the rotation. */
+let len = null;
+const lengthsFor = c => c && SBD.lengthsOf(c.footprint);
+const fpOf = c => {
+  const list = lengthsFor(c);
+  return (len && list && list.indexOf(len) >= 0) ? len : c.footprint;
+};
+function stretch(){
+  const comp = sel && (mode === "free" ? FREEC : Q.components).find(c => c.id === sel);
+  const list = lengthsFor(comp);
+  if (!list) return;
+  len = list[(list.indexOf(fpOf(comp)) + 1) % list.length];
+  const holes = +/-(\d+)$/.exec(len)[1];
+  say(comp.id + " is now " + holes + " holes long.");
+  bankKey = null;
+  if (mode === "free") drawFreeBank(); else drawBank();
+  fit();
+  paint();
+}
 let linkStart = null, cur = { r: 0, c: 1 };
 let linkColour = AUTO_LINK_COLOURS[0];     // pupil-chosen, shown while the Link tool is active
 let marks = [], hl = [], showingAnswer = false, scale = 1;
@@ -5410,13 +5470,18 @@ function act(h){
       } else say("Pick a component from the list first.");
     } else {
       const comp = Q.components.find(c => c.id === sel);
-      const cand = { id: sel, footprint: comp.footprint, at: key, rot };
+      const cand = { id: sel, footprint: fpOf(comp), at: key, rot };
       const v = SBD.placeCheck(Q, A, cand);
       if (!v.ok){ say("Cannot place there. " + v.msg); flashHole(h); }
       else {
+        /* On a board the pupil owns, the part IS the length they chose, so the
+           record follows the placement.  The authored bank is never rewritten:
+           there the component keeps its own footprint and only the placement
+           says how far the legs were bent. */
+        if (mode === "free" && cand.footprint !== comp.footprint) comp.footprint = cand.footprint;
         A.placements.push(cand);
         say(sel + " placed at " + key + ".");
-        sel = null; rot = 0; pending = null;
+        sel = null; rot = 0; len = null; pending = null;
       }
     }
   }
@@ -5604,11 +5669,13 @@ function drawBank(){
                  (sub ? "<span class='sub'>" + esc(sub) + "</span>" : "");
     let html = head;
     if (isSel){
+      const fpSel = fpOf(c);
       html = "<div class='thead'><span>" + head + "</span>" +
-             "<button type='button' class='trot'>⟳ Rotate</button></div>" +
-             "<div class='tpv'>" + R.renderPart({ id: c.id, footprint: c.footprint,
+             "<button type='button' class='trot'>⟳ Rotate</button>" +
+             lenButton(c, fpSel) + "</div>" +
+             "<div class='tpv'>" + R.renderPart({ id: c.id, footprint: fpSel,
                rot: rot, part: c.part, pos: c.pos }) + "</div>" +
-             "<span class='tspan'>Lies " + esc(R.spanOf(c.footprint, rot)) + "</span>";
+             "<span class='tspan'>Lies " + esc(R.spanOf(fpSel, rot)) + "</span>";
       openTile = b;
     }
     b.innerHTML = html;
@@ -5628,6 +5695,17 @@ function drawBank(){
   // the preview panel says what is selected and how it lies, so this stays put
   $("bankhint").textContent = "Tap one, then tap a hole.";
 }
+/* The length control.  It names the length it is ON, not the one it would go
+   to: a pupil reads it to check the part they are about to place, and the tile
+   preview beside it shows the change the moment they press it. */
+function lenButton(c, fpSel){
+  const list = lengthsFor(c);
+  if (!list) return "";
+  const holes = +/-(\d+)$/.exec(fpSel)[1];
+  return "<button type='button' class='tlen' aria-label='Leg length, " + holes +
+         " holes — press to lengthen'>\u27f7 " + holes + " holes</button>";
+}
+
 function shortName(c){
   const m = /^[^(]*\(([^)]*)\)/.exec(c.name || "");
   if (m) return m[1];
@@ -5770,7 +5848,7 @@ function load(i, keepScroll){
   Q = QUESTIONS[qi];
   showingAnswer = false;
   $("btnAnswer").textContent = "Show the answer";
-  sel = null; rot = 0; linkStart = null; marks = []; hl = []; bankKey = null; cur = { r: 0, c: 1 };
+  sel = null; rot = 0; len = null; linkStart = null; marks = []; hl = []; bankKey = null; cur = { r: 0, c: 1 };
 
   const saved = sane(loadStoreRaw()[Q.id]);
   A = saved || startingPoint();
@@ -5886,7 +5964,7 @@ function reset(){
   stage = 0; A.stage = 0;                   // the later stages' parts just came off the board
   bankKey = null;
   paintStageBar();
-  sel = null; rot = 0; linkStart = null; marks = []; hl = [];
+  sel = null; rot = 0; len = null; linkStart = null; marks = []; hl = [];
   showingAnswer = false; $("btnAnswer").textContent = "Show the answer";
   clearFeedback(); saveStore();
   if (tool === "tp") buildTpRow();          // the old readings went with the old board
@@ -6014,6 +6092,7 @@ function defaultRotFor(footprint){
 
 $("bank").addEventListener("click", e => {
   if (e.target.closest(".trot")){ rotate(); return; }
+  if (e.target.closest(".tlen")){ stretch(); return; }
   const sw = e.target.closest(".tcol");
   if (sw){
     const comp = sel && FREEC.find(c => c.id === sel);
@@ -6048,7 +6127,7 @@ $("bank").addEventListener("click", e => {
 // the tiles are divs, so Enter and Space have to be wired by hand
 $("bank").addEventListener("keydown", e => {
   if (e.key !== "Enter" && e.key !== " ") return;
-  const t = e.target.closest(".trot, .part");
+  const t = e.target.closest(".trot, .tlen, .part");
   if (!t) return;
   e.preventDefault();
   t.click();
@@ -6081,6 +6160,14 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "1.1", date: "10 Sep 2026", what:
+    "<strong>Resistors, thermistors and LDRs stretch.</strong> On a real board you bend the legs " +
+    "to reach, so the length is now yours to choose: a resistor spans <strong>four holes to " +
+    "seven</strong>, a thermistor and an LDR <strong>two to four</strong>. Open the part in the " +
+    "list and press the length button beside Rotate \u2014 it names the length it is on, and the " +
+    "little picture beside it changes as you press. The length goes onto the board with the part, " +
+    "in the marked questions as well as in Free build: if the legs land in the right nets, the " +
+    "board is right, which is the rule the whole tool works by." },
   { v: "1.0", date: "10 Sep 2026", what:
     "<strong>Out of alpha.</strong> This is now the Stripboard Builder for the whole class, and " +
     "the old page it replaces redirects here. " +
@@ -6751,7 +6838,7 @@ function loadFree(keepScroll){
   Q.components = FREEC;                    // the palette mints straight into the question
   A = saved ? saved.a : blank();
   showingAnswer = false; stage = 0;
-  sel = null; pending = null; rot = 0; linkStart = null;
+  sel = null; pending = null; rot = 0; len = null; linkStart = null;
   marks = []; hl = []; bankKey = null; netSig = null; cur = { r: 0, c: 1 };
 
   $("qtitle").textContent = "Free build — your own board";
@@ -6779,7 +6866,7 @@ function loadFree(keepScroll){
 function resetFree(){
   FREEC.length = 0;
   A = blank();
-  sel = null; pending = null; rot = 0; linkStart = null;
+  sel = null; pending = null; rot = 0; len = null; linkStart = null;
   marks = []; hl = []; bankKey = null; netSig = null;
   clearFeedback(); saveStore(); paint(); fit();
   say("Board cleared. Every part is back in the list.");
@@ -6792,7 +6879,7 @@ function pickFromPalette(key){
   // an unplaced part from a previous tap is thrown away rather than left to
   // eat an item number every time a pupil changes their mind
   if (pending){ dropPart(pending); pending = null; }
-  sel = null; rot = 0;
+  sel = null; rot = 0; len = null;
 
   if (wasOpen){ say("Selection cleared."); }
   else {
@@ -6851,12 +6938,14 @@ function drawFreeBank(){
           "aria-label='" + name + " wire' aria-pressed='" +
           String(selComp.colour === name) + "'><i style='background:" +
           R.LINK_COLOURS[name] + "'></i></button>").join("") + "</div>";
+    const fpSel = isOpen ? fpOf(selComp) : spec.footprint;
     b.innerHTML = !isOpen ? head
       : "<div class='thead'><span>" + head + "</span>" +
-        (fixed ? "" : "<button type='button' class='trot'>⟳ Rotate</button>") + "</div>" +
-        "<div class='tpv'>" + R.renderPart({ id: selComp.id, footprint: selComp.footprint,
+        (fixed ? "" : "<button type='button' class='trot'>⟳ Rotate</button>") +
+        lenButton(selComp, fpSel) + "</div>" +
+        "<div class='tpv'>" + R.renderPart({ id: selComp.id, footprint: fpSel,
           rot: rot, part: selComp.part, pos: selComp.pos, colour: selComp.colour }) + "</div>" +
-        "<span class='tspan'>Lies " + esc(R.spanOf(selComp.footprint, rot)) + "</span>" +
+        "<span class='tspan'>Lies " + esc(R.spanOf(fpSel, rot)) + "</span>" +
         swatches;
     if (isOpen) openTile = b;
     bank.appendChild(b);
