@@ -109,7 +109,11 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   12 May 2025) is reproduced in full at `assets/electronics/datasheets/` and linked from the
   Stripboard Builder tool, for pupils to look up IC pinouts (555 timer, 741 op-amp, the 74xx
   logic-gate family) and the resistor colour-code table. © Qualifications Scotland (SQA),
-  reproduced for educational use.
+  reproduced for educational use. The **Stripboard Builder** itself (`classes/electronics/`)
+  reproduces no figures, but its task, its fault list and the wording quoted in its feedback
+  come from the National 5 Electronics (C884 75) course and assessment material and from the
+  external verification reports — also © Qualifications Scotland (SQA), reproduced for
+  educational use. Its circuits, diagrams and code are original to this site (© R Stewart, 2026).
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
