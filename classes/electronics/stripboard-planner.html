@@ -217,7 +217,8 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
        it scrolls with the bank and moves nothing else on the page. */
     #sbd .part.open{grid-column:1/-1;border-color:var(--accent);
       box-shadow:0 0 0 3px rgba(10,157,127,.22);cursor:default}
-    #sbd .part.open .thead{display:flex;justify-content:space-between;align-items:center;gap:6px}
+    #sbd .part.open .thead{display:flex;justify-content:space-between;align-items:center;
+      gap:6px;flex-wrap:wrap}
     /* A definite height, not max-height: an <svg> sized by max-height inside a
        flex box contributes nothing to intrinsic sizing, so the grid row it sits
        in collapses and the tile spills over the tiles below it. */
@@ -226,6 +227,20 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     #sbd .part .tpv svg{height:100%;width:auto;max-width:100%}
     #sbd .part .tspan{display:block;font:600 .66rem/1.25 var(--font-stack);color:var(--muted);
       text-align:center}
+    /* symbol left, name right. A fixed slot for the symbol so every name starts
+       at the same x — a ragged left edge down a list of thirty is unreadable —
+       and the symbol fills its height whatever its own aspect (§7: each is
+       drawn in a TIGHT box for exactly this reason). */
+    #sbd .part .pface{display:flex;align-items:center;gap:10px;min-width:0}
+    #sbd .part .psym{flex:0 0 60px;height:42px;display:flex;align-items:center;
+      justify-content:center}
+    #sbd .part .psym svg{display:block;height:100%;width:auto;max-width:100%}
+    #sbd .part .ptext{flex:1 1 auto;min-width:0}
+    /* In an OPEN tile the name takes the whole first line, so Rotate and the
+       length button land on the second one TOGETHER — wrapping them one each
+       to a line cost a row and read as two unrelated controls. */
+    #sbd .part .thead .pface{flex:1 1 100%}
+    #sbd .part.gone .psym{opacity:.5}
     #sbd .part .tcols{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
     #sbd .part .tcols .swatch{width:30px;height:30px}
     #sbd .part .tcols .swatch>i{width:18px;height:18px}
@@ -254,7 +269,11 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     /* min-content, not auto: with `auto` the rows came out at the tiles' 44px
        min-height and the longer sub-labels spilled over the bottom border —
        measured in the live DOM, offsetHeight 44 against scrollHeight 62. */
-    #sbd .bank{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start;
+    /* ONE column, not two. A tile now carries its circuit symbol as well as its
+       name, and at 130px the name wrapped to three lines beside a symbol too
+       small to read. The drawer is the full height of the board since the net
+       read-back moved out from under it, so the height is there to spend. */
+    #sbd .bank{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-content:start;
       grid-auto-rows:min-content;
       padding:8px;border-radius:12px;border:1px dashed var(--border-soft);background:var(--surface-2);
       overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto}
@@ -473,7 +492,7 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     }
     @media (max-width:820px){
       #sbd .workarea{grid-template-columns:1fr}
-      #sbd .bank{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));max-height:none!important}
+      #sbd .bank{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));max-height:none!important}
       #sbd .circwrap{max-width:340px}
     }
   </style>
@@ -2787,16 +2806,29 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     if (kind === "and")
       d = `M ${n(bx)} ${n(y0)} H ${n(bx + bw - r)} A ${r} ${r} 0 0 1 ${n(bx + bw - r)} ` +
           `${n(y0 + h)} H ${n(bx)} Z`;
-    else                                            // or: curved back, pointed nose
+    else                                            // or / xor: curved back, pointed nose
       d = `M ${n(bx)} ${n(y0)} Q ${n(bx + bw * 0.62)} ${n(y0 + h * 0.06)} ${n(bx + bw)} ${n(y)} ` +
           `Q ${n(bx + bw * 0.62)} ${n(y0 + h * 0.94)} ${n(bx)} ${n(y0 + h)} ` +
           `Q ${n(bx + bw * 0.28)} ${n(y)} ${n(bx)} ${n(y0)} Z`;
     const inA = y0 + h * 0.25, inB = y0 + h * 0.75;
     // an OR gate's curved back means its input leads have to reach further in
-    const back = kind === "or" ? bx + bw * 0.16 : bx;
-    let s = `<path class="sbd-part" d="${d}"/>` +
-            wire([[x0, inA], [back, inA]]) + wire([[x0, inB], [back, inB]]) +
-            wire([[bx + bw, y], [bx + bw + lead, y]]);
+    const curved = kind === "or" || kind === "xor";
+    const back = curved ? bx + bw * 0.16 : bx;
+    /* NAND and NOR are the AND and OR shapes with the inverting bubble on the
+       nose — one shape table, not six, which is also how a pupil is taught to
+       read them: "it is an OR with the little circle, so it is a NOR". */
+    const rb = o.inv ? 4.5 : 0;
+    let s = `<path class="sbd-part" d="${d}"/>`;
+    /* XOR: the second arc BEHIND the back, set clear of it.  Drawn as its own
+       path and not part of the body, because it is a separate stroke on a real
+       symbol and closing it into the body would fill the gap. */
+    if (kind === "xor")
+      s += `<path class="sbd-wire" fill="none" d="M ${n(bx - 7)} ${n(y0)} ` +
+           `Q ${n(bx - 7 + bw * 0.28)} ${n(y)} ${n(bx - 7)} ${n(y0 + h)}"/>`;
+    if (o.inv)
+      s += `<circle class="sbd-part" cx="${n(bx + bw + rb)}" cy="${n(y)}" r="${rb}"/>`;
+    s += wire([[x0, inA], [back, inA]]) + wire([[x0, inB], [back, inB]]) +
+         wire([[bx + bw + rb * 2, y], [bx + bw + lead, y]]);
     if (o.pins) {
       s += text(bx - 3, inA - 4, o.pins[0], { cls: "sbd-cnet", anchor: "end" });
       s += text(bx - 3, inB + 11, o.pins[1], { cls: "sbd-cnet", anchor: "end" });
@@ -2806,6 +2838,9 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
   }
   const andGate2 = (x, y, o) => gateBody("and", x, y, o);
   const orGate = (x, y, o) => gateBody("or", x, y, o);
+  const nandGate = (x, y, o) => gateBody("and", x, y, Object.assign({}, o, { inv: true }));
+  const norGate = (x, y, o) => gateBody("or", x, y, Object.assign({}, o, { inv: true }));
+  const xorGate = (x, y, o) => gateBody("xor", x, y, o);
 
   // NOT: triangle with the inverting bubble on its nose
   function notGate(x, y, o) {
@@ -2996,13 +3031,268 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     return s;
   }
 
+  /* ---------------------------------------------------------------------
+     The rest of the parts box, as SYMBOLS.  The drawer shows every component
+     by its circuit symbol as well as its name, so a pupil reading a circuit
+     diagram can find the part it names without being told — which is the whole
+     conversion the course asks for.  BS/IEC throughout (global §7): a resistor
+     is a rectangle, a non-polarised capacitor is two straight plates, a fuse is
+     a rectangle with a line through it.
+     --------------------------------------------------------------------- */
+
+  /* A non-polarised capacitor: two STRAIGHT plates.  The curved plate is what
+     makes ecap() polarised, so it must not appear here. */
+  function cap(x, y, o) {
+    o = o || {};
+    const vert = o.dir === "v", half = (o.span || 56) / 2, w = 22, gap = 4;
+    const plate = (px, py) => vert
+      ? `<line class="sbd-wire" x1="${n(px - w / 2)}" y1="${n(py)}" x2="${n(px + w / 2)}" y2="${n(py)}"/>`
+      : `<line class="sbd-wire" x1="${n(px)}" y1="${n(py - w / 2)}" x2="${n(px)}" y2="${n(py + w / 2)}"/>`;
+    let s = vert
+      ? wire([[x, y - half], [x, y - gap]]) + wire([[x, y + gap], [x, y + half]]) +
+        plate(x, y - gap) + plate(x, y + gap)
+      : wire([[x - half, y], [x - gap, y]]) + wire([[x + gap, y], [x + half, y]]) +
+        plate(x - gap, y) + plate(x + gap, y);
+    if (o.label) s += vert ? text(x + w / 2 + 6, y - 3, o.label, { anchor: "start" })
+                           : text(x, y - w / 2 - 7, o.label);
+    return s;
+  }
+
+  /* A diode: the LED's triangle and cathode bar with no emission arrows — the
+     arrows are the ONLY difference, which is the thing worth seeing side by
+     side in the drawer. Same geometry constants as led() for that reason. */
+  function diode(x, y, o) {
+    o = o || {};
+    const dir = o.dir || "r", span = o.span || 74, half = span / 2, k = 13;
+    const down = dir === "d", vert = down || dir === "u";
+    const sgn = (down || dir === "r") ? 1 : -1;
+    let s = vert ? wire([[x, y - half], [x, y + half]]) : wire([[x - half, y], [x + half, y]]);
+    const tri = vert
+      ? `${n(x - k)},${n(y - k * sgn)} ${n(x + k)},${n(y - k * sgn)} ${n(x)},${n(y + k * sgn)}`
+      : `${n(x - k * sgn)},${n(y - k)} ${n(x - k * sgn)},${n(y + k)} ${n(x + k * sgn)},${n(y)}`;
+    s += `<polygon class="sbd-part" points="${tri}"/>`;
+    s += vert
+      ? `<line class="sbd-wire" x1="${n(x - k)}" y1="${n(y + k * sgn)}" x2="${n(x + k)}" y2="${n(y + k * sgn)}"/>`
+      : `<line class="sbd-wire" x1="${n(x + k * sgn)}" y1="${n(y - k)}" x2="${n(x + k * sgn)}" y2="${n(y + k)}"/>`;
+    if (o.label) s += text(x, y - k - 7, o.label);
+    return s;
+  }
+
+  /* A potentiometer: the resistor rectangle with an arrow into its middle.
+     The arrow IS the wiper — a preset drawn without it is a resistor. */
+  function pot(x, y, o) {
+    o = o || {};
+    const horiz = o.dir !== "v", W = 16;
+    let s = res(x, y, Object.assign({}, o, { label: null, value: null }));
+    s += horiz ? arrow(x, y + W / 2 + 20, x, y + W / 2 + 2)
+               : arrow(x - W / 2 - 20, y, x - W / 2 - 2, y);
+    if (o.label) s += text(x, y - W / 2 - 7, o.label);
+    return s;
+  }
+
+  /* An n-channel enhancement MOSFET: gate bar clear of the channel, the
+     channel in three segments (that gap is what "enhancement" means), and the
+     substrate arrow pointing IN, which is what makes it n-channel. */
+  function mosfet(x, y, o) {
+    o = o || {};
+    const gx = x - 20, cx = x - 6, h = 30, seg = h / 3.4;
+    let s = wire([[gx - 16, y], [gx, y]]) +                       // gate lead
+            wire([[gx, y - h / 2], [gx, y + h / 2]]);             // gate bar
+    for (let i = -1; i <= 1; i++)                                 // the three channel segments
+      s += wire([[cx, y + i * (h / 3) - seg / 2], [cx, y + i * (h / 3) + seg / 2]]);
+    s += wire([[cx, y - h / 3], [x + 12, y - h / 3], [x + 12, y - h / 2 - 12]]) +   // drain
+         wire([[cx, y + h / 3], [x + 12, y + h / 3], [x + 12, y + h / 2 + 12]]) +   // source
+         wire([[cx, y], [x + 12, y]]);                            // substrate to source side
+    s += `<polygon class="sbd-node" points="${n(cx + 2)},${n(y - 4.5)} ` +
+         `${n(cx + 2)},${n(y + 4.5)} ${n(cx + 9)},${n(y)}"/>`;    // arrow IN: n-channel
+    if (o.label) s += text(x + 20, y - 4, o.label, { anchor: "start" });
+    return s;
+  }
+
+  // a filament lamp: a circle with a cross through it
+  function lamp(x, y, o) {
+    o = o || {};
+    const vert = o.dir === "v", half = (o.span || 56) / 2, r = 15, d = r * 0.707;
+    let s = vert ? wire([[x, y - half], [x, y - r]]) + wire([[x, y + r], [x, y + half]])
+                 : wire([[x - half, y], [x - r, y]]) + wire([[x + r, y], [x + half, y]]);
+    s += `<circle class="sbd-part" cx="${n(x)}" cy="${n(y)}" r="${r}"/>` +
+         wire([[x - d, y - d], [x + d, y + d]]) + wire([[x - d, y + d], [x + d, y - d]]);
+    if (o.label) s += text(x, y + r + 15, o.label);
+    return s;
+  }
+
+  // a loudspeaker: the driver rectangle with the cone opening off it
+  function speaker(x, y, o) {
+    o = o || {};
+    const bw = 12, bh = 22, cw = 13, ch = 34;
+    let s = wire([[x - bw / 2 - 20, y - 7], [x - bw / 2, y - 7]]) +
+            wire([[x - bw / 2 - 20, y + 7], [x - bw / 2, y + 7]]) +
+            `<rect class="sbd-part" x="${n(x - bw / 2)}" y="${n(y - bh / 2)}" ` +
+            `width="${bw}" height="${bh}" rx="1"/>` +
+            `<polygon class="sbd-part" points="${n(x + bw / 2)},${n(y - bh / 2)} ` +
+            `${n(x + bw / 2 + cw)},${n(y - ch / 2)} ${n(x + bw / 2 + cw)},${n(y + ch / 2)} ` +
+            `${n(x + bw / 2)},${n(y + bh / 2)}"/>`;
+    if (o.label) s += text(x, y + ch / 2 + 14, o.label);
+    return s;
+  }
+
+  // a fuse: the rectangle with the wire running straight through it
+  function fuse(x, y, o) {
+    o = o || {};
+    const half = (o.span || 68) / 2, L = 40, W = 14;
+    let s = wire([[x - half, y], [x + half, y]]) +
+            `<rect class="sbd-part" x="${n(x - L / 2)}" y="${n(y - W / 2)}" ` +
+            `width="${L}" height="${W}" rx="1"/>` +
+            wire([[x - L / 2, y], [x + L / 2, y]]);
+    if (o.label) s += text(x, y - W / 2 - 7, o.label);
+    return s;
+  }
+
+  /* A relay: the coil rectangle, the dashed mechanical link, and the contact it
+     works.  The coil alone is a resistor rectangle — the link and the contact
+     are what say it is a relay, so they are not optional. */
+  function relay(x, y, o) {
+    o = o || {};
+    const L = 34, W = 15, cy = y + 26;
+    let s = wire([[x - L / 2 - 14, y], [x + L / 2 + 14, y]]) +
+            `<rect class="sbd-part" x="${n(x - L / 2)}" y="${n(y - W / 2)}" ` +
+            `width="${L}" height="${W}" rx="1"/>` +
+            `<line class="sbd-chip" x1="${n(x)}" y1="${n(y + W / 2)}" x2="${n(x)}" y2="${n(cy - 3)}"/>` +
+            wire([[x - 24, cy], [x - 11, cy]]) + wire([[x + 11, cy], [x + 24, cy]]) +
+            node(x - 11, cy) + node(x + 11, cy) +
+            wire([[x - 11, cy], [x + 9, cy - 12]]);
+    if (o.label) s += text(x, y - W / 2 - 7, o.label);
+    return s;
+  }
+
+  /* A solenoid: the coil rectangle with its plunger drawn through it — the bar
+     that moves is the whole point of the part. */
+  function solenoid(x, y, o) {
+    o = o || {};
+    const L = 34, W = 18;
+    let s = wire([[x - L / 2 - 14, y], [x + L / 2 + 14, y]]) +
+            `<rect class="sbd-part" x="${n(x - L / 2)}" y="${n(y - W / 2)}" ` +
+            `width="${L}" height="${W}" rx="1"/>` +
+            `<rect class="sbd-node" x="${n(x - L * 0.45)}" y="${n(y + W / 2 + 3)}" ` +
+            `width="${n(L * 0.9)}" height="5" rx="1.5"/>`;
+    if (o.label) s += text(x, y - W / 2 - 7, o.label);
+    return s;
+  }
+
+  /* An SPDT slide switch: one common pole and two ways.  sw() is the SPST
+     blade; the kit's switch has three legs and a pupil has to see which one is
+     the common, so it gets its own symbol rather than a wrong one. */
+  function spdt(x, y, o) {
+    o = o || {};
+    const g = 13;
+    let s = wire([[x - 26, y], [x - 11, y]]) + node(x - 11, y) +
+            wire([[x + 11, y - g], [x + 26, y - g]]) + node(x + 11, y - g) +
+            wire([[x + 11, y + g], [x + 26, y + g]]) + node(x + 11, y + g) +
+            wire([[x - 11, y], [x + 9, y - g + 2]]);
+    if (o.label) s += text(x, y + g + 16, o.label);
+    return s;
+  }
+
   /* the dashed outline round the gates that share one package */
   const chip = (x, y, w, h) =>
     `<rect class="sbd-chip" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="6"/>`;
 
+  /* ---- drawer thumbnails ------------------------------------------------
+     The parts drawer shows every component by its CIRCUIT SYMBOL as well as
+     its name, always — not only when the tile is open.  A pupil reading a
+     circuit diagram has to find the part it names in the drawer, and that is
+     the conversion the whole course is about; a list of words makes them
+     translate twice.
+
+     Each entry is a tight box with the symbol centred in it, drawn at the
+     symbol library's own scale.  The box is tight rather than uniform so that
+     every thumbnail can be rendered at the SAME HEIGHT on the page and still
+     use all of it — a uniform box would shrink a resistor to a third of the
+     space to leave room for a transistor's leads. */
+  const THUMBS = {
+    pos:  { w: 66, h: 40, d: (x, y) => wire([[x - 26, y + 6], [x + 26, y + 6]], "sbd-pos") +
+            text(x, y - 4, "+5 V", { cls: "sbd-poslab" }) },
+    neg:  { w: 66, h: 40, d: (x, y) => wire([[x - 26, y - 6], [x + 26, y - 6]]) +
+            text(x, y + 14, "0 V") },
+    in:   { w: 54, h: 30, d: (x, y) => term(x + 8, y) + arrow(x - 18, y, x - 3, y) },
+    out:  { w: 54, h: 30, d: (x, y) => term(x - 8, y) + arrow(x + 3, y, x + 18, y) },
+    tb:   { w: 62, h: 30, d: (x, y) => term(x - 11, y) + term(x + 11, y) +
+            wire([[x - 4, y], [x + 4, y]]) },
+
+    res:  { w: 80, h: 32, d: (x, y) => res(x, y, { span: 74 }) },
+    ldr:  { w: 80, h: 50, d: (x, y) => ldr(x, y + 11, {}) },
+    ther: { w: 80, h: 40, d: (x, y) => thermistor(x, y, {}) },
+    led:  { w: 80, h: 48, d: (x, y) => led(x, y + 7, { dir: "r", span: 74 }) },
+    dio:  { w: 80, h: 34, d: (x, y) => diode(x, y, { dir: "r", span: 74 }) },
+    cap:  { w: 64, h: 30, d: (x, y) => cap(x, y, { span: 56 }) },
+    ecap: { w: 60, h: 64, d: (x, y) => ecap(x + 5, y, { span: 56 }) },
+    pot:  { w: 80, h: 52, d: (x, y) => pot(x, y - 9, {}) },
+    tr:   { w: 76, h: 70, d: (x, y) => npn(x - 4, y, {}).svg },
+    fet:  { w: 76, h: 62, d: (x, y) => mosfet(x, y, {}) },
+    sw:   { w: 64, h: 42, d: (x, y) => spdt(x, y, {}) },
+
+    mot:  { w: 62, h: 36, d: (x, y) => motor(x, y, { span: 56, letter: "M" }) },
+    sol:  { w: 66, h: 40, d: (x, y) => solenoid(x, y - 4, {}) },
+    rly:  { w: 62, h: 52, d: (x, y) => relay(x, y - 13, {}) },
+    buz:  { w: 62, h: 36, d: (x, y) => sounder(x, y, { span: 56 }) },
+    lp:   { w: 62, h: 36, d: (x, y) => lamp(x, y, { span: 56 }) },
+    // the cone is all on one side of the body, so the drawing centre is not
+    // the body centre: leads reach px-26, cone reaches px+19
+    spk:  { w: 56, h: 46, d: (x, y) => speaker(x + 3.5, y, {}) },
+    fuse: { w: 74, h: 30, d: (x, y) => fuse(x, y, { span: 68 }) },
+
+    "7408": { w: 76, h: 48, d: (x, y) => andGate2(x - 8, y, {}).svg },
+    "7432": { w: 76, h: 48, d: (x, y) => orGate(x - 8, y, {}).svg },
+    "7400": { w: 80, h: 48, d: (x, y) => nandGate(x - 10, y, {}).svg },
+    "7402": { w: 80, h: 48, d: (x, y) => norGate(x - 10, y, {}).svg },
+    "7486": { w: 82, h: 48, d: (x, y) => xorGate(x - 8, y, {}).svg },
+    "7404": { w: 76, h: 40, d: (x, y) => notGate(x - 7, y, {}).svg },
+    "555":  { w: 76, h: 72, d: (x, y) => icBlock(x, y, { name: "555" }).svg },
+    "741":  { w: 96, h: 70, d: (x, y) => opamp(x, y, {}).svg },
+    ic:     { w: 76, h: 72, d: (x, y) => icBlock(x, y, { name: "IC" }).svg }
+  };
+
+  /* Which symbol a component record wants.  Free build mints parts with the
+     palette `key` already on them; the authored questions do not, so the
+     footprint answers instead — except for the two shapes that are shared by
+     several parts. A `term-1` is four different things (both supply rails and
+     an input or output terminal) and a `term-2` is eight (everything wired off
+     the board), so those are told apart by the item ID, which is what a wiring
+     schedule uses for exactly the same reason. */
+  function symbolKey(c) {
+    if (!c) return null;
+    if (c.key) return c.key;
+    const fp = c.footprint || "";
+    if (/^dip-/.test(fp)) return THUMBS[c.part] ? c.part : "ic";
+    if (fp === "term-1")
+      return c.pos ? "pos" : c.neg ? "neg" : /^OUT/.test(c.id || "") ? "out" : "in";
+    if (fp === "term-2") {
+      const p = (/^([A-Z]+)/.exec(c.id || "") || [])[1];
+      return { M: "mot", BZ: "buz", LP: "lp", LS: "spk", RLY: "rly",
+               SOL: "sol", FS: "fuse" }[p] || "tb";
+    }
+    const fam = (/^([a-z]+)-/.exec(fp) || [])[1];
+    return { res: "res", ldr: "ldr", ther: "ther", led: "led", cap: "cap", ecap: "ecap",
+             diode: "dio", npn: "tr", mosfet: "fet", pot: "pot", spdt: "sw" }[fam] || null;
+  }
+
+  // the thumbnail as a standalone <svg>, or "" if nothing is drawn for it
+  function symbol(c) {
+    const t = THUMBS[symbolKey(c)];
+    if (!t) return "";
+    const name = (c && (c.name || c.id)) || "component";
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${t.w} ${t.h}" ` +
+      `width="${t.w}" height="${t.h}" role="img" aria-hidden="true" focusable="false">` +
+      `<title>circuit symbol for ${esc(name)}</title>` +
+      t.d(t.w / 2, t.h / 2) + `</svg>`;
+  }
+
   root.SBD.circuit = { wire, node, text, netnum, rail, res, led, andGate, orGate, notGate,
-                       icBlock, opamp, ecap,
-                       ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS };
+                       nandGate, norGate, xorGate,
+                       icBlock, opamp, ecap, cap, diode, pot, mosfet, lamp, speaker, fuse,
+                       relay, solenoid, spdt,
+                       ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS,
+                       symbol, symbolKey, THUMBS };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- questions.js ---- */
@@ -5590,17 +5880,17 @@ function fit(){
      reserved height, off-screen and unclickable, on a 4-part question small
      enough that "one row of closed tiles plus the open one" is most of the
      bank). Closed tiles pair two to a row; the open one takes a whole row. */
-  const closedCount = tiles - (openTileEl ? 1 : 0);
+  const closedCount = tiles - (openTileEl ? 1 : 0);   // one tile to a row now
   const openH = openTileEl ? openTileEl.offsetHeight + 6 : 0;
   // circuit box heading and border, bank heading, and the reference links
   const CHROME = 44 + 26 + ($("sheetLinks") ? $("sheetLinks").offsetHeight + 6 : 0);
-  const bankWant = Math.ceil(closedCount / 2) * rowH + openH + 18;
+  const bankWant = closedCount * rowH + openH + 18;
   /* Two rows of closed parts normally; with one open, its REAL height plus one
      closed row, so the open tile is never clipped — the bank still scrolls for
      anything beyond that, which is what it is for. */
   const bankFloor = openTileEl
     ? Math.min(bankWant, openH + rowH + 24)
-    : Math.min(bankWant, Math.max(2 * rowH + 18, 138));
+    : Math.min(bankWant, Math.max(3 * rowH + 18, 168));
   $("bank").style.minHeight = bankFloor + "px";
 
   const cs = Math.max(0.5, Math.min(1, colW / cw, (colRoom - CHROME - bankFloor) / ch));
@@ -5947,10 +6237,13 @@ function drawBank(){
                     : (c.part || shortName(c));
     const head = "<strong>" + esc(c.id) + "</strong>" +
                  (sub ? "<span class='sub'>" + esc(sub) + "</span>" : "");
-    let html = head;
+    /* The CIRCUIT SYMBOL, always on, open tile or not.  Finding the part a
+       circuit diagram names is the conversion the whole course is about, and a
+       drawer of words makes a pupil translate twice. */
+    let html = symbolTile(c, head);
     if (isSel){
       const fpSel = fpOf(c);
-      html = "<div class='thead'><span>" + head + "</span>" +
+      html = "<div class='thead'>" + symbolTile(c, head) +
              "<button type='button' class='trot'>⟳ Rotate</button>" +
              lenButton(c, fpSel) + "</div>" +
              "<div class='tpv'>" + R.renderPart({ id: c.id, footprint: fpSel,
@@ -5984,6 +6277,16 @@ function lenButton(c, fpSel){
   const holes = +/-(\d+)$/.exec(fpSel)[1];
   return "<button type='button' class='tlen' aria-label='Leg length, " + holes +
          " holes — press to lengthen'>\u27f7 " + holes + " holes</button>";
+}
+
+/* A drawer tile's face: the circuit symbol beside the name.  One function for
+   both banks, because the two must not drift — the course page's parts and the
+   planner's palette are the same components. */
+function symbolTile(c, head){
+  const sym = SBD.circuit.symbol(c);
+  return "<span class='pface'>" +
+         (sym ? "<span class='psym'>" + sym + "</span>" : "") +
+         "<span class='ptext'>" + head + "</span></span>";
 }
 
 function shortName(c){
@@ -6442,7 +6745,10 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
-  { v: "1.4", date: "11 Sep 2026", what:
+  { v: "2.1", date: "11 Sep 2026", what:
+    "<strong>Every part in the drawer now shows its circuit symbol</strong>, always \u2014 not " +
+    "only once you have tapped it. That is the whole conversion this tool is about: you read a " +
+    "symbol on the circuit diagram, and you find the same symbol in the drawer. " +
     "<strong>The parts are the colour they really are</strong> \u2014 brown resistor, red LED, " +
     "black diode with its silver band, blue electrolytic with its +. On your own board you can " +
     "change any of them: pick the part, then a colour, the same way you pick a wire colour. " +
@@ -7260,6 +7566,9 @@ function drawFreeBank(){
     const head = "<span class='phead'><strong>" + esc(spec.name) + "</strong>" +
                  "<span class='nid'>" + esc(isOpen ? selComp.id : (next || "—")) + "</span></span>" +
                  "<span class='sub'>" + esc(sub) + "</span>";
+    // the symbol is drawn from the PALETTE entry, so a tile that has not minted
+    // a part yet still has one — `key` is all symbolKey() needs
+    const face = symbolTile({ key: spec.key, name: spec.name }, head);
     /* A part whose legs only reach one way round is not offered a Rotate
        button: turning the transistor can 90° puts its collector and emitter on
        one track, which is a short, not a layout choice. */
@@ -7278,8 +7587,8 @@ function drawFreeBank(){
                                     bodyColourOf(selComp, fpSpec), " body")
       : "";
     const fpSel = isOpen ? fpOf(selComp) : spec.footprint;
-    b.innerHTML = !isOpen ? head
-      : "<div class='thead'><span>" + head + "</span>" +
+    b.innerHTML = !isOpen ? face
+      : "<div class='thead'>" + face +
         (fixed ? "" : "<button type='button' class='trot'>⟳ Rotate</button>") +
         lenButton(selComp, fpSel) + "</div>" +
         "<div class='tpv'>" + R.renderPart({ id: selComp.id, footprint: fpSel,
