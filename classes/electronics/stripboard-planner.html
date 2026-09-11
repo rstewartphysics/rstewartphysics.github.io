@@ -151,6 +151,7 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     #sbd .dslink{display:inline-flex;align-items:center;min-height:44px;margin-top:5px;
       font:700 .7rem/1 var(--font-stack);color:var(--accent)}
     #sbd .dslink[hidden]{display:none}
+    #sbd .sheetlinks{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin:0}
     #sbd .zoombtn{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:3px 11px;font:700 .72rem/1 var(--font-stack);cursor:pointer;
       min-height:44px}
@@ -298,9 +299,9 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
        same width, so switching modes does not reflow the page — is the board's
        OWN netlist, live. A link wire merging two nets is visible the instant
        it is drawn, which is the one idea the whole tool exists to teach. */
-    #sbd .freewrap{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
-      padding:9px 11px 10px;display:flex;flex-direction:column;min-height:0;gap:7px}
-    #sbd .boardpick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0}
+    #sbd .netwrap{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+      padding:9px 11px 10px;display:flex;flex-direction:column;min-height:0;gap:7px;margin-top:8px}
+    #sbd .boardpick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 2px}
     #sbd .boardpick .bplab{font:800 .74rem/1.2 var(--font-stack);color:var(--muted)}
     #sbd .bp{min-height:44px;padding:.35rem .6rem;border:1.5px solid var(--border);
       border-radius:10px;background:var(--card);font:700 .74rem/1.25 var(--font-stack);
@@ -311,8 +312,12 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
        mangled sentence. */
     #sbd .nethead h3{margin:0;font-size:.84rem}
     #sbd .nethead .hint{display:block;margin-top:1px;font-size:.68rem;color:var(--muted)}
+    /* Full width under the board now, so the nets tile across it — one tall
+       column of them would put the last net below the fold on a 24-track
+       board. The cap keeps the buttons under it reachable; past it, scroll. */
     #sbd .netlist{list-style:none;margin:0;padding:0 2px 0 0;display:grid;gap:5px;
-      overflow:auto;min-height:0}
+      grid-template-columns:repeat(auto-fill,minmax(232px,1fr));
+      overflow:auto;min-height:0;max-height:min(42vh,320px)}
     #sbd .netlist::-webkit-scrollbar{width:9px}
     #sbd .netlist::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
     #sbd .netrow{border:1px solid var(--border-soft);border-left-width:4px;border-radius:8px;
@@ -332,12 +337,10 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     #sbd .part .phead{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
     #sbd .part .nid{font:800 .68rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent);
       white-space:nowrap}
-    /* Both halves of the column flex, and both have a floor: the palette is a
-       fixed nineteen tiles and always scrolls, the net list grows with the
-       board. Without the floors the panel collapsed to nothing and its buttons
-       came down on top of the bank heading. */
-    #sbd[data-mode="free"] .freewrap{flex:1 1 66%;min-height:190px}
-    #sbd[data-mode="free"] .bank{flex:1 1 34%;min-height:110px}
+    /* The drawer is the ONLY thing in the column now — the net read-back moved
+       out from under it to below the board — so it takes the whole height the
+       board sets, which is what the nineteen tiles needed all along. */
+    #sbd[data-mode="free"] .bank{flex:1 1 auto;min-height:160px}
     /* Fault-finder: the four named faults to choose between. */
     #sbd .faultwrap,#sbd .revwrap{border:1px solid var(--border);border-radius:12px;
       background:var(--card);padding:10px 12px}
@@ -593,6 +596,19 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
               </div>
             </div>
             <p class="panhint" id="panhint">Scroll the board sideways to see the rest of it.</p>
+
+            <!-- The net read-back sits UNDER the board, not beside it.  In the
+                 column it was a 268px-wide box squeezing the parts drawer into
+                 a third of the height (reported 11 Sep); under the board it is
+                 the full width of the working area, so the nets lie two or
+                 three to a row and the drawer gets the whole column. -->
+            <div class="netwrap free-only" id="freeWrap">
+              <div class="nethead">
+                <h3>What is joined to what</h3>
+                <span class="hint" id="netCount"></span>
+              </div>
+              <ul class="netlist" id="netList"></ul>
+            </div>
           </div>
 
           <aside class="bankcol" id="bankcolEl" aria-label="Circuit diagram, tools and components">
@@ -606,17 +622,10 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
               <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
             </div>
 
-            <div class="freewrap free-only" id="freeWrap">
-              <div class="boardpick" id="boardPick" role="group" aria-label="Board size">
-                <span class="bplab">Board:</span>
-                <button type="button" class="bp" data-board="34-0410" aria-pressed="true">9 × 25</button>
-                <button type="button" class="bp" data-board="34-0411" aria-pressed="false">24 × 37</button>
-              </div>
-              <div class="nethead">
-                <h3>What is joined to what</h3>
-                <span class="hint" id="netCount"></span>
-              </div>
-              <ul class="netlist" id="netList"></ul>
+            <div class="boardpick free-only" id="boardPick" role="group" aria-label="Board size">
+              <span class="bplab">Board:</span>
+              <button type="button" class="bp" data-board="34-0410" aria-pressed="true">9 × 25</button>
+              <button type="button" class="bp" data-board="34-0411" aria-pressed="false">24 × 37</button>
             </div>
 
             <div class="faultwrap fault-only" id="faultWrap">
@@ -646,8 +655,16 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
               <span class="hint" id="bankhint">Tap one, then tap a hole.</span>
             </div>
             <div class="bank build-only" id="bank"></div>
-            <a class="dslink free-only" href="/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf"
-               target="_blank" rel="noopener">📄 IC datasheet — pinouts ↗</a>
+            <!-- The planning sheet is the paper half of this job — the board at
+                 true size to draw the final layout on — and until now it was
+                 linked from the mock-assignment guide and nowhere else, so from
+                 the tool itself there was no way to reach it (reported 11 Sep). -->
+            <p class="sheetlinks build-only" id="sheetLinks">
+              <a class="dslink" href="/classes/electronics/stripboard-planning-sheet.html"
+                 target="_blank" rel="noopener">🖨 Printable planning sheet ↗</a>
+              <a class="dslink free-only" href="/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf"
+                 target="_blank" rel="noopener">📄 IC datasheet — pinouts ↗</a>
+            </p>
 
           </aside>
         </div>
@@ -1836,6 +1853,67 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     purple: "#8e44ad", brown: "#7b4a2a", grey: "#607078"
   };
 
+  /* ---- component body colours ---------------------------------------------
+     A real board is not white.  A resistor is brown, an LED red, a diode black
+     with a silver band — and a layout diagram a pupil is meant to hold against
+     the parts in front of them has to say so.
+
+     `fill` is the body; `ink` is what is printed ON it — a diode's cathode
+     band, a TO-220's tab, an electrolytic's +, a thermistor's sensing bar.
+     Both are fixed colours and not theme tokens, because the part is the
+     colour it is in a dark room too; the body's OUTLINE is deliberately left
+     to the theme, which is what keeps a black diode visible on the dark
+     board (its fill and the board behind it are both nearly black, so the
+     outline is the only thing separating them). */
+  const BODY_COLOURS = {
+    brown:  { fill: "#a9713f", ink: "#f4f7f8" },
+    red:    { fill: "#d3453a", ink: "#f4f7f8" },
+    orange: { fill: "#e0892c", ink: "#1d2a24" },
+    yellow: { fill: "#e4c342", ink: "#1d2a24" },
+    green:  { fill: "#3d9a5c", ink: "#f4f7f8" },
+    blue:   { fill: "#3a6fb5", ink: "#f4f7f8" },
+    purple: { fill: "#8352a8", ink: "#f4f7f8" },
+    grey:   { fill: "#c2c8cc", ink: "#1d2a24" },
+    black:  { fill: "#2e3234", ink: "#f4f7f8" },
+    white:  { fill: "#f3f5f6", ink: "#1d2a24" }
+  };
+  /* The colour a part is when nobody has chosen one: the part as it comes out
+     of the box.  Keyed by the footprint's `sym`, or its `kind` where the
+     drawer has no sym of its own (a plain axial IS the resistor). */
+  const BODY_DEFAULT = {
+    axial: "brown", res: "brown", ther: "brown", led: "red", ldr: "yellow",
+    cap: "orange", ecap: "blue", diode: "black",
+    pot: "blue", to220: "black", spdt: "grey", can: "grey", to92: "black"
+  };
+  // which parts a pupil may recolour — everything with a body, chips and
+  // terminals excepted (a terminal's colour is its WIRE's colour, set already)
+  const bodyColourable = fp => !!(fp && BODY_DEFAULT[fp.sym || fp.kind]);
+
+  /* Paint a drawn part.  Done as a pass over the finished SVG rather than an
+     argument threaded through eleven drawers: the body shape is always
+     `class="sbd-body"`, whatever drew it, so there is one place to change and
+     no drawer can be forgotten.
+     An inline STYLE, not a fill attribute: on the page the class rules are real
+     CSS and win over a presentation attribute — the trap the terminal wire
+     colour already hit once. */
+  function paintBody(svg, p, fp) {
+    const key = (p.colour && BODY_COLOURS[p.colour]) ? p.colour
+                                                    : BODY_DEFAULT[fp.sym || fp.kind];
+    const c = BODY_COLOURS[key];
+    if (!c) return svg;
+    return svg
+      .replace(/class="sbd-body"/g, `class="sbd-body" style="fill:${c.fill}"`)
+      .replace(/class="sbd-(mark|pmark)"/g, `class="sbd-$1" style="fill:${c.ink}"`)
+      .replace(/class="sbd-bline"/g, `class="sbd-bline" style="stroke:${c.ink}"`);
+  }
+
+  /* What is actually printed on the chip.  The data sheet the course works from
+     names the quad-gate parts 7408, 7432 and so on; the chips in the drawer are
+     the HC family and say 74HC08.  A pupil holding one against the drawing has
+     to find the same string on both, so the PACKAGE carries the real marking
+     and every word of text around it stays with the data sheet. */
+  const chipPrint = part => /^74\d\d$/.test(part) ? "74HC" + part.slice(2) : part;
+
   /* One palette table drives two outputs: the <style> block the page uses (CSS
      custom properties, so the teal sheet can re-theme it) and the flattened
      presentation attributes the offline preview needs.  MuPDF — which is how
@@ -1855,6 +1933,11 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
                    stroke: ["--sbd-ink", "#1d2a24"], "stroke-width": [null, "1.6"] },
     "sbd-lead":  { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
                    "stroke-width": [null, "1.6"] },
+    /* A line drawn ON a component body — a thermistor's sensing bar, an LDR's
+       zigzag, a preset's slot.  Separate from sbd-lead, which is the legs:
+       these recolour with the body they are printed on, the legs do not. */
+    "sbd-bline": { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
+                   "stroke-width": [null, "1.6"] },
     "sbd-pin":   { fill: ["--sbd-ink", "#1d2a24"] },
     // the b / c / e letters on a transistor can, where the outline alone
     // cannot say which leg is which
@@ -1864,7 +1947,17 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
                    "font-size": [null, "11px"], "font-weight": [null, "800"] },
     "sbd-pn":    { fill: ["--sbd-ink", "#1d2a24"], "font-family": [null, MONO],
                    "font-size": [null, "8px"], "font-weight": [null, "700"] },
-    "sbd-ic":    { fill: ["--sbd-icfill", "#ffffff"], "fill-opacity": [null, "0.9"],
+    /* The part number printed on a chip.  Set ALONG the package the way the
+       real silkscreen is, and big enough to read at the scale the board is
+       drawn — the 8px `sbd-pn` under the package was unreadable on screen. */
+    "sbd-icn":   { fill: ["--sbd-ink", "#1d2a24"], "font-family": [null, MONO],
+                   "font-size": [null, "13px"], "font-weight": [null, "700"],
+                   "letter-spacing": [null, "0.06em"] },
+    /* A DIL package is a grey body, not a white hole in the board — but a LIGHT
+       grey, because three things have to stay readable ON it: the pin numbers,
+       the printed part code, and the column of red cut X's that the tool draws
+       through the package on purpose. */
+    "sbd-ic":    { fill: ["--sbd-icfill", "#c3c9cd"], "fill-opacity": [null, "0.92"],
                    stroke: ["--sbd-ink", "#1d2a24"], "stroke-width": [null, "1.8"] },
     "sbd-cut":   { fill: [null, "none"], stroke: ["--sbd-cut", "#c0392b"],
                    "stroke-width": [null, "2.6"], "stroke-linecap": [null, "round"] },
@@ -1917,6 +2010,11 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
        band, a TO-220's tab.  Solid ink, no outline — it is a marking on the
        body, not another piece of the body. */
     "sbd-mark":  { fill: ["--sbd-ink", "#1d2a24"], stroke: [null, "none"] },
+    /* The + on an electrolytic: a polarity mark like any other, but TEXT, so it
+       needs its own class to be recoloured with the body it is printed on. */
+    "sbd-pmark": { fill: ["--sbd-ink", "#1d2a24"], stroke: [null, "none"],
+                   "font-family": [null, SANS], "font-size": [null, "12px"],
+                   "font-weight": [null, "800"] },
     "sbd-chip":  { fill: [null, "none"], stroke: ["--sbd-ink", "#1d2a24"],
                    "stroke-width": [null, "1.2"], "stroke-dasharray": [null, "5 4"] },
     "sbd-cnet":  { fill: ["--sbd-tp", "#1d6fa5"], "font-family": [null, SANS],
@@ -1987,7 +2085,7 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
            [cx + zz * 0.5, cy - zz * 0.5], [cx + zz, cy]]
         : [[cx, cy - zz], [cx - zz * 0.5, cy - zz * 0.5], [cx + zz * 0.5, cy],
            [cx - zz * 0.5, cy + zz * 0.5], [cx, cy + zz]];
-      s += `<path class="sbd-lead" d="M ${pts.map(z => n(z[0]) + " " + n(z[1])).join(" L ")}"/>`;
+      s += `<path class="sbd-bline" d="M ${pts.map(z => n(z[0]) + " " + n(z[1])).join(" L ")}"/>`;
       return s;
     }
     if (fp.sym === "cap") {
@@ -2004,9 +2102,9 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
            `height="${n(by2 - by1)}" rx="${n(P * 0.16)}"/>`;
       const ov = P * 0.3;
       s += horiz
-        ? `<line class="sbd-lead" x1="${n(bx1 - ov)}" y1="${n(by2 + ov * 0.5)}" ` +
+        ? `<line class="sbd-bline" x1="${n(bx1 - ov)}" y1="${n(by2 + ov * 0.5)}" ` +
           `x2="${n(bx2 + ov)}" y2="${n(by1 - ov * 0.5)}"/>`
-        : `<line class="sbd-lead" x1="${n(bx1 - ov * 0.5)}" y1="${n(by2 + ov)}" ` +
+        : `<line class="sbd-bline" x1="${n(bx1 - ov * 0.5)}" y1="${n(by2 + ov)}" ` +
           `x2="${n(bx2 + ov * 0.5)}" y2="${n(by1 - ov)}"/>`;
       return s;
     }
@@ -2032,7 +2130,7 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
       const ux = X(plus.c) - cx, uy = Y(plus.r) - cy;
       const m = Math.sqrt(ux * ux + uy * uy) || 1;
       const mx = cx + (ux / m) * rr * 0.44, my = cy + (uy / m) * rr * 0.44;
-      s += `<text class="sbd-id" x="${n(mx)}" y="${n(my + 3.5)}" text-anchor="middle">+</text>`;
+      s += `<text class="sbd-pmark" x="${n(mx)}" y="${n(my + 4)}" text-anchor="middle">+</text>`;
       return s;
     }
     s += `<rect class="sbd-body" x="${n(bx1)}" y="${n(by1)}" width="${n(bx2 - bx1)}" ` +
@@ -2072,15 +2170,39 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     const cx = x + w / 2, cy = y + h / 2;
     /* h > w ties on a square package (dip-8 is 4 rows x 4 cols), so take the
        orientation from the pins: pin 1 sharing a ROW with pin N means the two
-       pin columns run down the board. */
+       pin columns run down the board, and both the printed code and the pin
+       numbers follow that and not the bounding box. */
     const vertical = p1.r === pLast.r;
 
-    /* Item ID above the package, part number below.  Neither goes inside: the
-       centre of a DIL is the cut column, and whether the cuts land at c+1 or
-       c+2 is the pupil's choice, so no inside position is reliably clear. */
+    /* Item ID above the package; the part number ON it, along its length, the
+       way the real silkscreen is printed — reported unreadable at 8px under the
+       package, and "which chip is that" is the first thing a pupil checks.
+
+       The package is four columns wide with the two pin columns at its edges,
+       so its centre line falls BETWEEN the two columns a cut can be made in
+       (c+1 or c+2, the pupil's choice) — half a pitch clear of either.  That is
+       what makes an inside label possible at all, and it is why the text is
+       centred and not nudged: nudged, it lands on the cuts. */
     s += `<text class="sbd-id" x="${n(cx)}" y="${n(y - 9)}" text-anchor="middle">${esc(p.id)}</text>`;
-    if (p.part)
-      s += `<text class="sbd-pn" x="${n(cx)}" y="${n(y + h + 12)}" text-anchor="middle">${esc(p.part)}</text>`;
+    if (p.part) {
+      const code = esc(chipPrint(p.part));
+      /* The two inner columns are where the cuts go, and the cuts are drawn
+         OVER the package on purpose.  So the code steps aside into whichever
+         of the two the pupil did not cut, and stays centred only when both are
+         clear (nothing placed yet) or both are cut. */
+      const cutIn = k => (p.cuts || []).some(t => {
+        const h = parseRef(t);
+        return vertical ? (h.c === k && h.r >= r0 && h.r <= r1)
+                        : (h.r === k && h.c >= c0 && h.c <= c1);
+      });
+      const near = cutIn(vertical ? c0 + 1 : r0 + 1);
+      const far  = cutIn(vertical ? c0 + 2 : r0 + 2);
+      const off = near === far ? 0 : (near ? P / 2 : -P / 2);
+      s += vertical
+        ? `<text class="sbd-icn" transform="translate(${n(cx + off)} ${n(cy)}) rotate(90)" ` +
+          `text-anchor="middle" dy="4.5">${code}</text>`
+        : `<text class="sbd-icn" x="${n(cx)}" y="${n(cy + off + 4.5)}" text-anchor="middle">${code}</text>`;
+    }
 
     /* pin numbers offset inward along the package's SHORT axis — offsetting
        horizontally on a package that lies along the tracks bunches all seven
@@ -2180,7 +2302,7 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
               `y="${n(cy - (spanH ? h : P * 1.1))}" ` +
               `width="${n(spanH ? P * 2.2 : h * 2)}" height="${n(spanH ? h * 2 : P * 2.2)}" ` +
               `rx="${n(P * 0.14)}"/>`;
-      g += `<line class="sbd-lead" x1="${n(cx - P * 0.3)}" y1="${n(cy - P * 0.3)}" ` +
+      g += `<line class="sbd-bline" x1="${n(cx - P * 0.3)}" y1="${n(cy - P * 0.3)}" ` +
            `x2="${n(cx + P * 0.3)}" y2="${n(cy + P * 0.3)}"/>`;
       return g;
     }
@@ -2245,13 +2367,15 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
       const comp = (q.components || []).find(c => c.id === p.id) || {};
       const cells = cellsOf(fp, parseRef(p.at), p.rot || 0);
       const withLabel = Object.assign({}, p, { label: comp.name || p.id, part: comp.part,
-                                             pos: comp.pos, colour: comp.colour });
+                                             pos: comp.pos, colour: comp.colour,
+                                             cuts: a.cuts });
 
-      layers.body += fp.kind === "dil" ? drawDil(withLabel, fp, cells)
+      layers.body += paintBody(
+                     fp.kind === "dil" ? drawDil(withLabel, fp, cells)
                    : fp.kind === "terminal" ? drawTerminal(withLabel, fp, cells)
                    : fp.kind === "can" ? drawCan(withLabel, fp, cells)
                    : (fp.kind === "to92" || fp.kind === "inline3") ? drawTo92(withLabel, fp, cells)
-                   : drawAxial(withLabel, fp, cells);
+                   : drawAxial(withLabel, fp, cells), withLabel, fp);
 
       for (const z of cells.pins)
         layers.pin += `<circle class="sbd-pin" cx="${n(X(z.hole.c))}" cy="${n(Y(z.hole.r))}" r="${n(P * 0.13)}"/>`;
@@ -2391,11 +2515,12 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
 
     const p = { id: o.id, footprint: o.footprint, rot: o.rot || 0,
                 label: o.id, part: o.part, pos: o.pos, colour: o.colour };
-    g += fp.kind === "dil" ? drawDil(p, fp, cells)
+    g += paintBody(
+         fp.kind === "dil" ? drawDil(p, fp, cells)
        : fp.kind === "terminal" ? drawTerminal(p, fp, cells)
        : fp.kind === "can" ? drawCan(p, fp, cells)
        : (fp.kind === "to92" || fp.kind === "inline3") ? drawTo92(p, fp, cells)
-       : drawAxial(p, fp, cells);
+       : drawAxial(p, fp, cells), p, fp);
     for (const z of cells.pins)
       g += `<circle class="sbd-pin" cx="${n(X(z.hole.c))}" cy="${n(Y(z.hole.r))}" r="${n(P * 0.13)}"/>`;
 
@@ -2439,7 +2564,7 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
 
   root.SBD.render = { renderBoard, renderPart, spanOf, inlineClasses, STYLE, CLASSES,
                       P, PAD_L, PAD_T, sizeOf, holeAt, centreOf: (r, c) => ({ x: X(c), y: Y(r) }),
-                      LINK_COLOURS };
+                      LINK_COLOURS, BODY_COLOURS, BODY_DEFAULT, bodyColourable, chipPrint };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- sbd-circuit.js ---- */
@@ -5467,7 +5592,8 @@ function fit(){
      bank). Closed tiles pair two to a row; the open one takes a whole row. */
   const closedCount = tiles - (openTileEl ? 1 : 0);
   const openH = openTileEl ? openTileEl.offsetHeight + 6 : 0;
-  const CHROME = 44 + 26;                          // circuit box heading and border, bank heading
+  // circuit box heading and border, bank heading, and the reference links
+  const CHROME = 44 + 26 + ($("sheetLinks") ? $("sheetLinks").offsetHeight + 6 : 0);
   const bankWant = Math.ceil(closedCount / 2) * rowH + openH + 18;
   /* Two rows of closed parts normally; with one open, its REAL height plus one
      closed row, so the open tile is never clipped — the bank still scrolls for
@@ -5771,9 +5897,16 @@ function paint(){
 function ghostCells(){
   if (tool !== "place" || !sel || showingAnswer) return [];
   const comp = Q.components.find(c => c.id === sel);
-  const fp = SBD.FOOTPRINTS[comp.footprint];
+  /* fpOf, not comp.footprint: a resistor stretched from four holes to seven is
+     a DIFFERENT footprint, and the ghost drew the unstretched one while the
+     drop used the stretched one — so the preview under the finger was the
+     wrong length, and on a tight board it said "this fits" about a part that
+     did not. Reported 11 Sep. The one rule: every place that asks how big the
+     selected part is asks fpOf(). */
+  const fpName = fpOf(comp);
+  const fp = SBD.FOOTPRINTS[fpName];
   const cells = SBD.cellsOf(fp, cur, rot);
-  const ok = SBD.placeCheck(Q, A, { id: sel, footprint: comp.footprint,
+  const ok = SBD.placeCheck(Q, A, { id: sel, footprint: fpName,
                                     at: SBD.ref(cur), rot: rot }).ok;
   return cells.pins.map(z => ({ r: z.hole.r, c: z.hole.c, kind: ok ? "gpin" : "bad" }))
     .concat(cells.body.map(z => ({ r: z.r, c: z.c, kind: ok ? "ghost" : "bad" })));
@@ -6219,7 +6352,7 @@ function rotate(){
   }
   rot = (rot + 90) % 360;
   const comp = sel && Q.components.find(c => c.id === sel);
-  say(comp ? sel + " turned — it now lies " + R.spanOf(comp.footprint, rot) + "."
+  say(comp ? sel + " turned — it now lies " + R.spanOf(fpOf(comp), rot) + "."
            : "Rotation set to " + rot + " degrees.");
   drawBank();
   fit();               // the open tile's own height can change on rotation
@@ -6247,7 +6380,8 @@ $("bank").addEventListener("click", e => {
     if (comp){
       comp.colour = sw.dataset.colour;
       bankKey = null; drawFreeBank(); paint(); saveStore();
-      say(comp.id + " is now a " + comp.colour + " wire.");
+      const wire = (SBD.FOOTPRINTS[comp.footprint] || {}).kind === "terminal";
+      say(comp.id + " is now " + comp.colour + (wire ? " wire." : "."));
     }
     return;
   }
@@ -6308,6 +6442,16 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "1.4", date: "11 Sep 2026", what:
+    "<strong>The parts are the colour they really are</strong> \u2014 brown resistor, red LED, " +
+    "black diode with its silver band, blue electrolytic with its +. On your own board you can " +
+    "change any of them: pick the part, then a colour, the same way you pick a wire colour. " +
+    "<strong>Chips now carry the code that is printed on the real one</strong> (74HC08, not 7408), " +
+    "set along the package and big enough to read. The preview under your finger is now the " +
+    "length you set \u2014 stretch a resistor to seven holes and the seven holes are what you see. " +
+    "On the blank board, \u201cWhat is joined to what\u201d has moved underneath the board so the " +
+    "parts drawer is the full height of it, and the printable planning sheet is now linked from " +
+    "the tool itself." },
   { v: "1.3", date: "10 Sep 2026", what:
     "<strong>Q2\u2019s LDR now goes on the board.</strong> It used to be drawn as a sensor and " +
     "built as a 2-way terminal block, which is right for an LDR mounted away from the board and " +
@@ -7070,6 +7214,23 @@ function pickFromPalette(key){
   drawBank(); fit(); paint(); saveStore();
 }
 
+/* The colour a part is showing: the pupil's choice if they made one, otherwise
+   the colour that part comes in — brown for a resistor, red for an LED. The
+   renderer owns that table, so the swatch that reads "pressed" and the body on
+   the board cannot disagree. */
+const BODY_NAMES = Object.keys(R.BODY_COLOURS);
+const bodyColourOf = (c, fp) =>
+  (c.colour && R.BODY_COLOURS[c.colour]) ? c.colour : R.BODY_DEFAULT[fp.sym || fp.kind];
+
+function swatchRow(label, names, paint, current, suffix){
+  return "<div class='tcols' role='group' aria-label='" + label + "'>" +
+    names.map(name =>
+      "<button type='button' class='swatch tcol' data-colour='" + name + "' " +
+      "aria-label='" + name + suffix + "' aria-pressed='" +
+      String(current === name) + "'><i style='background:" + paint(name) +
+      "'></i></button>").join("") + "</div>";
+}
+
 function drawFreeBank(){
   const bank = $("bank");
   const key = "free|" + sel + "@" + rot + "|" +
@@ -7102,14 +7263,20 @@ function drawFreeBank(){
     /* A part whose legs only reach one way round is not offered a Rotate
        button: turning the transistor can 90° puts its collector and emitter on
        one track, which is a short, not a layout choice. */
-    const fixed = (SBD.FOOTPRINTS[spec.footprint] || {}).fixedRot;
-    const swatches = !(isOpen && spec.colourable) ? ""
-      : "<div class='tcols' role='group' aria-label='Terminal wire colour'>" +
-        FREE_TERM_COLOURS.map(name =>
-          "<button type='button' class='swatch tcol' data-colour='" + name + "' " +
-          "aria-label='" + name + " wire' aria-pressed='" +
-          String(selComp.colour === name) + "'><i style='background:" +
-          R.LINK_COLOURS[name] + "'></i></button>").join("") + "</div>";
+    const fpSpec = SBD.FOOTPRINTS[spec.footprint] || {};
+    const fixed = fpSpec.fixedRot;
+    /* Two different colour pickers share one row of swatches, because a part
+       has only one colour to choose: a TERMINAL's is the colour of the wire
+       leaving the board, and everything else's is the colour of the part
+       itself. A chip has neither — nobody picks the colour of a 74HC08. */
+    const swatches =
+        !isOpen ? ""
+      : spec.colourable ? swatchRow("Terminal wire colour", FREE_TERM_COLOURS,
+                                    n => R.LINK_COLOURS[n], selComp.colour, " wire")
+      : R.bodyColourable(fpSpec) ? swatchRow("Component colour", BODY_NAMES,
+                                    n => R.BODY_COLOURS[n].fill,
+                                    bodyColourOf(selComp, fpSpec), " body")
+      : "";
     const fpSel = isOpen ? fpOf(selComp) : spec.footprint;
     b.innerHTML = !isOpen ? head
       : "<div class='thead'><span>" + head + "</span>" +
@@ -7238,8 +7405,13 @@ function fitFree(){
      parts box is now the full height of the working area.  The floor keeps the
      9-track board's column usable — that board is only nine tracks tall, and
      matching it exactly would make the parts box smaller than it used to be. */
+  /* The DRAWER is what matches the board — the two reference links under it are
+     furniture, so their height is added on rather than taken out of the parts
+     box. The board is the whole of the working area here, so a drawer shorter
+     than it is the thing that was reported: nineteen parts behind a scroll. */
+  const linksH = $("sheetLinks") ? $("sheetLinks").offsetHeight + 6 : 0;
   $("bankcolEl").style.height = window.matchMedia("(min-width:821px)").matches
-    ? Math.round(Math.max(stageH, 400) + (panX ? 11 : 0)) + "px"
+    ? Math.round(Math.max(stageH, 400) + linksH + (panX ? 11 : 0)) + "px"
     : "";
 
   $("panhint").classList.toggle("show", panX || panY);
