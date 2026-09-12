@@ -79,6 +79,12 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
 
   All four are © Qualifications Scotland (SQA), reproduced for educational use.
 
+  Three of those four — 2024 P1 Q23, 2023 P2 Q5(b)(iii) and 2012 Q30(b) — are reproduced
+  again on the **E5 diagram printouts sheet** (`classes/higher/slides/h-e5-diagram-printouts.pdf`,
+  added 12 September 2026), the cut-and-stick sheet that replaces copying those diagrams by
+  hand. Each carries its credit at the diagram. Everything else on that sheet is drawn for
+  this course (© R Stewart, 2026).
+
   The *Monitoring & Measuring AC* deck reproduces two more (added 2 September 2026):
   - Higher Physics 2015, Paper 1 (multiple choice) Q17 — an oscilloscope with its Y-gain and
     timebase dials.
