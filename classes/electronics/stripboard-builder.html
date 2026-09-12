@@ -30,6 +30,10 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         --sbd-lab:#8fa39a;   --sbd-body:#17231e; --sbd-ink:#dcece5;
         --sbd-icfill:#1c2b25; --sbd-cut:#ff8a7a; --sbd-tp:#6fc0f0;
         --sbd-page:#0b1512;  --sbd-hl:#f0b429;   --sbd-hl2:#6fc0f0; --sbd-cur:#3ddc9a;
+        /* the breadboard's plastic and its centre channel: dark enough to sit
+           under the same components, with the channel a shade DARKER than the
+           slab so the recess still reads as a recess */
+        --sbd-bbslab:#141f1b; --sbd-bbchan:#0d1815;
       }
     }
     #sbd{ --ok:#0f8a5f; --ok-bg:rgba(15,138,95,.12); --bad:#c0392b; --bad-bg:rgba(192,57,43,.10);
@@ -592,7 +596,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
           <div class="diagcol" id="diagcolEl">
             <div class="toolgrid build-only" role="group" aria-label="Tool">
               <button type="button" class="tool" data-tool="place" aria-pressed="true"><span class="k">▭</span>Place part</button>
-              <button type="button" class="tool" data-tool="cut" aria-pressed="false"><span class="k">✕</span>Track cut</button>
+              <button type="button" class="tool bb-never" data-tool="cut" aria-pressed="false"><span class="k">✕</span>Track cut</button>
               <button type="button" class="tool" data-tool="link" aria-pressed="false"><span class="k">╱</span>Link wire</button>
               <button type="button" class="tool" data-tool="tp" aria-pressed="false"><span class="k">◎</span>Test point</button>
               <button type="button" class="tool" data-tool="erase" aria-pressed="false"><span class="k">⌫</span>Remove</button>
@@ -643,8 +647,6 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
             <div class="boardpick free-only" id="boardPick" role="group" aria-label="Board size">
               <span class="bplab">Board:</span>
-              <button type="button" class="bp" data-board="34-0410" aria-pressed="true">9 × 25</button>
-              <button type="button" class="bp" data-board="34-0411" aria-pressed="false">24 × 37</button>
             </div>
 
             <div class="faultwrap fault-only" id="faultWrap">
@@ -679,7 +681,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
                  linked from the mock-assignment guide and nowhere else, so from
                  the tool itself there was no way to reach it (reported 11 Sep). -->
             <p class="sheetlinks build-only" id="sheetLinks">
-              <a class="dslink" href="/classes/electronics/stripboard-planning-sheet.html"
+              <a class="dslink bb-never" href="/classes/electronics/stripboard-planning-sheet.html"
                  target="_blank" rel="noopener">🖨 Printable planning sheet ↗</a>
               <a class="dslink free-only" href="/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf"
                  target="_blank" rel="noopener">📄 IC datasheet — pinouts ↗</a>
@@ -737,7 +739,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     </details>
     <section class="panel" aria-label="Sources and credits">
       <h2>Sources &amp; credits</h2>
-      <p class="lead" data-credit-note><strong>Sources &amp; credits:</strong> Board sizes and hole pitch are the
+      <p class="lead bb-never" data-credit-note><strong>Sources &amp; credits:</strong> Board sizes and hole pitch are the
         real boards used in class (Rapid Electronics 34-0410 and 34-0411, datasheet 583629_v1). The drawing
         conventions — tracks running across the sheet, a cut marked as an <strong>X</strong> on the hole, ICs drawn
         as a labelled rectangle, link wires coloured and numbered — follow the <em>Stripboard Layout Planning
@@ -747,6 +749,18 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         external verification reports, and the linked IC pin-out sheet is the National 5 data sheet X860/75/12 —
         all © Qualifications Scotland (SQA), reproduced for educational use. Circuits, diagrams and code are
         original work written for this site, © R Stewart, 2026. Full site credits are on the
+        <a href="/classes/credits.html">credits page</a>.</p>
+      <p class="lead bb-only" data-credit-note hidden><strong>Sources &amp; credits:</strong> The board is a
+        standard 0.1 in prototype breadboard — a 400-point half board (30 columns) and an 830-point full board
+        (63 columns), drawn to the hole pitch and channel width of the boards used in class. The drawing
+        conventions — component footprints rather than circuit symbols, ICs as a labelled rectangle straddling
+        the centre channel, link wires coloured and numbered — are the same ones this site's stripboard tools
+        use, after the <em>Stripboard Layout Planning Sheet</em> © 2002 Electronics in Meccano (eleinmec.com);
+        the conventions are reproduced here, not the artwork. The component list, the fault list and the wording
+        quoted in the feedback come from the National 5 Electronics (C884 75) course and assessment material and
+        the external verification reports, and the linked IC pin-out sheet is the National 5 data sheet
+        X860/75/12 — all © Qualifications Scotland (SQA), reproduced for educational use. Circuits, diagrams and
+        code are original work written for this site, © R Stewart, 2026. Full site credits are on the
         <a href="/classes/credits.html">credits page</a>.</p>
       <p class="lead">© R Stewart Physics, Electronics and Engineering</p>
     </section>
@@ -793,10 +807,37 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
   /* ---------------------------------------------------------------- boards */
 
+  /* A board carries its own TOPOLOGY — what is joined to what before anything is
+     placed.  `topo: "strip"` is a row of copper per track, broken where a hole
+     is cut; `topo: "bread"` is four continuous rails plus a five-hole net per
+     column per band, and no cuts at all.  Every rule below asks the board, so
+     adding the breadboard added no second engine (BB-PLAN §0, BB-3).
+
+     Breadboard rows keep A-based internal refs so every existing call site is
+     untouched; `rowDisp` is what a pupil is shown (BB-PLAN §1).  `rowY` is the
+     DRAWN offset in pitches — e to f is 3, which is 0.3 in, which is exactly
+     why a DIP straddles the channel. */
+
+  const BB_ROWS = ["+", "\u2212", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "+", "\u2212"];
+  const BB_Y    = [0, 1, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 16, 17];
+  const BB_RAILS = [{ r: 0,  pol: "+", where: "top" },    { r: 1,  pol: "\u2212", where: "top" },
+                    { r: 12, pol: "+", where: "bottom" }, { r: 13, pol: "\u2212", where: "bottom" }];
+  const BB_BANDS = [[2, 6], [7, 11]];
+
+  function bread(id, cols, label) {
+    return { id, rows: 14, cols, label, topo: "bread",
+             rowDisp: BB_ROWS, rowY: BB_Y, rails: BB_RAILS, bands: BB_BANDS,
+             channelAfter: 6 };
+  }
+
   const BOARDS = {
-    "34-0410": { id: "34-0410", rows: 9,  cols: 25, label: "small (9 tracks × 25 holes)" },
-    "34-0411": { id: "34-0411", rows: 24, cols: 37, label: "large (24 tracks × 37 holes)" }
+    "34-0410": { id: "34-0410", rows: 9,  cols: 25, topo: "strip", label: "small (9 tracks × 25 holes)" },
+    "34-0411": { id: "34-0411", rows: 24, cols: 37, topo: "strip", label: "large (24 tracks × 37 holes)" },
+    "bb-400":  bread("bb-400", 30, "half board (30 columns)"),
+    "bb-830":  bread("bb-830", 63, "full board (63 columns)")
   };
+
+  const isBread = b => !!b && b.topo === "bread";
 
   /* ------------------------------------------------------------ hole refs */
 
@@ -808,6 +849,34 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     return { r: m[1].charCodeAt(0) - 65, c: parseInt(m[2], 10) };
   };
   const hid = h => h.r * 1000 + h.c;
+
+  /* ------------------------------------------------------------- row names
+     Internal refs are always A-based (BB-PLAN §1).  These three are the ONLY
+     place a hole is turned into words for a pupil, so a breadboard can print
+     "e12" and "+12 (top rail)" without a second ref format existing anywhere. */
+
+  function rowName(board, r) {
+    if (!isBread(board)) return "track " + rowLetter(r);
+    const rail = board.rails.find(x => x.r === r);
+    return rail ? `the ${rail.pol} rail along the ${rail.where}` : "row " + board.rowDisp[r];
+  }
+  function holeName(board, h) {
+    if (!isBread(board)) return ref(h);
+    const rail = board.rails.find(x => x.r === h.r);
+    return rail ? `${rail.pol}${h.c} (${rail.where} rail)` : board.rowDisp[h.r] + h.c;
+  }
+  /* Where a five-hole column net lives, in the words printed on the board:
+     "column 12 (a\u2013e)".  This is the net a breadboard pupil has to reason
+     about, and it has no stripboard equivalent. */
+  function bandName(board, h) {
+    const band = board.bands.find(([a, b]) => h.r >= a && h.r <= b);
+    if (!band) return rowName(board, h.r);
+    return `column ${h.c} (${board.rowDisp[band[0]]}\u2013${board.rowDisp[band[1]]})`;
+  }
+  /* The net a hole is on, named: a rail by its name, a column by its band. */
+  const netName = (board, h) =>
+    isBread(board) && board.rails.some(x => x.r === h.r) ? rowName(board, h.r)
+                                                         : bandName(board, h);
 
   /* ----------------------------------------------------------- footprints
      Canonical coordinates are (dr, dc) offsets from the placement origin.
@@ -826,6 +895,21 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     for (let i = 0; i < half; i++) pins.push({ pin: String(n - i), dr: i, dc: 3 });
     for (let i = 0; i < half; i++) { body.push({ dr: i, dc: 1 }); body.push({ dr: i, dc: 2 }); }
     return { pins, body, symmetric: false, kind: "dil", pinCount: n };
+  }
+
+  /* The same chip on a BREADBOARD.  It cannot be the stripboard DIL rotated:
+     rot 90 puts the two pin rows 3 index rows apart, and on a breadboard they
+     must be ADJACENT rows (e and f) with the channel between them — the 0.3 in
+     the drawing shows as three pitches is the package width, not three rows of
+     holes.  So pins run ALONG the columns: pin 1 bottom-left with the notch to
+     the left, up the far end, and back along the row above.
+     No body cells: a DIP's package sits IN the channel and covers no holes,
+     which is also why `under-body` cannot misfire on one. */
+  function dilbb(n) {
+    const half = n / 2, pins = [];
+    for (let i = 0; i < half; i++) pins.push({ pin: String(i + 1), dr: 1, dc: i });
+    for (let i = 0; i < half; i++) pins.push({ pin: String(n - i), dr: 0, dc: i });
+    return { pins, body: [], symmetric: false, kind: "dil", pinCount: n, straddle: true };
   }
 
   /* A two-legged part `holes` holes long: legs at each end, body in between.
@@ -903,6 +987,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
                  body: [{ dr: 0, dc: 1 }], symmetric: false, kind: "terminal" },
     "dip-8":   dil(8),
     "dip-14":  dil(14),
+    "dip-8-bb":  dilbb(8),
+    "dip-14-bb": dilbb(14),
     "dip-16":  dil(16)
   };
 
@@ -1009,9 +1095,28 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
      Placement errors are hard: the UI must refuse these drops, but the engine
      never assumes the UI did its job. */
 
-  function topology(board, attempt) {
-    const cuts = new Set((attempt.cuts || []).map(s => hid(parseRef(s))));
-    const errors = [];
+  /* ------------------------------------------------------------- node map
+     The one place the two board topologies differ.  Everything downstream —
+     links, nets, the DIL tests, every diagnostic — reads `nodeOf` and does not
+     care which board made it (BB-PLAN §0, BB-3).
+
+       strip   one node per unbroken run of copper along a track
+       bread   one node per rail (continuous end to end, BB-2), plus one per
+               five-hole column per band.  A breadboard has no cuts, so the cut
+               set is not consulted. */
+
+  function nodesOf(board, cuts) {
+    const nodeOf = new Map();
+
+    if (isBread(board)) {
+      for (const rail of board.rails)
+        for (let c = 1; c <= board.cols; c++) nodeOf.set(rail.r * 1000 + c, "rail:" + rail.r);
+      board.bands.forEach(([lo, hi], i) => {
+        for (let r = lo; r <= hi; r++)
+          for (let c = 1; c <= board.cols; c++) nodeOf.set(r * 1000 + c, "col:" + c + ":" + i);
+      });
+      return nodeOf;
+    }
 
     const cutColsByRow = new Map();
     for (const k of cuts) {
@@ -1019,15 +1124,23 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       if (!cutColsByRow.has(r)) cutColsByRow.set(r, new Set());
       cutColsByRow.get(r).add(c);
     }
-
-    // hole -> node key "r:i"
-    const nodeOf = new Map();
     for (let r = 0; r < board.rows; r++) {
       const segs = segmentsOf(r, board.cols, cutColsByRow.get(r) || new Set());
       segs.forEach((s, i) => {
         for (let c = s.from; c <= s.to; c++) nodeOf.set(r * 1000 + c, r + ":" + i);
       });
     }
+    return nodeOf;
+  }
+
+  function topology(board, attempt) {
+    let top_linkAt = new Map();
+    // a breadboard has no copper to cut: ignore any cut that rode in on a
+    // saved stripboard layout rather than letting it punch holes in a rail
+    const cuts = isBread(board) ? new Set()
+                                : new Set((attempt.cuts || []).map(s => hid(parseRef(s))));
+    const errors = [];
+    const nodeOf = nodesOf(board, cuts);
 
     const dsu = makeDSU();
     for (const k of nodeOf.values()) dsu.find(k);
@@ -1043,13 +1156,13 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       // flatten before the bounds test, or it silently never fires for pins
       for (const cell of cells.pins.map(x => x.hole).concat(cells.body)) {
         if (cell.r < 0 || cell.r >= board.rows || cell.c < 1 || cell.c > board.cols) {
-          errors.push({ code: "off-board", msg: `${p.id} falls off the board at ${rowLetter(cell.r)}${cell.c}`, refs: [p.id] });
+          errors.push({ code: "off-board", msg: `${p.id} falls off the board at ${holeName(board, cell)}`, refs: [p.id] });
         }
       }
       for (const { pin, hole } of cells.pins) {
         const k = hid(hole), id = p.id + "." + pin;
-        if (cuts.has(k)) errors.push({ code: "pin-in-cut", msg: `${id} is in ${ref(hole)}, where the copper has been cut away`, refs: [ref(hole)] });
-        if (pinAt.has(k)) errors.push({ code: "hole-clash", msg: `${id} and ${pinAt.get(k)} are both in ${ref(hole)} — two legs cannot share a hole`, refs: [ref(hole)] });
+        if (cuts.has(k)) errors.push({ code: "pin-in-cut", msg: `${id} is in ${holeName(board, hole)}, where the copper has been cut away`, refs: [ref(hole)] });
+        if (pinAt.has(k)) errors.push({ code: "hole-clash", msg: `${id} and ${pinAt.get(k)} are both in ${holeName(board, hole)} — two legs cannot share a hole`, refs: [ref(hole)] });
         else pinAt.set(k, id);
         pins.push({ id, comp: p.id, pin, hole, footprint: p.footprint, rot: p.rot || 0 });
       }
@@ -1060,22 +1173,48 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     }
     for (const [k, id] of pinAt) {
       if (bodyAt.has(k) && bodyAt.get(k) !== id.split(".")[0]) {
-        errors.push({ code: "under-body", msg: `${id} sits in ${ref({ r: Math.floor(k / 1000), c: k % 1000 })}, under ${bodyAt.get(k)} — you could not solder that`, refs: [] });
+        errors.push({ code: "under-body", msg: `${id} sits in ${holeName(board, { r: Math.floor(k / 1000), c: k % 1000 })}, under ${bodyAt.get(k)} — ${isBread(board) ? "there is no hole to push it into" : "you could not solder that"}`, refs: [] });
       }
     }
 
-    // A6: links merge segments
+    /* A6: links merge segments — and A8 applies to a link end exactly as it
+       applies to a leg.  One hole takes one thing: a jumper cannot go into a
+       hole that already has a component leg in it, and two jumpers cannot share
+       one either.
+
+       BREADBOARD ONLY, and deliberately.  A breadboard hole IS a spring clip:
+       one wire per clip, no argument.  A stripboard hole is drilled, and the
+       twelve shipped reference answers on the live pages routinely solder a
+       link and a leg through the same hole — which is what a real board looks
+       like.  Enforcing it there would fail twelve questions that are already
+       marked correct, so it stays a breadboard rule until that is a decision
+       somebody makes on purpose. */
+    const linkAt = new Map();
     for (const l of attempt.links || []) {
       const a = parseRef(l.a), b = parseRef(l.b);
+      const name = `the link ${holeName(board, a)}\u2013${holeName(board, b)}`;
+      for (const h of (isBread(board) ? [a, b] : [])) {
+        const k = hid(h);
+        if (pinAt.has(k))
+          errors.push({ code: "hole-clash",
+            msg: `${name} and ${pinAt.get(k)} are both in ${holeName(board, h)} — ` +
+                 `two things cannot go in one hole`, refs: [ref(h)] });
+        else if (linkAt.has(k))
+          errors.push({ code: "hole-clash",
+            msg: `${name} and ${linkAt.get(k)} both end in ${holeName(board, h)} — ` +
+                 `two things cannot go in one hole`, refs: [ref(h)] });
+        else linkAt.set(k, name);
+      }
       const na = nodeOf.get(hid(a)), nb = nodeOf.get(hid(b));
       if (na === undefined || nb === undefined) {
-        errors.push({ code: "link-in-cut", msg: `the link ${ref(a)}–${ref(b)} lands in a hole whose copper has been cut away`, refs: [] });
+        errors.push({ code: "link-in-cut", msg: `${name} lands in a hole whose copper has been cut away`, refs: [] });
         continue;
       }
       dsu.union(na, nb);
     }
+    top_linkAt = linkAt;
 
-    return { cuts, nodeOf, dsu, pins, pinAt, bodyAt, errors };
+    return { cuts, nodeOf, dsu, pins, pinAt, bodyAt, linkAt: top_linkAt, errors };
   }
 
   /* ------------------------------------------------------- drop-time check
@@ -1103,8 +1242,17 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     const cuts = new Set((attempt.cuts || []).map(x => hid(parseRef(x))));
     for (const { pin, hole } of cells.pins)
       if (cuts.has(hid(hole)))
-        return { ok: false, msg: `${ref(hole)} has been cut — a leg soldered there ` +
+        return { ok: false, msg: `${holeName(board, hole)} has been cut — a leg soldered there ` +
                                  `is connected to nothing.` };
+
+    const linkEnds = new Map();
+    for (const l of (isBread(board) ? attempt.links || [] : []))
+      for (const h of [l.a, l.b])
+        linkEnds.set(hid(parseRef(h)), `the link ${holeName(board, parseRef(l.a))}\u2013${holeName(board, parseRef(l.b))}`);
+    for (const { hole } of cells.pins)
+      if (linkEnds.has(hid(hole)))
+        return { ok: false, msg: `${holeName(board, hole)} already has ${linkEnds.get(hid(hole))} ` +
+                                 `in it — two things cannot go in one hole.` };
 
     for (const p of attempt.placements || []) {
       if (p.id === cand.id || p.id === ignore) continue;
@@ -1118,8 +1266,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         const what = taken.get(hid(cell));
         if (!what) continue;
         return { ok: false, msg: what === "pin" && cells.pins.some(z => hid(z.hole) === hid(cell))
-          ? `${ref(cell)} already has a leg of ${p.id} in it — two legs cannot share a hole.`
-          : `${cand.id} would overlap ${p.id} at ${ref(cell)}.` };
+          ? `${holeName(board, cell)} already has a leg of ${p.id} in it — two legs cannot share a hole.`
+          : `${cand.id} would overlap ${p.id} at ${holeName(board, cell)}.` };
       }
     }
     return { ok: true };
@@ -1216,9 +1364,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       const a = parseRef(l.a), b = parseRef(l.b);
       if (a.r !== b.r && a.c !== b.c) {
         faults.push({ rank: 0.5, code: "diagonal-link",
-          msg: `The link wire between ${ref(a)} and ${ref(b)} runs diagonally ` +
-               `— link wires must run straight, along a track or straight down ` +
-               `between tracks, never at an angle. This is a layout-convention ` +
+          msg: `The link wire between ${holeName(board, a)} and ${holeName(board, b)} runs diagonally ` +
+               `— link wires must run straight, ${isBread(board) ? "along a rail or straight up and down between columns" : "along a track or straight down between tracks"}, never at an angle. This is a layout-convention ` +
                `fault: it is never accepted, however the rest of the board reads.`,
           refs: [l.a, l.b] });
       }
@@ -1275,10 +1422,15 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         const roots = new Set(side.map(segOf).filter(x => x !== undefined));
         if (side.length > 2 && roots.size === 1) {
           const trackOf = top.pins.find(x => x.id === side[0]);
-          faults.push({ rank: 2, code: "dil-along-tracks",
-            msg: `All ${side.length} pins down one side of ${p.id} are on track ` +
-                 `${rowLetter(trackOf.hole.r)} — they are shorted together. ` +
-                 `The chip has to sit across the tracks, not along them.`,
+          faults.push({ rank: 2, code: isBread(board) ? "dil-along-net" : "dil-along-tracks",
+            msg: isBread(board)
+              ? `All ${side.length} pins down one side of ${p.id} are in ` +
+                `${netName(board, trackOf.hole)} — that is one net, so they are shorted ` +
+                `together. The chip has to lie along the columns, one pin per column, ` +
+                `with its two rows of pins either side of the centre channel.`
+              : `All ${side.length} pins down one side of ${p.id} are on track ` +
+                `${rowLetter(trackOf.hole.r)} — they are shorted together. ` +
+                `The chip has to sit across the tracks, not along them.`,
             refs: [p.id] });
           side.forEach(id => explained.add(id));
         }
@@ -1293,24 +1445,39 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         if (explained.has(a) || explained.has(b)) continue;
         const ra = segOf(a), rb = segOf(b);
         if (ra !== undefined && ra === rb) {
-          uncut.push({ a, b, i, track: rowLetter(top.pins.find(x => x.id === a).hole.r) });
+          uncut.push({ a, b, i, hole: top.pins.find(x => x.id === a).hole,
+                       track: rowLetter(top.pins.find(x => x.id === a).hole.r) });
           explained.add(a); explained.add(b);
         }
       }
+      /* Same two structural tests on both boards; only the remedy differs.
+         On stripboard the pupil is missing a column of cuts.  On a breadboard
+         there is nothing to cut — the chip is simply not across the channel,
+         so both of its pin rows are in the same five-hole column (BB-4). */
       if (uncut.length === 1) {
         const u = uncut[0];
-        faults.push({ rank: 1, code: "dil-uncut",
-          msg: `${u.a.replace(".", " pin ")} and ${u.b.replace(".", " pin ")} are on the same ` +
-               `track (track ${u.track}). Cut every track the chip crosses, between the two ` +
-               `rows of pins.`,
+        faults.push({ rank: 1, code: isBread(board) ? "dil-not-straddling" : "dil-uncut",
+          msg: isBread(board)
+            ? `${u.a.replace(".", " pin ")} and ${u.b.replace(".", " pin ")} are both in ` +
+              `${netName(board, u.hole)} — one net, so they are shorted together. ` +
+              `The chip must straddle the centre channel: one row of pins in the ` +
+              `a\u2013e half, the other in the f\u2013j half.`
+            : `${u.a.replace(".", " pin ")} and ${u.b.replace(".", " pin ")} are on the same ` +
+              `track (track ${u.track}). Cut every track the chip crosses, between the two ` +
+              `rows of pins.`,
           refs: [u.a, u.b] });
       } else if (uncut.length > 1) {
         const tracks = uncut.map(u => u.track);
-        faults.push({ rank: 1, code: "dil-uncut",
-          msg: `${p.id} has no cuts under it: each pin is still joined to the pin opposite it ` +
-               `on ${uncut.length} tracks (${tracks[0]} to ${tracks[tracks.length - 1]}) — ` +
-               `pin ${uncut[0].i} to pin ${fp.pinCount + 1 - uncut[0].i}, and so on down the chip. ` +
-               `Cut every track the chip crosses, between the two rows of pins.`,
+        faults.push({ rank: 1, code: isBread(board) ? "dil-not-straddling" : "dil-uncut",
+          msg: isBread(board)
+            ? `${p.id} is not across the centre channel: every pin is still joined to the ` +
+              `pin opposite it, ${uncut.length} pairs of them \u2014 pin ${uncut[0].i} to pin ` +
+              `${fp.pinCount + 1 - uncut[0].i}, and so on down the chip. Slide it onto the ` +
+              `channel so one row of pins is in the a\u2013e half and the other in the f\u2013j half.`
+            : `${p.id} has no cuts under it: each pin is still joined to the pin opposite it ` +
+              `on ${uncut.length} tracks (${tracks[0]} to ${tracks[tracks.length - 1]}) — ` +
+              `pin ${uncut[0].i} to pin ${fp.pinCount + 1 - uncut[0].i}, and so on down the chip. ` +
+              `Cut every track the chip crosses, between the two rows of pins.`,
           refs: uncut.reduce((acc, u) => acc.concat([u.a, u.b]), []) });
       }
     }
@@ -1349,6 +1516,42 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
        partition diff downstream is noise — it was advising a pupil to add link
        wires between 0 V and pin 7.  Fix the chip, then re-check. */
     const chipBroken = faults.some(f => f.rank === 1 || f.rank === 2);
+
+    /* rank 3 (breadboard) — a two-legged part with both legs on one net.
+       This is the commonest breadboard mistake there is: five holes in a column
+       are already joined, so a resistor dropped into c12 and d12 is a piece of
+       wire.  It is a fault with NO target, which is why it is here and not in
+       the comparison below: on stripboard rank 3 asks whether the two legs are
+       on different nets in the TARGET, so on a free board — where the pupil's
+       own netlist is the target — it can never fire.  A shorted part on a
+       breadboard is wrong whatever was intended.
+
+       Two-legged parts only.  A three-legged part with two pins on one net is
+       ordinary: that is exactly how a potentiometer is wired as a rheostat.
+       And it stands down when the chip is broken, like every other net-reading
+       rule here — a sideways DIL makes the nets meaningless. */
+    if (isBread(board) && !chipBroken) {
+      const rootOfPin = id => {
+        const pin = top.pins.find(z => z.id === id);
+        if (!pin) return undefined;
+        const node = top.nodeOf.get(hid(pin.hole));
+        return node === undefined ? undefined : top.dsu.find(node);
+      };
+      for (const p of attempt.placements || []) {
+        const fp = FOOTPRINTS[p.footprint];
+        if (!fp || fp.kind === "dil" || fp.pins.length !== 2) continue;
+        const ids = fp.pins.map(x => p.id + "." + x.pin);
+        const ra = rootOfPin(ids[0]), rb = rootOfPin(ids[1]);
+        if (ra === undefined || ra !== rb) continue;
+        const hole = (top.pins.find(z => z.id === ids[0]) || {}).hole;
+        faults.push({ rank: 3, code: "self-short",
+          msg: `Both legs of ${p.id} are on one net \u2014 ${netName(board, hole)}. ` +
+               `Every hole in it is already joined, so ${p.id} is shorted out and the ` +
+               `current goes straight past it.`,
+          refs: ids });
+        ids.forEach(id => explained.add(id));
+      }
+    }
 
     /* rank 0.6 — link wire colour convention: red/black reserved for the
        supply rails, and no colour may be reused across two DIFFERENT
@@ -1562,8 +1765,9 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
     if (!match && !chipBroken) {
 
-    /* rank 3 — a component shorted across itself */
-    for (const [, list] of byRoot) {
+    /* rank 3 — a component shorted across itself.  Breadboards have already
+       had this out, target-free, above. */
+    for (const [, list] of (isBread(board) ? [] : byRoot)) {
       const byComp = new Map();
       for (const id of list) {
         if (dontcare.has(id)) continue;
@@ -1627,9 +1831,10 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         ? gs.find(g => g.length === 1 && byRoot.get(netOfPin.get(g[0])).length === 1)
         : null;
       if (solo) {
-        const track = rowLetter(top.pins.find(x => x.id === solo[0]).hole.r);
+        const soloHole = top.pins.find(x => x.id === solo[0]).hole;
         faults.push({ rank: 6, code: "floating",
-          msg: `${label(q, solo[0])} is floating — nothing else is on track ${track}.`,
+          msg: `${label(q, solo[0])} is floating — nothing else is ` +
+               `${isBread(board) ? "in " + netName(board, soloHole) : "on track " + rowLetter(soloHole.r)}.`,
           refs: [solo[0]] });
       } else {
         const picks = Array.from(groups.values()).map(g => g[0]);
@@ -1649,7 +1854,9 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
     if (chipBroken)
       faults.push({ rank: 2.5, code: "chip-first",
-        msg: "Sort the chip and its track cuts out first — until they are right, " +
+        msg: (isBread(board) ? "Sort the chip out first — until it is sitting across the "
+                             + "centre channel, "
+                             : "Sort the chip and its track cuts out first — until they are right, ") +
              "the rest of the board cannot be checked properly.", refs: [] });
 
     /* rank 8 — test points, only where the question asks for them */
@@ -1715,7 +1922,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       if (!fp || fp.kind !== "dil") continue;
       for (const cell of cellsOf(fp, parseRef(p.at), p.rot || 0).body) underChip.add(hid(cell));
     }
-    for (const s of attempt.cuts || []) {
+    for (const s of (isBread(board) ? [] : attempt.cuts || [])) {
       const h = parseRef(s);
       if (underChip.has(hid(h))) continue;
       const left = top.nodeOf.get(hid({ r: h.r, c: h.c - 1 }));
@@ -1754,8 +1961,9 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         const owner = top.bodyAt.get(hid({ r: a.r, c }));
         if (owner) {
           warnings.push({ rank: 11, code: "link-under-body",
-            msg: `The link ${ref(a)}–${ref(b)} runs under ${owner} — on a real board you ` +
-                 `could not solder that.`, refs: [owner] });
+            msg: `The link ${holeName(board, a)}–${holeName(board, b)} runs under ${owner} — ` +
+                 (isBread(board) ? "you could not lay it there with the part in the way."
+                                 : "on a real board you could not solder that."), refs: [owner] });
           break;
         }
       }
@@ -1828,6 +2036,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
   }
 
   root.SBD = { BOARDS, FOOTPRINTS, AXIAL_LENGTHS, lengthsOf, GATES, DRIVER_PINS, gatesOf,
+               isBread, nodesOf, rowName, holeName, bandName, netName,
                segmentsOf, makeDSU, topology, netsOf, stageOf,
                canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
                ref, parseRef, rowLetter, hid, cellsOf };
@@ -1852,7 +2061,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 (function (root) {
   "use strict";
 
-  const { BOARDS, FOOTPRINTS, cellsOf, parseRef, ref, rowLetter, hid } = root.SBD;
+  const { BOARDS, FOOTPRINTS, cellsOf, parseRef, ref, rowLetter, hid, isBread } = root.SBD;
 
   const P = 24;          // grid pitch, logical px
   const PAD_L = 52;      // room for row letters AND edge-terminal labels
@@ -1862,9 +2071,22 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
   const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const n = v => Math.round(v * 100) / 100;
 
-  // hole centre in logical px
+  /* Hole centre in logical px.  A stripboard's rows are evenly spaced, a
+     breadboard's are not — the two rails sit apart from the main block and the
+     gap between row e and row f is 0.3 in, three pitches, which is the whole
+     reason a DIP straddles it.  `ROWY` is that offset table, set from the board
+     at the top of every entry point below.  Module-level rather than threaded
+     through nine drawers: rendering is one synchronous pass over one board, and
+     every entry point sets it before drawing anything. */
+  let ROWY = null, PADT = 26, PADR = 12;
   const X = c => PAD_L + (c - 0.5) * P;
-  const Y = r => PAD_T + (r + 0.5) * P;
+  const Y = r => PADT + ((ROWY ? ROWY[r] : r) + 0.5) * P;
+  function useBoard(board) {
+    ROWY = (board && board.rowY) || null;
+    PADT = isBread(board) ? 22 : PAD_T;
+    PADR = isBread(board) ? 34 : PAD_R;      // row letters print down BOTH edges
+    return board;
+  }
 
   const LINK_COLOURS = {
     red: "#c0392b", black: "#2b2b2b", blue: "#2668b8", green: "#1d8a4e",
@@ -1987,6 +2209,22 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     "sbd-lnum":  { fill: [null, "#ffffff"], "font-family": [null, SANS],
                    "font-size": [null, "8px"], "font-weight": [null, "800"] },
     "sbd-bg":    { fill: ["--sbd-page", "#fbfdfc"] },
+
+    /* ---- breadboard ----
+       The slab a real prototype board is moulded from, the recessed channel
+       down its middle, and the two printed rail lines.  The rail colours are
+       the only fixed ones here: red and blue are printed on the plastic, so
+       they are the same in a dark room, exactly like a component body. */
+    "sbd-bbslab":  { fill: ["--sbd-bbslab", "#eef1ef"], stroke: ["--sbd-holeline", "#b9c4bd"],
+                     "stroke-width": [null, "1.2"] },
+    "sbd-bbchan":  { fill: ["--sbd-bbchan", "#dde3df"], stroke: ["--sbd-holeline", "#b9c4bd"],
+                     "stroke-width": [null, "0.8"] },
+    "sbd-bbpos":   { fill: [null, "none"], stroke: [null, "#c0392b"], "stroke-width": [null, "1.8"] },
+    "sbd-bbneg":   { fill: [null, "none"], stroke: [null, "#2668b8"], "stroke-width": [null, "1.8"] },
+    "sbd-bbposl":  { fill: [null, "#c0392b"], "font-family": [null, SANS],
+                     "font-size": [null, "13px"], "font-weight": [null, "800"] },
+    "sbd-bbnegl":  { fill: [null, "#2668b8"], "font-family": [null, SANS],
+                     "font-size": [null, "13px"], "font-weight": [null, "800"] },
 
     /* highlight layer — used by the page to point at a fault, and by nothing
        else; kept in the one palette table so it themes like everything else */
@@ -2353,31 +2591,115 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
   /* ------------------------------------------------------------------ main */
 
-  function renderBoard(o) {
-    const board = BOARDS[o.board];
-    if (!board) throw new Error("unknown board " + o.board);
-    const a = o.attempt || {};
-    const q = o.question || {};
-    const W = PAD_L + board.cols * P + PAD_R;
-    const H = PAD_T + board.rows * P + PAD_B;
-
-    const layers = { defs: "", grid: "", body: "", pin: "", cut: "", link: "", tp: "", id: "", hl: "" };
-
-    /* tracks and holes */
+  /* ---------------------------------------------------- the stripboard grid */
+  function stripGrid(board) {
+    let g = "";
     for (let r = 0; r < board.rows; r++) {
       const th = P * 0.74;
-      layers.grid += `<rect class="sbd-track" x="${n(X(1) - P * 0.5)}" y="${n(Y(r) - th / 2)}" ` +
+      g += `<rect class="sbd-track" x="${n(X(1) - P * 0.5)}" y="${n(Y(r) - th / 2)}" ` +
         `width="${n(board.cols * P)}" height="${n(th)}" rx="${n(th / 2)}"/>`;
-      layers.grid += `<text class="sbd-lab" x="13" y="${n(Y(r) + 4)}" ` +
+      g += `<text class="sbd-lab" x="13" y="${n(Y(r) + 4)}" ` +
         `text-anchor="middle">${rowLetter(r)}</text>`;
     }
     for (let r = 0; r < board.rows; r++)
       for (let c = 1; c <= board.cols; c++)
-        layers.grid += `<circle class="sbd-hole" cx="${n(X(c))}" cy="${n(Y(r))}" r="${n(P * 0.15)}"/>`;
+        g += `<circle class="sbd-hole" cx="${n(X(c))}" cy="${n(Y(r))}" r="${n(P * 0.15)}"/>`;
     for (let c = 1; c <= board.cols; c++)
       if (c === 1 || c % 5 === 0 || c === board.cols)
-        layers.grid += `<text class="sbd-lab" x="${n(X(c))}" y="${n(PAD_T - 9)}" ` +
+        g += `<text class="sbd-lab" x="${n(X(c))}" y="${n(PADT - 9)}" ` +
           `text-anchor="middle">${c}</text>`;
+    return g;
+  }
+
+  /* ---------------------------------------------------- the breadboard grid
+     Drawn as the real article: a plastic slab, square holes, a recessed channel
+     down the middle, a–j printed down BOTH edges and the column numbers above
+     row a and below row j — which is where a real board prints them, in the gap
+     between the rails and the main block.
+
+     One deliberate departure from the photograph: each set of joined holes gets
+     the same faint capsule the stripboard draws under a track.  On real
+     hardware those clips are hidden inside the plastic, and "which holes are
+     already joined" is the entire thing this tool teaches — a pupil who cannot
+     see the net cannot reason about it.  Same class as the stripboard's track,
+     so it themes identically and reads as the same idea on both boards. */
+  function breadGrid(board) {
+    const cols = board.cols;
+    let g = "";
+    const x0 = X(1) - P * 1.45, x1 = X(cols) + P * 1.45, w = x1 - x0;
+    const topY = Y(0) - P * 1.1, botY = Y(board.rows - 1) + P * 1.1;
+
+    g += `<rect class="sbd-bbslab" x="${n(x0)}" y="${n(topY)}" ` +
+         `width="${n(w)}" height="${n(botY - topY)}" rx="6"/>`;
+
+    // the centre channel: the gap between row e and row f, drawn as a recess
+    const [loBand, hiBand] = board.bands;
+    const chTop = Y(loBand[1]) + P * 0.5, chBot = Y(hiBand[0]) - P * 0.5;
+    g += `<rect class="sbd-bbchan" x="${n(x0)}" y="${n(chTop)}" ` +
+         `width="${n(w)}" height="${n(chBot - chTop)}" rx="2"/>`;
+
+    // the joined-holes capsules: one per rail, one per five-hole column group
+    const cap = (cx, cy, cw, ch) =>
+      `<rect class="sbd-track" x="${n(cx)}" y="${n(cy)}" width="${n(cw)}" ` +
+      `height="${n(ch)}" rx="${n(Math.min(cw, ch) / 2)}"/>`;
+    for (const rail of board.rails)
+      g += cap(X(1) - P * 0.42, Y(rail.r) - P * 0.37, (cols - 1) * P + P * 0.84, P * 0.74);
+    for (const [lo, hi] of board.bands)
+      for (let c = 1; c <= cols; c++)
+        g += cap(X(c) - P * 0.37, Y(lo) - P * 0.42, P * 0.74,
+                 Y(hi) - Y(lo) + P * 0.84);
+
+    /* The printed rail lines.  Red ALWAYS above its row and blue always below
+       its own, at both ends of the board — which is how a real board is printed
+       and what the photograph shows.  Mirroring the bottom pair instead put the
+       blue line above the red one down there; caught by rendering it. */
+    for (const end of ["top", "bottom"]) {
+      const pos = board.rails.find(x => x.where === end && x.pol === "+");
+      const neg = board.rails.find(x => x.where === end && x.pol !== "+");
+      const py = Y(pos.r) - P * 0.6, ny = Y(neg.r) + P * 0.6;
+      g += `<path class="sbd-bbpos" d="M ${n(X(1) - P * 0.2)} ${n(py)} H ${n(X(cols) + P * 0.2)}"/>`;
+      g += `<path class="sbd-bbneg" d="M ${n(X(1) - P * 0.2)} ${n(ny)} H ${n(X(cols) + P * 0.2)}"/>`;
+      for (const lx of [X(1) - P * 1.0, X(cols) + P * 1.0]) {
+        g += `<text class="sbd-bbposl" x="${n(lx)}" y="${n(py + 5)}" text-anchor="middle">+</text>`;
+        g += `<text class="sbd-bbnegl" x="${n(lx)}" y="${n(ny + 5)}" text-anchor="middle">\u2212</text>`;
+      }
+    }
+
+    // square holes, the way a real board is moulded
+    const hs = P * 0.16;
+    for (let r = 0; r < board.rows; r++)
+      for (let c = 1; c <= cols; c++)
+        g += `<rect class="sbd-hole" x="${n(X(c) - hs)}" y="${n(Y(r) - hs)}" ` +
+             `width="${n(hs * 2)}" height="${n(hs * 2)}" rx="1"/>`;
+
+    // a–j down both edges
+    for (const [lo, hi] of board.bands)
+      for (let r = lo; r <= hi; r++)
+        for (const lx of [X(1) - P * 1.0, X(cols) + P * 1.0])
+          g += `<text class="sbd-lab" x="${n(lx)}" y="${n(Y(r) + 4)}" ` +
+               `text-anchor="middle">${board.rowDisp[r]}</text>`;
+
+    /* Column numbers immediately above row a and below row j — NOT centred in
+       the gap, which is where the rail line is printed: at the midpoint the
+       numbers sat on the blue line and neither could be read. */
+    const numY = [Y(loBand[0]) - P * 0.55, Y(hiBand[1]) + P * 0.78];
+    for (let c = 1; c <= cols; c++)
+      if (c === 1 || c % 5 === 0 || c === cols)
+        for (const y of numY)
+          g += `<text class="sbd-lab" x="${n(X(c))}" y="${n(y)}" text-anchor="middle">${c}</text>`;
+    return g;
+  }
+
+  function renderBoard(o) {
+    const board = useBoard(BOARDS[o.board]);
+    if (!board) throw new Error("unknown board " + o.board);
+    const a = o.attempt || {};
+    const q = o.question || {};
+    const { w: W, h: H } = sizeOf(o.board);
+
+    const layers = { defs: "", grid: "", body: "", pin: "", cut: "", link: "", tp: "", id: "", hl: "" };
+
+    layers.grid += isBread(board) ? breadGrid(board) : stripGrid(board);
 
     /* components */
     for (const p of a.placements || []) {
@@ -2405,14 +2727,25 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         const midC = (Math.min(...cs) + Math.max(...cs)) / 2;
         const topR = Math.min(...rs), botR = Math.max(...rs);
         if (fp.kind === "terminal") {
-          // supply and signal terminals sit at the board edge and often stack in
-          // adjacent rows, so a label ABOVE lands on its neighbour's box
+          /* Supply and signal terminals sit at the board edge and often stack in
+             adjacent rows, so a label ABOVE lands on its neighbour's box — it
+             goes to the left instead.  Except on a breadboard, where the left
+             margin is already carrying the printed + and − rail marks and the
+             row letters: there the label goes to the RIGHT of the terminal. */
+          const leftGutter = !isBread(board) || Math.min(...cs) > 3;
           layers.id += `<text class="${comp.pos ? "sbd-posid" : "sbd-id"}" ` +
-            `x="${n(X(Math.min(...cs)) - P * 0.55)}" ` +
-            `y="${n(Y(topR) + 4)}" text-anchor="end">${esc(p.id)}</text>`;
+            `x="${n(X(leftGutter ? Math.min(...cs) : Math.max(...cs)) + (leftGutter ? -P * 0.55 : P * 0.55))}" ` +
+            `y="${n(Y(topR) + 4)}" text-anchor="${leftGutter ? "end" : "start"}">${esc(p.id)}</text>`;
         } else {
-          // row A has the column numbers directly above it — label below instead
-          const above = topR > 0;
+          /* Row A has the column numbers directly above it — label below
+             instead.  On a breadboard the same is true of row a and of both
+             bottom rails, and the top rails have the slab edge above them; the
+             one genuinely roomy place is row f, which has the whole channel
+             above it.  Caught by rendering: R1 in row a put its label on top of
+             the column numbers. */
+          const above = isBread(board)
+            ? (topR > board.bands[0][0] && topR < board.rails[2].r)
+            : topR > 0;
           layers.id += `<text class="sbd-id" x="${n(X(midC))}" ` +
             `y="${n(above ? Y(topR) - P * 0.55 : Y(botR) + P * 0.75)}" ` +
             `text-anchor="middle">${esc(p.id)}</text>`;
@@ -2511,7 +2844,18 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
   function renderPart(o) {
     const fp = FOOTPRINTS[o.footprint];
     if (!fp) return "";
-    const at = { r: 1, c: 2 };
+    const board = useBoard(BOARDS[o.board]) || null;
+    const bb = isBread(board);
+    /* On a breadboard a chip previews on row e, the last row before the
+       channel — so it straddles here exactly as it must on the board, and the
+       0.3 in gap the package needs is visible BEFORE the drop.
+       Everything else previews on row b, INSIDE the a–e block: a part turned
+       down the columns is then shown doing what it will really do — sitting in
+       one five-hole net — instead of straddling the channel, which is the one
+       vertical placement that is not a short and so the one least worth
+       showing. */
+    const at = bb ? { r: board.bands[0][0] + (fp.kind === "dil" ? 4 : 1), c: 2 }
+                  : { r: 1, c: 2 };
     const cells = cellsOf(fp, at, o.rot || 0);
     const holes = cells.pins.map(z => z.hole).concat(cells.body);
     const rs = holes.map(h => h.r), cs = holes.map(h => h.c);
@@ -2524,12 +2868,36 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     const W = x1 - x0, H = y1 - y0;
 
     let g = "";
-    for (let r = r0 - 1; r <= r1 + 1; r++) {
-      const th = P * 0.74;
-      g += `<rect class="sbd-track" x="${n(x0)}" y="${n(Y(r) - th / 2)}" ` +
-           `width="${n(W)}" height="${n(th)}" rx="${n(th / 2)}"/>`;
+    // never show a rail row in a part preview: it is not where a part goes
+    const rTop = bb ? Math.max(board.bands[0][0], r0 - 1) : r0 - 1;
+    const rBot = bb ? Math.min(board.bands[1][1], r1 + 1) : r1 + 1;
+    if (bb) {
+      // the channel, where one is in view
+      for (const [lo, hi] of [[board.bands[0][1], board.bands[1][0]]])
+        if (r0 <= lo && r1 >= hi)
+          g += `<rect class="sbd-bbchan" x="${n(x0)}" y="${n(Y(lo) + P * 0.5)}" ` +
+               `width="${n(W)}" height="${n(Y(hi) - Y(lo) - P)}" rx="2"/>`;
+      // one capsule per column per band, clipped to what is on screen
       for (let c = c0 - 1; c <= c1 + 1; c++)
-        g += `<circle class="sbd-hole" cx="${n(X(c))}" cy="${n(Y(r))}" r="${n(P * 0.15)}"/>`;
+        for (const [lo, hi] of board.bands) {
+          const a = Math.max(lo, rTop), b = Math.min(hi, rBot);
+          if (a > b) continue;
+          g += `<rect class="sbd-track" x="${n(X(c) - P * 0.37)}" y="${n(Y(a) - P * 0.42)}" ` +
+               `width="${n(P * 0.74)}" height="${n(Y(b) - Y(a) + P * 0.84)}" rx="${n(P * 0.37)}"/>`;
+        }
+      const hs = P * 0.16;
+      for (let r = rTop; r <= rBot; r++)
+        for (let c = c0 - 1; c <= c1 + 1; c++)
+          g += `<rect class="sbd-hole" x="${n(X(c) - hs)}" y="${n(Y(r) - hs)}" ` +
+               `width="${n(hs * 2)}" height="${n(hs * 2)}" rx="1"/>`;
+    } else {
+      for (let r = r0 - 1; r <= r1 + 1; r++) {
+        const th = P * 0.74;
+        g += `<rect class="sbd-track" x="${n(x0)}" y="${n(Y(r) - th / 2)}" ` +
+             `width="${n(W)}" height="${n(th)}" rx="${n(th / 2)}"/>`;
+        for (let c = c0 - 1; c <= c1 + 1; c++)
+          g += `<circle class="sbd-hole" cx="${n(X(c))}" cy="${n(Y(r))}" r="${n(P * 0.15)}"/>`;
+      }
     }
 
     const p = { id: o.id, footprint: o.footprint, rot: o.rot || 0,
@@ -2545,11 +2913,12 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${n(x0)} ${n(y0)} ${n(W)} ${n(H)}" ` +
       `width="${n(W)}" height="${n(H)}" role="img"><title>${esc(o.id)}, ` +
-      `${r1 - r0 + 1} tracks by ${c1 - c0 + 1} holes</title>${g}</svg>`;
+      `${r1 - r0 + 1} ${bb ? "rows by " + (c1 - c0 + 1) + " columns"
+                           : "tracks by " + (c1 - c0 + 1) + " holes"}</title>${g}</svg>`;
   }
 
   // how the footprint lies, in the words the planning sheet uses
-  function spanOf(footprint, rot) {
+  function spanOf(footprint, rot, boardId) {
     const fp = FOOTPRINTS[footprint];
     if (!fp) return "";
     const cells = cellsOf(fp, { r: 1, c: 2 }, rot || 0);
@@ -2557,6 +2926,15 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     const rows = Math.max(...holes.map(h => h.r)) - Math.min(...holes.map(h => h.r)) + 1;
     const cols = Math.max(...holes.map(h => h.c)) - Math.min(...holes.map(h => h.c)) + 1;
     if (rows === 1 && cols === 1) return "one hole";
+    /* A breadboard pupil is not thinking in tracks.  Along a row is what puts a
+       part across several column nets, which is the placement that works; down
+       a column is the one that shorts it out, and saying so here — before the
+       drop — is cheaper than saying it afterwards in a fault. */
+    if (isBread(BOARDS[boardId])) {
+      if (cols === 1) return "down one column, " + rows + " holes";
+      if (rows === 1) return "along one row, across " + cols + " columns";
+      return rows + " rows \u00d7 " + cols + " columns";
+    }
     if (cols === 1) return "across " + rows + " tracks";
     if (rows === 1) return "along one track, " + cols + " holes";
     return rows + " tracks \u00d7 " + cols + " holes";
@@ -2567,22 +2945,47 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
      drawn, the inverse to hit-test 888 holes with one transparent overlay and
      some arithmetic instead of 888 listeners. */
   function sizeOf(boardId) {
-    const b = BOARDS[boardId];
-    return { w: PAD_L + b.cols * P + PAD_R, h: PAD_T + b.rows * P + PAD_B,
+    const b = useBoard(BOARDS[boardId]);
+    const last = b.rows - 1;
+    // a breadboard's last row is not `rows` pitches down: ask the row table
+    const h = Y(last) + P * 0.5 + (isBread(b) ? P * 1.3 : 0) + PAD_B;
+    return { w: PAD_L + b.cols * P + PADR, h: Math.round(h * 100) / 100,
              rows: b.rows, cols: b.cols };
   }
 
-  // logical px -> hole, or null if the point is outside the grid
+  /* logical px -> hole, or null if the point is outside the grid.
+     The rows are not evenly spaced on a breadboard, so the inverse is a search
+     for the nearest row rather than a division — and a point in the channel, or
+     in the gap either side of a rail pair, belongs to NO hole and must return
+     null rather than snapping to the nearest one.  A drop that lands in the
+     channel is a miss, not a placement half a row out. */
   function holeAt(boardId, x, y) {
-    const b = BOARDS[boardId];
+    const b = useBoard(BOARDS[boardId]);
     const c = Math.round((x - PAD_L) / P + 0.5);
-    const r = Math.round((y - PAD_T) / P - 0.5);
-    if (r < 0 || r >= b.rows || c < 1 || c > b.cols) return null;
+    if (c < 1 || c > b.cols) return null;
+    let r;
+    if (!ROWY) {
+      r = Math.round((y - PADT) / P - 0.5);
+    } else {
+      const u = (y - PADT) / P - 0.5;
+      let best = -1, bd = Infinity;
+      for (let i = 0; i < b.rows; i++) {
+        const d = Math.abs(ROWY[i] - u);
+        if (d < bd) { bd = d; best = i; }
+      }
+      if (bd > 0.5) return null;
+      r = best;
+    }
+    if (r < 0 || r >= b.rows) return null;
     return { r, c };
   }
 
   root.SBD.render = { renderBoard, renderPart, spanOf, inlineClasses, STYLE, CLASSES,
-                      P, PAD_L, PAD_T, sizeOf, holeAt, centreOf: (r, c) => ({ x: X(c), y: Y(r) }),
+                      P, PAD_L, PAD_T, sizeOf, holeAt,
+                      centreOf: (r, c, boardId) => {
+                        if (boardId) useBoard(BOARDS[boardId]);
+                        return { x: X(c), y: Y(r) };
+                      },
                       LINK_COLOURS, BODY_COLOURS, BODY_DEFAULT, bodyColourable, chipPrint };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
@@ -5350,6 +5753,18 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
   ];
   const byKey = k => PALETTE.find(p => p.key === k);
 
+  /* The palette is written once, for both boards.  A chip is the only entry
+     whose FOOTPRINT differs: on a stripboard a DIL spans the tracks, on a
+     breadboard it lies along the columns with its two rows of pins either side
+     of the centre channel — the same package, a different shape on the grid.
+     Resolved here rather than in a second palette, so the chip list, the item
+     IDs and the data-sheet pinouts cannot drift apart between the two pages. */
+  function fpFor(spec, boardId) {
+    const fp = spec && spec.footprint;
+    if (!SBD.isBread(SBD.BOARDS[boardId]) || !/^dip-\d+$/.test(fp || "")) return fp;
+    return SBD.FOOTPRINTS[fp + "-bb"] ? fp + "-bb" : fp;
+  }
+
   /* The next free item ID for a palette entry.  Numbers are reused once a part
      comes off the board, so a pupil who places and removes a resistor six times
      is not left starting at R7. */
@@ -5364,13 +5779,13 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
   // a component record in the same shape the authored questions use, so every
   // other part of the engine and the renderer treats it identically
-  function mint(components, key) {
+  function mint(components, key, boardId) {
     const spec = byKey(key), id = nextId(components, key);
     if (!id) return null;
     // `key` is the palette entry it came from: the bank has to know which tile
     // to open for a part the pupil taps on the board, and deriving that back
     // from the footprint is ambiguous (four different parts are all term-1).
-    const c = { id, key, footprint: spec.footprint, name: id + " — " + spec.name };
+    const c = { id, key, footprint: fpFor(spec, boardId), name: id + " — " + spec.name };
     if (spec.part) { c.part = spec.part; c.name = id + " — " + spec.part + " " + spec.sub; }
     if (spec.pos) c.pos = true;
     if (spec.neg) c.neg = true;
@@ -5391,7 +5806,27 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
   /* ----------------------------------------------------------- net report
      Every net that has at least one leg in it, with the copper it lives on.
      A net with no legs is bare track and says nothing, so it is dropped. */
-  function runsOf(holes) {
+  function runsOf(holes, boardId) {
+    const board = SBD.BOARDS[boardId];
+    /* A breadboard net is not a run of holes along a row — it is a whole rail,
+       or one five-hole column.  Naming it "C12–G12" would be arithmetically
+       true and pedagogically useless: the pupil is looking at a board printed
+       with a, b, c and 1 to 30, and that is what the read-back has to say. */
+    if (SBD.isBread(board)) {
+      const out = [], seen = new Set();
+      for (const h of holes) {
+        const rail = board.rails.find(x => x.r === h.r);
+        const band = board.bands.findIndex(([lo, hi]) => h.r >= lo && h.r <= hi);
+        const k = rail ? "rail:" + h.r : "col:" + h.c + ":" + band;
+        if (seen.has(k)) continue;
+        seen.add(k);
+        out.push({ row: h.r, from: h.c, to: h.c, rail: !!rail,
+                   text: SBD.netName(board, h) });
+      }
+      // rails first, then columns left to right — the order a pupil reads them
+      out.sort((a, b) => (a.rail ? 0 : 1) - (b.rail ? 0 : 1) || a.from - b.from || a.row - b.row);
+      return out;
+    }
     const byRow = new Map();
     for (const h of holes) {
       if (!byRow.has(h.r)) byRow.set(h.r, []);
@@ -5458,7 +5893,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       if (!n.pins.length) continue;
       nets.push({
         role: n.pos && n.neg ? "shorted supply" : n.pos ? "+5 V" : n.neg ? "0 V" : null,
-        runs: runsOf(n.holes).map(x => x.text),
+        runs: runsOf(n.holes, boardId).map(x => x.text),
         parts: n.pins.map(p => partLabel(q, p)).sort(),
         tps: n.tps.slice().sort(),
         holes: n.holes.map(SBD.ref),
@@ -5484,13 +5919,16 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     const faults = res.faults.slice(), warnings = res.warnings.slice();
     const nets = netReport(boardId, attempt, comps);
 
+    const BREAD = SBD.isBread(SBD.BOARDS[boardId]);
     if (nets) {
       const posC = comps.find(c => c.pos), negC = comps.find(c => c.neg);
       const shorted = nets.find(n => n.role === "shorted supply");
       if (shorted)
         faults.push({ rank: 0.4, code: "supply-short",
           msg: "+5 V and 0 V are on the same run of copper (" + shorted.runs.join(", ") +
-               ") — that is a short across the supply. Cut the track between them.",
+               ") — that is a short across the supply. " +
+               (BREAD ? "Move one of them: they must never reach the same net."
+                      : "Cut the track between them."),
           refs: shorted.holes.slice(0, 2) });
 
       if (comps.length && (!posC || !negC))
@@ -5520,6 +5958,41 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
             refs: [c.id] });
       }
 
+      /* A rail with parts on it and nothing feeding it (BB-PLAN §0, BB-4).
+         The commonest dead-board question after "is the chip powered": the
+         pupil has pushed six legs into the + rail and never run the jumper
+         from the supply to it, so the whole rail is at nothing.  Breadboard
+         only — a stripboard has no rails to leave unfed, and the supply
+         terminal is soldered straight into the track it powers. */
+      if (SBD.isBread(SBD.BOARDS[boardId])) {
+        const board = SBD.BOARDS[boardId];
+        const top = SBD.topology(board, attempt);
+        const fedRoots = new Set();
+        for (const pin of top.pins) {
+          const c = comps.find(x => x.id === pin.comp) || {};
+          if (!c.pos && !c.neg) continue;
+          const nd = top.nodeOf.get(SBD.hid(pin.hole));
+          if (nd !== undefined) fedRoots.add(top.dsu.find(nd));
+        }
+        for (const rail of board.rails) {
+          const nd = top.nodeOf.get(rail.r * 1000 + 1);
+          const root = top.dsu.find(nd);
+          if (fedRoots.has(root)) continue;
+          const users = top.pins.filter(pin => {
+            const n2 = top.nodeOf.get(SBD.hid(pin.hole));
+            return n2 !== undefined && top.dsu.find(n2) === root;
+          });
+          if (!users.length) continue;                    // an unused rail is fine
+          faults.push({ rank: 0.45, code: "rail-not-fed",
+            msg: SBD.rowName(board, rail.r).replace(/^the /, "The ") + " has " +
+                 (users.length === 1 ? "a leg" : users.length + " legs") +
+                 " in it, but nothing connects it to the supply. Run a jumper " +
+                 "from the " + (rail.pol === "+" ? "+5 V" : "0 V") +
+                 " terminal to it, or that whole rail is at nothing.",
+            refs: users.map(pin => SBD.ref(pin.hole)).slice(0, 2) });
+        }
+      }
+
       /* A leg on a track with nothing else on it is worth saying — a forgotten
          link wire is exactly what that looks like.  But reporting it leg by leg
          buries every other line: a 14-pin chip placed on a blank board, which
@@ -5544,10 +6017,11 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         const all = legs > 1 && e.labels.length >= legs;
         warnings.push({ rank: 22, code: "lone-pin",
           msg: all
-            ? id + " is not wired up yet — all " + legs + " of its legs are on tracks with " +
+            ? id + " is not wired up yet — all " + legs + " of its legs are " + (BREAD ? "in columns" : "on tracks") + " with " +
               "nothing else on them."
             : (e.labels.length === 1 ? e.labels[0] + " is" : e.labels.join(", ") + " are") +
-              " on a track with nothing else, so joined to nothing.",
+              (BREAD ? " in a column with nothing else in it, so joined to nothing."
+                     : " on a track with nothing else, so joined to nothing."),
           refs: e.holes.slice(0, 4) });
       }
     }
@@ -5562,7 +6036,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
                        nets: nets ? nets.length : 0 } };
   }
 
-  root.SBD.free = { PALETTE, POWER_PINS, byKey, nextId, mint, freeQ, netReport, freeCheck, runsOf };
+  root.SBD.free = { PALETTE, POWER_PINS, byKey, nextId, mint, fpFor, freeQ, netReport,
+                    freeCheck, runsOf };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
@@ -5661,8 +6136,16 @@ let mode = null;
    modes: the marked ones are a course to work through, Free build is a
    workbench, and putting them on one page meant a pupil looking for either had
    to know which tab it was behind.  build.py substitutes this line. */
-const VARIANT = /*@VARIANT*/ { id: "learn", modes: ["choose", "trace", "convert", "fault", "reverse", "points"] };
+const VARIANT = /*@VARIANT*/ { id: "learn", modes: ["choose", "trace", "convert", "fault", "reverse", "points"], boards: ["34-0410", "34-0411"] };
 const HAS = m => VARIANT.modes.indexOf(m) >= 0;
+/* Whether this page is a breadboard.  Asked of the BOARD, never of the variant
+   id, so the two can never disagree about what is on screen. */
+const BB = SBD.isBread(SBD.BOARDS[VARIANT.boards[0]]);
+/* A hole in the words printed on THIS board: "H12" on a stripboard, "e12" or
+   "+12 (top rail)" on a breadboard.  Internal refs stay A-based everywhere, so
+   this is the only place a hole becomes something a pupil reads. */
+const hn = k => SBD.holeName(SBD.BOARDS[boardOf()],
+                             typeof k === "string" ? SBD.parseRef(k) : k);
 
 /* The chooser's cards: what the mode is, and what a pupil has to be able to do
    by the end of it.  Written as the course outcome, not as instructions for the
@@ -5710,7 +6193,8 @@ const TRACE_LEDE = "Look at the board, then answer the question beside it: are t
 const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
   "with it. Tap the hole where you think the fault is, choose what the fault is, and check.";
 const FREE_LEDE = "A blank board, the whole parts box and nothing to copy. Build what you like: the panel " +
-  "beside the board says what your copper has joined together, updating as you work, and Check tells you " +
+  "below the board says what " + (BB ? "the board has joined together for you" : "your copper has joined together") +
+  ", updating as you work, and Check tells you " +
   "whether it could actually be built \u2014 there is no right answer here, so nothing is marked.";
 const REVERSE_LEDE = "Every board here is correct. The question is what circuit it builds — " +
   "follow the copper and answer, the way the question paper asks you to.";
@@ -5963,7 +6447,10 @@ function atHole(h){
 }
 
 function describe(h){
-  const what = atHole(h), where = "track " + SBD.rowLetter(h.r) + ", column " + h.c;
+  const b = SBD.BOARDS[boardOf()];
+  const what = atHole(h);
+  const where = SBD.isBread(b) ? SBD.rowName(b, h.r) + ", column " + h.c
+                               : "track " + SBD.rowLetter(h.r) + ", column " + h.c;
   if (what.kind === "cut")  return where + ", track cut";
   if (what.kind === "tp")   return where + ", test point " + what.tp.id;
   if (what.kind === "pin")  return where + ", " + what.p.id + " pin " + what.pin;
@@ -5985,31 +6472,31 @@ function act(h){
        the seven cuts an IC needs run between its two rows of pins, under the
        package — that is the column of X's on the planning sheet. */
     if (what.kind === "pin"){
-      say("You cannot cut " + key + " — " + what.p.id + " pin " + what.pin + " is soldered there."); return;
+      say("You cannot cut " + hn(key) + " — " + what.p.id + " pin " + what.pin + " is soldered there."); return;
     }
     const i = A.cuts.indexOf(key);
-    if (i >= 0){ A.cuts.splice(i, 1); say("Cut removed at " + key + "."); }
-    else { A.cuts.push(key); say("Track cut at " + key + "."); }
+    if (i >= 0){ A.cuts.splice(i, 1); say("Cut removed at " + hn(key) + "."); }
+    else { A.cuts.push(key); say("Track cut at " + hn(key) + "."); }
 
   } else if (tool === "tp"){
     const i = A.testpoints.findIndex(t => t.at === key);
-    if (i >= 0){ A.testpoints.splice(i, 1); renumberTps(); say("Test point removed from " + key + "."); }
+    if (i >= 0){ A.testpoints.splice(i, 1); renumberTps(); say("Test point removed from " + hn(key) + "."); }
     else { A.testpoints.push({ id: "TP", at: key }); renumberTps();
-           say("Test point " + A.testpoints.find(t => t.at === key).id + " at " + key + "."); }
+           say("Test point " + A.testpoints.find(t => t.at === key).id + " at " + hn(key) + "."); }
 
   } else if (tool === "link"){
-    if (!linkStart){ linkStart = key; say("Link wire started at " + key + ". Tap the other end."); }
+    if (!linkStart){ linkStart = key; say("Link wire started at " + hn(key) + ". Tap the other end."); }
     else if (linkStart === key){ linkStart = null; say("Link wire cancelled."); }
     else {
       const num = A.links.length + 1;
       A.links.push({ a: linkStart, b: key, colour: linkColour, num });
-      say("Link wire " + num + " from " + linkStart + " to " + key + ", " + linkColour + ".");
+      say("Link wire " + num + " from " + hn(linkStart) + " to " + hn(key) + ", " + linkColour + ".");
       linkStart = null;
       nextLinkColour();
     }
 
   } else if (tool === "erase"){
-    if (what.kind === "cut"){ A.cuts.splice(A.cuts.indexOf(key), 1); say("Cut removed at " + key + "."); }
+    if (what.kind === "cut"){ A.cuts.splice(A.cuts.indexOf(key), 1); say("Cut removed at " + hn(key) + "."); }
     else if (what.kind === "tp"){ A.testpoints = A.testpoints.filter(t => t.at !== key);
       renumberTps(); say("Test point removed."); }
     else if (what.kind === "pin" || what.kind === "body"){
@@ -6021,7 +6508,7 @@ function act(h){
       say(what.p.id + " taken off the board."); }
     else if (what.kind === "link"){ A.links = A.links.filter(l => l !== what.link);
       renumberLinks(); say("Link wire removed."); }
-    else say("Nothing at " + key + " to remove.");
+    else say("Nothing at " + hn(key) + " to remove.");
 
   } else {                                    /* place */
     if (!sel){
@@ -6043,7 +6530,7 @@ function act(h){
            says how far the legs were bent. */
         if (mode === "free" && cand.footprint !== comp.footprint) comp.footprint = cand.footprint;
         A.placements.push(cand);
-        say(sel + " placed at " + key + ".");
+        say(sel + " placed at " + hn(key) + ".");
         sel = null; rot = 0; len = null; pending = null;
       }
     }
@@ -6232,8 +6719,9 @@ function drawBank(){
     /* Naming the socket where the pupil picks the part is the only place the
        "do not solder an IC" finding can actually land — the bank holds a DIL
        socket and nothing else, but until now nothing said so. */
-    const dil = /^dip-(\d+)$/.exec(c.footprint);
-    const sub = dil ? (c.part ? c.part + " · " : "") + dil[1] + "-pin DIL socket"
+    const dil = /^dip-(\d+)(?:-bb)?$/.exec(c.footprint);
+    const sub = dil ? (c.part ? c.part + " · " : "") + dil[1] + "-pin DIL" +
+                      (BB ? ", across the channel" : " socket")
                     : (c.part || shortName(c));
     const head = "<strong>" + esc(c.id) + "</strong>" +
                  (sub ? "<span class='sub'>" + esc(sub) + "</span>" : "");
@@ -6247,8 +6735,8 @@ function drawBank(){
              "<button type='button' class='trot'>⟳ Rotate</button>" +
              lenButton(c, fpSel) + "</div>" +
              "<div class='tpv'>" + R.renderPart({ id: c.id, footprint: fpSel,
-               rot: rot, part: c.part, pos: c.pos }) + "</div>" +
-             "<span class='tspan'>Lies " + esc(R.spanOf(fpSel, rot)) + "</span>";
+               rot: rot, part: c.part, pos: c.pos, board: boardOf() }) + "</div>" +
+             "<span class='tspan'>Lies " + esc(R.spanOf(fpSel, rot, boardOf())) + "</span>";
       openTile = b;
     }
     b.innerHTML = html;
@@ -6595,7 +7083,7 @@ $("board").addEventListener("click", e => {
     if (!h) return;
     faultTap = h;
     paintFault();
-    say("Marked " + SBD.ref(h) + ".");
+    say("Marked " + hn(h) + ".");
     return;
   }
   if (!building()) return;
@@ -6655,7 +7143,7 @@ function rotate(){
   }
   rot = (rot + 90) % 360;
   const comp = sel && Q.components.find(c => c.id === sel);
-  say(comp ? sel + " turned — it now lies " + R.spanOf(fpOf(comp), rot) + "."
+  say(comp ? sel + " turned — it now lies " + R.spanOf(fpOf(comp), rot, boardOf()) + "."
            : "Rotation set to " + rot + " degrees.");
   drawBank();
   fit();               // the open tile's own height can change on rotation
@@ -6669,9 +7157,15 @@ function rotate(){
    exception: at rot 0 it is ALREADY vertical (its two pin rows run down the
    board), so defaulting it to 90 would hand a pupil the sideways-chip fault
    before they have placed anything. */
+/* Which way a part turns up when it is picked.  On a stripboard, across the
+   tracks (90) — a part lying ALONG one track is shorted out.  On a breadboard
+   it is the other way round: the five holes down a column are the net, so a
+   part must lie ALONG a row, across several columns, and 90 would short it.
+   Same rule, opposite answer, because the copper runs the other way. */
 function defaultRotFor(footprint){
   const fp = SBD.FOOTPRINTS[footprint] || {};
-  return (fp.kind === "dil" || fp.fixedRot) ? 0 : 90;
+  if (fp.kind === "dil" || fp.fixedRot) return 0;
+  return BB ? 0 : 90;
 }
 
 $("bank").addEventListener("click", e => {
@@ -6699,7 +7193,7 @@ $("bank").addEventListener("click", e => {
   }
   if (sel && tool !== "place") setTool("place");
   const comp = sel && Q.components.find(c => c.id === sel);
-  say(comp ? sel + " selected — it lies " + R.spanOf(comp.footprint, rot) +
+  say(comp ? sel + " selected — it lies " + R.spanOf(comp.footprint, rot, boardOf()) +
              ". Tap a hole on the board, or press Enter with the cursor there."
            : "Selection cleared.");
   drawBank();
@@ -7413,8 +7907,22 @@ $("btnRev").addEventListener("click", answerReverse);
    the keyboard cursor, the storage — is Convert's code, unchanged.
    ============================================================ */
 const FREE = SBD.free;
-const FREE_KEY = "__free";                 // its slot in the same versioned store
-const FREE_BOARDS = ["34-0410", "34-0411"];
+/* Its slot in the same versioned store.  The breadboard page gets a slot of
+   its own: the store is shared across the three pages, and one key would have
+   the breadboard silently wipe a pupil's saved stripboard the first time they
+   opened it. */
+const FREE_KEY = BB ? "__free_bread" : "__free";
+const FREE_BOARDS = VARIANT.boards;
+/* The board currently on screen, whichever mode is running.  Free build is the
+   only mode that lets the pupil change it; everything else takes it from the
+   question. */
+function boardOf(){ return (mode === "free" || !Q) ? freeBoard : Q.board; }
+/* How a board describes its own size, in the units it is actually divided into. */
+function boardSize(id){
+  const b = SBD.BOARDS[id];
+  return SBD.isBread(b) ? b.cols + " columns, rows a\u2013j plus four power rails"
+                        : b.rows + " tracks \u00d7 " + b.cols + " holes";
+}
 let freeBoard = FREE_BOARDS[0];            // the small board: it fits any screen at full scale
 const FREEC = [];                          // the parts minted so far — ONE array for the life of
                                            // the page, because Q.components points at it
@@ -7464,17 +7972,21 @@ function loadFree(keepScroll){
   marks = []; hl = []; bankKey = null; netSig = null; cur = { r: 0, c: 1 };
 
   $("qtitle").textContent = "Free build — your own board";
-  $("qsrc").textContent = freeBoard + " · " + SBD.BOARDS[freeBoard].rows + " tracks × " +
-                          SBD.BOARDS[freeBoard].cols + " holes";
+  $("qsrc").textContent = freeBoard + " · " + boardSize(freeBoard);
   $("qscenario").innerHTML =
     "<p>Nothing here is marked and there is no answer to copy. Build a sub-system you have " +
     "designed yourself, try out a layout before you commit it to your planning sheet, or just " +
-    "find out what a cut does. <strong>Check my layout</strong> cannot tell you whether the " +
+    (BB ? "find out which holes the board has already joined up for you"
+        : "find out what a cut does") +
+    ". <strong>Check my layout</strong> cannot tell you whether the " +
     "circuit does what you meant — there is no diagram to check it against. It tells you " +
     "whether the board could be built and whether it keeps the rules that hold on every board: " +
-    "nothing shorted across the supply, every chip powered, and <strong>every gate input held " +
-    "down to 0 V unless another gate is driving it</strong>. The panel beside the board tells " +
-    "you what your copper has joined together.</p>";
+    (BB ? "nothing shorted across the supply, no part with both legs in one column, every chip "
+        + "across the centre channel and powered, and "
+        : "nothing shorted across the supply, every chip powered, and ") +
+    "<strong>every gate input held down to 0 V unless another gate is driving it</strong>. " +
+    "The panel below the board tells you what " +
+    (BB ? "the board's own clips have" : "your copper has") + " joined together.</p>";
   paintBoardPick();
   clearFeedback();
   drawGrid();
@@ -7505,14 +8017,14 @@ function pickFromPalette(key){
 
   if (wasOpen){ say("Selection cleared."); }
   else {
-    const c = FREE.mint(FREEC, key);
+    const c = FREE.mint(FREEC, key, freeBoard);
     if (!c) say("A board has one +5 V terminal and one 0 V terminal, and both are already on it.");
     else {
       FREEC.push(c);
       sel = c.id; pending = c.id;
       rot = defaultRotFor(c.footprint);
       if (tool !== "place") setTool("place");
-      say(c.id + " selected — it lies " + R.spanOf(c.footprint, rot) +
+      say(c.id + " selected — it lies " + R.spanOf(c.footprint, rot, boardOf()) +
           ". Tap a hole on the board, or press Enter with the cursor there.");
     }
   }
@@ -7561,8 +8073,9 @@ function drawFreeBank(){
     b.dataset.key = spec.key;
     /* Naming the socket where the pupil picks the chip is the only place the
        "you never solder an IC" rule can actually land. */
-    const dil = /^dip-(\d+)$/.exec(spec.footprint);
-    const sub = spec.sub + (dil ? " · " + dil[1] + "-pin DIL socket" : "");
+    const dil = /^dip-(\d+)(?:-bb)?$/.exec(spec.footprint);
+    const sub = spec.sub + (dil ? " · " + dil[1] + "-pin DIL" +
+                                  (BB ? ", across the channel" : " socket") : "");
     const head = "<span class='phead'><strong>" + esc(spec.name) + "</strong>" +
                  "<span class='nid'>" + esc(isOpen ? selComp.id : (next || "—")) + "</span></span>" +
                  "<span class='sub'>" + esc(sub) + "</span>";
@@ -7592,8 +8105,9 @@ function drawFreeBank(){
         (fixed ? "" : "<button type='button' class='trot'>⟳ Rotate</button>") +
         lenButton(selComp, fpSel) + "</div>" +
         "<div class='tpv'>" + R.renderPart({ id: selComp.id, footprint: fpSel,
-          rot: rot, part: selComp.part, pos: selComp.pos, colour: selComp.colour }) + "</div>" +
-        "<span class='tspan'>Lies " + esc(R.spanOf(fpSel, rot)) + "</span>" +
+          rot: rot, part: selComp.part, pos: selComp.pos, colour: selComp.colour,
+          board: boardOf() }) + "</div>" +
+        "<span class='tspan'>Lies " + esc(R.spanOf(fpSel, rot, boardOf())) + "</span>" +
         swatches;
     if (isOpen) openTile = b;
     bank.appendChild(b);
@@ -7605,7 +8119,23 @@ function drawFreeBank(){
   $("bankhint").textContent = "Tap one, then tap a hole.";
 }
 
-/* ------------------------------------------------------------- board size */
+/* ------------------------------------------------------------- board size
+   The buttons are built from VARIANT.boards rather than written into the HTML:
+   the stripboard pages offer two stripboards and the breadboard page two
+   breadboards, and hard-coding them once meant a third page could not exist
+   without a fourth copy of the markup. */
+function buildBoardPick(){
+  const wrap = $("boardPick");
+  for (const id of FREE_BOARDS){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "bp"; b.dataset.board = id;
+    b.setAttribute("aria-pressed", String(id === freeBoard));
+    const bd = SBD.BOARDS[id];
+    b.textContent = SBD.isBread(bd) ? bd.cols + " columns"
+                                    : bd.rows + " \u00d7 " + bd.cols;
+    wrap.appendChild(b);
+  }
+}
 function paintBoardPick(){
   $("boardPick").querySelectorAll(".bp").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.board === freeBoard)));
@@ -7624,13 +8154,11 @@ $("boardPick").addEventListener("click", e => {
   bankKey = null; netSig = null; cur = { r: 0, c: 1 };
   Q = FREE.freeQ(freeBoard, FREEC);
   Q.components = FREEC;
-  $("qsrc").textContent = freeBoard + " · " + SBD.BOARDS[freeBoard].rows + " tracks × " +
-                          SBD.BOARDS[freeBoard].cols + " holes";
+  $("qsrc").textContent = freeBoard + " · " + boardSize(freeBoard);
   paintBoardPick();
   clearFeedback(); saveStore();
   drawGrid(); paint(); fit();
-  say(freeBoard + " board, " + SBD.BOARDS[freeBoard].rows + " tracks by " +
-      SBD.BOARDS[freeBoard].cols + " holes. Board cleared.");
+  say(freeBoard + " board, " + boardSize(freeBoard) + ". Board cleared.");
 });
 
 /* ------------------------------------------------------------ net read-back
@@ -7647,11 +8175,12 @@ function paintNets(){
   const nets = FREE.netReport(freeBoard, A, FREEC) || [];
   count.textContent = A.placements.length
     ? nets.length + (nets.length === 1 ? " net · " : " nets · ") + A.placements.length + " parts · " +
-      A.cuts.length + " cuts · " + A.links.length + " links"
+      (BB ? "" : A.cuts.length + " cuts · ") + A.links.length + " links"
     : "";
   if (!nets.length){
     list.innerHTML = "<li><p class='netempty'>Nothing joined up yet. Pick a part from the list " +
-      "below and tap a hole \u2014 every track it lands on shows up here.</p></li>";
+      "below and tap a hole \u2014 every " + (BB ? "rail and column" : "track") +
+      " it lands on shows up here.</p></li>";
     return;
   }
   /* Every unwired leg is, strictly, its own net — and on a board with a chip on
@@ -7669,7 +8198,10 @@ function paintNets(){
                : nt.role === "shorted supply" ? "+5 V AND 0 V" : "Net " + (++plain);
     return "<li class='netrow " + cls + "'>" +
       "<div class='nline'><span class='nname'>" + esc(name) + "</span>" +
-      "<span class='nrun'>" + esc(nt.runs.join(" + ")) + "</span></div>" +
+      /* " + " is the stripboard's "this run AND that run".  On a breadboard a
+         run is called "the + rail along the top", so the same separator read as
+         part of the name: "the + rail along the top + column 10". */
+      "<span class='nrun'>" + esc(nt.runs.join(BB ? " \u00b7 " : " + ")) + "</span></div>" +
       "<p class='nparts'>" + esc(nt.parts.join(", ")) +
       (nt.tps.length ? " · " + esc(nt.tps.join(", ")) : "") +
       (nt.lone ? " <span class='nwarn'>— joined to nothing else</span>" : "") + "</p></li>";
@@ -7920,8 +8452,8 @@ function checkPoints(){
    `record()` fires the unlock and achievement toasts itself, so nothing here
    toasts.  The engine is deferred, so every call is guarded.
    ============================================================ */
-const PROG_BADGE = VARIANT.id === "plan" ? "sbd-bp" : "sbd-lp";
-const PROG_CHALLENGE = VARIANT.id === "plan" ? "sbd-plan" : "sbd-learn";
+const PROG_BADGE = { plan: "sbd-bp", bread: "sbd-bb" }[VARIANT.id] || "sbd-lp";
+const PROG_CHALLENGE = { plan: "sbd-plan", bread: "sbd-bread" }[VARIANT.id] || "sbd-learn";
 const PROG_KEY = "el-sbd-prog-" + VARIANT.id;
 let progDone = new Set();
 try {
@@ -7963,6 +8495,16 @@ window.addEventListener("hashchange", () => {
 });
 
 buildLinkColours();
+if (HAS("free")) buildBoardPick();
+/* A breadboard has no copper, so it has nothing to cut.  The button is removed
+   rather than hidden, for the same reason the unused mode tabs are: a hidden
+   control still takes a tab stop, and the alpha shipped one of those once. */
+if (BB){
+  document.querySelectorAll(".bb-never").forEach(b => b.remove());
+  document.querySelectorAll(".bb-only").forEach(b => { b.hidden = false; });
+} else {
+  document.querySelectorAll(".bb-only").forEach(b => b.remove());
+}
 loadStore();
 
 /* This page offers only its own modes — the buttons for the others are taken
