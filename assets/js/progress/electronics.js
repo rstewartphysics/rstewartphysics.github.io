@@ -53,6 +53,11 @@
     { id: "sbd-bp", name: "Board Planner", emoji: "🧰", section: "Planning", thr: 1,
       href: "/classes/electronics/stripboard-planner.html",
       cond: "Design a board of your own that checks clean" },
+    /* The breadboard workbench: the same single-pass test as `sbd-bp`, on the
+       prototype board pupils actually build the practical on. */
+    { id: "sbd-bb", name: "Breadboarder", emoji: "🔌", section: "Planning", thr: 1,
+      href: "/classes/electronics/breadboard-planner.html",
+      cond: "Build a breadboard circuit of your own that checks clean" },
     { id: "con-cc", name: "Solder Master", emoji: "🪛", section: "Construction",
       href: "/classes/electronics/construction.html",
       cond: "Read 8/10 resistor colour codes" },
