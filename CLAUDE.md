@@ -481,6 +481,27 @@ uncredited.
 - **Declare AI-generated assets** (banner and logo artwork), as `CREDITS.md` already does.
 - **Unknown provenance is not publishable.** Ask before it goes live.
 
+### Images — source priority (site standard, 14 September 2026)
+
+Every image on the site, and in every deck, booklet and worksheet, comes from the first source
+that genuinely fits, in this order:
+
+1. **Official Qualifications Scotland (SQA) figures** — `~/SQA Images`, credited
+   `© Qualifications Scotland (SQA)` plus paper, section and question. Verify the credit against
+   the paper itself: the library's attribution has been wrong.
+2. **Clearly licensed images online** — official open-licence agency sources only: NASA
+   (images.nasa.gov, NASA SVS, science.nasa.gov, JPL), ESA/Webb, ESA/Hubble, NOIRLab and comparable
+   bodies. The licence is checked on the image's own page. Skip "courtesy of", third-party credits,
+   company logos, the ESA Standard Licence and anything unclear. Never a general web search, stock
+   photo, social media or press page. Every file needs a `SOURCES.csv` row, is shown to the teacher
+   on a contact sheet before use, and gets a row in `CREDITS.md`, `classes/credits.html` and
+   `copyright-provenance-checklist.csv` in the same change that publishes it.
+3. **Drawn** — inline SVG to the drawing rules in `higher-topic-page-guide.md` §7, matplotlib for
+   graphs, the stripboard engine for boards.
+
+**Never use a file that cannot be properly credited.** The procedure and scripts are in the
+`image-sourcing` skill (`~/.claude/skills/image-sourcing/`).
+
 ---
 
 ## Mobile breakpoints
