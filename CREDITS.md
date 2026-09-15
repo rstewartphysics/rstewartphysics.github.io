@@ -159,6 +159,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   labelled rectangle, link wires coloured and numbered — follow the *Stripboard Layout Planning
   Sheet* © 2002 Electronics in Meccano (eleinmec.com); the conventions are reproduced, not the
   artwork. Circuits, diagrams and code are original to this site (© R Stewart, 2026).
+
+  Added 15 September 2026: **Plan your own Breadboard Circuit**
+  (`classes/electronics/breadboard-planner.html`) and its printable **Breadboard planning sheet**
+  (`classes/electronics/breadboard-planning-sheet.html`). The board is a standard 0.1 in prototype
+  breadboard (400- and 830-point), drawn to the hole pitch and 0.3 in channel of the boards used in
+  class; the drawing and sheet conventions are the stripboard tools' own, after the *Stripboard
+  Layout Planning Sheet* © 2002 Electronics in Meccano (eleinmec.com), the conventions reproduced
+  and not the artwork. The fault list and checklist are written from the National 5 Electronics
+  (C884 75) course and assessment material and the external verification reports, © Qualifications
+  Scotland (SQA), reproduced for educational use. Circuits, diagrams, sheet and code © R Stewart, 2026.
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
