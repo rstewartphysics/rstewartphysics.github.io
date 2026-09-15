@@ -42,6 +42,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   questions, extracted figures, quoted marking-instruction wording and marking-instruction links
   they carry are © Qualifications Scotland, reproduced for educational use.
 
+  Added 15 September 2026: the same covers the **National 5 Engineering Science Topic 3 practical
+  worksheets** at `assets/engineering-science/national-5/03-electronics-and-analogue-control/practicals/`.
+  The worksheets and their circuit and breadboard diagrams are © R Stewart, 2026. Each of
+  Practicals 1–4 closes with one past-paper question whose figure is reproduced from the paper
+  and credited on the page: Practical 1, 2023 Q14(b); Practical 2, the Specimen Question Paper
+  Q15; Practical 3, 2021 Q10(c)–(d); Practical 4, 2026 Q11(e). © Qualifications Scotland (SQA),
+  reproduced for educational use. Practical 5 reproduces no SQA material; it follows the
+  assignment's testing-table format only.
+
   It also covers the **practice tests and the graphing practice** at
   `classes/s3-physics/electricity1/practice-test-*.html` and `graphing-practice.html`.
   Each question is either an adaptation of a National 5 Physics past-paper question — the physics
