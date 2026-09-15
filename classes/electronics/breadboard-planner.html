@@ -559,8 +559,8 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
            card per mode saying what it is and what you have to be able to do.
            Nothing is marked on this screen; it is the map. -->
       <section class="panel chooser" id="chooser" hidden>
-        <h2 class="ch-h">Four rules that hold on every stripboard</h2>
-        <ol class="ch-rules">
+        <h2 class="ch-h bb-never">Four rules that hold on every stripboard</h2>
+        <ol class="ch-rules bb-never">
           <li><strong>A track is a net.</strong> The copper runs the whole way across the board, so
             every leg in that row is joined to every other leg in it. Turning a circuit diagram into
             a layout is really just giving each net a track.</li>
@@ -570,6 +570,21 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
           <li><strong>Adjacent pins are not connected.</strong> Two pins side by side on a package
             are on different tracks. Joining them takes a link wire — and every link is numbered and
             coloured, with red and black kept for +5&nbsp;V and 0&nbsp;V.</li>
+          <li><strong>Every gate input must be held.</strong> Pull it down to 0&nbsp;V through a
+            resistor if a switch or sensor feeds it, tie it straight to 0&nbsp;V if the gate is
+            spare. An input joined to nothing is not a logic 0 — it floats.</li>
+        </ol>
+        <h2 class="ch-h bb-only" hidden>Four rules that hold on every breadboard</h2>
+        <ol class="ch-rules bb-only" hidden>
+          <li><strong>A column is a net.</strong> The five holes down one column, inside one band,
+            are joined inside the board — a whole rail row is one net too. Turning a circuit diagram
+            into a layout is really just giving each net a column, or a rail.</li>
+          <li><strong>A chip straddles the channel.</strong> A DIL package sits with one row of pins
+            in the a&ndash;e band and the other in f&ndash;j, so without straddling it, pin 1 is
+            joined to pin 14 and pin 7 to pin 8.</li>
+          <li><strong>Adjacent pins are not connected.</strong> Two pins side by side on a package
+            are in different columns. Joining them takes a jumper wire — and every jumper is numbered
+            and coloured, with red and black kept for +5&nbsp;V and 0&nbsp;V.</li>
           <li><strong>Every gate input must be held.</strong> Pull it down to 0&nbsp;V through a
             resistor if a switch or sensor feeds it, tie it straight to 0&nbsp;V if the gate is
             spare. An input joined to nothing is not a logic 0 — it floats.</li>
@@ -1800,7 +1815,9 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
         const [a, b] = Array.from(seen.values());
         faults.push({ rank: 4, code: "merged",
           msg: `${label(q, a)} and ${label(q, b)} are joined together, but they are ` +
-               `different parts of the circuit — you need a cut between them.`,
+               `different parts of the circuit — ` +
+               (isBread(board) ? "you need to keep them on separate columns."
+                               : "you need a cut between them."),
           refs: [a, b] });
         seen.forEach(id => explained.add(id));
       }
@@ -1841,7 +1858,8 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
           (FOOTPRINTS[((q.components || []).find(x => x.id === comp0) || {}).footprint] || {}).kind === "dil";
         faults.push({ rank: 5, code: "split",
           msg: `${label(q, picks[0])} and ${label(q, picks[1])} need to be joined but are on ` +
-               `different tracks — add a link wire.` +
+               (isBread(board) ? "different nets — add a jumper wire."
+                               : "different tracks — add a link wire.") +
                (sameChip ? " Two pins next to each other on a chip are not connected to each other." : ""),
           refs: picks.slice(0, 2) });
       }
@@ -6192,14 +6210,26 @@ const hn = k => SBD.holeName(SBD.BOARDS[boardOf()],
    tool — the tool explains itself once you are in it. */
 const MODE_CARDS = [
   { m: "trace", em: "\u{1F50D}", name: "Trace",
-    what: "Two holes are named. Say whether the copper joins them.",
-    can: "Read a track as a net: follow the copper past cuts and along link wires, and know that a leg in a track is joined to everything else in it." },
+    what: BB ? "Two holes are named. Say whether the board joins them." : "Two holes are named. Say whether the copper joins them.",
+    can: BB
+      ? "Read a column, or a rail, as a net: follow the board past the channel and along jumper " +
+        "wires, and know that a leg in a column is joined to everything else in it."
+      : "Read a track as a net: follow the copper past cuts and along link wires, and know that a " +
+        "leg in a track is joined to everything else in it." },
   { m: "convert", em: "\u{1F5FA}", name: "Convert",
-    what: "Turn a circuit diagram into a stripboard layout.",
-    can: "Give every net a track, place each part so its legs land in the right ones, cut every track a chip crosses, add link wires where parts cannot reach, and mark the test points before you build." },
+    what: BB ? "Turn a circuit diagram into a breadboard layout." : "Turn a circuit diagram into a stripboard layout.",
+    can: BB
+      ? "Give every net a column or a rail, place each part so its legs land in the right ones, " +
+        "sit a chip straddling the centre channel, add jumper wires where parts cannot reach, and " +
+        "mark the test points before you build."
+      : "Give every net a track, place each part so its legs land in the right ones, cut every track a chip crosses, add link wires where parts cannot reach, and mark the test points before you build." },
   { m: "fault", em: "\u{1F50E}", name: "Fault-finder",
     what: "One board, one fault. Find it, then name it.",
-    can: "Spot the ten faults the verifiers keep reporting \u2014 a missing cut, a chip along the tracks, two nets joined, a leg on its own track \u2014 and say which one it is, not just where." },
+    can: BB
+      ? `Spot the ${FAULT_ITEMS.length} faults the checker looks for \u2014 a chip not straddling ` +
+        "the channel, two nets joined, a leg on its own column, a jumper laid across a chip \u2014 " +
+        "and say which one it is, not just where."
+      : `Spot the ${FAULT_ITEMS.length} faults the verifiers keep reporting \u2014 a missing cut, a chip along the tracks, two nets joined, a leg on its own track \u2014 and say which one it is, not just where.` },
   { m: "reverse", em: "\u{1F501}", name: "Reverse",
     what: "Read a finished board and work out the circuit it builds.",
     can: "Work backwards from copper to circuit. This is the direction the exam asks for, and the one most people practise least." },
@@ -6213,8 +6243,12 @@ const MODE_CARDS = [
 
 const MODE_DESC = {
   choose: "Start here: the rules that hold on every board, and what each of the five tasks asks of you.",
-  trace: "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
-  convert: "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it.",
+  trace: BB
+    ? "Warm-up: is a hole connected to another hole? No board-building — answer, then see the board."
+    : "Warm-up: is a hole connected to another hole? No board-building — answer, then see the copper.",
+  convert: BB
+    ? "The main task: turn a circuit diagram into a breadboard layout — place parts, straddle the channel, run jumpers. Tap a part already on the board to pick it up and move it."
+    : "The main task: turn a circuit diagram into a stripboard layout — place parts, cut tracks, run links. Tap a part already on the board to pick it up and move it.",
   fault: "One board, one fault. Find where it is, then say what it is — the skill the verifiers say is missing.",
   reverse: "The other direction: read a finished board and work out the circuit it builds. This is the one the exam asks.",
   points: "The board is finished and correct. All it needs is the test points — mark them, and say what each will read.",
@@ -7286,7 +7320,19 @@ $("btnRot").addEventListener("click", rotate);
    below is the only place a version is written down; the chip reads from it,
    so the two cannot disagree.
    ============================================================ */
-const CHANGELOG = [
+/* The breadboard Learn page is a new build with no history of its own yet —
+   showing it the stripboard page's whole changelog (which talks about cuts,
+   tracks and builds this page never had) would be confusing, not honest. */
+const BREAD_LEARN_CHANGELOG = [
+  { v: "1.0", date: "15 Sep 2026", what:
+    "First release: all five tasks — Trace, Convert, Fault-finder, Reverse and Test points — on " +
+    "three circuits laid out for a breadboard (an LED and resistor, a lift interlock built from " +
+    "two AND gates, and a transistor switching a buzzer). The breadboard-specific rules — a chip " +
+    "straddling the centre channel, a jumper never laid flat across one, the transistor turning to " +
+    "put its three legs in three columns — are new checks this page tests that the stripboard " +
+    "pages do not need." }
+];
+const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG : [
   { v: "2.2", date: "15 Sep 2026", what:
     "<strong>One hole, one thing — on stripboard too.</strong> A link wire can no longer " +
     "share a hole with a component leg: put the link in the next hole along the same track. " +
@@ -8509,8 +8555,8 @@ function checkPoints(){
    `record()` fires the unlock and achievement toasts itself, so nothing here
    toasts.  The engine is deferred, so every call is guarded.
    ============================================================ */
-const PROG_BADGE = { plan: "sbd-bp", bread: "sbd-bb" }[VARIANT.id] || "sbd-lp";
-const PROG_CHALLENGE = { plan: "sbd-plan", bread: "sbd-bread" }[VARIANT.id] || "sbd-learn";
+const PROG_BADGE = { plan: "sbd-bp", bread: "sbd-bb", "bread-learn": "sbd-bl" }[VARIANT.id] || "sbd-lp";
+const PROG_CHALLENGE = { plan: "sbd-plan", bread: "sbd-bread", "bread-learn": "sbd-bread-learn" }[VARIANT.id] || "sbd-learn";
 const PROG_KEY = "el-sbd-prog-" + VARIANT.id;
 let progDone = new Set();
 try {

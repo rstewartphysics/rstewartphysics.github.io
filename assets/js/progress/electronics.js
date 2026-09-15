@@ -58,6 +58,11 @@
     { id: "sbd-bb", name: "Breadboarder", emoji: "🔌", section: "Planning", thr: 1,
       href: "/classes/electronics/breadboard-planner.html",
       cond: "Build a breadboard circuit of your own that checks clean" },
+    /* Breadboard's own Learn suite (added 15 Sep 2026) — the same five-task
+       test as `sbd-lp`, on the breadboard version of the same tool. */
+    { id: "sbd-bl", name: "Board Reader", emoji: "🧭", section: "Planning",
+      href: "/classes/electronics/breadboard-builder.html",
+      cond: "Get one right in each of the five breadboard tasks" },
     { id: "con-cc", name: "Solder Master", emoji: "🪛", section: "Construction",
       href: "/classes/electronics/construction.html",
       cond: "Read 8/10 resistor colour codes" },
