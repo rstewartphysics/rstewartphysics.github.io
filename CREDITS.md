@@ -169,6 +169,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   and not the artwork. The fault list and checklist are written from the National 5 Electronics
   (C884 75) course and assessment material and the external verification reports, © Qualifications
   Scotland (SQA), reproduced for educational use. Circuits, diagrams, sheet and code © R Stewart, 2026.
+
+  Added 15 September 2026: **Learn to Plan a Breadboard Schematic**
+  (`classes/electronics/breadboard-builder.html`) — the breadboard sibling of Learn to Plan a
+  Stripboard Schematic, same five tasks (Trace, Convert, Fault-finder, Reverse, Test points) on
+  the same three circuits, laid out fresh for a breadboard rather than invented. Neither
+  reproduces a figure; the task, fault list, test-point requirement and wording quoted in the
+  feedback come from the National 5 Electronics (C884 75) course and assessment material and the
+  external verification reports, © Qualifications Scotland (SQA), reproduced for educational
+  use. Circuits, diagrams and code are original to this site (© R Stewart, 2026).
 - **SCHOLAR, Heriot-Watt University** — the Advanced Higher Physics study guides and online course.
   Not reproduced here: the Advanced Higher lesson slides direct pupils to Scholar for notes and
   end-of-topic tests, and the topic notes in those decks follow Scholar's treatment. © Heriot-Watt
