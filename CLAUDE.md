@@ -481,6 +481,37 @@ uncredited.
 - **Declare AI-generated assets** (banner and logo artwork), as `CREDITS.md` already does.
 - **Unknown provenance is not publishable.** Ask before it goes live.
 
+### Images — source priority (site standard, 14 September 2026)
+
+Every image on the site, and in every deck, booklet and worksheet, comes from the first source
+that genuinely fits, in this order:
+
+1. **Official Qualifications Scotland (SQA) figures** — `~/SQA Images`, credited
+   `© Qualifications Scotland (SQA)` plus paper, section and question. Verify the credit against
+   the paper itself: the library's attribution has been wrong.
+2. **Clearly licensed images online** — widened 15 September 2026 for real-life application photos.
+   Allowed: NASA, ESA/Webb, ESA/Hubble, NOIRLab and other public bodies (UK OGL, US federal public
+   domain); **Wikimedia Commons** (the photographer's own work, or reviewer-verified; CC0, public
+   domain, CC BY, CC BY-SA); **Geograph Britain and Ireland** (CC BY-SA 2.0). The licence is checked
+   on the image's own page. Never a general web search, stock library (free ones included), social
+   media, Flickr direct, en.wikipedia local upload, company or press page, or an NC/ND/unclear
+   licence. **Safe to publish**: no people who could be pupils, no identifiable members of the public,
+   no brand or logo as the subject, no identifiable private home, no legible number plate. Credit
+   author, licence and source, with the licence and source linked (`Photo: Kevin Payravi, CC BY-SA
+   4.0, via Wikimedia Commons`). Every file needs a `SOURCES.csv` row, is shown to the teacher on a
+   contact sheet before use, and gets a row in `CREDITS.md`, `classes/credits.html` and
+   `copyright-provenance-checklist.csv` in the same change that publishes it.
+3. **Drawn** — inline SVG to the drawing rules in `higher-topic-page-guide.md` §7, matplotlib for
+   graphs, the stripboard engine for boards.
+
+**Never use a file that cannot be properly credited.** The procedure and scripts are in the
+`image-sourcing` skill (`~/.claude/skills/image-sourcing/`).
+
+**Dual coding.** A concept is taught with its words and its picture together — the paragraph and
+its inline SVG side by side at desktop, stacking text-then-figure on mobile. A credited
+application photo may join the diagram; it never replaces it. See the `dual-coding` skill
+(`~/.claude/skills/dual-coding/`).
+
 ---
 
 ## Mobile breakpoints
