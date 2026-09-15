@@ -30,6 +30,19 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
 
 - **PhET Interactive Simulations**, University of Colorado Boulder — embedded under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). <https://phet.colorado.edu>
+- **Photographs under open licences** (added 15 September 2026) — real-life applications in the
+  Higher Physics *Semiconductors & p-n Junctions* slides (`classes/higher/slides/h-e5-semiconductors-pn-junctions.pdf`),
+  each credited on the slide it appears on. Resized to fit; not otherwise changed.
+  - Speaker cable, copper ends — RobertKuhlmann, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lautsprecherkabel_Makro_nah.jpg).
+  - Glass insulators on a power-line pole — Maoileann, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Power_Lines-1300302,_Dingle_Peninsula,_Co._Kerry,_Ireland.jpg).
+  - A 12-inch silicon wafer — Peellden, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:12-inch_silicon_wafer.jpg).
+  - Cross-section of a silicon diode — TubeTimeUS, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Silicon_diode_cross_section.jpg).
+  - LED traffic light on red — Kevin Payravi, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:LED_traffic_light_on_red.jpg).
+  - Ultraviolet LEDs curing glue — Maxmust, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Ultraviolet_LEDs.jpg).
+  - LED street lamp at night — W.carter, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:New_multiple_LED_street_lamp_in_Tuntorp.jpg).
+  - Solar Meadow at Hardengreen, Midlothian — © M J Richardson, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/5256064).
+  - The International Space Station and its solar arrays — NASA, via [NASA Image and Video Library](https://images.nasa.gov/details/0100333).
+  - InSight's dusty solar panel on Mars — NASA/JPL-Caltech, via [NASA Image and Video Library](https://images.nasa.gov/details/PIA25286).
 - **Qualifications Scotland (SQA)** — course specifications, past-paper and assessment material
   reproduced for educational use. © Qualifications Scotland. This includes the Higher Physics
   past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and
@@ -84,6 +97,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   added 12 September 2026), the cut-and-stick sheet that replaces copying those diagrams by
   hand. Each carries its credit at the diagram. Everything else on that sheet is drawn for
   this course (© R Stewart, 2026).
+
+  Added 15 September 2026, when that deck was rebuilt so the notes sit beside their diagrams:
+  it also reproduces **Higher Physics specimen (current structure) Paper 1 Q20** — four LEDs on
+  a 2 V d.c. supply, figure and question — and, as multiple-choice hinge questions, the text of
+  the specimen Paper 1 Q19, **Revised Higher specimen Q14**, **Revised Higher 2013 Q20** and
+  **Revised Higher 2014 Q19**. The printouts sheet (now three pages) adds **Higher Physics 2016
+  Section 2 Q12(b)** — a forward-biased p-n junction band diagram. All © Qualifications
+  Scotland (SQA), reproduced for educational use and credited where they appear.
 
   The *Monitoring & Measuring AC* deck reproduces two more (added 2 September 2026):
   - Higher Physics 2015, Paper 1 (multiple choice) Q17 — an oscilloscope with its Y-gain and
