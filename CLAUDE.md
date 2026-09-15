@@ -507,10 +507,42 @@ that genuinely fits, in this order:
 **Never use a file that cannot be properly credited.** The procedure and scripts are in the
 `image-sourcing` skill (`~/.claude/skills/image-sourcing/`).
 
-**Dual coding.** A concept is taught with its words and its picture together — the paragraph and
-its inline SVG side by side at desktop, stacking text-then-figure on mobile. A credited
-application photo may join the diagram; it never replaces it. See the `dual-coding` skill
-(`~/.claude/skills/dual-coding/`).
+## Dual coding — words and picture together (site standard, 15 September 2026)
+
+The website follows the same dual-coding standard as the decks: global `CLAUDE.md` §7,
+`_deckkit/DECK-RULES.md` rules 34 and 36, and the `dual-coding` skill
+(`~/.claude/skills/dual-coding/`). **Every new or rebuilt topic page is dual coded. An existing
+page is brought up to it on its next touch**, the same way as rule 31's trim.
+
+- **What counts.** Any section whose job is to explain an idea: how something works, why
+  something happens, what a quantity means, which case is which (light- or dark-sensing, forward
+  or reverse bias). Not a question block, a resource row, a hub tile or a credits line.
+- **Together, not in sequence.** The paragraph and its figure share one block: side by side at
+  desktop, and text then figure below the mobile breakpoint. A figure further down the page is
+  not dual coding.
+- **The figure is the mechanism**, drawn as inline SVG to `higher-topic-page-guide.md` §7 with
+  the page's CSS variables. It works in both appearances, uses UK/BS-IEC symbols and axes
+  labelled with units. An SQA figure may stand beside or instead of a drawn one where it teaches
+  the same point, credited `© Qualifications Scotland (SQA)`.
+- **Same words on both.** Every term the paragraph uses for a part of the figure is a label on
+  it, spelled identically. Use the exam paper's term, bridged once where the booklet differs
+  ("exam papers call this V<sub>in</sub>").
+- **Photos join, never replace.** A real-life application photo (image priority above) sits in a
+  `<figure>` with a linked `<figcaption>` credit beside or below the diagram, never in its place.
+  A "Where you meet it" strip of 2–3 photos may close a section.
+- **Cases get a figure each.** A table or list comparing cases gives each case its own small
+  figure in the same row or card.
+- **Component.** No shared class exists yet. The first page to adopt this adds a `.dual`
+  two-column block to its subject CSS (grid, text first in the DOM, `minmax(0,1fr)` columns,
+  collapsing at the mobile breakpoint). Later pages reuse it rather than inventing another.
+- **Accessible.** The SVG has `role="img"` and a `<title>`/`aria-label` naming what it shows.
+  Photos have real `alt` text. The figure never carries meaning by colour alone.
+- **Check it.** Both breakpoints and both appearances, in headless Chrome **and** real Safari
+  (global `CLAUDE.md` §2). Look at every figure at the size it renders: no label clipped or
+  sitting on a line.
+- **Companion materials.** A page that links a practical sheet or deck points at it and never
+  reveals what the sheet asks pupils to predict. Worked examples on the page don't reuse a
+  question the linked sheet or practice test sets (DECK-RULES 36).
 
 ---
 
