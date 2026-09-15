@@ -167,6 +167,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   educational use. The National 5 Electronics topic mark (a DIL integrated circuit, line drawing) is drawn for
   this site by R Stewart, 2026.
 
+- **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
+  `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
+  Each item is credited on the slide it appears on.
+  - Figure: National 5 Engineering Science 2024 Q10 — the kettle's thermistor sensing circuit;
+    and the course specification v2.0, p.5, quoted. © Qualifications Scotland (SQA), reproduced
+    for educational use.
+  - Photo: street lamp with its photocell — Bidgee, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:High_Pressure_Sodium_Lamp_with_photocell.jpg). Resized to fit.
+  - Photo: multispan greenhouse with side ventilation — Kattegattt, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:5_Bay_Multispan.jpg). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
