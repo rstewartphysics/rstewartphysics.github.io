@@ -683,6 +683,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
             <p class="sheetlinks build-only" id="sheetLinks">
               <a class="dslink bb-never" href="/classes/electronics/stripboard-planning-sheet.html"
                  target="_blank" rel="noopener">🖨 Printable planning sheet ↗</a>
+              <a class="dslink bb-only" href="/classes/electronics/breadboard-planning-sheet.html"
+                 target="_blank" rel="noopener" hidden>🖨 Printable planning sheet ↗</a>
               <a class="dslink free-only" href="/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf"
                  target="_blank" rel="noopener">📄 IC datasheet — pinouts ↗</a>
             </p>
@@ -1180,20 +1182,14 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     /* A6: links merge segments — and A8 applies to a link end exactly as it
        applies to a leg.  One hole takes one thing: a jumper cannot go into a
        hole that already has a component leg in it, and two jumpers cannot share
-       one either.
-
-       BREADBOARD ONLY, and deliberately.  A breadboard hole IS a spring clip:
-       one wire per clip, no argument.  A stripboard hole is drilled, and the
-       twelve shipped reference answers on the live pages routinely solder a
-       link and a leg through the same hole — which is what a real board looks
-       like.  Enforcing it there would fail twelve questions that are already
-       marked correct, so it stays a breadboard rule until that is a decision
-       somebody makes on purpose. */
+       one either.  On both boards (decided 15 Sep 2026): a breadboard hole is a
+       spring clip, and a stripboard link that shares a leg's drilled hole is the
+       same bad habit the breadboard rule already marks. */
     const linkAt = new Map();
     for (const l of attempt.links || []) {
       const a = parseRef(l.a), b = parseRef(l.b);
       const name = `the link ${holeName(board, a)}\u2013${holeName(board, b)}`;
-      for (const h of (isBread(board) ? [a, b] : [])) {
+      for (const h of [a, b]) {
         const k = hid(h);
         if (pinAt.has(k))
           errors.push({ code: "hole-clash",
@@ -1246,7 +1242,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
                                  `is connected to nothing.` };
 
     const linkEnds = new Map();
-    for (const l of (isBread(board) ? attempt.links || [] : []))
+    for (const l of attempt.links || [])
       for (const h of [l.a, l.b])
         linkEnds.set(hid(parseRef(h)), `the link ${holeName(board, parseRef(l.a))}\u2013${holeName(board, parseRef(l.b))}`);
     for (const { hole } of cells.pins)
@@ -1584,16 +1580,18 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       const railsMerged = posRoot !== undefined && posRoot === negRoot;
 
       const byColour = new Map();
+      // in the board's own words: a breadboard pupil never sees an internal ref
+      const lname = l => holeName(board, parseRef(l.a)) + "\u2013" + holeName(board, parseRef(l.b));
       for (const l of attempt.links || []) {
         const root = rootOfHole(l.a);
         if (root === undefined) continue;              // already reported: link-in-cut
         if (l.colour === "red" && root !== posRoot)
           faults.push({ rank: 0.6, code: "red-not-supply",
-            msg: `The red link ${l.a}–${l.b} is not on the +5 V rail. Red is reserved ` +
+            msg: `The red link ${lname(l)} is not on the +5 V rail. Red is reserved ` +
                  `for +5 V — pick a different colour for this link.`, refs: [l.a, l.b] });
         if (l.colour === "black" && root !== negRoot)
           faults.push({ rank: 0.6, code: "black-not-supply",
-            msg: `The black link ${l.a}–${l.b} is not on the 0 V rail. Black is reserved ` +
+            msg: `The black link ${lname(l)} is not on the 0 V rail. Black is reserved ` +
                  `for 0 V — pick a different colour for this link.`, refs: [l.a, l.b] });
         /* And the other way round, which is the half that was missing: the
            convention reserves red and black FOR the supply, so a link that
@@ -1601,19 +1599,19 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
            pupil testing alpha v0.10 — a blue link onto the 0 V rail passed. */
         if (!railsMerged && l.colour !== "red" && posRoot !== undefined && root === posRoot)
           faults.push({ rank: 0.6, code: "supply-not-red",
-            msg: `The ${l.colour} link ${l.a}–${l.b} is on the +5 V rail, so it has to be ` +
+            msg: `The ${l.colour} link ${lname(l)} is on the +5 V rail, so it has to be ` +
                  `red. Every link carrying +5 V is red, every link carrying 0 V is black, ` +
                  `and no other link uses either colour.`, refs: [l.a, l.b] });
         if (!railsMerged && l.colour !== "black" && negRoot !== undefined && root === negRoot)
           faults.push({ rank: 0.6, code: "supply-not-black",
-            msg: `The ${l.colour} link ${l.a}–${l.b} is on the 0 V rail, so it has to be ` +
+            msg: `The ${l.colour} link ${lname(l)} is on the 0 V rail, so it has to be ` +
                  `black. Every link carrying 0 V is black, every link carrying +5 V is red, ` +
                  `and no other link uses either colour.`, refs: [l.a, l.b] });
 
         if (!byColour.has(l.colour)) byColour.set(l.colour, new Map());
         const byRootForColour = byColour.get(l.colour);
         if (!byRootForColour.has(root)) byRootForColour.set(root, []);
-        byRootForColour.get(root).push(l.a + "–" + l.b);
+        byRootForColour.get(root).push(lname(l));
       }
       for (const [colour, roots] of byColour) {
         if (roots.size < 2) continue;
@@ -1952,13 +1950,44 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       }
     }
 
+    /* A chip straddling a breadboard's channel has no body cells — its package
+       sits over the channel, which has no holes — so bodyAt alone let a jumper
+       run straight across it.  Its two pin rows × its columns count as body for
+       this one test (decided 15 Sep 2026), whichever way the jumper runs — and it is
+       a fault, not a suggestion: a flat jumper through a DIP cannot be built. */
+    const chipAt = new Map();
+    if (isBread(board)) {
+      const ch = board.channelAfter;
+      for (const p of attempt.placements || []) {
+        const fp = FOOTPRINTS[p.footprint];
+        if (!fp || fp.kind !== "dil") continue;
+        const holes = top.pins.filter(x => x.comp === p.id).map(x => x.hole);
+        if (!holes.length || holes.some(h => h.r !== ch && h.r !== ch + 1)) continue;
+        const lo = Math.min(...holes.map(h => h.c)), hi = Math.max(...holes.map(h => h.c));
+        for (let c = lo; c <= hi; c++) {
+          chipAt.set(hid({ r: ch, c }), p.id);
+          chipAt.set(hid({ r: ch + 1, c }), p.id);
+        }
+      }
+    }
+
     // rank 11 — a link running under a component body
     for (const l of attempt.links || []) {
       const a = parseRef(l.a), b = parseRef(l.b);
-      if (a.r !== b.r) continue;                       // only a same-row link lies along the board
-      const lo = Math.min(a.c, b.c), hi = Math.max(a.c, b.c);
-      for (let c = lo + 1; c < hi; c++) {
-        const owner = top.bodyAt.get(hid({ r: a.r, c }));
+      const along = a.r === b.r;
+      if (!along && (a.c !== b.c || !chipAt.size)) continue;
+      const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
+            hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
+      for (let i = lo + 1; i < hi; i++) {
+        const k = hid(along ? { r: a.r, c: i } : { r: i, c: a.c });
+        const chip = chipAt.get(k), owner = along && top.bodyAt.get(k);
+        if (chip) {
+          faults.push({ rank: 11, code: "link-over-chip",
+            msg: `The link ${holeName(board, a)}\u2013${holeName(board, b)} runs straight across ${chip} ` +
+                 `\u2014 a jumper cannot lie flat through the chip. Take it round the end of the chip instead.`,
+            refs: [chip] });
+          break;
+        }
         if (owner) {
           warnings.push({ rank: 11, code: "link-under-body",
             msg: `The link ${holeName(board, a)}–${holeName(board, b)} runs under ${owner} — ` +
@@ -2516,7 +2545,9 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
        way round the can is fitted, and the thing a pupil lines up against the
        drawing on their planning sheet. */
     const pt = (a, r) => `${n(cx + Math.cos(a) * r)},${n(cy + Math.sin(a) * r)}`;
-    const a0 = Math.PI * 0.78, a1 = Math.PI * 0.97;          // down and to the left
+    // cellsOf() turns a footprint clockwise on screen, so the tab turns with it
+    const turn = (p.rot || 0) * Math.PI / 180;
+    const a0 = Math.PI * 0.78 + turn, a1 = Math.PI * 0.97 + turn;   // down and to the left at rot 0
     g += `<polygon class="sbd-mark" points="${pt(a0, rr * 0.92)} ${pt(a0, rr * 1.3)} ` +
          `${pt(a1, rr * 1.3)} ${pt(a1, rr * 0.92)}"/>`;
 
@@ -2746,8 +2777,17 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
           const above = isBread(board)
             ? (topR > board.bands[0][0] && topR < board.rails[2].r)
             : topR > 0;
+          /* A turned can has its tab up top (90, 180) or its circle reaching past
+             the top legs (90, 270), so its label clears the whole can instead. */
+          const cy = (Y(topR) + Y(botR)) / 2, rr = P * 1.28;
+          const turnedCan = fp.kind === "can" && (p.rot || 0) !== 0;
+          // clear of the leg letters too, which sit at rr + 8 out from the centre
+          const yAbove = turnedCan ? cy - rr - 18 : Y(topR) - P * 0.55,
+                yBelow = turnedCan ? cy + rr + 23 : Y(botR) + P * 0.75;
+          // pushed that far out, only row f (the channel above it) has room overhead
+          const up = turnedCan && isBread(board) ? topR === board.bands[1][0] : above;
           layers.id += `<text class="sbd-id" x="${n(X(midC))}" ` +
-            `y="${n(above ? Y(topR) - P * 0.55 : Y(botR) + P * 0.75)}" ` +
+            `y="${n(up ? yAbove : yBelow)}" ` +
             `text-anchor="middle">${esc(p.id)}</text>`;
         }
       }
@@ -4795,7 +4835,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       links: [
         { a: "A16", b: "F16", colour: "red",   num: 1 },   // rail across to Vcc's track
         { a: "A8",  b: "I8",  colour: "red",   num: 2 },   // rail across to Reset's track
-        { a: "D22", b: "G22", colour: "blue",  num: 3 },   // R1 down to Discharge
+        { a: "D23", b: "G23", colour: "blue",  num: 3 },   // R1 down to Discharge, beside its leg — one hole, one thing
         { a: "G20", b: "H20", colour: "blue",  num: 4 },   // Discharge across to Threshold
         { a: "F6",  b: "K6",  colour: "black", num: 5 },   // the Ground pin out to the 0 V run
         { a: "K30", b: "X30", colour: "black", num: 6 },   // that run down to the 0 V rail
@@ -5408,7 +5448,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
     { id: "FF9", from: "lift-interlock",
       apply: a => { a.links = a.links.map(l =>
-                      l.a === "H9" ? { a: "H9", b: "I10", colour: l.colour, num: l.num } : l); },
+                      l.a === "H9" ? { a: "H9", b: "I8", colour: l.colour, num: l.num } : l); },
       choices: ["diagonal-link", "split", "merged", "self-short"],
       why: "A link wire has been drawn at an angle. Link wires run straight — along a track " +
            "or straight down between tracks — so that the wiring schedule can describe them " +
@@ -7132,7 +7172,7 @@ $("board").addEventListener("keydown", e => {
 
 function rotate(){
   const fixedComp = sel && (mode === "free" ? FREEC : Q.components).find(c => c.id === sel);
-  if (fixedComp && (SBD.FOOTPRINTS[fixedComp.footprint] || {}).fixedRot){
+  if (fixedComp && fixedRotHere(SBD.FOOTPRINTS[fixedComp.footprint])){
     /* Not a preference — turning the can puts its collector and emitter on one
        track. Said on screen as well as to the live region: a button that
        refuses silently is a dead button (v0.11). */
@@ -7164,9 +7204,17 @@ function rotate(){
    Same rule, opposite answer, because the copper runs the other way. */
 function defaultRotFor(footprint){
   const fp = SBD.FOOTPRINTS[footprint] || {};
-  if (fp.kind === "dil" || fp.fixedRot) return 0;
+  if (fp.kind === "dil" || fixedRotHere(fp)) return 0;
+  // the can's triangle: at 0 its c and e share a column, at 90 all three legs
+  // are in columns of their own
+  if (BB && fp.kind === "can") return 90;
   return BB ? 0 : 90;
 }
+
+/* The can only fits one way round on STRIPBOARD, where turning it puts c and e
+   on one track.  On a breadboard it is the reverse — the way it fits a
+   stripboard puts c and e in one column — so there it turns like anything else. */
+function fixedRotHere(fp){ return !BB && !!(fp && fp.fixedRot); }
 
 $("bank").addEventListener("click", e => {
   if (e.target.closest(".trot")){ rotate(); return; }
@@ -7239,6 +7287,15 @@ $("btnRot").addEventListener("click", rotate);
    so the two cannot disagree.
    ============================================================ */
 const CHANGELOG = [
+  { v: "2.2", date: "15 Sep 2026", what:
+    "<strong>One hole, one thing — on stripboard too.</strong> A link wire can no longer " +
+    "share a hole with a component leg: put the link in the next hole along the same track. " +
+    "<strong>On a breadboard, a jumper cannot run straight across a chip</strong> — take it " +
+    "round the end of the chip instead. <strong>The NPN transistor now turns on a " +
+    "breadboard</strong>, and starts the way that puts each of its three legs in a column of its " +
+    "own. Feedback about link colours on a breadboard now names the holes the way the board " +
+    "prints them. The breadboard planner now links its own printable planning sheet, drawn at " +
+    "true size with the 0.3 inch centre channel." },
   { v: "2.1", date: "11 Sep 2026", what:
     "<strong>Every part in the drawer now shows its circuit symbol</strong>, always \u2014 not " +
     "only once you have tapped it. That is the whole conversion this tool is about: you read a " +
@@ -8086,7 +8143,7 @@ function drawFreeBank(){
        button: turning the transistor can 90° puts its collector and emitter on
        one track, which is a short, not a layout choice. */
     const fpSpec = SBD.FOOTPRINTS[spec.footprint] || {};
-    const fixed = fpSpec.fixedRot;
+    const fixed = fixedRotHere(fpSpec);
     /* Two different colour pickers share one row of swatches, because a part
        has only one colour to choose: a TERMINAL's is the colour of the wire
        leaving the board, and everything else's is the colour of the part
