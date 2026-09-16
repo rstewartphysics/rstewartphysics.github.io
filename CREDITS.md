@@ -43,6 +43,11 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Solar Meadow at Hardengreen, Midlothian — © M J Richardson, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/5256064).
   - The International Space Station and its solar arrays — NASA, via [NASA Image and Video Library](https://images.nasa.gov/details/0100333).
   - InSight's dusty solar panel on Mars — NASA/JPL-Caltech, via [NASA Image and Video Library](https://images.nasa.gov/details/PIA25286).
+- **Photographs under open licences** (added 16 September 2026) — the Advanced Higher Physics
+  *Stellar Physics* slides (`classes/adv/slides/ah-g-stellar-physics.pdf`), each credited on the
+  slide it appears on. Resized to fit; not otherwise changed.
+  - Hertzsprung–Russell diagram — ESO, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), via [eso.org](https://www.eso.org/public/images/eso0728c/).
+  - Orion constellation — Giuseppe Donatiello, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Orion_-_Flickr_-_gjdonatiello.jpg).
 - **Qualifications Scotland (SQA)** — course specifications, past-paper and assessment material
   reproduced for educational use. © Qualifications Scotland. This includes the Higher Physics
   past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and
