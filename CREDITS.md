@@ -204,6 +204,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Photo: street lamp with its photocell — Bidgee, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:High_Pressure_Sodium_Lamp_with_photocell.jpg). Resized to fit.
   - Photo: multispan greenhouse with side ventilation — Kattegattt, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:5_Bay_Multispan.jpg). Resized to fit.
 
+- **National 5 Engineering Science *Transistors, Relays & Control Circuits* slides** (added 17 September 2026,
+  `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L6-transistors-and-relays.pdf`).
+  Each item is credited on the slide it appears on.
+  - Figures: National 5 Engineering Science 2023 Q7 (the night light circuit) and 2024 Q10 (the
+    kettle's LED circuit); the 2023 and 2024 marking instructions cited; and the course specification
+    v2.0, p.5, quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+  - Photo: three transistor packages on a centimetre scale — Drahtlos, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:TO-39_vs_TO-18_vs_TO-92_cm.jpg). Resized to fit.
+  - Photo: a relay with its case off — redhat, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Relais_offen.jpg). Resized to fit.
+  - Photo: a greenhouse vent fan — Dwight Sipler, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Greenhouse_Vent_Fan_(2737319720).jpg). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
