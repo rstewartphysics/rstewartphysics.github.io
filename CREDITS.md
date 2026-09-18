@@ -96,6 +96,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   The mass–spring apparatus, the footbridge and the damping and displacement–time graphs on
   those pages are drawn for this site (© R Stewart, 2026).
 
+  Added 17 September 2026: and to the **Higher Physics Electricity unit practice tests** at
+  `classes/higher/practice-tests/electricity-*.html` — a 45-mark A+B pair — whose parents are
+  Higher Physics past papers (2016, 2017, 2018, 2022, 2023, 2025 and the specimen paper), varied
+  in the same way, with five original questions across the pair. Parents are recorded in
+  `~/claude-work/practice-tests/higher-physics/electricity/provenance*.csv`. The circuit
+  diagrams, oscilloscope traces, the R against 1/I graph and the energy-band diagrams on those
+  pages are drawn for this site (© R Stewart, 2026).
+
   **Reproduced figures, named individually** (first added 1 September 2026). The Higher Physics
   *Semiconductors & p-n Junctions* deck reproduces four past-paper figures, each credited on the
   slide it appears on:

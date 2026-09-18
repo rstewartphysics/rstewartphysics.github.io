@@ -43,10 +43,18 @@
       cond: "Score 80% or more on Forces on Charged Particles Practice Test A" },
     { id: "hp-focp-test-b", name: "Beam Steerer", emoji: "🧲", section: "Particles & Waves",
       href: "/classes/higher/practice-tests/pw6-forces-on-charged-particles-b.html",
-      cond: "Score 80% or more on Forces on Charged Particles Practice Test B" }
+      cond: "Score 80% or more on Forces on Charged Particles Practice Test B" },
+    { id: "hp-elec-test-a", name: "Circuit Tester", emoji: "🧪", section: "Electricity",
+      href: "/classes/higher/practice-tests/electricity-a.html",
+      cond: "Score 80% or more on Electricity Practice Test A" },
+    { id: "hp-elec-test-b", name: "Unit Finisher", emoji: "🎯", section: "Electricity",
+      href: "/classes/higher/practice-tests/electricity-b.html",
+      cond: "Score 80% or more on Electricity Practice Test B" }
   ];
 
-  var ELEC_IDS = TOPIC.filter(function (t) { return t.section === "Electricity"; })
+  /* topic pages only: the practice-test badges sit in the Electricity section
+     but do not change what Electricity Expert and Curious Mind ask for */
+  var ELEC_IDS = TOPIC.filter(function (t) { return t.section === "Electricity" && t.unlock === "page"; })
     .map(function (t) { return t.id; });
   function allUnlocked(b, ids) {
     return ids.every(function (id) { return b[id] && b[id].unlocked; });
