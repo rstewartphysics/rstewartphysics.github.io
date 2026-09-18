@@ -546,6 +546,30 @@ page is brought up to it on its next touch**, the same way as rule 31's trim.
 
 ---
 
+## Learning standard (site standard, 18 September 2026)
+
+Pages follow `~/claude-work/learning-standard/LEARNING-STANDARD.md`, the same standard as the
+decks (DECK-RULES rule 37). Cite its IDs; don't restate them. **New and rebuilt pages meet it;
+existing pages on their next touch**, alongside the dual-coding pass.
+
+- **Reading (D2–D6).** 18 px body, line-height 1.5, slightly wider letter and word spacing,
+  left-aligned, never justified, 60–70 characters per line, bold for emphasis only. These land
+  site-wide through one shared CSS module (Phase 2c) — until then, don't hand-roll them per page.
+- **Reading-options panel (D20).** Site-wide, text size, spacing and tint, per device in
+  `localStorage` (Phase 2c).
+- **Every symbol decoded (D11)**: a symbol glossary beside each equation, with name and unit.
+- **Questions (D10)**: command word bold and first, data in a list, marks at the end.
+- **Segment (C4)**: one new idea per section; long explanations use "next step" reveals.
+- **Glossary with pictures (D17, V1)** closes each topic page.
+- **Retrieval and self-rating (R2, R4, M2, R6)**: quick-quiz blocks with instant answers, a 1–3
+  confidence widget, and a "come back to these" list — **all device-only, never sent anywhere**.
+  Components arrive in Phase 4; don't invent one-off versions before then.
+- **Real text (D18–D19)**: no pictures of text; every figure has `alt`.
+- **Practice tests (D21)**: work with browser read-aloud, no timer that can't be switched off.
+- **Check it** as for dual coding: Chrome and Safari, both widths, both appearances.
+
+---
+
 ## Mobile breakpoints
 
 | Breakpoint | Changes |
