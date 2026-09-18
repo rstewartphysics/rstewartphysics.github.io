@@ -16,8 +16,14 @@
 
   var TOPIC = [
     { id: "eng-what-engineer", name: "Engineering Explorer", emoji: "🧭", section: "S3 Engineering", unlock: "page",
-      href: "/classes/s3-engineering/what-is-an-engineer.html",
-      cond: "Finish every activity on What is an engineer?" }
+      href: "/classes/s3-engineering/contexts-and-energy.html",
+      cond: "Complete every quick check on Contexts and Energy" },
+    { id: "eng-t1-test-a", name: "Practice Test A", emoji: "📝", section: "S3 Engineering",
+      href: "/classes/s3-engineering/practice-test-a.html",
+      cond: "Score 80% or more on Contexts and Energy Practice Test A" },
+    { id: "eng-t1-test-b", name: "Practice Test B", emoji: "📋", section: "S3 Engineering",
+      href: "/classes/s3-engineering/practice-test-b.html",
+      cond: "Score 80% or more on Contexts and Energy Practice Test B" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });

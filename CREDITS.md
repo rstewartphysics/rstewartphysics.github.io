@@ -227,6 +227,17 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Photo: a relay with its case off — redhat, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Relais_offen.jpg). Resized to fit.
   - Photo: a greenhouse vent fan — Dwight Sipler, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Greenhouse_Vent_Fan_(2737319720).jpg). Resized to fit.
 
+- **S3 Engineering Science *Contexts and Energy*** (added 18 September 2026) — the revision page
+  `classes/s3-engineering/contexts-and-energy.html` and its four lesson slide PDFs
+  (`assets/engineering-science/s3/contexts-and-energy/`). Each photo is credited where it appears.
+  The practice tests link the N4/N5 Engineering Science Data Booklet, © Qualifications Scotland (SQA).
+  - Edinburgh tram at a West End stop — © artful, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/7415051). Cropped at the sides to remove bystanders, then resized.
+  - The Queensferry Crossing — © Bill Kasman, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/5830353). Resized.
+  - A train on the Borders Railway — © Russel Wills, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/4545489). Resized.
+  - Whitelee Wind Farm — © Thomas Nugent, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/7735519). Resized.
+  - The fish ladder at Pitlochry Dam — © Thomas Nugent, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/8096211). Resized.
+  - Low-energy LED street lights — © Roger A Smith, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/5634608). Resized.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
