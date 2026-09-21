@@ -83,6 +83,13 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     .page-title{font-size:1.32rem;font-weight:900;margin:.1rem 0 .6rem;color:var(--text)}
     .titlerow{display:block}
     .titlerow .beta{margin-top:.2rem}
+    /* The planner's pointer at the beta page.  Deliberately quiet — it is an
+       invitation to testers, not a second front door to the tool. */
+    .betalink{font-size:.82rem;line-height:1.45;color:var(--muted);font-weight:700;
+      margin:.1rem 0 .6rem}
+    .betalink a{font-weight:900;color:var(--accent);text-decoration:none;
+      border-bottom:2px solid var(--accent);padding-bottom:1px}
+    .betalink a:hover,.betalink a:focus{text-decoration:none;opacity:.8}
     #sbd .lede{color:var(--muted);font-weight:800;font-size:.9rem;line-height:1.5;margin:0 0 12px}
     #sbd kbd{font-family:ui-monospace,Menlo,monospace;font-size:.85em;
       border:1px solid var(--border-soft);border-radius:5px;padding:0 4px;background:var(--surface-2)}
@@ -180,6 +187,10 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     #sbd .tool[aria-pressed="true"]{background:linear-gradient(135deg,#00c79a,#00705a);
       color:#fff;border-color:transparent}
     #sbd .tool .k{font-size:.92rem;line-height:1}
+    /* Undo and Redo are the only tools that can be dead, and a pupil has to be
+       able to SEE that there is nothing to go back to rather than press a
+       live-looking button and get a message. */
+    #sbd .tool:disabled{opacity:.42;cursor:default}
     /* ---- link wire colour picker ---------------------------------------
        Shown only while the Link wire tool is active. Auto-cycles to a
        sensible next colour, but a pupil can override it before drawing —
@@ -473,6 +484,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       .beta .lead.beta-full{display:none}
       .beta .lead.beta-short{display:inline}
       .beta .beta-tag{display:none}
+      .betalink{font-size:.75rem;margin:0;flex:0 1 auto}
       #sbd{padding:6px 10px}
       #sbd>.panel{padding:0;border:0;background:none;box-shadow:none;margin:0}
       #sbd .lede{display:none}
@@ -529,6 +541,13 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
         if something looks wrong, please tell Mr Stewart rather than assuming your own answer is at fault.</p>
       <p class="lead beta-short">Still being tested — if something looks wrong, tell Mr Stewart.</p>
       </section>
+      <!-- Shown on the planner ALONE, and only to pupils already using Free
+           build: new tools are reached from the tool they extend, not from the
+           course index, so the beta surface stays small (IMPROVE-PLAN D12). -->
+      <p class="betalink" id="betaLink" hidden><a
+        href="/classes/electronics/stripboard-planner-beta.html">Try the beta &rarr;</a>
+        New tools being tested, starting with <strong>Undo</strong>. It keeps its own
+        board, so the one you have saved here stays exactly as it is.</p>
     </div>
 
     <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="trace">
@@ -618,6 +637,10 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
               <button type="button" class="tool" data-tool="tp" aria-pressed="false"><span class="k">◎</span>Test point</button>
               <button type="button" class="tool" data-tool="erase" aria-pressed="false"><span class="k">⌫</span>Remove</button>
               <button type="button" class="tool" id="btnRot"><span class="k">⟳</span>Rotate</button>
+              <!-- Actions, not tools: no data-tool, so setTool never sees them
+                   and no aria-pressed, because they do not stay chosen. -->
+              <button type="button" class="tool beta-only" id="btnUndo" hidden disabled><span class="k">↩</span>Undo</button>
+              <button type="button" class="tool beta-only" id="btnRedo" hidden disabled><span class="k">↪</span>Redo</button>
             </div>
             <p class="stagebar conv-only" id="stageBar" hidden></p>
             <div class="linkcolours build-only" id="linkColours" role="group" aria-label="Link wire colour" hidden>
@@ -6661,7 +6684,9 @@ function say(msg){ $("liveMsg").textContent = msg; }
 /* ============================================================
    The tools
    ============================================================ */
-function act(h){
+/* The one edit path for the board, so the one place Undo has to snapshot. */
+function act(h){ return mutate(() => actEdit(h)); }
+function actEdit(h){
   if (showingAnswer) { say("Turn the answer off before editing your board."); return; }
   const what = atHole(h), key = what.key;
 
@@ -7388,12 +7413,14 @@ $("bank").addEventListener("click", e => {
   const sw = e.target.closest(".tcol");
   if (sw){
     const comp = sel && FREEC.find(c => c.id === sel);
-    if (comp){
+    // the colour is stored on the part, so changing it is a board edit like
+    // any other and Undo has to see it
+    if (comp) mutate(() => {
       comp.colour = sw.dataset.colour;
       bankKey = null; drawFreeBank(); paint(); saveStore();
       const wire = (SBD.FOOTPRINTS[comp.footprint] || {}).kind === "terminal";
       say(comp.id + " is now " + comp.colour + (wire ? " wire." : "."));
-    }
+    });
     return;
   }
   const b = e.target.closest(".part");
@@ -7442,6 +7469,25 @@ function setTool(t){
 document.querySelectorAll(".tool[data-tool]").forEach(b =>
   b.addEventListener("click", () => { setTool(b.dataset.tool); say(b.textContent.trim() + " tool selected."); }));
 $("btnRot").addEventListener("click", rotate);
+/* Guarded because the buttons are REMOVED, not hidden, on the four pages that
+   are not the beta one (see the .beta-only block at the foot of the file). */
+if (BETA && $("btnUndo")){
+  $("btnUndo").addEventListener("click", undo);
+  $("btnRedo").addEventListener("click", redo);
+  /* ⌘Z on a Mac, Ctrl+Z on a PC, and Ctrl+Y as well because that is what the
+     Windows machines in the lab teach.  Bound on the document, not the board,
+     so it works with the focus in the parts list — which is where it is the
+     moment after a pupil picks the wrong part. */
+  document.addEventListener("keydown", e => {
+    if (mode !== "free") return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ""))) return;
+    const k = (e.key || "").toLowerCase();
+    if (!(e.metaKey || e.ctrlKey)) return;
+    if (k === "z" && !e.shiftKey){ e.preventDefault(); undo(); }
+    else if ((k === "z" && e.shiftKey) || k === "y"){ e.preventDefault(); redo(); }
+  });
+}
 
 /* ============================================================
    Alpha build stamp and changelog
@@ -7464,7 +7510,7 @@ const BREAD_LEARN_CHANGELOG = [
     "put its three legs in three columns — are new checks this page tests that the stripboard " +
     "pages do not need." }
 ];
-const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG : [
+const STRIP_CHANGELOG = [
   { v: "3.0", date: "21 Sep 2026", what:
     "<strong>Out of beta.</strong> Three faults you reported are fixed. A link wire drawn " +
     "straight through a component is now refused as you draw it — before, a link running " +
@@ -7634,6 +7680,25 @@ const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG : [
   { v: "0.1", date: "9 Sep 2026", what:
     "First hidden alpha: Trace (10 items) and Convert (10 questions). Fault-finder and Reverse not built yet." }
 ];
+/* The beta page carries on the planner's numbering rather than starting again
+   at 1.0 (IMPROVE-PLAN D13): it IS the planner plus the tools being tested, and
+   a "Beta v1.0" sitting next to the planner's "v3.0" would read as the older
+   tool.  The planner's current entry is kept underneath so the difference
+   between the two pages is one row of the table, not a guess. */
+const BETA_CHANGELOG = [
+  { v: "3.1", date: "21 Sep 2026", what:
+    "<strong>Undo.</strong> Every change to the board can now be taken back — a part, a " +
+    "link wire, a track cut, a test point, even <strong>Reset</strong>. Use the <strong>Undo</strong> " +
+    "button, or ⌘Z on a Mac and Ctrl+Z on a PC. <strong>Redo</strong> puts it back. The " +
+    "last 50 changes are remembered. This page keeps <strong>its own board</strong>, separate " +
+    "from the planner, so you can try things here and your saved work stays as it is. " +
+    "Changing the board size starts the Undo history again, because the old layout would no " +
+    "longer fit." },
+  STRIP_CHANGELOG[0]
+];
+const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG
+                : VARIANT.id === "plan-beta"   ? BETA_CHANGELOG
+                : STRIP_CHANGELOG;
 const VERSION = CHANGELOG[0].v;
 
 (function buildVersionBox(){
@@ -7647,7 +7712,12 @@ const VERSION = CHANGELOG[0].v;
     const tr = document.createElement("tr");
     for (const cell of ["v", "date", "what"]){
       const td = document.createElement("td");
-      td.textContent = cell === "v" ? "v" + c[cell] : c[cell];
+      /* The "what" column is authored HTML — every entry from v2.2 on bolds
+         the change it is announcing — so it is set as markup.  textContent put
+         the tags on screen literally.  It is our own text in the table above,
+         never anything a pupil typed, so there is nothing here to escape. */
+      if (cell === "what") td.innerHTML = c[cell];
+      else td.textContent = cell === "v" ? "v" + c[cell] : c[cell];
       tr.appendChild(td);
     }
     tb.appendChild(tr);
@@ -8157,8 +8227,16 @@ const FREE = SBD.free;
 /* Its slot in the same versioned store.  The breadboard page gets a slot of
    its own: the store is shared across the three pages, and one key would have
    the breadboard silently wipe a pupil's saved stripboard the first time they
-   opened it. */
-const FREE_KEY = BB ? "__free_bread" : "__free";
+   opened it.
+   The slot is now named per VARIANT, not per board family (IMPROVE-PLAN trap
+   1): keyed on the family, the beta stripboard page would have landed on
+   "__free" alongside the live planner and the two would have overwritten each
+   other's saved board — the very bug the breadboard key was added to prevent.
+   The two live pages KEEP their original names.  Renaming them to match the
+   new scheme would read as a clean tidy-up and would in fact throw away every
+   board any pupil has saved. */
+const FREE_KEY = { plan: "__free", bread: "__free_bread" }[VARIANT.id]
+              || ("__free_" + VARIANT.id);
 const FREE_BOARDS = VARIANT.boards;
 /* The board currently on screen, whichever mode is running.  Free build is the
    only mode that lets the pupil change it; everything else takes it from the
@@ -8181,6 +8259,79 @@ function dropPart(id){
   const i = FREEC.findIndex(c => c.id === id);
   if (i >= 0) FREEC.splice(i, 1);
 }
+
+/* ============================================================
+   Undo  (beta page only — IMPROVE-PLAN D6, D10)
+   ------------------------------------------------------------
+   The whole board is two things: `A` (cuts, placements, links, test points)
+   and `FREEC` (the parts minted so far).  Both are already serialised whole by
+   saveStore(), so a snapshot is the same JSON and no per-action inverse has to
+   be written — a wrong inverse is the usual way an undo stack corrupts a
+   document, and there is none here to get wrong.
+
+   Every edit already funnels through a handful of functions that end in
+   saveStore(), so those are wrapped rather than the individual edits: `act()`
+   (place, cut, link, test point, remove), the palette, the colour swatches and
+   Clear board.  mutate() snapshots BEFORE, runs the edit, and pushes only if
+   the state actually moved — so a refused placement, a rejected link or a tap
+   on bare board costs nothing, and Undo never has to be pressed twice to get
+   past a change that was not made.
+   ============================================================ */
+const UNDO_MAX = 50;
+const undoStack = [], redoStack = [];
+function snapState(){ return JSON.stringify({ a: A, c: FREEC }); }
+function mutate(fn){
+  if (!BETA || mode !== "free") return fn();
+  const before = snapState();
+  const out = fn();
+  if (snapState() !== before){
+    undoStack.push(before);
+    if (undoStack.length > UNDO_MAX) undoStack.shift();
+    redoStack.length = 0;                 // a new edit ends the old future
+    paintUndo();
+  }
+  return out;
+}
+function restoreState(js){
+  const s = JSON.parse(js);
+  A = s.a;
+  /* Q.components POINTS AT FREEC — the array is refilled in place, never
+     replaced, or the bank and the board would read two different parts lists. */
+  FREEC.length = 0;
+  for (const c of s.c) FREEC.push(c);
+  /* Everything in flight belonged to the state being left behind: a part half
+     picked up, a link with one end down.  Carrying any of it across would let
+     the next tap finish an action against a board that no longer exists. */
+  sel = null; pending = null; rot = 0; len = null; linkStart = null;
+  marks = []; hl = []; bankKey = null; netSig = null;
+  clearFeedback();
+  drawBank(); paint(); saveStore();
+  paintUndo();
+}
+function undo(){
+  if (!undoStack.length){ say("There is nothing left to undo."); return; }
+  redoStack.push(snapState());
+  restoreState(undoStack.pop());
+  say(undoStack.length ? "Undone. " + undoStack.length + " more to go back through."
+                       : "Undone. That was the last change.");
+}
+function redo(){
+  if (!redoStack.length){ say("There is nothing to redo."); return; }
+  undoStack.push(snapState());
+  restoreState(redoStack.pop());
+  say("Redone.");
+}
+function paintUndo(){
+  const u = $("btnUndo"), r = $("btnRedo");
+  if (!u || !r) return;                   // removed on every page but the beta one
+  u.disabled = !undoStack.length;
+  r.disabled = !redoStack.length;
+}
+/* Changing the board size throws the layout away, and a snapshot taken on the
+   small board would not fit the large one — topology() would throw on the way
+   back in.  So the history starts again with the board, and the changelog says
+   so rather than leaving a pupil to find a dead Undo button. */
+function clearUndo(){ undoStack.length = 0; redoStack.length = 0; paintUndo(); }
 
 /* A free board read back from storage is last term's data, not a promise —
    same rule as sane() applies to a question's attempt (R8). */
@@ -8244,7 +8395,11 @@ function loadFree(keepScroll){
   if (!keepScroll) window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function resetFree(){
+/* Clear board is undoable too — it is the single most expensive thing a pupil
+   can press by accident, and the one the confirm dialog used to be the only
+   guard against. */
+function resetFree(){ return mutate(resetFreeNow); }
+function resetFreeNow(){
   FREEC.length = 0;
   A = blank();
   sel = null; pending = null; rot = 0; len = null; linkStart = null;
@@ -8254,7 +8409,8 @@ function resetFree(){
 }
 
 /* ---------------------------------------------------------------- palette */
-function pickFromPalette(key){
+function pickFromPalette(key){ return mutate(() => pickFromPaletteNow(key)); }
+function pickFromPaletteNow(key){
   const selComp = sel && FREEC.find(c => c.id === sel);
   const wasOpen = !!(selComp && selComp.key === key);
   // an unplaced part from a previous tap is thrown away rather than left to
@@ -8265,7 +8421,11 @@ function pickFromPalette(key){
   if (wasOpen){ say("Selection cleared."); }
   else {
     const c = FREE.mint(FREEC, key, freeBoard);
-    if (!c) say("A board has one +5 V terminal and one 0 V terminal, and both are already on it.");
+    /* Was "a board has one +5 V and one 0 V terminal, and both are already on
+       it" — true until v3.0 took the `only` flag off the supply entries (D1).
+       mint() now returns null only when it has run out of numbers, so the
+       message had become a wrong explanation of a different thing. */
+    if (!c) say("No more of those can be added — there are already as many on the board as the tool can number.");
     else {
       FREEC.push(c);
       sel = c.id; pending = c.id;
@@ -8397,6 +8557,7 @@ $("boardPick").addEventListener("click", e => {
   freeBoard = b.dataset.board;
   FREEC.length = 0;
   A = blank();
+  clearUndo();                             // see clearUndo(): the old layout would not fit
   sel = null; pending = null; linkStart = null; marks = []; hl = [];
   bankKey = null; netSig = null; cur = { r: 0, c: 1 };
   Q = FREE.freeQ(freeBoard, FREEC);
@@ -8699,6 +8860,13 @@ function checkPoints(){
    `record()` fires the unlock and achievement toasts itself, so nothing here
    toasts.  The engine is deferred, so every call is guarded.
    ============================================================ */
+/* The beta page awards nothing (IMPROVE-PLAN D11).  It matters that this is
+   explicit: both maps below end in a fallback, so an id they do not know —
+   `plan-beta` is the first — silently inherits the LEARN page's badge and
+   challenge, and Free-build work on the beta page would have been credited to
+   a course task it has nothing to do with.  Crediting it to the planner
+   instead would be no better: the same board would score twice. */
+const PROG_ON = VARIANT.id !== "plan-beta";
 const PROG_BADGE = { plan: "sbd-bp", bread: "sbd-bb", "bread-learn": "sbd-bl" }[VARIANT.id] || "sbd-lp";
 const PROG_CHALLENGE = { plan: "sbd-plan", bread: "sbd-bread", "bread-learn": "sbd-bread-learn" }[VARIANT.id] || "sbd-learn";
 const PROG_KEY = "el-sbd-prog-" + VARIANT.id;
@@ -8712,19 +8880,20 @@ try {
    planner needs one clean board. */
 const PROG_WANT = VARIANT.modes.filter(m => m !== "choose");
 function progScored(what){
+  if (!PROG_ON) return;
   if (progDone.has(what)) return;
   progDone.add(what);
   try { localStorage.setItem(PROG_KEY, JSON.stringify([...progDone])); } catch(e){}
   progReport();
 }
 function progReport(){
-  if (!window.Progress) return;
+  if (!PROG_ON || !window.Progress) return;
   const got = PROG_WANT.filter(m => progDone.has(m)).length;
   Progress.record(PROG_BADGE, got, PROG_WANT.length);
   if (got >= PROG_WANT.length) Progress.complete(PROG_CHALLENGE);
 }
 window.addEventListener("DOMContentLoaded", () => {
-  if (!window.Progress) return;
+  if (!PROG_ON || !window.Progress) return;
   Progress.markSeen(PROG_BADGE);
   progReport();
 });
@@ -8752,6 +8921,18 @@ if (BB){
 } else {
   document.querySelectorAll(".bb-only").forEach(b => b.remove());
 }
+/* The same convention for the page where new tools are tried, so a control
+   that is still being tested cannot be tabbed to on a page that is not the
+   beta one — the reason .bb-never removes rather than hides. */
+if (BETA){
+  document.querySelectorAll(".beta-never").forEach(b => b.remove());
+  document.querySelectorAll(".beta-only").forEach(b => { b.hidden = false; });
+} else {
+  document.querySelectorAll(".beta-only").forEach(b => b.remove());
+}
+/* and the pointer AT that page belongs on the planner alone (D12) */
+if (VARIANT.id === "plan") $("betaLink").hidden = false;
+else $("betaLink").remove();
 loadStore();
 
 /* This page offers only its own modes — the buttons for the others are taken
