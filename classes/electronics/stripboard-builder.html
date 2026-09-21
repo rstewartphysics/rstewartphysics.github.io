@@ -226,10 +226,13 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         letter-spacing:.1em;color:#00705a;margin:4.5mm 0 1.6mm;
         border-bottom:.6pt solid rgba(6,35,29,.2);padding-bottom:1mm;
         page-break-after:avoid}
-      #printSheet .pboard{margin:0 0 4mm}
-      /* --pbh is set by buildPrintSheet() from how much the lists below the
-         board are going to eat; see fitPrintBoard(). */
-      #printSheet .pboard svg{width:100%;height:auto;max-height:var(--pbh,72mm)}
+      /* The board gets the full width of the paper and whatever height that
+         costs.  An earlier version capped the height so a busy sheet stayed on
+         one page, which letterboxed the large 24 × 37 board into half the
+         width and made the row letters too small to read.  The picture is the
+         point of the sheet; a second page is cheaper than an unreadable one. */
+      #printSheet .pboard{margin:0 0 4mm;page-break-inside:avoid}
+      #printSheet .pboard svg{width:100%;height:auto}
       /* Rules between the rows, not a box round every cell: a grid of borders
          is what made the old sheet look like a form to fill in. */
       #printSheet table{border-collapse:collapse;width:100%;font-size:8.8pt}
@@ -255,17 +258,9 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       #printSheet .pname{margin:3.5mm 0 0;font-size:9pt;color:#2c5a4f}
       #printSheet .pname span{display:inline-block;border-bottom:.5pt solid rgba(6,35,29,.45);
         min-width:55mm;margin-left:2mm}
-      /* A busy board's cuts, links and nets run to two columns rather than
-         squeezing the picture: shrinking the board to fit them in one column
-         took the row letters down to under a millimetre, and an unreadable
-         board defeats the sheet. */
-      #printSheet .plists.two{-webkit-column-count:2;column-count:2;
-        -webkit-column-gap:7mm;column-gap:7mm}
-      /* Safari still wants the -webkit- form to keep a heading with its list */
-      #printSheet .plists section{-webkit-column-break-inside:avoid;
-        page-break-inside:avoid;break-inside:avoid}
-      #printSheet .plists.two h2{margin-top:2.5mm}
-      #printSheet .plists.two section:first-child h2{margin-top:3.5mm}
+      /* Where the sheet does run to two pages, a heading goes over with its
+         list rather than being left at the foot of the first. */
+      #printSheet .plists section{page-break-inside:avoid;break-inside:avoid}
       /* Named, not left to the browser: the default here is US Letter, which
          is 18 mm shorter than the A4 the school prints on, so the sheet was
          being laid out to a budget nobody in the building uses. */
@@ -8919,36 +8914,6 @@ function netLines(){
   }).join("");
 }
 
-/* How tall the board picture may be, in mm, so the sheet still ends on page 1.
-
-   A busy board was the case that broke it: a 7408 with its seven cuts, four
-   links and six nets pushed nothing but the credits onto a second sheet, which
-   is the one outcome the print CSS is there to prevent.  The lists below the
-   board are all fixed-height lines, so they can be costed before printing and
-   the board given what is left.  The mm figures are measured off a rendered
-   sheet, not guessed: a table row is 7.0, a list item 5.29, and everything
-   that is always there (headings, the name line, the cuts line, the credit)
-   comes to 94 out of the 271 mm an A4 page has inside 13 mm margins.
-
-   Returns the height and whether the lists have to go two-up to earn it.  A
-   board is only allowed down to 60 mm in one column — below that the row
-   letters stop being readable, and the second column buys the space back
-   without touching the picture. */
-function fitPrintBoard(nParts, nCuts, nLinks, nNets){
-  const cutLines = Math.max(1, Math.ceil(nCuts * 4.2 / 95));   // the cuts wrap as one paragraph
-  const lists = 5.29 * (nLinks + nNets + cutLines - 1);
-  // 5 mm held back: the estimate is good to a line, and a sheet that lands
-  // 3 mm inside the margin is one long net name away from a second page
-  const fixed = 271 - 5 - 94 - 7.0 * nParts;
-  if (fixed - lists >= 60) return { mm: Math.min(72, fixed - lists), two: false };
-  // 3 mm for the slop in how the browser balances the two columns
-  const two = fixed - lists / 2 - 3;
-  // A board with a dozen parts and as many links does not fit on one sheet by
-  // any arrangement.  Two honest pages beat a board too small to read, and the
-  // second one now carries real content rather than the credits on their own.
-  return { mm: two >= 60 ? Math.min(72, two) : 72, two: true };
-}
-
 const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
 
 function buildPrintSheet(){
@@ -8962,9 +8927,6 @@ function buildPrintSheet(){
            esc(R.spanOf(p.footprint, p.rot || 0, freeBoard)) + "</td></tr>";
   }).join("");
   const nets = netLines();
-  const fit = fitPrintBoard(A.placements.length, A.cuts.length,
-    A.links.length, (nets.match(/<li>/g) || []).length);
-  el.style.setProperty("--pbh", fit.mm + "mm");
   el.innerHTML =
     "<div class='phead'><h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
     "<p class='psub'>" + esc(boardSize(freeBoard)) + " · " +
@@ -8976,7 +8938,7 @@ function buildPrintSheet(){
     (rows ? "<h2>Parts on the board</h2><table><thead><tr><th>Item</th><th>What it is</th>" +
             "<th>Where it lies</th></tr></thead><tbody>" + rows + "</tbody></table>"
           : "<h2>Parts on the board</h2><p>Nothing placed yet.</p>") +
-    "<div class='plists" + (fit.two ? " two" : "") + "'>" +
+    "<div class='plists'>" +
     (A.cuts.length ? "<section><h2>Track cuts</h2><p class='pmono'>" +
         esc(A.cuts.map(hn).join(", ")) + "</p></section>" : "") +
     (A.links.length ? "<section><h2>Link wires</h2><ol>" + A.links.map(l =>
