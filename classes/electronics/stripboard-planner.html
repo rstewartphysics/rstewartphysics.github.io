@@ -216,7 +216,9 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
         padding-bottom:.8mm;page-break-after:avoid}
       #printSheet .psub{font-size:9.5pt;margin:0 0 3mm;color:#333}
       #printSheet .pboard{margin:0 0 3mm}
-      #printSheet .pboard svg{width:100%;height:auto;max-height:72mm}
+      /* --pbh is set by buildPrintSheet() from how much the lists below the
+         board are going to eat; see fitPrintBoard(). */
+      #printSheet .pboard svg{width:100%;height:auto;max-height:var(--pbh,72mm)}
       #printSheet table{border-collapse:collapse;width:100%;font-size:9pt}
       #printSheet th,#printSheet td{border:.5pt solid #666;padding:1mm 2mm;
         text-align:left;vertical-align:top}
@@ -229,6 +231,17 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
       #printSheet .pname{margin:3mm 0 0;font-size:10pt}
       #printSheet .pname span{display:inline-block;border-bottom:.5pt solid #000;
         min-width:55mm;margin-left:2mm}
+      /* A busy board's cuts, links and nets run to two columns rather than
+         squeezing the picture: shrinking the board to fit them in one column
+         took the row letters down to under a millimetre, and an unreadable
+         board defeats the sheet. */
+      #printSheet .plists.two{-webkit-column-count:2;column-count:2;
+        -webkit-column-gap:7mm;column-gap:7mm}
+      /* Safari still wants the -webkit- form to keep a heading with its list */
+      #printSheet .plists section{-webkit-column-break-inside:avoid;
+        page-break-inside:avoid;break-inside:avoid}
+      #printSheet .plists.two h2{margin-top:2.5mm}
+      #printSheet .plists.two section:first-child h2{margin-top:3.5mm}
       @page{margin:13mm}
     }
     /* ---- link wire colour picker ---------------------------------------
@@ -8878,6 +8891,34 @@ function netLines(){
   }).join("");
 }
 
+/* How tall the board picture may be, in mm, so the sheet still ends on page 1.
+
+   A busy board was the case that broke it: a 7408 with its seven cuts, four
+   links and six nets pushed nothing but the credits onto a second sheet, which
+   is the one outcome the print CSS is there to prevent.  The lists below the
+   board are all fixed-height lines, so they can be costed before printing and
+   the board given what is left.  The mm figures are measured off a rendered
+   sheet, not guessed: a table row is 6.6, a list item 5.05, and everything
+   that is always there (headings, the name line, the cuts line, the credits)
+   comes to 107 out of the 253 mm an A4 page has inside its margins.
+
+   Returns the height and whether the lists have to go two-up to earn it.  A
+   board is only allowed down to 60 mm in one column — below that the row
+   letters stop being readable, and the second column buys the space back
+   without touching the picture. */
+function fitPrintBoard(nParts, nCuts, nLinks, nNets){
+  const cutLines = Math.max(1, Math.ceil(nCuts * 4.2 / 95));   // the cuts wrap as one paragraph
+  const lists = 5.05 * (nLinks + nNets + cutLines - 1);
+  const fixed = 253 - 107 - 6.6 * nParts;
+  if (fixed - lists >= 60) return { mm: Math.min(72, fixed - lists), two: false };
+  // 3 mm for the slop in how the browser balances the two columns
+  const two = fixed - lists / 2 - 3;
+  // A board with a dozen parts and as many links does not fit on one sheet by
+  // any arrangement.  Two honest pages beat a board too small to read, and the
+  // second one now carries real content rather than the credits on their own.
+  return { mm: two >= 60 ? Math.min(72, two) : 72, two: true };
+}
+
 function buildPrintSheet(){
   const el = $("printSheet");
   if (!el) return;
@@ -8889,6 +8930,10 @@ function buildPrintSheet(){
            esc(R.spanOf(p.footprint, p.rot || 0, freeBoard)) + "</td></tr>";
   }).join("");
   const credit = document.querySelector("[data-credit-note]");
+  const nets = netLines();
+  const fit = fitPrintBoard(A.placements.length, A.cuts.length,
+    A.links.length, (nets.match(/<li>/g) || []).length);
+  el.style.setProperty("--pbh", fit.mm + "mm");
   el.innerHTML =
     "<h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
     "<p class='psub'>" + esc(boardSize(freeBoard)) + " · " +
@@ -8899,12 +8944,15 @@ function buildPrintSheet(){
     (rows ? "<h2>Parts on the board</h2><table><thead><tr><th>Item</th><th>What it is</th>" +
             "<th>Where it lies</th></tr></thead><tbody>" + rows + "</tbody></table>"
           : "<h2>Parts on the board</h2><p>Nothing placed yet.</p>") +
-    (A.cuts.length ? "<h2>Track cuts</h2><p>" + esc(A.cuts.map(hn).join(", ")) + "</p>" : "") +
-    (A.links.length ? "<h2>Link wires</h2><ol>" + A.links.map(l =>
+    "<div class='plists" + (fit.two ? " two" : "") + "'>" +
+    (A.cuts.length ? "<section><h2>Track cuts</h2><p>" + esc(A.cuts.map(hn).join(", ")) +
+        "</p></section>" : "") +
+    (A.links.length ? "<section><h2>Link wires</h2><ol>" + A.links.map(l =>
         "<li>" + esc(hn(l.a)) + " to " + esc(hn(l.b)) + " — " + esc(l.colour) + "</li>").join("") +
-        "</ol>" : "") +
-    "<h2>What is joined to what</h2>" +
-      (netLines() ? "<ol>" + netLines() + "</ol>" : "<p>Nothing joined up yet.</p>") +
+        "</ol></section>" : "") +
+    "<section><h2>What is joined to what</h2>" +
+      (nets ? "<ol>" + nets + "</ol>" : "<p>Nothing joined up yet.</p>") + "</section>" +
+    "</div>" +
     "<p class='pfoot'>" + esc(credit ? credit.textContent.replace(/\s+/g, " ").trim() : "") +
       "<br>" + esc(OWNER_FOOTER) + "</p>";
 }
