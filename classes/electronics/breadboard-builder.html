@@ -207,29 +207,64 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
       html,body{background:#fff!important}
       body>*{display:none!important}
       body>#printSheet{display:block!important;background:#fff}
-      /* Sized to land a normal board on ONE sheet, footer and all — a pupil
-         printing one layout should not get a second page carrying nothing but
-         the credits.  A very full board will still run to two, which is right. */
-      #printSheet{font:11pt/1.35 Georgia,"Times New Roman",serif;color:#000;padding:0;margin:0}
-      #printSheet h1{font-size:15pt;margin:0 0 1.5mm}
-      #printSheet h2{font-size:11.5pt;margin:3.5mm 0 1mm;border-bottom:1pt solid #000;
-        padding-bottom:.8mm;page-break-after:avoid}
-      #printSheet .psub{font-size:9.5pt;margin:0 0 3mm;color:#333}
-      #printSheet .pboard{margin:0 0 3mm}
-      #printSheet .pboard svg{width:100%;height:auto;max-height:72mm}
-      #printSheet table{border-collapse:collapse;width:100%;font-size:9pt}
-      #printSheet th,#printSheet td{border:.5pt solid #666;padding:1mm 2mm;
+      /* The sheet is the site on paper: the same Trebuchet stack, the same
+         teal, the same hairline rules.  It was set in Georgia with a boxed
+         grid to begin with, which read as a photocopied worksheet from another
+         decade and nothing like the tool it came out of.
+
+         The teal is the DARK token (--accent-2), not the screen accent: it has
+         to stay legible when the department printer renders it as grey. */
+      #printSheet{font:10.5pt/1.4 "Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+        color:#06231d;padding:0;margin:0;
+        -webkit-print-color-adjust:exact;print-color-adjust:exact}
+      #printSheet .phead{border-bottom:1.6pt solid #00705a;padding-bottom:2mm;margin:0 0 4mm}
+      #printSheet h1{font-size:17pt;font-weight:700;letter-spacing:-.012em;margin:0}
+      #printSheet .psub{font-size:8.4pt;margin:1mm 0 0;color:#2c5a4f;letter-spacing:.015em}
+      /* Section heads are small caps-ish labels rather than headlines — the
+         board is the thing on this page, not the words. */
+      #printSheet h2{font-size:8.4pt;font-weight:700;text-transform:uppercase;
+        letter-spacing:.1em;color:#00705a;margin:4.5mm 0 1.6mm;
+        border-bottom:.6pt solid rgba(6,35,29,.2);padding-bottom:1mm;
+        page-break-after:avoid}
+      /* The board gets the full width of the paper and whatever height that
+         costs.  An earlier version capped the height so a busy sheet stayed on
+         one page, which letterboxed the large 24 × 37 board into half the
+         width and made the row letters too small to read.  The picture is the
+         point of the sheet; a second page is cheaper than an unreadable one. */
+      #printSheet .pboard{margin:0 0 4mm;page-break-inside:avoid}
+      #printSheet .pboard svg{width:100%;height:auto}
+      /* Rules between the rows, not a box round every cell: a grid of borders
+         is what made the old sheet look like a form to fill in. */
+      #printSheet table{border-collapse:collapse;width:100%;font-size:8.8pt}
+      #printSheet th{text-align:left;font-weight:700;font-size:7.4pt;
+        text-transform:uppercase;letter-spacing:.08em;color:#2c5a4f;
+        border-bottom:.9pt solid #00705a;padding:0 0 1.2mm;vertical-align:bottom}
+      #printSheet td{border-bottom:.4pt solid rgba(6,35,29,.13);padding:1.2mm 0;
         text-align:left;vertical-align:top}
-      #printSheet th{background:#eee;font-weight:700}
-      #printSheet ol{margin:0;padding-left:6mm;font-size:9pt}
-      #printSheet li{margin:0 0 .8mm}
-      #printSheet p{margin:0 0 1mm;font-size:9pt}
-      #printSheet .pfoot{margin-top:4mm;padding-top:1.5mm;border-top:.5pt solid #666;
-        font:6.8pt/1.25 Georgia,"Times New Roman",serif;color:#333;page-break-inside:avoid}
-      #printSheet .pname{margin:3mm 0 0;font-size:10pt}
-      #printSheet .pname span{display:inline-block;border-bottom:.5pt solid #000;
+      #printSheet th+th,#printSheet td+td{padding-left:5mm}
+      #printSheet td:first-child{font-weight:700}
+      #printSheet ol{margin:0;padding-left:5.5mm;font-size:8.8pt}
+      #printSheet li{margin:0 0 1mm}
+      #printSheet p{margin:0 0 1mm;font-size:8.8pt}
+      /* hole references read as data, so they are set as data */
+      #printSheet .pmono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:8.2pt;letter-spacing:.02em}
+      /* One line, not the whole credits block: the rest is on the site, which
+         this points at. */
+      #printSheet .pfoot{margin-top:5mm;padding-top:1.8mm;
+        border-top:.6pt solid rgba(6,35,29,.2);
+        font-size:7.4pt;color:#2c5a4f;page-break-inside:avoid}
+      #printSheet .pfoot b{color:#00705a;font-weight:700}
+      #printSheet .pname{margin:3.5mm 0 0;font-size:9pt;color:#2c5a4f}
+      #printSheet .pname span{display:inline-block;border-bottom:.5pt solid rgba(6,35,29,.45);
         min-width:55mm;margin-left:2mm}
-      @page{margin:13mm}
+      /* Where the sheet does run to two pages, a heading goes over with its
+         list rather than being left at the foot of the first. */
+      #printSheet .plists section{page-break-inside:avoid;break-inside:avoid}
+      /* Named, not left to the browser: the default here is US Letter, which
+         is 18 mm shorter than the A4 the school prints on, so the sheet was
+         being laid out to a budget nobody in the building uses. */
+      @page{size:A4;margin:13mm}
     }
     /* ---- link wire colour picker ---------------------------------------
        Shown only while the Link wire tool is active. Auto-cycles to a
@@ -7508,6 +7543,7 @@ function paintNets(){
    something a pupil can already email, upload and keep.
    ============================================================ */
 const OWNER_FOOTER = "R Stewart - September 2026";   // §6, the month last revised
+const SITE_HOME = "mrstewartphysics.co.uk";          // where the full credits live
 
 function saveAs(name, text, type){
   const url = URL.createObjectURL(new Blob([text], { type: type }));
@@ -7595,6 +7631,8 @@ function netLines(){
   }).join("");
 }
 
+const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
+
 function buildPrintSheet(){
   const el = $("printSheet");
   if (!el) return;
@@ -7605,25 +7643,33 @@ function buildPrintSheet(){
     return "<tr><td>" + esc(p.id) + "</td><td>" + esc(what) + "</td><td>" +
            esc(R.spanOf(p.footprint, p.rot || 0, freeBoard)) + "</td></tr>";
   }).join("");
-  const credit = document.querySelector("[data-credit-note]");
+  const nets = netLines();
   el.innerHTML =
-    "<h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
+    "<div class='phead'><h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
     "<p class='psub'>" + esc(boardSize(freeBoard)) + " · " +
-      A.placements.length + " parts · " + A.cuts.length + " track cuts · " +
-      A.links.length + " link wires · printed " + stamp() + "</p>" +
+      plural(A.placements.length, "part") + " · " +
+      plural(A.cuts.length, "track cut") + " · " +
+      plural(A.links.length, "link wire") + " · printed " + stamp() + "</p></div>" +
     "<div class='pboard'>" + boardSvg() + "</div>" +
     "<p class='pname'>Name: <span></span> Class: <span style='min-width:30mm'></span></p>" +
     (rows ? "<h2>Parts on the board</h2><table><thead><tr><th>Item</th><th>What it is</th>" +
             "<th>Where it lies</th></tr></thead><tbody>" + rows + "</tbody></table>"
           : "<h2>Parts on the board</h2><p>Nothing placed yet.</p>") +
-    (A.cuts.length ? "<h2>Track cuts</h2><p>" + esc(A.cuts.map(hn).join(", ")) + "</p>" : "") +
-    (A.links.length ? "<h2>Link wires</h2><ol>" + A.links.map(l =>
+    "<div class='plists'>" +
+    (A.cuts.length ? "<section><h2>Track cuts</h2><p class='pmono'>" +
+        esc(A.cuts.map(hn).join(", ")) + "</p></section>" : "") +
+    (A.links.length ? "<section><h2>Link wires</h2><ol>" + A.links.map(l =>
         "<li>" + esc(hn(l.a)) + " to " + esc(hn(l.b)) + " — " + esc(l.colour) + "</li>").join("") +
-        "</ol>" : "") +
-    "<h2>What is joined to what</h2>" +
-      (netLines() ? "<ol>" + netLines() + "</ol>" : "<p>Nothing joined up yet.</p>") +
-    "<p class='pfoot'>" + esc(credit ? credit.textContent.replace(/\s+/g, " ").trim() : "") +
-      "<br>" + esc(OWNER_FOOTER) + "</p>";
+        "</ol></section>" : "") +
+    "<section><h2>What is joined to what</h2>" +
+      (nets ? "<ol>" + nets + "</ol>" : "<p>Nothing joined up yet.</p>") + "</section>" +
+    "</div>" +
+    /* The full sources note belongs on the page, not on a pupil's layout: it
+       ran to six lines of small print for a sheet that is theirs, and the
+       whole of it is a click away on the site this points at. */
+    "<p class='pfoot'><b>Stripboard Planner</b> · " + esc(SITE_HOME) +
+      " — board conventions, sources and full credits are on the site · " +
+      esc(OWNER_FOOTER) + "</p>";
 }
 
 /* --------------------------------------------------------------- fit, free
