@@ -191,6 +191,46 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
        able to SEE that there is nothing to go back to rather than press a
        live-looking button and get a message. */
     #sbd .tool:disabled{opacity:.42;cursor:default}
+    /* `hidden` loses to .controls' own display rule, so a beta-only row would
+       flash on every page before the boot block removed it. */
+    #sbd .controls[hidden]{display:none}
+
+    /* ---- the print sheet ------------------------------------------------
+       Built on demand and hidden on screen.  Printing takes the page apart —
+       banner, menu, tools and all — and prints this instead, because what a
+       pupil staples into the assignment is the board, the parts and the nets,
+       not the website round them. */
+    #printSheet{display:none}
+    @media print{
+      /* the site's teal wash is a screen background; on paper it is a full
+         page of ink for nothing */
+      html,body{background:#fff!important}
+      body>*{display:none!important}
+      body>#printSheet{display:block!important;background:#fff}
+      /* Sized to land a normal board on ONE sheet, footer and all — a pupil
+         printing one layout should not get a second page carrying nothing but
+         the credits.  A very full board will still run to two, which is right. */
+      #printSheet{font:11pt/1.35 Georgia,"Times New Roman",serif;color:#000;padding:0;margin:0}
+      #printSheet h1{font-size:15pt;margin:0 0 1.5mm}
+      #printSheet h2{font-size:11.5pt;margin:3.5mm 0 1mm;border-bottom:1pt solid #000;
+        padding-bottom:.8mm;page-break-after:avoid}
+      #printSheet .psub{font-size:9.5pt;margin:0 0 3mm;color:#333}
+      #printSheet .pboard{margin:0 0 3mm}
+      #printSheet .pboard svg{width:100%;height:auto;max-height:72mm}
+      #printSheet table{border-collapse:collapse;width:100%;font-size:9pt}
+      #printSheet th,#printSheet td{border:.5pt solid #666;padding:1mm 2mm;
+        text-align:left;vertical-align:top}
+      #printSheet th{background:#eee;font-weight:700}
+      #printSheet ol{margin:0;padding-left:6mm;font-size:9pt}
+      #printSheet li{margin:0 0 .8mm}
+      #printSheet p{margin:0 0 1mm;font-size:9pt}
+      #printSheet .pfoot{margin-top:4mm;padding-top:1.5mm;border-top:.5pt solid #666;
+        font:6.8pt/1.25 Georgia,"Times New Roman",serif;color:#333;page-break-inside:avoid}
+      #printSheet .pname{margin:3mm 0 0;font-size:10pt}
+      #printSheet .pname span{display:inline-block;border-bottom:.5pt solid #000;
+        min-width:55mm;margin-left:2mm}
+      @page{margin:13mm}
+    }
     /* ---- link wire colour picker ---------------------------------------
        Shown only while the Link wire tool is active. Auto-cycles to a
        sensible next colour, but a pupil can override it before drawing —
@@ -275,7 +315,9 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
     #sbd .ch-card .ch-can strong{font-weight:700}
     #sbd .part .tlen{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:6px 9px;font:700 12px/1 inherit;cursor:pointer;white-space:nowrap}
-    #sbd .part .trot{border:1px solid var(--border);background:var(--card);color:var(--text);
+    /* .tnum rides with .trot so Renumber gets the same 44px touch target the
+       touch-target audit set for every control in a tile. */
+    #sbd .part .trot,#sbd .part .tnum{border:1px solid var(--border);background:var(--card);color:var(--text);
       border-radius:8px;padding:4px 8px;font:700 .66rem/1 var(--font-stack);cursor:pointer;
       flex:0 0 auto;min-height:44px}
     #sbd .bankhead{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:2px 0 0}
@@ -636,6 +678,10 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
               <button type="button" class="tool" data-tool="link" aria-pressed="false"><span class="k">╱</span>Link wire</button>
               <button type="button" class="tool" data-tool="tp" aria-pressed="false"><span class="k">◎</span>Test point</button>
               <button type="button" class="tool" data-tool="erase" aria-pressed="false"><span class="k">⌫</span>Remove</button>
+              <!-- A tool, not just a button in the parts list: a part that is
+                   already on the board has no open tile, and picking it up to
+                   renumber it would lose the position that was the point. -->
+              <button type="button" class="tool beta-only" data-tool="renum" aria-pressed="false" hidden><span class="k">#</span>Renumber</button>
               <button type="button" class="tool" id="btnRot"><span class="k">⟳</span>Rotate</button>
               <!-- Actions, not tools: no data-tool, so setTool never sees them
                    and no aria-pressed, because they do not stay chosen. -->
@@ -739,6 +785,17 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
           <button class="btn ghost free-hide" id="btnNext">Next question →</button>
         </div>
 
+        <!-- Beta page only.  A pupil needs the board on paper to staple into
+             the assignment, and needs more than the one autosaved board this
+             tool has held until now (IMPROVE-PLAN D5). -->
+        <div class="controls beta-only" id="saveRow" hidden>
+          <button class="btn ghost" id="btnPrint">🖨 Print my board</button>
+          <button class="btn ghost" id="btnSaveFile">⬇ Save to a file</button>
+          <button class="btn ghost" id="btnOpenFile">⬆ Open a file</button>
+          <button class="btn ghost" id="btnSaveSvg">🖼 Save the picture</button>
+          <input type="file" id="fileIn" accept=".json,application/json" hidden>
+        </div>
+
         <p class="sr" id="liveMsg" role="status" aria-live="polite"></p>
 
         <div class="feedback" id="feedback">
@@ -807,6 +864,11 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
       <p class="lead">© R Stewart Physics, Electronics and Engineering</p>
     </section>
   </main>
+
+  <!-- A direct child of <body>, not of <main>: the print rule hides every
+       top-level element and shows this one, which is how the banner, the site
+       menu and the whole tool come off the printed page in one rule. -->
+  <section id="printSheet" aria-hidden="true"></section>
 
   <div class="sbd-modal" id="modal" role="dialog" aria-modal="true" aria-label="Circuit diagram, enlarged">
     <div class="sheet">
@@ -6726,6 +6788,10 @@ function actEdit(h){
       }
     }
 
+  } else if (tool === "renum"){
+    if (what.kind === "pin" || what.kind === "body") renumberPart(what.p.id);
+    else say("Tap a part to change its number.");
+
   } else if (tool === "erase"){
     if (what.kind === "cut"){ A.cuts.splice(A.cuts.indexOf(key), 1); say("Cut removed at " + hn(key) + "."); }
     else if (what.kind === "tp"){ A.testpoints = A.testpoints.filter(t => t.at !== key);
@@ -7408,6 +7474,7 @@ function defaultRotFor(footprint){
 function fixedRotHere(fp){ return !BB && !!(fp && fp.fixedRot); }
 
 $("bank").addEventListener("click", e => {
+  if (e.target.closest(".tnum")){ renumberPart(sel); return; }
   if (e.target.closest(".trot")){ rotate(); return; }
   if (e.target.closest(".tlen")){ stretch(); return; }
   const sw = e.target.closest(".tcol");
@@ -7447,7 +7514,7 @@ $("bank").addEventListener("click", e => {
 // the tiles are divs, so Enter and Space have to be wired by hand
 $("bank").addEventListener("keydown", e => {
   if (e.key !== "Enter" && e.key !== " ") return;
-  const t = e.target.closest(".trot, .tlen, .part");
+  const t = e.target.closest(".trot, .tnum, .tlen, .part");
   if (!t) return;
   e.preventDefault();
   t.click();
@@ -7487,6 +7554,28 @@ if (BETA && $("btnUndo")){
     if (k === "z" && !e.shiftKey){ e.preventDefault(); undo(); }
     else if ((k === "z" && e.shiftKey) || k === "y"){ e.preventDefault(); redo(); }
   });
+}
+if (BETA && $("saveRow")){
+  $("btnPrint").addEventListener("click", () => { buildPrintSheet(); window.print(); });
+  $("btnSaveFile").addEventListener("click", exportBoard);
+  $("btnSaveSvg").addEventListener("click", exportSvg);
+  $("btnOpenFile").addEventListener("click", () => $("fileIn").click());
+  $("fileIn").addEventListener("change", e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) importBoard(f);
+    e.target.value = "";                  // so the same file can be opened twice
+  });
+  /* ⌘P goes straight past the button, so the sheet is built on the way into
+     printing as well.  Safari has not always fired beforeprint, so the print
+     media query is watched too — whichever arrives first, the sheet is built
+     from the board as it stands. */
+  window.addEventListener("beforeprint", buildPrintSheet);
+  try {
+    const mq = window.matchMedia("print");
+    const onmq = m => { if (m.matches) buildPrintSheet(); };
+    if (mq.addEventListener) mq.addEventListener("change", onmq);
+    else if (mq.addListener) mq.addListener(onmq);
+  } catch(e){}
 }
 
 /* ============================================================
@@ -7686,6 +7775,15 @@ const STRIP_CHANGELOG = [
    tool.  The planner's current entry is kept underneath so the difference
    between the two pages is one row of the table, not a guess. */
 const BETA_CHANGELOG = [
+  { v: "3.2", date: "21 Sep 2026", what:
+    "<strong>Renumber, save, open and print.</strong> Tap a part in the list and use " +
+    "<strong># Renumber</strong> to change its number — R1 can become R7, but it stays an R, " +
+    "because the letter is how the tool knows what the part is. <strong>Save to a file</strong> " +
+    "puts your board in a file you can keep, email or hand in, and <strong>Open a file</strong> " +
+    "brings it back — on any machine, so a board started in class can be finished at home. " +
+    "<strong>Save the picture</strong> gives you the board as a picture to drop into a document. " +
+    "<strong>Print my board</strong> prints the board, the parts list, the cuts, the link wires " +
+    "and what is joined to what, on one sheet with a space for your name." },
   { v: "3.1", date: "21 Sep 2026", what:
     "<strong>Undo.</strong> Every change to the board can now be taken back — a part, a " +
     "link wire, a track cut, a test point, even <strong>Reset</strong>. Use the <strong>Undo</strong> " +
@@ -8279,11 +8377,17 @@ function dropPart(id){
    ============================================================ */
 const UNDO_MAX = 50;
 const undoStack = [], redoStack = [];
+let mutating = false;
 function snapState(){ return JSON.stringify({ a: A, c: FREEC }); }
 function mutate(fn){
-  if (!BETA || mode !== "free") return fn();
+  /* Re-entrant on purpose: the Renumber TOOL reaches renumberPart() through
+     act(), so one pupil action would otherwise snapshot twice and need Undo
+     pressed twice to get past it.  The outermost call owns the step. */
+  if (!BETA || mode !== "free" || mutating) return fn();
   const before = snapState();
-  const out = fn();
+  mutating = true;
+  let out;
+  try { out = fn(); } finally { mutating = false; }
   if (snapState() !== before){
     undoStack.push(before);
     if (undoStack.length > UNDO_MAX) undoStack.shift();
@@ -8334,10 +8438,11 @@ function paintUndo(){
 function clearUndo(){ undoStack.length = 0; redoStack.length = 0; paintUndo(); }
 
 /* A free board read back from storage is last term's data, not a promise —
-   same rule as sane() applies to a question's attempt (R8). */
-function savedFree(){
+   same rule as sane() applies to a question's attempt (R8).  A board read out
+   of a FILE the pupil chose is no better, so both go through this one check
+   rather than through two sets of rules that could drift apart. */
+function sanitiseBoard(rec){
   try {
-    const rec = loadStoreRaw()[FREE_KEY];
     if (!rec || typeof rec !== "object") return null;
     if (FREE_BOARDS.indexOf(rec.board) < 0) return null;
     const comps = (Array.isArray(rec.comps) ? rec.comps : [])
@@ -8355,6 +8460,9 @@ function savedFree(){
     SBD.topology(SBD.BOARDS[rec.board], out);        // throws if it does not fit the board
     return { board: rec.board, comps, a: out };
   } catch(e){ return null; }
+}
+function savedFree(){
+  try { return sanitiseBoard(loadStoreRaw()[FREE_KEY]); } catch(e){ return null; }
 }
 
 function loadFree(keepScroll){
@@ -8439,6 +8547,56 @@ function pickFromPaletteNow(key){
   drawBank(); fit(); paint(); saveStore();
 }
 
+/* ---------------------------------------------------------------- renumber
+   NUMBER ONLY (IMPROVE-PLAN D4): R1 can become R7, but it stays an R.  The
+   prefix is not decoration — the net read-back, the data-sheet pin lookups and
+   every fault message read the part type off it, and a pupil who renamed R1 to
+   "top one" would get fault wording about a part the engine no longer
+   recognises.
+
+   The prompt sits OUTSIDE mutate(): a rename the pupil cancels, or types
+   nonsense into, must not leave a step on the undo stack for them to press
+   Undo past. */
+function partNumberOf(c){
+  const m = /(\d+)\)?$/.exec(c.id);
+  return m ? m[1] : "";
+}
+function renumberPart(id){
+  const c = FREEC.find(x => x.id === id);
+  if (!c){ say("Pick a part from the list first, then tap Renumber."); return; }
+  const spec = FREE.byKey(c.key) || {};
+  const fmt = n => spec.bracket ? spec.prefix + "(" + n + ")" : spec.prefix + n;
+  const ans = window.prompt(
+    "New number for " + c.id + ".\n\n" +
+    "It stays " + spec.prefix + " — only the number changes.\n" +
+    "Type a number from 1 to 99.", partNumberOf(c));
+  if (ans === null) return;                       // cancelled
+  const t = String(ans).trim();
+  if (!/^\d{1,2}$/.test(t) || +t < 1){
+    say("That is not a number from 1 to 99, so " + c.id + " has not changed."); return;
+  }
+  const want = fmt(+t);
+  if (want === c.id){ say(c.id + " already has that number."); return; }
+  if (FREEC.some(x => x.id === want)){
+    say(want + " is already on the board. Renumber that one first, or pick another number.");
+    return;
+  }
+  mutate(() => {
+    const was = c.id;
+    c.id = want;
+    // rebuilt exactly the way mint() builds it, so the two cannot drift
+    c.name = spec.part ? want + " — " + spec.part + " " + spec.sub
+                       : want + " — " + spec.name;
+    // the part record and its placement carry the same id and must move together
+    A.placements.forEach(p => { if (p.id === was) p.id = want; });
+    if (sel === was) sel = want;
+    if (pending === was) pending = want;
+    bankKey = null; netSig = null;
+    drawFreeBank(); paint(); saveStore();
+    say(was + " is now " + want + ".");
+  });
+}
+
 /* The colour a part is showing: the pupil's choice if they made one, otherwise
    the colour that part comes in — brown for a resistor, red for an LED. The
    renderer owns that table, so the swatch that reads "pressed" and the body on
@@ -8510,6 +8668,7 @@ function drawFreeBank(){
     b.innerHTML = !isOpen ? face
       : "<div class='thead'>" + face +
         (fixed ? "" : "<button type='button' class='trot'>⟳ Rotate</button>") +
+        (BETA ? "<button type='button' class='tnum'># Renumber</button>" : "") +
         lenButton(selComp, fpSel) + "</div>" +
         "<div class='tpv'>" + R.renderPart({ id: selComp.id, footprint: fpSel,
           rot: rot, part: selComp.part, pos: selComp.pos, colour: selComp.colour,
@@ -8619,6 +8778,135 @@ function paintNets(){
       "<span class='nrun'>" + solo.length + (solo.length === 1 ? " leg" : " legs") + "</span></div>" +
       "<p class='nparts'>" + esc(solo.map(nt => nt.parts[0]).join(", ")) + "</p></li>"
     : "");
+}
+
+/* ============================================================
+   Save, open, and print  (beta page only — IMPROVE-PLAN D5)
+   ------------------------------------------------------------
+   Until now the tool held exactly ONE board, autosaved into this browser.  A
+   pupil with two designs on the go, or moving between a school machine and a
+   home one, or handing work in, had nowhere to put it.  So: export and import
+   a file, download the picture, and print the sheet that gets stapled into the
+   assignment.  Named slots were considered and dropped (D5) — a file is
+   something a pupil can already email, upload and keep.
+   ============================================================ */
+const OWNER_FOOTER = "R Stewart - September 2026";   // §6, the month last revised
+
+function saveAs(name, text, type){
+  const url = URL.createObjectURL(new Blob([text], { type: type }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  // Safari needs the object URL to outlive the click, so it is revoked late
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+const stamp = () => new Date().toISOString().slice(0, 10);
+
+function boardSvg(){
+  return R.renderBoard({ board: freeBoard, question: Q, attempt: A, standalone: true,
+                         title: freeBoard + " stripboard layout, component side" });
+}
+
+function exportBoard(){
+  if (!A.placements.length && !A.cuts.length && !A.links.length){
+    say("There is nothing on the board to save yet."); return;
+  }
+  saveAs("my-stripboard-" + stamp() + ".json",
+         JSON.stringify({ tool: "stripboard-planner", v: 1, saved: stamp(),
+                          board: freeBoard, comps: FREEC, a: A }, null, 1),
+         "application/json");
+  say("Saved to a file. Keep it somewhere you can find it again.");
+}
+
+function exportSvg(){
+  saveAs("my-stripboard-" + stamp() + ".svg", boardSvg(), "image/svg+xml");
+  say("Picture saved. It can be put straight into a document.");
+}
+
+function importBoard(file){
+  const fr = new FileReader();
+  fr.onerror = () => say("That file could not be read.");
+  fr.onload = () => {
+    let rec = null;
+    try { rec = sanitiseBoard(JSON.parse(fr.result)); } catch(e){ rec = null; }
+    /* sanitiseBoard is the SAME check a board read back from storage goes
+       through — a file off a memory stick is no more to be trusted than last
+       term's localStorage, and one set of rules means one place to fix them. */
+    if (!rec){
+      say("That is not a board file this tool can open, so nothing has changed."); return;
+    }
+    const used = A.placements.length || A.cuts.length || A.links.length;
+    if (used && !window.confirm("Opening this file replaces the board you have now. Carry on?")) return;
+    /* Undoable only when the file is for the SAME board: a snapshot of a 9×25
+       layout cannot be restored onto a 24×37 one, which is the rule the board
+       buttons already follow. */
+    if (rec.board === freeBoard) mutate(() => applyBoard(rec));
+    else { applyBoard(rec); clearUndo(); }
+    say("Board opened from the file" +
+        (rec.board === freeBoard ? "." : ". The board size changed, so Undo starts again."));
+  };
+  fr.readAsText(file);
+}
+
+function applyBoard(rec){
+  freeBoard = rec.board;
+  FREEC.length = 0;
+  for (const c of rec.comps) FREEC.push(c);
+  Q = FREE.freeQ(freeBoard, FREEC);
+  Q.components = FREEC;
+  A = rec.a;
+  sel = null; pending = null; rot = 0; len = null; linkStart = null;
+  marks = []; hl = []; bankKey = null; netSig = null; cur = { r: 0, c: 1 };
+  $("qsrc").textContent = freeBoard + " · " + boardSize(freeBoard);
+  paintBoardPick();
+  clearFeedback(); saveStore();
+  drawGrid(); drawBank(); paint(); fit();
+}
+
+/* ---------------------------------------------------------------- printing
+   Built fresh each time rather than kept in step with the board: it is read
+   once, on paper, and a stale print sheet is worse than a slow one. */
+function netLines(){
+  const nets = FREE.netReport(freeBoard, A, FREEC) || [];
+  let plain = 0;
+  return nets.filter(nt => !(nt.lone && !nt.role)).map(nt => {
+    const name = nt.role === "+5 V" ? "+5 V rail" : nt.role === "0 V" ? "0 V rail"
+               : nt.role === "shorted supply" ? "+5 V AND 0 V — shorted" : "Net " + (++plain);
+    return "<li><strong>" + esc(name) + "</strong> — " + esc(nt.runs.join(" + ")) +
+           " — " + esc(nt.parts.join(", ")) +
+           (nt.tps.length ? ", " + esc(nt.tps.join(", ")) : "") + "</li>";
+  }).join("");
+}
+
+function buildPrintSheet(){
+  const el = $("printSheet");
+  if (!el) return;
+  const rows = A.placements.map(p => {
+    const c = FREEC.find(x => x.id === p.id) || {};
+    const spec = FREE.byKey(c.key) || {};
+    const what = c.part ? c.part + " " + (spec.sub || "") : (spec.name || "");
+    return "<tr><td>" + esc(p.id) + "</td><td>" + esc(what) + "</td><td>" +
+           esc(R.spanOf(p.footprint, p.rot || 0, freeBoard)) + "</td></tr>";
+  }).join("");
+  const credit = document.querySelector("[data-credit-note]");
+  el.innerHTML =
+    "<h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
+    "<p class='psub'>" + esc(boardSize(freeBoard)) + " · " +
+      A.placements.length + " parts · " + A.cuts.length + " track cuts · " +
+      A.links.length + " link wires · printed " + stamp() + "</p>" +
+    "<div class='pboard'>" + boardSvg() + "</div>" +
+    "<p class='pname'>Name: <span></span> Class: <span style='min-width:30mm'></span></p>" +
+    (rows ? "<h2>Parts on the board</h2><table><thead><tr><th>Item</th><th>What it is</th>" +
+            "<th>Where it lies</th></tr></thead><tbody>" + rows + "</tbody></table>"
+          : "<h2>Parts on the board</h2><p>Nothing placed yet.</p>") +
+    (A.cuts.length ? "<h2>Track cuts</h2><p>" + esc(A.cuts.map(hn).join(", ")) + "</p>" : "") +
+    (A.links.length ? "<h2>Link wires</h2><ol>" + A.links.map(l =>
+        "<li>" + esc(hn(l.a)) + " to " + esc(hn(l.b)) + " — " + esc(l.colour) + "</li>").join("") +
+        "</ol>" : "") +
+    "<h2>What is joined to what</h2>" +
+      (netLines() ? "<ol>" + netLines() + "</ol>" : "<p>Nothing joined up yet.</p>") +
+    "<p class='pfoot'>" + esc(credit ? credit.textContent.replace(/\s+/g, " ").trim() : "") +
+      "<br>" + esc(OWNER_FOOTER) + "</p>";
 }
 
 /* --------------------------------------------------------------- fit, free
