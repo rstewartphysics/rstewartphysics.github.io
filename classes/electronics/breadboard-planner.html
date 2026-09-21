@@ -520,7 +520,9 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       <h1 class="page-title">Plan your own Breadboard Circuit</h1>
       <button type="button" class="verchip" id="verChip"
               aria-label="Version — show what has changed"></button>
-      <section class="panel beta" aria-label="Beta notice" id="betaBox">
+      <!-- hidden by default and un-hidden only on a beta variant, so a page
+           that is out of beta never flashes the notice before JS runs -->
+      <section class="panel beta" aria-label="Beta notice" id="betaBox" hidden>
       <h2>⚠️ Beta <span class="beta-tag">testing</span></h2>
       <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. It marks your board by
         working out what is actually connected to what, so any layout that is electrically correct will pass — but
@@ -1284,6 +1286,41 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     return { ok: true };
   }
 
+  /* -------------------------------------------------- drop-time link check
+     The mirror of placeCheck: that one guards a PART against the links already
+     on the board, and until 21 Sep 2026 nothing guarded a LINK against the
+     parts.  A jumper drawn straight through a component was accepted in
+     silence, and on stripboard the rank-11 rule could not report it afterwards
+     either (see the comment there).  Refused at the point it is drawn, because
+     a link across a component body is never a layout a pupil meant (D2).
+     A bare leg does not block — see the rank-11 comment for why.
+     `ignore` lets an existing link be redrawn without clashing with itself. */
+
+  function linkCheck(q, attempt, cand, ignore) {
+    const board = BOARDS[q.board];
+    if (!board) return { ok: false, msg: "unknown board" };
+    const a = parseRef(cand.a), b = parseRef(cand.b);
+    const along = a.r === b.r, down = a.c === b.c;
+    if (!along && !down) return { ok: true };    // diagonal: rank 9's business
+
+    const top = topology(board, {
+      cuts: attempt.cuts || [],
+      placements: attempt.placements || [],
+      links: (attempt.links || []).filter(l => l !== ignore),
+      testpoints: attempt.testpoints || []
+    });
+
+    const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
+          hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
+    for (let i = lo + 1; i < hi; i++) {
+      const body = top.bodyAt.get(hid(along ? { r: a.r, c: i } : { r: i, c: a.c }));
+      if (!body) continue;
+      return { ok: false, msg: `That link would run under ${body} — on a real ` +
+        `board you could not solder it there. Take it round the part.` };
+    }
+    return { ok: true };
+  }
+
   /* ---------------------------------------------------------------- nets */
 
   function netsOf(top) {
@@ -1989,16 +2026,30 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       }
     }
 
-    // rank 11 — a link running under a component body
+    /* rank 11 — a link running over a component.
+
+       Both orientations, and pins as well as bodies.  Until 21 Sep 2026 this
+       walked ROW-running links only: `chipAt` is filled inside `isBread()`
+       alone, so on a stripboard every COLUMN-running link took the `continue`,
+       and `owner` was `along && …` so it could not have named a part anyway.
+       A jumper straight down a column through a resistor standing across the
+       tracks was therefore never reported — which is the commonest overlap
+       there is on stripboard, where components and links both cross the
+       tracks (pupil feedback, 21 Sep 2026).
+
+       A BODY blocks and a bare leg does not: a link wire lies above the board
+       and can pass over a leg soldered into a hole, which shipped reference
+       answers rely on (greenhouse-irrigation runs C20–M20 over the +5 V
+       terminal at F20).  Only the package is in the way. */
     for (const l of attempt.links || []) {
       const a = parseRef(l.a), b = parseRef(l.b);
-      const along = a.r === b.r;
-      if (!along && (a.c !== b.c || !chipAt.size)) continue;
+      const along = a.r === b.r, down = a.c === b.c;
+      if (!along && !down) continue;            // diagonal: rank 9 reports that
       const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
             hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
       for (let i = lo + 1; i < hi; i++) {
         const k = hid(along ? { r: a.r, c: i } : { r: i, c: a.c });
-        const chip = chipAt.get(k), owner = along && top.bodyAt.get(k);
+        const chip = chipAt.get(k), owner = top.bodyAt.get(k);
         if (chip) {
           faults.push({ rank: 11, code: "link-over-chip",
             msg: `The link ${holeName(board, a)}\u2013${holeName(board, b)} runs straight across ${chip} ` +
@@ -2085,7 +2136,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
   root.SBD = { BOARDS, FOOTPRINTS, AXIAL_LENGTHS, lengthsOf, GATES, DRIVER_PINS, gatesOf,
                isBread, nodesOf, rowName, holeName, bandName, netName,
                segmentsOf, makeDSU, topology, netsOf, stageOf,
-               canonicalise, check, netlistOf, placeCheck, netOf, sameNet,
+               canonicalise, check, netlistOf, placeCheck, linkCheck, netOf, sameNet,
                ref, parseRef, rowLetter, hid, cellsOf };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
@@ -5734,9 +5785,15 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
      Capacitors share the stem "C" whether they are polarised or not, because
      that is how a real wiring schedule numbers them. */
   const PALETTE = [
-    { key: "pos",  prefix: "+5V", only: true, footprint: "term-1", sub: "supply terminal",
+    /* Numbered, not one-per-board.  Until 21 Sep 2026 both carried
+       `only: true`, so a pupil could place exactly one of each and could not
+       bring a supply wire off the board at a second point — which a real
+       wiring schedule needs the moment an off-board load wants its return leg.
+       Bracketed (`+5V(1)`) rather than `+5V1` so the voltage still reads as a
+       voltage (plan D8). */
+    { key: "pos",  prefix: "+5V", bracket: true, footprint: "term-1", sub: "supply terminal",
       name: "+5 V supply", pos: true },
-    { key: "neg",  prefix: "0V",  only: true, footprint: "term-1", sub: "supply terminal",
+    { key: "neg",  prefix: "0V",  bracket: true, footprint: "term-1", sub: "supply terminal",
       name: "0 V supply", neg: true },
     /* An input or output terminal is a WIRE leaving the board, and the wiring
        schedule says what colour that wire is — so the pupil picks it here, the
@@ -5831,7 +5888,8 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     if (!spec) return null;
     const used = new Set((components || []).map(c => c.id));
     if (spec.only) return used.has(spec.prefix) ? null : spec.prefix;
-    for (let n = 1; n < 100; n++) if (!used.has(spec.prefix + n)) return spec.prefix + n;
+    const fmt = spec.bracket ? n => spec.prefix + "(" + n + ")" : n => spec.prefix + n;
+    for (let n = 1; n < 100; n++) if (!used.has(fmt(n))) return fmt(n);
     return null;
   }
 
@@ -6051,6 +6109,67 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
         }
       }
 
+      /* --------------------------------------------- a part's two ends
+         Free mode hands check() the pupil's own netlist as the target, so
+         every comparison rank matches by construction — which leaves it silent
+         about how many parts share a pair of nets.  Both of these were
+         reported by pupils on 21 Sep 2026 and neither said anything before.
+
+         Only 2-legged parts: for a chip or a 3-leg part "both ends" is not a
+         sentence, and the wording has to stay true. */
+      const top2 = SBD.topology(SBD.BOARDS[boardId], attempt);
+      const rootsOf = new Map();
+      for (const pin of top2.pins) {
+        const nd = top2.nodeOf.get(SBD.hid(pin.hole));
+        if (nd === undefined) continue;
+        if (!rootsOf.has(pin.comp)) rootsOf.set(pin.comp, []);
+        rootsOf.get(pin.comp).push(top2.dsu.find(nd));
+      }
+      const twoLeg = comps.filter(c =>
+        ((SBD.FOOTPRINTS[c.footprint] || {}).pins || []).length === 2 &&
+        (rootsOf.get(c.id) || []).length === 2);
+
+      const track = BREAD ? "net" : "track";
+      /* Both legs on one net: the part is shorted out and current goes round
+         it, not through it.  Always a mistake, so a fault (plan D7). */
+      for (const c of twoLeg) {
+        const rs = rootsOf.get(c.id);
+        if (rs[0] !== rs[1]) continue;
+        faults.push({ rank: 0.6, code: "part-shorted",
+          msg: "Both legs of " + c.id + " are on the same " + track + ", so it is " +
+               "shorted out — the current goes round it, not through it. " +
+               "Its two ends must be on " + (BREAD ? "different nets." : "different tracks."),
+          refs: [c.id] });
+      }
+
+      /* Two or more parts sharing BOTH nets are in parallel.  Legal
+         electronics and sometimes deliberate, so a warning that asks whether
+         it was meant rather than a fault (plan D7). */
+      const byPair = new Map();
+      for (const c of twoLeg) {
+        const rs = rootsOf.get(c.id);
+        if (rs[0] === rs[1]) continue;                 // already a fault above
+        // roots are STRINGS ("2:0"), so they sort, they do not Math.min
+        const k = rs.slice().sort().join("|");
+        if (!byPair.has(k)) byPair.set(k, []);
+        byPair.get(k).push(c);
+      }
+      for (const group of byPair.values()) {
+        if (group.length < 2) continue;
+        const ids = group.map(c => c.id);
+        const names = ids.slice(0, -1).join(", ") + " and " + ids[ids.length - 1];
+        const allRes = group.every(c => c.key === "res");
+        warnings.push({ rank: 19, code: "parts-parallel",
+          msg: names + " are in parallel — both ends of each are on the same two " +
+               (BREAD ? "nets" : "tracks") + ". " +
+               (allRes
+                 ? "Together they have LESS resistance than any one of them on its own. " +
+                   "If you meant them in series, the join between them needs a " + track +
+                   " of its own."
+                 : "They see the same voltage. Check that is what you meant."),
+          refs: ids });
+      }
+
       /* A leg on a track with nothing else on it is worth saying — a forgotten
          link wire is exactly what that looks like.  But reporting it leg by leg
          buries every other line: a 14-pin chip placed on a blank board, which
@@ -6194,11 +6313,16 @@ let mode = null;
    modes: the marked ones are a course to work through, Free build is a
    workbench, and putting them on one page meant a pupil looking for either had
    to know which tab it was behind.  build.py substitutes this line. */
-const VARIANT = /*@VARIANT*/ { id: "bread", modes: ["free"], boards: ["bb-400", "bb-830"] };
+const VARIANT = /*@VARIANT*/ { id: "bread", modes: ["free"], boards: ["bb-400", "bb-830"], beta: false };
 const HAS = m => VARIANT.modes.indexOf(m) >= 0;
 /* Whether this page is a breadboard.  Asked of the BOARD, never of the variant
    id, so the two can never disagree about what is on screen. */
 const BB = SBD.isBread(SBD.BOARDS[VARIANT.boards[0]]);
+/* Whether this page still carries the beta mark.  Set per variant rather than
+   unconditionally, so the mark can come off the finished pages (21 Sep 2026,
+   once the three bugs pupils reported were fixed) while a future beta variant
+   keeps it.  Two places wear it: the notice panel and the version chip. */
+const BETA = !!VARIANT.beta;
 /* A hole in the words printed on THIS board: "H12" on a stripboard, "e12" or
    "+12 (top rail)" on a breadboard.  Internal refs stay A-based everywhere, so
    this is the only place a hole becomes something a pupil reads. */
@@ -6562,11 +6686,19 @@ function act(h){
     if (!linkStart){ linkStart = key; say("Link wire started at " + hn(key) + ". Tap the other end."); }
     else if (linkStart === key){ linkStart = null; say("Link wire cancelled."); }
     else {
-      const num = A.links.length + 1;
-      A.links.push({ a: linkStart, b: key, colour: linkColour, num });
-      say("Link wire " + num + " from " + hn(linkStart) + " to " + hn(key) + ", " + linkColour + ".");
-      linkStart = null;
-      nextLinkColour();
+      /* Refused at the point it is drawn, the same way a part overlap is:
+         a link across a component body cannot be built (plan D2, 21 Sep 2026).
+         linkStart is deliberately LEFT SET so the pupil can pick a different
+         far end without starting the wire again. */
+      const v = SBD.linkCheck(Q, A, { a: linkStart, b: key });
+      if (!v.ok){ say("Cannot run a link there. " + v.msg); flashHole(h); }
+      else {
+        const num = A.links.length + 1;
+        A.links.push({ a: linkStart, b: key, colour: linkColour, num });
+        say("Link wire " + num + " from " + hn(linkStart) + " to " + hn(key) + ", " + linkColour + ".");
+        linkStart = null;
+        nextLinkColour();
+      }
     }
 
   } else if (tool === "erase"){
@@ -7333,6 +7465,16 @@ const BREAD_LEARN_CHANGELOG = [
     "pages do not need." }
 ];
 const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG : [
+  { v: "3.0", date: "21 Sep 2026", what:
+    "<strong>Out of beta.</strong> Three faults you reported are fixed. A link wire drawn " +
+    "straight through a component is now refused as you draw it — before, a link running " +
+    "down a COLUMN through a part standing across the tracks was accepted in silence, " +
+    "though the same mistake along a row was caught. Check now also tells you when a part " +
+    "is <strong>shorted out</strong> (both legs on one track, so the current goes round it) " +
+    "and when two parts are <strong>in parallel</strong>, which lowers the resistance if you " +
+    "meant them in series. And you may now place <strong>more than one +5 V or 0 V " +
+    "terminal</strong> — they are numbered +5V(1), +5V(2) and so on — so a supply wire " +
+    "can leave the board at more than one point, the way a wiring schedule lists it." },
   { v: "2.2", date: "15 Sep 2026", what:
     "<strong>One hole, one thing — on stripboard too.</strong> A link wire can no longer " +
     "share a hole with a component leg: put the link in the next hole along the same track. " +
@@ -7495,7 +7637,9 @@ const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG : [
 const VERSION = CHANGELOG[0].v;
 
 (function buildVersionBox(){
-  $("verChip").textContent = "Beta v" + VERSION;
+  $("verChip").textContent = (BETA ? "Beta v" : "v") + VERSION;
+  const bx = $("betaBox");
+  if (bx) { if (BETA) bx.hidden = false; else bx.remove(); }
   $("verSummary").textContent = "What\u2019s changed \u2014 v" + VERSION +
     ", " + CHANGELOG[0].date;
   const tb = $("verBody");
