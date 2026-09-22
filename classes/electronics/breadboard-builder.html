@@ -2314,7 +2314,18 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
   const LINK_COLOURS = {
     red: "#c0392b", black: "#2b2b2b", blue: "#2668b8", green: "#1d8a4e",
     yellow: "#d3a017", orange: "#d2691e", white: "#8a8a8a",
-    purple: "#8e44ad", brown: "#7b4a2a", grey: "#607078"
+    purple: "#8e44ad", brown: "#7b4a2a", grey: "#607078",
+    /* Striped wire: black insulation with a coloured pinstripe, the kit's own
+       convention for a wire that needs to stand out from the plain colours
+       without spending a whole new insulation colour on it. The BASE here is
+       always black — drawTerminal() and the link-wire drawer both lay a
+       thinner STRIPE_ACCENT line over this one to print the stripe. */
+    "black-yellow": "#2b2b2b", "black-orange": "#2b2b2b", "black-blue": "#2b2b2b",
+    "black-green": "#2b2b2b", "black-purple": "#2b2b2b", "black-grey": "#2b2b2b"
+  };
+  const STRIPE_ACCENT = {
+    "black-yellow": "#d3a017", "black-orange": "#d2691e", "black-blue": "#2668b8",
+    "black-green": "#1d8a4e", "black-purple": "#8e44ad", "black-grey": "#607078"
   };
 
   /* ---- component body colours ---------------------------------------------
@@ -2711,13 +2722,19 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
        SVGs, where the classes are flattened to attributes — which is exactly
        the sort of difference that only a look at the live page catches.) */
     const col = !p.pos && p.colour && LINK_COLOURS[p.colour];
+    const stripe = !p.pos && p.colour && STRIPE_ACCENT[p.colour];
     const paint = col ? ` style="stroke:${col};stroke-width:2.4"` : "";
     for (const z of cells.pins) {
       const px = X(z.hole.c), py = Y(z.hole.r), k = P * 0.40;
       s += `<rect class="${box}"${paint} x="${n(px - k)}" y="${n(py - k)}" width="${n(k * 2)}" ` +
            `height="${n(k * 2)}" rx="2"/>` +
            `<line class="sbd-lead"${col ? ` style="stroke:${col}"` : ""} x1="${n(px - k * 0.5)}" ` +
-           `y1="${n(py)}" x2="${n(px + k * 0.5)}" y2="${n(py)}"/>`;
+           `y1="${n(py)}" x2="${n(px + k * 0.5)}" y2="${n(py)}"/>` +
+           // the stripe itself: a thinner line of the accent colour down the
+           // middle of the black lead just drawn, exactly where the printed
+           // pinstripe runs on the real wire
+           (stripe ? `<line style="stroke:${stripe};stroke-width:1" x1="${n(px - k * 0.5)}" ` +
+             `y1="${n(py)}" x2="${n(px + k * 0.5)}" y2="${n(py)}"/>` : "");
     }
     return s;
   }
@@ -2998,12 +3015,20 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
     for (const l of a.links || []) {
       const p1 = parseRef(l.a), p2 = parseRef(l.b);
       const col = LINK_COLOURS[l.colour] || LINK_COLOURS.blue;
+      const stripe = STRIPE_ACCENT[l.colour];
       const x1 = X(p1.c), y1 = Y(p1.r), x2 = X(p2.c), y2 = Y(p2.r);
       layers.link += `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" ` +
         `stroke="${col}" stroke-width="3.2" stroke-linecap="round"/>`;
+      // the pinstripe, laid over the black wire just drawn
+      if (stripe) layers.link += `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" ` +
+        `stroke="${stripe}" stroke-width="1.2" stroke-linecap="round"/>`;
       if (l.num != null) {
         const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-        layers.link += `<circle cx="${n(mx)}" cy="${n(my)}" r="6.5" fill="${col}"/>` +
+        // the numbered dot takes the STRIPE colour when there is one: every
+        // striped wire is black at the base, so two different striped links
+        // would otherwise show two identical black dots and be impossible
+        // to tell apart at the one place the number itself lives
+        layers.link += `<circle cx="${n(mx)}" cy="${n(my)}" r="6.5" fill="${stripe || col}"/>` +
           `<text class="sbd-lnum" x="${n(mx)}" y="${n(my + 3)}" text-anchor="middle">${l.num}</text>`;
       }
     }
@@ -3220,7 +3245,7 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
                         if (boardId) useBoard(BOARDS[boardId]);
                         return { x: X(c), y: Y(r) };
                       },
-                      LINK_COLOURS, BODY_COLOURS, BODY_DEFAULT, bodyColourable, chipPrint };
+                      LINK_COLOURS, STRIPE_ACCENT, BODY_COLOURS, BODY_DEFAULT, bodyColourable, chipPrint };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- sbd-circuit.js ---- */
@@ -5085,11 +5110,39 @@ const MIN_SCALE = 0.62;                    // below this the board labels stop b
    the picker doesn't need to gatekeep. The auto-SUGGESTED colour skips red
    and black, though: those are only right on a supply link, which is the
    exception, not the default next link. */
-const LINK_COLOURS = ["blue", "green", "orange", "yellow", "white", "purple", "brown", "grey", "red", "black"];
-const AUTO_LINK_COLOURS = LINK_COLOURS.filter(c => c !== "red" && c !== "black");
-/* Terminal wires get the same palette minus red and black, for the same
-   reason link wires do: those two belong to the supply and nothing else. */
-const FREE_TERM_COLOURS = AUTO_LINK_COLOURS;
+const LINK_COLOURS = ["blue", "green", "orange", "yellow", "white", "purple", "brown", "grey", "red", "black",
+  // striped wire — black insulation with a coloured pinstripe, added 22 Sep
+  // 2026 for a pupil with more links or terminals on the go than the plain
+  // palette tells apart. Named "black-<accent>" throughout: R.STRIPE_ACCENT
+  // keys off exactly this string, and colour-reused (rank 0.6, sbd-engine.js)
+  // already treats an unrecognised string as its own colour, so a striped
+  // link needs no separate engine rule to be tracked as distinct from plain
+  // black or from another stripe.
+  "black-yellow", "black-orange", "black-blue", "black-green", "black-purple", "black-grey"];
+const AUTO_LINK_COLOURS = LINK_COLOURS.filter(c => c !== "red" && c !== "black" && c.indexOf("-") < 0);
+/* Terminal wires get the same palette minus red only. Black used to be
+   excluded too, for no reason of its own — it was just reusing the link
+   auto-cycle list, which excludes it for a reason (0 V) that has nothing to
+   do with an ordinary IN/OUT terminal. Red stays excluded: it is the +5 V
+   convention, and unlike black there is no everyday use for a red wire that
+   isn't a supply wire. */
+const FREE_TERM_COLOURS = LINK_COLOURS.filter(c => c !== "red");
+// "black-yellow" -> "black with a yellow stripe" — every other name here has
+// no hyphen and passes through unchanged, so this is safe to use for every
+// colour swatch's label, not just the striped ones.
+function wireLabel(name){
+  const i = name.indexOf("-");
+  return i < 0 ? name : name.slice(0, i) + " with a " + name.slice(i + 1) + " stripe";
+}
+// the swatch itself: a solid colour for everything already in R.LINK_COLOURS,
+// or, for a striped key, a diagonal repeat of the base and R.STRIPE_ACCENT —
+// legible at the swatch's own small size, which a moment of "SVG dasharray on
+// a 9px terminal lead" was not going to be
+function wireSwatchBg(name){
+  const accent = R.STRIPE_ACCENT[name];
+  const base = R.LINK_COLOURS[name];
+  return accent ? "repeating-linear-gradient(45deg, " + base + " 0 4px, " + accent + " 4px 8px)" : base;
+}
 
 let qi = 0, Q = null, A = null;            // A is the pupil's attempt
 let tool = "place", sel = null, rot = 0;   // sel: component id waiting to be placed
@@ -5632,12 +5685,12 @@ function buildLinkColours(){
     b.type = "button";
     b.className = "swatch";
     const dot = document.createElement("i");
-    dot.style.background = R.LINK_COLOURS[name];
+    dot.style.background = wireSwatchBg(name);
     b.appendChild(dot);
     b.dataset.colour = name;
     b.setAttribute("aria-label", name === "red" ? "red wire, for +5 V links only"
                                 : name === "black" ? "black wire, for 0 V links only"
-                                : name + " wire");
+                                : wireLabel(name) + " wire");
     b.setAttribute("aria-pressed", "false");
     el.appendChild(b);
   });
@@ -7433,7 +7486,7 @@ function swatchRow(label, names, paint, current, suffix){
   return "<div class='tcols' role='group' aria-label='" + label + "'>" +
     names.map(name =>
       "<button type='button' class='swatch tcol' data-colour='" + name + "' " +
-      "aria-label='" + name + suffix + "' aria-pressed='" +
+      "aria-label='" + wireLabel(name) + suffix + "' aria-pressed='" +
       String(current === name) + "'><i style='background:" + paint(name) +
       "'></i></button>").join("") + "</div>";
 }
@@ -7483,7 +7536,7 @@ function drawFreeBank(){
     const swatches =
         !isOpen ? ""
       : spec.colourable ? swatchRow("Terminal wire colour", FREE_TERM_COLOURS,
-                                    n => R.LINK_COLOURS[n], selComp.colour, " wire")
+                                    wireSwatchBg, selComp.colour, " wire")
       : R.bodyColourable(fpSpec) ? swatchRow("Component colour", BODY_NAMES,
                                     n => R.BODY_COLOURS[n].fill,
                                     bodyColourOf(selComp, fpSpec), " body")
