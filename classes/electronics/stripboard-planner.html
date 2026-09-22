@@ -6790,6 +6790,14 @@ function say(msg){ $("liveMsg").textContent = msg; }
 function act(h){ return mutate(() => actEdit(h)); }
 function actEdit(h){
   if (showingAnswer) { say("Turn the answer off before editing your board."); return; }
+  /* Cleared BEFORE the edit runs, not after: a stale verdict from the last
+     Check should not linger once a new edit starts, but a nudge() the edit
+     itself raises (Renumber's collision warning, reached through this same
+     function) must survive to be seen — clearing it here first, then letting
+     the edit set its own, does both. Clearing it AFTER, as before 22 Sep
+     2026, wiped every nudge the "renum" tool tap could ever show, in the
+     same tick it was set, so a pupil saw nothing and no reason why. */
+  clearFeedback();
   const what = atHole(h), key = what.key;
 
   if (tool === "cut"){
@@ -6873,7 +6881,6 @@ function actEdit(h){
       }
     }
   }
-  clearFeedback();
   saveStore();
   paint();
 }
@@ -8629,7 +8636,11 @@ function partNumberOf(c){
 }
 function renumberPart(id){
   const c = FREEC.find(x => x.id === id);
-  if (!c){ say("Pick a part from the list first, then tap Renumber."); return; }
+  // Every refusal below used to reach only say()'s screen-reader-only live
+  // region, so a sighted pupil saw nothing happen and no reason why (reported
+  // 22 Sep 2026 as a "soft refusal"). nudge() puts the same words in the
+  // visible feedback box as well.
+  if (!c){ nudge("Pick a part from the list first, then tap Renumber."); return; }
   const spec = FREE.byKey(c.key) || {};
   const fmt = n => spec.bracket ? spec.prefix + "(" + n + ")" : spec.prefix + n;
   const ans = window.prompt(
@@ -8639,27 +8650,46 @@ function renumberPart(id){
   if (ans === null) return;                       // cancelled
   const t = String(ans).trim();
   if (!/^\d{1,2}$/.test(t) || +t < 1){
-    say("That is not a number from 1 to 99, so " + c.id + " has not changed."); return;
+    nudge("That is not a number from 1 to 99, so " + c.id + " has not changed."); return;
   }
   const want = fmt(+t);
-  if (want === c.id){ say(c.id + " already has that number."); return; }
-  if (FREEC.some(x => x.id === want)){
-    say(want + " is already on the board. Renumber that one first, or pick another number.");
-    return;
-  }
+  if (want === c.id){ nudge(c.id + " already has that number."); return; }
+  /* The number pupils ask for most often is one already on the board —
+     reordering three output terminals means every renumber but the first
+     collides with something. Refusing and telling them to move the other
+     one out of the way first (pre-22-Sep-2026 behaviour) made a two-part
+     swap a three-step chore. A real second part with the SAME id would also
+     break rendering and fault-checking, which both look a component up by
+     id with `.find()` and only ever see the first match — so instead of
+     allowing the duplicate, the part already holding `want` is swapped onto
+     the number `c` is vacating, in the same action. */
+  const other = FREEC.find(x => x.id === want);
   mutate(() => {
     const was = c.id;
+    if (other){
+      const oSpec = FREE.byKey(other.key) || {};
+      // `want` can only collide when the two share a literal prefix (e.g.
+      // "C" covers both plain and electrolytic capacitors), so `was` is
+      // already in the right format for `other` too — no reformatting needed.
+      other.id = was;
+      other.name = oSpec.part ? was + " — " + oSpec.part + " " + oSpec.sub
+                              : was + " — " + oSpec.name;
+    }
     c.id = want;
     // rebuilt exactly the way mint() builds it, so the two cannot drift
     c.name = spec.part ? want + " — " + spec.part + " " + spec.sub
                        : want + " — " + spec.name;
-    // the part record and its placement carry the same id and must move together
-    A.placements.forEach(p => { if (p.id === was) p.id = want; });
-    if (sel === was) sel = want;
-    if (pending === was) pending = want;
+    // the part records and their placements carry the same id and must move together
+    A.placements.forEach(p => {
+      if (p.id === was) p.id = want;
+      else if (p.id === want) p.id = was;
+    });
+    if (sel === was) sel = want; else if (sel === want) sel = was;
+    if (pending === was) pending = want; else if (pending === want) pending = was;
     bankKey = null; netSig = null;
     drawFreeBank(); paint(); saveStore();
-    say(was + " is now " + want + ".");
+    if (other) nudge(was + " and " + want + " have swapped numbers.");
+    else say(was + " is now " + want + ".");
   });
 }
 
