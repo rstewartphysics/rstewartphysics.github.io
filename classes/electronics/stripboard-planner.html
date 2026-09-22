@@ -6538,7 +6538,7 @@ function saveStore(){
     const work = loadStoreRaw();
     // Free build has to save its PARTS as well as its layout — nothing else on
     // the page knows what a board with no question is made of
-    if (mode === "free") work[FREE_KEY] = { board: freeBoard, comps: FREEC, a: A };
+    if (mode === "free") work[FREE_KEY] = { board: freeBoard, title: boardTitle, comps: FREEC, a: A };
     /* Test points hands the pupil the SAME questions Convert does, already
        built, so its board is saved under its own key — otherwise marking test
        points on Q5 would quietly wipe the Q5 layout they were half way through. */
@@ -7607,9 +7607,9 @@ if (BETA && $("btnUndo")){
   });
 }
 if (BETA && $("saveRow")){
-  $("btnPrint").addEventListener("click", () => { buildPrintSheet(); window.print(); });
-  $("btnSaveFile").addEventListener("click", exportBoard);
-  $("btnSaveSvg").addEventListener("click", exportSvg);
+  $("btnPrint").addEventListener("click", () => { promptTitle(); buildPrintSheet(); window.print(); });
+  $("btnSaveFile").addEventListener("click", () => { promptTitle(); exportBoard(); });
+  $("btnSaveSvg").addEventListener("click", () => { promptTitle(); exportSvg(); });
   $("btnOpenFile").addEventListener("click", () => $("fileIn").click());
   $("fileIn").addEventListener("change", e => {
     const f = e.target.files && e.target.files[0];
@@ -7627,6 +7627,10 @@ if (BETA && $("saveRow")){
     if (mq.addEventListener) mq.addEventListener("change", onmq);
     else if (mq.addListener) mq.addListener(onmq);
   } catch(e){}
+  // buildPrintSheet() sets document.title to the chosen title so a browser's
+  // own "Save as PDF" suggests it as the file name; put the page's real title
+  // back once the print (or the cancelled print dialog) is done with it.
+  window.addEventListener("afterprint", () => { document.title = PAGE_TITLE; });
 }
 
 /* ============================================================
@@ -8398,6 +8402,10 @@ function boardSize(id){
                         : b.rows + " tracks \u00d7 " + b.cols + " holes";
 }
 let freeBoard = FREE_BOARDS[0];            // the small board: it fits any screen at full scale
+let boardTitle = "";                       // a pupil's own name for this board — blank means
+                                           // "use the board's own name", the pre-22-Sep-2026
+                                           // behaviour, so a pupil who never names anything sees
+                                           // no change at all
 const FREEC = [];                          // the parts minted so far — ONE array for the life of
                                            // the page, because Q.components points at it
 let pending = null;                        // the one part currently off the board and in hand —
@@ -8531,7 +8539,8 @@ function sanitiseBoard(rec){
                   testpoints: arr("testpoints").filter(t => t && t.at).map(t => ({ id: t.id, at: t.at })),
                   stage: 0 };
     SBD.topology(SBD.BOARDS[rec.board], out);        // throws if it does not fit the board
-    return { board: rec.board, comps, a: out };
+    const title = typeof rec.title === "string" ? rec.title.trim().slice(0, 60) : "";
+    return { board: rec.board, title, comps, a: out };
   } catch(e){ return null; }
 }
 function savedFree(){
@@ -8541,6 +8550,7 @@ function savedFree(){
 function loadFree(keepScroll){
   const saved = savedFree();
   if (saved) freeBoard = saved.board;
+  boardTitle = saved ? saved.title : "";
   FREEC.length = 0;
   if (saved) for (const c of saved.comps) FREEC.push(c);
   Q = FREE.freeQ(freeBoard, FREEC);
@@ -8583,6 +8593,7 @@ function resetFree(){ return mutate(resetFreeNow); }
 function resetFreeNow(){
   FREEC.length = 0;
   A = blank();
+  boardTitle = "";
   sel = null; pending = null; rot = 0; len = null; linkStart = null;
   marks = []; hl = []; bankKey = null; netSig = null;
   clearFeedback(); saveStore(); paint(); fit();
@@ -8888,6 +8899,7 @@ function paintNets(){
    ============================================================ */
 const OWNER_FOOTER = "R Stewart - September 2026";   // §6, the month last revised
 const SITE_HOME = "mrstewartphysics.co.uk";          // where the full credits live
+const PAGE_TITLE = document.title;   // restored after printing — see afterprint below
 
 function saveAs(name, text, type){
   const url = URL.createObjectURL(new Blob([text], { type: type }));
@@ -8899,24 +8911,46 @@ function saveAs(name, text, type){
 }
 const stamp = () => new Date().toISOString().slice(0, 10);
 
+/* A pupil's own title for the board, asked for before it leaves the tool —
+   saving, printing — so the file and the print heading can carry it rather
+   than a generic "my-stripboard" name (reported 22 Sep 2026). Blank is a
+   valid answer: it keeps the pre-existing generic naming exactly as it was,
+   so a pupil who never bothers is unaffected. Cancelling the prompt keeps
+   whatever title was already set rather than blocking the save or print —
+   forgetting to (re)name it should not cost the work. */
+function promptTitle(){
+  const ans = window.prompt(
+    "Title for this board — used in the print heading and the saved file's name.\n" +
+    "Leave it blank to use the board's own name.", boardTitle);
+  if (ans === null) return;                       // cancelled: keep the existing title
+  boardTitle = ans.trim().slice(0, 60);
+  saveStore();
+}
+// filesystem- and URL-safe, and short enough that a run of punctuation in a
+// pupil's title cannot produce a name most systems choke on
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+const fileBase = () => (boardTitle && slugify(boardTitle)) || "my-stripboard";
+
 function boardSvg(){
   return R.renderBoard({ board: freeBoard, question: Q, attempt: A, standalone: true,
-                         title: freeBoard + " stripboard layout, component side" });
+                         title: (boardTitle || freeBoard) + " stripboard layout, component side" });
 }
 
 function exportBoard(){
   if (!A.placements.length && !A.cuts.length && !A.links.length){
     say("There is nothing on the board to save yet."); return;
   }
-  saveAs("my-stripboard-" + stamp() + ".json",
+  saveAs(fileBase() + "-" + stamp() + ".json",
          JSON.stringify({ tool: "stripboard-planner", v: 1, saved: stamp(),
-                          board: freeBoard, comps: FREEC, a: A }, null, 1),
+                          board: freeBoard, title: boardTitle, comps: FREEC, a: A }, null, 1),
          "application/json");
   say("Saved to a file. Keep it somewhere you can find it again.");
 }
 
 function exportSvg(){
-  saveAs("my-stripboard-" + stamp() + ".svg", boardSvg(), "image/svg+xml");
+  saveAs(fileBase() + "-" + stamp() + ".svg", boardSvg(), "image/svg+xml");
   say("Picture saved. It can be put straight into a document.");
 }
 
@@ -8947,6 +8981,7 @@ function importBoard(file){
 
 function applyBoard(rec){
   freeBoard = rec.board;
+  boardTitle = rec.title || "";
   FREEC.length = 0;
   for (const c of rec.comps) FREEC.push(c);
   Q = FREE.freeQ(freeBoard, FREEC);
@@ -9000,9 +9035,18 @@ function buildPrintSheet(){
   const tpBlankCells = "<td class='pw'></td><td class='pw'></td><td class='pw'></td>";
   const tpRows = tps.map(t => "<tr><td>" + esc(t.id) + "</td>" + tpBlankCells + "</tr>").join("") +
     Array.from({ length: 4 }, () => "<tr><td class='pw'></td>" + tpBlankCells + "</tr>").join("");
+  /* A pupil's own title (promptTitle(), called from the Print button) takes
+     the headline, with the board's own name folded into the line below so it
+     is not lost — the un-named default is exactly the pre-22-Sep-2026
+     heading. Setting document.title here as well means a browser's own
+     "Save as PDF" suggests this title as the file name, and it covers every
+     way into printing (the button, ⌘P, the print media query), not just
+     the button's own click handler. afterprint puts the page's real title
+     back (see the beforeprint/afterprint wiring above). */
+  document.title = boardTitle || PAGE_TITLE;
   el.innerHTML =
-    "<div class='phead'><h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
-    "<p class='psub'>" + esc(boardSize(freeBoard)) + " · " +
+    "<div class='phead'><h1>" + esc(boardTitle || ("Stripboard layout — " + freeBoard)) + "</h1>" +
+    "<p class='psub'>" + (boardTitle ? esc(freeBoard) + " · " : "") + esc(boardSize(freeBoard)) + " · " +
       plural(A.placements.length, "part") + " · " +
       plural(A.cuts.length, "track cut") + " · " +
       plural(A.links.length, "link wire") + " · printed " + stamp() + "</p></div>" +
