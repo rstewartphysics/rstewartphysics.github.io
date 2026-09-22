@@ -6852,6 +6852,7 @@ function actEdit(h){
       // tapping a part you have already placed picks it up again, rotation and all
       if (what.kind === "pin" || what.kind === "body"){
         sel = what.p.id; rot = what.p.rot || 0;
+        if (mode === "free") pending = what.p.id;   // now in hand — see abandonPending()
         A.placements = A.placements.filter(p => p.id !== what.p.id);
         say(sel + " picked up. Tap a hole to put it down.");
       } else say("Pick a component from the list first.");
@@ -7459,6 +7460,7 @@ $("board").addEventListener("keydown", e => {
   } else if (e.key === "Escape"){
     e.preventDefault();
     if (linkStart){ linkStart = null; say("Link wire cancelled."); }
+    else if (mode === "free" && pending){ mutate(abandonPending); }
     else if (sel){ sel = null; say("Selection cancelled."); }
     paint();
   } else if (e.key === "r" || e.key === "R"){
@@ -7561,6 +7563,8 @@ $("bank").addEventListener("keydown", e => {
 });
 
 function setTool(t){
+  // Switching tool with a part in hand abandons it — see abandonPending().
+  if (t !== "place" && mode === "free" && pending) mutate(abandonPending);
   tool = t; linkStart = null;
   document.querySelectorAll(".tool[data-tool]").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.tool === t)));
@@ -8389,13 +8393,35 @@ function boardSize(id){
 let freeBoard = FREE_BOARDS[0];            // the small board: it fits any screen at full scale
 const FREEC = [];                          // the parts minted so far — ONE array for the life of
                                            // the page, because Q.components points at it
-let pending = null;                        // a minted part not yet put down
+let pending = null;                        // the one part currently off the board and in hand —
+                                           // freshly minted and never placed, or an existing part
+                                           // picked back up — so there is always exactly one thing
+                                           // to clean up if it is abandoned rather than put down
 let netSig = null;                         // paint() runs on every pointer move; the netlist only
                                            // changes on an edit, so it is rebuilt on a signature
 
 function dropPart(id){
   const i = FREEC.findIndex(c => c.id === id);
   if (i >= 0) FREEC.splice(i, 1);
+}
+
+/* A part left in hand — the pupil picked it up (or minted it) and then did
+   anything other than put it down: pressed Escape, switched tool, opened
+   Renumber on a different part. Until 22 Sep 2026 only a FRESH mint was
+   tracked this way; picking an EXISTING part back up left it off the board
+   with nothing watching it, so it stayed in FREEC forever, invisible, still
+   holding its number — a pupil reordering three output terminals could pick
+   one up, switch to Renumber, and find the number it held refused to
+   everyone else for the rest of the session. Called only when `pending` is
+   set, so it is always the in-hand part and never a placed one. */
+function abandonPending(){
+  if (!pending) return;
+  const was = pending;
+  dropPart(was);
+  pending = null;
+  bankKey = null;
+  drawBank(); paint(); saveStore();
+  say(was + " was not put down, so it has come off the list.");
 }
 
 /* ============================================================
