@@ -258,6 +258,11 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       #printSheet .pname{margin:3.5mm 0 0;font-size:9pt;color:#2c5a4f}
       #printSheet .pname span{display:inline-block;border-bottom:.5pt solid rgba(6,35,29,.45);
         min-width:55mm;margin-left:2mm}
+      /* A cell left blank on purpose, for a pupil to write in by hand — a
+         resistor's value, a test point's description, a reading off the
+         meter. The row rule under it already reads as the line to write on,
+         so this only needs the extra height to write into. */
+      #printSheet td.pw{padding-top:3.2mm}
       /* Where the sheet does run to two pages, a heading goes over with its
          list rather than being left at the foot of the first. */
       #printSheet .plists section{page-break-inside:avoid;break-inside:avoid}
@@ -8924,9 +8929,21 @@ function buildPrintSheet(){
     const spec = FREE.byKey(c.key) || {};
     const what = c.part ? c.part + " " + (spec.sub || "") : (spec.name || "");
     return "<tr><td>" + esc(p.id) + "</td><td>" + esc(what) + "</td><td>" +
-           esc(R.spanOf(p.footprint, p.rot || 0, freeBoard)) + "</td></tr>";
+           esc(R.spanOf(p.footprint, p.rot || 0, freeBoard)) + "</td>" +
+           "<td class='pw'></td></tr>";
   }).join("");
   const nets = netLines();
+  /* Test points: the ones marked on the board keep the same TP number the
+     board diagram carries, so a pupil's result lines up with the point drawn
+     on it. Description, simulated and constructed result are always blank —
+     the tool has no idea what a test point is for or what it should read,
+     that is the point of the exercise. A handful of blank rows on top let a
+     pupil record a point they test on the real board but never marked in the
+     planner. */
+  const tps = A.testpoints || [];
+  const tpBlankCells = "<td class='pw'></td><td class='pw'></td><td class='pw'></td>";
+  const tpRows = tps.map(t => "<tr><td>" + esc(t.id) + "</td>" + tpBlankCells + "</tr>").join("") +
+    Array.from({ length: 4 }, () => "<tr><td class='pw'></td>" + tpBlankCells + "</tr>").join("");
   el.innerHTML =
     "<div class='phead'><h1>Stripboard layout — " + esc(freeBoard) + "</h1>" +
     "<p class='psub'>" + esc(boardSize(freeBoard)) + " · " +
@@ -8936,7 +8953,7 @@ function buildPrintSheet(){
     "<div class='pboard'>" + boardSvg() + "</div>" +
     "<p class='pname'>Name: <span></span> Class: <span style='min-width:30mm'></span></p>" +
     (rows ? "<h2>Parts on the board</h2><table><thead><tr><th>Item</th><th>What it is</th>" +
-            "<th>Where it lies</th></tr></thead><tbody>" + rows + "</tbody></table>"
+            "<th>Where it lies</th><th>Value / description</th></tr></thead><tbody>" + rows + "</tbody></table>"
           : "<h2>Parts on the board</h2><p>Nothing placed yet.</p>") +
     "<div class='plists'>" +
     (A.cuts.length ? "<section><h2>Track cuts</h2><p class='pmono'>" +
@@ -8946,6 +8963,9 @@ function buildPrintSheet(){
         "</ol></section>" : "") +
     "<section><h2>What is joined to what</h2>" +
       (nets ? "<ol>" + nets + "</ol>" : "<p>Nothing joined up yet.</p>") + "</section>" +
+    "<section><h2>Test points</h2><table><thead><tr><th>Test</th><th>Description (e.g. SW1 out, 5V)</th>" +
+      "<th>Simulated result</th><th>Constructed result</th></tr></thead><tbody>" +
+      tpRows + "</tbody></table></section>" +
     "</div>" +
     /* The full sources note belongs on the page, not on a pupil's layout: it
        ran to six lines of small print for a sheet that is theirs, and the
