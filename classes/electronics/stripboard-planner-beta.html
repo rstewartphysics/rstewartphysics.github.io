@@ -512,6 +512,21 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
     #sbd .flist .fault .dot{color:var(--bad)}
     #sbd .flist .warn .dot{color:var(--warn)}
     #sbd .msnote{margin-top:9px;font-size:.82rem;color:var(--muted)}
+    /* Testing table (free build): same reveal-on-click shape as .feedback —
+       hidden until the button is pressed, so it costs no room otherwise. */
+    #sbd .tptablewrap{margin-top:12px;padding:12px 14px;border-radius:14px;display:none;
+      background:var(--card);border:1px solid var(--border-soft)}
+    #sbd .tptablewrap.show{display:block}
+    #sbd .tptablewrap h3{margin:0 0 3px;font-size:.93rem}
+    #sbd .tptablewrap .hint{margin:0 0 9px;font-size:.82rem;color:var(--muted)}
+    #sbd .tptable{width:100%;border-collapse:collapse;font-size:.86rem}
+    #sbd .tptable th,#sbd .tptable td{border:1px solid var(--border-soft);padding:6px 8px;text-align:left}
+    #sbd .tptable th{background:var(--surface-2)}
+    #sbd .tptable td:first-child{font-weight:800;white-space:nowrap;width:1%}
+    #sbd .tptable input{width:100%;min-height:36px;border:1px solid var(--border-soft);
+      border-radius:8px;padding:6px 9px;font:inherit;background:var(--card);color:var(--text)}
+    #sbd .tptable input:focus-visible{outline:var(--focus-ring);outline-offset:1px}
+    #sbd .tpempty td{color:var(--muted)}
     #sbd details.reveal{margin-top:10px;border:1px solid var(--border-soft);border-radius:12px;background:var(--card)}
     #sbd details.reveal>summary{cursor:pointer;padding:9px 14px;min-height:44px;display:flex;
       align-items:center;font-weight:700;font-size:.86rem;list-style:none}
@@ -820,9 +835,23 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
 
         <div class="controls">
           <button class="btn primary build-only" id="btnCheck">Check my layout</button>
+          <button class="btn ghost free-only" id="btnTpTable" aria-expanded="false">📋 Testing table</button>
           <button class="btn build-only" id="btnReset">Reset</button>
           <button class="btn ghost conv-only" id="btnAnswer">Show the answer</button>
           <button class="btn ghost free-hide" id="btnNext">Next question →</button>
+        </div>
+
+        <!-- Free build only.  One row per test point already on the board, in
+             board order, with a description field the pupil fills in — the
+             same table that lands on the print sheet, so what is typed here is
+             what prints (IMPROVE-PLAN, 22 Sep 2026). -->
+        <div class="tptablewrap free-only" id="tpTablePanel">
+          <h3>Testing table</h3>
+          <p class="hint">What you expect to read at each test point. This is saved with your board and copied onto the printed sheet.</p>
+          <table class="tptable">
+            <thead><tr><th scope="col">Test</th><th scope="col">Description</th></tr></thead>
+            <tbody id="tpTableBody"></tbody>
+          </table>
         </div>
 
         <!-- Beta page only.  A pupil needs the board on paper to staple into
@@ -1437,7 +1466,11 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
 
     const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
           hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
-    for (let i = lo + 1; i < hi; i++) {
+    // lo..hi INCLUSIVE: an end landing exactly on a body cell is exactly as
+    // unsolderable as one passing under it partway along (21 Sep 2026 — a
+    // link ending on a resistor's body cell was accepted in silence because
+    // only the interior i=lo+1..hi-1 was ever walked).
+    for (let i = lo; i <= hi; i++) {
       const body = top.bodyAt.get(hid(along ? { r: a.r, c: i } : { r: i, c: a.c }));
       if (!body) continue;
       return { ok: false, msg: `That link would run under ${body} — on a real ` +
@@ -2172,7 +2205,9 @@ title: Plan your own Stripboard Schematic (beta) · National 5 Electronics
       if (!along && !down) continue;            // diagonal: rank 9 reports that
       const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
             hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
-      for (let i = lo + 1; i < hi; i++) {
+      // lo..hi INCLUSIVE — see the matching note in linkCheck: an end landing
+      // exactly on a body cell must fault the same as passing under one.
+      for (let i = lo; i <= hi; i++) {
         const k = hid(along ? { r: a.r, c: i } : { r: i, c: a.c });
         const chip = chipAt.get(k), owner = top.bodyAt.get(k);
         if (chip) {
@@ -6943,6 +6978,43 @@ function actEdit(h){
 function renumberTps(){
   A.testpoints.forEach((t, i) => { t.id = "TP" + (i + 1); });
   if (tool === "tp") buildTpRow();
+  if ($("tpTablePanel").classList.contains("show")) buildTpTable();
+}
+
+/* --------------------------------------------------------- testing table
+   Free build only. One row per test point already on the board, in board
+   order — the SAME rows the print sheet lists (buildPrintSheet) — with a
+   description field the pupil types into. Typed text is stored on the
+   testpoint itself (A.testpoints[].desc) and saved through the normal
+   saveStore()/sanitiseBoard() path, so it survives a reload and a file
+   export/import exactly as the rest of the board does, and so the print
+   sheet can read it straight off A rather than keeping its own copy. */
+function buildTpTable(){
+  const body = $("tpTableBody");
+  const tps = A.testpoints || [];
+  body.innerHTML = tps.length
+    ? tps.map(t => "<tr><td>" + esc(t.id) + "</td><td>" +
+        "<input type='text' maxlength='120' data-tp='" + esc(t.id) + "' " +
+        "value='" + esc(t.desc || "") + "' placeholder='e.g. SW1 out, 5V' " +
+        "aria-label='Description for " + esc(t.id) + "'></td></tr>").join("")
+    : "<tr class='tpempty'><td colspan='2'>No test points on the board yet — pick the " +
+      "Test point tool and tap a hole.</td></tr>";
+  body.querySelectorAll("input[data-tp]").forEach(inp => {
+    inp.addEventListener("input", () => {
+      const tp = A.testpoints.find(t => t.id === inp.dataset.tp);
+      if (tp){ tp.desc = inp.value.slice(0, 120); saveStore(); }
+    });
+  });
+}
+function toggleTpTable(){
+  const show = !$("tpTablePanel").classList.contains("show");
+  $("tpTablePanel").classList.toggle("show", show);
+  $("btnTpTable").setAttribute("aria-expanded", String(show));
+  if (show) buildTpTable();
+}
+function hideTpTable(){
+  $("tpTablePanel").classList.remove("show");
+  $("btnTpTable").setAttribute("aria-expanded", "false");
 }
 // numbers renumber on a removal; colours do NOT — a pupil chose each one, and
 // removing a different link should not repaint the ones that are left
@@ -7937,6 +8009,7 @@ const VERSION = CHANGELOG[0].v;
 })();
 
 $("btnCheck").addEventListener("click", check);
+$("btnTpTable").addEventListener("click", toggleTpTable);
 $("btnReset").addEventListener("click", reset);
 $("btnAnswer").addEventListener("click", toggleAnswer);
 $("btnNext").addEventListener("click", () => {
@@ -8589,7 +8662,8 @@ function sanitiseBoard(rec){
                   // a placement whose part is gone would place a phantom
                   placements: arr("placements").filter(x => x && ids.has(x.id) && SBD.FOOTPRINTS[x.footprint]),
                   links: arr("links").filter(l => l && l.a && l.b),
-                  testpoints: arr("testpoints").filter(t => t && t.at).map(t => ({ id: t.id, at: t.at })),
+                  testpoints: arr("testpoints").filter(t => t && t.at).map(t => ({ id: t.id, at: t.at,
+                                desc: typeof t.desc === "string" ? t.desc.trim().slice(0, 120) : "" })),
                   stage: 0 };
     SBD.topology(SBD.BOARDS[rec.board], out);        // throws if it does not fit the board
     const title = typeof rec.title === "string" ? rec.title.trim().slice(0, 60) : "";
@@ -8631,6 +8705,7 @@ function loadFree(keepScroll){
     (BB ? "the board's own clips have" : "your copper has") + " joined together.</p>";
   paintBoardPick();
   clearFeedback();
+  hideTpTable();
   drawGrid();
   paintStageBar();
   $("tpRow").hidden = true;                // there is no expected reading without a circuit
@@ -8649,7 +8724,7 @@ function resetFreeNow(){
   boardTitle = "";
   sel = null; pending = null; rot = 0; len = null; linkStart = null;
   marks = []; hl = []; bankKey = null; netSig = null;
-  clearFeedback(); saveStore(); paint(); fit();
+  clearFeedback(); hideTpTable(); saveStore(); paint(); fit();
   say("Board cleared. Every part is back in the list.");
 }
 
@@ -9044,7 +9119,7 @@ function applyBoard(rec){
   marks = []; hl = []; bankKey = null; netSig = null; cur = { r: 0, c: 1 };
   $("qsrc").textContent = freeBoard + " · " + boardSize(freeBoard);
   paintBoardPick();
-  clearFeedback(); saveStore();
+  clearFeedback(); hideTpTable(); saveStore();
   drawGrid(); drawBank(); paint(); fit();
 }
 
@@ -9079,15 +9154,18 @@ function buildPrintSheet(){
   const nets = netLines();
   /* Test points: the ones marked on the board keep the same TP number the
      board diagram carries, so a pupil's result lines up with the point drawn
-     on it. Description, simulated and constructed result are always blank —
-     the tool has no idea what a test point is for or what it should read,
-     that is the point of the exercise. A handful of blank rows on top let a
-     pupil record a point they test on the real board but never marked in the
-     planner. */
+     on it. Description comes straight off A.testpoints[].desc — whatever was
+     typed into the on-screen testing table (buildTpTable, 22 Sep 2026), so
+     the printed sheet can never disagree with what is on screen. Simulated
+     and constructed result stay blank: nothing in the tool can know either,
+     that is the pupil's job once the board is actually built. A handful of
+     blank rows on top let a pupil record a point they test on the real board
+     but never marked in the planner. */
   const tps = A.testpoints || [];
-  const tpBlankCells = "<td class='pw'></td><td class='pw'></td><td class='pw'></td>";
-  const tpRows = tps.map(t => "<tr><td>" + esc(t.id) + "</td>" + tpBlankCells + "</tr>").join("") +
-    Array.from({ length: 4 }, () => "<tr><td class='pw'></td>" + tpBlankCells + "</tr>").join("");
+  const tpBlankCells = "<td class='pw'></td><td class='pw'></td>";
+  const tpRows = tps.map(t => "<tr><td>" + esc(t.id) + "</td><td>" + esc(t.desc || "") + "</td>" +
+      tpBlankCells + "</tr>").join("") +
+    Array.from({ length: 4 }, () => "<tr><td class='pw'></td><td class='pw'></td>" + tpBlankCells + "</tr>").join("");
   /* A pupil's own title (promptTitle(), called from the Print button) takes
      the headline, with the board's own name folded into the line below so it
      is not lost — the un-named default is exactly the pre-22-Sep-2026
