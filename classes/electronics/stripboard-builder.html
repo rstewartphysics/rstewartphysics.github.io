@@ -1450,19 +1450,54 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
      A bare leg does not block — see the rank-11 comment for why.
      `ignore` lets an existing link be redrawn without clashing with itself. */
 
+  /* Two straight links on the same row or column whose spans share a hole lie
+     on top of each other.  A link CROSSING another at right angles is not
+     this: it lies over the other wire the way a link may lie over a bare leg
+     (see rank 11), and shipped answers may do it. */
+  function linksOverlap(l1, l2) {
+    const a1 = parseRef(l1.a), b1 = parseRef(l1.b), a2 = parseRef(l2.a), b2 = parseRef(l2.b);
+    const span = (x, y) => [Math.min(x, y), Math.max(x, y)];
+    let s1, s2;
+    if (a1.r === b1.r && a2.r === b2.r && a1.r === a2.r) { s1 = span(a1.c, b1.c); s2 = span(a2.c, b2.c); }
+    else if (a1.c === b1.c && a2.c === b2.c && a1.c === a2.c) { s1 = span(a1.r, b1.r); s2 = span(a2.r, b2.r); }
+    else return false;
+    return s1[0] <= s2[1] && s2[0] <= s1[1];
+  }
+
   function linkCheck(q, attempt, cand, ignore) {
     const board = BOARDS[q.board];
     if (!board) return { ok: false, msg: "unknown board" };
     const a = parseRef(cand.a), b = parseRef(cand.b);
-    const along = a.r === b.r, down = a.c === b.c;
-    if (!along && !down) return { ok: true };    // diagonal: rank 9's business
+    const others = (attempt.links || []).filter(l => l !== ignore);
 
+    /* Wire against wire (pupil bug report, 22 Sep 2026): three links drawn
+       C7–G7 on top of each other, and a fourth A7–G7 along the same column,
+       were all accepted.  topology() already calls a shared end a hole-clash,
+       so Check failed the board afterwards — but the pupil was never stopped
+       at the point of drawing it, the way a part overlap is. */
     const top = topology(board, {
       cuts: attempt.cuts || [],
       placements: attempt.placements || [],
-      links: (attempt.links || []).filter(l => l !== ignore),
+      links: others,
       testpoints: attempt.testpoints || []
     });
+    const linkName = l => (l.num ? "link " + l.num : "the link") +
+      ` (${holeName(board, parseRef(l.a))}–${holeName(board, parseRef(l.b))})`;
+    for (const h of [a, b]) {
+      const k = hid(h);
+      const pin = top.pins.find(p => hid(p.hole) === k);
+      if (pin) return { ok: false, msg: `${holeName(board, h)} already has ${pin.id} in it ` +
+                                        `— two things cannot go in one hole.` };
+      const l = others.find(o => hid(parseRef(o.a)) === k || hid(parseRef(o.b)) === k);
+      if (l) return { ok: false, msg: `${holeName(board, h)} already has ${linkName(l)} in it ` +
+                                      `— two wires cannot go in one hole.` };
+    }
+    const over = others.find(o => linksOverlap(cand, o));
+    if (over) return { ok: false, msg: `That link would lie on top of ${linkName(over)}. ` +
+                                       `Two wires cannot share the same holes.` };
+
+    const along = a.r === b.r, down = a.c === b.c;
+    if (!along && !down) return { ok: true };    // diagonal: rank 9's business
 
     const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
           hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
@@ -2226,6 +2261,19 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         }
       }
     }
+
+    /* rank 11 — two links lying along each other (22 Sep 2026).  A shared END
+       is already a topology hole-clash; this catches the rest, e.g. A7–G7
+       over C7–E7, where no hole is shared by two ends. */
+    const ls = attempt.links || [];
+    for (let i = 0; i < ls.length; i++)
+      for (let j = i + 1; j < ls.length; j++) {
+        if (!linksOverlap(ls[i], ls[j])) continue;
+        const nm = l => `${holeName(board, parseRef(l.a))}–${holeName(board, parseRef(l.b))}`;
+        faults.push({ rank: 11, code: "link-over-link",
+          msg: `The links ${nm(ls[i])} and ${nm(ls[j])} lie on top of each other — ` +
+               `two wires cannot share the same holes. Move one of them.`, refs: [] });
+      }
 
     faults.sort((x, y) => x.rank - y.rank);
 
