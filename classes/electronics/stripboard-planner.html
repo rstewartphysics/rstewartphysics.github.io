@@ -1496,8 +1496,15 @@ title: Plan your own Stripboard Schematic · National 5 Electronics
     if (over) return { ok: false, msg: `That link would lie on top of ${linkName(over)}. ` +
                                        `Two wires cannot share the same holes.` };
 
+    /* Diagonal: a hard refusal at drop time since 22 Sep 2026 (pupil report
+       test-2).  check() still carries the rank-0.5 `diagonal-link` fault,
+       because Fault-finder's boards are LOADED, not drawn, and a saved file
+       may hold one. */
     const along = a.r === b.r, down = a.c === b.c;
-    if (!along && !down) return { ok: true };    // diagonal: rank 9's business
+    if (!along && !down)
+      return { ok: false, msg: `A link wire runs straight — along a row, or straight up ` +
+        `and down a column. ${holeName(board, a)} to ${holeName(board, b)} is diagonal. ` +
+        `Pick a hole in the same row or the same column.` };
 
     const lo = along ? Math.min(a.c, b.c) : Math.min(a.r, b.r),
           hi = along ? Math.max(a.c, b.c) : Math.max(a.r, b.r);
