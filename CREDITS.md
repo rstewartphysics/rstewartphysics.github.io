@@ -48,6 +48,19 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   slide it appears on. Resized to fit; not otherwise changed.
   - Hertzsprung–Russell diagram — ESO, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), via [eso.org](https://www.eso.org/public/images/eso0728c/).
   - Orion constellation — Giuseppe Donatiello, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Orion_-_Flickr_-_gjdonatiello.jpg).
+- **Photographs under open licences** (added 23 September 2026) — the Advanced Higher Physics
+  *General Relativity* slides (`classes/adv/slides/ah-f-general-relativity.pdf`), each credited on
+  the slide it appears on. Resized to fit; not otherwise changed.
+  - M87*, the first direct image of a black hole — Event Horizon Telescope Collaboration, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87.jpg).
+  - Gravitational lens SDSS J1038+4849 — NASA/ESA Hubble, via [NASA Image and Video Library](https://images.nasa.gov/details/GSFC_20171208_Archive_e000791).
+  - GPS Block IIF satellite (an artist's impression, not a photograph) — USAF, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Navstar-2F.jpg).
+- **Institute of Physics Scotland** and the **Perimeter Institute for Theoretical Physics**
+  (added 23 September 2026) — 41 slides on the equivalence principle, used **in class only**, with
+  their own branding left intact. They are **not published**: the public PDF at
+  `classes/adv/slides/ah-f-general-relativity.pdf` has those 41 pages removed and replaced with a
+  placeholder page that names them, so the only mentions of either organisation in the published
+  file are the placeholder, the section divider and the Credits pages — names, not reproduced
+  material.
 - **Qualifications Scotland (SQA)** — course specifications, past-paper and assessment material
   reproduced for educational use. © Qualifications Scotland. This includes the Higher Physics
   past-paper archive at `classes/higher/past-papers/` — question papers 2006–2015 (Higher and

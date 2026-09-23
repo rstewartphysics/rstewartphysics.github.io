@@ -43,6 +43,14 @@
        THEME (AH light + gold accent)
     =============================== */
     :root{
+      /* This sheet has no dark theme — the page is cream in both appearances. The topic
+         pages' <meta name="color-scheme" content="light dark"> therefore promises a dark
+         mode that does not exist, and Safari honours it by painting form controls dark:
+         an UNCHECKED radio came out as a solid dark dot on the cream card, so every
+         option in the multiple-choice quiz looked already chosen. Declaring the scheme
+         here beats the meta and keeps the controls light, to match the page. */
+      color-scheme: light;
+
       --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
 
       --text-main: #1b1b1b;
@@ -82,6 +90,15 @@
 
       --radius: 1rem;
     
+      /* Read by every AH topic page's inline CSS since 5 September and never
+         defined here: an invalid var() voids the whole declaration, so the
+         equation cards lost their border and the concept tags their colour.
+         --accent-2 is the bronze the unit-1 tile band uses, 5.32:1 on white;
+         --accent itself is 3.25:1 and must never be small text. */
+      --accent-2: #8a6508;
+      --border-accent: rgba(184,134,11,0.38);
+      --border-soft: rgba(27,27,27,0.14);
+
       --page-accent: var(--accent);
       --menu-accent: var(--accent);}
 
@@ -513,3 +530,47 @@
       .deck-card{ transition:none; }
       a.deck-card:hover, a.deck-card:focus-visible{ transform:none; }
     }
+
+
+    /* ============================
+       DUAL CODING — words and picture in one block
+       Site standard, 15 September 2026 (site CLAUDE.md). This is the shared
+       component the standard asks the first adopting page to add; later AH
+       pages reuse it rather than inventing another. Text is first in the DOM,
+       so it is what a screen reader and a narrow screen meet first.
+    =============================== */
+    .dual{
+      display:grid; gap:.9rem; align-items:start; margin:.9rem 0 0;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    }
+    .dual > .dual-words{ min-width:0; }
+    .dual > .dual-fig{ min-width:0; margin:0; }
+    .dual-fig svg{ width:100%; height:auto; display:block; border-radius:12px;
+      border:1px solid var(--border-accent); background:var(--card); }
+    .dual-fig figcaption{
+      margin-top:.4rem; font-size:.82rem; font-weight:800; line-height:1.5;
+      color:var(--text-soft);
+    }
+    @media (max-width:700px){ .dual{ grid-template-columns:minmax(0,1fr); } }
+
+    /* Figure ink. Everything is a token so the drawing follows the theme;
+       nothing is hard-coded black or white (site CLAUDE.md, guide §7). */
+    .fig-line{ fill:none; stroke:var(--text-main); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+    .fig-line-2{ fill:none; stroke:var(--accent-2); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+    .fig-soft{ fill:none; stroke:var(--text-soft); stroke-width:1.8; stroke-linecap:round; }
+    .fig-axis{ fill:none; stroke:var(--text-main); stroke-width:2.2; stroke-linecap:round; }
+    .fig-fill{ fill:var(--text-main); stroke:none; }
+    .fig-fill-2{ fill:var(--accent-2); stroke:none; }
+    .fig-panel{ fill:var(--surface-2); stroke:var(--text-main); stroke-width:2.4; }
+    .fig-disc{ fill:var(--text-main); stroke:none; }
+    /* Gold, not the bronze --accent-2: this ring straddles the edge of a dark disc, so it has
+       to clear 3:1 on BOTH sides. Gold is 5.4:1 on the disc and 3.25:1 on the card; bronze is
+       the other way round and drops to about 3:1 over the dark. */
+    .fig-dash{ fill:none; stroke:var(--accent); stroke-width:3.4; stroke-linecap:butt; stroke-dasharray:9 7; }
+    .fig-line-inv{ fill:none; stroke:var(--card); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+    .fig-fill-inv{ fill:var(--card); stroke:none; }
+    /* 15px, not 13: a 400-wide viewBox renders at about 330px on a phone, where 13px would
+       come out under 11px on screen (D2). */
+    .fig-text{ fill:var(--text-main); font-family:var(--font-stack); font-size:15px; font-weight:800; }
+    .fig-text-inv{ fill:var(--card); font-family:var(--font-stack); font-size:15px; font-weight:800; }
+    .fig-head{ font-size:17px; font-weight:900; }
