@@ -109,6 +109,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   The mass–spring apparatus, the footbridge and the damping and displacement–time graphs on
   those pages are drawn for this site (© R Stewart, 2026).
 
+  Added 24 September 2026: and to the **Advanced Higher Stellar Physics practice tests** at
+  `classes/adv/practice-tests/stellar-physics-*.html` — the A+B pair — whose parents are
+  Advanced Higher Physics past papers (2018, 2019, 2020, 2022, 2024 and 2025), varied in the
+  same way, with three original questions across the pair. Parents are recorded in
+  `~/claude-work/practice-tests/advanced-higher-physics/stellar-physics/provenance*.csv`.
+  The H-R diagrams and black-body spectra on those pages are drawn for this site
+  (© R Stewart, 2026).
+
   Added 17 September 2026: and to the **Higher Physics Electricity unit practice tests** at
   `classes/higher/practice-tests/electricity-*.html` — a 45-mark A+B pair — whose parents are
   Higher Physics past papers (2016, 2017, 2018, 2022, 2023, 2025 and the specimen paper), varied

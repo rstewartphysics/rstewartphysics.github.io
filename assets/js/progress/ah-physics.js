@@ -25,10 +25,17 @@
       cond: "Score 80% or more on Simple Harmonic Motion Practice Test A" },
     { id: "ah-shm-test-b", name: "Damper", emoji: "🌀", section: "Quanta & Waves",
       href: "/classes/adv/practice-tests/shm-simple-harmonic-motion-b.html",
-      cond: "Score 80% or more on Simple Harmonic Motion Practice Test B" }
+      cond: "Score 80% or more on Simple Harmonic Motion Practice Test B" },
+    { id: "ah-stellar-test-a", name: "Stargazer", emoji: "🔭", section: "Rotational Motion & Astrophysics",
+      href: "/classes/adv/practice-tests/stellar-physics-a.html",
+      cond: "Score 80% or more on Stellar Physics Practice Test A" },
+    { id: "ah-stellar-test-b", name: "Supergiant", emoji: "🌟", section: "Rotational Motion & Astrophysics",
+      href: "/classes/adv/practice-tests/stellar-physics-b.html",
+      cond: "Score 80% or more on Stellar Physics Practice Test B" }
   ];
 
   var SHM_IDS = ["ah-shm-test-a", "ah-shm-test-b"];
+  var STELLAR_IDS = ["ah-stellar-test-a", "ah-stellar-test-b"];
   function allUnlocked(b, ids) {
     return ids.every(function (id) { return b[id] && b[id].unlocked; });
   }
@@ -37,6 +44,9 @@
     { id: "ach-shm", name: "Simple Harmonic Master", emoji: "🏆",
       cond: "Earn both Simple Harmonic Motion practice-test badges",
       test: function (b) { return allUnlocked(b, SHM_IDS); } },
+    { id: "ach-stellar", name: "Star Classifier", emoji: "🏆",
+      cond: "Earn both Stellar Physics practice-test badges",
+      test: function (b) { return allUnlocked(b, STELLAR_IDS); } },
     { id: "ach-streak", name: "On a Roll", emoji: "🔥",
       cond: "Reach a 6-challenge streak",
       test: function (b, data) { return !!data && (data.bestStreak || 0) >= 6; } }
