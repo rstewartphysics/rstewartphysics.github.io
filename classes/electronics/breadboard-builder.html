@@ -5127,6 +5127,62 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
           refs: ids });
       }
 
+      /* Links that add nothing (24 Sep 2026).  Two links between the same two
+         tracks are one wire too many, and a link with both ends on one track
+         joins copper that is already joined.  Legal, so warnings.  Track
+         identity is topology's nodeOf, which is the copper BEFORE any link
+         merges it. */
+      {
+        const board = SBD.BOARDS[boardId];
+        const top = SBD.topology(board, attempt);
+        const trackOf = h => top.nodeOf.get(SBD.hid(SBD.parseRef(h)));
+        const nm = l => SBD.holeName(board, SBD.parseRef(l.a)) + "–" + SBD.holeName(board, SBD.parseRef(l.b));
+        const byTracks = new Map();
+        for (const l of attempt.links || []) {
+          const ta = trackOf(l.a), tb = trackOf(l.b);
+          if (ta === undefined || tb === undefined) continue;   // link-in-cut, reported already
+          if (ta === tb) {
+            warnings.push({ rank: 12, code: "link-same-track",
+              msg: "The link " + nm(l) + " has both ends on the same " + track +
+                   ", so it joins copper that is already joined. It does nothing — take it off.",
+              refs: [l.a, l.b] });
+            continue;
+          }
+          const k = [ta, tb].sort().join("|");
+          if (!byTracks.has(k)) byTracks.set(k, []);
+          byTracks.get(k).push(l);
+        }
+        for (const group of byTracks.values()) {
+          if (group.length < 2) continue;
+          const extra = group.slice(1);
+          warnings.push({ rank: 12, code: "links-parallel",
+            msg: "The links " + group.map(nm).join(" and ") + " join the same two " +
+                 (BREAD ? "nets" : "tracks") + ", so " +
+                 (extra.length > 1 ? "all but the first are" : "the second is") +
+                 " not needed. One wire does the job — take the extra one off.",
+            refs: extra.reduce((r, l) => r.concat([l.a, l.b]), []) });
+        }
+
+        // two test points on one net read the same thing; the second tells you nothing new
+        const tpByNet = new Map();
+        for (const tp of attempt.testpoints || []) {
+          const nd = trackOf(tp.at);
+          if (nd === undefined) continue;
+          const root = top.dsu.find(nd);
+          if (!tpByNet.has(root)) tpByNet.set(root, []);
+          tpByNet.get(root).push(tp);
+        }
+        for (const group of tpByNet.values()) {
+          if (group.length < 2) continue;
+          const ids = group.map(tp => tp.id);
+          warnings.push({ rank: 12, code: "testpoints-same-net",
+            msg: ids.slice(0, -1).join(", ") + " and " + ids[ids.length - 1] +
+                 " are on the same " + (BREAD ? "net" : "run of copper") +
+                 ", so they will always read the same. One test point there is enough.",
+            refs: group.slice(1).map(tp => tp.at) });
+        }
+      }
+
       /* A leg on a track with nothing else on it is worth saying — a forgotten
          link wire is exactly what that looks like.  But reporting it leg by leg
          buries every other line: a 14-pin chip placed on a blank board, which
@@ -5259,6 +5315,7 @@ function stretch(){
   paint();
 }
 let linkStart = null, cur = { r: 0, c: 1 };
+const termColour = {};                     // last colour picked per terminal kind (in / out), so the next one placed matches
 let linkColour = AUTO_LINK_COLOURS[0];     // pupil-chosen, shown while the Link tool is active
 let marks = [], hl = [], showingAnswer = false, scale = 1;
 let done = new Set();
@@ -5692,7 +5749,6 @@ function actEdit(h){
         A.links.push({ a: linkStart, b: key, colour: linkColour, num });
         say("Link wire " + num + " from " + hn(linkStart) + " to " + hn(key) + ", " + linkColour + ".");
         linkStart = null;
-        nextLinkColour();
       }
     }
 
@@ -5795,16 +5851,8 @@ function renumberLinks(){ A.links.forEach((l, i) => { l.num = i + 1; }); }
 /* ============================================================
    Link wire colour picker
    ============================================================ */
-// cycles the SUGGESTED colour on to the next in the palette after each link,
-// so two links in a row default to different colours; a pupil can still
-// click a swatch to override before drawing the next one
-function nextLinkColour(){
-  // if the pupil just deliberately used red/black, the next SUGGESTION still
-  // comes from the ordinary palette, not another supply colour
-  const i = AUTO_LINK_COLOURS.indexOf(linkColour);
-  linkColour = AUTO_LINK_COLOURS[i < 0 ? 0 : (i + 1) % AUTO_LINK_COLOURS.length];
-  paintLinkColours();
-}
+// the chosen colour STAYS until the pupil clicks another swatch (24 Sep 2026):
+// ten black wires in a row is ten clicks on the board and none on the picker
 function buildLinkColours(){
   const el = $("linkColours");
   LINK_COLOURS.forEach(name => {
@@ -6430,6 +6478,7 @@ $("bank").addEventListener("click", e => {
     // any other and Undo has to see it
     if (comp) mutate(() => {
       comp.colour = sw.dataset.colour;
+      if (comp.colour && comp.key) termColour[comp.key] = comp.colour;
       bankKey = null; drawFreeBank(); paint(); saveStore();
       const wire = (SBD.FOOTPRINTS[comp.footprint] || {}).kind === "terminal";
       say(comp.id + " is now " + comp.colour + (wire ? " wire." : "."));
@@ -7519,6 +7568,7 @@ function pickFromPaletteNow(key){
        message had become a wrong explanation of a different thing. */
     if (!c) say("No more of those can be added — there are already as many on the board as the tool can number.");
     else {
+      if (c.colour && termColour[c.key]) c.colour = termColour[c.key];
       FREEC.push(c);
       sel = c.id; pending = c.id;
       rot = defaultRotFor(c.footprint);
