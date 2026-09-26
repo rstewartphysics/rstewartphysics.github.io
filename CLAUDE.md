@@ -502,6 +502,21 @@ already-published deck gets its pair, and this card, on its next touch.
 
 ---
 
+## Site logo (site standard, 26 September 2026)
+
+The logo (a lightning bolt through a cog, `assets/logo/mark.svg`, drawn by R Stewart) appears on
+every page through the shared includes — **never add it per page**:
+
+- **Home badge**: `.site-home-badge` in `_includes/site-menu.html`. `site-menu.js` moves it into a
+  `.banner-wrap` that opens the page, top-left, mirroring the menu button. A page that opens with a
+  sticky bar or sub-nav instead (the planner on a short screen, the Engineering topic pages) gets no
+  badge, so it never covers a back link or control.
+- **Menu drawer**: `.site-menu-brand` row at the top of the drawer.
+- **Footer**: `.footer-brand` in `_includes/site-footer.html`, above the © line.
+- Drawer and footer use the icon mark beside **real text** "MrStewartPhysics.co.uk" — never
+  `lockup-*.svg`, whose wordmark is a picture of text (D18) in fixed dark ink that vanishes on a dark
+  footer.
+
 ## Footer
 
 Every page uses the shared include — do **not** hand-write a `<footer>` element:

@@ -178,6 +178,26 @@
     });
 
     markCurrentPage();
+    placeHomeBadge();
+  }
+
+  /* The logo badge belongs on a banner at the very top of the page. Pages that open with a sticky
+     bar or a sub-nav instead (the planner on a short screen, the Engineering topic pages) would
+     have it sitting over their own controls, so there it stays hidden; the footer and the menu
+     still carry the logo. Re-checked on resize because task pages hide the banner on short screens. */
+  function placeHomeBadge() {
+    const badge = document.querySelector(".site-home-badge");
+    if (!badge) return;
+    function place() {
+      const banner = document.querySelector(".banner-wrap");
+      const r = banner ? banner.getBoundingClientRect() : null;
+      const onTop = r && r.height >= 70 && r.top + window.scrollY < 8;
+      if (onTop && badge.parentNode !== banner) banner.appendChild(badge);
+      badge.classList.toggle("is-placed", !!onTop);
+    }
+    place();
+    let t;
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(place, 150); });
   }
 
   if (document.readyState === "loading") {
