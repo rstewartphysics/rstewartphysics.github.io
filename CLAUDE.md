@@ -619,7 +619,11 @@ existing pages on their next touch**, alongside the dual-coding pass.
   one shared module, **`assets/css/reading.css`** (26 Sep 2026): a page opts in with
   `<body class="reading">` and links the sheet after its subject and component sheets. Don't
   hand-roll them per page. A subject whose page ground ends in white tints that stop in its own
-  sheet under `body.reading` (Electronics: `--bg2`). Adopted so far: the Electronics hub.
+  sheet under `body.reading` (Electronics: `--bg2`). **Letter and word spacing stay at the
+  font's own** — Trebuchet MS is already open, and the extra .03em/.12em read as odd gaps to a
+  dyslexic reader (learning-standard decision 65). **A page's opening two panels go in
+  `<div class="panel-pair">`**: side by side on a wide screen so the 52ch line cap doesn't leave
+  the right half empty, stacked on a phone. Adopted so far: the Electronics hub.
 - **Reading-options panel (D20).** Site-wide, text size, spacing and tint, per device in
   `localStorage` (Phase 2c).
 - **Every symbol decoded (D11)**: a symbol glossary beside each equation, with name and unit.
