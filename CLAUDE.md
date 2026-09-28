@@ -154,14 +154,31 @@ Markup in `_includes/site-menu.html`, styles in `site-menu.css`, behaviour in `s
 
 ### Behaviour
 Slides in from the right; opening adds `.is-open` to drawer+overlay and `site-menu-open` to `<body>`.
-ESC and overlay-click close it; focus is trapped while open. `markCurrentPage()` sets
-`aria-current="page"` on the matching link and opens its parent `<details>`.
+ESC, overlay-click, the × and a swipe to the right close it; focus is trapped while open. On open
+the drawer itself takes focus, not its first row — iOS Safari rings whatever takes focus after a tap.
+While it is open the ☰ is hidden (the × is the one close button) and so is the progress counter.
+**Every folder collapses when the menu closes** (RS, 28 Sep 2026), so each open starts from the same
+short list. `markCurrentPage()` sets `aria-current="page"` on the matching link and puts a short
+accent bar (`.has-current`) on the row of every folder above it, instead of opening them.
+
+**Header.** One row: the logo mark and "MrStewartPhysics.co.uk" as plain text (not a link — the Home
+row is), then the ×. No "Menu" title.
+
+**Marks and colours.** Every top row carries a drawn mark (`.site-menu-ic`, 26px) — drawer copies
+under `smi-` ids of the Home tiles' atom, logic gate, gears and chat, plus a drawer house (Home) and
+the certificate (Credits). Each row sets `--c` / `--c-dk`, the same pair as its Home tile, which
+colours its mark and its folder line. All drawer text is 18px (D2). The dark drawer uses the site's
+dark teal grounds, not navy.
 
 ### Menu order
 1. Home `/` · 2. **Physics** (group): All Physics courses (`physics.html`) / S3 / National 5 /
-Higher / Advanced Higher · 3. Electronics · 4. **Engineering Science** (group): All Engineering
-courses (`engineering-science.html`) / S3 / National 5 / Higher (coming soon, `.site-menu-soon`) ·
-5. About & Contact · 6. Credits. **Do not add individual topic pages to the drawer.**
+Higher / Advanced Higher · 3. **Electronics** (group): Electronics hub / Slides ·
+4. **Engineering Science** (group): All Engineering courses (`engineering-science.html`) / S3 /
+National 5 / Higher (coming soon, `.site-menu-soon`) · then, below a line (`.site-menu-info`),
+5. About & Contact · 6. Credits. Every subject is a group, so every subject row does the same thing
+when tapped: it opens. Level names inside a group are short and match across subjects (S3,
+National 5, Higher); the toggles' `aria-label`s carry the full name. **Do not add individual topic
+pages to the drawer.**
 
 **Level rows (28 Sep 2026).** A level with more than its hub is a `.site-menu-level` split row: the
 name links to the hub, and a separate arrow (`<details class="site-menu-level-more">`) opens its
@@ -170,11 +187,13 @@ never an arrow that opens onto nothing. When a level gains an index page, give i
 add the link to its list). Groups share `name="site-menu-group"` and level lists
 `name="site-menu-level"`, so opening one closes the other with no JS. The list icons are drawer
 copies of `resource-icons.html` marks under `smi-` ids, so a page that includes both sprites has no
-duplicate ids. `markCurrentPage()` opens every `<details>` above the current page's link.
+duplicate ids. Group and level arrows are one glyph, size and colour (`--menu-muted`); the level
+toggle's divider is a short faint line, not a full-height wall.
 
 ### Accent colouring
 Pages set `--page-accent` or `--menu-accent` in their own `:root`; the menu CSS reads
-`--menu-accent: var(--page-accent, #2563eb)`.
+`--menu-accent: var(--page-accent, #0a7d88)` — the site teal, lifted to `#2fd0dc` in dark mode.
+A page with no accent of its own (Home, About & Contact) therefore gets teal, never a stray blue.
 
 ---
 
@@ -675,7 +694,7 @@ existing pages on their next touch**, alongside the dual-coding pass.
 | Breakpoint | Changes |
 |------------|---------|
 | `max-width: 700px` | `page-wrap` padding → `0 10px 3rem`; panel padding → `.95rem`; grid gap → `10px` |
-| `max-width: 520px` | Drawer → `min(340px, 92vw)`; nav links → `1rem` |
+| `max-width: 520px` | Drawer → `min(340px, 92vw)`; nav rows → `min-height:52px` (text stays 18px) |
 | `max-width: 480px` | Electronics tile caption font reduces |
 | `max-width: 768px` (Electronics) | Banner max-height → `260px` |
 

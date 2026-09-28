@@ -48,13 +48,19 @@
       button.setAttribute("aria-label", "Close site menu");
       drawer.setAttribute("aria-hidden", "false");
 
-      const focusable = getFocusableElements(drawer);
-      if (focusable.length) {
-        focusable[0].focus();
-      } else {
-        drawer.focus();
-      }
+      /* The drawer, not its first row: iOS Safari draws a focus ring on whatever takes focus
+         after a tap, and a ring round the top row on every open looked like a fault. */
+      drawer.focus({ preventScroll: true });
     });
+  }
+
+  /* Every folder shuts when the menu closes, so each open starts from the same short list
+     (RS, 28 Sep 2026). */
+  function collapseAll(drawer) {
+    drawer.querySelectorAll("details[open]").forEach(function (d) {
+      d.open = false;
+    });
+    drawer.scrollTop = 0;
   }
 
   function closeMenu() {
@@ -71,12 +77,17 @@
 
     window.setTimeout(function () {
       overlay.hidden = true;
+      collapseAll(drawer);
     }, 240);
 
-    if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+    /* A tap in Safari doesn't focus the button, so the menu often opened from <body>. Then
+       there is nowhere to go back to: drop focus rather than leave it in the hidden drawer, and
+       rather than ring the ☰ after every tap. */
+    if (lastFocusedElement && lastFocusedElement !== document.body &&
+        typeof lastFocusedElement.focus === "function") {
       lastFocusedElement.focus();
-    } else {
-      button.focus();
+    } else if (drawer.contains(document.activeElement)) {
+      document.activeElement.blur();
     }
 
     lastFocusedElement = null;
@@ -104,6 +115,12 @@
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
+    if (event.shiftKey && document.activeElement === drawer) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
@@ -128,15 +145,57 @@
       if (linkPath === currentPath) {
         link.setAttribute("aria-current", "page");
 
-        /* A level's Slides or Practice tests link sits two <details> deep, inside the level's
-           list inside its subject group, so every one above it is opened. */
+        /* Folders stay shut, so the row of every folder holding the current page carries a
+           mark instead: the subject's row, and a level's name when the page is in its list. */
         let parentDetails = link.closest("details");
         while (parentDetails) {
-          parentDetails.open = true;
+          const row = parentDetails.classList.contains("site-menu-level-more")
+            ? parentDetails.previousElementSibling
+            : parentDetails.querySelector(":scope > summary");
+          if (row && row !== link) row.classList.add("has-current");
           parentDetails = parentDetails.parentElement.closest("details");
         }
       }
     });
+  }
+
+  /* Swipe the open drawer to the right to close it. It follows the finger, and closes past a
+     third of its width; a shorter swipe springs back. touch-action: pan-y in the CSS leaves
+     vertical scrolling to the browser, so only a sideways drag is handled here. */
+  function swipeToClose(drawer) {
+    let x0 = 0, y0 = 0, dx = 0, mode = null;
+
+    drawer.addEventListener("touchstart", function (e) {
+      if (!drawer.classList.contains("is-open") || e.touches.length !== 1) return;
+      x0 = e.touches[0].clientX;
+      y0 = e.touches[0].clientY;
+      dx = 0;
+      mode = null;
+    }, { passive: true });
+
+    drawer.addEventListener("touchmove", function (e) {
+      if (mode === "scroll" || !drawer.classList.contains("is-open")) return;
+      const mx = e.touches[0].clientX - x0;
+      const my = e.touches[0].clientY - y0;
+      if (!mode) {
+        if (Math.abs(mx) < 10 && Math.abs(my) < 10) return;
+        mode = mx > 0 && Math.abs(mx) > Math.abs(my) ? "swipe" : "scroll";
+        if (mode === "scroll") return;
+        drawer.style.transition = "none";
+      }
+      dx = Math.max(0, mx);
+      drawer.style.transform = "translateX(" + dx + "px)";
+    }, { passive: true });
+
+    function end() {
+      if (mode !== "swipe") { mode = null; return; }
+      mode = null;
+      drawer.style.transition = "";
+      drawer.style.transform = "";
+      if (dx > drawer.offsetWidth / 3) closeMenu();
+    }
+    drawer.addEventListener("touchend", end);
+    drawer.addEventListener("touchcancel", end);
   }
 
   function closeOnMenuLinkClick(event) {
@@ -181,6 +240,7 @@
     });
 
     markCurrentPage();
+    swipeToClose(drawer);
     holdBadgeClearOfTopRow();
   }
 
