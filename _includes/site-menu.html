@@ -20,12 +20,45 @@
 <div class="site-menu-overlay" id="siteMenuOverlay" hidden></div>
 
 {% comment %}
-Drawer copies of four marks from resource-icons.html (folder, book, slides, quiz). They carry
-their own smi- ids because a page that also includes resource-icons.html would otherwise have
-two elements with the same id.
+Drawer copies of marks from the subject sprites (atom, logic, gears, chat, doc) and
+resource-icons.html (folder, book, slides, quiz), plus the drawer's own home mark. They carry
+their own smi- ids because a page that also includes those sprites would otherwise have two
+elements with the same id.
 {% endcomment %}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
+    <symbol id="smi-home" viewBox="0 0 48 48">
+      <path style="fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round" d="M5 23 L24 7 L43 23 M10 19 V42 H38 V19"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.8;stroke-linejoin:round" d="M20 42 V30 H28 V42"/>
+    </symbol>
+    <symbol id="smi-atom" viewBox="0 0 48 48">
+      <ellipse style="fill:none;stroke:currentColor;stroke-width:2.8" cx="24" cy="24" rx="20" ry="7.5"/>
+      <ellipse style="fill:none;stroke:currentColor;stroke-width:2.8" cx="24" cy="24" rx="20" ry="7.5" transform="rotate(60 24 24)"/>
+      <ellipse style="fill:none;stroke:currentColor;stroke-width:2.8" cx="24" cy="24" rx="20" ry="7.5" transform="rotate(120 24 24)"/>
+      <circle style="fill:none;stroke:var(--ic-accent);stroke-width:3.4" cx="24" cy="24" r="3.2"/>
+    </symbol>
+    <symbol id="smi-logic" viewBox="0 0 48 48">
+      <path style="fill:none;stroke:currentColor;stroke-width:2.6;stroke-linejoin:round" d="M16 10 H26 A12 12 0 0 1 26 34 H16 Z"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.6;stroke-linecap:round" d="M5 17 H16 M5 27 H16 M38 22 H45"/>
+    </symbol>
+    <symbol id="smi-gears" viewBox="0 0 48 48">
+      <circle style="fill:none;stroke:currentColor;stroke-width:2.6" cx="17" cy="24" r="9.5"/>
+      <circle style="fill:none;stroke:currentColor;stroke-width:2.2" cx="17" cy="24" r="3.4"/>
+      <path style="fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:butt" d="M26.5 24.0 L30.1 24.0 M23.7 30.7 L26.3 33.3 M17.0 33.5 L17.0 37.1 M10.3 30.7 L7.7 33.3 M7.5 24.0 L3.9 24.0 M10.3 17.3 L7.7 14.7 M17.0 14.5 L17.0 10.9 M23.7 17.3 L26.3 14.7"/>
+      <circle style="fill:none;stroke:var(--ic-accent);stroke-width:2.4" cx="35.5" cy="24" r="5.5"/>
+      <circle style="fill:none;stroke:var(--ic-accent);stroke-width:2" cx="35.5" cy="24" r="2"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:3;stroke-linecap:butt" d="M40.3 26.8 L42.9 28.2 M35.5 29.5 L35.5 32.5 M30.7 26.8 L28.1 28.3 M30.7 21.2 L28.1 19.8 M35.5 18.5 L35.5 15.5 M40.3 21.2 L42.9 19.8"/>
+    </symbol>
+    <symbol id="smi-chat" viewBox="0 0 48 48">
+      <path style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round" d="M8 9 H40 a3 3 0 0 1 3 3 V31 a3 3 0 0 1 -3 3 H22 L13 42 V34 H8 a3 3 0 0 1 -3 -3 V12 a3 3 0 0 1 3 -3 Z"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:4.4;stroke-linecap:round;stroke-linejoin:round" d="M16 21.5 h.01 M24 21.5 h.01 M32 21.5 h.01"/>
+    </symbol>
+    <symbol id="smi-credits" viewBox="0 0 48 48">
+      <path style="fill:none;stroke:currentColor;stroke-width:2.6;stroke-linejoin:round" d="M11 5 H29 L37 13 V43 H11 Z"/>
+      <path style="fill:none;stroke:currentColor;stroke-width:2.6;stroke-linejoin:round" d="M29 5 V13 H37"/>
+      <circle style="fill:none;stroke:var(--ic-accent);stroke-width:2.4" cx="24" cy="29" r="6"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round" d="M20.5 34 L19 41 L24 38.5 L29 41 L27.5 34"/>
+    </symbol>
     <symbol id="smi-hub" viewBox="0 0 48 48">
       <path style="fill:none;stroke:currentColor;stroke-width:2.6;stroke-linejoin:round" d="M5 12 H19 l4 5 H43 V38 H5 Z"/>
       <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.4;stroke-linecap:round" d="M12 25 H36"/>
@@ -54,12 +87,15 @@ two elements with the same id.
   aria-hidden="true"
   tabindex="-1"
 >
-  <a class="site-menu-brand" href="/" aria-label="Home — MrStewartPhysics.co.uk">
-    <img src="/assets/logo/mark.svg" alt="" width="36" height="36">
-    <span>MrStewartPhysics.co.uk</span>
-  </a>
+  {% comment %}
+  One header row: the site name, then the only close button. The name is not a link, because
+  the Home row below already is one (RS, 28 Sep 2026).
+  {% endcomment %}
   <div class="site-menu-header">
-    <p class="site-menu-title">Menu</p>
+    <span class="site-menu-brand">
+      <img src="/assets/logo/mark.svg" alt="" width="36" height="36">
+      <span>MrStewartPhysics.co.uk</span>
+    </span>
     <button
       class="site-menu-close"
       id="siteMenuClose"
@@ -71,16 +107,18 @@ two elements with the same id.
   </div>
 
   {% comment %}
-  A level with more than its hub page is a split row: the name goes straight to the hub, and
-  the arrow opens a list of everything else that level has. A level with only a hub is a plain
-  link with no arrow, so no arrow ever opens onto nothing. Subject groups share one name=, so
-  opening one closes the other; each level list does the same within the drawer.
+  Every subject is a group: tap its row to open it. Inside a group, a level with more than its
+  hub page is a split row: the name goes straight to the hub, and the arrow opens a list of
+  everything else that level has. A level with only a hub is a plain link with no arrow, so no
+  arrow ever opens onto nothing. Groups share one name=, so opening one closes the other; each
+  level list does the same within the drawer. --c / --c-dk are each subject's colour, the same
+  pair as its Home tile.
   {% endcomment %}
   <nav class="site-menu-nav" aria-label="Main site navigation">
-    <a class="site-menu-link" href="/">🏠 <span>Home</span></a>
+    <a class="site-menu-link" href="/" style="--c:#0a7d88; --c-dk:#7fe3ec"><svg class="site-menu-ic" aria-hidden="true" focusable="false"><use href="#smi-home"/></svg><span>Home</span></a>
 
-    <details class="site-menu-group" name="site-menu-group">
-      <summary class="site-menu-summary">⚡ <span>Physics</span></summary>
+    <details class="site-menu-group" name="site-menu-group" style="--c:#00747c; --c-dk:#3cc8d0">
+      <summary class="site-menu-summary"><svg class="site-menu-ic" aria-hidden="true" focusable="false"><use href="#smi-atom"/></svg><span>Physics</span></summary>
       <div class="site-menu-subnav">
         <a href="/classes/physics.html">All Physics courses</a>
 
@@ -125,26 +163,23 @@ two elements with the same id.
       </div>
     </details>
 
-    <div class="site-menu-level is-top">
-      <a class="site-menu-link site-menu-level-link" href="/classes/electronics.html">💡 <span>Electronics</span></a>
-      <details class="site-menu-level-more" name="site-menu-level">
-        <summary class="site-menu-level-toggle" aria-label="More for Electronics"></summary>
-        <div class="site-menu-level-list">
-          <a href="/classes/electronics.html"><svg aria-hidden="true" focusable="false"><use href="#smi-hub"/></svg>Electronics hub</a>
-          <a href="/classes/electronics/slides.html"><svg aria-hidden="true" focusable="false"><use href="#smi-slides"/></svg>Slides</a>
-        </div>
-      </details>
-    </div>
+    <details class="site-menu-group" name="site-menu-group" style="--c:#077a68; --c-dk:#2fd6b0">
+      <summary class="site-menu-summary"><svg class="site-menu-ic" aria-hidden="true" focusable="false"><use href="#smi-logic"/></svg><span>Electronics</span></summary>
+      <div class="site-menu-subnav">
+        <a href="/classes/electronics.html">Electronics hub</a>
+        <a href="/classes/electronics/slides.html">Slides</a>
+      </div>
+    </details>
 
-    <details class="site-menu-group" name="site-menu-group">
-      <summary class="site-menu-summary">🧰 <span>Engineering Science</span></summary>
+    <details class="site-menu-group" name="site-menu-group" style="--c:#9a5410; --c-dk:#f5c97a">
+      <summary class="site-menu-summary"><svg class="site-menu-ic" aria-hidden="true" focusable="false"><use href="#smi-gears"/></svg><span>Engineering Science</span></summary>
       <div class="site-menu-subnav">
         <a href="/classes/engineering-science.html">All Engineering courses</a>
 
-        <a href="/classes/s3-engineering-science.html">S3 Engineering Science</a>
+        <a href="/classes/s3-engineering-science.html">S3</a>
 
         <div class="site-menu-level">
-          <a class="site-menu-level-link" href="/classes/n5-engineering-science.html">National 5 Engineering Science</a>
+          <a class="site-menu-level-link" href="/classes/n5-engineering-science.html">National 5</a>
           <details class="site-menu-level-more" name="site-menu-level">
             <summary class="site-menu-level-toggle" aria-label="More for National 5 Engineering Science"></summary>
             <div class="site-menu-level-list">
@@ -155,12 +190,14 @@ two elements with the same id.
         </div>
 
         <span class="site-menu-soon" aria-disabled="true">
-          Higher Engineering Science <small>coming soon</small>
+          Higher <small>coming soon</small>
         </span>
       </div>
     </details>
 
-    <a class="site-menu-link" href="/classes/contact.html">✉️ <span>About &amp; Contact</span></a>
-    <a class="site-menu-link" href="/classes/credits.html">📜 <span>Credits</span></a>
+    <div class="site-menu-info">
+      <a class="site-menu-link" href="/classes/contact.html" style="--c:#334155; --c-dk:#b4c2d6"><svg class="site-menu-ic" aria-hidden="true" focusable="false"><use href="#smi-chat"/></svg><span>About &amp; Contact</span></a>
+      <a class="site-menu-link" href="/classes/credits.html" style="--c:#334155; --c-dk:#b4c2d6"><svg class="site-menu-ic" aria-hidden="true" focusable="false"><use href="#smi-credits"/></svg><span>Credits</span></a>
+    </div>
   </nav>
 </aside>
