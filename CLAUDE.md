@@ -384,6 +384,11 @@ band with no extra code. Keep `data-prog-badges` on the tile itself.
 **A tile with nothing behind it yet** is `<span class="hub-tile soon">` — a `<span>`, never an
 `<a>`, so it is not focusable and not announced as a link.
 
+**Section tile (28 Sep 2026).** A landing page's few big choices — Home's subjects, the Physics
+hub's levels — use `a.sec-tile` from the same sheet: banner art, a round badge overlapping it, then
+name and one line. `--c` colours the badge and `--c-dk` is its lifted dark-mode twin. The badge
+holds a drawn mark (`.sec-ic`) or short real text (`.sec-abbr` — the level letters S3/N5/H/AH).
+
 **Media variant.** `.tile-head.is-media` swaps the drawn mark for bespoke artwork (the level banners
 on `classes/engineering-science.html`). Use it only where real artwork exists for that tile; the
 drawn icon is the default.
