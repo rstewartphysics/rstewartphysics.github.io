@@ -128,9 +128,12 @@
       if (linkPath === currentPath) {
         link.setAttribute("aria-current", "page");
 
-        const parentDetails = link.closest("details");
-        if (parentDetails) {
+        /* A level's Slides or Practice tests link sits two <details> deep, inside the level's
+           list inside its subject group, so every one above it is opened. */
+        let parentDetails = link.closest("details");
+        while (parentDetails) {
           parentDetails.open = true;
+          parentDetails = parentDetails.parentElement.closest("details");
         }
       }
     });
@@ -178,26 +181,73 @@
     });
 
     markCurrentPage();
-    placeHomeBadge();
+    holdBadgeClearOfTopRow();
   }
 
-  /* The logo badge belongs on a banner at the very top of the page. Pages that open with a sticky
-     bar or a sub-nav instead (the planner on a short screen, the Engineering topic pages) would
-     have it sitting over their own controls, so there it stays hidden; the footer and the menu
-     still carry the logo. Re-checked on resize because task pages hide the banner on short screens. */
-  function placeHomeBadge() {
+  /* The logo is fixed to the screen, but a page with no banner (the Electronics builders and
+     planners, the planning sheets) starts with a back link or heading exactly where it sits.
+     There the logo waits until that top row has scrolled out from under it (RS, 28 Sep 2026).
+     Measured rather than keyed to "has a banner", because a banner's own heading can land there
+     on a phone too. Re-measured on resize: task pages change their top row on short screens. */
+  function holdBadgeClearOfTopRow() {
     const badge = document.querySelector(".site-home-badge");
     if (!badge) return;
-    function place() {
-      const banner = document.querySelector(".banner-wrap");
-      const r = banner ? banner.getBoundingClientRect() : null;
-      const onTop = r && r.height >= 70 && r.top + window.scrollY < 8;
-      if (onTop && badge.parentNode !== banner) banner.appendChild(badge);
-      badge.classList.toggle("is-placed", !!onTop);
+    let clearAt = 0;
+
+    /* A paragraph's box can reach under the logo while its words stop short of it, so only the
+       rendered lines of text count. */
+    function textUnder(el, r) {
+      return Array.prototype.some.call(el.childNodes, function (n) {
+        if (n.nodeType !== 3 || !n.textContent.trim()) return false;
+        const range = document.createRange();
+        range.selectNodeContents(n);
+        return Array.prototype.some.call(range.getClientRects(), function (q) {
+          return q.right > r.left && q.left < r.right && q.bottom > r.top && q.top < r.bottom;
+        });
+      });
     }
-    place();
+
+    function coveredBottom() {
+      const scrollY = window.scrollY;
+      const r = badge.getBoundingClientRect();
+      badge.style.display = "none";
+      let bottom = 0;
+      for (let x = r.left + 2; x < r.right; x += 8) {
+        for (let y = r.top + 2; y < r.bottom; y += 8) {
+          const el = document.elementFromPoint(x, y);
+          if (!el || el === document.body || el === document.documentElement) continue;
+          const hit = el.closest("a, button, input, select, summary, label") ||
+                      (textUnder(el, r) ? el : null);
+          if (hit) {
+            bottom = Math.max(bottom, hit.getBoundingClientRect().bottom + scrollY);
+          }
+        }
+      }
+      badge.style.display = "";
+      return bottom ? bottom - r.top : 0;
+    }
+
+    function update() {
+      badge.classList.toggle("is-waiting", clearAt > 0 && window.scrollY < clearAt);
+    }
+
+    function measure() {
+      const y = window.scrollY;
+      if (y > 0) window.scrollTo(0, 0);
+      clearAt = coveredBottom();
+      if (y > 0) window.scrollTo(0, y);
+      update();
+    }
+
+    measure();
+    let ticking = false;
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; update(); });
+    }, { passive: true });
     let t;
-    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(place, 150); });
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(measure, 150); });
   }
 
   if (document.readyState === "loading") {

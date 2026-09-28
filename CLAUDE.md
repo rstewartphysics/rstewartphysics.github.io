@@ -158,10 +158,19 @@ ESC and overlay-click close it; focus is trapped while open. `markCurrentPage()`
 `aria-current="page"` on the matching link and opens its parent `<details>`.
 
 ### Menu order
-1. Home `/` · 2. Science `/classes/science.html` · 3. Engineering Science
-`/classes/engineering-science.html` · 4. **Physics** (group): S3 / National 5 / Higher / Advanced
-Higher · 5. Electronics `/classes/electronics.html` · 6. **Engineering Science** (group): S3 / N5 /
-Higher (coming soon, `.site-menu-soon`). **Do not add individual topic pages to the drawer.**
+1. Home `/` · 2. **Physics** (group): All Physics courses (`physics.html`) / S3 / National 5 /
+Higher / Advanced Higher · 3. Electronics · 4. **Engineering Science** (group): All Engineering
+courses (`engineering-science.html`) / S3 / National 5 / Higher (coming soon, `.site-menu-soon`) ·
+5. About & Contact · 6. Credits. **Do not add individual topic pages to the drawer.**
+
+**Level rows (28 Sep 2026).** A level with more than its hub is a `.site-menu-level` split row: the
+name links to the hub, and a separate arrow (`<details class="site-menu-level-more">`) opens its
+hub, Topic pages, Slides and Practice tests. A level with only a hub is a plain link with no arrow —
+never an arrow that opens onto nothing. When a level gains an index page, give it a split row (or
+add the link to its list). Groups share `name="site-menu-group"` and level lists
+`name="site-menu-level"`, so opening one closes the other with no JS. The list icons are drawer
+copies of `resource-icons.html` marks under `smi-` ids, so a page that includes both sprites has no
+duplicate ids. `markCurrentPage()` opens every `<details>` above the current page's link.
 
 ### Accent colouring
 Pages set `--page-accent` or `--menu-accent` in their own `:root`; the menu CSS reads
@@ -507,10 +516,12 @@ already-published deck gets its pair, and this card, on its next touch.
 The logo (a lightning bolt through a cog, `assets/logo/mark.svg`, drawn by R Stewart) appears on
 every page through the shared includes — **never add it per page**:
 
-- **Home badge**: `.site-home-badge` in `_includes/site-menu.html`. `site-menu.js` moves it into a
-  `.banner-wrap` that opens the page, top-left, mirroring the menu button. A page that opens with a
-  sticky bar or sub-nav instead (the planner on a short screen, the Engineering topic pages) gets no
-  badge, so it never covers a back link or control.
+- **Home badge**: `.site-home-badge` in `_includes/site-menu.html`, top-left, mirroring the menu
+  button — and like it, `position:fixed`, so it stays in view while the page scrolls (28 Sep 2026).
+  Where it would cover something when the page opens (the Electronics builders, planners and
+  planning sheets, which have no banner), `holdBadgeClearOfTopRow()` in `site-menu.js` hides it
+  until that top row has scrolled out from under it. Sticky `.subnav-wrap` bars get side padding
+  from `site-menu.css` so their links clear both the logo and the menu button.
 - **Menu drawer**: `.site-menu-brand` row at the top of the drawer.
 - **Footer**: `.footer-brand` in `_includes/site-footer.html`, above the © line.
 - Drawer and footer use the icon mark beside **real text** "MrStewartPhysics.co.uk" — never
