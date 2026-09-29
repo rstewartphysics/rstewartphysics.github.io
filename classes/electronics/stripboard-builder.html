@@ -345,7 +345,10 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       padding:14px 15px;cursor:pointer;font:inherit;color:inherit}
     #sbd .ch-card:hover,#sbd .ch-card:focus-visible{border-color:var(--accent)}
     #sbd .ch-card .ch-name{font-weight:800;display:flex;align-items:center;gap:8px}
-    #sbd .ch-card .ch-em{font-size:1.2em}
+    #sbd .ch-card .ch-ic{width:30px;height:30px;flex:0 0 auto}
+    /* a drawn mark in front of a button's or link's words, in place of the old emoji
+       (site standard: sprite marks, ink + accent) */
+    #sbd svg.bi{width:1.3em;height:1.3em;flex:0 0 auto;vertical-align:-.3em;margin-right:.4em}
     #sbd .ch-card .ch-what{color:var(--muted);line-height:1.45}
     #sbd .ch-card .ch-can{font-size:.92em;line-height:1.45}
     #sbd .ch-card .ch-can strong{font-weight:700}
@@ -591,10 +594,32 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     body.v-read #sbd .nethead .hint{display:inline;margin-top:0}
     body.v-read #sbd .netlist>li:has(.netempty){grid-column:1/-1}
     body.v-read #sbd .qsrc{padding:0 10px}
-    body.v-read .helplink{display:inline-flex;align-items:center;min-height:44px;font-weight:800;
-      font-size:1.125rem;line-height:1.5;color:var(--accent-2);text-decoration:underline;
-      text-underline-offset:3px}
+    /* the how-to, a real button beside the planner's intro (RS, 29 Sep 2026) */
+    body.v-read .ledepair{display:grid;gap:14px 32px;align-items:center;margin-bottom:14px}
+    body.v-read .ledepair .lede{margin:0}
+    /* the how-to comes first, to the left of the intro (RS, 29 Sep 2026) */
+    body.v-read .ledepair .helplink{order:-1}
+    body.v-read .helplink{display:flex;align-items:center;gap:14px;min-height:44px;padding:12px 16px;
+      border:2px solid var(--accent-2);border-radius:14px;background:var(--card);
+      color:var(--text);text-decoration:none;font-size:1.125rem;line-height:1.5}
+    body.v-read .helplink:hover,body.v-read .helplink:focus-visible{background:var(--ok-bg)}
+    /* the hub's own mark for the planner guide, so the same thing looks the same everywhere */
+    body.v-read .helplink .hl-ic{flex:0 0 auto;width:40px;height:40px}
+    body.v-read .helplink .hl-txt{display:flex;flex-direction:column;gap:2px}
+    body.v-read .helplink strong{font-weight:800;color:var(--accent-2)}
+    body.v-read .helplink .hl-sub{color:var(--muted)}
     body.v-read .helplink[hidden]{display:none}
+    body.v-read .titlerow .hl-compact{display:none}
+    /* every wide screen, not just a short one: the title-line button and no intro
+       read clearer with less text (RS, 29 Sep 2026) */
+    @media (min-width:821px){
+      body.v-read .titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:.3rem}
+      body.v-read .titlerow .backlink,body.v-read .titlerow .page-title{margin:0}
+      body.v-read .ledepair{display:none}
+      body.v-read .titlerow .hl-compact:not([hidden]){display:inline-flex;align-self:center;gap:8px;padding:2px 14px 2px 8px;
+        border-radius:22px}
+      body.v-read .hl-compact .hl-ic{width:30px;height:30px}
+    }
     @media (min-width:821px){
       body.v-read #sbd .toolgrid{gap:5px}
       body.v-read #sbd .tool{padding:7px 9px;gap:5px}
@@ -635,6 +660,22 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     body.v-read #sbd #tpRow .lchint,body.v-read #sbd details.reveal .ms{font-size:1.125rem;line-height:1.5}
     body.v-read #sbd .chooser .ch-rules li,body.v-read #sbd .chooser .ch-lede,body.v-read #sbd .modedesc,
     body.v-read #sbd:not([data-mode="free"]) .scenario p,body.v-read #sbd .circkey,body.v-read #sbd details.reveal .ms>*{max-width:52ch}
+    /* Where to start fills the width without breaking the 52ch cap (RS, 29 Sep 2026):
+       the four rules sit two by two, and the five mode cards go 3 + 2, the bottom
+       pair stretched, so no card is left alone on a row. */
+    @media (min-width:900px){
+      body.v-read #sbd .chooser .ch-rules{grid-template-columns:repeat(2,minmax(0,52ch));gap:12px 44px}
+      body.v-read #sbd .ch-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+      body.v-read #sbd .ch-card{grid-column:span 2}
+      body.v-read #sbd .ch-card:nth-child(4):nth-last-child(2),
+      body.v-read #sbd .ch-card:nth-child(5):nth-last-child(1){grid-column:span 3}
+    }
+    /* a stretched card still keeps its lines short (D4) */
+    body.v-read #sbd .ch-card .ch-what,body.v-read #sbd .ch-card .ch-can{max-width:52ch}
+    @media (min-width:600px) and (max-width:899px){
+      body.v-read #sbd .ch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      body.v-read #sbd .ch-card:last-child:nth-child(odd){grid-column:1/-1}
+    }
     body.v-read #sbd em,body.v-read .vertable em{font-style:normal;font-weight:700}
     /* its controls join the 16 px control step of the type scale above */
     body.v-read #sbd .seg button,body.v-read #sbd .qchip,body.v-read #sbd .fopt{font-size:1rem}
@@ -692,6 +733,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 <body class="v-read">
   <a class="skip-link" href="#mainContent">Skip to content</a>
   {% include site-menu.html %}
+  {% include resource-icons.html %}
+  {% include electronics-icons.html %}
 
   <header class="banner-wrap is-tool is-hub">
     <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics banner" class="banner" loading="eager">
@@ -707,14 +750,10 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       <h1 class="page-title">Learn to Plan a Stripboard Schematic</h1>
       <button type="button" class="verchip" id="verChip"
               aria-label="Version — show what has changed"></button>
-      <!-- Planner only: the boot block removes it from the other four pages, as it
-           does the bb-only and feat-only controls. -->
-      <a class="plan-only helplink" href="/classes/electronics/stripboard-planner-guide.html"
-         target="_blank" rel="noopener" hidden>How to use this planner ↗</a>
       <!-- hidden by default and un-hidden only on a beta variant, so a page
            that is out of beta never flashes the notice before JS runs -->
       <section class="panel beta" aria-label="Beta notice" id="betaBox" hidden>
-      <h2>⚠️ Beta <span class="beta-tag">testing</span></h2>
+      <h2>Beta <span class="beta-tag">testing</span></h2>
       <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. It marks your board by
         working out what is actually connected to what, so any layout that is electrically correct will pass — but
         if something looks wrong, please tell Mr Stewart rather than assuming your own answer is at fault.</p>
@@ -858,7 +897,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
               </div>
               <div class="cinner" id="cinner"></div>
               <p class="circkey" id="circKey"></p>
-              <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden>📄 IC datasheet — pinouts ↗</a>
+              <a class="dslink" id="dsLink" target="_blank" rel="noopener" hidden><svg class="bi" aria-hidden="true"><use href="#ic-dil"/></svg>IC datasheet — pinouts ↗</a>
             </div>
 
             <div class="boardpick free-only" id="boardPick" role="group" aria-label="Board size">
@@ -898,11 +937,11 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
                  the tool itself there was no way to reach it (reported 11 Sep). -->
             <p class="sheetlinks build-only" id="sheetLinks">
               <a class="dslink bb-never" href="/classes/electronics/stripboard-planning-sheet.html"
-                 target="_blank" rel="noopener">🖨 Printable planning sheet ↗</a>
+                 target="_blank" rel="noopener"><svg class="bi" aria-hidden="true"><use href="#ic-print"/></svg>Printable planning sheet ↗</a>
               <a class="dslink bb-only" href="/classes/electronics/breadboard-planning-sheet.html"
-                 target="_blank" rel="noopener" hidden>🖨 Printable planning sheet ↗</a>
+                 target="_blank" rel="noopener" hidden><svg class="bi" aria-hidden="true"><use href="#ic-print"/></svg>Printable planning sheet ↗</a>
               <a class="dslink free-only" href="/assets/electronics/datasheets/n5-practical-electronics-data-sheet-2025.pdf"
-                 target="_blank" rel="noopener">📄 IC datasheet — pinouts ↗</a>
+                 target="_blank" rel="noopener"><svg class="bi" aria-hidden="true"><use href="#ic-dil"/></svg>IC datasheet — pinouts ↗</a>
             </p>
 
           </aside>
@@ -910,7 +949,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
 
         <div class="controls">
           <button class="btn primary build-only" id="btnCheck">Check my layout</button>
-          <button class="btn ghost free-only" id="btnTpTable" aria-expanded="false">📋 Testing table</button>
+          <button class="btn ghost free-only" id="btnTpTable" aria-expanded="false"><svg class="bi" aria-hidden="true"><use href="#ic-table"/></svg>Testing table</button>
           <button class="btn build-only" id="btnReset">Reset</button>
           <button class="btn ghost conv-only" id="btnAnswer">Show the answer</button>
           <button class="btn ghost free-hide" id="btnNext">Next question →</button>
@@ -933,10 +972,10 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
              the assignment, and needs more than the one autosaved board this
              tool has held until now (IMPROVE-PLAN D5). -->
         <div class="controls feat-only" id="saveRow" hidden>
-          <button class="btn ghost" id="btnPrint">🖨 Print my board</button>
-          <button class="btn ghost" id="btnSaveFile">⬇ Save to a file</button>
-          <button class="btn ghost" id="btnOpenFile">⬆ Open a file</button>
-          <button class="btn ghost" id="btnSaveSvg">🖼 Save the picture</button>
+          <button class="btn ghost" id="btnPrint"><svg class="bi" aria-hidden="true"><use href="#ic-print"/></svg>Print my board</button>
+          <button class="btn ghost" id="btnSaveFile"><svg class="bi" aria-hidden="true"><use href="#ic-download"/></svg>Save to a file</button>
+          <button class="btn ghost" id="btnOpenFile"><svg class="bi" aria-hidden="true"><use href="#ic-upload"/></svg>Open a file</button>
+          <button class="btn ghost" id="btnSaveSvg"><svg class="bi" aria-hidden="true"><use href="#ic-image"/></svg>Save the picture</button>
           <input type="file" id="fileIn" accept=".json,application/json" hidden>
         </div>
 
@@ -6750,34 +6789,34 @@ const hn = k => SBD.holeName(SBD.BOARDS[boardOf()],
    by the end of it.  Written as the course outcome, not as instructions for the
    tool — the tool explains itself once you are in it. */
 const MODE_CARDS = [
-  { m: "trace", em: "\u{1F50D}", name: "Trace",
+  { m: "trace", ic: "trace", name: "Trace",
     what: BB ? "Two holes are named. Say whether the board joins them." : "Two holes are named. Say whether the copper joins them.",
     can: BB
       ? "Read a column, or a rail, as a net: follow the board past the channel and along jumper " +
         "wires, and know that a leg in a column is joined to everything else in it."
       : "Read a track as a net: follow the copper past cuts and along link wires, and know that a " +
         "leg in a track is joined to everything else in it." },
-  { m: "convert", em: "\u{1F5FA}", name: "Convert",
+  { m: "convert", ic: "convert", name: "Convert",
     what: BB ? "Turn a circuit diagram into a breadboard layout." : "Turn a circuit diagram into a stripboard layout.",
     can: BB
       ? "Give every net a column or a rail, place each part so its legs land in the right ones, " +
         "sit a chip straddling the centre channel, add jumper wires where parts cannot reach, and " +
         "mark the test points before you build."
       : "Give every net a track, place each part so its legs land in the right ones, cut every track a chip crosses, add link wires where parts cannot reach, and mark the test points before you build." },
-  { m: "fault", em: "\u{1F50E}", name: "Fault-finder",
+  { m: "fault", ic: "fault", name: "Fault-finder",
     what: "One board, one fault. Find it, then name it.",
     can: BB
       ? `Spot the ${FAULT_ITEMS.length} faults the checker looks for \u2014 a chip not straddling ` +
         "the channel, two nets joined, a leg on its own column, a jumper laid across a chip \u2014 " +
         "and say which one it is, not just where."
       : `Spot the ${FAULT_ITEMS.length} faults the verifiers keep reporting \u2014 a missing cut, a chip along the tracks, two nets joined, a leg on its own track \u2014 and say which one it is, not just where.` },
-  { m: "reverse", em: "\u{1F501}", name: "Reverse",
+  { m: "reverse", ic: "reverse", name: "Reverse",
     what: "Read a finished board and work out the circuit it builds.",
     can: "Work backwards from copper to circuit. This is the direction the exam asks for, and the one most people practise least." },
-  { m: "points", em: "\u{1F4CD}", name: "Test points",
+  { m: "points", ic: "multimeter", name: "Test points",
     what: "The board is built and right. Mark the test points it is missing.",
     can: "Choose where a test point belongs \u2014 on each sub-system input and output \u2014 and say what it will read before the board exists, which is what makes it planning rather than poking." },
-  { m: "free", em: "\u{1F6E0}", name: "Free build",
+  { m: "free", ic: "sb-plan", name: "Free build",
     what: "A blank board and the whole parts box.",
     can: "Plan a board of your own and check it before you solder \u2014 nothing is marked, because there is no right answer." }
 ];
@@ -6807,10 +6846,13 @@ const TRACE_LEDE = "Look at the board, then answer the question beside it: are t
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
 const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
   "with it. Tap the hole where you think the fault is, choose what the fault is, and check.";
-const FREE_LEDE = "A blank board, the whole parts box and nothing to copy. Build what you like: the panel " +
-  "below the board says what " + (BB ? "the board has joined together for you" : "your copper has joined together") +
-  ", updating as you work, and Check tells you " +
-  "whether it could actually be built \u2014 there is no right answer here, so nothing is marked.";
+// the stripboard planner's is short so it sits beside the how-to button (RS, 29 Sep 2026);
+// the breadboard pair keeps its own until A3
+const FREE_LEDE = BB ? "A blank board, the whole parts box and nothing to copy. Build what you like: the panel " +
+  "below the board says what the board has joined together for you, updating as you work, and Check tells you " +
+  "whether it could actually be built \u2014 there is no right answer here, so nothing is marked."
+  : "Build any board you like. The panel under the board shows what your copper joins. " +
+    "Check tells you if it could be built.";
 const REVERSE_LEDE = "Every board here is correct. The question is what circuit it builds — " +
   "follow the copper and answer, the way the question paper asks you to.";
 
@@ -8030,8 +8072,8 @@ const STRIP_CHANGELOG = [
     "That is the half of the job the verification reports keep flagging, and it is now practised on " +
     "its own instead of only at the end of a build. " +
     "<br><strong>Badges.</strong> Both pages are on the Electronics badge system: " +
-    "<strong>Layout Reader</strong> \u{1F4D0} for getting one right in each of the five tasks, and " +
-    "<strong>Board Planner</strong> \u{1F9F0} for designing a board of your own that checks clean." },
+    "<strong>Layout Reader</strong> for getting one right in each of the five tasks, and " +
+    "<strong>Board Planner</strong> for designing a board of your own that checks clean." },
   { v: "1.1", date: "10 Sep 2026", what:
     "<strong>Resistors, thermistors and LDRs stretch.</strong> On a real board you bend the legs " +
     "to reach, so the length is now yours to choose: a resistor spans <strong>four holes to " +
@@ -9756,8 +9798,8 @@ if (HAS("choose")){
     const b = document.createElement("button");
     b.type = "button";
     b.className = "ch-card";
-    b.innerHTML = "<span class='ch-name'><span class='ch-em' aria-hidden='true'>" + c.em +
-                  "</span>" + esc(c.name) + "</span>" +
+    b.innerHTML = "<span class='ch-name'><svg class='ch-ic' aria-hidden='true'><use href='#ic-" + c.ic + "'/></svg>" +
+                  esc(c.name) + "</span>" +
                   "<span class='ch-what'>" + esc(c.what) + "</span>" +
                   "<span class='ch-can'><strong>You need to be able to:</strong> " +
                   c.can + "</span>";
