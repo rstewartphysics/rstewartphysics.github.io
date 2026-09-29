@@ -412,9 +412,14 @@ band with no extra code. Keep `data-prog-badges` on the tile itself.
 hub's levels — use `a.sec-tile` from the same sheet: banner art, a round badge overlapping it, then
 name and one line. `--c` colours the badge and `--c-dk` is its lifted dark-mode twin. The badge
 holds a drawn mark (`.sec-ic`) or short real text (`.sec-abbr` — the level letters S3/N5/H/AH).
+A level with no artwork of its own swaps the image and the ring for `.sec-band` (level colour into
+the page accent, a faint grid, one 60px `.sec-chip` two-colour mark with the level letters
+`.sec-lvl` beside it) — the Engineering level page, 29 Sep 2026. Never a ring and a chip together:
+they read as two icons. That page's banner is drawn to match (`.band-banner`, inline): real-text
+title with a chip beside it, both centred so the fixed logo and menu button never cover them. A level not built yet is `<span class="sec-tile soon">`: not a link, art and ring faded,
+words full contrast.
 
-**Media variant.** `.tile-head.is-media` swaps the drawn mark for bespoke artwork (the level banners
-on `classes/engineering-science.html`). Use it only where real artwork exists for that tile; the
+**Media variant.** `.tile-head.is-media` swaps the drawn mark for bespoke artwork. Use it only where real artwork exists for that tile; the
 drawn icon is the default.
 
 **Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
@@ -842,7 +847,9 @@ on it** — do not wait to be asked, and do not add them to a new page.
 ## What not to do
 
 - No parallax, scroll-driven animation, or CSS `background-attachment: fixed` (breaks on iOS).
-- No blueprint, grid, or circuit-board background patterns.
+- No blueprint, grid, or circuit-board background patterns. One exception (RS, 29 Sep 2026): the
+  faint grid on a section tile's `.sec-band` (Engineering level tiles, `hub-tiles.css`) — not
+  page or panel backgrounds.
 - No school branding or logos beyond what already exists.
 - No teacher-only notes or internal references in student-facing pages.
 - Do not add a seventh S3 Engineering topic to the global nav drawer — link them from the S3
