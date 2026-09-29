@@ -34,6 +34,9 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
            under the same components, with the channel a shade DARKER than the
            slab so the recess still reads as a recess */
         --sbd-bbslab:#141f1b; --sbd-bbchan:#0d1815;
+        /* light outline round a black link wire, which is otherwise black on
+           near-black (RS, 29 Sep); the wire itself stays black */
+        --sbd-lhalo:#b9c9c1;
       }
     }
     #sbd{ --ok:#0f8a5f; --ok-bg:rgba(15,138,95,.12); --bad:#c0392b; --bad-bg:rgba(192,57,43,.10);
@@ -2521,6 +2524,14 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
                    "font-size": [null, "9px"], "font-weight": [null, "800"] },
     "sbd-lnum":  { fill: [null, "#ffffff"], "font-family": [null, SANS],
                    "font-size": [null, "8px"], "font-weight": [null, "800"] },
+    /* A black link wire on the dark board is black on near-black: invisible.
+       The wire stays black (it is black in the kit tray too); the dark theme
+       sets --sbd-lhalo and a light outline appears round it.  Unset — light
+       mode, and every exported PNG — it is `none`, so nothing is drawn. */
+    "sbd-lhalo": { fill: [null, "none"], stroke: ["--sbd-lhalo", "none"],
+                   "stroke-width": [null, "5.6"], "stroke-linecap": [null, "round"] },
+    // the same outline round the numbered dot on a black-based wire
+    "sbd-ldot":  { stroke: ["--sbd-lhalo", "none"], "stroke-width": [null, "1.2"] },
     "sbd-bg":    { fill: ["--sbd-page", "#fbfdfc"] },
 
     /* ---- breadboard ----
@@ -3096,6 +3107,9 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       const col = LINK_COLOURS[l.colour] || LINK_COLOURS.blue;
       const stripe = STRIPE_ACCENT[l.colour];
       const x1 = X(p1.c), y1 = Y(p1.r), x2 = X(p2.c), y2 = Y(p2.r);
+      const dark = col === LINK_COLOURS.black;   // plain black and every striped base
+      if (dark) layers.link += `<line class="sbd-lhalo" x1="${n(x1)}" y1="${n(y1)}" ` +
+        `x2="${n(x2)}" y2="${n(y2)}"/>`;
       layers.link += `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" ` +
         `stroke="${col}" stroke-width="3.2" stroke-linecap="round"/>`;
       // the pinstripe, laid over the black wire just drawn
@@ -3107,7 +3121,8 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
         // striped wire is black at the base, so two different striped links
         // would otherwise show two identical black dots and be impossible
         // to tell apart at the one place the number itself lives
-        layers.link += `<circle cx="${n(mx)}" cy="${n(my)}" r="6.5" fill="${stripe || col}"/>` +
+        layers.link += `<circle${dark ? ` class="sbd-ldot"` : ""} cx="${n(mx)}" cy="${n(my)}" ` +
+          `r="6.5" fill="${stripe || col}"/>` +
           `<text class="sbd-lnum" x="${n(mx)}" y="${n(my + 3)}" text-anchor="middle">${l.num}</text>`;
       }
     }
