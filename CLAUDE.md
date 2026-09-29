@@ -375,12 +375,16 @@ same symbol wherever it appears — the hub tile, the slides hub, the topic page
   notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper, doc),
   `_includes/physics-icons.html` (18 topic marks shared across the Physics levels — S3 Electricity 1
   and Higher current/p.d./resistance are the same idea, so they are the same mark),
-  `_includes/eng-icons.html` (14) and `_includes/electronics-icons.html` (26).
+  `_includes/eng-icons.html` (14), `_includes/electronics-icons.html` (26) and
+  `_includes/higher-hub-icons.html` (14 — one per Higher hub tile, `ic-hh-*`, RS-picked 29 Sep 2026).
 - **Paint must be inline `style=` on every shape.** Document CSS cannot reach into a `<use>` shadow
   tree and class-styled shapes render solid black. Custom properties *do* inherit in.
-- An icon's accent is `var(--ic-accent, <subject accent>)`, because on a coloured tile band the
-  accent colour would be invisible against the band. `.tile-head` sets `--ic-accent: currentColor`,
-  so inside a band the mark draws mono in the band's ink and keeps its colours anywhere else.
+- An icon's accent is `var(--ic-accent, <subject accent>)`. **In a tile band the mark sits on a
+  card-coloured chip** (`.tile-ic`, 46px, in `hub-tiles.css`) so it keeps its two colours — ink +
+  subject accent — instead of going mono on the band (RS, 26 Sep 2026; site-wide 29 Sep 2026).
+- **No emoji in tile names or section headings** — legacy. The drawn mark is the picture.
+- **External sites carry a `.tile-tag` "External" pill in the band**; the site's own tiles carry
+  none. This replaced the old in-text "Mr Stewart's / External site" badges and their legend.
 - **Draw at 48×48 and then look at it at 34px.** Hairlines radiating from a circle read as a
   sunburst; two stacked flowchart shapes merge into an hourglass; a dome over two lines reads as an
   earth symbol. All three were caught only by rendering and zooming — see global CLAUDE.md §7.
@@ -442,8 +446,10 @@ doc — and each subject adds only its own topic marks (`eng-icons.html`, `highe
 Include both on a hub that needs both.
 
 **A group can override the rotation.** Set `--tile-group` on a `.hub-grid` to give every tile in it
-one colour. Use it where the grouping already carries meaning: Higher colours by course unit
-(electricity azure, dynamic universe indigo, particles teal), Advanced Higher does the same
+one colour. Use it where the grouping already carries meaning: Higher's topic index colours by course unit
+(electricity azure, dynamic universe indigo, particles teal) — the Higher *hub* instead gives every
+tile its own `.t-*` colour (darker `--g2` stop, white ink ≥7.2:1) and puts Topic pages, Lesson
+slides and Practice tests first under "Start here" (RS, 29 Sep 2026) — Advanced Higher does the same
 (rotational bronze, quanta sienna, electromagnetism teal, and slate for the non-content strand —
 Researching Physics, slides and question pages — so a resource row never reads as a course unit),
 Engineering rotates by position.
