@@ -20,9 +20,12 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   marking instructions © Qualifications Scotland (SQA).
 - **S Woodhouse** — Block 3 practice questions and answers (2026).
 - **R Stewart & S Woodhouse** — Electricity Block 3 booklet (2026).
-- **Mr Davie** (September 2025 update by **Mr White**) — the Advanced Higher, Higher and National 5
+- **Mr Davie** (September 2026 update by **Mr White**) — the Advanced Higher, Higher and National 5
   Physics "Past Paper Finder" documents, shared freely by their authors. Past-paper questions and
   marking instructions © Qualifications Scotland (SQA).
+- **Mr Taylor** — DELTA, the National 5 and Higher Physics multiple-choice practice site
+  (<https://deltaphysics.co.uk>), updated with the 2026 papers. Linked from the S3, National 5 and
+  Higher hubs, not copied here. Questions © Qualifications Scotland (SQA).
 - **Mr McDonald** (2024) — the National 5 Engineering Science "Past Paper Finder", shared freely by
   its author. Questions © Qualifications Scotland (SQA).
 
