@@ -376,7 +376,8 @@ same symbol wherever it appears — the hub tile, the slides hub, the topic page
   `_includes/physics-icons.html` (18 topic marks shared across the Physics levels — S3 Electricity 1
   and Higher current/p.d./resistance are the same idea, so they are the same mark),
   `_includes/eng-icons.html` (14), `_includes/electronics-icons.html` (26) and
-  `_includes/higher-hub-icons.html` (14 — one per Higher hub tile, `ic-hh-*`, RS-picked 29 Sep 2026).
+  `_includes/higher-hub-icons.html` (14 — one per Higher hub tile, `ic-hh-*`, RS-picked 29 Sep 2026), with `ah-hub-icons.html` (`ic-ah-*`) and `s3-hub-icons.html` (`ic-s3-*`) adding
+  only the marks those hubs don't share with Higher.
 - **Paint must be inline `style=` on every shape.** Document CSS cannot reach into a `<use>` shadow
   tree and class-styled shapes render solid black. Custom properties *do* inherit in.
 - An icon's accent is `var(--ic-accent, <subject accent>)`. **In a tile band the mark sits on a
