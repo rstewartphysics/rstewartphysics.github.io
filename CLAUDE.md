@@ -415,8 +415,9 @@ holds a drawn mark (`.sec-ic`) or short real text (`.sec-abbr` — the level let
 A level with no artwork of its own swaps the image and the ring for `.sec-band` (level colour into
 the page accent, a faint grid, one 60px `.sec-chip` two-colour mark with the level letters
 `.sec-lvl` beside it) — the Engineering level page, 29 Sep 2026. Never a ring and a chip together:
-they read as two icons. That page's banner is drawn to match (`.band-banner`, inline): real-text
-title with a chip beside it, both centred so the fixed logo and menu button never cover them. A level not built yet is `<span class="sec-tile soon">`: not a link, art and ring faded,
+they read as two icons. The Engineering hubs' banner is drawn to match (`.band-banner` in
+`engineering-science.css`, colours per page via `--bb-a`/`--bb-b`): real-text title with a chip
+beside it, both centred so the fixed logo and menu button never cover them. A level not built yet is `<span class="sec-tile soon">`: not a link, art and ring faded,
 words full contrast.
 
 **Media variant.** `.tile-head.is-media` swaps the drawn mark for bespoke artwork. Use it only where real artwork exists for that tile; the
