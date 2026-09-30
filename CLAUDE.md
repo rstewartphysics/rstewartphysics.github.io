@@ -849,8 +849,8 @@ on it** — do not wait to be asked, and do not add them to a new page.
 
 - No parallax, scroll-driven animation, or CSS `background-attachment: fixed` (breaks on iOS).
 - No blueprint, grid, or circuit-board background patterns. One exception (RS, 29 Sep 2026): the
-  faint grid on a section tile's `.sec-band` (Engineering level tiles, `hub-tiles.css`) — not
-  page or panel backgrounds.
+  faint grid on a section tile's `.sec-band` (Engineering level tiles, `hub-tiles.css`) and the
+  Engineering hubs' drawn `.band-banner` — not page or panel backgrounds.
 - No school branding or logos beyond what already exists.
 - No teacher-only notes or internal references in student-facing pages.
 - Do not add a seventh S3 Engineering topic to the global nav drawer — link them from the S3
