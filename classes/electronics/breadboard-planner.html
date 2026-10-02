@@ -1135,6 +1135,23 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
                         { pin: "e", dr: 2, dc: 0 }],
                  body: [{ dr: 1, dc: 0 }, { dr: 2, dc: 1 }],
                  symmetric: false, kind: "can", fixedRot: true },
+    /* The PNP comes in the same can with the same legs; only the symbol differs.
+       Checked 2 Oct 2026 against Rapid's own data sheet for the CDIL 2N2905A
+       (81-0260): lead 1, beside the tab, is the emitter. */
+    "pnp-can": { pins: [{ pin: "c", dr: 0, dc: 0 }, { pin: "b", dr: 1, dc: 1 },
+                        { pin: "e", dr: 2, dc: 0 }],
+                 body: [{ dr: 1, dc: 0 }, { dr: 2, dc: 1 }],
+                 symmetric: false, kind: "can", fixedRot: true },
+    /* The plastic TO-92 (BC547B / BC557B, Rapid 81-0468 / 81-0474 — both data
+       sheets give 1 = c, 2 = b, 3 = e): three legs in a row, read c, b, e with
+       the flat face towards you.  A 2N3906 is e, b, c and would be drawn wrong.  It rotates like any inline part — turned
+       round, c and e swap, which is why the drawing letters every leg. */
+    "npn-92":  { pins: [{ pin: "c", dr: 0, dc: 0 }, { pin: "b", dr: 0, dc: 1 },
+                        { pin: "e", dr: 0, dc: 2 }],
+                 body: [], symmetric: false, kind: "to92", sym: "to92" },
+    "pnp-92":  { pins: [{ pin: "c", dr: 0, dc: 0 }, { pin: "b", dr: 0, dc: 1 },
+                        { pin: "e", dr: 0, dc: 2 }],
+                 body: [], symmetric: false, kind: "to92", sym: "to92" },
     // a 3-leg preset potentiometer: track ends either side, wiper in the middle
     "pot-3":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "w", dr: 0, dc: 1 },
                         { pin: "2", dr: 0, dc: 2 }],
@@ -1824,12 +1841,43 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
          reporting, so the colour-of-a-supply-link rules stand down. */
       const railsMerged = posRoot !== undefined && posRoot === negRoot;
 
+      /* An input or output terminal is a wire leaving the board, and its colour
+         IS that wire's colour \u2014 so a link carrying the same signal has to match
+         it.  Reported by RS, 1 Oct 2026: a blue link joined to an orange IN2
+         passed.  Red and black terminals are left to the supply rules, and a
+         terminal sitting on a rail is the supply's business, not this rule's. */
+      const termsAt = new Map();
+      for (const c of q.components || []) {
+        if (c.footprint !== "term-1" || c.pos || c.neg) continue;
+        const p = (attempt.placements || []).find(x => x.id === c.id);
+        const colour = (p && p.colour) || c.colour;
+        if (!p || !colour || colour === "red" || colour === "black") continue;
+        const root = rootOfHole(p.at);
+        if (root === undefined || root === posRoot || root === negRoot) continue;
+        if (!termsAt.has(root)) termsAt.set(root, []);
+        termsAt.get(root).push({ id: c.id, colour });
+      }
+      for (const ts of termsAt.values()) {
+        const odd = ts.find(t => t.colour !== ts[0].colour);
+        if (odd)
+          faults.push({ rank: 0.6, code: "terminal-colours-differ",
+            msg: `${ts[0].id} and ${odd.id} are joined, but ${ts[0].id} is ${ts[0].colour} ` +
+                 `and ${odd.id} is ${odd.colour}. Joined wires carry one signal, so give ` +
+                 `them one colour.`, refs: [] });
+      }
+
       const byColour = new Map();
       // in the board's own words: a breadboard pupil never sees an internal ref
       const lname = l => holeName(board, parseRef(l.a)) + "\u2013" + holeName(board, parseRef(l.b));
       for (const l of attempt.links || []) {
         const root = rootOfHole(l.a);
         if (root === undefined) continue;              // already reported: link-in-cut
+        const term = (termsAt.get(root) || [])[0];
+        if (term && l.colour !== term.colour && l.colour !== "red" && l.colour !== "black")
+          faults.push({ rank: 0.6, code: "link-not-terminal-colour",
+            msg: `The ${l.colour} link ${lname(l)} is joined to ${term.id}, and ${term.id}\u2019s ` +
+                 `wire is ${term.colour}. A link carrying that signal must be ` +
+                 `${term.colour} too: one signal, one colour.`, refs: [l.a, l.b] });
         if (l.colour === "red" && root !== posRoot)
           faults.push({ rank: 0.6, code: "red-not-supply",
             msg: `The red link ${lname(l)} is not on the +5 V rail. Red is reserved ` +
@@ -2915,6 +2963,30 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
                : `<rect class="sbd-mark" x="${n(x)}" y="${n(atEnd ? y + ht - tab : y)}" ` +
                  `width="${n(w)}" height="${n(tab)}"/>`);
     }
+    /* A TO-92 transistor: the flat face is drawn on the side you read c, b, e
+       from left to right, so a part turned round shows its flat face turned
+       round too.  The case is big enough that all three legs come out of it,
+       and the leg letters are printed on the case, as on the can — outside it
+       they collided with the item ID whenever the flat face pointed up. */
+    const ce = ["c", "e"].map(k => cells.pins.find(z => z.pin === k));
+    if (ce[0] && ce[1]) {
+      const ex = X(ce[1].hole.c) - X(ce[0].hole.c), ey = Y(ce[1].hole.r) - Y(ce[0].hole.r);
+      const len = Math.hypot(ex, ey) || 1, ux = ex / len, uy = ey / len;
+      const nx = -uy, ny = ux;                        // towards the flat face
+      const face = P * 0.32, rt = P * 1.3;            // legs sit inside, 0.32 pitch behind the face
+      const ax = cx + nx * face - ux * rt, ay = cy + ny * face - uy * rt;
+      let g = `<path class="sbd-body" d="M ${n(ax)} ${n(ay)} a ${n(rt)} ${n(rt)} 0 0 1 ` +
+              `${n(ux * rt * 2)} ${n(uy * rt * 2)} z"/>`;
+      for (const z of cells.pins) {
+        // the end letters step in towards b, or they sit on the curve of the case
+        const k = z.pin === "c" ? 0.3 : z.pin === "e" ? -0.3 : 0;
+        const lx = X(z.hole.c) - nx * P * 0.45 + ux * P * k, ly = Y(z.hole.r) - ny * P * 0.45 + uy * P * k;
+        // a tspan's own size beats the class's, and paintBody still finds the class
+        g += `<text class="sbd-pmark" x="${n(lx)}" y="${n(ly + 3.5)}" ` +
+             `text-anchor="middle"><tspan font-size="10">${z.pin}</tspan></text>`;
+      }
+      return g;
+    }
     // D-shape: half round, one flat face — the TO-92 outline
     const d = spanH
       ? `M ${n(cx - rr)} ${n(cy + 3)} a ${n(rr)} ${n(rr)} 0 0 1 ${n(rr * 2)} 0 z`
@@ -3087,7 +3159,13 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
           const yAbove = turnedCan ? cy - rr - 18 : Y(topR) - P * 0.55,
                 yBelow = turnedCan ? cy + rr + 23 : Y(botR) + P * 0.75;
           // pushed that far out, only row f (the channel above it) has room overhead
-          const up = turnedCan && isBread(board) ? topR === board.bands[1][0] : above;
+          let up = turnedCan && isBread(board) ? topR === board.bands[1][0] : above;
+          /* A TO-92 transistor lying along a row bulges a full pitch to its
+             round side, so its label goes on the flat side, whichever that is. */
+          if (fp.sym === "to92" && topR === botR) {
+            const c = cells.pins.find(z => z.pin === "c"), e = cells.pins.find(z => z.pin === "e");
+            if (c && e) up = e.hole.c < c.hole.c;
+          }
           layers.id += `<text class="sbd-id" x="${n(X(midC))}" ` +
             `y="${n(up ? yAbove : yBelow)}" ` +
             `text-anchor="middle">${esc(p.id)}</text>`;
@@ -3633,6 +3711,25 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     return { svg: s, b: [x - r - 14, y], c: [x + 10, y - r - 12], e: [x + 10, y + r + 12] };
   }
 
+  /* PNP transistor: the same drawing turned over — emitter at the top, where
+     +5 V comes in, and its arrow pointing IN towards the base bar. */
+  function pnp(x, y, o) {
+    o = o || {};
+    const r = 20, bx = x - 7;
+    let s = `<circle class="sbd-part" cx="${n(x)}" cy="${n(y)}" r="${r}"/>` +
+            wire([[bx, y - 11], [bx, y + 11]]) +
+            wire([[x - r - 14, y], [bx, y]]) +
+            wire([[bx, y - 6], [x + 10, y - 15], [x + 10, y - r - 12]]) +   // emitter
+            wire([[bx, y + 6], [x + 10, y + 15], [x + 10, y + r + 12]]);    // collector
+    const dx = 17 / Math.hypot(17, 9), dy = -9 / Math.hypot(17, 9);
+    const at = t => [bx + 17 * t, y - 6 - 9 * t];
+    const [tx, ty] = at(0.3), [kx, ky] = at(0.72), w = 3.4;
+    s += `<polygon class="sbd-node" points="${n(tx)},${n(ty)} ${n(kx - dy * w)},${n(ky + dx * w)} ` +
+         `${n(kx + dy * w)},${n(ky - dx * w)}"/>`;
+    if (o.label) s += text(x + r + 6, y - 4, o.label, { anchor: "start" });
+    return { svg: s, b: [x - r - 14, y], e: [x + 10, y - r - 12], c: [x + 10, y + r + 12] };
+  }
+
   /* SPST switch: two contacts and a hinged blade.  Takes a direction for the
      same reason the sounder and the motor do — drawn horizontal-only, a switch
      in a vertical run has the wire passing straight through it and its own
@@ -3985,6 +4082,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     ecap: { w: 60, h: 64, d: (x, y) => ecap(x + 5, y, { span: 56 }) },
     pot:  { w: 80, h: 52, d: (x, y) => pot(x, y - 9, {}) },
     tr:   { w: 76, h: 70, d: (x, y) => npn(x - 4, y, {}).svg },
+    trp:  { w: 76, h: 70, d: (x, y) => pnp(x - 4, y, {}).svg },
     fet:  { w: 76, h: 62, d: (x, y) => mosfet(x, y, {}) },
     sw:   { w: 64, h: 42, d: (x, y) => spdt(x, y, {}) },
 
@@ -4018,7 +4116,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
      schedule uses for exactly the same reason. */
   function symbolKey(c) {
     if (!c) return null;
-    if (c.key) return c.key;
+    if (c.key) return { tr92: "tr", trp92: "trp" }[c.key] || c.key;
     const fp = c.footprint || "";
     if (/^dip-/.test(fp)) return THUMBS[c.part] ? c.part : "ic";
     if (fp === "term-1")
@@ -4030,7 +4128,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     }
     const fam = (/^([a-z]+)-/.exec(fp) || [])[1];
     return { res: "res", ldr: "ldr", ther: "ther", led: "led", cap: "cap", ecap: "ecap",
-             diode: "dio", npn: "tr", mosfet: "fet", pot: "pot", spdt: "sw" }[fam] || null;
+             diode: "dio", npn: "tr", pnp: "trp", mosfet: "fet", pot: "pot", spdt: "sw" }[fam] || null;
   }
 
   // the thumbnail as a standalone <svg>, or "" if nothing is drawn for it
@@ -4048,7 +4146,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
                        nandGate, norGate, xorGate,
                        icBlock, opamp, ecap, cap, diode, pot, mosfet, lamp, speaker, fuse,
                        relay, solenoid, spdt,
-                       ldr, thermistor, npn, sw, sounder, motor, term, chip, arrow, wrap, DEFS,
+                       ldr, thermistor, npn, pnp, sw, sounder, motor, term, chip, arrow, wrap, DEFS,
                        symbol, symbolKey, THUMBS };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
@@ -6056,8 +6154,14 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     { key: "ecap", prefix: "C",   footprint: "ecap-2", sub: "electrolytic — mind the + end",
       name: "electrolytic capacitor" },
     { key: "tr",   prefix: "Q",   footprint: "npn-can", sub: "metal can: c top, b right, e bottom",
-      name: "NPN transistor" },
-    { key: "fet",  prefix: "Q",   footprint: "mosfet-3", sub: "TO-220: g, d, s",
+      name: "NPN transistor (can)" },
+    { key: "tr92",  prefix: "Q",  footprint: "npn-92", sub: "BC547B: flat face to you, legs c, b, e",
+      name: "NPN transistor (plastic)" },
+    { key: "trp",   prefix: "Q",  footprint: "pnp-can", sub: "2N2905A: c top, b right, e bottom",
+      name: "PNP transistor (can)" },
+    { key: "trp92", prefix: "Q",  footprint: "pnp-92", sub: "BC557B: flat face to you, legs c, b, e",
+      name: "PNP transistor (plastic)" },
+    { key: "fet",  prefix: "Q",   footprint: "mosfet-3", sub: "enhancement, TO-220: g, d, s",
       name: "MOSFET (n-channel)" },
     { key: "ther", prefix: "TH",  footprint: "ther-4", sub: "resistance falls as it warms",
       name: "thermistor", symmetric: true },
@@ -8072,6 +8176,13 @@ const STRIP_CHANGELOG = [
    were tried on a beta page as v3.1 and v3.2; they arrive here together as 3.3,
    because a pupil who never saw the beta has no use for two half-steps. */
 const PLAN_CHANGELOG = [
+  { v: "3.4", date: "2 Oct 2026", what:
+    "<strong>Terminal colours are checked.</strong> An input or output terminal is a wire, and " +
+    "its colour is that wire’s colour. A link wire joined to it must be the same colour, " +
+    "and two joined terminals must match. " +
+    "<strong>New parts:</strong> a <strong>PNP transistor</strong>, and a plastic " +
+    "<strong>TO-92</strong> package for both the NPN and the PNP. Its legs read c, b, e with " +
+    "the flat face towards you." },
   { v: "3.3", date: "25 Sep 2026", what:
     "<strong>New tools, and a how-to guide.</strong> <strong>Undo</strong> and <strong>Redo</strong> " +
     "take back or put back any change — a part, a link wire, a track cut, a test point, even " +
