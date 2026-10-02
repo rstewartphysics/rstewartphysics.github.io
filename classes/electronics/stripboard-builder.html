@@ -1273,6 +1273,11 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
     "pnp-92":  { pins: [{ pin: "c", dr: 0, dc: 0 }, { pin: "b", dr: 0, dc: 1 },
                         { pin: "e", dr: 0, dc: 2 }],
                  body: [], symmetric: false, kind: "to92", sym: "to92" },
+    /* The 2N7000 (Rapid 47-0180): an n-channel enhancement MOSFET in a TO-92,
+       legs s, g, d with the flat face towards you (Microchip's data sheet). */
+    "mosfet-92": { pins: [{ pin: "s", dr: 0, dc: 0 }, { pin: "g", dr: 0, dc: 1 },
+                          { pin: "d", dr: 0, dc: 2 }],
+                 body: [], symmetric: false, kind: "to92", sym: "to92" },
     // a 3-leg preset potentiometer: track ends either side, wiper in the middle
     "pot-3":   { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "w", dr: 0, dc: 1 },
                         { pin: "2", dr: 0, dc: 2 }],
@@ -2027,12 +2032,21 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
         if (!byRootForColour.has(root)) byRootForColour.set(root, []);
         byRootForColour.get(root).push(lname(l));
       }
+      /* A terminal is a wire too, so two terminals on different signals in one
+         colour are a reused colour like two links are (RS, 2 Oct 2026). */
+      for (const [root, ts] of termsAt)
+        for (const t of ts) {
+          if (!byColour.has(t.colour)) byColour.set(t.colour, new Map());
+          const m = byColour.get(t.colour);
+          if (!m.has(root)) m.set(root, []);
+          m.get(root).push(t.id);
+        }
       for (const [colour, roots] of byColour) {
         if (roots.size < 2) continue;
         const allLinks = Array.from(roots.values()).reduce((a, b) => a.concat(b), []);
         faults.push({ rank: 0.6, code: "colour-reused",
           msg: `${colour[0].toUpperCase()}${colour.slice(1)} is used for ${roots.size} different ` +
-               `signals (${allLinks.join(", ")}). Give each signal its own link colour.`, refs: [] });
+               `signals (${allLinks.join(", ")}). Give each signal its own wire colour.`, refs: [] });
       }
     }
 
@@ -3089,7 +3103,9 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
        round too.  The case is big enough that all three legs come out of it,
        and the leg letters are printed on the case, as on the can — outside it
        they collided with the item ID whenever the flat face pointed up. */
-    const ce = ["c", "e"].map(k => cells.pins.find(z => z.pin === k));
+    // first and last leg in footprint order: c..e on a transistor, s..d on a 2N7000
+    const fpEnds = [fp.pins[0].pin, fp.pins[fp.pins.length - 1].pin];
+    const ce = fp.sym === "to92" ? fpEnds.map(k => cells.pins.find(z => z.pin === k)) : [];
     if (ce[0] && ce[1]) {
       const ex = X(ce[1].hole.c) - X(ce[0].hole.c), ey = Y(ce[1].hole.r) - Y(ce[0].hole.r);
       const len = Math.hypot(ex, ey) || 1, ux = ex / len, uy = ey / len;
@@ -3100,7 +3116,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
               `${n(ux * rt * 2)} ${n(uy * rt * 2)} z"/>`;
       for (const z of cells.pins) {
         // the end letters step in towards b, or they sit on the curve of the case
-        const k = z.pin === "c" ? 0.3 : z.pin === "e" ? -0.3 : 0;
+        const k = z.pin === fpEnds[0] ? 0.3 : z.pin === fpEnds[1] ? -0.3 : 0;
         const lx = X(z.hole.c) - nx * P * 0.45 + ux * P * k, ly = Y(z.hole.r) - ny * P * 0.45 + uy * P * k;
         // a tspan's own size beats the class's, and paintBody still finds the class
         g += `<text class="sbd-pmark" x="${n(lx)}" y="${n(ly + 3.5)}" ` +
@@ -3284,7 +3300,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
           /* A TO-92 transistor lying along a row bulges a full pitch to its
              round side, so its label goes on the flat side, whichever that is. */
           if (fp.sym === "to92" && topR === botR) {
-            const c = cells.pins.find(z => z.pin === "c"), e = cells.pins.find(z => z.pin === "e");
+            const c = cells.pins.find(z => z.pin === fp.pins[0].pin),
+                  e = cells.pins.find(z => z.pin === fp.pins[fp.pins.length - 1].pin);
             if (c && e) up = e.hole.c < c.hole.c;
           }
           layers.id += `<text class="sbd-id" x="${n(X(midC))}" ` +
@@ -4237,7 +4254,7 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
      schedule uses for exactly the same reason. */
   function symbolKey(c) {
     if (!c) return null;
-    if (c.key) return { tr92: "tr", trp92: "trp" }[c.key] || c.key;
+    if (c.key) return { tr92: "tr", trp92: "trp", fet92: "fet" }[c.key] || c.key;
     const fp = c.footprint || "";
     if (/^dip-/.test(fp)) return THUMBS[c.part] ? c.part : "ic";
     if (fp === "term-1")
@@ -6284,6 +6301,8 @@ title: Learn to Plan a Stripboard Schematic · National 5 Electronics
       name: "PNP transistor (plastic)" },
     { key: "fet",  prefix: "Q",   footprint: "mosfet-3", sub: "enhancement, TO-220: g, d, s",
       name: "MOSFET (n-channel)" },
+    { key: "fet92", prefix: "Q",  footprint: "mosfet-92", sub: "2N7000: flat face to you, legs s, g, d",
+      name: "MOSFET (n-channel, plastic)" },
     { key: "ther", prefix: "TH",  footprint: "ther-4", sub: "resistance falls as it warms",
       name: "thermistor", symmetric: true },
     { key: "dio",  prefix: "D",   footprint: "diode-4", sub: "band marks the cathode",
@@ -8300,10 +8319,10 @@ const PLAN_CHANGELOG = [
   { v: "3.4", date: "2 Oct 2026", what:
     "<strong>Terminal colours are checked.</strong> An input or output terminal is a wire, and " +
     "its colour is that wire’s colour. A link wire joined to it must be the same colour, " +
-    "and two joined terminals must match. " +
-    "<strong>New parts:</strong> a <strong>PNP transistor</strong>, and a plastic " +
-    "<strong>TO-92</strong> package for both the NPN and the PNP. Its legs read c, b, e with " +
-    "the flat face towards you." },
+    "two joined terminals must match, and two different signals may not share a colour. " +
+    "<strong>New parts</strong>, all from Rapid: a <strong>PNP transistor</strong> (2N2905A), " +
+    "plastic TO-92 transistors (BC547B NPN, BC557B PNP — legs c, b, e with the flat face " +
+    "towards you) and a plastic <strong>MOSFET</strong> (2N7000 — legs s, g, d)." },
   { v: "3.3", date: "25 Sep 2026", what:
     "<strong>New tools, and a how-to guide.</strong> <strong>Undo</strong> and <strong>Redo</strong> " +
     "take back or put back any change — a part, a link wire, a track cut, a test point, even " +
