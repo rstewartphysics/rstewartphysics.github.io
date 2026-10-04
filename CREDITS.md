@@ -57,6 +57,29 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - M87*, the first direct image of a black hole — Event Horizon Telescope Collaboration, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87.jpg).
   - Gravitational lens SDSS J1038+4849 — NASA/ESA Hubble, via [NASA Image and Video Library](https://images.nasa.gov/details/GSFC_20171208_Archive_e000791).
   - GPS Block IIF satellite (an artist's impression, not a photograph) — USAF, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Navstar-2F.jpg).
+- **Photographs under open licences** (added 4 October 2026) — the Advanced Higher Physics
+  *Interference 1: Division of Wavefront* slides
+  (`classes/adv/slides/ah-n-interference-1-division-of-wavefront.pdf`), credited on the deck's
+  Credits slide. Resized or cropped to fit; not otherwise changed.
+  - Interfering surface waves on a lake — Markus Pössel, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interfering_surface_waves_on_a_lake.jpg).
+  - Young's own two-source sketch (1803) — Thomas Young, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young_Diffraction.png).
+  - Thomas Young, engraving by Henry Adlard after Thomas Lawrence (Smithsonian Libraries) — Henry Adlard, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young_Thomas_Dibner_collection_Smithsonian_SIL14-Y001-01a.jpg).
+  - A real Young's slits pattern — Graham Beards, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young%27s_slits.jpg).
+  - The Very Large Array radio telescope — Dameon Hudson, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:National_Radio_Astronomy_Observatory_Very_Large_Array_Telescope_(VLA)_-_panoramio.jpg).
+- **Photographs under open licences** (added 4 October 2026) — the Advanced Higher Physics
+  *Interference 2: Division of Amplitude* slides
+  (`classes/adv/slides/ah-n-interference-2-division-of-amplitude.pdf`), credited on the deck's
+  Credits slide. Resized or cropped to fit; not otherwise changed.
+  - A metal crystal with a thin oxide layer (bismuth) — Maxim Bilovitskiy, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bismuth_Crystals.JPG).
+  - Oil film on a wet road — Aniskov, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Maslo%D0%BC%D0%B0%D1%81%D0%BB%D1%8F%D0%BD%D0%BE%D0%B5_%D0%BF%D1%8F%D1%82%D0%BD%D0%BE_%D0%BD%D0%B0_%D0%B0%D1%81%D1%84%D0%B0%D0%BB%D1%8C%D1%82%D0%B52.jpg).
+  - A soap film draining — KarlGaff, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Soap_Film.jpg).
+  - Thin-film colours on a soap bubble — Pksois23, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Thin_Film_Interference_Soap_Bubble.jpg).
+  - Petrol on water in 589 nm light — Zaereth, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Thin_film_interference_gasoline_on_water_%40_589nm.jpg).
+  - Uncoated and coated spectacle lenses — Maximilian Schönherr, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Reflective_and_anti-reflective_lens.jpg).
+  - A spectacle lens, half coated — Mattes, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Vergleich_Entspiegeltes_und_nicht-entspiegeltes_Brillenglas.JPG).
+  - Newton's rings — Ulfbastel, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Newton_rings.jpg).
+  - Isaac Newton, portrait by Godfrey Kneller (1689) — Godfrey Kneller, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Portrait_of_Sir_Isaac_Newton%2C_1689.jpg).
+  - Newton's prism experiment, rebuilt — Sascha Grusche, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Newton%27s_Experimentum_Crucis_%28Grusche_2015%29.jpg).
 - **Institute of Physics Scotland** and the **Perimeter Institute for Theoretical Physics**
   (added 23 September 2026) — 41 slides on the equivalence principle, used **in class only**, with
   their own branding left intact. They are **not published**: the public PDF at
