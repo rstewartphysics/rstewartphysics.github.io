@@ -58,6 +58,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Gravitational lens SDSS J1038+4849 — NASA/ESA Hubble, via [NASA Image and Video Library](https://images.nasa.gov/details/GSFC_20171208_Archive_e000791).
   - GPS Block IIF satellite (an artist's impression, not a photograph) — USAF, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Navstar-2F.jpg).
 - **Photographs under open licences** (added 4 October 2026) — the Advanced Higher Physics
+  *Interference 1: Division of Wavefront* slides
+  (`classes/adv/slides/ah-n-interference-1-division-of-wavefront.pdf`), credited on the deck's
+  Credits slide. Resized or cropped to fit; not otherwise changed.
+  - Interfering surface waves on a lake — Markus Pössel, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interfering_surface_waves_on_a_lake.jpg).
+  - Young's own two-source sketch (1803) — Thomas Young, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young_Diffraction.png).
+  - Thomas Young, engraving by Henry Adlard after Thomas Lawrence (Smithsonian Libraries) — Henry Adlard, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young_Thomas_Dibner_collection_Smithsonian_SIL14-Y001-01a.jpg).
+  - A real Young's slits pattern — Graham Beards, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young%27s_slits.jpg).
+  - The Very Large Array radio telescope — Dameon Hudson, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:National_Radio_Astronomy_Observatory_Very_Large_Array_Telescope_(VLA)_-_panoramio.jpg).
+- **Photographs under open licences** (added 4 October 2026) — the Advanced Higher Physics
   *Interference 2: Division of Amplitude* slides
   (`classes/adv/slides/ah-n-interference-2-division-of-amplitude.pdf`), credited on the deck's
   Credits slide. Resized or cropped to fit; not otherwise changed.
