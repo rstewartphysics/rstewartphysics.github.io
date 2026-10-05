@@ -20,7 +20,7 @@
 
   function fresh() {
     return { roles: [], screen: 0, ticks: {}, text: {}, choice: {}, miss: {}, checked: {},
-      marks: {}, pause: {}, rate: {}, set: {}, tab: {}, cloze: {}, run: {} };
+      marks: {}, pause: {}, rate: {}, set: {}, tab: {}, cloze: {} };
   }
   function load() {
     var s;
@@ -53,6 +53,91 @@
     b.type = "button";
     if (fn) { b.addEventListener("click", fn); }
     return b;
+  }
+  function svg(cls, inner) {
+    var w = el("span", cls);
+    w.setAttribute("aria-hidden", "true");
+    w.innerHTML = '<svg viewBox="0 0 48 48" focusable="false">' + inner + "</svg>";
+    return w;
+  }
+
+  // How the class works on a step. One drawn mark each: ink outline, the tag colour as accent.
+  var MODES = {
+    own: { label: "On your own",
+      ic: '<circle class="a" cx="24" cy="15" r="7"/><path d="M10 41c0-9 6-14 14-14s14 5 14 14"/>' },
+    partner: { label: "With your partner",
+      ic: '<circle cx="15" cy="17" r="6"/><path d="M4 40c0-7 5-12 11-12s11 5 11 12"/>' +
+          '<circle class="a" cx="33" cy="17" r="6"/><path class="a" d="M22 40c0-7 5-12 11-12s11 5 11 12"/>' },
+    team: { label: "With your team",
+      ic: '<circle cx="10" cy="20" r="5"/><path d="M2 40c0-6 3-10 8-10s8 4 8 10"/>' +
+          '<circle cx="38" cy="20" r="5"/><path d="M30 40c0-6 3-10 8-10s8 4 8 10"/>' +
+          '<circle class="a" cx="24" cy="15" r="6"/><path class="a" d="M14 40c0-8 4-13 10-13s10 5 10 13"/>' },
+    board: { label: "Eyes on the board",
+      ic: '<path d="M4 24c5-8 12-12 20-12s15 4 20 12c-5 8-12 12-20 12S9 32 4 24z"/><circle class="a" cx="24" cy="24" r="6"/>' }
+  };
+  var TICK = '<path class="a" d="M10 25l9 9 19-20"/>';
+
+  function modeTag(mode) {
+    var m = MODES[mode];
+    var p = el("p", "pr-mode");
+    p.appendChild(svg("pr-mode-ic", m.ic));
+    p.appendChild(el("span", null, m.label));
+    return p;
+  }
+
+  // The instruction box at the top of every step: how you work, up to 3 steps, Done when.
+  function doBox(sc) {
+    var box = el("div", "pr-do" + (sc.mode ? " mode-" + sc.mode : ""));
+    if (MODES[sc.mode]) { box.appendChild(modeTag(sc.mode)); }
+    if (sc.do) {
+      var ol = el("ol", "pr-do-steps");
+      sc.do.forEach(function (t) { var li = el("li"); rich(t, li); ol.appendChild(li); });
+      box.appendChild(ol);
+    } else if (sc.team) {
+      box.appendChild(para("pr-team", sc.team));
+    }
+    if (sc.done) {
+      var dn = el("p", "pr-done");
+      dn.appendChild(svg("pr-done-ic", TICK));
+      var t = el("span");
+      t.appendChild(el("strong", null, "Done when: "));
+      rich(sc.done, t);
+      dn.appendChild(t);
+      box.appendChild(dn);
+    }
+    return box;
+  }
+
+  function turnName(t) {
+    if (t.name) { return t.name; }
+    return role(t.who).name;
+  }
+  function turnHas(t, rid) {
+    return [].concat(t.who || []).indexOf(rid) >= 0;
+  }
+  // Who goes when, left to right; the pupil's own turns are marked.
+  function turnStrip(sc, mine) {
+    var ol = el("ol", "pr-turns");
+    ol.setAttribute("aria-label", "Who goes when");
+    sc.turns.forEach(function (t, i) {
+      var you = mine.some(function (r) { return turnHas(t, r); });
+      var li = el("li", you ? "is-you" : null);
+      if (i) { var arr = el("span", "pr-turn-arrow", "\u25B8"); arr.setAttribute("aria-hidden", "true"); li.appendChild(arr); }
+      li.appendChild(el("strong", null, turnName(t)));
+      if (t.text) { li.appendChild(el("span", "pr-turn-text", t.text)); }
+      if (you) { li.appendChild(el("span", "visually-hidden", " (you)")); }
+      ol.appendChild(li);
+    });
+    return ol;
+  }
+  function startWhen(sc, rid) {
+    if (!sc.turns) { return null; }
+    for (var i = 0; i < sc.turns.length; i++) {
+      if (turnHas(sc.turns[i], rid)) {
+        return i === 0 ? "You start." : "Start when: the " + turnName(sc.turns[i - 1]) + " is done.";
+      }
+    }
+    return null;
   }
   function img(src, alt, cls) {
     var i = el("img", cls || "");
@@ -596,35 +681,63 @@
     return box;
   };
 
+  // The job chooser. Jobs sit in their pairs; a tap marks the job with a tick; a line says
+  // whose partner you are; the Next button sits right under the cards.
+  function roleButton(r) {
+    var b = btn("pr-role", null, function () {
+      var k = S.roles.indexOf(r.id);
+      if (k >= 0) { S.roles.splice(k, 1); }
+      else {
+        if (S.roles.length >= 2) { S.roles.shift(); }
+        S.roles.push(r.id);
+      }
+      save();
+      render(false);
+      var again = root.querySelector('.pr-role[data-role="' + r.id + '"]');
+      if (again) { again.focus(); }
+      say(mineLine() || "No job chosen.");
+    });
+    b.dataset.role = r.id;
+    var on = S.roles.indexOf(r.id) >= 0;
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.appendChild(img(r.icon, ""));
+    var t = el("span", "pr-role-text");
+    t.appendChild(el("strong", null, r.name));
+    t.appendChild(el("span", null, r.line));
+    b.appendChild(t);
+    b.appendChild(svg("pr-pick", on ? TICK : ""));
+    return b;
+  }
+  function mineLine() {
+    if (!S.roles.length) { return ""; }
+    var names = S.roles.map(function (x) { return role(x).name; });
+    if (S.roles.length > 1) { return "Your jobs: " + names.join(" and ") + "."; }
+    var me = role(S.roles[0]);
+    var mate = me.pair && DATA.roles.filter(function (x) { return x.pair === me.pair && x.id !== me.id; })[0];
+    return "Your job: " + me.name + "." + (mate ? " Your partner: the " + mate.name + "." : "");
+  }
   BLOCK.roles = function (b) {
     var box = el("div", "pr-roles");
-    var h = el("p", "pr-q");
-    rich(b.q || "Choose your role. In a team of 3, one person chooses 2.", h);
-    box.appendChild(h);
-    var grid = el("div", "pr-role-grid");
-    DATA.roles.forEach(function (r, i) {
-      var b = btn("pr-role", null, function () {
-        var k = S.roles.indexOf(r.id);
-        if (k >= 0) { S.roles.splice(k, 1); }
-        else {
-          if (S.roles.length >= 2) { S.roles.shift(); }
-          S.roles.push(r.id);
-        }
-        save();
-        render(false);
-        var again = root.querySelectorAll(".pr-role")[i];
-        if (again) { again.focus(); }
-        say(S.roles.length ? "Your roles: " + S.roles.map(function (x) { return role(x).name; }).join(" and ") + "." : "No role chosen.");
+    if (b.q) { box.appendChild(para("pr-q", b.q)); }
+    var groups = DATA.pairs || [{ id: null }];
+    groups.forEach(function (g) {
+      var sec = el("div", "pr-pair");
+      if (g.name) { sec.appendChild(el("p", "pr-pair-name", g.name)); }
+      var grid = el("div", "pr-role-grid");
+      DATA.roles.forEach(function (r) {
+        if (g.id === null || r.pair === g.id) { grid.appendChild(roleButton(r)); }
       });
-      b.setAttribute("aria-pressed", S.roles.indexOf(r.id) >= 0 ? "true" : "false");
-      b.appendChild(img(r.icon, ""));
-      var t = el("span", "pr-role-text");
-      t.appendChild(el("strong", null, r.name));
-      t.appendChild(el("span", null, r.line));
-      b.appendChild(t);
-      grid.appendChild(b);
+      sec.appendChild(grid);
+      if (g.note) { sec.appendChild(para("pr-pair-note", g.note)); }
+      box.appendChild(sec);
     });
-    box.appendChild(grid);
+    var foot = el("div", "pr-roles-foot");
+    var line = el("p", "pr-mine", mineLine() || "No job chosen yet.");
+    foot.appendChild(line);
+    if (S.roles.length) {
+      foot.appendChild(btn("pr-btn pr-btn-main", "I have my job \u2192 Next", function () { go(S.screen + 1); }));
+    }
+    box.appendChild(foot);
     return box;
   };
 
@@ -709,6 +822,7 @@
   function side(sc) {
     var tabs = [];
     if (sc.fig) { tabs.push({ id: "pic", label: "Picture" }); }
+    if (sc.ican) { tabs.push({ id: "ican", label: "I can" }); }
     if (sc.help) { tabs.push({ id: "help", label: "Help" }); }
     if (sc.wait) { tabs.push({ id: "wait", label: "Waiting?" }); }
     if (sc.challenge) { tabs.push({ id: "ch", label: "Challenge" }); }
@@ -735,6 +849,7 @@
       });
       panel.textContent = "";
       if (id === "pic") { panel.appendChild(figure(sc.fig)); }
+      if (id === "ican") { blocks(sc.ican, sc.id + "-ican", panel); }
       if (id === "help") { blocks(sc.help, sc.id + "-help", panel); }
       if (id === "wait") { blocks(sc.wait, sc.id + "-wait", panel); }
       if (id === "ch") {
@@ -778,28 +893,22 @@
     if (all && !was) { say("All your jobs are ticked. Waiting for your team? Try the Challenge."); }
   }
 
-  function runSwitch(sc, run) {
-    var box = el("div", "pr-runs");
-    var row = el("div", "pr-options");
-    row.setAttribute("role", "group");
-    row.setAttribute("aria-label", "Which run");
-    [1, 2].forEach(function (r) {
-      var x = btn("pr-option", "Run " + r, function () {
-        if (r === run) { return; }
-        S.run[sc.id] = r;
-        save();
-        render(false);
-        var again = document.querySelectorAll(".pr-runs .pr-option")[r - 1];
-        if (again) { again.focus(); }
-        say(r === 2 ? "Run 2. Swap jobs with your partner. Your new job is on the card." : "Run 1.");
-      });
-      x.setAttribute("aria-pressed", r === run ? "true" : "false");
-      row.appendChild(x);
+  // A swap screen: the same team, new jobs. Shown as a box above the cards so no one misses it.
+  function swapBox(sc) {
+    var box = el("div", "pr-swap");
+    box.setAttribute("role", "note");
+    box.appendChild(el("p", "pr-swap-title", "Swap jobs"));
+    S.roles.forEach(function (r) {
+      var to = sc.swap[r] || r;
+      var line = el("p", "pr-swap-line");
+      line.appendChild(img(role(r).icon, "", "pr-swap-ic"));
+      line.appendChild(el("span", null, role(r).name));
+      line.appendChild(el("span", "pr-swap-arrow", "\u2192"));
+      line.appendChild(img(role(to).icon, "", "pr-swap-ic"));
+      line.appendChild(el("strong", null, role(to).name));
+      box.appendChild(line);
     });
-    box.appendChild(row);
-    var note = el("p", "pr-run-note");
-    rich(run === 2 ? sc.runs.note2 : sc.runs.note1, note);
-    box.appendChild(note);
+    if (sc.swapNote) { box.appendChild(para("pr-p", sc.swapNote)); }
     return box;
   }
 
@@ -818,15 +927,7 @@
     if (sc.page) { meta.appendChild(el("span", "pr-page", sc.page)); }
     if (meta.children.length) { head.appendChild(meta); }
     wrap.appendChild(head);
-    var lead = el("div", "pr-lead");
-    if (sc.team) { lead.appendChild(para("pr-team", sc.team)); }
-    if (sc.done) {
-      var dn = el("p", "pr-done");
-      dn.appendChild(el("strong", null, "Done when: "));
-      rich(sc.done, dn);
-      lead.appendChild(dn);
-    }
-    if (lead.children.length) { wrap.appendChild(lead); }
+    if (sc.mode || sc.do || sc.team || sc.done) { wrap.appendChild(doBox(sc)); }
 
     tickIds = [];
     waitingTab = null;
@@ -852,10 +953,10 @@
     blocks(sc.main, sc.id + "-m", main);
 
     if (sc.roles) {
-      var run = sc.runs ? (S.run[sc.id] || 1) : 1;
-      if (sc.runs) { main.appendChild(runSwitch(sc, run)); }
-      var mine = run === 2 ? S.roles.map(function (r) { return sc.runs.swap[r] || r; }) : S.roles;
+      if (sc.swapBox) { main.appendChild(swapBox(sc)); }
+      var mine = sc.swap ? S.roles.map(function (r) { return sc.swap[r] || r; }) : S.roles;
       var shown = mine.filter(function (r, i) { return sc.roles[r] && mine.indexOf(r) === i; });
+      if (sc.turns) { main.appendChild(turnStrip(sc, shown)); }
       var cards = el("div", "pr-cards");
       cards.style.setProperty("--n", String(Math.max(1, shown.length)));
       shown.forEach(function (rid) {
@@ -864,19 +965,21 @@
         var top = el("header", "pr-card-head");
         top.appendChild(img(role(rid).icon, ""));
         top.appendChild(el("strong", null, role(rid).name));
+        var sw = startWhen(sc, rid);
+        if (sw) { top.appendChild(el("span", "pr-start", sw)); }
         c.appendChild(top);
         var list = el("div", "pr-items");
         sc.roles[rid].forEach(function (b, j) {
           // A role's opening link sits in its header: saves a row on the busiest screens.
           if (j === 0 && b.type === "link") { top.appendChild(BLOCK.link(b)); return; }
-          var id = (b.id || sc.id + "-" + rid + "-" + j) + (run === 2 ? "-r2" : "");
+          var id = b.id || sc.id + "-" + rid + "-" + j;
           if (b.type === "step" || b.type === "booklet") { tickIds.push(id); }
           list.appendChild(block(b, id));
         });
         c.appendChild(list);
         cards.appendChild(c);
       });
-      if (!shown.length) { cards.appendChild(para("pr-p", "Choose a role on screen 1 to see your job.")); }
+      if (!shown.length) { cards.appendChild(para("pr-p", "Choose your job on step 1 to see your card.")); }
       main.appendChild(cards);
     }
     body.appendChild(main);
@@ -929,7 +1032,7 @@
   function bottomBar() {
     var nav = el("div", "pr-nav");
     var tools = el("div", "pr-tools");
-    if (S.screen > 0) { tools.appendChild(btn("pr-btn pr-btn-quiet", "Change my roles", function () { go(0); })); }
+    if (S.screen > 0) { tools.appendChild(btn("pr-btn pr-btn-quiet", "Change my job", function () { go(0); })); }
     var armed = false;
     var clear = btn("pr-btn pr-btn-quiet", "Clear and start again", function () {
       if (!armed) {
@@ -945,7 +1048,7 @@
       try { localStorage.removeItem(KEY); } catch (e) { /* nothing saved */ }
       S = fresh();
       render(true);
-      say("Cleared. Choose your role.");
+      say("Cleared. Choose your job.");
     });
     tools.appendChild(clear);
     tools.appendChild(el("span", "pr-saved-note", "Saved on this device only"));
@@ -954,8 +1057,8 @@
     var move = el("div", "pr-move");
     if (S.screen > 0) { move.appendChild(btn("pr-btn", "Back a step", function () { go(S.screen - 1); })); }
     if (S.screen < N - 1) {
-      var next = btn("pr-btn pr-btn-main", "Next step", function () { go(S.screen + 1); });
-      if (S.screen === 0 && !S.roles.length) { next.disabled = true; next.textContent = "Choose a role first"; }
+      var next = btn("pr-btn pr-btn-main", "Next: " + DATA.screens[S.screen + 1].title + " \u2192", function () { go(S.screen + 1); });
+      if (S.screen === 0 && !S.roles.length) { next.disabled = true; next.textContent = "Choose your job first"; }
       move.appendChild(next);
     }
     nav.appendChild(move);
@@ -1000,6 +1103,197 @@
     mapIds(sc.challenge, k, sc.id + "-ch");
     Object.keys(sc.roles || {}).forEach(function (r) { mapIds(sc.roles[r], k, sc.id + "-" + r); });
   });
+
+  // ------------------------------------------------------------ teacher view (projector)
+  // Same lesson data, one big step at a time: the instruction box, who goes when, the picture
+  // and a step timer. No answers are shown. The passcode only keeps pupils out of casual reach:
+  // the page is public, so nothing secret may ever be put on it.
+  function teacher() {
+    var TK = KEY + "-teacher";
+    var want = root.dataset.hash;
+    var T = { screen: 0 };
+    try { T.screen = Math.max(0, Math.min(N - 1, +localStorage.getItem(TK) || 0)); } catch (e) { /* nothing saved */ }
+    var left = 0, tick = null, clock = null;
+
+    function hash(str) {
+      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function (buf) {
+        return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+      });
+    }
+    function unlocked() {
+      try { return localStorage.getItem(TK + "-ok") === want; } catch (e) { return false; }
+    }
+    function gate() {
+      root.textContent = "";
+      var f = el("form", "pr-gate");
+      f.appendChild(el("h2", null, "Teacher view"));
+      var lab = el("label", null, "Passcode");
+      lab.htmlFor = "prPass";
+      f.appendChild(lab);
+      var row = el("div", "pr-gate-row");
+      var inp = el("input");
+      inp.id = "prPass";
+      inp.type = "password";
+      inp.inputMode = "numeric";
+      inp.autocomplete = "off";
+      row.appendChild(inp);
+      var go1 = el("button", "pr-btn pr-btn-main", "Open");
+      go1.type = "submit";
+      row.appendChild(go1);
+      f.appendChild(row);
+      f.appendChild(el("p", "pr-saved-note", "Once open, the arrow keys move between steps."));
+      var msg = el("p", "pr-gate-msg");
+      msg.setAttribute("aria-live", "polite");
+      f.appendChild(msg);
+      f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!(window.crypto && crypto.subtle)) { msg.textContent = "Open this page from the website (https)."; return; }
+        hash("pr-teacher:" + inp.value.trim()).then(function (h) {
+          if (h === want) {
+            try { localStorage.setItem(TK + "-ok", want); } catch (err) { /* asks again next time */ }
+            show(true);
+          } else {
+            msg.textContent = "That passcode is not right.";
+            inp.value = "";
+            inp.focus();
+          }
+        });
+      });
+      root.appendChild(f);
+      inp.focus();
+    }
+
+    function fmt(n) { return Math.floor(n / 60) + ":" + ("0" + (n % 60)).slice(-2); }
+    function stop() { if (tick) { clearInterval(tick); tick = null; } }
+    function paint() {
+      if (!clock) { return; }
+      clock.textContent = fmt(left);
+      clock.classList.toggle("is-over", left === 0);
+    }
+    function move(k) {
+      T.screen = Math.max(0, Math.min(N - 1, k));
+      try { localStorage.setItem(TK, String(T.screen)); } catch (e) { /* not saved */ }
+      stop();
+      show(true);
+    }
+
+    function show(focus) {
+      var sc = DATA.screens[T.screen];
+      left = (sc.mins || 0) * 60;
+      root.textContent = "";
+
+      var bar = el("div", "pr-bar");
+      var dots = el("ol", "pr-dots");
+      dots.setAttribute("aria-label", "Steps of the lesson");
+      DATA.screens.forEach(function (x, k) {
+        var li = el("li", k === T.screen ? "is-now" : (k < T.screen ? "is-done" : ""));
+        var b = btn(null, String(k + 1), function () { move(k); });
+        b.setAttribute("aria-label", "Step " + (k + 1) + ": " + x.title);
+        if (k === T.screen) { b.setAttribute("aria-current", "step"); }
+        li.appendChild(b);
+        dots.appendChild(li);
+      });
+      bar.appendChild(dots);
+      var sf = el("p", "pr-safety");
+      sf.appendChild(img("icon_safety.png", ""));
+      var st = el("span");
+      st.appendChild(el("strong", null, "SAFETY "));
+      st.appendChild(document.createTextNode(sc.safety || DATA.safety));
+      sf.appendChild(st);
+      bar.appendChild(sf);
+      root.appendChild(bar);
+
+      var wrap = el("section", "pr-screen pr-teach");
+      var head = el("div", "pr-head");
+      var h = el("h2", null, (T.screen + 1) + ". " + sc.title);
+      h.id = "prTitle";
+      head.appendChild(h);
+      if (sc.page) { head.appendChild(el("p", "pr-meta", sc.page)); }
+      wrap.appendChild(head);
+
+      var body = el("div", "pr-body" + (sc.fig ? "" : " is-single"));
+      var main = el("div", "pr-main");
+      if (sc.pause) {
+        var pz = el("div", "pr-do mode-board");
+        pz.appendChild(modeTag("board"));
+        pz.appendChild(para("pr-p", sc.pause.teacher || "Eyes on the board first."));
+        main.appendChild(pz);
+      }
+      if (sc.mode || sc.do || sc.done) { main.appendChild(doBox(sc)); }
+      if (sc.swapBox && sc.swap) {
+        var sw = el("div", "pr-swap");
+        sw.appendChild(el("p", "pr-swap-title", "Swap jobs"));
+        var seen = {};
+        DATA.roles.forEach(function (r) {
+          var to = sc.swap[r.id];
+          if (!to || seen[r.id]) { return; }
+          seen[r.id] = seen[to] = true;
+          var line = el("p", "pr-swap-line");
+          line.appendChild(img(r.icon, "", "pr-swap-ic"));
+          line.appendChild(el("strong", null, r.name));
+          line.appendChild(el("span", "pr-swap-arrow", "\u2194"));
+          line.appendChild(img(role(to).icon, "", "pr-swap-ic"));
+          line.appendChild(el("strong", null, role(to).name));
+          sw.appendChild(line);
+        });
+        main.appendChild(sw);
+      }
+      if (sc.turns) { main.appendChild(turnStrip(sc, [])); }
+
+      var tm = el("div", "pr-timer");
+      clock = el("div", "pr-clock");
+      clock.setAttribute("role", "timer");
+      tm.appendChild(clock);
+      var startB = btn("pr-btn", "Start timer", function () {
+        if (tick) { stop(); startB.textContent = "Start timer"; return; }
+        if (left === 0) { return; }
+        startB.textContent = "Pause timer";
+        tick = setInterval(function () {
+          left = Math.max(0, left - 1);
+          paint();
+          if (!left) { stop(); startB.textContent = "Start timer"; }
+        }, 1000);
+      });
+      tm.appendChild(startB);
+      tm.appendChild(btn("pr-btn pr-btn-quiet", "Reset", function () {
+        stop(); startB.textContent = "Start timer"; left = (sc.mins || 0) * 60; paint();
+      }));
+      main.appendChild(tm);
+      paint();
+      body.appendChild(main);
+      if (sc.fig) {
+        var col = el("div", "pr-sidecol");
+        col.appendChild(figure(sc.fig));
+        body.appendChild(col);
+      }
+      wrap.appendChild(body);
+      root.appendChild(wrap);
+
+      var nav = el("div", "pr-nav");
+      var mv = el("div", "pr-move");
+      if (T.screen > 0) { mv.appendChild(btn("pr-btn", "Back a step", function () { move(T.screen - 1); })); }
+      if (T.screen < N - 1) {
+        mv.appendChild(btn("pr-btn pr-btn-main", "Next: " + DATA.screens[T.screen + 1].title + " \u2192", function () { move(T.screen + 1); }));
+      }
+      if (DATA.pupilWhere) {
+        var wh = el("p", "pr-where");
+        wh.appendChild(el("strong", null, "Pupils find this lesson at: "));
+        rich(DATA.pupilWhere, wh);
+        nav.appendChild(wh);
+      }
+      nav.appendChild(mv);
+      root.appendChild(nav);
+      if (focus) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (!unlocked() || /INPUT|TEXTAREA/.test((e.target.tagName || ""))) { return; }
+      if (e.key === "ArrowRight") { move(T.screen + 1); }
+      if (e.key === "ArrowLeft") { move(T.screen - 1); }
+    });
+    if (unlocked()) { show(false); } else { gate(); }
+  }
+  if (root.dataset.view === "teacher") { teacher(); return; }
 
   if (window.Progress && DATA.badge) {
     try { window.Progress.markSeen(DATA.badge.id); } catch (e) { /* progress engine missing */ }
