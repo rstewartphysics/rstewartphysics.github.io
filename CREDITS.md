@@ -285,6 +285,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - The fish ladder at Pitlochry Dam — © Thomas Nugent, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/8096211). Resized.
   - Low-energy LED street lights — © Roger A Smith, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/5634608). Resized.
 
+- **S3 Engineering Science *Pneumatics, Lesson 1 practical*** (added 5 October 2026) — the page
+  `classes/s3-engineering/pneumatics/practical-1.html`. The gate circuit, the kit picture and the
+  bench card steps are drawn by R Stewart, adapted from the Matrix CP2080 Pneumatics Essentials
+  worksheets (© Matrix Technology Solutions Limited); no Matrix images are copied. The simulation
+  (NoStrainSim) is linked, not embedded. The park in the job card is made up.
+  - Bus emergency door release — ZidaneHartono, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BPSWA_Leyland_Panther_PSUR1A-1R_(Howard_Porter)_1BPS988-Emergency_Door_Release.jpg). Resized.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
