@@ -295,6 +295,7 @@
     tools.appendChild(fl);
     if (roster.length) {
       tools.appendChild(btn("pr-btn pr-btn-quiet", "Number list", function () { numberList(); }));
+      if (CFG.card) { tools.appendChild(btn("pr-btn pr-btn-quiet", "Print log-in cards", function () { loginCards(); })); }
       tools.appendChild(btn("pr-btn pr-btn-quiet", "Forget the class list", function () {
         roster = [];
         try { localStorage.removeItem(RK); } catch (e) { /* gone */ }
@@ -560,6 +561,58 @@
       wrap.appendChild(sec);
     });
     root.appendChild(wrap);
+  }
+
+  // ------------------------------------------------------------ log-in cards (teacher, 6 Oct): 8 per A4, a class per sheet
+  // Built here from the class list, printed from this laptop; nothing is saved or sent.
+  function bold(text, into) {
+    String(text).split("**").forEach(function (part, i) {
+      if (!part) { return; }
+      into.appendChild(i % 2 ? el("strong", null, part) : document.createTextNode(part));
+    });
+    return into;
+  }
+  function loginCards() {
+    stop();
+    root.textContent = "";
+    var C = CFG.card;
+    var bar = el("div", "tr-tools tr-noprint");
+    bar.appendChild(btn("pr-btn", "Back to the class", function () { document.body.classList.remove("tr-cards-on"); dashboard(); refresh(); }));
+    bar.appendChild(btn("pr-btn pr-btn-main", "Print", function () { window.print(); }));
+    bar.appendChild(el("p", "tr-status", "8 cards on each A4 sheet, each class on its own sheets. Cut along the dashed lines."));
+    root.appendChild(bar);
+    var wrap = el("div", "tr-cards");
+    var groups = teachers().concat(roster.some(function (p) { return !p.teacher; }) ? [""] : []);
+    if (filter !== "all") { groups = [filter]; }
+    groups.forEach(function (t) {
+      var g = el("section", "tr-card-group");
+      g.setAttribute("aria-label", (t || "No teacher") + ": log-in cards");
+      g.appendChild(el("h2", "tr-group-name tr-noprint", (t || "No teacher") + ": log-in cards"));
+      roster.filter(function (p) { return p.teacher === t; }).forEach(function (p) {
+        var c = el("article", "tr-logincard");
+        var top = el("div", "tr-lc-top");
+        top.appendChild(el("span", "tr-lc-name", p.first + " " + p.last.charAt(0) + "."));
+        top.appendChild(el("span", "tr-lc-topic", C.topic || ""));
+        c.appendChild(top);
+        var mid = el("div", "tr-lc-mid");
+        mid.appendChild(el("span", "tr-lc-label", "Your number"));
+        mid.appendChild(el("span", "tr-lc-num", p.num));
+        c.appendChild(mid);
+        var qr = el("div", "tr-lc-qr");
+        qr.innerHTML = C.qr;
+        var qs = qr.querySelector("svg");
+        if (qs) { qs.setAttribute("role", "img"); qs.setAttribute("aria-label", "QR code for " + C.short); }
+        c.appendChild(qr);
+        var ol = el("ol", "tr-lc-steps");
+        (C.steps || []).forEach(function (st) { ol.appendChild(bold(st, el("li"))); });
+        c.appendChild(ol);
+        g.appendChild(c);
+      });
+      wrap.appendChild(g);
+    });
+    root.appendChild(wrap);
+    document.body.classList.add("tr-cards-on");
+    say("Log-in cards ready to print: " + roster.length + " cards.");
   }
 
   // ------------------------------------------------------------ downloads (names are added here, on this laptop)
