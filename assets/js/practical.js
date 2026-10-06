@@ -37,8 +37,10 @@
   // Every change goes through save(), so it is also where Next and the step lines repaint.
   var refreshers = [];
   function save() {
+    S.savedAt = Date.now();
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* private mode: work still shows */ }
     refreshers.forEach(function (f) { f(); });
+    queueSync(false);
   }
   function say(msg) {
     if (!live) { return; }
@@ -915,7 +917,8 @@
       : listDone(sc.main, sc.id + "-m");
     ok = ok && listDone(sc.after, sc.id + "-a");
     if (sc.roles) {
-      ok = ok && mineOn(sc).every(function (rid) {
+      // no job chosen yet means the job cards are not done (they would pass "every" on an empty list)
+      ok = ok && mineOn(sc).length > 0 && mineOn(sc).every(function (rid) {
         return sc.roles[rid].every(function (b, j) { return itemDone(b, b.id || sc.id + "-" + rid + "-" + j); });
       });
     }
@@ -1308,6 +1311,7 @@
       try { localStorage.removeItem(KEY); } catch (e) { /* nothing saved */ }
       S = fresh();
       openPanel = null;
+      save();
       render(true);
       say("Cleared.");
     });
@@ -1317,9 +1321,20 @@
       a.href = DATA.back.href;
       menu.appendChild(a);
     }
-    menu.appendChild(el("p", "pr-saved-note", "Your work is saved on this device only."));
+    if (TR && WHO && WHO.num) {
+      var lo = btn("pr-btn pr-btn-quiet", "Log out (number " + WHO.num + ")", function () { logOut(); });
+      menu.appendChild(lo);
+    } else if (TR) {
+      menu.appendChild(btn("pr-btn pr-btn-quiet", "Log in with my number", function () { setWho(null); render(true); }));
+    }
+    menu.appendChild(el("p", "pr-saved-note pr-sync-note", syncText()));
     more.appendChild(menu);
     left.appendChild(more);
+    if (TR && WHO && WHO.num) {
+      var chip = el("span", "pr-who", "No. " + WHO.num);
+      chip.setAttribute("aria-label", "Logged in as number " + WHO.num);
+      left.appendChild(chip);
+    }
     if (HOWTO >= 0) {
       var q = btn("pr-btn pr-btn-quiet pr-tb-how", "?", function () { go(HOWTO); startTour(); });
       q.setAttribute("aria-label", "How this page works");
@@ -1383,9 +1398,12 @@
 
   function go(k) {
     if (k > ROLES_AT && !S.roles.length) { k = ROLES_AT; }
-    if (k !== S.screen) { openPanel = null; }
+    var moved = k !== S.screen;
+    if (moved) { openPanel = null; }
     S.screen = Math.max(0, Math.min(N - 1, k));
+    if (moved) { S.stepAt = Date.now(); }
     save();
+    if (moved) { queueSync(true); }
     render(true);
     var top = root.getBoundingClientRect().top;
     if (top < 0) { window.scrollBy(0, top - 8); }
@@ -1398,6 +1416,10 @@
     root.textContent = "";
     var old = document.querySelector(".pr-toolbar");
     if (old) { old.remove(); }
+    if (TR && !WHO) {
+      root.appendChild(loginScreen());
+      return;
+    }
     var tb = toolbar();
     root.appendChild(screen(S.screen));
     document.body.appendChild(tb);
@@ -1412,7 +1434,10 @@
       if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
     }
     var sc = DATA.screens[S.screen];
-    if (sc.needTour && S.tour !== 1 && !tourOn) { setTimeout(function () { if (!tourOn) { startTour(); } }, 350); }
+    // checked again when it fires: saved work may have arrived (and moved the pupil on) in between
+    if (sc.needTour && S.tour !== 1 && !tourOn) {
+      setTimeout(function () { if (!tourOn && S.tour !== 1 && DATA.screens[S.screen].needTour) { startTour(); } }, 350);
+    }
   }
 
   // ------------------------------------------------------------ How this page works: a spotlight tour
@@ -1504,6 +1529,213 @@
     mapIds(sc.challenge, k, sc.id + "-ch");
     Object.keys(sc.roles || {}).forEach(function (r) { mapIds(sc.roles[r], k, sc.id + "-" + r); });
   });
+
+  // ------------------------------------------------------------ log in with a number (teacher, 6 Oct)
+  // A pupil logs in with their number (01-40, on their booklet cover). Only the number and the
+  // work go to the teacher's store; no name is typed or sent. With no store set, the page is
+  // device-only, as before.
+  var TR = DATA.track && DATA.track.url ? DATA.track : null;
+  // one log-in for every practical page, so a pupil logs in once (teacher, 6 Oct)
+  var WK = "pr-who-v1";
+  var WHO = null;
+  try { WHO = JSON.parse(localStorage.getItem(WK)); } catch (e) { WHO = null; }
+  var SYNC = { state: "idle", at: 0 };
+  var syncTimer = null, lastSent = 0, sending = false, again = false;
+
+  function cleanNum(v) {
+    var d = String(v == null ? "" : v).replace(/\D/g, "");
+    if (!d) { return null; }
+    var n = parseInt(d, 10);
+    if (!(n >= 1 && n <= (TR && TR.max || 40))) { return null; }
+    return (n < 10 ? "0" : "") + n;
+  }
+  function call(body) {
+    return fetch(TR.url, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); });
+  }
+  function setWho(w) {
+    WHO = w;
+    try { if (w) { localStorage.setItem(WK, JSON.stringify(w)); } else { localStorage.removeItem(WK); } } catch (e) { /* this visit only */ }
+  }
+  function summary() {
+    var done = [];
+    DATA.screens.forEach(function (sc, k) { if (screenDone(k)) { done.push(sc.id); } });
+    return { step: S.screen, stepId: DATA.screens[S.screen].id, stepAt: S.stepAt || null, done: done };
+  }
+  function payload() {
+    return { op: "save", num: WHO.num, lesson: TR.lesson, at: S.savedAt || Date.now(), summary: summary(), state: S };
+  }
+  // At most one save every 30 s, and one straight away (10 s apart at most) when the step changes.
+  function queueSync(soon) {
+    if (!TR || !WHO || !WHO.num) { return; }
+    clearTimeout(syncTimer);
+    var wait = soon ? Math.max(0, 10000 - (Date.now() - lastSent)) : 30000;
+    syncTimer = setTimeout(sendNow, wait);
+  }
+  function sendNow() {
+    if (!TR || !WHO || !WHO.num) { return; }
+    if (sending) { again = true; return; }
+    sending = true;
+    lastSent = Date.now();
+    SYNC.state = "saving";
+    paintSync();
+    call(payload()).then(function (j) {
+      SYNC.state = j && j.ok ? "saved" : "error";
+      if (SYNC.state === "saved") { SYNC.at = Date.now(); }
+    }).catch(function () {
+      SYNC.state = "error";
+    }).then(function () {
+      sending = false;
+      paintSync();
+      if (SYNC.state === "error") { clearTimeout(syncTimer); syncTimer = setTimeout(sendNow, 60000); }
+      if (again) { again = false; queueSync(true); }
+    });
+  }
+  window.addEventListener("pagehide", function () {
+    if (!TR || !WHO || !WHO.num || !syncTimer || !navigator.sendBeacon) { return; }
+    try { navigator.sendBeacon(TR.url, new Blob([JSON.stringify(payload())], { type: "text/plain;charset=utf-8" })); } catch (e) { /* the next visit saves */ }
+  });
+  function syncText() {
+    if (!WHO || !WHO.num) { return "Your work is saved on this device only."; }
+    if (SYNC.state === "saving") { return "Saving for your teacher…"; }
+    if (SYNC.state === "error") { return "Not sent yet: your work is safe on this device, and it will try again."; }
+    if (SYNC.state === "saved") { return "Saved for your teacher ✓"; }
+    return "Your work is saved for your teacher as you go.";
+  }
+  function paintSync() {
+    var n = document.querySelector(".pr-sync-note");
+    if (n) { n.textContent = syncText(); }
+    var c = document.querySelector(".pr-who");
+    if (c) { c.classList.toggle("is-error", SYNC.state === "error"); }
+  }
+
+  function loginScreen() {
+    var box = el("section", "pr-login");
+    box.setAttribute("aria-labelledby", "prTitle");
+    var h = el("h2", null, "Log in with your number");
+    h.id = "prTitle";
+    box.appendChild(h);
+    var msg = el("p", "pr-login-msg");
+    msg.setAttribute("aria-live", "polite");
+    var stage = el("div", "pr-login-stage");
+    box.appendChild(stage);
+    box.appendChild(msg);
+    var skip = btn("pr-btn pr-btn-quiet", "No number yet? Carry on without logging in", function () {
+      setWho({ num: null, skip: true });
+      render(true);
+    });
+    box.appendChild(skip);
+
+    function ask(prefill, why) {
+      stage.textContent = "";
+      msg.textContent = why || "";
+      var f = el("form", "pr-login-form");
+      var lab = el("label", null, "Your number (it is on your booklet cover)");
+      lab.htmlFor = "prNum";
+      f.appendChild(lab);
+      var row = el("div", "pr-login-row");
+      var inp = el("input");
+      inp.id = "prNum";
+      inp.type = "text";
+      inp.inputMode = "numeric";
+      inp.autocomplete = "off";
+      inp.maxLength = 2;
+      inp.pattern = "[0-9]*";
+      inp.value = prefill || "";
+      row.appendChild(inp);
+      var go1 = el("button", "pr-btn pr-btn-main", "Next");
+      go1.type = "submit";
+      row.appendChild(go1);
+      f.appendChild(row);
+      f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var n = cleanNum(inp.value);
+        if (!n) { msg.textContent = "Type a number from 01 to " + (TR.max || 40) + "."; inp.focus(); return; }
+        confirm1(n);
+      });
+      stage.appendChild(f);
+      inp.focus();
+    }
+    function confirm1(n) {
+      stage.textContent = "";
+      msg.textContent = "";
+      var p = el("p", "pr-login-big");
+      p.appendChild(document.createTextNode("Number "));
+      p.appendChild(el("strong", null, n));
+      stage.appendChild(p);
+      stage.appendChild(el("p", "pr-p", "Is that the number on your booklet cover?"));
+      var row = el("div", "pr-login-row");
+      var yes = btn("pr-btn pr-btn-main", "Yes, that's me", function () { yes.disabled = true; check(n); });
+      row.appendChild(yes);
+      row.appendChild(btn("pr-btn", "No, change it", function () { ask(n); }));
+      stage.appendChild(row);
+      yes.focus();
+    }
+    function check(n) {
+      msg.textContent = "Checking…";
+      call({ op: "hello", num: n, lesson: TR.lesson }).then(function (j) {
+        if (j && j.ok) { return restore(n); }
+        if (j && j.error === "number") { ask(n, "Number " + n + " is not on your teacher's list. Check your booklet cover."); return; }
+        throw new Error("store");
+      }).catch(function () {
+        // the store can't be reached: log in anyway; the work saves here and is sent later
+        setWho({ num: n });
+        SYNC.state = "error";
+        render(true);
+        say("Logged in as number " + n + ". Your teacher's tracker can't be reached yet, so your work saves on this device for now.");
+      });
+    }
+    function restore(n) {
+      return call({ op: "load", num: n, lesson: TR.lesson }).then(function (j) {
+        // the work on this device is this pupil's if they were logged in here, or working without a number
+        var mine = !!WHO && (WHO.num === n || WHO.skip);
+        if (j && j.ok && j.state && (!mine || +(j.state.savedAt || 0) > +(S.savedAt || 0))) {
+          var f = fresh();
+          Object.keys(f).forEach(function (k) { if (j.state[k] == null || typeof j.state[k] !== typeof f[k]) { j.state[k] = f[k]; } });
+          S = j.state;
+          try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* this visit only */ }
+        } else if (!mine) {
+          S = fresh();
+        }
+        setWho({ num: n });
+        SYNC.state = "idle";
+        render(true);
+        say("Logged in as number " + n + ".");
+        queueSync(true);
+      }).catch(function () {
+        setWho({ num: n });
+        render(true);
+      });
+    }
+    ask("");
+    return box;
+  }
+
+  // Opening another lesson while logged in: fetch this lesson's saved work if the store's copy is newer.
+  function pullLesson() {
+    if (!TR || !WHO || !WHO.num) { return; }
+    call({ op: "load", num: WHO.num, lesson: TR.lesson }).then(function (j) {
+      if (!(j && j.ok && j.state) || +(j.state.savedAt || 0) <= +(S.savedAt || 0)) { return; }
+      var f = fresh();
+      Object.keys(f).forEach(function (k) { if (j.state[k] == null || typeof j.state[k] !== typeof f[k]) { j.state[k] = f[k]; } });
+      S = j.state;
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* this visit only */ }
+      render(false);
+      say("Your saved work for this lesson is back.");
+    }).catch(function () { /* stays device-only until the next save */ });
+  }
+
+  function logOut() {
+    if (TR && WHO && WHO.num) {
+      clearTimeout(syncTimer);
+      try { call(payload()); } catch (e) { /* best effort */ }
+    }
+    setWho(null);
+    try { localStorage.removeItem(KEY); } catch (e) { /* nothing saved */ }
+    S = fresh();
+    openPanel = null;
+    render(true);
+  }
 
   // ------------------------------------------------------------ teacher view (projector)
   // Same lesson data, one big step at a time: the instruction box, who goes when, the picture
@@ -1839,4 +2071,5 @@
     });
   });
   render(false);
+  pullLesson();
 })();
