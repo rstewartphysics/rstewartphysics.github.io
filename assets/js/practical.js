@@ -228,7 +228,10 @@
     while ((m = re.exec(text))) {
       if (m.index > last) { host.appendChild(document.createTextNode(text.slice(last, m.index))); }
       if (m[1] != null) {
-        host.appendChild(el("strong", null, m[1]));
+        // bold text may hold a glossary word: **3/2 push-button {valve-any|valve}**
+        var st = el("strong");
+        rich(m[1], st);
+        host.appendChild(st);
       } else {
         var key = m[2];
         var shown = m[3] || (DATA.glossary[key] ? DATA.glossary[key].word : key);
@@ -236,7 +239,17 @@
         b.setAttribute("aria-expanded", "false");
         b.setAttribute("aria-label", shown + ": what does it mean?");
         (function (bb, k) { bb.addEventListener("click", function (e) { e.stopPropagation(); openPop(bb, k); }); })(b, key);
-        host.appendChild(b);
+        // punctuation straight after the word stays on its line
+        var tail = /^[,.;:!?)]+/.exec(text.slice(re.lastIndex));
+        if (tail) {
+          var nw = el("span", "pr-nowrap");
+          nw.appendChild(b);
+          nw.appendChild(document.createTextNode(tail[0]));
+          host.appendChild(nw);
+          re.lastIndex += tail[0].length;
+        } else {
+          host.appendChild(b);
+        }
       }
       last = re.lastIndex;
     }
@@ -549,9 +562,16 @@
       res.textContent = "";
       if (!S.checked[id]) { return; }
       if (check) { check.hidden = true; }
+      // once checked, the writing help steps aside so the model answer and the marks fit the screen
+      tools.hidden = true;
+      if (bank) { bank.panel.hidden = true; }
+      ta.rows = 2;
+      box.classList.add("is-checked");
       var h = el("p", "pr-model-head");
       h.appendChild(el("strong", null, b.modelTitle || (b.marks ? "Model answer" : "One good answer")));
-      res.appendChild(h);
+      var top = el("div", "pr-model-top");
+      top.appendChild(h);
+      res.appendChild(top);
       var ul = el("ul", "pr-list");
       b.model.forEach(function (t) { var li = el("li"); rich(t, li); ul.appendChild(li); });
       res.appendChild(ul);
@@ -575,7 +595,7 @@
             row.appendChild(x);
           })(m);
         }
-        res.appendChild(row);
+        top.appendChild(row);
       }
       if (announce) { say((b.marks ? "Model answer: " : "One good answer: ") + b.model.join(" ").replace(/\*\*|\{|\}/g, "")); }
     }
@@ -800,9 +820,6 @@
     var foot = el("div", "pr-roles-foot");
     var line = el("p", "pr-mine", mineLine() || "No job chosen yet.");
     foot.appendChild(line);
-    if (S.roles.length) {
-      foot.appendChild(btn("pr-btn pr-btn-main", "I have my job \u2192 Next", function () { go(S.screen + 1); }));
-    }
     box.appendChild(foot);
     return box;
   };
@@ -1455,7 +1472,9 @@
     document.body.appendChild(tourTip);
     var r = tourEl.getBoundingClientRect();
     var w = tourTip.offsetWidth, h = tourTip.offsetHeight;
-    var y = r.bottom + 14;
+    // a stop can name what its tip sits under, so the tip never hides the next thing to read
+    var under = st.below && document.querySelector(st.below);
+    var y = (under ? under.getBoundingClientRect().bottom : r.bottom) + 14;
     if (y + h > window.innerHeight - 8) { y = r.top - h - 14; }
     if (y < 8) { y = Math.min(window.innerHeight - h - 8, r.top + 14); }
     tourTip.style.left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8) + "px";
