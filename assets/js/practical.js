@@ -4,9 +4,10 @@
    as JSON in <script type="application/json" id="practicalData">.
 
    One screen per step of the lesson, each fitting a landscape iPad (1180 x 760). Words on the
-   left, the picture beside them (Picture / Help / Challenge tabs). Role screens show a card for
-   each role the pupil chose. Everything is saved in this browser only (localStorage) and
-   nothing is sent anywhere.
+   left, the picture beside them; Help, Challenge, Waiting? and I can open in the picture's place
+   from the toolbar (teacher, 6 Oct: one thing at a time). Role screens show the pupil's own job
+   card in full and the partner's as one line. Everything is saved in this browser only
+   (localStorage) and nothing is sent anywhere.
    ============================================================ */
 (function () {
   "use strict";
@@ -20,7 +21,7 @@
 
   function fresh() {
     return { roles: [], screen: 0, ticks: {}, text: {}, choice: {}, miss: {}, checked: {},
-      marks: {}, pause: {}, rate: {}, set: {}, tab: {}, cloze: {} };
+      marks: {}, pause: {}, rate: {}, set: {}, tab: {}, cloze: {}, part: {}, tour: 0 };
   }
   function load() {
     var s;
@@ -33,8 +34,11 @@
   }
   var S = load();
 
+  // Every change goes through save(), so it is also where Next and the step lines repaint.
+  var refreshers = [];
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* private mode: work still shows */ }
+    refreshers.forEach(function (f) { f(); });
   }
   function say(msg) {
     if (!live) { return; }
@@ -76,6 +80,8 @@
       ic: '<path d="M4 24c5-8 12-12 20-12s15 4 20 12c-5 8-12 12-20 12S9 32 4 24z"/><circle class="a" cx="24" cy="24" r="6"/>' }
   };
   var TICK = '<path class="a" d="M10 25l9 9 19-20"/>';
+  var BOOK = '<path d="M24 13c-5-4-12-5-19-4v27c7-1 14 0 19 4 5-4 12-5 19-4V9c-7-1-14 0-19 4z"/><path class="a" d="M24 13v27"/>';
+  var QMARK = '<circle cx="24" cy="24" r="19"/><path class="a" d="M18 19a6 6 0 1 1 8.5 5.4c-1.7.9-2.5 2-2.5 4.1"/><circle class="a" cx="24" cy="35" r=".8"/>';
 
   function modeTag(mode) {
     var m = MODES[mode];
@@ -85,8 +91,9 @@
     return p;
   }
 
-  // The instruction box at the top of every step: how you work, up to 3 steps, Done when.
-  function doBox(sc) {
+  // The instruction box at the top of every step: how you work, up to 3 steps, Done when, and
+  // (pupils) the step's SAFETY line on its own yellow strip, so it is read with the instructions.
+  function doBox(sc, safety) {
     var box = el("div", "pr-do" + (sc.mode ? " mode-" + sc.mode : ""));
     if (MODES[sc.mode]) { box.appendChild(modeTag(sc.mode)); }
     if (sc.do) {
@@ -96,6 +103,7 @@
     } else if (sc.team) {
       box.appendChild(para("pr-team", sc.team));
     }
+    var foot = el("div", "pr-do-foot");
     if (sc.done) {
       var dn = el("p", "pr-done");
       dn.appendChild(svg("pr-done-ic", TICK));
@@ -103,9 +111,21 @@
       t.appendChild(el("strong", null, "Done when: "));
       rich(sc.done, t);
       dn.appendChild(t);
-      box.appendChild(dn);
+      foot.appendChild(dn);
     }
+    if (safety && DATA.safety) { foot.appendChild(safetyLine(sc)); }
+    if (foot.children.length) { box.appendChild(foot); }
     return box;
+  }
+
+  function safetyLine(sc) {
+    var s = el("p", "pr-safety");
+    s.appendChild(img("icon_safety.png", ""));
+    var t = el("span");
+    t.appendChild(el("strong", null, "SAFETY "));
+    t.appendChild(document.createTextNode(sc.safety || DATA.safety));
+    s.appendChild(t);
+    return s;
   }
 
   function turnName(t) {
@@ -310,6 +330,44 @@
 
   BLOCK.fig = function (b) { return figure(b); };
 
+  function cardLabel(ic, text) {
+    var h = el("p", "pr-card-label");
+    h.appendChild(svg("pr-label-ic", ic));
+    h.appendChild(el("span", null, text));
+    return h;
+  }
+  // A Read card: words to read, nothing to answer. It must never look like a question.
+  BLOCK.read = function (b, id) {
+    var box = el("section", "pr-read");
+    box.setAttribute("aria-label", b.title || "Read");
+    box.appendChild(cardLabel(BOOK, b.title || "Read"));
+    blocks(b.items, id, box);
+    return box;
+  };
+  BLOCK.row = function (b, id) {
+    var box = el("div", "pr-row");
+    blocks(b.items, id, box);
+    return box;
+  };
+  // The how-to step's practice job card: the same card the role steps use.
+  BLOCK.democard = function (b, id) {
+    var c = el("article", "pr-card");
+    c.setAttribute("aria-label", b.title);
+    var top = el("header", "pr-card-head");
+    top.appendChild(img(b.icon, ""));
+    top.appendChild(el("strong", null, b.title));
+    c.appendChild(top);
+    var list = el("div", "pr-items");
+    blocks(b.items, id, list);
+    c.appendChild(list);
+    return c;
+  };
+  BLOCK.tour = function (b) {
+    var p = el("p", "pr-linkline");
+    p.appendChild(btn("pr-btn pr-btn-go", b.text || "Start the tour", function () { startTour(); }));
+    return p;
+  };
+
   function qHead(b, tag) {
     var h = el(tag || "p", "pr-q");
     rich(b.q, h);
@@ -326,15 +384,19 @@
     var row = el("div", "pr-tap-row");
     if (b.pic) { row.appendChild(img(b.pic, b.alt || "", "pr-tap-pic")); }
     var right = el("div", "pr-tap-right");
-    right.appendChild(q);
-    var opts = el("div", "pr-options");
+    var qline = el("div", "pr-qline");
+    qline.appendChild(q);
+    var help = ladder(b);
+    if (help) { qline.appendChild(help); }
+    right.appendChild(qline);
+    var opts = el("div", "pr-options is-stacked");
     var fb = el("p", "pr-feedback");
     fb.setAttribute("aria-live", "polite");
-    var help = ladder(b);
+    var buttons = [];
     function paint() {
       var c = S.choice[id];
       var answered = typeof c === "number";
-      Array.prototype.forEach.call(opts.children, function (o, k) {
+      buttons.forEach(function (o, k) {
         o.disabled = answered;
         o.classList.toggle("is-right", answered && k === b.answer);
         o.classList.toggle("is-wrong", answered && k === c && c !== b.answer);
@@ -346,22 +408,23 @@
         fb.className = "pr-feedback " + (ok ? "is-right" : "is-wrong");
         fb.appendChild(el("strong", null, ok ? "Right. " : "Not this one. The answer is: " + b.options[b.answer] + ". "));
         rich(b.why, fb);
+        buttons[c].insertAdjacentElement("afterend", fb);
         if (help) { help.hidden = true; }
       }
     }
     b.options.forEach(function (o, k) {
-      opts.appendChild(btn("pr-option", o, function () {
+      var x = btn("pr-option", o, function () {
         if (typeof S.choice[id] === "number") { return; }
         S.choice[id] = k;
         if (k !== b.answer && b.back) { S.miss[id] = b.back; }
         save();
         paint();
         say((k === b.answer ? "Right. " : "Not this one. The answer is " + b.options[b.answer] + ". ") + b.why.replace(/\*\*|\{|\}/g, ""));
-      }));
+      });
+      buttons.push(x);
+      opts.appendChild(x);
     });
     right.appendChild(opts);
-    if (help) { right.appendChild(help); }
-    right.appendChild(fb);
     row.appendChild(right);
     box.appendChild(row);
     paint();
@@ -671,7 +734,10 @@
       var li = el("li");
       var at = WHERE[k];
       if (typeof at === "number") {
-        li.appendChild(btn("pr-btn pr-btn-quiet", S.miss[k], function () { go(at); }));
+        li.appendChild(btn("pr-btn pr-btn-quiet", S.miss[k], function () {
+          if (PART[k] != null) { S.part[DATA.screens[at].id] = PART[k]; }
+          go(at);
+        }));
       } else {
         li.textContent = S.miss[k];
       }
@@ -741,24 +807,47 @@
     return box;
   };
 
+  // A Question card: one question at a time. "Next question" sits at the foot of the card and
+  // lights up once this one is answered; it never looks like the toolbar's Next step.
   BLOCK.set = function (b, id) {
-    var box = el("div", "pr-set");
+    var box = el("section", "pr-qcard");
     var n = b.items.length;
     var at = Math.min(S.set[id] || 0, n - 1);
-    var head = el("div", "pr-set-head");
-    var count = el("p", "pr-set-count", (b.label || "Question") + " " + (at + 1) + " of " + n);
+    var label = b.label || "Question";
+    var countText = n > 1 ? label + " " + (at + 1) + " of " + n : label;
+    box.setAttribute("aria-label", countText);
+    var head = el("div", "pr-qcard-head");
+    var count = cardLabel(QMARK, countText);
+    count.classList.add("pr-set-count");
     head.appendChild(count);
-    var nav = el("div", "pr-set-nav");
-    var prev = btn("pr-btn pr-btn-quiet", "Previous", function () { move(-1); });
-    var next = btn("pr-btn pr-btn-quiet pr-btn-next", "Next " + (b.label || "question").toLowerCase(), function () { move(1); });
-    prev.disabled = at === 0;
-    next.disabled = at === n - 1;
-    nav.appendChild(prev);
-    nav.appendChild(next);
-    head.appendChild(nav);
+    var dots = el("ol", "pr-qdots");
+    dots.setAttribute("aria-hidden", "true");
+    b.items.forEach(function () { dots.appendChild(el("li")); });
+    if (n > 1) { head.appendChild(dots); }
     box.appendChild(head);
     var it = b.items[at];
-    box.appendChild(block(it, it.id || id + "-" + at));
+    var itId = it.id || id + "-" + at;
+    box.appendChild(block(it, itId));
+    var foot = el("div", "pr-qcard-foot");
+    var prev = btn("pr-btn pr-btn-quiet", "\u2190 Previous", function () { move(-1); });
+    prev.hidden = at === 0;
+    foot.appendChild(prev);
+    var next = btn("pr-btn pr-btn-go", "Next " + label.toLowerCase() + " \u2192", function () { move(1); });
+    var end = el("p", "pr-qcard-end");
+    if (at < n - 1) { foot.appendChild(next); } else { foot.appendChild(end); }
+    box.appendChild(foot);
+    function paint() {
+      Array.prototype.forEach.call(dots.children, function (d, k) {
+        var x = b.items[k];
+        d.className = (k === at ? "is-now " : "") + (itemDone(x, x.id || id + "-" + k) ? "is-done" : "");
+      });
+      var ok = itemDone(it, itId);
+      next.classList.toggle("is-ready", ok);
+      var all = b.items.every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
+      end.textContent = all && n > 1 ? "\u2713 All " + n + " done." : "";
+    }
+    refreshers.push(function () { if (box.isConnected) { paint(); } });
+    paint();
     function move(d) {
       S.set[id] = Math.max(0, Math.min(n - 1, at + d));
       save();
@@ -766,10 +855,55 @@
       box.parentNode.replaceChild(fresh, box);
       var f = fresh.querySelector(".pr-q, label");
       if (f) { f.setAttribute("tabindex", "-1"); f.focus(); }
-      say(count.textContent.replace(/\d+ of/, (S.set[id] + 1) + " of"));
+      say(label + " " + (S.set[id] + 1) + " of " + n);
     }
     return box;
   };
+
+  // Is this piece of work finished? Used for Done when (Next lights up) and the card dots.
+  function itemDone(b, id) {
+    switch (b.type) {
+      case "tap": case "predict": return typeof S.choice[id] === "number";
+      case "write":
+        if (!b.model) { return (S.text[id] || "").trim().length >= 3; }
+        return b.marks ? typeof S.marks[id] === "number" : !!S.checked[id];
+      case "compare":
+        return b.rows.every(function (r, i) {
+          return b.cols.every(function (c, j) { return (S.text[id + "-" + i + "-" + j] || "").trim().length > 0; });
+        });
+      case "cloze": return Object.keys(S.cloze[id] || {}).length >= b.lines.length;
+      case "rate": return b.items.every(function (t, i) { return !!S.rate[id + "-" + i]; });
+      case "step": case "booklet": return !!S.ticks[id];
+      case "roles": return S.roles.length > 0;
+      case "set": return b.items.every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
+      case "read": case "row": case "democard":
+        return (b.items || []).every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
+      default: return true;
+    }
+  }
+  function listDone(list, base) {
+    return (list || []).every(function (b, k) { return itemDone(b, b.id || base + "-" + k); });
+  }
+  function mineOn(sc) {
+    var mine = sc.swap ? S.roles.map(function (r) { return sc.swap[r] || r; }) : S.roles;
+    return mine.filter(function (r, i) { return sc.roles && sc.roles[r] && mine.indexOf(r) === i; });
+  }
+  function screenDone(k) {
+    var sc = DATA.screens[k];
+    if (sc.pause && !S.pause[sc.id]) { return false; }
+    // the practice cards on the how-to step are optional: the tour is its Done when
+    if (sc.needTour) { return S.tour === 1; }
+    var ok = sc.parts
+      ? sc.parts.every(function (pt, pi) { return listDone(pt.main, sc.id + "-p" + pi); })
+      : listDone(sc.main, sc.id + "-m");
+    ok = ok && listDone(sc.after, sc.id + "-a");
+    if (sc.roles) {
+      ok = ok && mineOn(sc).every(function (rid) {
+        return sc.roles[rid].every(function (b, j) { return itemDone(b, b.id || sc.id + "-" + rid + "-" + j); });
+      });
+    }
+    return ok;
+  }
 
   function block(b, id) {
     var f = BLOCK[b.type];
@@ -817,69 +951,46 @@
     return fig;
   }
 
-  // ------------------------------------------------------------ the side panel: Picture / Help / Challenge
+  // ------------------------------------------------------------ the side column: the picture, or one panel
+  // The picture stays (words and picture together). Help, Waiting?, Challenge and I can are
+  // closed until the pupil taps them on the toolbar; one opens in the picture's place.
+  var PANELS = [
+    { id: "help", key: "help", label: "Help" },
+    { id: "wait", key: "wait", label: "Waiting?" },
+    { id: "ch", key: "challenge", label: "Challenge" },
+    { id: "ican", key: "ican", label: "I can" }
+  ];
+  var openPanel = null;
   var waitingTab = null;
-  function side(sc) {
-    var tabs = [];
-    if (sc.fig) { tabs.push({ id: "pic", label: "Picture" }); }
-    if (sc.ican) { tabs.push({ id: "ican", label: "I can" }); }
-    if (sc.help) { tabs.push({ id: "help", label: "Help" }); }
-    if (sc.wait) { tabs.push({ id: "wait", label: "Waiting?" }); }
-    if (sc.challenge) { tabs.push({ id: "ch", label: "Challenge" }); }
-    if (!tabs.length) { return null; }
+
+  function panelBox(sc, p) {
     var wrap = el("aside", "pr-side");
-    wrap.setAttribute("aria-label", "Picture, help and challenge");
-    var cur = S.tab[sc.id] || tabs[0].id;
-    if (!tabs.some(function (t) { return t.id === cur; })) { cur = tabs[0].id; }
-    var bar = el("div", "pr-tabs");
-    bar.setAttribute("role", "tablist");
+    wrap.id = "prPanel";
+    wrap.setAttribute("aria-label", p.label);
+    var head = el("div", "pr-panel-head");
+    head.appendChild(el("p", "pr-panel-title", p.id === "ch" && waitingTab && waitingTab.classList.contains("is-waiting")
+      ? "Waiting for your team? Try this" : p.label));
+    head.appendChild(btn("pr-btn pr-btn-quiet pr-panel-close", sc.fig ? "Back to the picture" : "Close", function () {
+      togglePanel(null);
+    }));
+    wrap.appendChild(head);
     var panel = el("div", "pr-panel");
-    panel.setAttribute("role", "tabpanel");
-    panel.id = "prPanel";
-    var buttons = [];
-    function show(id, focus) {
-      cur = id;
-      S.tab[sc.id] = id;
-      save();
-      buttons.forEach(function (x) {
-        var on = x.dataset.tab === id;
-        x.setAttribute("aria-selected", on ? "true" : "false");
-        x.tabIndex = on ? 0 : -1;
-        if (on) { panel.setAttribute("aria-labelledby", x.id); if (focus) { x.focus(); } }
-      });
-      panel.textContent = "";
-      if (id === "pic") { panel.appendChild(figure(sc.fig)); }
-      if (id === "ican") { blocks(sc.ican, sc.id + "-ican", panel); }
-      if (id === "help") { blocks(sc.help, sc.id + "-help", panel); }
-      if (id === "wait") { blocks(sc.wait, sc.id + "-wait", panel); }
-      if (id === "ch") {
-        var top = el("p", "pr-ch-top");
-        top.appendChild(el("strong", null, "Challenge. "));
-        top.appendChild(document.createTextNode("Try it if you have time. Your team still moves on together."));
-        panel.appendChild(top);
-        blocks(sc.challenge, sc.id + "-ch", panel);
-      }
+    if (p.id === "ch") {
+      var top = el("p", "pr-ch-top");
+      top.appendChild(el("strong", null, "Challenge. "));
+      top.appendChild(document.createTextNode("Try it if you have time. Your team still moves on together."));
+      panel.appendChild(top);
     }
-    tabs.forEach(function (t, k) {
-      var x = btn("pr-tab", t.label, function () { show(t.id, false); });
-      x.id = "prTab-" + t.id;
-      x.dataset.tab = t.id;
-      x.setAttribute("role", "tab");
-      x.setAttribute("aria-controls", "prPanel");
-      x.addEventListener("keydown", function (e) {
-        var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-        if (!d) { return; }
-        e.preventDefault();
-        show(tabs[(k + d + tabs.length) % tabs.length].id, true);
-      });
-      if (t.id === "ch") { waitingTab = x; }
-      buttons.push(x);
-      bar.appendChild(x);
-    });
-    wrap.appendChild(bar);
+    blocks(sc[p.key], sc.id + "-" + (p.id === "ican" ? "ican" : p.id), panel);
     wrap.appendChild(panel);
-    show(cur, false);
     return wrap;
+  }
+  function togglePanel(id) {
+    openPanel = openPanel === id ? null : id;
+    render(false);
+    var b = id && openPanel ? root.querySelector(".pr-panel-head .pr-panel-close")
+      : document.querySelector('.pr-tb-toggle[data-panel="' + id + '"]');
+    if (b) { b.focus(); }
   }
 
   // "Waiting for your team? Try this." once every tick on your role cards is done
@@ -889,8 +1000,24 @@
     var all = tickIds.every(function (k) { return S.ticks[k]; });
     var was = waitingTab.classList.contains("is-waiting");
     waitingTab.classList.toggle("is-waiting", all);
-    waitingTab.textContent = all ? "Waiting for your team? Try this" : "Challenge";
+    waitingTab.textContent = all ? "Waiting? Try this" : "Challenge";
     if (all && !was) { say("All your jobs are ticked. Waiting for your team? Try the Challenge."); }
+  }
+
+  // One instruction at a time: in each list of tick lines, the next one is bright, done ones grey.
+  function focusSteps() {
+    Array.prototype.forEach.call(root.querySelectorAll(".pr-items, .pr-main"), function (box) {
+      var steps = Array.prototype.filter.call(box.children, function (c) { return c.classList.contains("pr-step"); });
+      if (steps.length < 2) { return; }
+      var seen = false;
+      steps.forEach(function (st) {
+        var on = st.querySelector("input").checked;
+        st.classList.toggle("is-ticked", on);
+        st.classList.toggle("is-next", !on && !seen);
+        st.classList.toggle("is-later", !on && seen);
+        if (!on) { seen = true; }
+      });
+    });
   }
 
   // A swap screen: the same team, new jobs. Shown as a box above the cards so no one misses it.
@@ -903,7 +1030,7 @@
       var line = el("p", "pr-swap-line");
       line.appendChild(img(role(r).icon, "", "pr-swap-ic"));
       line.appendChild(el("span", null, role(r).name));
-      line.appendChild(el("span", "pr-swap-arrow", "\u2192"));
+      line.appendChild(el("span", "pr-swap-arrow", "→"));
       line.appendChild(img(role(to).icon, "", "pr-swap-ic"));
       line.appendChild(el("strong", null, role(to).name));
       box.appendChild(line);
@@ -912,25 +1039,130 @@
     return box;
   }
 
+  // Your partner's job, as one line that opens: you can check on them without a second full card.
+  function mateLine(sc, shown) {
+    var mates = DATA.roles.filter(function (r) {
+      return sc.roles[r.id] && shown.indexOf(r.id) < 0 &&
+        shown.some(function (m) { return role(m).pair && role(m).pair === r.pair; });
+    });
+    if (!mates.length) { return null; }
+    var d = el("details", "pr-mate");
+    var sm = el("summary");
+    sm.appendChild(img(mates[0].icon, ""));
+    var t = el("span");
+    t.appendChild(el("strong", null, "Your partner: " + mates[0].name + ". "));
+    t.appendChild(document.createTextNode("Tap to see their job."));
+    sm.appendChild(t);
+    d.appendChild(sm);
+    var ul = el("ul", "pr-list");
+    sc.roles[mates[0].id].forEach(function (b) {
+      if (b.type === "link") { return; }
+      var li = el("li");
+      rich(b.text || ((b.kind ? b.kind + ": " : "") + (b.q || "")), li);
+      ul.appendChild(li);
+    });
+    d.appendChild(ul);
+    return d;
+  }
+
   // ------------------------------------------------------------ a screen
+  function jobDone(sc, rid) {
+    return sc.roles[rid].every(function (b, j) { return itemDone(b, b.id || sc.id + "-" + rid + "-" + j); });
+  }
+  function firstToDo(sc, shown) {
+    var order = (sc.turns || []).reduce(function (a, t) { return a.concat(t.who || []); }, []).concat(shown);
+    for (var i = 0; i < order.length; i++) {
+      if (shown.indexOf(order[i]) >= 0 && !jobDone(sc, order[i])) { return order[i]; }
+    }
+    return shown[0];
+  }
+  function jobSwitch(sc, shown, cur) {
+    var row = el("div", "pr-jobswitch");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", "Your jobs");
+    row.appendChild(el("span", "pr-chips-label", "Your jobs:"));
+    shown.forEach(function (rid) {
+      var b = btn("pr-btn pr-btn-quiet", null, function () {
+        S.tab[sc.id] = rid;
+        save();
+        render(false);
+        var again = root.querySelector('.pr-jobswitch [data-role="' + rid + '"]');
+        if (again) { again.focus(); }
+      });
+      b.dataset.role = rid;
+      b.appendChild(img(role(rid).icon, "", "pr-swap-ic"));
+      var t = el("span");
+      b.appendChild(t);
+      b.setAttribute("aria-pressed", rid === cur ? "true" : "false");
+      row.appendChild(b);
+      function paint() { t.textContent = role(rid).name + (jobDone(sc, rid) ? " \u2713" : ""); }
+      paint();
+      refreshers.push(paint);
+    });
+    return row;
+  }
+
+  var ROLES_AT = 0;
+  DATA.screens.forEach(function (sc, k) {
+    if ((sc.main || []).some(function (b) { return b.type === "roles"; })) { ROLES_AT = k; }
+  });
+
+  function topRow(sc, k) {
+    var head = el("div", "pr-top");
+    var left = el("div", "pr-head");
+    var h = el("h2", null, sc.title);
+    h.id = "prTitle";
+    left.appendChild(h);
+    var meta = el("p", "pr-meta");
+    if (sc.mins) { meta.appendChild(el("span", "pr-mins", "about " + sc.mins + " min")); }
+    if (sc.page) { meta.appendChild(el("span", "pr-page", sc.page)); }
+    if (sc.parts) {
+      var pi = Math.min(S.part[sc.id] || 0, sc.parts.length - 1);
+      meta.appendChild(el("span", "pr-part", "Part " + (pi + 1) + " of " + sc.parts.length + ": " + sc.parts[pi].title));
+    }
+    if (meta.children.length) { left.appendChild(meta); }
+    // back to the notes sits on the title row, so it costs the checks no height
+    if (sc.parts && pi > 0 && !(sc.pause && !S.pause[sc.id])) {
+      left.appendChild(btn("pr-btn pr-btn-quiet pr-part-back", "\u2190 " + (sc.parts[pi - 1].back || "Back"), function () {
+        S.part[sc.id] = pi - 1; save(); render(true);
+      }));
+    }
+    head.appendChild(left);
+
+    // Step 3 of 13 and a thin bar; tap it to see every step.
+    var d = el("details", "pr-steps");
+    var sm = el("summary");
+    var off = HOWTO === 0 ? 1 : 0;
+    sm.appendChild(el("span", "pr-steps-n", k < off ? "Before you start" : "Step " + (k + 1 - off) + " of " + (N - off)));
+    var bar = el("span", "pr-steps-bar");
+    bar.setAttribute("aria-hidden", "true");
+    var fill = el("span");
+    fill.style.width = Math.round((k + 1 - off) / (N - off) * 100) + "%";
+    bar.appendChild(fill);
+    sm.appendChild(bar);
+    d.appendChild(sm);
+    var ol = el("ol", "pr-steps-list");
+    DATA.screens.forEach(function (x, j) {
+      var li = el("li", j === k ? "is-now" : "");
+      var b = btn(null, (j + 1 - off) + ". " + x.title, function () { d.open = false; go(j); });
+      if (j === k) { b.setAttribute("aria-current", "step"); }
+      li.appendChild(b);
+      ol.appendChild(li);
+    });
+    d.appendChild(ol);
+    head.appendChild(d);
+    return head;
+  }
+
   function screen(k) {
     var sc = DATA.screens[k];
     var wrap = el("section", "pr-screen");
     wrap.setAttribute("aria-labelledby", "prTitle");
-
-    var head = el("div", "pr-head");
-    var h = el("h2", null, sc.title);
-    h.id = "prTitle";
-    head.appendChild(h);
-    var meta = el("p", "pr-meta");
-    if (sc.mins) { meta.appendChild(el("span", "pr-mins", "about " + sc.mins + " min")); }
-    if (sc.page) { meta.appendChild(el("span", "pr-page", sc.page)); }
-    if (meta.children.length) { head.appendChild(meta); }
-    wrap.appendChild(head);
-    if (sc.mode || sc.do || sc.team || sc.done) { wrap.appendChild(doBox(sc)); }
+    wrap.appendChild(topRow(sc, k));
+    if (sc.mode || sc.do || sc.team || sc.done) { wrap.appendChild(doBox(sc, true)); }
 
     tickIds = [];
-    waitingTab = null;
+    waitingTab = document.querySelector('.pr-tb-toggle[data-panel="ch"]');
 
     if (sc.pause && !S.pause[sc.id]) {
       var card = el("div", "pr-pause");
@@ -950,16 +1182,37 @@
 
     var body = el("div", "pr-body");
     var main = el("div", "pr-main");
-    blocks(sc.main, sc.id + "-m", main);
+    if (sc.parts) {
+      var pi = Math.min(S.part[sc.id] || 0, sc.parts.length - 1);
+      var part = sc.parts[pi];
+      blocks(part.main, sc.id + "-p" + pi, main);
+      if (pi < sc.parts.length - 1) {
+        var on = el("p", "pr-linkline");
+        on.appendChild(btn("pr-btn pr-btn-go is-ready", (part.next || "Next part") + " →", function () {
+          S.part[sc.id] = pi + 1; save(); render(true);
+        }));
+        main.appendChild(on);
+      }
+    } else {
+      blocks(sc.main, sc.id + "-m", main);
+    }
 
     if (sc.roles) {
       if (sc.swapBox) { main.appendChild(swapBox(sc)); }
-      var mine = sc.swap ? S.roles.map(function (r) { return sc.swap[r] || r; }) : S.roles;
-      var shown = mine.filter(function (r, i) { return sc.roles[r] && mine.indexOf(r) === i; });
+      var shown = mineOn(sc);
       if (sc.turns) { main.appendChild(turnStrip(sc, shown)); }
+      // Two jobs (a team of 3): one card at a time, with a switch, so the eye has one list to follow.
+      var cur = shown.length > 1 ? (shown.indexOf(S.tab[sc.id]) >= 0 ? S.tab[sc.id] : firstToDo(sc, shown)) : null;
+      if (cur) { main.appendChild(jobSwitch(sc, shown, cur)); }
       var cards = el("div", "pr-cards");
-      cards.style.setProperty("--n", String(Math.max(1, shown.length)));
+      cards.style.setProperty("--n", "1");
       shown.forEach(function (rid) {
+        if (cur && rid !== cur) {
+          sc.roles[rid].forEach(function (b, j) {
+            if (b.type === "step" || b.type === "booklet") { tickIds.push(b.id || sc.id + "-" + rid + "-" + j); }
+          });
+          return;
+        }
         var c = el("article", "pr-card");
         c.setAttribute("aria-label", "Your job: " + role(rid).name);
         var top = el("header", "pr-card-head");
@@ -979,19 +1232,25 @@
         c.appendChild(list);
         cards.appendChild(c);
       });
-      if (!shown.length) { cards.appendChild(para("pr-p", "Choose your job on step 1 to see your card.")); }
+      if (!shown.length) { cards.appendChild(para("pr-p", "Choose your job on step " + (ROLES_AT + (HOWTO === 0 ? 0 : 1)) + " to see your card.")); }
       main.appendChild(cards);
+      var mate = mateLine(sc, shown);
+      if (mate) { main.appendChild(mate); }
+    }
+    if (sc.finish && DATA.badge && DATA.badge.name) {
+      main.appendChild(para("pr-badge-line", "**Badge earned:** " + DATA.badge.name + "."));
     }
     body.appendChild(main);
-    var sd = side(sc);
-    if (sd) {
-      // "everyone" blocks on a role screen sit under the picture, where the column has room
+
+    var p = openPanel && PANELS.filter(function (x) { return x.id === openPanel && sc[x.key]; })[0];
+    if (sc.fig || p || sc.after) {
       var col = el("div", "pr-sidecol");
-      col.appendChild(sd);
-      blocks(sc.after, sc.id + "-a", col);
+      if (p) { col.appendChild(panelBox(sc, p)); }
+      else if (sc.fig) { col.appendChild(figure(sc.fig)); }
+      // "everyone" blocks sit under the picture, where the column has room; an open panel needs that room
+      if (!p) { blocks(sc.after, sc.id + "-a", col); }
       body.appendChild(col);
     } else {
-      blocks(sc.after, sc.id + "-a", main);
       body.classList.add("is-single");
     }
     wrap.appendChild(body);
@@ -1003,36 +1262,20 @@
     return wrap;
   }
 
-  // ------------------------------------------------------------ the bar: where you are, and SAFETY
-  function topBar() {
-    var b = el("div", "pr-bar");
-    var dots = el("ol", "pr-dots");
-    dots.setAttribute("aria-label", "Steps of the lesson");
-    DATA.screens.forEach(function (sc, k) {
-      var li = el("li", k === S.screen ? "is-now" : (k < S.screen ? "is-done" : ""));
-      var x = btn(null, String(k + 1), function () { go(k); });
-      x.setAttribute("aria-label", "Step " + (k + 1) + ": " + sc.title + (k === S.screen ? " (you are here)" : ""));
-      if (k === S.screen) { x.setAttribute("aria-current", "step"); }
-      li.appendChild(x);
-      dots.appendChild(li);
-    });
-    b.appendChild(dots);
-    if (DATA.safety) {
-      var s = el("p", "pr-safety");
-      s.appendChild(img("icon_safety.png", ""));
-      var t = el("span");
-      t.appendChild(el("strong", null, "SAFETY "));
-      t.appendChild(document.createTextNode(DATA.screens[S.screen].safety || DATA.safety));
-      s.appendChild(t);
-      b.appendChild(s);
-    }
-    return b;
-  }
+  // ------------------------------------------------------------ the toolbar, fixed to the foot of the screen
+  var nextBtn = null;
+  function toolbar() {
+    var sc = DATA.screens[S.screen];
+    var bar = el("nav", "pr-toolbar");
+    bar.setAttribute("aria-label", "Lesson tools");
+    var inner = el("div", "pr-tb-inner");
 
-  function bottomBar() {
-    var nav = el("div", "pr-nav");
-    var tools = el("div", "pr-tools");
-    if (S.screen > 0) { tools.appendChild(btn("pr-btn pr-btn-quiet", "Change my job", function () { go(0); })); }
+    var left = el("div", "pr-tb-left");
+    var more = el("details", "pr-more");
+    var ms = el("summary", "pr-btn pr-btn-quiet", "More");
+    more.appendChild(ms);
+    var menu = el("div", "pr-more-menu");
+    if (S.screen > ROLES_AT) { menu.appendChild(btn("pr-btn pr-btn-quiet", "Change my job", function () { go(ROLES_AT); })); }
     var armed = false;
     var clear = btn("pr-btn pr-btn-quiet", "Clear and start again", function () {
       if (!armed) {
@@ -1047,26 +1290,83 @@
       }
       try { localStorage.removeItem(KEY); } catch (e) { /* nothing saved */ }
       S = fresh();
+      openPanel = null;
       render(true);
-      say("Cleared. Choose your job.");
+      say("Cleared.");
     });
-    tools.appendChild(clear);
-    tools.appendChild(el("span", "pr-saved-note", "Saved on this device only"));
-    nav.appendChild(tools);
-
-    var move = el("div", "pr-move");
-    if (S.screen > 0) { move.appendChild(btn("pr-btn", "Back a step", function () { go(S.screen - 1); })); }
-    if (S.screen < N - 1) {
-      var next = btn("pr-btn pr-btn-main", "Next: " + DATA.screens[S.screen + 1].title + " \u2192", function () { go(S.screen + 1); });
-      if (S.screen === 0 && !S.roles.length) { next.disabled = true; next.textContent = "Choose your job first"; }
-      move.appendChild(next);
+    menu.appendChild(clear);
+    if (DATA.back) {
+      var a = el("a", "pr-btn pr-btn-quiet", DATA.back.text);
+      a.href = DATA.back.href;
+      menu.appendChild(a);
     }
-    nav.appendChild(move);
-    return nav;
+    menu.appendChild(el("p", "pr-saved-note", "Your work is saved on this device only."));
+    more.appendChild(menu);
+    left.appendChild(more);
+    if (HOWTO >= 0) {
+      var q = btn("pr-btn pr-btn-quiet pr-tb-how", "?", function () { go(HOWTO); startTour(); });
+      q.setAttribute("aria-label", "How this page works");
+      left.appendChild(q);
+    }
+    inner.appendChild(left);
+
+    var mid = el("div", "pr-tb-mid");
+    PANELS.forEach(function (p) {
+      if (!sc[p.key]) { return; }
+      var t = btn("pr-btn pr-btn-quiet pr-tb-toggle", p.label, function () { togglePanel(p.id); });
+      t.dataset.panel = p.id;
+      t.setAttribute("aria-pressed", openPanel === p.id ? "true" : "false");
+      t.setAttribute("aria-controls", "prPanel");
+      mid.appendChild(t);
+    });
+    inner.appendChild(mid);
+
+    var right = el("div", "pr-tb-right");
+    if (S.screen > 0) {
+      var back = btn("pr-btn pr-tb-back", null, function () { go(S.screen - 1); });
+      back.appendChild(el("span", null, "Back"));
+      back.setAttribute("aria-label", "Back a step");
+      right.appendChild(back);
+    }
+    nextBtn = null;
+    if (S.screen < N - 1) {
+      var nx = DATA.screens[S.screen + 1];
+      nextBtn = btn("pr-btn pr-next", null, function () { go(S.screen + 1); });
+      var nw = el("span", "pr-next-word", "Next");
+      nw.appendChild(el("span", "pr-next-name", ": " + nx.title));
+      nextBtn.appendChild(nw);
+      nextBtn.appendChild(el("span", "pr-next-arrow", "→"));
+      nextBtn.setAttribute("aria-label", "Next step: " + nx.title);
+      right.appendChild(nextBtn);
+    }
+    inner.appendChild(right);
+    bar.appendChild(inner);
+    return bar;
+  }
+  // Next is always usable (the class moves on together); it fills and pulses once when Done when is met.
+  var wasDone = null;
+  function paintNext() {
+    if (!nextBtn) { return; }
+    var done = screenDone(S.screen) && !(S.screen === ROLES_AT && !S.roles.length);
+    if (S.screen === ROLES_AT && !S.roles.length) {
+      nextBtn.disabled = true;
+      nextBtn.querySelector(".pr-next-name").textContent = ": choose your job first";
+    } else {
+      nextBtn.disabled = false;
+    }
+    nextBtn.classList.toggle("is-ready", done);
+    if (done && wasDone === false) {
+      nextBtn.classList.remove("is-pulse");
+      void nextBtn.offsetWidth;
+      nextBtn.classList.add("is-pulse");
+      say("Done. Next lights up when your teacher says to move on.");
+    }
+    wasDone = done;
   }
 
   function go(k) {
-    if (k > 0 && !S.roles.length) { k = 0; }
+    if (k > ROLES_AT && !S.roles.length) { k = ROLES_AT; }
+    if (k !== S.screen) { openPanel = null; }
     S.screen = Math.max(0, Math.min(N - 1, k));
     save();
     render(true);
@@ -1076,27 +1376,109 @@
 
   function render(focus) {
     closePop(false);
+    endTour(false);
+    refreshers = [];
     root.textContent = "";
-    root.appendChild(topBar());
+    var old = document.querySelector(".pr-toolbar");
+    if (old) { old.remove(); }
+    var tb = toolbar();
     root.appendChild(screen(S.screen));
-    root.appendChild(bottomBar());
+    document.body.appendChild(tb);
+    waitingTab = tb.querySelector('.pr-tb-toggle[data-panel="ch"]');
+    if (DATA.screens[S.screen].roles) { waitingCheck(); }
+    wasDone = null;
+    paintNext();
+    focusSteps();
+    refreshers.push(paintNext, focusSteps, waitingCheck);
     if (focus) {
       var h = document.getElementById("prTitle");
       if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
     }
+    var sc = DATA.screens[S.screen];
+    if (sc.needTour && S.tour !== 1 && !tourOn) { setTimeout(function () { if (!tourOn) { startTour(); } }, 350); }
   }
 
+  // ------------------------------------------------------------ How this page works: a spotlight tour
+  // One stop per tap, like a click-change slide: everything but the stop goes dim.
+  var HOWTO = -1;
+  DATA.screens.forEach(function (sc, k) { if (sc.needTour) { HOWTO = k; } });
+  var tourOn = false, tourAt = 0, tourTip = null, tourDim = null, tourEl = null;
+  function endTour(finished) {
+    if (tourEl) { tourEl.classList.remove("pr-spot"); }
+    document.body.classList.remove("pr-touring", "pr-touring-tb");
+    if (tourTip) { tourTip.remove(); }
+    if (tourDim) { tourDim.remove(); }
+    tourTip = tourDim = tourEl = null;
+    if (!tourOn) { return; }
+    tourOn = false;
+    if (finished !== false) {
+      S.tour = 1;
+      save();
+      if (nextBtn) { nextBtn.focus(); }
+    }
+  }
+  function startTour() {
+    if (HOWTO < 0 || !DATA.tour) { return; }
+    if (S.screen !== HOWTO) { go(HOWTO); }
+    endTour(false);
+    tourOn = true;
+    tourAt = 0;
+    tourDim = el("div", "pr-tour-dim");
+    tourDim.addEventListener("click", function () { tourStep(1); });
+    document.body.appendChild(tourDim);
+    document.body.classList.add("pr-touring");
+    tourStep(0);
+  }
+  function tourStep(d) {
+    tourAt += d;
+    var stops = DATA.tour.filter(function (t) { return document.querySelector(t.at); });
+    if (tourAt >= stops.length) { endTour(true); say("Tour finished. Try the practice card, then tap Next."); return; }
+    var st = stops[tourAt];
+    if (tourEl) { tourEl.classList.remove("pr-spot"); }
+    tourEl = document.querySelector(st.at);
+    var inBar = !!tourEl.closest(".pr-toolbar");
+    document.body.classList.toggle("pr-touring-tb", inBar);
+    tourEl.classList.add("pr-spot");
+    if (!inBar) { tourEl.scrollIntoView({ block: "nearest" }); }
+    if (tourTip) { tourTip.remove(); }
+    tourTip = el("div", "pr-tour-tip");
+    tourTip.setAttribute("role", "dialog");
+    tourTip.setAttribute("aria-label", "How this page works, " + (tourAt + 1) + " of " + stops.length);
+    tourTip.appendChild(el("p", "pr-tour-n", (tourAt + 1) + " of " + stops.length));
+    tourTip.appendChild(para("pr-tour-text", st.text));
+    var row = el("div", "pr-tour-btns");
+    row.appendChild(btn("pr-btn pr-btn-quiet", "Skip", function () { endTour(true); }));
+    var last = tourAt === stops.length - 1;
+    var nb = btn("pr-btn pr-btn-main", last ? "Finish" : "Next tip →", function () { tourStep(1); });
+    row.appendChild(nb);
+    tourTip.appendChild(row);
+    document.body.appendChild(tourTip);
+    var r = tourEl.getBoundingClientRect();
+    var w = tourTip.offsetWidth, h = tourTip.offsetHeight;
+    var y = r.bottom + 14;
+    if (y + h > window.innerHeight - 8) { y = r.top - h - 14; }
+    if (y < 8) { y = Math.min(window.innerHeight - h - 8, r.top + 14); }
+    tourTip.style.left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8) + "px";
+    tourTip.style.top = Math.max(8, y) + "px";
+    nb.focus({ preventScroll: true });
+    say(st.text.replace(/\*\*|\{|\}/g, ""));
+  }
+  document.addEventListener("keydown", function (e) { if (tourOn && e.key === "Escape") { endTour(true); } });
+  window.addEventListener("resize", function () { if (tourOn) { tourStep(0); } });
+
   // where each saved answer lives, for the "come back to" list
-  var WHERE = {};
-  function mapIds(list, k, base) {
+  var WHERE = {}, PART = {};
+  function mapIds(list, k, base, pi) {
     (list || []).forEach(function (b, j) {
       var id = b.id || base + "-" + j;
       WHERE[id] = k;
-      if (b.items && b.type === "set") { mapIds(b.items, k, id); }
+      if (pi != null) { PART[id] = pi; }
+      if (b.items && (b.type === "set" || b.type === "read" || b.type === "row")) { mapIds(b.items, k, id, pi); }
     });
   }
   DATA.screens.forEach(function (sc, k) {
     mapIds(sc.main, k, sc.id + "-m");
+    (sc.parts || []).forEach(function (pt, pi) { mapIds(pt.main, k, sc.id + "-p" + pi, pi); });
     mapIds(sc.after, k, sc.id + "-a");
     mapIds(sc.help, k, sc.id + "-help");
     mapIds(sc.wait, k, sc.id + "-wait");
@@ -1111,9 +1493,15 @@
   function teacher() {
     var TK = KEY + "-teacher";
     var want = root.dataset.hash;
-    var T = { screen: 0 };
-    try { T.screen = Math.max(0, Math.min(N - 1, +localStorage.getItem(TK) || 0)); } catch (e) { /* nothing saved */ }
-    var left = 0, tick = null, clock = null;
+    // The pupils' how-to step is theirs alone; the teacher's step 0 is the walk-in screen.
+    var TS = DATA.screens.filter(function (x) { return !x.pupilOnly; });
+    var TN = TS.length;
+    var T = { screen: DATA.walkin ? -1 : 0, fs: false };
+    try {
+      var v = localStorage.getItem(TK);
+      if (v != null) { T.screen = Math.max(DATA.walkin ? -1 : 0, Math.min(TN - 1, +v)); }
+    } catch (e) { /* nothing saved */ }
+    var left = 0, tick = null, clock = null, fsBox = null;
 
     function hash(str) {
       return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function (buf) {
@@ -1171,37 +1559,167 @@
       clock.classList.toggle("is-over", left === 0);
     }
     function move(k) {
-      T.screen = Math.max(0, Math.min(N - 1, k));
+      T.screen = Math.max(DATA.walkin ? -1 : 0, Math.min(TN - 1, k));
       try { localStorage.setItem(TK, String(T.screen)); } catch (e) { /* not saved */ }
       stop();
       show(true);
     }
 
-    function show(focus) {
-      var sc = DATA.screens[T.screen];
-      left = (sc.mins || 0) * 60;
-      root.textContent = "";
-
+    function stepBar() {
       var bar = el("div", "pr-bar");
       var dots = el("ol", "pr-dots");
       dots.setAttribute("aria-label", "Steps of the lesson");
-      DATA.screens.forEach(function (x, k) {
-        var li = el("li", k === T.screen ? "is-now" : (k < T.screen ? "is-done" : ""));
-        var b = btn(null, String(k + 1), function () { move(k); });
-        b.setAttribute("aria-label", "Step " + (k + 1) + ": " + x.title);
-        if (k === T.screen) { b.setAttribute("aria-current", "step"); }
+      var list = DATA.walkin ? [{ title: "Walk-in screen", label: "0", k: -1 }] : [];
+      TS.forEach(function (x, k) { list.push({ title: x.title, label: String(k + 1), k: k }); });
+      list.forEach(function (x) {
+        var li = el("li", x.k === T.screen ? "is-now" : (x.k < T.screen ? "is-done" : ""));
+        var b = btn(null, x.label, function () { move(x.k); });
+        b.setAttribute("aria-label", "Step " + x.label + ": " + x.title);
+        if (x.k === T.screen) { b.setAttribute("aria-current", "step"); }
         li.appendChild(b);
         dots.appendChild(li);
       });
       bar.appendChild(dots);
-      var sf = el("p", "pr-safety");
-      sf.appendChild(img("icon_safety.png", ""));
-      var st = el("span");
-      st.appendChild(el("strong", null, "SAFETY "));
-      st.appendChild(document.createTextNode(sc.safety || DATA.safety));
-      sf.appendChild(st);
-      bar.appendChild(sf);
-      root.appendChild(bar);
+      if (T.screen >= 0) {
+        var sf = el("p", "pr-safety");
+        sf.appendChild(img("icon_safety.png", ""));
+        var st = el("span");
+        st.appendChild(el("strong", null, "SAFETY "));
+        st.appendChild(document.createTextNode(TS[T.screen].safety || DATA.safety));
+        sf.appendChild(st);
+        bar.appendChild(sf);
+      }
+      return bar;
+    }
+    function navRow(withWhere) {
+      var nav = el("div", "pr-nav");
+      var mv = el("div", "pr-move");
+      if (T.screen > (DATA.walkin ? -1 : 0)) {
+        mv.appendChild(btn("pr-btn", "Back a step", function () { move(T.screen - 1); }));
+      }
+      if (T.screen < TN - 1) {
+        mv.appendChild(btn("pr-btn pr-btn-main", "Next: " + TS[T.screen + 1].title + " →", function () { move(T.screen + 1); }));
+      }
+      if (withWhere && DATA.pupilWhere) {
+        var wh = el("p", "pr-where");
+        wh.appendChild(el("strong", null, "Pupils find this lesson at: "));
+        rich(DATA.pupilWhere, wh);
+        nav.appendChild(wh);
+      }
+      nav.appendChild(mv);
+      return nav;
+    }
+
+    // Step 0: on the board as the class walks in. How to get to the page, and the lesson at a glance.
+    function walkIn() {
+      var W = DATA.walkin;
+      var wrap = el("section", "pr-screen pr-teach pr-walkin");
+      var h = el("h2", null, W.title);
+      h.id = "prTitle";
+      wrap.appendChild(h);
+      var grid = el("div", "pr-walk-grid");
+
+      var get = el("div", "pr-walk-get");
+      get.appendChild(el("p", "pr-walk-h", "Open the lesson"));
+      var qr = el("div", "pr-qr");
+      qr.innerHTML = W.qr;
+      var qs = qr.querySelector("svg");
+      if (qs) { qs.setAttribute("role", "img"); qs.setAttribute("aria-label", "QR code for " + W.short); }
+      get.appendChild(qr);
+      // break before the path, never inside the domain
+      var url = el("p", "pr-walk-url");
+      var cut = W.short.indexOf("/");
+      url.appendChild(document.createTextNode(cut > 0 ? W.short.slice(0, cut) : W.short));
+      if (cut > 0) { url.appendChild(el("wbr")); url.appendChild(document.createTextNode(W.short.slice(cut))); }
+      get.appendChild(url);
+      if (DATA.pupilWhere) {
+        var wh = el("p", "pr-walk-path");
+        wh.appendChild(el("strong", null, "Or: "));
+        rich(DATA.pupilWhere.replace(/^\*\*[^*]+\*\*\s*›\s*/, ""), wh);
+        get.appendChild(wh);
+      }
+      grid.appendChild(get);
+
+      var plan = el("div", "pr-walk-plan");
+      plan.appendChild(el("p", "pr-walk-h", "As you come in"));
+      var first = el("ol", "pr-walk-first");
+      W.first.forEach(function (t) { var li = el("li"); rich(t, li); first.appendChild(li); });
+      plan.appendChild(first);
+      plan.appendChild(el("p", "pr-walk-h", "By the end, I can"));
+      var ic = el("ul", "pr-list");
+      W.icans.forEach(function (t) { ic.appendChild(el("li", null, t)); });
+      plan.appendChild(ic);
+      grid.appendChild(plan);
+      plan = el("div", "pr-walk-plan is-steps");
+      var total = TS.reduce(function (a, x) { return a + (x.mins || 0); }, 0);
+      plan.appendChild(el("p", "pr-walk-h", "The lesson: " + TN + " steps, about " + total + " min"));
+      var ol = el("ol", "pr-walk-steps");
+      TS.forEach(function (x) {
+        var li = el("li");
+        li.appendChild(el("span", null, x.title));
+        if (x.mins) { li.appendChild(el("span", "pr-walk-min", x.mins + " min")); }
+        ol.appendChild(li);
+      });
+      plan.appendChild(ol);
+      grid.appendChild(plan);
+      wrap.appendChild(grid);
+      return wrap;
+    }
+
+    // Full screen: the step's picture as big as the board allows, with its instructions beside it.
+    function readBlocks(sc) {
+      var out = [];
+      (sc.parts ? sc.parts.reduce(function (a, p) { return a.concat(p.main); }, []) : sc.main || []).forEach(function (b) {
+        if (b.type === "read") { out.push(b); }
+      });
+      return out;
+    }
+    function closeFs(back) {
+      if (!fsBox) { return; }
+      fsBox.remove();
+      fsBox = null;
+      document.body.classList.remove("pr-fs-on");
+      if (back) {
+        T.fs = false;
+        var o = root.querySelector(".pr-fs-open");
+        if (o) { o.focus(); }
+      }
+    }
+    function openFs(sc) {
+      closeFs(false);
+      T.fs = true;
+      fsBox = el("div", "pr-fs");
+      fsBox.setAttribute("role", "dialog");
+      fsBox.setAttribute("aria-modal", "true");
+      fsBox.setAttribute("aria-label", "Full screen: " + sc.title);
+      var pic = el("div", "pr-fs-pic");
+      pic.appendChild(figure(sc.fig));
+      fsBox.appendChild(pic);
+      var side = el("div", "pr-fs-side");
+      var x = btn("pr-btn pr-fs-close", "Close full screen ✕", function () { closeFs(true); });
+      side.appendChild(x);
+      side.appendChild(el("h2", null, (T.screen + 1) + ". " + sc.title));
+      if (sc.mode || sc.do || sc.done) { side.appendChild(doBox(sc)); }
+      blocks(readBlocks(sc), sc.id + "-fs", side);
+      fsBox.appendChild(side);
+      document.body.appendChild(fsBox);
+      document.body.classList.add("pr-fs-on");
+      x.focus({ preventScroll: true });
+    }
+
+    function show(focus) {
+      closeFs(false);
+      root.textContent = "";
+      root.appendChild(stepBar());
+      if (T.screen < 0) {
+        clock = null;
+        root.appendChild(walkIn());
+        root.appendChild(navRow(false));
+        if (focus) { var w = document.getElementById("prTitle"); w.setAttribute("tabindex", "-1"); w.focus({ preventScroll: true }); }
+        return;
+      }
+      var sc = TS[T.screen];
+      left = (sc.mins || 0) * 60;
 
       var wrap = el("section", "pr-screen pr-teach");
       var head = el("div", "pr-head");
@@ -1231,7 +1749,7 @@
           var line = el("p", "pr-swap-line");
           line.appendChild(img(r.icon, "", "pr-swap-ic"));
           line.appendChild(el("strong", null, r.name));
-          line.appendChild(el("span", "pr-swap-arrow", "\u2194"));
+          line.appendChild(el("span", "pr-swap-arrow", "↔"));
           line.appendChild(img(role(to).icon, "", "pr-swap-ic"));
           line.appendChild(el("strong", null, role(to).name));
           sw.appendChild(line);
@@ -1264,30 +1782,24 @@
       if (sc.fig) {
         var col = el("div", "pr-sidecol");
         col.appendChild(figure(sc.fig));
+        var fo = btn("pr-btn pr-fs-open", "Full screen ⤢", function () { openFs(sc); });
+        fo.setAttribute("aria-label", "Full screen: the picture and the instructions");
+        col.appendChild(fo);
         body.appendChild(col);
       }
       wrap.appendChild(body);
       root.appendChild(wrap);
-
-      var nav = el("div", "pr-nav");
-      var mv = el("div", "pr-move");
-      if (T.screen > 0) { mv.appendChild(btn("pr-btn", "Back a step", function () { move(T.screen - 1); })); }
-      if (T.screen < N - 1) {
-        mv.appendChild(btn("pr-btn pr-btn-main", "Next: " + DATA.screens[T.screen + 1].title + " \u2192", function () { move(T.screen + 1); }));
+      root.appendChild(navRow(true));
+      if (T.fs && sc.fig) { openFs(sc); }
+      else {
+        T.fs = false;
+        if (focus) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
       }
-      if (DATA.pupilWhere) {
-        var wh = el("p", "pr-where");
-        wh.appendChild(el("strong", null, "Pupils find this lesson at: "));
-        rich(DATA.pupilWhere, wh);
-        nav.appendChild(wh);
-      }
-      nav.appendChild(mv);
-      root.appendChild(nav);
-      if (focus) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
     }
 
     document.addEventListener("keydown", function (e) {
       if (!unlocked() || /INPUT|TEXTAREA/.test((e.target.tagName || ""))) { return; }
+      if (e.key === "Escape" && fsBox) { closeFs(true); return; }
       if (e.key === "ArrowRight") { move(T.screen + 1); }
       if (e.key === "ArrowLeft") { move(T.screen - 1); }
     });
@@ -1298,6 +1810,14 @@
   if (window.Progress && DATA.badge) {
     try { window.Progress.markSeen(DATA.badge.id); } catch (e) { /* progress engine missing */ }
   }
-  if (!S.roles.length) { S.screen = 0; }
+  if (!S.roles.length && S.screen > ROLES_AT) { S.screen = ROLES_AT; }
+  // iPad: the on-screen keyboard and a fixed toolbar fight for the same space, so the toolbar steps aside
+  document.addEventListener("focusin", function (e) { if (e.target.tagName === "TEXTAREA") { document.body.classList.add("pr-typing"); } });
+  document.addEventListener("focusout", function (e) { if (e.target.tagName === "TEXTAREA") { document.body.classList.remove("pr-typing"); } });
+  document.addEventListener("click", function (e) {
+    Array.prototype.forEach.call(document.querySelectorAll(".pr-more[open], .pr-steps[open]"), function (d) {
+      if (!d.contains(e.target)) { d.open = false; }
+    });
+  });
   render(false);
 })();

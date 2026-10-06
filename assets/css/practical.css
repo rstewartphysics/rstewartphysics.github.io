@@ -10,11 +10,11 @@
 /* S3 teal in place of Engineering orange. White on #006e74 6.03:1; #15110b on #5fd8de 10.3:1. */
 body.pr-page { --eng-ink-accent: #006e74; --pr-main: #006e74; --pr-main-ink: #fff; --pr-main-hover: #0a5f57;
   --eng-border: rgba(0, 110, 116, .24); --border-accent: rgba(0, 110, 116, .30); --border-strong: rgba(0, 110, 116, .50);
-  --pr-term: #d3eef0; --pr-term-strong: #b5e3e6; }
+  --pr-term: #e3f3f4; --pr-term-ink: #00585d; --pr-term-strong: #c9eaec; }
 @media (prefers-color-scheme: dark) {
   body.pr-page { --eng-ink-accent: #5fd8de; --pr-main: #5fd8de; --pr-main-ink: #15110b; --pr-main-hover: #8fe6ea;
     --eng-border: rgba(95, 216, 222, .26); --border-accent: rgba(95, 216, 222, .32); --border-strong: rgba(95, 216, 222, .52);
-    --pr-term: #123d40; }
+    --pr-term: #10312f; --pr-term-ink: #8fe6ea; --pr-term-strong: #1a4a4d; }
 }
 .pr-page .cta { background: var(--pr-main); color: var(--pr-main-ink); }
 .pr-page .cta:hover { background: var(--pr-main-hover); color: var(--pr-main-ink); }
@@ -92,13 +92,15 @@ body.pr-page { --eng-ink-accent: #006e74; --pr-main: #006e74; --pr-main-ink: #ff
 .pr-parts li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: .7rem; align-items: center; }
 .pr-parts-pic { width: 64px; height: 52px; object-fit: contain; background: #fff; border-radius: 8px; padding: 3px; }
 
-/* glossary words: a soft highlighter tint says "tap me" (D5: no underline); the padding makes a finger-sized target */
+/* glossary words (teacher, 6 Oct): bold teal on a very pale highlight, no box round them, so they read as
+   highlighted words and never as answer buttons (D5: no underline). An invisible ::after makes the tap target. */
 .pr-term {
-  display: inline; padding: .28em .3em; margin: 0 .05em; min-height: 0; border: 0; border-radius: 6px;
-  background: var(--pr-term); color: inherit; font-weight: inherit; text-decoration: none; line-height: inherit;
+  position: relative; display: inline; padding: 0 .12em; margin: 0; min-height: 0; border: 0; border-radius: 3px;
+  background: var(--pr-term); color: var(--pr-term-ink); font-weight: 700; text-decoration: none; line-height: inherit;
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
   cursor: help; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
+.pr-term::after { content: ""; position: absolute; inset: -.4em -.15em; }
 .pr-pop {
   position: fixed; z-index: 60; width: min(340px, calc(100vw - 16px)); padding: .6rem .7rem;
   border-radius: 14px; border: 2px solid var(--eng-ink-accent); background: var(--eng-surface); color: var(--eng-text);
@@ -150,7 +152,7 @@ body.pr-page { --eng-ink-accent: #006e74; --pr-main: #006e74; --pr-main-ink: #ff
 .pr-step input { width: 28px; height: 28px; margin: 0; accent-color: var(--eng-ink-accent); }
 .pr-step-pic { width: 52px; height: 40px; object-fit: contain; background: #fff; border-radius: 6px; }
 .pr-step.is-safety { background: #fff6cc; color: #2b2410; border: 2px solid #e8c200; }
-.pr-step.is-safety .pr-term { background: #ffe08a; }
+.pr-step.is-safety .pr-term { background: #ffe9a8; color: #2b2410; }
 .pr-fig figcaption .pr-term { background: var(--pr-term-strong); }
 .pr-step.is-booklet { background: transparent; border: 2px dashed var(--eng-border); }
 
@@ -304,8 +306,6 @@ div.pr-recall, p.pr-recall { border-left: 5px solid var(--eng-ink-accent); paddi
 
 .pr-page [hidden] { display: none !important; }
 
-/* The site's fixed progress counter sits bottom-right; keep Next clear of it when the nav is at the screen's foot. */
-@media (min-width: 700px) { .pr-page .pr-nav { padding-right: 11.5rem; } }
 
 /* D6: cream, not white, behind text in light mode */
 @media (prefers-color-scheme: light) { .pr-page { --eng-surface: #fffaf2; } }
@@ -393,3 +393,231 @@ body.pr-teacher-page main.container { width: 96vw; }
 @media (prefers-color-scheme: dark) { .pr-clock.is-over { color: #ff9d8a; } }
 .pr-teacher-page .pr-nav { margin-top: .3rem; row-gap: .3rem; }
 .pr-teacher-page .pr-where { order: 2; flex: 0 0 100%; margin: 0; padding: .15rem .7rem; border-radius: 10px; background: var(--eng-surface-2); max-width: none; }
+
+/* ============================================================
+   One thing at a time (teacher, 6 Oct 2026; plan section 10, phase B)
+   ============================================================ */
+/* the site's corner counter and section meter compete with the lesson; the badge shows on Look back */
+.pr-page .prog-counter, .pr-page #progMeter { display: none !important; }
+body.pr-pupil { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+
+/* ---- top row: the step's name, then Step 3 of 13 and a thin bar (tap to see every step) ---- */
+.pr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .4rem 1rem; }
+.pr-top .pr-head { flex: 1 1 auto; min-width: 0; }
+.pr-part { color: var(--eng-ink-accent) !important; }
+.pr-steps { position: relative; flex: none; }
+.pr-steps summary { list-style: none; display: grid; gap: .25rem; min-height: 44px; min-width: 11rem; padding: .3rem .7rem;
+  border-radius: 12px; border: 1px solid var(--eng-border); cursor: pointer; font-weight: 700; color: var(--eng-muted);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.pr-steps summary::-webkit-details-marker { display: none; }
+.pr-steps-n::after { content: " \25BE"; }
+.pr-steps-bar { display: block; height: 6px; border-radius: 999px; background: var(--eng-surface-2); overflow: hidden; }
+.pr-steps-bar span { display: block; height: 100%; background: var(--eng-ink-accent); border-radius: inherit; }
+.pr-steps-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 40; width: min(22rem, 90vw);
+  max-height: min(70vh, 560px); overflow-y: auto; list-style: none; margin: 0; padding: .4rem; display: grid; gap: .2rem;
+  border: 2px solid var(--eng-border); border-radius: 14px; background: var(--eng-surface); box-shadow: var(--eng-shadow); }
+.pr-steps-list button { width: 100%; min-height: 44px; padding: .25rem .6rem; border: 0; border-radius: 10px; text-align: left;
+  background: transparent; color: var(--eng-text); cursor: pointer; }
+.pr-steps-list .is-now button { background: var(--eng-surface-2); font-weight: 800; box-shadow: inset 4px 0 0 var(--eng-ink-accent); }
+
+/* ---- the instruction box's last row: Done when, and the step's SAFETY line on its yellow strip ---- */
+.pr-do-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem; }
+.pr-do-foot .pr-done { flex: 1 1 18rem; }
+.pr-do-foot .pr-safety { flex: 0 1 auto; min-height: 40px; padding: .15rem .6rem; border-radius: 10px; }
+.pr-do-foot .pr-safety img { width: 26px; height: 26px; }
+
+/* ---- Read card: a book mark, plain ground, nothing to tap but the key words ---- */
+.pr-card-label { display: flex; align-items: center; gap: .4rem; margin: 0 0 .35rem; font-weight: 800; color: var(--eng-muted); }
+.pr-label-ic svg { display: block; width: 30px; height: 30px; fill: none; stroke: var(--eng-text); stroke-width: 3;
+  stroke-linecap: round; stroke-linejoin: round; }
+.pr-label-ic .a { stroke: var(--eng-ink-accent); }
+.pr-read { padding: .6rem .8rem .7rem; border-radius: 16px; background: var(--eng-surface-2); border: 0; }
+.pr-read > * + * { margin-top: .5rem; }
+.pr-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr)); gap: .7rem; align-items: start; }
+.pr-row > * { margin: 0 !important; }
+
+/* ---- Question card: a coloured top edge and a ? mark, so it never looks like the notes ---- */
+.pr-qcard, .pr-main > .pr-write, .pr-main > .pr-predict { padding: .55rem .8rem .65rem; border-radius: 16px;
+  border: 2px solid var(--eng-border); border-top: 6px solid var(--eng-ink-accent); background: var(--eng-surface); }
+.pr-main > .pr-predict { padding-top: .3rem; }
+.pr-qcard-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.pr-qcard-head .pr-card-label { margin: 0; color: var(--eng-ink-accent); }
+.pr-qdots { display: flex; gap: .35rem; list-style: none; margin: 0; padding: 0; }
+.pr-qdots li { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--eng-border); }
+.pr-qdots li.is-done { background: var(--eng-ink-accent); border-color: var(--eng-ink-accent); }
+.pr-qdots li.is-now { box-shadow: 0 0 0 3px var(--eng-surface), 0 0 0 5px var(--eng-ink-accent); }
+.pr-qcard .pr-q, .pr-main > .pr-write > .pr-q { font-size: 1.25rem; line-height: 1.4; }
+.pr-qcard > .pr-tap, .pr-qcard > .pr-write { margin-top: .45rem; }
+.pr-qcard-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .55rem; }
+.pr-qcard-foot > :last-child { margin-left: auto; }
+.pr-qcard-end { margin: 0; font-weight: 800; color: var(--eng-ink-accent); }
+.pr-qcard-end:empty { display: none; }
+.pr-qline { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .4rem .8rem; }
+.pr-qline .pr-q { flex: 1 1 60%; }
+.pr-qline .pr-help-btn { min-height: 44px; margin-left: auto; }
+.pr-options.is-stacked { flex-direction: column; align-items: stretch; gap: .4rem; margin-top: .5rem; }
+.pr-options.is-stacked .pr-option { width: 100%; }
+.pr-options.is-stacked .pr-feedback { margin: 0; }
+.pr-tap-pic { width: 130px; max-height: 120px; }
+
+/* the in-card "go on" button: outlined until it is time, then filled */
+.pr-btn-go { border-color: var(--eng-ink-accent); color: var(--eng-ink-accent); border-radius: 999px; padding-inline: 1.1rem; }
+.pr-btn-go.is-ready { background: var(--pr-main); border-color: var(--pr-main); color: var(--pr-main-ink); }
+.pr-part-back { align-self: flex-start; }
+
+/* ---- one instruction at a time: the next line is bright, done lines grey, later lines dimmed ---- */
+.pr-step { transition: opacity .2s; }
+.pr-step.is-next { box-shadow: inset 0 0 0 3px var(--eng-ink-accent); }
+.pr-step.is-ticked { opacity: .62; }
+.pr-step.is-ticked .pr-step-text { text-decoration: line-through; text-decoration-thickness: 1px; }
+.pr-step.is-later { opacity: .72; }
+
+/* ---- your job big, your partner's as one line ---- */
+.pr-mate { border: 1px dashed var(--eng-border); border-radius: 12px; padding: .1rem .7rem; }
+.pr-mate summary { display: flex; align-items: center; gap: .5rem; min-height: 44px; cursor: pointer; color: var(--eng-muted);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.pr-mate summary img { width: 32px; height: 32px; background: #fff; border-radius: 6px; padding: 2px; }
+.pr-mate[open] { padding-bottom: .5rem; }
+
+/* ---- the side column: one panel in the picture's place ---- */
+.pr-panel-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .4rem; }
+.pr-panel-title { margin: 0; font-weight: 800; font-size: 1.2rem; color: var(--eng-ink-accent); }
+.pr-panel-close { min-height: 44px; }
+.pr-badge-line { padding: .45rem .7rem; border-radius: 12px; background: var(--eng-surface-2); }
+
+/* ---- the toolbar, fixed to the foot of the screen ---- */
+.pr-toolbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+  padding: .45rem max(12px, env(safe-area-inset-right)) calc(.45rem + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: var(--eng-surface); border-top: 2px solid var(--eng-border); box-shadow: 0 -6px 18px rgba(0, 0, 0, .08); }
+.pr-tb-inner { width: min(1100px, 100%); margin: 0 auto; display: flex; align-items: center; gap: .5rem; }
+.pr-tb-left, .pr-tb-mid, .pr-tb-right { display: flex; align-items: center; gap: .4rem; }
+.pr-tb-mid { flex: 1; justify-content: center; flex-wrap: wrap; }
+.pr-tb-right { margin-left: auto; }
+.pr-tb-toggle[aria-pressed="true"] { border-color: var(--eng-ink-accent); background: var(--eng-surface-2); box-shadow: inset 0 -3px 0 var(--eng-ink-accent); }
+.pr-tb-toggle.is-waiting { border-style: dashed; border-color: var(--eng-ink-accent); }
+.pr-tb-how { width: 48px; padding: 0; border-radius: 50%; font-weight: 900; }
+.pr-more { position: relative; }
+.pr-more summary { list-style: none; }
+.pr-more summary::-webkit-details-marker { display: none; }
+.pr-more summary::after { content: "\00a0\25B4"; }
+.pr-more-menu { position: absolute; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: 80vw; display: grid; gap: .35rem;
+  padding: .5rem; border: 2px solid var(--eng-border); border-radius: 14px; background: var(--eng-surface); box-shadow: var(--eng-shadow); }
+.pr-more-menu .pr-btn { justify-content: flex-start; }
+.pr-more-menu .pr-saved-note { margin: .1rem .3rem 0; font-size: max(1rem, 16px); }
+.pr-next { min-width: 9rem; border-color: var(--pr-main); color: var(--eng-ink-accent); font-weight: 800; }
+.pr-next.is-ready { background: var(--pr-main); color: var(--pr-main-ink); }
+.pr-next:disabled { opacity: .6; }
+.pr-next.is-pulse { animation: pr-pulse 1.1s ease-out 1; }
+@keyframes pr-pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 110, 116, .55); } 100% { box-shadow: 0 0 0 16px rgba(0, 110, 116, 0); } }
+@media (max-width: 760px) {
+  .pr-next-name { display: none; }
+  .pr-next { min-width: 0; }
+  .pr-tb-inner { flex-wrap: wrap; }
+  .pr-tb-mid { order: 3; flex-basis: 100%; justify-content: flex-start; }
+  .pr-top { flex-wrap: wrap; }
+}
+@media (hover: none) and (pointer: coarse) { body.pr-typing .pr-toolbar { display: none; } }
+
+/* ---- sources and credits: full width, at the very bottom ---- */
+.pr-sources { width: min(1100px, 92vw); margin: 1.4rem auto .6rem; }
+.pr-sources p { margin: 0; max-width: none; font-size: max(.875rem, 14px); color: var(--eng-muted); line-height: 1.5; }
+.pr-sources a { color: inherit; }
+
+/* ---- How this page works: the spotlight tour ---- */
+.pr-tour-dim { position: fixed; inset: 0; z-index: 1300; background: transparent; }
+.pr-spot { position: relative; z-index: 1301; pointer-events: none; border-radius: 14px;
+  box-shadow: 0 0 0 4px var(--eng-ink-accent), 0 0 0 100vmax rgba(8, 18, 18, .62) !important; }
+body.pr-touring-tb .pr-toolbar { z-index: 1301; }
+.pr-tour-tip { position: fixed; z-index: 1302; width: min(26rem, calc(100vw - 16px)); padding: .7rem .9rem;
+  border-radius: 16px; border: 3px solid var(--eng-ink-accent); background: var(--eng-surface); color: var(--eng-text);
+  box-shadow: var(--eng-shadow); display: grid; gap: .45rem; }
+.pr-tour-n { margin: 0; font-weight: 800; color: var(--eng-muted); }
+.pr-tour-text { margin: 0; font-size: 1.15rem; }
+.pr-tour-btns { display: flex; justify-content: space-between; gap: .5rem; }
+
+/* ---- teacher: walk-in screen ---- */
+.pr-walkin > h2 { font-size: 2.3rem; margin: .2rem 0 .6rem; }
+.pr-walk-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1.4rem; align-items: start; }
+.pr-walk-get, .pr-walk-plan { padding: .8rem 1.1rem; border-radius: 18px; border: 2px solid var(--eng-border); background: var(--eng-surface); }
+.pr-walk-get { text-align: center; }
+.pr-walk-h { margin: 0 0 .35rem; font-weight: 900; font-size: 1.3rem; color: var(--eng-ink-accent); }
+.pr-walk-plan .pr-walk-h:not(:first-child) { margin-top: .8rem; }
+.pr-qr { width: min(15rem, 32vh); margin: .3rem auto; padding: .6rem; background: #fff; border-radius: 14px; }
+.pr-qr svg { display: block; width: 100%; height: auto; }
+.pr-walk-url { margin: .4rem 0 .3rem; font-size: 2rem; font-weight: 900; overflow-wrap: anywhere; }
+.pr-walk-path { margin: 0; color: var(--eng-muted); }
+.pr-walk-first { margin: 0; padding-left: 1.4rem; font-weight: 700; }
+.pr-walk-steps { margin: 0; padding-left: 1.6rem; columns: 2; column-gap: 1.6rem; }
+.pr-walk-steps li { break-inside: avoid; }
+.pr-walk-min { color: var(--eng-muted); margin-left: .4rem; white-space: nowrap; }
+.pr-walk-min::before { content: "\00b7\00a0"; }
+
+/* ---- teacher: full-screen picture with its instructions ---- */
+.pr-fs-open { width: 100%; }
+body.pr-fs-on { overflow: hidden; }
+.pr-fs { position: fixed; inset: 0; z-index: 1500; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 1rem; padding: 1rem; background: var(--eng-bg, #f7f1e6); }
+.pr-fs-pic { min-height: 0; display: flex; }
+.pr-fs-pic .pr-fig { flex: 1; justify-content: center; }
+.pr-fs-pic .pr-fig img { max-height: calc(100vh - 6rem) !important; height: 100%; }
+.pr-fs-side { overflow-y: auto; display: grid; align-content: start; gap: .7rem; }
+.pr-fs-side h2 { margin: 0; font-size: 1.8rem; }
+.pr-fs-side .pr-do { grid-template-columns: minmax(0, 1fr); }
+.pr-fs-side .pr-do-steps { flex-direction: column; }
+.pr-fs-close { justify-self: start; }
+@media (prefers-color-scheme: dark) { .pr-fs { background: var(--eng-bg, #15110b); } }
+/* engineering-science.css boxes every <details>; these two are controls, not cards */
+.pr-page details.pr-steps, .pr-page details.pr-more { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; border-radius: 0; }
+.pr-page details.pr-mate { margin: 0; box-shadow: none; background: none; border: 1px dashed var(--eng-border); border-radius: 12px; padding: .1rem .7rem; }
+.pr-page .pr-term { font-weight: 700; font-size: inherit; }
+.pr-sidecol > .pr-write { padding: .55rem .8rem .65rem; border-radius: 16px; border: 2px solid var(--eng-border);
+  border-top: 6px solid var(--eng-ink-accent); background: var(--eng-surface); }
+.pr-next-arrow { margin-left: .1rem; }
+/* the sources sit below the fold on a lesson step, never peeking out above the toolbar */
+@media (min-width: 821px) { body.pr-pupil main.container { min-height: calc(100vh - 76px - 5rem); } }
+.pr-pupil .pr-main > * + *, .pr-pupil .pr-items > * + * { margin-top: .4rem; }
+.pr-pupil .pr-card { padding: .45rem .65rem; }
+.pr-pupil .pr-card-head { margin-bottom: .3rem; }
+/* pupil steps: the banner is a thin title bar (the fixed logo and menu buttons are 48px at 14px from the top) */
+@media (min-width: 821px) and (max-height: 900px) {
+  body.pr-pupil .band-banner { height: 66px; }
+  body.pr-pupil main.container { margin-top: .4rem; min-height: calc(100vh - 66px - 5rem); }
+}
+
+/* teacher walk-in: three columns, so the whole lesson fits the board at once */
+.pr-walk-grid { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr) minmax(0, .85fr); }
+.pr-walk-plan.is-steps .pr-walk-steps { columns: 1; }
+body.reading .pr-walkin .pr-walk-url { font-size: 1.9rem; line-height: 1.25; }
+body.reading .pr-walkin .pr-walk-h { font-size: 1.3rem; }
+body.reading .pr-walkin .pr-walk-steps li { line-height: 1.35; }
+.pr-walk-steps li + li { margin-top: .15rem; }
+
+/* teacher: the full-screen button sits on the picture's corner, not under it */
+.pr-teacher-page .pr-sidecol { position: relative; }
+.pr-teacher-page .pr-fs-open { position: absolute; top: .4rem; right: .4rem; width: auto; min-height: 44px;
+  padding: .2rem .7rem; background: #fffaf2; color: #004a4e; border-color: #006e74; z-index: 2; }
+.pr-fs-side { align-content: start; }
+.pr-fs-close { order: -1; }
+.pr-jobswitch { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; }
+.pr-jobswitch .pr-btn[aria-pressed="true"] { border-color: var(--eng-ink-accent); background: var(--eng-surface-2); box-shadow: inset 0 0 0 2px var(--eng-ink-accent); font-weight: 800; }
+body.reading .pr-walkin .pr-walk-url { overflow-wrap: normal; word-break: normal; }
+.pr-pupil .pr-turns { padding-block: .15rem; }
+.pr-walkin > h2 { margin: 0 0 .4rem; }
+.pr-walk-get, .pr-walk-plan { padding-block: .6rem; }
+.pr-spot { box-shadow: 0 0 0 8px var(--eng-surface), 0 0 0 12px var(--eng-ink-accent), 0 0 0 100vmax rgba(8, 18, 18, .62) !important; }
+.pr-top .pr-head .pr-part-back { min-height: 44px; padding: .1rem .7rem; }
+.pr-options.is-stacked { gap: .3rem; }
+.pr-qcard-foot { margin-top: .4rem; }
+.pr-options.is-stacked .pr-feedback { padding: .3rem .6rem; }
+.pr-pupil .pr-panel { max-height: min(470px, calc(100vh - 440px)); }
+/* D3 / D2 (audit 6 Oct) */
+.pr-qcard .pr-q, .pr-main > .pr-write > .pr-q { line-height: 1.5; }
+.pr-start { font-size: max(1.125rem, 18px); line-height: 1.5; }
+body.reading .pr-walkin .pr-walk-steps li { line-height: 1.5; }
+.pr-walk-steps li + li { margin-top: 0; }
+/* sources: full width, but as short side-by-side paragraphs so no line runs past 70 characters (D4) */
+.pr-sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr)); gap: .3rem 1.6rem; }
+.pr-pupil .pr-do { padding-block: .3rem; }
+/* the address scales with its card, so it never runs into the card's edge (teacher, 6 Oct) */
+.pr-walk-get { container-type: inline-size; }
+body.reading .pr-walkin .pr-walk-url { font-size: min(1.9rem, 6.4cqi); margin-inline: .2rem; }
