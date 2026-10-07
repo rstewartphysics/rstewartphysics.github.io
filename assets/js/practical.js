@@ -362,6 +362,94 @@
     return box;
   };
 
+  // A picture that steps on one frame at a time, with each frame's caption added to the list beside it
+  // (L2, teacher 5 Oct: one step per click, as the deck does). say: before each frame the pupil picks what
+  // happens next, then sees it. Done when the last frame has been reached.
+  BLOCK.frames = function (b, id) {
+    var F = b.frames, n = F.length;
+    var at = Math.min(S.set[id] || 0, n - 1);
+    var box = el("section", "pr-frames");
+    box.setAttribute("aria-label", b.title || "Step by step");
+    F.forEach(function (f) { var pre = new Image(); pre.src = IMG + f.src; });
+    var pic = el("div", "pr-frames-pic");
+    pic.appendChild(img(F[at].src, F[at].alt));
+    box.appendChild(pic);
+    var side = el("div", "pr-frames-side");
+    if (b.title) { side.appendChild(cardLabel(BOOK, b.title)); }
+    side.appendChild(para("pr-frames-start", F[0].cap));
+    var ol = el("ol", "pr-frames-steps");
+    for (var k = 1; k <= at; k++) {
+      var li = el("li", k === at ? "is-now" : "");
+      rich(F[k].cap, li);
+      ol.appendChild(li);
+    }
+    if (at) { side.appendChild(ol); }
+    var nav = el("div", "pr-frames-nav");
+    if (at < n - 1) {
+      var nx = F[at + 1], aid = id + "-f" + (at + 1);
+      if (b.say && nx.ask) {
+        var A = nx.ask, c = S.choice[aid], answered = typeof c === "number";
+        var q = el("div", "pr-tap pr-frames-ask");
+        q.setAttribute("role", "group");
+        var qh = para("pr-q", "**You say:** " + A.q);
+        qh.id = "q-" + aid;
+        q.setAttribute("aria-labelledby", qh.id);
+        q.appendChild(qh);
+        var opts = el("div", "pr-options is-stacked");
+        A.options.forEach(function (o, j) {
+          var x = btn("pr-option", o, function () {
+            if (typeof S.choice[aid] === "number") { return; }
+            S.choice[aid] = j;
+            if (j !== A.answer && A.back) { S.miss[aid] = A.back; }
+            save();
+            redraw(".pr-frames-show");
+            say((j === A.answer ? "Right. " : "Not this one. The answer is " + A.options[A.answer] + ". ") + A.why.replace(/\*\*|\{|\}/g, ""));
+          });
+          x.disabled = answered;
+          x.hidden = answered && j !== c;
+          x.classList.toggle("is-right", answered && j === A.answer);
+          x.classList.toggle("is-wrong", answered && j === c && c !== A.answer);
+          x.setAttribute("aria-pressed", answered && j === c ? "true" : "false");
+          opts.appendChild(x);
+          if (answered && j === c) {
+            var fb = el("p", "pr-feedback " + (c === A.answer ? "is-right" : "is-wrong"));
+            fb.appendChild(el("strong", null, c === A.answer ? "Right. " : "Not this one. The answer is: " + A.options[A.answer] + ". "));
+            rich(A.why, fb);
+            opts.appendChild(fb);
+          }
+        });
+        q.appendChild(opts);
+        side.appendChild(q);
+        if (answered) { nav.appendChild(btn("pr-btn pr-btn-go is-ready pr-frames-show", "Show me \u2192", function () { step(1); })); }
+      } else {
+        nav.appendChild(btn("pr-btn pr-btn-go is-ready pr-frames-next", (at ? "Next step" : "Start") + " \u2192", function () { step(1); }));
+      }
+    } else {
+      side.appendChild(para("pr-frames-end", "\u2713 All " + (n - 1) + " steps."));
+      nav.appendChild(btn("pr-btn pr-frames-again", b.again || "Watch it again", function () { S.set[id] = 0; save(); redraw(".pr-frames-next"); }));
+    }
+    if (at > 0 && at < n - 1) {
+      nav.insertBefore(btn("pr-btn pr-btn-quiet", "\u2190 Back", function () { step(-1); }), nav.firstChild);
+    }
+    side.appendChild(nav);
+    box.appendChild(side);
+    function redraw(focusSel) {
+      var fresh = BLOCK.frames(b, id);
+      box.parentNode.replaceChild(fresh, box);
+      var f = fresh.querySelector(focusSel) || fresh.querySelector(".pr-frames-nav .pr-btn:last-child");
+      if (f) { f.focus({ preventScroll: true }); }
+    }
+    function step(d) {
+      var to = Math.max(0, Math.min(n - 1, at + d));
+      S.set[id] = to;
+      if (to === n - 1) { S.ticks[id] = true; }
+      save();
+      redraw(".pr-frames-next, .pr-frames-show, .pr-frames-ask .pr-option");
+      say(to ? "Step " + to + ". " + F[to].cap.replace(/\{[^|}]*\|([^}]*)\}/g, "$1").replace(/\*\*|\{|\}/g, "") : "Back to the start.");
+    }
+    return box;
+  };
+
   // A question whose answer picks what comes next: the chosen option's lines open under it.
   // kit: the answer is also where this pupil is at the kit (first, join, late), which other steps read.
   BLOCK.branch = function (b, id) {
@@ -909,7 +997,7 @@
       case "branch":
         var k = S.choice[id];
         return typeof k === "number" && listDone(b.options[k].items, id + "-o" + k);
-      case "stop": return !!S.ticks[id];
+      case "stop": case "frames": return !!S.ticks[id];
       case "set": return b.items.every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
       case "read": case "row": case "democard":
         return (b.items || []).every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
@@ -941,7 +1029,35 @@
   }
 
   // ------------------------------------------------------------ figures (with an optional second state)
+  // The teacher view's copy of a frames block: step it on the board, nothing saved.
+  function frameFig(f) {
+    var F = f.frames, at = 0;
+    var fig = el("figure", "pr-fig is-shot is-wide pr-fig-frames");
+    var i = img(F[0].src, F[0].alt);
+    fig.appendChild(i);
+    var cap = el("figcaption");
+    var row = el("p", "pr-frames-nav");
+    var back = btn("pr-btn pr-btn-quiet", "\u2190 Back", function () { go(-1); });
+    var next = btn("pr-btn pr-btn-go is-ready", "Next step \u2192", function () { go(1); });
+    row.appendChild(back);
+    row.appendChild(next);
+    function paint() {
+      i.src = IMG + F[at].src;
+      i.alt = F[at].alt;
+      cap.textContent = "";
+      if (at) { cap.appendChild(el("strong", null, "Step " + at + " of " + (F.length - 1) + ": ")); }
+      rich(F[at].cap, cap);
+      back.disabled = at === 0;
+      next.disabled = at === F.length - 1;
+    }
+    function go(d) { at = Math.max(0, Math.min(F.length - 1, at + d)); paint(); say(i.alt); }
+    paint();
+    fig.appendChild(cap);
+    fig.appendChild(row);
+    return fig;
+  }
   function figure(f) {
+    if (f.frames) { return frameFig(f); }
     var fig = el("figure", "pr-fig" + (f.photo ? " is-photo" : "") + (f.shot || f.wide ? " is-shot" : "") + (f.wide ? " is-wide" : ""));
     var i = img(f.src, f.alt);
     fig.appendChild(i);
@@ -1162,6 +1278,8 @@
     }
     body.appendChild(main);
 
+    // a frames block carries its own picture, so the step's picture is not shown beside it
+    if (main.querySelector(".pr-frames")) { fig = null; }
     var p = openPanel && PANELS.filter(function (x) { return x.id === openPanel && sc[x.key]; })[0];
     if (fig || p || sc.after) {
       var col = el("div", "pr-sidecol");
@@ -1429,6 +1547,7 @@
       WHERE[id] = k;
       if (pi != null) { PART[id] = pi; }
       if (b.items && (b.type === "set" || b.type === "read" || b.type === "row")) { mapIds(b.items, k, id, pi); }
+      if (b.type === "frames") { b.frames.forEach(function (f, i) { WHERE[id + "-f" + i] = k; if (pi != null) { PART[id + "-f" + i] = pi; } }); }
     });
   }
   DATA.screens.forEach(function (sc, k) {
@@ -1815,7 +1934,9 @@
       plan = el("div", "pr-walk-plan is-steps");
       var total = TS.reduce(function (a, x) { return a + (x.mins || 0); }, 0);
       plan.appendChild(el("p", "pr-walk-h", "The lesson: " + TN + " steps, about " + total + " min"));
-      var ol = el("ol", "pr-walk-steps");
+      // a long lesson lists its steps in 2 columns, so the whole list stays on the board
+      var ol = el("ol", "pr-walk-steps" + (TS.length > 15 ? " is-long" : ""));
+      if (TS.length > 15) { grid.classList.add("has-long"); }
       TS.forEach(function (x) {
         var li = el("li");
         li.appendChild(el("span", null, x.title));
@@ -1855,7 +1976,7 @@
       fsBox.setAttribute("aria-modal", "true");
       fsBox.setAttribute("aria-label", "Full screen: " + sc.title);
       var pic = el("div", "pr-fs-pic");
-      pic.appendChild(figure(sc.fig));
+      pic.appendChild(figure(sc.teacherFig || sc.fig));
       fsBox.appendChild(pic);
       var side = el("div", "pr-fs-side");
       var x = btn("pr-btn pr-fs-close", "Close full screen ✕", function () { closeFs(true); });
@@ -1881,6 +2002,7 @@
         return;
       }
       var sc = TS[T.screen];
+      var tfig = sc.teacherFig || sc.fig;
       left = (sc.mins || 0) * 60;
 
       var wrap = el("section", "pr-screen pr-teach");
@@ -1891,7 +2013,7 @@
       if (sc.page) { head.appendChild(el("p", "pr-meta", sc.page)); }
       wrap.appendChild(head);
 
-      var body = el("div", "pr-body" + (sc.fig ? "" : " is-single"));
+      var body = el("div", "pr-body" + (tfig ? "" : " is-single"));
       var main = el("div", "pr-main");
       if (sc.pause) {
         var pz = el("div", "pr-do mode-board");
@@ -1922,9 +2044,9 @@
       main.appendChild(tm);
       paint();
       body.appendChild(main);
-      if (sc.fig) {
+      if (tfig) {
         var col = el("div", "pr-sidecol");
-        col.appendChild(figure(sc.fig));
+        col.appendChild(figure(tfig));
         var fo = btn("pr-btn pr-fs-open", "Full screen ⤢", function () { openFs(sc); });
         fo.setAttribute("aria-label", "Full screen: the picture and the instructions");
         col.appendChild(fo);
@@ -1933,7 +2055,7 @@
       wrap.appendChild(body);
       root.appendChild(wrap);
       root.appendChild(navRow(true));
-      if (T.fs && sc.fig) { openFs(sc); }
+      if (T.fs && tfig) { openFs(sc); }
       else {
         T.fs = false;
         if (focus) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }

@@ -26,7 +26,10 @@
       cond: "Score 80% or more on Contexts and Energy Practice Test B" },
     { id: "eng-pneu-l1", name: "Pneumatics Lesson 1", emoji: "💨", section: "S3 Engineering", unlock: "page",
       href: "/classes/s3-engineering/pneumatics/practical-1.html",
-      cond: "Reach the Look back step of the Lesson 1 practical" }
+      cond: "Reach the Look back step of the Lesson 1 practical" },
+    { id: "eng-pneu-l2", name: "Pneumatics Lesson 2", emoji: "📐", section: "S3 Engineering", unlock: "page",
+      href: "/classes/s3-engineering/pneumatics/practical-2.html",
+      cond: "Reach the Look back step of the Lesson 2 practical" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });
