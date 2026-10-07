@@ -295,6 +295,12 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Taken from V3.2 of the simulator and numbered for the page.
   - Bus emergency door release — ZidaneHartono, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BPSWA_Leyland_Panther_PSUR1A-1R_(Howard_Porter)_1BPS988-Emergency_Door_Release.jpg). Resized.
 
+- **Engineering Science *Pneumatic components*** (added 7 October 2026) — the pages
+  `classes/engineering/pneumatic-components/`, an index and one page per component, shared by S3 and
+  N5, and the 19 A3 posters they link. The symbols are drawn by R Stewart to ISO 1219, as used in N5
+  Engineering Science. The kit drawings are drawn by R Stewart from the Matrix CP2080 kit
+  (© Matrix Technology Solutions Limited); no Matrix images are copied.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
