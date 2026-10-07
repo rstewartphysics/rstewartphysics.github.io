@@ -5,9 +5,10 @@
 
    One screen per step of the lesson, each fitting a landscape iPad (1180 x 760). Words on the
    left, the picture beside them; Help, Challenge, Waiting? and I can open in the picture's place
-   from the toolbar (teacher, 6 Oct: one thing at a time). Role screens show the pupil's own job
-   card in full and the partner's as one line. Everything is saved in this browser only
-   (localStorage) and nothing is sent anywhere.
+   from the toolbar (teacher, 6 Oct: one thing at a time). No roles (teacher, 7 Oct): every pupil
+   sees every step, at their own pace; at the kit a pupil says who is already there, and a pupil who
+   has to wait goes on to the next steps and is brought back. Saved in this browser (localStorage),
+   and sent to the teacher's tracker only when the page has one and the pupil logs in.
    ============================================================ */
 (function () {
   "use strict";
@@ -20,8 +21,8 @@
   var N = DATA.screens.length;
 
   function fresh() {
-    return { roles: [], screen: 0, ticks: {}, text: {}, choice: {}, miss: {}, checked: {},
-      marks: {}, pause: {}, rate: {}, set: {}, tab: {}, cloze: {}, part: {}, tour: 0 };
+    return { screen: 0, ticks: {}, text: {}, choice: {}, miss: {}, checked: {},
+      marks: {}, pause: {}, rate: {}, set: {}, cloze: {}, part: {}, tour: 0, kit: "", back: -1, late: false };
   }
   function load() {
     var s;
@@ -130,37 +131,6 @@
     return s;
   }
 
-  function turnName(t) {
-    if (t.name) { return t.name; }
-    return role(t.who).name;
-  }
-  function turnHas(t, rid) {
-    return [].concat(t.who || []).indexOf(rid) >= 0;
-  }
-  // Who goes when, left to right; the pupil's own turns are marked.
-  function turnStrip(sc, mine) {
-    var ol = el("ol", "pr-turns");
-    ol.setAttribute("aria-label", "Who goes when");
-    sc.turns.forEach(function (t, i) {
-      var you = mine.some(function (r) { return turnHas(t, r); });
-      var li = el("li", you ? "is-you" : null);
-      if (i) { var arr = el("span", "pr-turn-arrow", "\u25B8"); arr.setAttribute("aria-hidden", "true"); li.appendChild(arr); }
-      li.appendChild(el("strong", null, turnName(t)));
-      if (t.text) { li.appendChild(el("span", "pr-turn-text", t.text)); }
-      if (you) { li.appendChild(el("span", "visually-hidden", " (you)")); }
-      ol.appendChild(li);
-    });
-    return ol;
-  }
-  function startWhen(sc, rid) {
-    if (!sc.turns) { return null; }
-    for (var i = 0; i < sc.turns.length; i++) {
-      if (turnHas(sc.turns[i], rid)) {
-        return i === 0 ? "You start." : "Start when: the " + turnName(sc.turns[i - 1]) + " is done.";
-      }
-    }
-    return null;
-  }
   function img(src, alt, cls) {
     var i = el("img", cls || "");
     i.src = IMG + src;
@@ -169,11 +139,6 @@
     i.decoding = "async";
     return i;
   }
-  function role(id) {
-    for (var i = 0; i < DATA.roles.length; i++) { if (DATA.roles[i].id === id) { return DATA.roles[i]; } }
-    return null;
-  }
-
   // ------------------------------------------------------------ glossary pop-ups
   var pop = null, popFor = null;
   function closePop(back) {
@@ -289,8 +254,9 @@
 
   BLOCK.p = function (b) { return para("pr-p" + (b.lead ? " pr-lead" : ""), b.text); };
 
+  // callouts: numbered to match the numbered discs on the screenshot beside it
   BLOCK.list = function (b) {
-    var ul = el(b.numbered ? "ol" : "ul", "pr-list");
+    var ul = el(b.numbered || b.callouts ? "ol" : "ul", "pr-list" + (b.callouts ? " is-callouts" : ""));
     b.items.forEach(function (t) { var li = el("li"); rich(t, li); ul.appendChild(li); });
     return ul;
   };
@@ -317,7 +283,6 @@
       S.ticks[id] = cb.checked;
       save();
       say(cb.checked ? "Ticked." : "Tick removed.");
-      waitingCheck();
     });
     box.appendChild(cb);
     var t = el("span", "pr-step-text");
@@ -377,6 +342,110 @@
     c.appendChild(list);
     return c;
   };
+  // One part shown 3 ways side by side: the symbol, the simulation, the real kit (teacher, 7 Oct).
+  BLOCK.views = function (b) {
+    var box = el("div", "pr-views");
+    if (b.title) { box.appendChild(para("pr-views-title", b.title)); }
+    var row = el("div", "pr-views-row");
+    b.items.forEach(function (v) {
+      var f = el("figure", "pr-view" + (v.photo ? " is-photo" : ""));
+      var w = el("div", "pr-view-pic");
+      w.appendChild(img(v.src, v.alt));
+      f.appendChild(w);
+      var cap = el("figcaption");
+      rich(v.label, cap);
+      f.appendChild(cap);
+      row.appendChild(f);
+    });
+    box.appendChild(row);
+    if (b.text) { box.appendChild(para("pr-p", b.text)); }
+    return box;
+  };
+
+  // A question whose answer picks what comes next: the chosen option's lines open under it.
+  // kit: the answer is also where this pupil is at the kit (first, join, late), which other steps read.
+  BLOCK.branch = function (b, id) {
+    var box = el("fieldset", "pr-branch");
+    var lg = el("legend", "pr-q");
+    rich(b.q, lg);
+    box.appendChild(lg);
+    var row = el("div", "pr-options is-stacked");
+    var c = S.choice[id];
+    b.options.forEach(function (o, k) {
+      var x = btn("pr-option", null, function () {
+        S.choice[id] = k;
+        if (b.kit) {
+          S.kit = o.key;
+          S.late = o.key === "late";
+          if (o.key !== "late") { S.back = -1; }
+        }
+        save();
+        render(false);
+        var again = root.querySelector('.pr-branch [data-k="' + k + '"]');
+        if (again) { again.focus(); }
+        say("Chosen: " + o.label.replace(/\*\*/g, ""));
+      });
+      x.dataset.k = k;
+      rich(o.label, x);
+      x.setAttribute("aria-pressed", c === k ? "true" : "false");
+      row.appendChild(x);
+    });
+    box.appendChild(row);
+    if (typeof c === "number") {
+      var then = el("div", "pr-branch-then");
+      blocks(b.options[c].items, id + "-o" + c, then);
+      box.appendChild(then);
+    }
+    return box;
+  };
+
+  // A button to another step. back: the step to come back to afterwards (the kit, for a pupil who waits).
+  BLOCK.goto = function (b) {
+    var p = el("p", "pr-linkline");
+    p.appendChild(btn("pr-btn pr-btn-main", b.text + " →", function () {
+      if (b.back) { S.back = stepIndex(b.back); }
+      go(stepIndex(b.to));
+    }));
+    return p;
+  };
+  function stepIndex(sid) {
+    for (var i = 0; i < N; i++) { if (DATA.screens[i].id === sid) { return i; } }
+    return S.screen;
+  }
+
+  // STOP: the air stays off until a teacher or classroom helper has checked the build (teacher, 7 Oct).
+  BLOCK.stop = function (b, id) {
+    var D = DATA.stop || {};
+    var card = el("section", "pr-stop");
+    card.setAttribute("aria-label", "Stop");
+    var head = el("div", "pr-stop-head");
+    head.appendChild(img(b.pic || D.pic || "hand_up.png", "", "pr-stop-pic"));
+    var h = el("p", "pr-stop-title");
+    h.appendChild(el("strong", null, "STOP. "));
+    h.appendChild(document.createTextNode(b.title || D.title || "No air yet."));
+    head.appendChild(h);
+    card.appendChild(head);
+    var ol = el("ol", "pr-list");
+    (b.lines || D.lines || []).forEach(function (t) { var li = el("li"); rich(t, li); ol.appendChild(li); });
+    card.appendChild(ol);
+    var lab = el("label", "pr-step pr-stop-tick");
+    var cb = el("input");
+    cb.type = "checkbox";
+    cb.checked = !!S.ticks[id];
+    cb.addEventListener("change", function () {
+      S.ticks[id] = cb.checked;
+      save();
+      say(cb.checked ? "Checked by an adult. You can test it now." : "Tick removed.");
+      if (DATA.screens[S.screen].needs === id) { render(true); }
+    });
+    lab.appendChild(cb);
+    var t = el("span", "pr-step-text");
+    rich(b.tick || D.tick || "A teacher or helper has checked it.", t);
+    lab.appendChild(t);
+    card.appendChild(lab);
+    return card;
+  };
+
   BLOCK.tour = function (b) {
     var p = el("p", "pr-linkline");
     p.appendChild(btn("pr-btn pr-btn-go", b.text || "Start the tour", function () { startTour(); }));
@@ -715,15 +784,16 @@
 
   BLOCK.rate = function (b, id) {
     var box = el("div", "pr-rate");
-    var LAB = ["1 Not yet", "2 Nearly", "3 I can"];
+    var LAB = b.labels || ["1 Not yet", "2 Nearly", "3 I can"];
     b.items.forEach(function (t, i) {
       var rid = id + "-" + i;
       var row = el("div", "pr-rate-row");
       row.setAttribute("role", "group");
       var p = el("p", "pr-rate-text");
       p.id = "r-" + rid;
-      p.appendChild(el("strong", null, "I can "));
-      p.appendChild(document.createTextNode(t));
+      var lead = b.lead == null ? "I can " : b.lead;
+      if (lead) { p.appendChild(el("strong", null, lead)); }
+      rich(t, p);
       row.setAttribute("aria-labelledby", p.id);
       row.appendChild(p);
       var opts = el("div", "pr-options");
@@ -766,63 +836,6 @@
       ul.appendChild(li);
     });
     box.appendChild(ul);
-    return box;
-  };
-
-  // The job chooser. Jobs sit in their pairs; a tap marks the job with a tick; a line says
-  // whose partner you are; the Next button sits right under the cards.
-  function roleButton(r) {
-    var b = btn("pr-role", null, function () {
-      var k = S.roles.indexOf(r.id);
-      if (k >= 0) { S.roles.splice(k, 1); }
-      else {
-        if (S.roles.length >= 2) { S.roles.shift(); }
-        S.roles.push(r.id);
-      }
-      save();
-      render(false);
-      var again = root.querySelector('.pr-role[data-role="' + r.id + '"]');
-      if (again) { again.focus(); }
-      say(mineLine() || "No job chosen.");
-    });
-    b.dataset.role = r.id;
-    var on = S.roles.indexOf(r.id) >= 0;
-    b.setAttribute("aria-pressed", on ? "true" : "false");
-    b.appendChild(img(r.icon, ""));
-    var t = el("span", "pr-role-text");
-    t.appendChild(el("strong", null, r.name));
-    t.appendChild(el("span", null, r.line));
-    b.appendChild(t);
-    b.appendChild(svg("pr-pick", on ? TICK : ""));
-    return b;
-  }
-  function mineLine() {
-    if (!S.roles.length) { return ""; }
-    var names = S.roles.map(function (x) { return role(x).name; });
-    if (S.roles.length > 1) { return "Your jobs: " + names.join(" and ") + "."; }
-    var me = role(S.roles[0]);
-    var mate = me.pair && DATA.roles.filter(function (x) { return x.pair === me.pair && x.id !== me.id; })[0];
-    return "Your job: " + me.name + "." + (mate ? " Your partner: the " + mate.name + "." : "");
-  }
-  BLOCK.roles = function (b) {
-    var box = el("div", "pr-roles");
-    if (b.q) { box.appendChild(para("pr-q", b.q)); }
-    var groups = DATA.pairs || [{ id: null }];
-    groups.forEach(function (g) {
-      var sec = el("div", "pr-pair");
-      if (g.name) { sec.appendChild(el("p", "pr-pair-name", g.name)); }
-      var grid = el("div", "pr-role-grid");
-      DATA.roles.forEach(function (r) {
-        if (g.id === null || r.pair === g.id) { grid.appendChild(roleButton(r)); }
-      });
-      sec.appendChild(grid);
-      if (g.note) { sec.appendChild(para("pr-pair-note", g.note)); }
-      box.appendChild(sec);
-    });
-    var foot = el("div", "pr-roles-foot");
-    var line = el("p", "pr-mine", mineLine() || "No job chosen yet.");
-    foot.appendChild(line);
-    box.appendChild(foot);
     return box;
   };
 
@@ -893,7 +906,10 @@
       case "cloze": return Object.keys(S.cloze[id] || {}).length >= b.lines.length;
       case "rate": return b.items.every(function (t, i) { return !!S.rate[id + "-" + i]; });
       case "step": case "booklet": return !!S.ticks[id];
-      case "roles": return S.roles.length > 0;
+      case "branch":
+        var k = S.choice[id];
+        return typeof k === "number" && listDone(b.options[k].items, id + "-o" + k);
+      case "stop": return !!S.ticks[id];
       case "set": return b.items.every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
       case "read": case "row": case "democard":
         return (b.items || []).every(function (x, k) { return itemDone(x, x.id || id + "-" + k); });
@@ -902,10 +918,6 @@
   }
   function listDone(list, base) {
     return (list || []).every(function (b, k) { return itemDone(b, b.id || base + "-" + k); });
-  }
-  function mineOn(sc) {
-    var mine = sc.swap ? S.roles.map(function (r) { return sc.swap[r] || r; }) : S.roles;
-    return mine.filter(function (r, i) { return sc.roles && sc.roles[r] && mine.indexOf(r) === i; });
   }
   function screenDone(k) {
     var sc = DATA.screens[k];
@@ -916,12 +928,7 @@
       ? sc.parts.every(function (pt, pi) { return listDone(pt.main, sc.id + "-p" + pi); })
       : listDone(sc.main, sc.id + "-m");
     ok = ok && listDone(sc.after, sc.id + "-a");
-    if (sc.roles) {
-      // no job chosen yet means the job cards are not done (they would pass "every" on an empty list)
-      ok = ok && mineOn(sc).length > 0 && mineOn(sc).every(function (rid) {
-        return sc.roles[rid].every(function (b, j) { return itemDone(b, b.id || sc.id + "-" + rid + "-" + j); });
-      });
-    }
+    if (sc.needs && !S.ticks[sc.needs]) { return false; }
     return ok;
   }
 
@@ -935,7 +942,7 @@
 
   // ------------------------------------------------------------ figures (with an optional second state)
   function figure(f) {
-    var fig = el("figure", "pr-fig" + (f.photo ? " is-photo" : ""));
+    var fig = el("figure", "pr-fig" + (f.photo ? " is-photo" : "") + (f.shot || f.wide ? " is-shot" : ""));
     var i = img(f.src, f.alt);
     fig.appendChild(i);
     if (f.src2) {
@@ -981,15 +988,13 @@
     { id: "ican", key: "ican", label: "I can" }
   ];
   var openPanel = null;
-  var waitingTab = null;
 
   function panelBox(sc, p) {
     var wrap = el("aside", "pr-side");
     wrap.id = "prPanel";
     wrap.setAttribute("aria-label", p.label);
     var head = el("div", "pr-panel-head");
-    head.appendChild(el("p", "pr-panel-title", p.id === "ch" && waitingTab && waitingTab.classList.contains("is-waiting")
-      ? "Waiting for your team? Try this" : p.label));
+    head.appendChild(el("p", "pr-panel-title", p.label));
     head.appendChild(btn("pr-btn pr-btn-quiet pr-panel-close", sc.fig ? "Back to the picture" : "Close", function () {
       togglePanel(null);
     }));
@@ -998,7 +1003,7 @@
     if (p.id === "ch") {
       var top = el("p", "pr-ch-top");
       top.appendChild(el("strong", null, "Challenge. "));
-      top.appendChild(document.createTextNode("Try it if you have time. Your team still moves on together."));
+      top.appendChild(document.createTextNode("Try it if you have time."));
       panel.appendChild(top);
     }
     blocks(sc[p.key], sc.id + "-" + (p.id === "ican" ? "ican" : p.id), panel);
@@ -1011,17 +1016,6 @@
     var b = id && openPanel ? root.querySelector(".pr-panel-head .pr-panel-close")
       : document.querySelector('.pr-tb-toggle[data-panel="' + id + '"]');
     if (b) { b.focus(); }
-  }
-
-  // "Waiting for your team? Try this." once every tick on your role cards is done
-  var tickIds = [];
-  function waitingCheck() {
-    if (!waitingTab || !tickIds.length) { return; }
-    var all = tickIds.every(function (k) { return S.ticks[k]; });
-    var was = waitingTab.classList.contains("is-waiting");
-    waitingTab.classList.toggle("is-waiting", all);
-    waitingTab.textContent = all ? "Waiting? Try this" : "Challenge";
-    if (all && !was) { say("All your jobs are ticked. Waiting for your team? Try the Challenge."); }
   }
 
   // One instruction at a time: in each list of tick lines, the next one is bright, done ones grey.
@@ -1040,93 +1034,6 @@
     });
   }
 
-  // A swap screen: the same team, new jobs. Shown as a box above the cards so no one misses it.
-  function swapBox(sc) {
-    var box = el("div", "pr-swap");
-    box.setAttribute("role", "note");
-    box.appendChild(el("p", "pr-swap-title", "Swap jobs"));
-    S.roles.forEach(function (r) {
-      var to = sc.swap[r] || r;
-      var line = el("p", "pr-swap-line");
-      line.appendChild(img(role(r).icon, "", "pr-swap-ic"));
-      line.appendChild(el("span", null, role(r).name));
-      line.appendChild(el("span", "pr-swap-arrow", "→"));
-      line.appendChild(img(role(to).icon, "", "pr-swap-ic"));
-      line.appendChild(el("strong", null, role(to).name));
-      box.appendChild(line);
-    });
-    if (sc.swapNote) { box.appendChild(para("pr-p", sc.swapNote)); }
-    return box;
-  }
-
-  // Your partner's job, as one line that opens: you can check on them without a second full card.
-  function mateLine(sc, shown) {
-    var mates = DATA.roles.filter(function (r) {
-      return sc.roles[r.id] && shown.indexOf(r.id) < 0 &&
-        shown.some(function (m) { return role(m).pair && role(m).pair === r.pair; });
-    });
-    if (!mates.length) { return null; }
-    var d = el("details", "pr-mate");
-    var sm = el("summary");
-    sm.appendChild(img(mates[0].icon, ""));
-    var t = el("span");
-    t.appendChild(el("strong", null, "Your partner: " + mates[0].name + ". "));
-    t.appendChild(document.createTextNode("Tap to see their job."));
-    sm.appendChild(t);
-    d.appendChild(sm);
-    var ul = el("ul", "pr-list");
-    sc.roles[mates[0].id].forEach(function (b) {
-      if (b.type === "link") { return; }
-      var li = el("li");
-      rich(b.text || ((b.kind ? b.kind + ": " : "") + (b.q || "")), li);
-      ul.appendChild(li);
-    });
-    d.appendChild(ul);
-    return d;
-  }
-
-  // ------------------------------------------------------------ a screen
-  function jobDone(sc, rid) {
-    return sc.roles[rid].every(function (b, j) { return itemDone(b, b.id || sc.id + "-" + rid + "-" + j); });
-  }
-  function firstToDo(sc, shown) {
-    var order = (sc.turns || []).reduce(function (a, t) { return a.concat(t.who || []); }, []).concat(shown);
-    for (var i = 0; i < order.length; i++) {
-      if (shown.indexOf(order[i]) >= 0 && !jobDone(sc, order[i])) { return order[i]; }
-    }
-    return shown[0];
-  }
-  function jobSwitch(sc, shown, cur) {
-    var row = el("div", "pr-jobswitch");
-    row.setAttribute("role", "group");
-    row.setAttribute("aria-label", "Your jobs");
-    row.appendChild(el("span", "pr-chips-label", "Your jobs:"));
-    shown.forEach(function (rid) {
-      var b = btn("pr-btn pr-btn-quiet", null, function () {
-        S.tab[sc.id] = rid;
-        save();
-        render(false);
-        var again = root.querySelector('.pr-jobswitch [data-role="' + rid + '"]');
-        if (again) { again.focus(); }
-      });
-      b.dataset.role = rid;
-      b.appendChild(img(role(rid).icon, "", "pr-swap-ic"));
-      var t = el("span");
-      b.appendChild(t);
-      b.setAttribute("aria-pressed", rid === cur ? "true" : "false");
-      row.appendChild(b);
-      function paint() { t.textContent = role(rid).name + (jobDone(sc, rid) ? " \u2713" : ""); }
-      paint();
-      refreshers.push(paint);
-    });
-    return row;
-  }
-
-  var ROLES_AT = 0;
-  DATA.screens.forEach(function (sc, k) {
-    if ((sc.main || []).some(function (b) { return b.type === "roles"; })) { ROLES_AT = k; }
-  });
-
   function topRow(sc, k) {
     var head = el("div", "pr-top");
     var left = el("div", "pr-head");
@@ -1143,7 +1050,7 @@
     if (meta.children.length) { left.appendChild(meta); }
     // back to the notes sits on the title row, so it costs the checks no height
     if (sc.parts && pi > 0 && !(sc.pause && !S.pause[sc.id])) {
-      left.appendChild(btn("pr-btn pr-btn-quiet pr-part-back", "\u2190 " + (sc.parts[pi - 1].back || "Back"), function () {
+      left.appendChild(btn("pr-btn pr-btn-quiet pr-part-back", "\u2190 Back", function () {
         S.part[sc.id] = pi - 1; save(); render(true);
       }));
     }
@@ -1174,15 +1081,37 @@
     return head;
   }
 
+  // A pupil who arrives late at the kit builds it later, by themselves (teacher, 7 Oct). Until they
+  // say the kit is free, the build step asks them that one question instead.
+  function kitFree(sc) {
+    var card = el("section", "pr-kitfree");
+    card.setAttribute("aria-label", "Is the kit free?");
+    card.appendChild(cardLabel(QMARK, "Is the kit free now?"));
+    card.appendChild(para("pr-p", sc.lateText || "Wait until the others have finished and handed you the parts."));
+    var row = el("div", "pr-options");
+    row.appendChild(btn("pr-btn pr-btn-main", "Yes: I'll build it now", function () {
+      S.kit = "own";
+      S.back = -1;
+      save();
+      render(true);
+      say("Build it yourself, one line at a time.");
+    }));
+    if (BUSY >= 0) {
+      row.appendChild(btn("pr-btn", "Not yet: go on with " + DATA.screens[BUSY].title, function () {
+        S.back = DATA.screens.indexOf(sc);
+        go(BUSY);
+      }));
+    }
+    card.appendChild(row);
+    return card;
+  }
+
   function screen(k) {
     var sc = DATA.screens[k];
     var wrap = el("section", "pr-screen");
     wrap.setAttribute("aria-labelledby", "prTitle");
     wrap.appendChild(topRow(sc, k));
     if (sc.mode || sc.do || sc.team || sc.done) { wrap.appendChild(doBox(sc, true)); }
-
-    tickIds = [];
-    waitingTab = document.querySelector('.pr-tb-toggle[data-panel="ch"]');
 
     if (sc.pause && !S.pause[sc.id]) {
       var card = el("div", "pr-pause");
@@ -1202,60 +1131,31 @@
 
     var body = el("div", "pr-body");
     var main = el("div", "pr-main");
-    if (sc.parts) {
+    var fig = sc.fig;
+    if (sc.kitBuild && S.kit === "late") {
+      main.appendChild(kitFree(sc));
+    } else if (sc.needs && !S.ticks[sc.needs]) {
+      // the test lines stay hidden until an adult has checked the build
+      main.appendChild(BLOCK.stop(DATA.stop || {}, sc.needs));
+    } else if (sc.parts) {
       var pi = Math.min(S.part[sc.id] || 0, sc.parts.length - 1);
       var part = sc.parts[pi];
+      if (part.fig) { fig = part.fig; }
       blocks(part.main, sc.id + "-p" + pi, main);
       if (pi < sc.parts.length - 1) {
         var on = el("p", "pr-linkline");
-        on.appendChild(btn("pr-btn pr-btn-go is-ready", (part.next || "Next part") + " →", function () {
+        var nb = btn("pr-btn pr-btn-go", (part.next || "Next part") + " →", function () {
           S.part[sc.id] = pi + 1; save(); render(true);
-        }));
+        });
+        on.appendChild(nb);
         main.appendChild(on);
+        // the next-part button lights up once this part's lines are done
+        var lit = function () { nb.classList.toggle("is-ready", listDone(part.main, sc.id + "-p" + pi)); };
+        lit();
+        refreshers.push(lit);
       }
     } else {
       blocks(sc.main, sc.id + "-m", main);
-    }
-
-    if (sc.roles) {
-      if (sc.swapBox) { main.appendChild(swapBox(sc)); }
-      var shown = mineOn(sc);
-      if (sc.turns) { main.appendChild(turnStrip(sc, shown)); }
-      // Two jobs (a team of 3): one card at a time, with a switch, so the eye has one list to follow.
-      var cur = shown.length > 1 ? (shown.indexOf(S.tab[sc.id]) >= 0 ? S.tab[sc.id] : firstToDo(sc, shown)) : null;
-      if (cur) { main.appendChild(jobSwitch(sc, shown, cur)); }
-      var cards = el("div", "pr-cards");
-      cards.style.setProperty("--n", "1");
-      shown.forEach(function (rid) {
-        if (cur && rid !== cur) {
-          sc.roles[rid].forEach(function (b, j) {
-            if (b.type === "step" || b.type === "booklet") { tickIds.push(b.id || sc.id + "-" + rid + "-" + j); }
-          });
-          return;
-        }
-        var c = el("article", "pr-card");
-        c.setAttribute("aria-label", "Your job: " + role(rid).name);
-        var top = el("header", "pr-card-head");
-        top.appendChild(img(role(rid).icon, ""));
-        top.appendChild(el("strong", null, role(rid).name));
-        var sw = startWhen(sc, rid);
-        if (sw) { top.appendChild(el("span", "pr-start", sw)); }
-        c.appendChild(top);
-        var list = el("div", "pr-items");
-        sc.roles[rid].forEach(function (b, j) {
-          // A role's opening link sits in its header: saves a row on the busiest screens.
-          if (j === 0 && b.type === "link") { top.appendChild(BLOCK.link(b)); return; }
-          var id = b.id || sc.id + "-" + rid + "-" + j;
-          if (b.type === "step" || b.type === "booklet") { tickIds.push(id); }
-          list.appendChild(block(b, id));
-        });
-        c.appendChild(list);
-        cards.appendChild(c);
-      });
-      if (!shown.length) { cards.appendChild(para("pr-p", "Choose your job on step " + (ROLES_AT + (HOWTO === 0 ? 0 : 1)) + " to see your card.")); }
-      main.appendChild(cards);
-      var mate = mateLine(sc, shown);
-      if (mate) { main.appendChild(mate); }
     }
     if (sc.finish && DATA.badge && DATA.badge.name) {
       main.appendChild(para("pr-badge-line", "**Badge earned:** " + DATA.badge.name + "."));
@@ -1263,10 +1163,14 @@
     body.appendChild(main);
 
     var p = openPanel && PANELS.filter(function (x) { return x.id === openPanel && sc[x.key]; })[0];
-    if (sc.fig || p || sc.after) {
+    if (fig || p || sc.after) {
       var col = el("div", "pr-sidecol");
       if (p) { col.appendChild(panelBox(sc, p)); }
-      else if (sc.fig) { col.appendChild(figure(sc.fig)); }
+      else if (fig) {
+        col.appendChild(figure(fig));
+        // a screenshot needs the room to read its numbers: the picture takes the wider column
+        if (fig.shot || fig.wide) { body.classList.add("has-shot"); }
+      }
       // "everyone" blocks sit under the picture, where the column has room; an open panel needs that room
       if (!p) { blocks(sc.after, sc.id + "-a", col); }
       body.appendChild(col);
@@ -1274,7 +1178,6 @@
       body.classList.add("is-single");
     }
     wrap.appendChild(body);
-    if (sc.roles) { waitingCheck(); }
 
     if (sc.finish && window.Progress && DATA.badge) {
       try { window.Progress.complete(DATA.badge.challenge); } catch (e) { /* progress engine missing */ }
@@ -1295,7 +1198,6 @@
     var ms = el("summary", "pr-btn pr-btn-quiet", "More");
     more.appendChild(ms);
     var menu = el("div", "pr-more-menu");
-    if (S.screen > ROLES_AT) { menu.appendChild(btn("pr-btn pr-btn-quiet", "Change my job", function () { go(ROLES_AT); })); }
     var armed = false;
     var clear = btn("pr-btn pr-btn-quiet", "Clear and start again", function () {
       if (!armed) {
@@ -1340,6 +1242,12 @@
       q.setAttribute("aria-label", "How this page works");
       left.appendChild(q);
     }
+    // waiting for the kit: a reminder that stays on every step until the pupil goes back to it
+    if (S.back >= 0 && S.screen !== S.back) {
+      var kb = btn("pr-btn pr-kitback", "Kit: come back", function () { go(S.back); });
+      kb.setAttribute("aria-label", "Go back to the kit: " + DATA.screens[S.back].title);
+      left.appendChild(kb);
+    }
     inner.appendChild(left);
 
     var mid = el("div", "pr-tb-mid");
@@ -1362,10 +1270,11 @@
     }
     nextBtn = null;
     if (S.screen < N - 1) {
-      var nx = DATA.screens[S.screen + 1];
-      nextBtn = btn("pr-btn pr-next", null, function () { go(S.screen + 1); });
+      var to = nextIndex(S.screen);
+      var nx = DATA.screens[to];
+      nextBtn = btn("pr-btn pr-next", null, function () { go(to); });
       var nw = el("span", "pr-next-word", "Next");
-      nw.appendChild(el("span", "pr-next-name", ": " + nx.title));
+      nw.appendChild(el("span", "pr-next-name", ": " + (to === S.back ? "back to the kit" : nx.title)));
       nextBtn.appendChild(nw);
       nextBtn.appendChild(el("span", "pr-next-arrow", "→"));
       nextBtn.setAttribute("aria-label", "Next step: " + nx.title);
@@ -1375,29 +1284,30 @@
     bar.appendChild(inner);
     return bar;
   }
-  // Next is always usable (the class moves on together); it fills and pulses once when Done when is met.
+  // Where Next goes. A pupil waiting for the kit goes back to it after the busy steps; once they
+  // have built it, the busy steps they already did are stepped over on the way to the end.
+  function nextIndex(k) {
+    if (S.back >= 0 && DATA.screens[k].busyEnd) { return S.back; }
+    var j = k + 1;
+    while (S.late && j < N - 1 && DATA.screens[j].busy && screenDone(j)) { j++; }
+    return j;
+  }
+  // Next is always usable (pupils move at their own pace); it fills and pulses once when Done when is met.
   var wasDone = null;
   function paintNext() {
     if (!nextBtn) { return; }
-    var done = screenDone(S.screen) && !(S.screen === ROLES_AT && !S.roles.length);
-    if (S.screen === ROLES_AT && !S.roles.length) {
-      nextBtn.disabled = true;
-      nextBtn.querySelector(".pr-next-name").textContent = ": choose your job first";
-    } else {
-      nextBtn.disabled = false;
-    }
+    var done = screenDone(S.screen);
     nextBtn.classList.toggle("is-ready", done);
     if (done && wasDone === false) {
       nextBtn.classList.remove("is-pulse");
       void nextBtn.offsetWidth;
       nextBtn.classList.add("is-pulse");
-      say("Done. Next lights up when your teacher says to move on.");
+      say("Done. Tap Next when you are ready.");
     }
     wasDone = done;
   }
 
   function go(k) {
-    if (k > ROLES_AT && !S.roles.length) { k = ROLES_AT; }
     var moved = k !== S.screen;
     if (moved) { openPanel = null; }
     S.screen = Math.max(0, Math.min(N - 1, k));
@@ -1423,12 +1333,10 @@
     var tb = toolbar();
     root.appendChild(screen(S.screen));
     document.body.appendChild(tb);
-    waitingTab = tb.querySelector('.pr-tb-toggle[data-panel="ch"]');
-    if (DATA.screens[S.screen].roles) { waitingCheck(); }
     wasDone = null;
     paintNext();
     focusSteps();
-    refreshers.push(paintNext, focusSteps, waitingCheck);
+    refreshers.push(paintNext, focusSteps);
     if (focus) {
       var h = document.getElementById("prTitle");
       if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
@@ -1442,8 +1350,11 @@
 
   // ------------------------------------------------------------ How this page works: a spotlight tour
   // One stop per tap, like a click-change slide: everything but the stop goes dim.
-  var HOWTO = -1;
-  DATA.screens.forEach(function (sc, k) { if (sc.needTour) { HOWTO = k; } });
+  var HOWTO = -1, BUSY = -1;
+  DATA.screens.forEach(function (sc, k) {
+    if (sc.needTour) { HOWTO = k; }
+    if (sc.busy && BUSY < 0) { BUSY = k; }
+  });
   var tourOn = false, tourAt = 0, tourTip = null, tourDim = null, tourEl = null;
   function endTour(finished) {
     if (tourEl) { tourEl.classList.remove("pr-spot"); }
@@ -1527,7 +1438,6 @@
     mapIds(sc.help, k, sc.id + "-help");
     mapIds(sc.wait, k, sc.id + "-wait");
     mapIds(sc.challenge, k, sc.id + "-ch");
-    Object.keys(sc.roles || {}).forEach(function (r) { mapIds(sc.roles[r], k, sc.id + "-" + r); });
   });
 
   // ------------------------------------------------------------ log in with a number (teacher, 6 Oct)
@@ -1560,7 +1470,8 @@
   function summary() {
     var done = [];
     DATA.screens.forEach(function (sc, k) { if (screenDone(k)) { done.push(sc.id); } });
-    return { step: S.screen, stepId: DATA.screens[S.screen].id, stepAt: S.stepAt || null, done: done };
+    return { step: S.screen, stepId: DATA.screens[S.screen].id, stepAt: S.stepAt || null, done: done, kit: S.kit || "",
+      waiting: S.back >= 0 };
   }
   function payload() {
     return { op: "save", num: WHO.num, lesson: TR.lesson, at: S.savedAt || Date.now(), summary: summary(), state: S };
@@ -1989,25 +1900,6 @@
         main.appendChild(pz);
       }
       if (sc.mode || sc.do || sc.done) { main.appendChild(doBox(sc)); }
-      if (sc.swapBox && sc.swap) {
-        var sw = el("div", "pr-swap");
-        sw.appendChild(el("p", "pr-swap-title", "Swap jobs"));
-        var seen = {};
-        DATA.roles.forEach(function (r) {
-          var to = sc.swap[r.id];
-          if (!to || seen[r.id]) { return; }
-          seen[r.id] = seen[to] = true;
-          var line = el("p", "pr-swap-line");
-          line.appendChild(img(r.icon, "", "pr-swap-ic"));
-          line.appendChild(el("strong", null, r.name));
-          line.appendChild(el("span", "pr-swap-arrow", "↔"));
-          line.appendChild(img(role(to).icon, "", "pr-swap-ic"));
-          line.appendChild(el("strong", null, role(to).name));
-          sw.appendChild(line);
-        });
-        main.appendChild(sw);
-      }
-      if (sc.turns) { main.appendChild(turnStrip(sc, [])); }
 
       var tm = el("div", "pr-timer");
       clock = el("div", "pr-clock");
@@ -2061,7 +1953,6 @@
   if (window.Progress && DATA.badge) {
     try { window.Progress.markSeen(DATA.badge.id); } catch (e) { /* progress engine missing */ }
   }
-  if (!S.roles.length && S.screen > ROLES_AT) { S.screen = ROLES_AT; }
   // iPad: the on-screen keyboard and a fixed toolbar fight for the same space, so the toolbar steps aside
   document.addEventListener("focusin", function (e) { if (e.target.tagName === "TEXTAREA") { document.body.classList.add("pr-typing"); } });
   document.addEventListener("focusout", function (e) { if (e.target.tagName === "TEXTAREA") { document.body.classList.remove("pr-typing"); } });

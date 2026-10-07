@@ -68,7 +68,6 @@
       walk(sc.main, sc.id + "-m", A.items, "core", sc);
       (sc.parts || []).forEach(function (p, pi) { walk(p.main, sc.id + "-p" + pi, A.items, "core", sc); });
       walk(sc.after, sc.id + "-a", A.items, "core", sc);
-      Object.keys(sc.roles || {}).forEach(function (r) { walk(sc.roles[r], sc.id + "-" + r, A.items, "role", sc); });
       walk(sc.wait, sc.id + "-wait", A.items, "wait", sc);
       walk(sc.challenge, sc.id + "-ch", A.items, "challenge", sc);
     });
@@ -103,7 +102,8 @@
     var k = stepOf(A, sm.stepId);
     var sc = A.data.screens[k];
     f.stepNo = k < 0 ? "" : String(k + 1 - A.off);
-    f.stepTitle = sc ? sc.title : "";
+    // a pupil who has gone on while the kit is busy (teacher, 7 Oct)
+    f.stepTitle = (sc ? sc.title : "") + (sm.waiting ? " (waiting for the kit)" : "");
     f.mins = sm.stepAt ? Math.max(0, Math.round((Date.now() - sm.stepAt) / 60000)) : null;
     f.stepDone = (sm.done || []).indexOf(sm.stepId) >= 0;
     f.slow = !!(sc && sc.mins && f.mins != null && f.mins > sc.mins + 3 && !f.stepDone);
@@ -630,7 +630,7 @@
       A.marked.forEach(function (m, i) { o[markLabel(m, i)] = f.marks[i]; });
       o.Challenges = f.ch;
       var k = 0;
-      A.rates.forEach(function (rt) { rt.b.items.forEach(function (t) { o["I can " + t] = f.ican[k++]; }); });
+      A.rates.forEach(function (rt) { rt.b.items.forEach(function (t) { o[(rt.b.lead == null ? "I can " : rt.b.lead) + t] = f.ican[k++]; }); });
       o["Come back to"] = f.back;
       o["Last saved"] = f.saved ? f.saved.toLocaleString() : "";
       out.push(o);
