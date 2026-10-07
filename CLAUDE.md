@@ -136,6 +136,11 @@ unless you're modernising the page.
 **Engineering Science pages** omit the inline `<style>` block and instead link
 `/assets/css/engineering-science.css?v=eng-YYYYMMDD`. They use `<main class="container">` (not
 `page-wrap`) and `<img class="banner">` directly inside it (no wrapper, no overlay text).
+**New and rebuilt Engineering pages open with the drawn `.band-banner`, never the photo banner**
+(teacher, 7 Oct 2026): `<header class="band-banner">` with a `.bb-chip` holding one sprite mark and
+the page title as a real-text `<h1>` + one-line `<p>` (pattern: `classes/s3-engineering/pneumatics.html`,
+`classes/n5-engineering/checkpoint-revision.html`). The banner carries the page's only `<h1>`. Older
+pages with the photo banner move to it on their next touch.
 
 ---
 
@@ -691,6 +696,10 @@ existing pages on their next touch**, alongside the dual-coding pass.
   `localStorage` (Phase 2c).
 - **Every symbol decoded (D11)**: a symbol glossary beside each equation, with name and unit.
 - **Questions (D10)**: command word bold and first, data in a list, marks at the end.
+- **Every quiz option teaches** (teacher, 7 Oct 2026; DECK-RULES 42): each multiple-choice option
+  carries feedback shown after it is picked. A wrong pick says why it is wrong and nudges towards
+  the right idea without naming the letter; the right one starts "Right." and shows the reasoning.
+  Pattern: the quiz on `classes/n5-engineering/checkpoint-revision.html`.
 - **Segment (C4)**: one new idea per section; long explanations use "next step" reveals.
 - **Glossary with pictures (D17, V1)** closes each topic page.
 - **Retrieval and self-rating (R2, R4, M2, R6)**: quick-quiz blocks with instant answers, a 1–3
