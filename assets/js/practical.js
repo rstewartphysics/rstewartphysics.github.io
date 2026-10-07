@@ -942,7 +942,7 @@
 
   // ------------------------------------------------------------ figures (with an optional second state)
   function figure(f) {
-    var fig = el("figure", "pr-fig" + (f.photo ? " is-photo" : "") + (f.shot || f.wide ? " is-shot" : ""));
+    var fig = el("figure", "pr-fig" + (f.photo ? " is-photo" : "") + (f.shot || f.wide ? " is-shot" : "") + (f.wide ? " is-wide" : ""));
     var i = img(f.src, f.alt);
     fig.appendChild(i);
     if (f.src2) {
