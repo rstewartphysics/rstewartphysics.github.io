@@ -289,7 +289,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   `classes/s3-engineering/pneumatics/practical-1.html`. The gate circuit, the kit picture and the
   bench card steps are drawn by R Stewart, adapted from the Matrix CP2080 Pneumatics Essentials
   worksheets (© Matrix Technology Solutions Limited); no Matrix images are copied. The simulation
-  (NoStrainSim) is linked, not embedded. The park in the job card is made up.
+  (NoStrainSim) is linked, not embedded. The park in the job card is made up. Rebuilt 7 October 2026:
+  the build-step kit pictures are drawn by R Stewart, and the air supply photo is R Stewart's own.
+  - Simulator screenshots — NoPressureSim by Peter Strain (NoStrainSims), free and open to all.
+    Taken from V3.2 of the simulator and numbered for the page.
   - Bus emergency door release — ZidaneHartono, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BPSWA_Leyland_Panther_PSUR1A-1R_(Howard_Porter)_1BPS988-Emergency_Door_Release.jpg). Resized.
 
 ## Corrections
