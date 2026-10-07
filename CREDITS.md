@@ -295,6 +295,28 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Taken from V3.2 of the simulator and numbered for the page.
   - Bus emergency door release — ZidaneHartono, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BPSWA_Leyland_Panther_PSUR1A-1R_(Howard_Porter)_1BPS988-Emergency_Door_Release.jpg). Resized.
 
+- **Engineering Science *Pneumatic components*** (added 7 October 2026) — the pages
+  `classes/engineering/pneumatic-components/`, an index and one page per component, shared by S3 and
+  N5, and the 19 A3 posters they link. The symbols are drawn by R Stewart to ISO 1219, as used in N5
+  Engineering Science. The kit drawings are drawn by R Stewart from the Matrix CP2080 kit
+  (© Matrix Technology Solutions Limited); no Matrix images are copied.
+
+- **Higher Physics *Forces* and *Energy & Power*** (added 7 October 2026) — the two lesson slide
+  decks `classes/higher/slides/h-odu2a-forces.pdf` and `h-odu2b-energy-power.pdf`, each with its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The lift, slope,
+  connected-object, terminal-velocity and energy drawings and graphs are drawn by R Stewart.
+  - Figures and questions: Higher Physics 2015 Section 1 Q4 and Q5; 2016 Section 2 Q2; 2017
+    Section 1 Q3; 2022 Paper 1 Q3, Q5 and Q6; 2023 Paper 1 Q4 and Paper 2 Q2; 2024 Paper 1 Q3
+    and Paper 2 Q2; 2025 Paper 1 Q3, Q4 and Q5 and Paper 2 Q1; 2026 Paper 1 Q2 and Q3. Starters
+    from Higher Physics 2007–2015, Revised Higher 2012–2014 and the Revised Higher specimen. The Higher Physics course
+    specification v3.0, p.7, is quoted. © Qualifications Scotland (SQA), reproduced for
+    educational use.
+  - Portrait of Isaac Newton — Godfrey Kneller, 1689, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:GodfreyKneller-IsaacNewton-1689.jpg). Resized to fit.
+  - A glass lift on the outside of a building — © David Anstiss, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/2020666). Resized to fit.
+  - A drop tower ride — Stefan Scheer, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Hangover%E2%80%93The_Tower-2.jpg). Resized to fit.
+  - Two skydivers in free fall, and a free-fall formation — Rstpch, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons ([pair](https://commons.wikimedia.org/wiki/File:Two_Skydivers_in_Linked_Freefall_Formation.jpg), [formation](https://commons.wikimedia.org/wiki/File:Group_of_Skydivers_in_Freefall_Formation_at_Sunset.jpg)). Resized to fit.
+  - A tower crane in Glasgow — © Richard Sutcliffe, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/7419831). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
