@@ -311,7 +311,6 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     from Higher Physics 2007–2015, Revised Higher 2012–2014 and the Revised Higher specimen. The Higher Physics course
     specification v3.0, p.7, is quoted. © Qualifications Scotland (SQA), reproduced for
     educational use.
-  - Portrait of Isaac Newton — Godfrey Kneller, 1689, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:GodfreyKneller-IsaacNewton-1689.jpg). Resized to fit.
   - A glass lift on the outside of a building — © David Anstiss, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/2020666). Resized to fit.
   - A drop tower ride — Stefan Scheer, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Hangover%E2%80%93The_Tower-2.jpg). Resized to fit.
   - Two skydivers in free fall, and a free-fall formation — Rstpch, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons ([pair](https://commons.wikimedia.org/wiki/File:Two_Skydivers_in_Linked_Freefall_Formation.jpg), [formation](https://commons.wikimedia.org/wiki/File:Group_of_Skydivers_in_Freefall_Formation_at_Sunset.jpg)). Resized to fit.
