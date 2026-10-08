@@ -332,6 +332,17 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Automatic bus doors — Leif Jørgensen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interior_of_autonomous_bus_in_Nordhavn_04.jpg). Resized to fit.
   - A smart light bulb — Danielrosehill, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zigbee_E27_Bulb.jpg). Resized to fit.
 
+- **National 5 Engineering Science *Flowcharts*** (added 8 October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L2-flowcharts.pdf` and its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The flowcharts are drawn
+  by R Stewart; the booklet pages shown are R Stewart's Booklet 4b.
+  - The flowchart symbols table from the N4/N5 Engineering Science Data Booklet, p.6; figures and
+    questions from N5 Engineering Science 2022 Q9 and 2024 Q11; marking instruction wording from
+    2021 Q13(b), 2022 Q9(a), 2023 Q8(a), 2024 Q11(b) and 2025 Q9(a). The course specification
+    v2.0, p.5, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+  - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
