@@ -342,6 +342,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     v2.0, p.5, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
   - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
   - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+- **National 5 Engineering Science *Reading Programs*** (added 8 October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L3-reading-programs.pdf` and its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The program listings and
+  flowcharts are drawn by R Stewart; the booklet pages shown are R Stewart's Booklet 4b.
+  - Figures and questions from N5 Engineering Science 2022 Q9(b)(c), 2023 Q9(c) and 2025 Q2, with
+    marking instructions for all three. The course specification v2.0, p.5, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
+  - Simulator screenshots — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
 
 ## Corrections
 
