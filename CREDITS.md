@@ -327,6 +327,50 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Automatic bus doors — Leif Jørgensen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interior_of_autonomous_bus_in_Nordhavn_04.jpg). Resized and cropped to fit.
   - A smart light bulb — Danielrosehill, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zigbee_E27_Bulb.jpg). Resized and cropped to fit.
 
+- **National 5 Engineering Science *Microcontrollers*** (added 8 October 2026) — the lesson slide
+  deck `assets/engineering-science/national-5/04b-programmable-control/slides/L1-microcontrollers.pdf`
+  and its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The microcontroller
+  wiring diagrams and the street-light circuit are drawn by R Stewart.
+  - Figures and questions: N5 Engineering Science 2023 Q9(d) and 2025 Q9(b)(c), with marking
+    instruction wording from 2021 Q7(b), 2022 Q14(c), 2023 Q9(d) and 2025 Q8(c) and Q9(b)(c). The
+    N5 Engineering Science course specification v2.0, p.5, is quoted. © Qualifications Scotland
+    (SQA), reproduced for educational use.
+  - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+  - A washing machine — Fanti Salms, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Front_Load_Washing_Machine.jpg). Resized to fit.
+  - A ticket machine — Infrastorian, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Plandome_LIRR_Station_Ticket_Vending_Machine,_July_3,_2026.jpg). Resized to fit.
+  - A packing line conveyor — SimónK, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:American_boxes.jpg). Resized to fit.
+  - Automatic bus doors — Leif Jørgensen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interior_of_autonomous_bus_in_Nordhavn_04.jpg). Resized to fit.
+  - A smart light bulb — Danielrosehill, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zigbee_E27_Bulb.jpg). Resized to fit.
+
+- **National 5 Engineering Science *Flowcharts*** (added 8 October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L2-flowcharts.pdf` and its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The flowcharts are drawn
+  by R Stewart; the booklet pages shown are R Stewart's Booklet 4b.
+  - The flowchart symbols table from the N4/N5 Engineering Science Data Booklet, p.6; figures and
+    questions from N5 Engineering Science 2022 Q9 and 2024 Q11; marking instruction wording from
+    2021 Q13(b), 2022 Q9(a), 2023 Q8(a), 2024 Q11(b) and 2025 Q9(a). The course specification
+    v2.0, p.5, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+  - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+- **National 5 Engineering Science *Reading Programs*** (added 8 October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L3-reading-programs.pdf` and its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The program listings and
+  flowcharts are drawn by R Stewart; the booklet pages shown are R Stewart's Booklet 4b.
+  - Figures and questions from N5 Engineering Science 2022 Q9(b)(c), 2023 Q9(c) and 2025 Q2, with
+    marking instructions for all three. The course specification v2.0, p.5, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
+  - Simulator screenshots — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+- **National 5 Engineering Science *Build, Test and Fix*** (added 9 October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L4-build-test-and-fix.pdf` and its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The flowcharts, wiring drawings
+  and breadboard drawings are by R Stewart (the breadboards from the site's Stripboard Builder engine);
+  the code and booklet pages shown are R Stewart's Booklet 4b.
+  - The course specification v2.0, pp.5 and 9, is quoted. © Qualifications Scotland (SQA), reproduced
+    for educational use.
+  - Simulator screenshots — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
