@@ -316,6 +316,22 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Two skydivers in free fall, and a free-fall formation — Rstpch, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons ([pair](https://commons.wikimedia.org/wiki/File:Two_Skydivers_in_Linked_Freefall_Formation.jpg), [formation](https://commons.wikimedia.org/wiki/File:Group_of_Skydivers_in_Freefall_Formation_at_Sunset.jpg)). Resized to fit.
   - A tower crane in Glasgow — © Richard Sutcliffe, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/7419831). Resized to fit.
 
+- **National 5 Engineering Science *Microcontrollers*** (added 8 October 2026) — the lesson slide
+  deck `assets/engineering-science/national-5/04b-programmable-control/slides/L1-microcontrollers.pdf`
+  and its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The microcontroller
+  wiring diagrams and the street-light circuit are drawn by R Stewart.
+  - Figures and questions: N5 Engineering Science 2023 Q9(d) and 2025 Q9(b)(c), with marking
+    instruction wording from 2021 Q7(b), 2022 Q14(c), 2023 Q9(d) and 2025 Q8(c) and Q9(b)(c). The
+    N5 Engineering Science course specification v2.0, p.5, is quoted. © Qualifications Scotland
+    (SQA), reproduced for educational use.
+  - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+  - A washing machine — Fanti Salms, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Front_Load_Washing_Machine.jpg). Resized to fit.
+  - A ticket machine — Infrastorian, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Plandome_LIRR_Station_Ticket_Vending_Machine,_July_3,_2026.jpg). Resized to fit.
+  - A packing line conveyor — SimónK, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:American_boxes.jpg). Resized to fit.
+  - Automatic bus doors — Leif Jørgensen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interior_of_autonomous_bus_in_Nordhavn_04.jpg). Resized to fit.
+  - A smart light bulb — Danielrosehill, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zigbee_E27_Bulb.jpg). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
