@@ -331,7 +331,7 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   deck `assets/engineering-science/national-5/04b-programmable-control/slides/L1-microcontrollers.pdf`
   and its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The microcontroller
   wiring diagrams and the street-light circuit are drawn by R Stewart.
-  - Figures and questions: N5 Engineering Science 2023 Q9(d) and 2025 Q9(b)(c), with marking
+  - Figures and questions: N5 Engineering Science 2023 Q9(d), with marking
     instruction wording from 2021 Q7(b), 2022 Q14(c), 2023 Q9(d) and 2025 Q8(c) and Q9(b)(c). The
     N5 Engineering Science course specification v2.0, p.5, is quoted. © Qualifications Scotland
     (SQA), reproduced for educational use.
@@ -349,7 +349,7 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   by R Stewart; the booklet pages shown are R Stewart's Booklet 4b.
   - The flowchart symbols table from the N4/N5 Engineering Science Data Booklet, p.6; figures and
     questions from N5 Engineering Science 2022 Q9 and 2024 Q11; marking instruction wording from
-    2021 Q13(b), 2022 Q9(a), 2023 Q8(a), 2024 Q11(b) and 2025 Q9(a). The course specification
+    2021 Q13(b), 2022 Q9(a), 2023 Q8(a) and 2024 Q11(b). The course specification
     v2.0, p.5, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
   - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
   - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
