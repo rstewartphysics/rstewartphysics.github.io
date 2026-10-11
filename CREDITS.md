@@ -315,6 +315,17 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - A drop tower ride — Stefan Scheer, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Hangover%E2%80%93The_Tower-2.jpg). Resized to fit.
   - Two skydivers in free fall, and a free-fall formation — Rstpch, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons ([pair](https://commons.wikimedia.org/wiki/File:Two_Skydivers_in_Linked_Freefall_Formation.jpg), [formation](https://commons.wikimedia.org/wiki/File:Group_of_Skydivers_in_Freefall_Formation_at_Sunset.jpg)). Resized to fit.
   - A tower crane in Glasgow — © Richard Sutcliffe, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/7419831). Resized to fit.
+- **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
+  `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
+  by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
+  site's Stripboard Builder engine). The practical sheets and the crossing simulator file are R Stewart's.
+  - Marking-instruction wording and past paper references (2021 to 2025), and the course specification
+    v2.0, pp.5 and 9. © Qualifications Scotland (SQA), reproduced for educational use.
+  - Simulator screenshot — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - A ticket machine — Infrastorian, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Plandome_LIRR_Station_Ticket_Vending_Machine,_July_3,_2026.jpg). Resized.
+  - A packing-line conveyor — SimónK, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:American_boxes.jpg). Resized and cropped to fit.
+  - Automatic bus doors — Leif Jørgensen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interior_of_autonomous_bus_in_Nordhavn_04.jpg). Resized and cropped to fit.
+  - A smart light bulb — Danielrosehill, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zigbee_E27_Bulb.jpg). Resized and cropped to fit.
 
 ## Corrections
 
