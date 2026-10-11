@@ -350,6 +350,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     marking instructions for all three. The course specification v2.0, p.5, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use.
   - Simulator screenshots — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+- **National 5 Engineering Science *Build, Test and Fix*** (added 9 October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L4-build-test-and-fix.pdf` and its
+  `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The flowcharts, wiring drawings
+  and breadboard drawings are by R Stewart (the breadboards from the site's Stripboard Builder engine);
+  the code and booklet pages shown are R Stewart's Booklet 4b.
+  - The course specification v2.0, pp.5 and 9, is quoted. © Qualifications Scotland (SQA), reproduced
+    for educational use.
+  - Simulator screenshots — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
 
 ## Corrections
 
