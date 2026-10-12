@@ -16,6 +16,9 @@ description: Scaffold a new HTML/CSS page for mrstewartphysics.co.uk (a class hu
 5. **Wire it into the site:** flip the hub placeholder from
    `<span class="topic-link soon">Label</span>` to a real `<a class="topic-link" href="…">`,
    and confirm the menu drawer already covers the section (don't add topic pages to the drawer).
+   Site search picks the page up by itself from its folder (CLAUDE.md "Site search"). Only a new
+   course folder needs a line in `COURSES` in `scripts/build-search.mjs`; a page that must not be
+   found (teacher view, draft) gets `search: false` in its front matter.
 6. **Wire in progress/badges (default on every new interactive page):** all live interactive subjects
    now run the shared engine, so a new topic page ships with tracking by default — run **`/add-progress`**
    (it encodes the proven procedure + guardrails). Load the two `defer` scripts in `<head>` after
