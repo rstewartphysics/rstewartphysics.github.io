@@ -1,0 +1,69 @@
+# Builds the site with the same Jekyll and plugins as GitHub Pages (the github-pages gem in the
+# Gemfile), adds the site-search index, and publishes it. Pull requests build and index too, so a
+# broken page or index shows up before it reaches main; only main is deployed.
+#
+# One-off setting: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+
+name: Build and deploy site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build with Jekyll
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAGES_REPO_NWO: ${{ github.repository }}
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+
+      - name: Build the search index
+        run: npm run search
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

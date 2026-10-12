@@ -22,7 +22,7 @@
 
     return Array.from(
       drawer.querySelectorAll(
-        'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+        'a[href], button:not([disabled]), input:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
       )
     ).filter(function (el) {
       return !el.hasAttribute("disabled") &&
@@ -60,7 +60,42 @@
     drawer.querySelectorAll("details[open]").forEach(function (d) {
       d.open = false;
     });
+    clearSearch();
+    drawer.dispatchEvent(new CustomEvent("site-menu:closed"));
     drawer.scrollTop = 0;
+  }
+
+  /* Search lives in its own script, fetched the first time the box is used, so a page that
+     never searches never pays for it. */
+  let searchRequested = false;
+
+  function loadSearch() {
+    if (searchRequested) return;
+    searchRequested = true;
+    const script = document.createElement("script");
+    script.src = "/assets/js/site-search.js";
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
+  function clearSearch() {
+    const input = byId("siteSearchInput");
+    if (!input || !input.value) return;
+    input.value = "";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  function initSearchBox() {
+    const form = byId("siteSearch");
+    const input = byId("siteSearchInput");
+    if (!form || !input) return;
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!form.dataset.ready) form.dataset.pendingSubmit = "1";
+    });
+    ["focus", "input", "pointerdown"].forEach(function (type) {
+      input.addEventListener(type, loadSearch, { once: true });
+    });
   }
 
   function closeMenu() {
@@ -166,7 +201,10 @@
     let x0 = 0, y0 = 0, dx = 0, mode = null;
 
     drawer.addEventListener("touchstart", function (e) {
+      mode = null;
       if (!drawer.classList.contains("is-open") || e.touches.length !== 1) return;
+      /* A sideways drag in the search box moves its cursor; it must not close the menu. */
+      if (e.target.closest("input")) { mode = "scroll"; return; }
       x0 = e.touches[0].clientX;
       y0 = e.touches[0].clientY;
       dx = 0;
@@ -231,15 +269,21 @@
     document.addEventListener("keydown", function (event) {
       const isOpen = drawer.classList.contains("is-open");
 
+      /* Esc empties the search box first, so a second Esc is needed to close the menu. */
       if (event.key === "Escape" && isOpen) {
         event.preventDefault();
-        closeMenu();
+        if (event.target.id === "siteSearchInput" && event.target.value) {
+          clearSearch();
+        } else {
+          closeMenu();
+        }
       }
 
       trapFocus(event);
     });
 
     markCurrentPage();
+    initSearchBox();
     swipeToClose(drawer);
     holdBadgeClearOfTopRow();
   }
