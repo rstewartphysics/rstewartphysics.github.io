@@ -187,7 +187,7 @@ pages to the drawer.**
 
 **Level rows (28 Sep 2026).** A level with more than its hub is a `.site-menu-level` split row: the
 name links to the hub, and a separate arrow (`<details class="site-menu-level-more">`) opens its
-hub, Topic pages, Slides and Practice tests. A level with only a hub is a plain link with no arrow —
+hub, Topic pages, Slides and Practice tests (Higher adds Past papers, 12 Oct 2026). A level with only a hub is a plain link with no arrow —
 never an arrow that opens onto nothing. When a level gains an index page, give it a split row (or
 add the link to its list). Groups share `name="site-menu-group"` and level lists
 `name="site-menu-level"`, so opening one closes the other with no JS. The list icons are drawer
