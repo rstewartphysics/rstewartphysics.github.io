@@ -111,6 +111,7 @@ input[type=text] {
 /* ----------------------------------------------
    QUESTIONS & SCENARIOS
 ---------------------------------------------- */
+.fb { font-weight: 700; margin: .4rem 0 0; min-height: 1.5em; }
 .question-box {
     background: rgba(255,255,255,0.08);
     padding: 1rem;
@@ -461,6 +462,7 @@ function generateQuestions(){
         <input type="text" id="q1">
         <button onclick="checkQ1(${tPrime.toFixed(2)})">Check</button>
         <div id="s1" class="solution">Correct answer: ${tPrime.toFixed(2)} s</div>
+        <p class="fb" aria-live="polite"></p>
     </div>
 
     <div class="question-box">
@@ -468,35 +470,44 @@ function generateQuestions(){
         <input type="text" id="q2">
         <button onclick="checkQ2(${LPrime.toFixed(2)})">Check</button>
         <div id="s2" class="solution">Correct answer: ${LPrime.toFixed(2)} m</div>
+        <p class="fb" aria-live="polite"></p>
     </div>
 
     <div class="question-box">
         <strong>3. True/False: The moving clock always ticks slower.</strong><br>
-        <button onclick="alert('Correct!')">True</button>
-        <button onclick="alert('Incorrect.')">False</button>
+        <button onclick="say(this,'Correct!')">True</button>
+        <button onclick="say(this,'Incorrect.')">False</button>
+        <p class="fb" aria-live="polite"></p>
     </div>
 
     <div class="question-box">
         <strong>4. Which effect is stronger at this speed?</strong><br>
-        <button onclick="alert('Correct — time dilation grows faster.')">Time dilation</button>
-        <button onclick="alert('No — contraction is weaker at moderate speeds.')">Length contraction</button>
-        <button onclick="alert('No.')">Neither</button>
+        <button onclick="say(this,'Correct — time dilation grows faster.')">Time dilation</button>
+        <button onclick="say(this,'No — contraction is weaker at moderate speeds.')">Length contraction</button>
+        <button onclick="say(this,'No.')">Neither</button>
+        <p class="fb" aria-live="polite"></p>
     </div>`;
 }
 
+function say(el,msg){
+    const fb=el.closest(".question-box").querySelector(".fb");
+    fb.textContent="";
+    requestAnimationFrame(()=>{ fb.textContent=msg; });
+}
+
 function checkQ1(ans){
-    const v=document.getElementById("q1").value;
-    if(isNaN(v) || v===""){ alert("Enter a number."); return; }
-    if(Math.abs(v-ans)<0.05){ alert("Correct!"); }
-    else{ alert("Incorrect. Try again."); }
+    const box=document.getElementById("q1");
+    const v=box.value;
+    if(isNaN(v) || v===""){ say(box,"Enter a number."); return; }
+    say(box, Math.abs(v-ans)<0.05 ? "Correct!" : "Incorrect. Try again.");
     document.getElementById("s1").style.display="block";
 }
 
 function checkQ2(ans){
-    const v=document.getElementById("q2").value;
-    if(isNaN(v) || v===""){ alert("Enter a number."); return; }
-    if(Math.abs(v-ans)<0.05){ alert("Correct!"); }
-    else{ alert("Incorrect. Try again."); }
+    const box=document.getElementById("q2");
+    const v=box.value;
+    if(isNaN(v) || v===""){ say(box,"Enter a number."); return; }
+    say(box, Math.abs(v-ans)<0.05 ? "Correct!" : "Incorrect. Try again.");
     document.getElementById("s2").style.display="block";
 }
 
