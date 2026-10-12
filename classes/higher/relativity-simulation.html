@@ -1,560 +1,824 @@
 ---
 layout: none
+title: Special relativity simulation — Higher Physics
 ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Higher Physics – Relativity Simulation</title>
-{% include site-head-icons.html %}
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eef8ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)" />
 
-<style>
-/* ----------------------------------------------
-   GLOBAL HIGHER BLUE THEME
----------------------------------------------- */
-body {
-    margin: 0;
-    font-family: "Trebuchet MS","Segoe UI",sans-serif;
-    background: radial-gradient(circle at 25% 30%, #0e1b38 0%, #152b63 45%, #0a1130 90%);
-    background-attachment: scroll;
-    color: #ffffff;
-    line-height: 1.5;
-}
-
-.page-wrap {
-    max-width: 1100px;
-    margin: 2rem auto;
-    padding: 0 1rem 4rem;
-}
-
-/* ----------------------------------------------
-   HIGHER TILE CARD STYLE
----------------------------------------------- */
-.card {
-    background: linear-gradient(145deg,#0e1b38,#152b63);
-    border-radius: 1rem;
-    padding: 1.6rem;
-    margin-bottom: 2rem;
-    box-shadow:
-      inset 0 0 22px rgba(255,255,255,0.06),
-      0 22px 40px rgba(0,0,0,0.78);
-    border: 2px solid rgba(255,255,255,0.18);
-    outline: 2px solid rgba(255,255,255,0.12);
-    outline-offset: -4px;
-}
-
-.card h2 {
-    margin: 0 0 1rem 0;
-    text-align: center;
-    font-size: 1.7rem;
-    font-weight: 700;
-    text-shadow: 0 0 12px rgba(0,255,255,0.65);
-}
-
-/* ----------------------------------------------
-   SIM CANVAS STYLING
----------------------------------------------- */
-canvas {
-    width: 100%;
-    max-width: 520px;
-    background: #000;
-    border-radius: 12px;
-    border: 2px solid rgba(0,255,255,0.25);
-    box-shadow: 0 0 18px rgba(0,255,255,0.25);
-    display: block;
-    margin: 1rem auto;
-}
-
-.panel-label {
-    text-align: center;
-    margin-top: 0.4rem;
-    font-size: 1rem;
-}
-
-/* ----------------------------------------------
-   BUTTONS / INPUTS
----------------------------------------------- */
-button {
-    font-family: inherit;
-    background: linear-gradient(135deg, #1e3a8a, #4169e1);
-    color: #fff;
-    padding: 0.6rem 1.1rem;
-    margin: 0.25rem;
-    border-radius: 0.6rem;
-    border: 1px solid rgba(255,255,255,0.22);
-    box-shadow: 0 0 12px rgba(0,150,255,0.35);
-    cursor: pointer;
-}
-
-button:hover,
-button:focus {
-    box-shadow: 0 0 16px rgba(0,200,255,0.75);
-    transform: translateY(-2px);
-}
-
-input[type=range] {
-    width: 100%;
-    accent-color: #00e0ff;
-    margin-top: 0.5rem;
-}
-
-input[type=number],
-input[type=text] {
-    padding: 0.4rem;
-    border: none;
-    border-radius: 0.4rem;
-    margin-left: 0.5rem;
-    width: 110px;
-}
-
-/* ----------------------------------------------
-   QUESTIONS & SCENARIOS
----------------------------------------------- */
-.fb { font-weight: 700; margin: .4rem 0 0; min-height: 1.5em; }
-.question-box {
-    background: rgba(255,255,255,0.08);
-    padding: 1rem;
-    border-radius: 0.7rem;
-    margin: 0.9rem 0;
-}
-
-.solution {
-    margin-top: 0.5rem;
-    color: #7fffd4;
-    display: none;
-}
-
-/* Scenario explanation toggle */
-.explain {
-    margin-top: 0.5rem;
-    padding: 0.6rem;
-    background: rgba(255,255,255,0.08);
-    border-radius: 0.6rem;
-    display: none;
-}
-
-/* ----------------------------------------------
-   RESPONSIVE
----------------------------------------------- */
-@media(max-width:700px){
-    canvas { max-width:100%; }
-}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
-footer{text-align:center;padding:1rem;font-size:.92rem;color:rgba(255,255,255,.7);border-top:1px solid rgba(255,255,255,.12)}
-</style>
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
+
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20260929c">
+  <link rel="stylesheet" href="/assets/css/reading.css">
+
+  <title>Special relativity simulation — Higher Physics</title>
+  {% include site-head-icons.html %}
+
+  <style>
+    :root { --warm: #c2410c; --ok: #15803d; }
+    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; --ok: #5dd693; } }
+
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .backlink:focus-visible { outline: var(--focus-ring); outline-offset: 3px; border-radius: 6px; }
+    .notes { color: var(--text); font-weight: 700; line-height: 1.55; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .35rem 0; }
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--text); }
+
+    /* ---- equation cards, real 2-D fractions and a drawn square root ---- */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(250px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ex-conv var, .sym-gloss var { font-style: italic; font-family: "Times New Roman", Times, Georgia, serif; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .3em; }
+    .frac > .fr-n { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 2px; }
+    .frac.sm { font-size: .72em; }
+    .frac.sm > span { padding: 0 .15em; }
+    .frac.sm > .fr-n { border-bottom-width: 1.5px; }
+    .sqrt { display: inline-flex; align-items: stretch; vertical-align: middle; }
+    .sqrt .rad { font-size: 1.45em; line-height: .9; align-self: center; margin-right: -.06em; }
+    .sqrt .rc sup { align-self: flex-start; font-size: .65em; line-height: 1; }
+    .sqrt .rc { display: inline-flex; align-items: center; gap: .12em; border-top: 2px solid currentColor; padding: .1em .15em 0; }
+
+    /* symbol glossary beside each relationship (D11) */
+    .sym-gloss { display: grid; grid-template-columns: auto auto auto; width: fit-content; max-width: 100%; gap: .3rem .8rem; margin: .7rem 0 0; padding: .6rem .8rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); font-weight: 800; color: var(--text); }
+    .sym-gloss dt { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.2rem; text-align: center; }
+    .sym-gloss dd { margin: 0; }
+    .sym-gloss .u { color: var(--muted); white-space: nowrap; }
+
+    /* words and figure together (dual coding) */
+    .dual { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.3fr); gap: 1rem 1.4rem; align-items: start; margin-top: .9rem; }
+    @media (max-width: 820px) { .dual { grid-template-columns: minmax(0,1fr); } }
+
+    /* ---- worked examples ---- */
+    .example { border: 1px solid var(--border-soft); border-left: 5px solid #15803d; border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin: 0 auto .65rem; max-width: 60ch; text-align: left; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .45rem .6rem; justify-content: center; align-items: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.15rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .8rem; color: var(--accent-2); white-space: normal; max-width: 17ch; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.08rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) {
+      .ex-flow { grid-template-columns: 1fr; }
+      .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; }
+      .ex-flow .calc { grid-column: 1; }
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    /* ---- simulation widgets ---- */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid #b8860b; border-radius: 14px; background: var(--surface-2); }
+    @media (prefers-color-scheme: dark) { .widget { border-left-color: #f3c969; } }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1.05rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .7rem 1rem; align-items: center; }
+    .speed-field { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-weight: 900; color: var(--text); }
+    .speed-field input[type="range"] { flex: 1 1 140px; min-width: 0; min-height: 44px; accent-color: var(--accent); }
+    .num { width: 5.4rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 44px; min-width: 44px; padding: .5rem .9rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn:focus-visible, .num:focus-visible, input[type="range"]:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btn.primary { background: linear-gradient(135deg, #3bb0ff, #0a4f86); color: #fff; border-color: transparent; }
+    .btn[aria-pressed="true"] { background: var(--accent-2); color: var(--card); border-color: transparent; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .7rem; }
+    .readouts { display: grid; gap: .3rem; margin-top: .7rem; font-weight: 900; color: var(--text); }
+    .readouts output { display: block; }
+    .sim { display: block; width: 100%; height: auto; margin-top: .7rem; border-radius: 10px; background: var(--card); border: 1px solid var(--border-soft); }
+    .sim .mirror { stroke: var(--text); stroke-width: 5; stroke-linecap: round; }
+    .sim .frame { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+    .sim .photon { fill: var(--accent); }
+    .sim .trace { stroke: var(--accent); stroke-width: 2.5; fill: none; stroke-linejoin: round; opacity: .75; }
+    .sim .vert { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 3 5; }
+    .sim text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 20px; }
+    .sim text.small { font-size: 17px; fill: var(--muted); }
+    .sim .arrow { stroke: var(--warm); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim text.v { fill: var(--warm); font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 26px; }
+    .sim .rocket { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.5; stroke-linejoin: round; }
+    .sim .ghost { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 5; }
+    .sim .dim { stroke: var(--text); stroke-width: 1.8; fill: none; }
+    .sim text.sym { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 26px; }
+    @media (max-width: 600px) { .sim text { font-size: 24px; } .sim text.small { font-size: 20px; } .sim text.v, .sim text.sym { font-size: 30px; } }
+    .ticks { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; margin-top: .5rem; font-weight: 900; color: var(--text); }
+
+    /* ---- practice ---- */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--warm); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #3bb0ff, #0a4f86); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .3rem 0 0; font-weight: 800; color: var(--text); }
+    .stem b { font-weight: 900; }
+    .data { margin: .4rem 0 0; padding-left: 1.2rem; font-weight: 800; color: var(--text); }
+    .answer-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .6rem; font-weight: 900; color: var(--text); }
+    .answer-row .num { width: 7rem; }
+    .fb-line { margin-top: .6rem; font-weight: 900; min-height: 1.2em; color: var(--text); }
+    .fb-line.ok { color: var(--ok); }
+    .fb-line.no { color: var(--warm); }
+    .working { font-family: "Times New Roman", Times, Georgia, serif; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .7rem; margin-top: .5rem; color: var(--text); font-weight: 600; font-size: 1.08rem; line-height: 1.6; }
+    .working[hidden] { display: none; }
+    details.reveal { margin-top: .8rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal > summary:focus-visible { outline: var(--focus-ring); outline-offset: -3px; }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--text); font-weight: 700; line-height: 1.55; }
+
+    /* ---- quiz: every option teaches ---- */
+    .mcq { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .mcq .qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .mcq-opts { display: grid; gap: .4rem; }
+    .mcq-opt { display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 48px; padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .mcq-opt:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .mcq-opt .ol { flex: 0 0 auto; width: 1.8rem; height: 1.8rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border-accent); font-weight: 900; }
+    .mcq-opt .om { margin-left: auto; font-weight: 900; white-space: nowrap; }
+    .mcq-opt.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--card)); }
+    .mcq-opt.right .om { color: var(--ok); }
+    .mcq-opt.wrong { border-color: var(--warm); background: color-mix(in srgb, var(--warm) 10%, var(--card)); }
+    .mcq-opt.wrong .om { color: var(--warm); }
+    .mcq-fb { margin: .55rem 0 0; padding: .55rem .75rem; border-radius: 10px; background: var(--surface-2); font-weight: 800; color: var(--text); }
+    .mcq-fb:empty { display: none; }
+    .score { font-weight: 900; margin-top: .8rem; color: var(--text); }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: min(220px, 100%); font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 48px; min-height: 48px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: .95rem; }
+    .rag-btns button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .words { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%),1fr)); gap: .6rem; margin: .6rem 0 0; }
+    .words div { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .6rem .75rem; }
+    .words dt { font-weight: 900; color: var(--text); }
+    .words dd { margin: .2rem 0 0; font-weight: 700; color: var(--text); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+    }
+  </style>
 </head>
 
-<body>
+<body class="reading">
   <a class="skip-link" href="#mainContent">Skip to content</a>
+
   {% include site-menu.html %}
-<div class="page-wrap" id="mainContent">
 
-<!-- ==============================================
-     CARD 1 — CONTROLS
-================================================== -->
-<div class="card">
-    <h2>Simulation Controls</h2>
-
-    <label><strong>Velocity (fraction of c):</strong></label>
-    <input type="range" id="velSlider" min="0" max="0.99" step="0.01" value="0.70">
-    <div>
-        <span id="velRead">0.70c</span> —
-        <span id="velMS">2.10 × 10⁸ m/s</span>
+  <header class="banner-wrap">
+    <img src="/assets/higher-physics-banner.jpeg" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Special relativity simulation</h1>
+      <p>Higher Physics · Our Dynamic Universe</p>
     </div>
-
-    <br>
-
-    <label>Enter Proper Time τ (s):</label>
-    <input type="number" id="tauInput" value="1.0" step="0.1" min="0">
-
-    <br><br>
-
-    <label>Enter Rest Length l₀ (m):</label>
-    <input type="number" id="lenInput" value="1.0" step="0.1" min="0">
-
-    <br><br>
-
-    <button onclick="snapSpeed(0.50)">0.50c</button>
-    <button onclick="snapSpeed(0.70)">0.70c</button>
-    <button onclick="snapSpeed(0.90)">0.90c</button>
-    <button onclick="snapSpeed(0.99)">0.99c</button>
-
-    <br><br>
-    <button id="playBtn">Pause</button>
-    <button id="resetBtn">Reset</button>
-
-    <br><br>
-
-    <div id="gammaRead">γ = 1.40</div>
-
-    <!-- Hidden initially -->
-    <div id="properRead">Proper Time τ = 1.00 s</div>
-    <div id="timeRead" style="display:none;">Dilated Time t' = 1.40 s</div>
-    <div id="lengthRead" style="display:none;">Contracted Length l' = 0.71 m</div>
-
-    <br>
-    <button id="revealBtn">Reveal Answers</button>
-
-    <hr>
-
-    <em style="font-size:0.95rem; opacity:0.85; display:block; margin-top:1rem;">
-        Note: The animation shows the moving clock ticking slower (proper time).  
-        The SQA equation calculates the dilated time observed from the stationary frame.  
-    </em>
-</div>
-
-
-<!-- ==============================================
-     CARD 2 — PRACTICE QUESTIONS
-================================================== -->
-<div class="card">
-    <h2>Practice Questions</h2>
-
-    <div id="questionArea"></div>
-    <button onclick="generateQuestions()">New Questions</button>
-</div>
-
-
-<!-- ==============================================
-     CARD 3 — SCENARIO GENERATOR
-================================================== -->
-<div class="card">
-    <h2>Scenario Problem</h2>
-
-    <div id="scenarioBox"></div>
-    <button onclick="generateScenario()">New Scenario</button>
-</div>
-
-
-<!-- ==============================================
-     CARD 4 — SIMULATION
-================================================== -->
-<div class="card">
-    <h2>Relativity Simulation</h2>
-
-    <canvas id="clock" width="440" height="350"></canvas>
-    <div class="panel-label">Light Clock (Proper vs Dilated Time)</div>
-
-    <canvas id="ship" width="550" height="250"></canvas>
-    <div class="panel-label">Spaceship (Length Contraction)</div>
-</div>
-
-</div> <!-- end page wrap -->
-
-
-<!-- ==============================================
-     JAVASCRIPT ENGINE
-================================================== -->
-<script>
-/* CONSTANTS */
-const c = 3e8;
-let dt = 0.033;
-let running = true;
-
-/* ANIMATION COUNTERS */
-let properAnim = 0;
-let dilatedAnim = 0;
-
-/* UI REFERENCES */
-const velSlider = document.getElementById("velSlider");
-const velRead = document.getElementById("velRead");
-const velMS = document.getElementById("velMS");
-const tauInput = document.getElementById("tauInput");
-const lenInput = document.getElementById("lenInput");
-const gammaRead = document.getElementById("gammaRead");
-const properRead = document.getElementById("properRead");
-const timeRead = document.getElementById("timeRead");
-const lengthRead = document.getElementById("lengthRead");
-const revealBtn = document.getElementById("revealBtn");
-const questionArea = document.getElementById("questionArea");
-const scenarioBox = document.getElementById("scenarioBox");
-
-/* Canvas */
-const clock = document.getElementById("clock");
-const ctx = clock.getContext("2d");
-const ship = document.getElementById("ship");
-const sctx = ship.getContext("2d");
-
-/* MATH FUNCTIONS */
-function gamma(v){ return 1/Math.sqrt(1 - v*v); }
-function ms(v){ return v*c; }
-function sci(x){ return (x/1e8).toFixed(2)+" × 10⁸"; }
-
-/* SNAP SPEED */
-function snapSpeed(v){
-    velSlider.value = v;
-    updateAll();
-}
-
-/* ----------------------------------------------
-   UPDATE UI AND PHYSICS OUTPUTS
----------------------------------------------- */
-function updateAll(){
-    const v=parseFloat(velSlider.value);
-    const g=gamma(v);
-    const tau=parseFloat(tauInput.value);
-    const L0=parseFloat(lenInput.value);
-
-    const tPrime = tau / Math.sqrt(1 - v*v);
-    const LPrime = L0 * Math.sqrt(1 - v*v);
-
-    /* Update text */
-    velRead.textContent = v.toFixed(2)+"c";
-    velMS.textContent = sci(ms(v))+" m/s";
-    gammaRead.textContent = "γ = "+g.toFixed(2);
-    properRead.textContent = "Proper Time τ = "+tau.toFixed(2)+" s";
-
-    /* Store answers for reveal */
-    timeRead.textContent = "Dilated Time t' = "+tPrime.toFixed(2)+" s";
-    lengthRead.textContent = "Contracted Length l' = "+LPrime.toFixed(2)+" m";
-
-    generateQuestions();
-    generateScenario();
-}
-
-/* Reveal answers */
-revealBtn.addEventListener("click",()=>{
-    timeRead.style.display="block";
-    lengthRead.style.display="block";
-    revealBtn.style.display="none"; // remove button after reveal
-});
-
-/* ----------------------------------------------
-   DRAW CLOCK
----------------------------------------------- */
-function drawClock(){
-
-    ctx.clearRect(0,0,clock.width,clock.height);
-
-    ctx.strokeStyle="#fff";
-    ctx.strokeRect(60,50,60,260);
-    ctx.strokeRect(260,50,60,260);
-
-    ctx.fillStyle="#fff";
-    ctx.font="15px Trebuchet MS";
-    ctx.fillText("Rest Clock (τ)",40,28);
-    ctx.fillText("Moving Clock (t')",240,28);
-
-    /* Positions */
-    let yRest = 50 + (properAnim*60)%260;
-    let yMove = 50 + (dilatedAnim*60)%260;
-
-    /* Rest photon */
-    ctx.shadowColor="rgba(0,255,255,0.6)";
-    ctx.shadowBlur=10;
-    ctx.fillStyle="#00eaff";
-    ctx.beginPath();
-    ctx.arc(90,yRest,8,0,2*Math.PI);
-    ctx.fill();
-
-    /* Moving photon */
-    ctx.shadowColor="rgba(190,90,255,0.7)";
-    ctx.shadowBlur=14;
-    ctx.fillStyle="#c060ff";
-    ctx.beginPath();
-    ctx.arc(290,yMove,8,0,2*Math.PI);
-    ctx.fill();
-
-    ctx.shadowBlur=0;
-}
-
-/* ----------------------------------------------
-   DRAW LENGTH CONTRACTION
----------------------------------------------- */
-function drawShip(){
-
-    sctx.clearRect(0,0,ship.width,ship.height);
-
-    const v=parseFloat(velSlider.value);
-    const X=60, Y=60, H=40, L0=320;
-
-    const Lc = L0*Math.sqrt(1-v*v);
-
-    /* Ruler */
-    const rY=Y+H+35;
-
-    sctx.strokeStyle="#3498db";
-    sctx.beginPath();
-    sctx.moveTo(X-10,rY);
-    sctx.lineTo(X+L0+60,rY);
-    sctx.stroke();
-
-    for(let x=X;x<=X+L0;x+=20){
-        sctx.beginPath();
-        sctx.moveTo(x,rY-5);
-        sctx.lineTo(x,rY+5);
-        sctx.stroke();
-    }
-
-    /* Rest ship */
-    sctx.shadowColor="rgba(0,180,255,0.5)";
-    sctx.shadowBlur=10;
-    sctx.fillStyle="#4466ff";
-    sctx.fillRect(X,Y,L0,H);
-    sctx.shadowBlur=0;
-    sctx.fillStyle="#fff";
-    sctx.fillText("Rest length L₀",X,Y-8);
-
-    /* Moving ship */
-    const Y2=Y+70;
-    sctx.fillStyle="#ff4444";
-    sctx.fillRect(X,Y2,Lc,H);
-    sctx.fillStyle="#fff";
-    sctx.fillText("Moving length l'",X,Y2-8);
-    sctx.fillText(`l'/L₀ = ${(Lc/L0).toFixed(2)}`,X+L0+10,Y2+H/2+5);
-}
-
-/* ----------------------------------------------
-   ANIMATION LOOP
----------------------------------------------- */
-function animate(){
-    if(running){
-        const v=parseFloat(velSlider.value);
-        const g=gamma(v);
-
-        properAnim += dt;
-        dilatedAnim += dt/g;
-
-        drawClock();
-        drawShip();
-    }
-    requestAnimationFrame(animate);
-}
-animate();
-
-/* Controls */
-document.getElementById("playBtn").onclick=()=>{
-    running=!running;
-    playBtn.textContent=running?"Pause":"Play";
-}
-
-document.getElementById("resetBtn").onclick=()=>{
-    properAnim=0;
-    dilatedAnim=0;
-    updateAll();
-}
-
-/* Inputs */
-velSlider.addEventListener("input",updateAll);
-tauInput.addEventListener("input",updateAll);
-lenInput.addEventListener("input",updateAll);
-
-/* Initial setup */
-updateAll();
-
-/* ===============================================
-   PRACTICE QUESTIONS
-=============================================== */
-function generateQuestions(){
-    const v=parseFloat(velSlider.value);
-    const tau=parseFloat(tauInput.value);
-    const L0=parseFloat(lenInput.value);
-
-    const tPrime = tau/Math.sqrt(1-v*v);
-    const LPrime = L0*Math.sqrt(1-v*v);
-
-    questionArea.innerHTML=`
-    <div class="question-box">
-        <strong>1. Calculate t' for τ = ${tau.toFixed(2)} s and v = ${v.toFixed(2)}c</strong><br>
-        <input type="text" id="q1">
-        <button onclick="checkQ1(${tPrime.toFixed(2)})">Check</button>
-        <div id="s1" class="solution">Correct answer: ${tPrime.toFixed(2)} s</div>
-        <p class="fb" aria-live="polite"></p>
-    </div>
-
-    <div class="question-box">
-        <strong>2. Calculate l' for L₀ = ${L0.toFixed(2)} m at v = ${v.toFixed(2)}c</strong><br>
-        <input type="text" id="q2">
-        <button onclick="checkQ2(${LPrime.toFixed(2)})">Check</button>
-        <div id="s2" class="solution">Correct answer: ${LPrime.toFixed(2)} m</div>
-        <p class="fb" aria-live="polite"></p>
-    </div>
-
-    <div class="question-box">
-        <strong>3. True/False: The moving clock always ticks slower.</strong><br>
-        <button onclick="say(this,'Correct!')">True</button>
-        <button onclick="say(this,'Incorrect.')">False</button>
-        <p class="fb" aria-live="polite"></p>
-    </div>
-
-    <div class="question-box">
-        <strong>4. Which effect is stronger at this speed?</strong><br>
-        <button onclick="say(this,'Correct — time dilation grows faster.')">Time dilation</button>
-        <button onclick="say(this,'No — contraction is weaker at moderate speeds.')">Length contraction</button>
-        <button onclick="say(this,'No.')">Neither</button>
-        <p class="fb" aria-live="polite"></p>
-    </div>`;
-}
-
-function say(el,msg){
-    const fb=el.closest(".question-box").querySelector(".fb");
-    fb.textContent="";
-    requestAnimationFrame(()=>{ fb.textContent=msg; });
-}
-
-function checkQ1(ans){
-    const box=document.getElementById("q1");
-    const v=box.value;
-    if(isNaN(v) || v===""){ say(box,"Enter a number."); return; }
-    say(box, Math.abs(v-ans)<0.05 ? "Correct!" : "Incorrect. Try again.");
-    document.getElementById("s1").style.display="block";
-}
-
-function checkQ2(ans){
-    const box=document.getElementById("q2");
-    const v=box.value;
-    if(isNaN(v) || v===""){ say(box,"Enter a number."); return; }
-    say(box, Math.abs(v-ans)<0.05 ? "Correct!" : "Incorrect. Try again.");
-    document.getElementById("s2").style.display="block";
-}
-
-/* ===============================================
-   SCENARIO GENERATOR
-=============================================== */
-function generateScenario(){
-
-    const v=parseFloat(velSlider.value);
-    const g=gamma(v);
-
-    const stars=[5,8,10,12,15];
-    const D=stars[Math.floor(Math.random()*stars.length)];
-
-    const tEarth=D/v;
-    const tShip=tEarth/g;
-
-    scenarioBox.innerHTML=`
-    <div class="question-box">
-        <strong>Interstellar Trip Scenario</strong><br><br>
-
-        A spaceship travels <strong>${D} light-years</strong> at  
-        <strong>${v.toFixed(2)}c</strong>.<br><br>
-
-        <strong>1.</strong> Earth observes: <strong>${tEarth.toFixed(2)} years</strong><br>
-        <strong>2.</strong> Astronauts experience: <strong>${tShip.toFixed(2)} years</strong><br><br>
-
-        <button id="showExplain">Show Explanation</button>
-
-        <div id="explainText" class="explain">
-            Because the astronauts are moving quickly, their clock runs slower.
-            Less time passes for them, so they age less during the trip.
+  </header>
+
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#c1"><span class="sn-full">Time dilation</span><span class="sn-short">Time</span></a>
+        <a class="subnav-link" href="#c2"><span class="sn-full">Length contraction</span><span class="sn-short">Length</span></a>
+        <a class="subnav-link" href="#c3">Journey</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Special relativity simulation</h1>
+    <a class="backlink" href="/classes/higher/simulations.html"><span aria-hidden="true">←</span> Back to Higher simulations</a>
+
+    <section class="panel" aria-labelledby="intro-title">
+      <h2 id="intro-title">The speed of light is the same for everyone</h2>
+      <p class="lead">Every observer measures the same speed of light in a vacuum, <var>c</var> = 3.00 × 10<sup>8</sup> m s<sup>−1</sup>, however fast they are moving. Two results follow: a moving clock runs slow, and a moving object is shorter. Set a speed below and watch both happen.</p>
+    </section>
+
+    <!-- ================= CONCEPT 1 ================= -->
+    <section class="panel" id="c1" aria-labelledby="c1-title">
+      <span class="concept-tag">Concept 1</span>
+      <h2 id="c1-title">Time dilation</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Time dilation</div>
+          <div class="eq-formula" role="img" aria-label="t prime equals t divided by the square root of 1 minus v over c, all squared"><var>t</var>′ = <span class="frac"><span class="fr-n"><var>t</var></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></div>
+          <div class="eq-desc">as on the relationships sheet</div>
         </div>
-    </div>
-    `;
+      </div>
+      <dl class="sym-gloss" aria-label="Symbols in the time dilation relationship">
+        <dt><var>t</var>′</dt><dd>time measured by an observer the clock moves past</dd><dd class="u">s</dd>
+        <dt><var>t</var></dt><dd>time measured beside the clock, moving with it</dd><dd class="u">s</dd>
+        <dt><var>v</var></dt><dd>speed of the clock</dd><dd class="u">m s<sup>−1</sup></dd>
+        <dt><var>c</var></dt><dd>speed of light, 3.00 × 10<sup>8</sup></dd><dd class="u">m s<sup>−1</sup></dd>
+      </dl>
 
-    document.getElementById("showExplain").onclick = ()=>{
-        document.getElementById("explainText").style.display="block";
-    };
-}
+      <div class="dual">
+        <div class="notes">
+          <ul>
+            <li>A <strong>light clock</strong> is a pulse of light bouncing between two <strong>mirrors</strong>. One tick is one trip up and back.</li>
+            <li>Watch the <strong>moving clock</strong>. To you, its light follows a longer, slanted <strong>light path</strong>.</li>
+            <li>The light still travels at <var>c</var>. A longer path at the same speed takes longer, so each tick of the moving clock lasts longer than a tick of the <strong>clock at rest</strong>.</li>
+            <li>So you measure a moving clock running slow. This is <strong>time dilation</strong>.</li>
+            <li><var>t</var>′ is always bigger than <var>t</var>. If your answer is smaller, you multiplied when you should have divided.</li>
+          </ul>
+        </div>
 
-/* Initial generation */
-generateScenario();
-generateQuestions();
+        <div class="widget" id="clockWidget">
+          <h3>Light clocks</h3>
+          <div class="controls">
+            <div class="speed-field">
+              <span>Speed</span>
+              <input type="range" class="speed-range" min="0" max="0.99" step="0.01" value="0.80" aria-label="Speed, as a fraction of the speed of light">
+              <input type="number" class="num speed-num" min="0" max="0.99" step="0.01" value="0.80" aria-label="Speed, typed, as a fraction of the speed of light">
+              <span>× <var>c</var></span>
+            </div>
+            <div class="btnrow" role="group" aria-label="Preset speeds">
+              <button class="btn speed-preset" type="button" data-b="0.50" aria-pressed="false">0.50<var>c</var></button>
+              <button class="btn speed-preset" type="button" data-b="0.80" aria-pressed="false">0.80<var>c</var></button>
+              <button class="btn speed-preset" type="button" data-b="0.90" aria-pressed="false">0.90<var>c</var></button>
+              <button class="btn speed-preset" type="button" data-b="0.99" aria-pressed="false">0.99<var>c</var></button>
+            </div>
+          </div>
+          <div class="btnrow">
+            <button class="btn" type="button" id="playBtn" aria-pressed="false">Pause</button>
+            <button class="btn" type="button" id="resetBtn">Reset ticks</button>
+          </div>
+          <svg class="sim" id="clockSvg" viewBox="0 0 500 300" role="img" aria-labelledby="clockTitle">
+            <title id="clockTitle">Two light clocks</title>
+            <line class="mirror" x1="42" y1="50" x2="98" y2="50"/>
+            <line class="mirror" x1="42" y1="230" x2="98" y2="230"/>
+            <circle class="photon" id="restPhoton" cx="70" cy="230" r="7"/>
+            <text x="70" y="266" text-anchor="middle">clock at rest</text>
+            <text x="70" y="290" text-anchor="middle" class="small">beside you</text>
+            <polyline class="trace" id="trace" points=""/>
+            <line class="mirror" id="mTop" x1="0" y1="50" x2="56" y2="50"/>
+            <line class="mirror" id="mBot" x1="0" y1="230" x2="56" y2="230"/>
+            <circle class="photon" id="movePhoton" cx="0" cy="230" r="7"/>
+            <text x="325" y="266" text-anchor="middle">moving clock</text>
+            <text x="325" y="290" text-anchor="middle" class="small">slanted line = light path</text>
+            <path class="arrow" d="M390 22 H470 M460 14 L470 22 L460 30"/>
+            <text class="v" x="378" y="30" text-anchor="end">v</text>
+            <text x="70" y="36" text-anchor="middle" class="small">mirror</text>
+          </svg>
+          <div class="ticks" aria-live="off"><span>Ticks counted</span>
+            <span>Clock at rest: <span id="restTicks">0</span></span>
+            <span>Moving clock: <span id="moveTicks">0</span></span>
+          </div>
+          <div class="readouts">
+            <output class="ro-v"></output>
+            <output id="tickRatio"></output>
+          </div>
+        </div>
+      </div>
 
-</script>
+      <h3 class="ex-divider">Worked examples</h3>
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">A muon lives for 2.2 μs, measured in its own frame. It travels towards Earth at 0.995<var>c</var>. Calculate its lifetime measured by an observer on Earth.</div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>t</var> = 2.2 × 10<sup>−6</sup> s <span class="u">μs → s</span></div>
+            <div><var>v</var>/<var>c</var> = 0.995 <span class="u">read off 0.995<var>c</var></span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n"><var>t</var></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n">2.2 × 10<sup>−6</sup></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − 0.995<sup>2</sup></span></span></span></span></span><span class="note-cell">numbers in</span></div>
+            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs">2.2 × 10<sup>−6</sup> ÷ 0.0999</span><span class="note-cell">square, take from 1, root</span></div>
+            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs">2.2 × 10<sup>−5</sup> s</span><span class="note-cell">ten times longer</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <div class="ex-q">A clock on a spacecraft records a journey time of 30 minutes. Observers on Earth measure the same journey as 50 minutes. Calculate the speed of the spacecraft.</div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n"><var>t</var></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">50</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n">30</span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></span><span class="note-cell">numbers in first; minutes cancel</span></div>
+          <div class="calc-row"><span class="lhs"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="eq">=</span><span class="rhs">30 ÷ 50 = 0.60</span><span class="note-cell">now rearrange</span></div>
+          <div class="calc-row"><span class="lhs">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.36</span><span class="note-cell">square both sides</span></div>
+          <div class="calc-row"><span class="lhs">(<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.64</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">0.80 × 3.00 × 10<sup>8</sup></span><span class="note-cell">root, then × <var>c</var></span></div>
+          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">2.4 × 10<sup>8</sup> m s<sup>−1</sup></span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="practice" id="pt">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem" id="pt-stem"></p>
+        <ul class="data" id="pt-data"></ul>
+        <div class="answer-row">
+          <label for="pt-in">Your answer</label>
+          <input class="num" id="pt-in" type="text" inputmode="decimal" autocomplete="off">
+          <span id="pt-unit"></span>
+          <button class="btn primary" type="button" id="pt-check">Check</button>
+          <button class="btn" type="button" id="pt-new">New question</button>
+        </div>
+        <p class="fb-line" id="pt-fb" aria-live="polite"></p>
+        <div class="working" id="pt-work" hidden></div>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 2 ================= -->
+    <section class="panel" id="c2" aria-labelledby="c2-title">
+      <span class="concept-tag">Concept 2</span>
+      <h2 id="c2-title">Length contraction</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Length contraction</div>
+          <div class="eq-formula" role="img" aria-label="l prime equals l times the square root of 1 minus v over c, all squared"><var>l</var>′ = <var>l</var> <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></div>
+          <div class="eq-desc">as on the relationships sheet</div>
+        </div>
+      </div>
+      <dl class="sym-gloss" aria-label="Symbols in the length contraction relationship">
+        <dt><var>l</var>′</dt><dd>length measured by an observer the object moves past</dd><dd class="u">m</dd>
+        <dt><var>l</var></dt><dd>length measured at rest beside the object</dd><dd class="u">m</dd>
+        <dt><var>v</var></dt><dd>speed of the object</dd><dd class="u">m s<sup>−1</sup></dd>
+        <dt><var>c</var></dt><dd>speed of light, 3.00 × 10<sup>8</sup></dd><dd class="u">m s<sup>−1</sup></dd>
+      </dl>
+
+      <div class="dual">
+        <div class="notes">
+          <ul>
+            <li>The rocket <strong>at rest</strong> has length <var>l</var>, measured by someone beside it.</li>
+            <li>To an observer it is <strong>moving</strong> past, it is shorter: length <var>l</var>′. This is <strong>length contraction</strong>.</li>
+            <li>Only the length along the direction of motion shrinks. The rocket's height does not change.</li>
+            <li>It is the same factor as time dilation, <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<var>v</var>/<var>c</var>)<sup>2</sup></span></span>: <strong>multiply</strong> for lengths, <strong>divide</strong> for times.</li>
+            <li><var>l</var>′ is always smaller than <var>l</var>.</li>
+          </ul>
+        </div>
+
+        <div class="widget" id="rocketWidget">
+          <h3>Rocket and ruler</h3>
+          <div class="controls">
+            <div class="speed-field">
+              <span>Speed</span>
+              <input type="range" class="speed-range" min="0" max="0.99" step="0.01" value="0.80" aria-label="Speed, as a fraction of the speed of light">
+              <input type="number" class="num speed-num" min="0" max="0.99" step="0.01" value="0.80" aria-label="Speed, typed, as a fraction of the speed of light">
+              <span>× <var>c</var></span>
+            </div>
+            <div class="btnrow" role="group" aria-label="Preset speeds">
+              <button class="btn speed-preset" type="button" data-b="0.50" aria-pressed="false">0.50<var>c</var></button>
+              <button class="btn speed-preset" type="button" data-b="0.80" aria-pressed="false">0.80<var>c</var></button>
+              <button class="btn speed-preset" type="button" data-b="0.90" aria-pressed="false">0.90<var>c</var></button>
+              <button class="btn speed-preset" type="button" data-b="0.99" aria-pressed="false">0.99<var>c</var></button>
+            </div>
+          </div>
+          <svg class="sim" id="rocketSvg" viewBox="0 0 420 284" role="img" aria-labelledby="rocketTitle">
+            <title id="rocketTitle">A rocket at rest and the same rocket moving</title>
+            <text x="24" y="32">at rest</text>
+            <polygon class="rocket" id="restRocket" points=""/>
+            <path class="dim" d="M24 104 V116 M364 104 V116 M24 110 H364"/>
+            <text class="sym" x="194" y="136" text-anchor="middle">l</text>
+            <text x="24" y="174">moving</text>
+            <path class="arrow" d="M118 167 H178 M168 159 L178 167 L168 175"/>
+            <text class="v" x="186" y="175">v</text>
+            <polygon class="ghost" id="ghostRocket" points=""/>
+            <polygon class="rocket" id="moveRocket" points=""/>
+            <path class="dim" id="moveDim" d=""/>
+            <text class="sym" id="moveLab" x="194" y="276" text-anchor="middle">l′</text>
+          </svg>
+          <div class="readouts">
+            <output class="ro-v"></output>
+            <output id="lenRatio"></output>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="ex-divider">Worked examples</h3>
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">A spacecraft is 120 m long when at rest. It passes Earth at 1.8 × 10<sup>8</sup> m s<sup>−1</sup>. Calculate its length measured by an observer on Earth.</div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>v</var>/<var>c</var> = 1.8 × 10<sup>8</sup> ÷ 3.00 × 10<sup>8</sup> <span class="u">speed as a fraction of <var>c</var></span></div>
+            <div><var>v</var>/<var>c</var> = 0.60</div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs"><var>l</var> <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs">120 × <span class="sqrt"><span class="rad">√</span><span class="rc">1 − 0.60<sup>2</sup></span></span></span><span class="note-cell">numbers in</span></div>
+            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs">120 × 0.80</span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs">96 m</span><span class="note-cell">shorter, as it should be</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <div class="ex-q">A probe is 50 m long at rest. An observer measures its length as 40 m as it flies past. Calculate the speed of the probe.</div>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs"><var>l</var> <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">40</span><span class="eq">=</span><span class="rhs">50 × <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="note-cell">numbers in first</span></div>
+          <div class="calc-row"><span class="lhs"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="eq">=</span><span class="rhs">40 ÷ 50 = 0.80</span><span class="note-cell">metres cancel</span></div>
+          <div class="calc-row"><span class="lhs">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.64</span><span class="note-cell">square both sides</span></div>
+          <div class="calc-row"><span class="lhs">(<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.36</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">0.60 × 3.00 × 10<sup>8</sup></span><span class="note-cell">root, then × <var>c</var></span></div>
+          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">1.8 × 10<sup>8</sup> m s<sup>−1</sup></span><span class="note-cell"></span></div>
+        </div>
+      </div>
+
+      <div class="practice" id="pl">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem" id="pl-stem"></p>
+        <ul class="data" id="pl-data"></ul>
+        <div class="answer-row">
+          <label for="pl-in">Your answer</label>
+          <input class="num" id="pl-in" type="text" inputmode="decimal" autocomplete="off">
+          <span id="pl-unit"></span>
+          <button class="btn primary" type="button" id="pl-check">Check</button>
+          <button class="btn" type="button" id="pl-new">New question</button>
+        </div>
+        <p class="fb-line" id="pl-fb" aria-live="polite"></p>
+        <div class="working" id="pl-work" hidden></div>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 3 ================= -->
+    <section class="panel" id="c3" aria-labelledby="c3-title">
+      <span class="concept-tag">Go further</span>
+      <h2 id="c3-title">A journey to a star</h2>
+      <p class="lead">The traveller and Earth disagree about the time and the distance, but they agree on what happens. Earth sees a slow clock. The traveller sees a shorter distance. Both give the same reading on the traveller's clock.</p>
+      <div class="widget">
+        <h3 id="tripTitle">The journey</h3>
+        <p class="stem" id="tripStem"></p>
+        <div class="btnrow"><button class="btn" type="button" id="tripNew">New journey</button></div>
+        <details class="reveal">
+          <summary>Show both points of view</summary>
+          <div class="reveal-body" id="tripBody"></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= CHECK ================= -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check yourself</h2>
+
+      <div class="widget">
+        <h3>Multiple choice</h3>
+        <p class="hint">Pick an answer to see feedback on it. You can then try the others to see why they are wrong. Your score counts first tries only.</p>
+        <div id="quiz"></div>
+        <p class="score" id="quizScore" aria-live="polite"></p>
+      </div>
+
+      <div class="widget">
+        <h3>Rate your confidence</h3>
+        <p class="hint">Red = not yet, Amber = getting there, Green = confident. Saved on this device only.</p>
+        <div id="rag"></div>
+        <p class="rag-summary" id="ragSummary" aria-live="polite"></p>
+      </div>
+
+      <h3 class="ex-divider">Words to know</h3>
+      <dl class="words">
+        <div><dt>Light clock</dt><dd>Light bouncing between two mirrors. One trip up and back is one tick.</dd></div>
+        <div><dt>Time dilation</dt><dd>A moving clock is measured to run slow: <var>t</var>′ is longer than <var>t</var>.</dd></div>
+        <div><dt>Length contraction</dt><dd>A moving object is measured to be shorter along its direction of motion: <var>l</var>′ is shorter than <var>l</var>.</dd></div>
+        <div><dt>Frame of reference</dt><dd>The point of view an observer measures from, and moves with.</dd></div>
+      </dl>
+    </section>
+
+    <p data-credit-note style="max-width:1100px;margin:0.5rem auto 0;padding:0 12px;font-size:0.82rem;opacity:0.78;">Sources &amp; credits: simulation, diagrams, worked examples and questions by R Stewart. The relationships follow the Higher Physics relationships sheet, &copy; Qualifications Scotland (SQA).</p>
+  </main>
+
   {% include site-footer.html %}
+
+  <script>
+  (function () {
+    "use strict";
+    var C = 3.00e8;
+    var beta = 0.80;
+    function root(b) { return Math.sqrt(1 - b * b); }
+    function $(id) { return document.getElementById(id); }
+    function sig(x, n) {
+      var s = Number(x).toPrecision(n || 3);
+      return s.indexOf("e") === -1 ? s : String(Number(s));
+    }
+    function sci8(b) { return (b * 3).toPrecision(3) + " × 10⁸"; }
+
+    /* ---------- one speed, many controls ---------- */
+    var ranges = document.querySelectorAll(".speed-range");
+    var nums = document.querySelectorAll(".speed-num");
+    function setBeta(b, from) {
+      if (!isFinite(b)) return;
+      beta = Math.min(0.99, Math.max(0, b));
+      ranges.forEach(function (r) { if (r !== from) r.value = beta.toFixed(2); });
+      nums.forEach(function (n) { if (n !== from) n.value = beta.toFixed(2); });
+      document.querySelectorAll(".speed-preset").forEach(function (p) {
+        p.setAttribute("aria-pressed", String(Math.abs(parseFloat(p.dataset.b) - beta) < 0.001));
+      });
+      var r = root(beta);
+      document.querySelectorAll(".ro-v").forEach(function (o) {
+        o.textContent = "Speed: " + beta.toFixed(2) + "c = " + sci8(beta) + " m s⁻¹";
+      });
+      $("tickRatio").textContent = "√(1 − (v/c)²) = " + r.toFixed(2) +
+        ", so one tick of the moving clock lasts " + (1 / r).toFixed(2) + " ticks of yours";
+      $("lenRatio").textContent = "l′ = " + r.toFixed(2) + " × l";
+      $("clockSvg").setAttribute("aria-label", "Two light clocks. At " + beta.toFixed(2) +
+        "c, one tick of the moving clock lasts " + (1 / r).toFixed(2) + " ticks of the clock at rest.");
+      $("rocketSvg").setAttribute("aria-label", "A rocket at rest, and the same rocket moving at " +
+        beta.toFixed(2) + "c. The moving rocket is " + r.toFixed(2) + " times as long; its height is unchanged.");
+      drawRockets();
+      resetClocks();
+    }
+    ranges.forEach(function (r) { r.addEventListener("input", function () { setBeta(parseFloat(r.value), r); }); });
+    nums.forEach(function (n) {
+      n.addEventListener("change", function () { setBeta(parseFloat(n.value), null); });
+    });
+    document.querySelectorAll(".speed-preset").forEach(function (p) {
+      p.addEventListener("click", function () { setBeta(parseFloat(p.dataset.b), null); });
+    });
+
+    /* ---------- light clocks ---------- */
+    var SPAN = 180, TOP = 50, BOT = 230, LANE0 = 170, LANE1 = 470, CPX = 150;
+    var restY = 0, moveY = 0, moveX = 0, restDir = -1, moveDir = -1;
+    var restTicks = 0, moveTicks = 0, trace = [];
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var running = !reduce, last = null;
+    var playBtn = $("playBtn");
+    function paintPlay() {
+      playBtn.textContent = running ? "Pause" : "Play";
+      playBtn.setAttribute("aria-pressed", String(!running));
+    }
+    function resetClocks() {
+      restY = 0; moveY = 0; restDir = -1; moveDir = -1; moveX = LANE0;
+      restTicks = 0; moveTicks = 0; trace = [[moveX, BOT]];
+      $("restTicks").textContent = "0"; $("moveTicks").textContent = "0";
+      drawClocks();
+    }
+    function step(dt) {
+      var r = root(beta);
+      restY += CPX * dt;
+      while (restY >= SPAN) { restY -= SPAN; restDir = -restDir; if (restDir < 0) restTicks++; }
+      moveY += CPX * r * dt;
+      while (moveY >= SPAN) { moveY -= SPAN; moveDir = -moveDir; if (moveDir < 0) moveTicks++; }
+      moveX += CPX * beta * dt;
+      if (moveX > LANE1) { moveX = LANE0; trace = []; }
+    }
+    function yOf(y, dir) { return dir < 0 ? BOT - y : TOP + y; }
+    function drawClocks() {
+      $("restPhoton").setAttribute("cy", yOf(restY, restDir));
+      var py = yOf(moveY, moveDir);
+      $("movePhoton").setAttribute("cx", moveX);
+      $("movePhoton").setAttribute("cy", py);
+      ["mTop", "mBot"].forEach(function (id) {
+        $(id).setAttribute("x1", moveX - 28); $(id).setAttribute("x2", moveX + 28);
+      });
+      trace.push([moveX, py]);
+      if (trace.length > 400) trace.shift();
+      $("trace").setAttribute("points", trace.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" "));
+      $("restTicks").textContent = restTicks;
+      $("moveTicks").textContent = moveTicks;
+    }
+    function frame(ts) {
+      if (!running) { last = null; return; }
+      if (last !== null) step(Math.min(0.05, (ts - last) / 1000));
+      last = ts;
+      drawClocks();
+      requestAnimationFrame(frame);
+    }
+    playBtn.addEventListener("click", function () {
+      running = !running; paintPlay();
+      if (running) requestAnimationFrame(frame);
+    });
+    $("resetBtn").addEventListener("click", resetClocks);
+
+    /* ---------- rockets ---------- */
+    var RX = 24, RL = 340, RH = 46;
+    function rocketPts(x, y, len) {
+      var body = x + len * 0.84;
+      return [[x, y], [body, y], [x + len, y + RH / 2], [body, y + RH], [x, y + RH]]
+        .map(function (p) { return p[0].toFixed(1) + "," + p[1]; }).join(" ");
+    }
+    function drawRockets() {
+      var len = RL * root(beta), end = RX + len;
+      $("restRocket").setAttribute("points", rocketPts(RX, 48, RL));
+      $("ghostRocket").setAttribute("points", rocketPts(RX, 186, RL));
+      $("moveRocket").setAttribute("points", rocketPts(RX, 186, len));
+      $("moveDim").setAttribute("d", "M" + RX + " 240 V252 M" + end.toFixed(1) + " 240 V252 M" + RX + " 246 H" + end.toFixed(1));
+      $("moveLab").setAttribute("x", (RX + len / 2).toFixed(1));
+    }
+
+    /* ---------- practice generators ---------- */
+    var BETAS = [0.50, 0.60, 0.80, 0.90, 0.95, 0.99];
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    function makePractice(prefix, build) {
+      var q = null;
+      function fresh() {
+        q = build();
+        $(prefix + "-stem").innerHTML = q.stem;
+        $(prefix + "-data").innerHTML = q.data.map(function (d) { return "<li>" + d + "</li>"; }).join("");
+        $(prefix + "-unit").textContent = q.unit;
+        $(prefix + "-in").value = "";
+        $(prefix + "-in").setAttribute("aria-label", "Your answer, in " + q.unit);
+        $(prefix + "-fb").textContent = ""; $(prefix + "-fb").className = "fb-line";
+        $(prefix + "-work").hidden = true;
+      }
+      $(prefix + "-new").addEventListener("click", fresh);
+      $(prefix + "-check").addEventListener("click", function () {
+        var raw = $(prefix + "-in").value.replace(",", ".").trim();
+        var x = parseFloat(raw), fb = $(prefix + "-fb");
+        if (raw === "" || !isFinite(x)) { fb.className = "fb-line no"; fb.textContent = "Type a number first, in " + q.unit + "."; return; }
+        var near = function (a, b) { return Math.abs(a - b) <= Math.abs(b) * 0.02; };
+        if (near(x, q.ans)) { fb.className = "fb-line ok"; fb.textContent = "Right. " + q.right; }
+        else { fb.className = "fb-line no"; fb.textContent = q.why(x, near); }
+        $(prefix + "-work").innerHTML = q.work;
+        $(prefix + "-work").hidden = false;
+      });
+      $(prefix + "-in").addEventListener("keydown", function (e) { if (e.key === "Enter") $(prefix + "-check").click(); });
+      fresh();
+    }
+
+    makePractice("pt", function () {
+      var b = pick(BETAS), r = root(b);
+      var t = pick([{ v: 12, u: "minutes" }, { v: 45, u: "s" }, { v: 3.0, u: "hours" }, { v: 2.6, u: "μs" }, { v: 8.0, u: "years" }]);
+      var ans = t.v / r;
+      return {
+        stem: "<b>Calculate</b> the time an observer on Earth measures for this journey. Give your answer in " + t.u + ". (3)",
+        data: ["speed of the spacecraft: " + sci8(b) + " m s⁻¹", "time on the spacecraft's own clock: " + sig(t.v, 2) + " " + t.u],
+        unit: t.u, ans: ans,
+        right: "Longer than " + sig(t.v, 2) + " " + t.u + ", as a moving clock runs slow.",
+        why: function (x, near) {
+          if (near(x, t.v * r)) return "That is shorter than the spacecraft's time. Earth sees the moving clock run slow, so t′ is longer: divide by √(1 − (v/c)²).";
+          if (near(x, t.v / (1 - b * b))) return "Close, but you left out the square root. Work out 1 − (v/c)², then take its square root.";
+          if (x < t.v) return "Earth's time must be longer than the clock's own time. Check that you divided.";
+          return "Not yet. First find v/c by dividing the speed by 3.00 × 10⁸, then work out √(1 − (v/c)²).";
+        },
+        work: "v/c = " + sci8(b) + " ÷ 3.00 × 10⁸ = " + b.toFixed(2) + "<br>" +
+          "√(1 − " + b.toFixed(2) + "²) = " + r.toPrecision(3) + "<br>" +
+          "t′ = " + sig(t.v, 2) + " ÷ " + r.toPrecision(3) + " = <b>" + sig(ans, 3) + " " + t.u + "</b>"
+      };
+    });
+
+    makePractice("pl", function () {
+      var b = pick(BETAS), r = root(b);
+      var l = pick([{ v: 120, u: "m" }, { v: 35, u: "m" }, { v: 2.0, u: "km" }, { v: 8.5, u: "m" }, { v: 460, u: "m" }]);
+      var ans = l.v * r;
+      return {
+        stem: "<b>Calculate</b> the length of the spacecraft measured by an observer it flies past. Give your answer in " + l.u + ". (3)",
+        data: ["length of the spacecraft at rest: " + sig(l.v, 2) + " " + l.u, "speed of the spacecraft: " + sci8(b) + " m s⁻¹"],
+        unit: l.u, ans: ans,
+        right: "Shorter than " + sig(l.v, 2) + " " + l.u + ", as a moving object is contracted.",
+        why: function (x, near) {
+          if (near(x, l.v / r)) return "That is longer than the rest length. A moving object is shorter, so multiply by √(1 − (v/c)²).";
+          if (near(x, l.v * (1 - b * b))) return "Close, but you left out the square root. Work out 1 − (v/c)², then take its square root.";
+          if (x > l.v) return "The moving length must be shorter than the rest length. Check that you multiplied.";
+          return "Not yet. First find v/c by dividing the speed by 3.00 × 10⁸, then work out √(1 − (v/c)²).";
+        },
+        work: "v/c = " + sci8(b) + " ÷ 3.00 × 10⁸ = " + b.toFixed(2) + "<br>" +
+          "√(1 − " + b.toFixed(2) + "²) = " + r.toPrecision(3) + "<br>" +
+          "l′ = " + sig(l.v, 2) + " × " + r.toPrecision(3) + " = <b>" + sig(ans, 3) + " " + l.u + "</b>"
+      };
+    });
+
+    /* ---------- journey ---------- */
+    var STARS = [{ n: "Proxima Centauri", d: 4.2 }, { n: "Sirius", d: 8.6 }, { n: "Tau Ceti", d: 11.9 }, { n: "Vega", d: 25 }];
+    function trip() {
+      var s = pick(STARS), b = pick([0.60, 0.80, 0.90, 0.95, 0.99]), r = root(b);
+      var tEarth = s.d / b, tShip = tEarth * r, dShip = s.d * r;
+      $("tripStem").innerHTML = "A spacecraft travels to <b>" + s.n + "</b>, " + s.d + " light-years from Earth, at " +
+        b.toFixed(2) + "<var>c</var>. A light-year is the distance light travels in a year, so the spacecraft covers " +
+        b.toFixed(2) + " light-years each year.";
+      $("tripBody").innerHTML =
+        "<p><b>Earth's view.</b> The trip takes " + s.d + " ÷ " + b.toFixed(2) + " = " + sig(tEarth, 3) +
+        " years. The traveller's clock is the moving clock, so it records less: " + sig(tEarth, 3) + " × " + r.toPrecision(3) +
+        " = <b>" + sig(tShip, 3) + " years</b>.</p>" +
+        "<p><b>The traveller's view.</b> The distance to the star is the moving length, so it is contracted: " + s.d + " × " +
+        r.toPrecision(3) + " = " + sig(dShip, 3) + " light-years. At " + b.toFixed(2) + "<var>c</var> that takes " + sig(dShip, 3) +
+        " ÷ " + b.toFixed(2) + " = <b>" + sig(dShip / b, 3) + " years</b>.</p>" +
+        "<p>The same answer both ways. Earth explains it with time dilation; the traveller explains it with length contraction.</p>";
+    }
+    $("tripNew").addEventListener("click", trip);
+
+    /* ---------- quiz: every option teaches ---------- */
+    var QS = [
+      { q: "A clock moves past you at a high, constant speed. How does it run, compared with your own clock?",
+        o: [["It runs fast", "A moving clock does not gain time. Its light travels a longer path at the same speed, so its ticks take longer."],
+            ["It runs slow", "Right. Its light follows a longer, slanted path at the same speed c, so each tick takes longer. That is time dilation."],
+            ["It runs at the same rate", "That is true at everyday speeds, but not close to c. Watch the light clocks at 0.90c."],
+            ["It stops completely", "It would only stop if it reached c, which it cannot. At any speed below c it runs slow but keeps going."]], a: 1 },
+      { q: "A spacecraft moves at 0.60c. Which effect is bigger: time dilation or length contraction?",
+        o: [["Time dilation", "Both use the same factor, √(1 − (v/c)²) = 0.80. Times are divided by it and lengths multiplied by it, by the same amount."],
+            ["Length contraction", "Both use the same factor, √(1 − (v/c)²) = 0.80. Neither is bigger at any speed."],
+            ["Neither: they use the same factor", "Right. √(1 − 0.60²) = 0.80 for both. A time is measured 1 ÷ 0.80 = 1.25 times longer; a length 0.80 times as long."],
+            ["It depends on the mass of the spacecraft", "Mass does not appear in either relationship. Only v and c do."]], a: 2 },
+      { q: "A clock on a spacecraft records 6.0 s. The spacecraft moves at 2.4 × 10⁸ m s⁻¹. What time does an observer on Earth measure?",
+        o: [["3.6 s", "You multiplied by 0.60. The observer measures a longer time, so divide by √(1 − (v/c)²)."],
+            ["4.8 s", "You multiplied by v/c. First find √(1 − (v/c)²) = 0.60, then divide 6.0 s by it."],
+            ["7.5 s", "You divided by v/c = 0.80. Divide by √(1 − 0.80²) = 0.60 instead."],
+            ["10 s", "Right. v/c = 0.80, √(1 − 0.80²) = 0.60, and 6.0 ÷ 0.60 = 10 s."]], a: 3 },
+      { q: "A rocket is 60 m long at rest. It passes an observer at 1.8 × 10⁸ m s⁻¹. What length does the observer measure?",
+        o: [["75 m", "That is longer than the rest length. A moving object is shorter, so multiply by √(1 − (v/c)²)."],
+            ["48 m", "Right. v/c = 0.60, √(1 − 0.60²) = 0.80, and 60 × 0.80 = 48 m."],
+            ["36 m", "You multiplied by v/c. Find √(1 − 0.60²) = 0.80 first, then multiply."],
+            ["60 m", "Length along the direction of motion does change at this speed. Only the height stays the same."]], a: 1 },
+      { q: "Which is the rest length l of a train?",
+        o: [["The length measured by someone the train moves past", "That observer measures the contracted length, l′."],
+            ["The length measured by someone at rest beside the train", "Right. l is measured by someone moving with the train. It is the longest length anyone measures."],
+            ["The shorter of the two lengths", "The rest length is the longer one. Every observer the train moves past measures it shorter."],
+            ["The length measured at the speed of light", "Nothing with mass reaches c, so no one can measure from there."]], a: 1 },
+      { q: "Muons are made high in the atmosphere and live for about 2.2 μs. Many still reach the ground. Why?",
+        o: [["They travel faster than light", "Nothing travels faster than light. Muons travel just below c."],
+            ["From Earth, their lifetime is dilated, so they last long enough", "Right. Earth sees the muon's clock run slow, so its lifetime is many times longer than 2.2 μs."],
+            ["From the muon's view, the atmosphere is thicker", "The other way round. To the muon, the atmosphere is moving, so it is contracted and thinner."],
+            ["They speed up as they fall", "Gravity barely changes a muon's speed. The reason is relativity."]], a: 1 }
+    ];
+    var first = {}, LET = "ABCD";
+    var quiz = $("quiz");
+    QS.forEach(function (it, qi) {
+      var box = document.createElement("div"); box.className = "mcq";
+      var html = '<p class="qstem">' + (qi + 1) + ". " + it.q + '</p><div class="mcq-opts" role="group" aria-label="Answers for question ' + (qi + 1) + '">';
+      it.o.forEach(function (o, oi) {
+        html += '<button type="button" class="mcq-opt" data-q="' + qi + '" data-o="' + oi + '" aria-pressed="false"><span class="ol">' + LET[oi] +
+          '</span><span class="ot">' + o[0] + '</span><span class="om" aria-hidden="true"></span></button>';
+      });
+      box.innerHTML = html + '</div><p class="mcq-fb" aria-live="polite"></p>';
+      quiz.appendChild(box);
+    });
+    quiz.addEventListener("click", function (e) {
+      var b = e.target.closest(".mcq-opt"); if (!b) return;
+      var qi = +b.dataset.q, oi = +b.dataset.o, it = QS[qi], box = b.closest(".mcq");
+      box.querySelectorAll(".mcq-opt").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+      b.setAttribute("aria-pressed", "true");
+      var ok = oi === it.a;
+      b.classList.add(ok ? "right" : "wrong");
+      b.querySelector(".om").textContent = ok ? "✓ right" : "✗ not this";
+      box.querySelector(".mcq-fb").textContent = it.o[oi][1];
+      if (!(qi in first)) first[qi] = ok;
+      var done = Object.keys(first).length, got = Object.keys(first).filter(function (k) { return first[k]; }).length;
+      $("quizScore").textContent = "First tries: " + got + " out of " + done + " answered (" + QS.length + " questions).";
+    });
+
+    /* ---------- RAG self-rating (device only) ---------- */
+    var CRIT = [
+      "I can explain, with a light clock, why a moving clock is measured to run slow.",
+      "I can use t′ = t ÷ √(1 − (v/c)²), and rearrange it to find v.",
+      "I can use l′ = l √(1 − (v/c)²), and say which length is the rest length.",
+      "I can turn a speed in m s⁻¹ into a fraction of c."
+    ];
+    var KEY = "hp-rel-rag", rag = {};
+    try { rag = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { rag = {}; }
+    var ragBox = $("rag");
+    CRIT.forEach(function (c, i) {
+      var row = document.createElement("div"); row.className = "rag-item";
+      row.innerHTML = '<span class="crit" id="crit' + i + '">' + c + '</span><span class="rag-btns" role="group" aria-labelledby="crit' + i + '">' +
+        ["R", "A", "G"].map(function (k) {
+          var name = { R: "Red, not yet", A: "Amber, getting there", G: "Green, confident" }[k];
+          return '<button type="button" data-i="' + i + '" data-on="' + k + '" aria-label="' + name + '" aria-pressed="' + (rag[i] === k) + '">' + k + "</button>";
+        }).join("") + "</span>";
+      ragBox.appendChild(row);
+    });
+    function ragSum() {
+      var n = { R: 0, A: 0, G: 0 };
+      Object.keys(rag).forEach(function (k) { n[rag[k]]++; });
+      $("ragSummary").textContent = (n.R + n.A + n.G) ? "Green " + n.G + ", amber " + n.A + ", red " + n.R + "." : "";
+    }
+    ragBox.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      var i = b.dataset.i;
+      rag[i] = b.dataset.on;
+      b.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      try { localStorage.setItem(KEY, JSON.stringify(rag)); } catch (err) {}
+      ragSum();
+    });
+    ragSum();
+
+    /* ---------- start ---------- */
+    paintPlay();
+    trip();
+    setBeta(0.80, null);
+    if (running) requestAnimationFrame(frame);
+  })();
+  </script>
 </body>
 </html>
-
