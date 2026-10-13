@@ -18,9 +18,10 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261007">
   <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261012a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
   <style>
     :root {
@@ -162,6 +163,28 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
         /* mode cards: colour-code the destination */
 
     .mode-card { border-left: 4px solid var(--eng-border); }
+
+
+    /* gear-train explorer (layout and controls from /assets/css/sims.css) */
+    .sim { --sim-accent-ink: var(--eng-ink-accent); }
+    /* a simulator needs the full column, not the prose column beside the callouts */
+    @media (min-width:1000px){ .eng-dense .sec-body > .sim { clear: both; margin-right: -362px; } }
+    #gearSim .g-body { stroke: var(--eng-text); stroke-width: 1.4; stroke-linejoin: round; }
+    #gearSim .g-drv { fill: var(--eng-orange); }
+    #gearSim .g-dvn { fill: var(--eng-teal); }
+    #gearSim .g-spoke { stroke: var(--eng-text); stroke-width: 3.5; stroke-linecap: round; }
+    #gearSim .g-hub { fill: var(--eng-surface); stroke: var(--eng-text); stroke-width: 1.6; }
+    #gearSim .g-shaft { fill: var(--eng-text); }
+    #gearSim .g-arrow { fill: none; stroke: var(--eng-text); stroke-width: 2.5; stroke-linecap: round; }
+    #gearSim .g-head { fill: var(--eng-text); }
+    #gearSim .g-t { fill: var(--eng-text); font-family: var(--font-stack); font-size: 16px; font-weight: 800; }
+    #gearSim .g-name { font-weight: 900; }
+    #gearSim .sim-working { font-size: 1rem; }
+    #gearSim .kit-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
+
+    .q .q-fb { margin: .55rem 0 0; padding: .45rem .7rem; border-left: 4px solid var(--bad); border-radius: 0 8px 8px 0; background: var(--eng-surface-2); color: var(--eng-text); font-weight: 600; line-height: 1.55; }
+    .q .q-fb.ok { border-left-color: var(--good); }
+    .q .q-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
 
     @media print {
           .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
@@ -426,36 +449,56 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
         </div>
       </div></details>
 
-      <div class="widget" id="gearSim" data-prog-challenge="ch-gear-sim">
-        <h3>Gear-train explorer — live</h3>
-        <p class="hint">Drag the teeth and the motor speed. The gear ratio, output speed and direction update instantly — the bars compare input and output speed. Remember: meshing gears turn in <strong>opposite</strong> directions.</p>
-        <div class="kit-row">
-          <label for="gs-n1t">Driver teeth (<var>N</var>₁)</label>
-          <input type="range" id="gs-n1t" data-sim="N1" min="10" max="60" step="5" value="20" aria-label="Driver gear teeth">
-          <input type="number" data-sim="N1" min="10" max="60" step="5" value="20" aria-label="Driver gear teeth (number)">
+      <div class="sim" id="gearSim" data-prog-challenge="ch-gear-sim">
+        <div class="sim-head">
+          <h3>Gear-train explorer</h3>
+          <p class="sim-hint">Change the teeth and the motor speed. The gears, the speeds and the working all follow the numbers.</p>
         </div>
-        <div class="kit-row">
-          <label for="gs-n2t">Driven teeth (<var>N</var>₂)</label>
-          <input type="range" id="gs-n2t" data-sim="N2" min="10" max="120" step="5" value="40" aria-label="Driven gear teeth">
-          <input type="number" data-sim="N2" min="10" max="120" step="5" value="40" aria-label="Driven gear teeth (number)">
+
+        <div class="sim-predict" id="gs-predict">
+          <p class="sim-q"><b>Predict</b> how a 40-tooth driven gear turns when a 20-tooth driver turns it at 600 revs min⁻¹.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="fs" aria-pressed="false">Twice as fast, same direction<template data-feedback><p>Not this one. The driven gear has more teeth, so the driver has to turn more than once to take it round once. Look at the arrows too: where the teeth meet, they push each other in opposite directions.</p></template></button>
+            <button type="button" data-predict="fo" aria-pressed="false">Twice as fast, opposite direction<template data-feedback><p>The direction is right: meshing gears turn opposite ways. But the driven gear has twice as many teeth, so the driver must turn twice to take it round once. Is that faster or slower?</p></template></button>
+            <button type="button" data-predict="ss" aria-pressed="false">Half as fast, same direction<template data-feedback><p>The speed is right: 600 × 20 = <var>n</var><sub>2</sub> × 40, so <var>n</var><sub>2</sub> is half of <var>n</var><sub>1</sub>. Now look where the teeth meet: a tooth on one gear pushes the other gear the opposite way.</p></template></button>
+            <button type="button" data-predict="so" aria-pressed="false">Half as fast, opposite direction<template data-feedback><p><strong>Right.</strong> 600 × 20 = <var>n</var><sub>2</sub> × 40, so <var>n</var><sub>2</sub> = 300 revs min⁻¹: twice the teeth, half the speed. Meshing gears always turn in opposite directions. Watch the two gears below.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
         </div>
-        <div class="kit-row">
-          <label for="gs-spd">Motor speed (revs min⁻¹)</label>
-          <input type="range" id="gs-spd" data-sim="n1" min="100" max="1500" step="50" value="600" aria-label="Motor input speed in revs per minute">
-          <input type="number" data-sim="n1" min="100" max="1500" step="50" value="600" aria-label="Motor input speed in revs per minute (number)">
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+              <svg id="gs-draw" viewBox="0 0 600 318" role="img" aria-label="Two meshing spur gears"></svg>
+            </figure>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out"><span class="k">Gear ratio (<var>N</var><sub>2</sub> ÷ <var>N</var><sub>1</sub>)</span><span class="v" id="gs-ratio">—</span></div>
+              <div class="sim-out is-key"><span class="k">Output speed <var>n</var><sub>2</sub></span><span class="v" id="gs-out">—</span></div>
+              <div class="sim-out"><span class="k">Output direction</span><span class="v" id="gs-dir">—</span></div>
+            </div>
+            <p class="sim-working" id="gs-work"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Driver teeth <var>N</var><sub>1</sub></span>
+              <span class="sim-row"><input type="range" data-sim="N1" min="10" max="60" step="5" value="20" aria-label="Driver gear teeth N1"><input class="sim-num" type="number" data-sim="N1" min="10" max="60" step="5" value="20" inputmode="numeric" aria-label="Driver gear teeth N1, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Driven teeth <var>N</var><sub>2</sub></span>
+              <span class="sim-row"><input type="range" data-sim="N2" min="10" max="120" step="5" value="40" aria-label="Driven gear teeth N2"><input class="sim-num" type="number" data-sim="N2" min="10" max="120" step="5" value="40" inputmode="numeric" aria-label="Driven gear teeth N2, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Motor speed <var>n</var><sub>1</sub> (revs min⁻¹)</span>
+              <span class="sim-row"><input type="range" data-sim="n1" min="100" max="1500" step="50" value="600" aria-label="Motor speed n1 in revs per minute"><input class="sim-num" type="number" data-sim="n1" min="100" max="1500" step="50" value="600" inputmode="numeric" aria-label="Motor speed n1 in revs per minute, typed"></span>
+            </label>
+            <div class="sim-seg" role="group" aria-label="Animation">
+              <span class="sim-seg-label">Turn the gears</span>
+              <button class="sim-btn" type="button" id="gs-play" aria-pressed="false" data-play-text="Play" data-pause-text="Pause">Play</button>
+            </div>
+            <p class="sim-note">Drawn 40 times slower than real life, so you can follow the teeth.</p>
+          </div>
         </div>
-        <div class="gear-readout">
-          <div class="gr-item"><b id="gs-ratio">—</b><span>gear ratio (N₂ ÷ N₁)</span></div>
-          <div class="gr-item"><b id="gs-out">—</b><span>output speed (revs min⁻¹)</span></div>
-          <div class="gr-item"><b id="gs-dir">—</b><span>output direction</span></div>
-        </div>
-        <div class="speedbar-wrap">
-          <p class="speedbar-label">Input speed</p>
-          <div class="speedbar"><div class="in-fill" id="gs-inbar"></div></div>
-          <p class="speedbar-label">Output speed</p>
-          <div class="speedbar"><div class="out-fill" id="gs-outbar"></div></div>
-        </div>
-        <p class="effsim-readout" id="gs-desc" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;text-align:center;margin:.3rem 0 0;"></p>
+
         <div class="kit-task">
           <strong>Challenge:</strong> keep the motor at <strong>600 revs min⁻¹</strong> and choose teeth so the output turns at exactly <strong>150 revs min⁻¹</strong>.
           <div class="kit-actions"><button type="button" id="gs-check">Check</button></div>
@@ -924,16 +967,16 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"The blade of an electric jigsaw moves with", o:["rotary motion","linear motion","reciprocating motion","oscillating motion"], a:2 },
-        { q:"A driver gear has 20 teeth and the driven gear has 80 teeth. The gear ratio is", o:["1 : 4","4 : 1","60 : 1","0.4 : 1"], a:1 },
-        { q:"A 30-tooth driver gear turns at 600 revs min⁻¹ and meshes with a 60-tooth driven gear. The output speed is", o:["1200 revs min⁻¹","600 revs min⁻¹","300 revs min⁻¹","150 revs min⁻¹"], a:2 },
-        { q:"An idler gear placed between the driver and driven gear", o:["increases the gear ratio","decreases the output speed","reverses the direction of rotation only","doubles the turning force"], a:2 },
-        { q:"Gear A (10T) at 1200 revs min⁻¹ drives gear B (40T). Gear C (20T) on B's shaft drives gear D (60T). Gear D turns at", o:["100 revs min⁻¹","300 revs min⁻¹","400 revs min⁻¹","1200 revs min⁻¹"], a:0 },
-        { q:"The data-booklet relationship for any gear, belt or chain drive is", o:["input speed × input size = output speed × output size","input speed ÷ input size = output speed ÷ output size","input speed + input size = output speed + output size","input size × output size = input speed × output speed"], a:0 },
-        { q:"The most suitable drive for a quiet office machine is a", o:["chain drive","belt drive","compound gear train","rack and pinion"], a:1 },
-        { q:"A bicycle chainwheel (40 teeth) turns at 80 revs min⁻¹ driving a 20-tooth rear sprocket. The rear wheel turns at", o:["40 revs min⁻¹","80 revs min⁻¹","160 revs min⁻¹","320 revs min⁻¹"], a:2 },
-        { q:"In a mechanism, friction mainly", o:["creates extra energy","wastes energy as heat","increases the efficiency","cools the moving parts"], a:1 },
-        { q:"The best way to reduce friction in a wheel hub is to", o:["press the surfaces together harder","fit ball bearings","roughen the surfaces","spin the wheel faster"], a:1 }
+        { q:"The blade of an electric jigsaw moves with", o:["rotary motion","linear motion","reciprocating motion","oscillating motion"], a:2, f:["Rotary motion goes round in a circle, like a wheel. The blade does not go round: it moves up and down in a straight line.", "Linear motion keeps going in one direction. The blade keeps changing direction: up, down, up again.", "<strong>Right.</strong> The blade moves up and down (back and forward) in a straight line. That is reciprocating motion.", "Oscillating motion swings back and forward along an arc, like a pendulum. The blade moves in a straight line."] },
+        { q:"A driver gear has 20 teeth and the driven gear has 80 teeth. The gear ratio is", o:["1 : 4","4 : 1","60 : 1","0.4 : 1"], a:1, f:["That is driver ÷ driven. The gear ratio is driven teeth ÷ driver teeth.", "<strong>Right.</strong> Gear ratio = driven ÷ driver = 80 ÷ 20 = 4, written 4 : 1.", "60 is the difference between the teeth. A ratio comes from dividing, not subtracting.", "Check the division. The gear ratio is driven teeth ÷ driver teeth, 80 ÷ 20."] },
+        { q:"A 30-tooth driver gear turns at 600 revs min⁻¹ and meshes with a 60-tooth driven gear. The output speed is", o:["1200 revs min⁻¹","600 revs min⁻¹","300 revs min⁻¹","150 revs min⁻¹"], a:2, f:["The driven gear has more teeth, so it turns more slowly, not faster. Use <var>n</var><sub>1</sub><var>N</var><sub>1</sub> = <var>n</var><sub>2</sub><var>N</var><sub>2</sub>.", "The speed only stays the same when both gears have the same number of teeth.", "<strong>Right.</strong> 600 × 30 = <var>n</var><sub>2</sub> × 60, so <var>n</var><sub>2</sub> = 18 000 ÷ 60 = 300 revs min⁻¹.", "The driven gear has twice the teeth, so the speed halves once, not twice. Put the numbers into <var>n</var><sub>1</sub><var>N</var><sub>1</sub> = <var>n</var><sub>2</sub><var>N</var><sub>2</sub>."] },
+        { q:"An idler gear placed between the driver and driven gear", o:["increases the gear ratio","decreases the output speed","reverses the direction of rotation only","doubles the turning force"], a:2, f:["The idler's own teeth cancel out. The gear ratio depends only on the driver and the driven gear.", "The output speed still depends only on the driver and driven teeth, so the idler does not change it.", "<strong>Right.</strong> With an idler, the driver and driven gear turn the same way. The speed and the gear ratio do not change.", "The turning force depends on the gear ratio, and an idler does not change the ratio."] },
+        { q:"Gear A (10T) at 1200 revs min⁻¹ drives gear B (40T). Gear C (20T) on B's shaft drives gear D (60T). Gear D turns at", o:["100 revs min⁻¹","300 revs min⁻¹","400 revs min⁻¹","1200 revs min⁻¹"], a:0, f:["<strong>Right.</strong> Stage 1: 1200 × 10 = <var>n</var><sub>B</sub> × 40, so B and C turn at 300 revs min⁻¹. Stage 2: 300 × 20 = <var>n</var><sub>D</sub> × 60, so D turns at 100 revs min⁻¹.", "300 revs min⁻¹ is the speed of gears B and C. Now do the second stage: C drives D.", "Work one stage at a time. Check the second stage: C (20 teeth) drives D (60 teeth), so D is slower than C.", "1200 revs min⁻¹ is the motor speed. Both stages here slow the train down."] },
+        { q:"The data-booklet relationship for any gear, belt or chain drive is", o:["input speed × input size = output speed × output size","input speed ÷ input size = output speed ÷ output size","input speed + input size = output speed + output size","input size × output size = input speed × output speed"], a:0, f:["<strong>Right.</strong> <var>n</var><sub>1</sub><var>N</var><sub>1</sub> = <var>n</var><sub>2</sub><var>N</var><sub>2</sub>: speed × size (teeth or diameter) is the same for the input and the output.", "Speed and size go opposite ways: a bigger gear turns more slowly. So they multiply, not divide.", "Adding a speed to a number of teeth mixes two different quantities. The relationship multiplies them.", "This pairs the wrong quantities. Each side is one gear's speed times that same gear's size."] },
+        { q:"The most suitable drive for a quiet office machine is a", o:["chain drive","belt drive","compound gear train","rack and pinion"], a:1, f:["A chain is strong but noisy, and it needs oiling. An office machine needs something quiet.", "<strong>Right.</strong> A belt drive is quiet, needs no oil and is cheap to replace.", "Meshing gears are noisier than a belt, and they need lubrication.", "A rack and pinion changes rotary motion into linear motion. It is not a drive between two shafts."] },
+        { q:"A bicycle chainwheel (40 teeth) turns at 80 revs min⁻¹ driving a 20-tooth rear sprocket. The rear wheel turns at", o:["40 revs min⁻¹","80 revs min⁻¹","160 revs min⁻¹","320 revs min⁻¹"], a:2, f:["The rear sprocket has fewer teeth, so it turns faster, not slower.", "The speed only stays the same when both sprockets have the same number of teeth.", "<strong>Right.</strong> 80 × 40 = <var>n</var><sub>2</sub> × 20, so <var>n</var><sub>2</sub> = 3200 ÷ 20 = 160 revs min⁻¹. The wheel turns with the rear sprocket.", "Check the ratio: the sprocket has half the teeth, so the speed doubles once, not twice."] },
+        { q:"In a mechanism, friction mainly", o:["creates extra energy","wastes energy as heat","increases the efficiency","cools the moving parts"], a:1, f:["Energy cannot be created. Friction changes useful energy into forms you did not want.", "<strong>Right.</strong> Friction changes useful kinetic energy into heat (and some sound), which is wasted.", "Wasted energy means less useful output for the same input, so the efficiency goes down.", "Surfaces that rub get hotter, not cooler."] },
+        { q:"The best way to reduce friction in a wheel hub is to", o:["press the surfaces together harder","fit ball bearings","roughen the surfaces","spin the wheel faster"], a:1, f:["Pressing the surfaces together harder makes friction bigger.", "<strong>Right.</strong> Ball bearings roll instead of sliding, which cuts friction a lot.", "Rough surfaces grip each other more, which makes friction bigger.", "Spinning faster does not stop the surfaces rubbing. It makes more heat, not less."] }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -942,7 +985,9 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
         d.innerHTML=html; box.appendChild(d);
       });
-      function clearNotes(){ [].forEach.call(box.querySelectorAll(".mark-note"), function(s){ s.parentNode.removeChild(s); }); }
+      function clearNotes(){ [].forEach.call(box.querySelectorAll(".mark-note, .q-fb"), function(s){ s.parentNode.removeChild(s); }); }
+      /* every option teaches: the picked option's own feedback appears under the question */
+      function addFb(qi, item, oi){ var p=document.createElement("p"); p.className="q-fb "+(oi===item.a?"ok":"no"); p.innerHTML=item.f[oi]; box.children[qi].appendChild(p); }
       function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
       $("quiz-mark").addEventListener("click", function(){
         if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
@@ -955,6 +1000,7 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
           right.classList.add("correct"); addNote(right, "✓ correct answer");
           if(chosen){
             var oi=parseInt(chosen.value,10);
+            addFb(qi, item, oi);
             if(oi===item.a) score++;
             else { var wr=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); wr.classList.add("wrong"); addNote(wr, "✗ your answer"); }
           }
@@ -1144,53 +1190,150 @@ title: Mechanisms & Drive Systems — National 5 Engineering Science
   })();
   </script>
 
-  <!-- Gear-train live sim (flagship) -->
+  <!-- Gear-train explorer (WidgetKit: liveSim, clock, poeCard) -->
   <script>
   document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
+    var K = window.WidgetKit;
     var root = document.getElementById("gearSim");
-    if(!root) return;
+    if(!K || !root) return;
     var $ = function(id){ return document.getElementById(id); };
-    var MAXSPD = 1500, last = { n1: 600, n2: 300 };
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = $("gs-draw");
+    var st = { N1: 20, N2: 40, n1: 600 }, last = { n1: 600, n2: 300 }, alpha = 0, used = false, first = true, parts = null;
+
+    function el(name, attrs, parent){
+      var e = document.createElementNS(NS, name);
+      for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+      if(parent) parent.appendChild(e);
+      return e;
+    }
+    /* "<i>N</i><sub>1</sub> = 20 teeth" -> tspans */
+    function rich(t, html){
+      var it = false, sub = false, shift = 0;
+      String(html).split(/(<\/?(?:i|sub)>)/).forEach(function(p){
+        if(p === "<i>"){ it = true; return; } if(p === "</i>"){ it = false; return; }
+        if(p === "<sub>"){ sub = true; shift = 1; return; } if(p === "</sub>"){ sub = false; shift = -1; return; }
+        if(!p) return;
+        var s = el("tspan", {}, t); s.textContent = p;
+        if(it){ s.setAttribute("font-style", "italic"); s.setAttribute("font-family", "\"Times New Roman\", Times, Georgia, serif"); }
+        if(sub) s.setAttribute("font-size", "75%");
+        if(shift === 1){ s.setAttribute("dy", "0.3em"); shift = 0; } else if(shift === -1){ s.setAttribute("dy", "-0.3em"); shift = 0; }
+      });
+      return t;
+    }
+    function label(x, y, html, anchor, cls, parent){
+      return rich(el("text", { x: x, y: y, "text-anchor": anchor || "start", "class": cls || "g-t" }, parent || svg), html);
+    }
+    function gearD(rp, N, k){
+      var ra = rp + k, rr = Math.max(rp * 0.55, rp - 1.25 * k), p = 2 * Math.PI / N, d = "";
+      function pt(r, a){ return (r * Math.cos(a)).toFixed(2) + " " + (r * Math.sin(a)).toFixed(2); }
+      for(var i = 0; i < N; i++){
+        var a = i * p;
+        d += (i ? "L" : "M") + pt(rr, a - 0.5 * p) + "L" + pt(rr, a - 0.25 * p) + "L" + pt(ra, a - 0.12 * p) +
+             "L" + pt(ra, a + 0.12 * p) + "L" + pt(rr, a + 0.25 * p);
+      }
+      return d + "Z";
+    }
+    function arcArrow(cx, cy, r, cw, parent){
+      var a0 = 235 * Math.PI / 180, a1 = 305 * Math.PI / 180;
+      var s = cw ? a0 : a1, e = cw ? a1 : a0;
+      var x0 = cx + r * Math.cos(s), y0 = cy + r * Math.sin(s), x1 = cx + r * Math.cos(e), y1 = cy + r * Math.sin(e);
+      el("path", { d: "M" + x0.toFixed(1) + " " + y0.toFixed(1) + " A" + r + " " + r + " 0 0 " + (cw ? 1 : 0) + " " + x1.toFixed(1) + " " + y1.toFixed(1), "class": "g-arrow" }, parent);
+      var dir = cw ? 1 : -1, tx = -Math.sin(e) * dir, ty = Math.cos(e) * dir, nx = -ty, ny = tx, h = 11, w = 6;
+      el("path", { d: "M" + (x1 + tx * h).toFixed(1) + " " + (y1 + ty * h).toFixed(1) + " L" + (x1 + nx * w).toFixed(1) + " " + (y1 + ny * w).toFixed(1) +
+        " L" + (x1 - nx * w).toFixed(1) + " " + (y1 - ny * w).toFixed(1) + "Z", "class": "g-head" }, parent);
+    }
+    function layoutW(){ return (svg.parentNode.clientWidth || 600) < 520 ? 340 : 600; }
+    function speedText(v){ return K.fmt(v, v >= 1000 ? 4 : 3); }
+
+    function build(){
+      var N1 = st.N1, N2 = st.N2;
+      var W = layoutW(), narrow = W < 600, H = narrow ? 384 : 318, m = 14, dy = narrow ? 64 : 0;
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      var k = Math.min((W - 2 * m) / (N1 + N2 + 2), 196 / (Math.max(N1, N2) + 2));
+      var r1 = k * N1 / 2, r2 = k * N2 / 2, total = k * (N1 + N2 + 2);
+      var cx1 = (W - total) / 2 + k * (N1 / 2 + 1), cx2 = cx1 + r1 + r2, cy = 142;
+      arcArrow(cx1, cy, r1 + k + 9, true, svg);
+      arcArrow(cx2, cy, r2 + k + 9, false, svg);
+      function gear(cx, rp, N, cls){
+        var g = el("g", { transform: "translate(" + cx.toFixed(1) + " " + cy + ")" }, svg);
+        var rot = el("g", {}, g);
+        el("path", { d: gearD(rp, N, k), "class": "g-body " + cls }, rot);
+        el("line", { x1: 0, y1: 0, x2: (rp * 0.72).toFixed(1), y2: 0, "class": "g-spoke" }, rot);
+        el("circle", { cx: 0, cy: 0, r: Math.max(4, rp * 0.24).toFixed(1), "class": "g-hub" }, rot);
+        el("circle", { cx: 0, cy: 0, r: 2.6, "class": "g-shaft" }, rot);
+        return rot;
+      }
+      var g1 = gear(cx1, r1, N1, "g-drv"), g2 = gear(cx2, r2, N2, "g-dvn");
+      var lab = el("g", {}, svg);
+      el("rect", { x: m, y: 253, width: 14, height: 14, rx: 3, "class": "g-body g-drv" }, lab);
+      label(m + 20, 266, "Driver gear", "start", "g-t g-name", lab);
+      var tN1 = label(m, 287, "", "start", "g-t", lab), tn1 = label(m, 308, "", "start", "g-t", lab);
+      el("rect", { x: W - m - 14, y: 253 + dy, width: 14, height: 14, rx: 3, "class": "g-body g-dvn" }, lab);
+      label(W - m - 20, 266 + dy, "Driven gear", "end", "g-t g-name", lab);
+      var tN2 = label(W - m, 287 + dy, "", "end", "g-t", lab), tn2 = label(W - m, 308 + dy, "", "end", "g-t", lab);
+      parts = { g1: g1, g2: g2, tN1: tN1, tn1: tn1, tN2: tN2, tn2: tn2, W: W, N1: N1, N2: N2 };
+    }
+    function setText(t, html){ while(t.firstChild) t.removeChild(t.firstChild); rich(t, html); }
+    function turn(){
+      if(!parts) return;
+      var b = 180 + 180 / parts.N2 - alpha * parts.N1 / parts.N2;
+      parts.g1.setAttribute("transform", "rotate(" + (alpha % 360).toFixed(2) + ")");
+      parts.g2.setAttribute("transform", "rotate(" + (b % 360).toFixed(2) + ")");
+    }
 
     function fmtRatio(N1, N2){
-      if(N2 >= N1){ var r = N2/N1; return (r % 1 === 0 ? r : r.toFixed(2)) + " : 1"; }
-      var r2 = N1/N2; return "1 : " + (r2 % 1 === 0 ? r2 : r2.toFixed(2));
+      if(N2 >= N1){ var r = N2 / N1; return (r % 1 === 0 ? r : r.toFixed(2)) + " : 1"; }
+      var r2 = N1 / N2; return "1 : " + (r2 % 1 === 0 ? r2 : r2.toFixed(2));
     }
     function render(s){
-      var N1 = Math.max(1, s.N1), N2 = Math.max(1, s.N2), n1 = Math.max(0, s.n1);
-      var n2 = n1 * N1 / N2;
-      last = { n1: n1, n2: n2 };
+      var N1 = s.N1, N2 = s.N2, n1 = s.n1, n2 = n1 * N1 / N2;
+      st = { N1: N1, N2: N2, n1: n1 }; last = { n1: n1, n2: n2 };
+      if(!parts || parts.N1 !== N1 || parts.N2 !== N2 || parts.W !== layoutW()) build();
+      setText(parts.tN1, "<i>N</i><sub>1</sub> = " + N1 + " teeth");
+      setText(parts.tn1, "<i>n</i><sub>1</sub> = " + n1 + " revs min⁻¹");
+      setText(parts.tN2, "<i>N</i><sub>2</sub> = " + N2 + " teeth");
+      setText(parts.tn2, "<i>n</i><sub>2</sub> = " + speedText(n2) + " revs min⁻¹");
+      turn();
+      var word = N2 > N1 ? "slower than" : (N2 < N1 ? "faster than" : "at the same speed as");
+      svg.setAttribute("aria-label", "Driver gear, " + N1 + " teeth, turning clockwise at " + n1 + " revs per minute, meshing with the driven gear, " +
+        N2 + " teeth, turning anticlockwise at " + speedText(n2) + " revs per minute.");
       $("gs-ratio").textContent = fmtRatio(N1, N2);
-      $("gs-out").textContent = (n2 % 1 === 0 ? n2 : n2.toFixed(1));
-      $("gs-dir").textContent = "opposite ↺";
-      var inPct = Math.min(100, n1 / MAXSPD * 100), outPct = Math.min(100, n2 / MAXSPD * 100);
-      $("gs-inbar").style.width = inPct.toFixed(1) + "%";
-      $("gs-outbar").style.width = Math.max(outPct, 1).toFixed(1) + "%";
-      $("gs-inbar").textContent = n1 + " rev/min";
-      $("gs-outbar").textContent = (n2 % 1 === 0 ? n2 : n2.toFixed(0)) + " rev/min";
-      var speedWord = N2 > N1 ? "slower" : (N2 < N1 ? "faster" : "the same speed");
-      $("gs-desc").textContent = "Ratio " + fmtRatio(N1, N2) + " — the output turns " + speedWord +
-        " than the input, in the opposite direction (meshing gears)." +
-        (n2 > MAXSPD ? " Output beyond the bar scale." : "");
+      $("gs-out").textContent = speedText(n2) + " revs min⁻¹";
+      $("gs-dir").textContent = "Anticlockwise";
+      $("gs-work").innerHTML = "<var>n</var><sub>1</sub> <var>N</var><sub>1</sub> = <var>n</var><sub>2</sub> <var>N</var><sub>2</sub><br>" +
+        n1 + " × " + N1 + " = <var>n</var><sub>2</sub> × " + N2 + "<br>" +
+        "<var>n</var><sub>2</sub> = " + (n1 * N1) + " ÷ " + N2 + " = <strong>" + speedText(n2) + " revs min⁻¹</strong>, " + word + " the driver, in the opposite direction";
+      if(first){ first = false; } else if(!used){
+        used = true;
+        if(window.Progress && Progress.markSeen) Progress.markSeen("eng-mechanisms");
+      }
     }
 
-    window.WidgetKit.liveSim(root, { render: render });
+    var clock = K.clock({
+      autoplay: true, button: $("gs-play"),
+      onFrame: function(dt){ alpha += dt * st.n1 * 6 / 40; turn(); }
+    });
+    var sim = K.liveSim(root, { render: render });
+    K.poeCard($("gs-predict"), { answer: "so" });
+    if(window.ResizeObserver){
+      new ResizeObserver(function(){ if(parts && layoutW() !== parts.W){ sim.refresh(); } }).observe(svg.parentNode);
+    }
 
     var fb = $("gs-fb");
     $("gs-check").addEventListener("click", function(){
       if(last.n1 === 600 && Math.abs(last.n2 - 150) < 0.5){
         fb.className = "kit-fb ok";
-        fb.textContent = "✓ 150 revs min⁻¹ — a 4 : 1 reduction (driven teeth = 4 × driver teeth): 600 × N₁ = 150 × N₂.";
+        fb.innerHTML = "Right. 150 revs min⁻¹ is a 4 : 1 reduction: the driven gear has 4 times the driver's teeth, so 600 × <var>N</var><sub>1</sub> = 150 × <var>N</var><sub>2</sub>.";
         if(window.Progress) Progress.complete("ch-gear-sim");
       } else if(last.n1 !== 600){
         fb.className = "kit-fb no";
-        fb.textContent = "✗ Set the motor back to 600 revs min⁻¹ first, then pick the teeth.";
+        fb.textContent = "Not yet. Set the motor back to 600 revs min⁻¹ first, then choose the teeth.";
         if(window.Progress) Progress.miss();
       } else {
         fb.className = "kit-fb no";
-        fb.textContent = "✗ Output is " + (last.n2 % 1 === 0 ? last.n2 : last.n2.toFixed(1)) +
-          " revs min⁻¹ — aim for 150. You need a 4 : 1 ratio: try 10 → 40, 15 → 60 or 20 → 80 teeth.";
+        fb.textContent = "Not yet. The output is " + speedText(last.n2) + " revs min⁻¹; aim for 150. That is a quarter of 600, so how many times more teeth does the driven gear need?";
         if(window.Progress) Progress.miss();
       }
     });
