@@ -13,6 +13,7 @@
 //   - every drawing is named (role="img" + aria-label) or hidden from screen readers
 //   - every graph has numbered ticks and labelled axes
 //   - with reduced motion asked for, nothing moves until the pupil presses play
+//   - every drawn stripboard ([data-board]) matches its own netlist
 // Pages with sliders that are not yet in a `.sim` are listed as "not migrated"; that is a
 // warning, not a failure, until Stage C of the simulator plan is complete.
 
@@ -42,7 +43,7 @@ const pages = [], legacy = [];
 for (const file of htmlFiles(SITE)) {
   const html = readFileSync(file, "utf8");
   const url = "/" + file.slice(SITE.length + 1).replace(/\\/g, "/");
-  if (/class="sim[ "]/.test(html)) pages.push(url);
+  if (/class="sim[ "]/.test(html) || /data-board="/.test(html)) pages.push(url);
   else if (/type="range"/.test(html)) legacy.push(url);
 }
 
@@ -127,6 +128,18 @@ for (const url of pages) {
       }
       return out;
     }, { wide: view.wide, stageMax: STAGE_MAX });
+
+    // a drawn stripboard must match its own netlist (board-figure.js marks it)
+    if (view.wide && view.colorScheme === "light") {
+      const boards = await page.$$("[data-board]");
+      for (const el of boards) {
+        await el.scrollIntoViewIfNeeded();
+        await page.waitForFunction((e) => e.hasAttribute("data-board-ok"), el, { timeout: 8000 }).catch(() => {});
+        const ok = await el.getAttribute("data-board-ok");
+        const src = await el.getAttribute("data-board");
+        if (ok !== "yes") found.push(`board ${src} ${ok === "no" ? "does not match its netlist" : "did not draw"}`);
+      }
+    }
 
     // a slider and its number box move together
     const pairs = await page.$$('.sim input[type="range"][data-sim]');

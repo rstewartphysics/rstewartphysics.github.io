@@ -525,6 +525,7 @@
        g.band(name, y0, y1, { cls })          shaded horizontal band
        g.ref(name, "x"|"y", value, { cls, label })   a guide line
        g.marker(name, x, y, { cls, label })
+       g.cursor(x | null)   a "now" line, moved without a redraw
        g.remove(name), g.setX({min,max,…}), g.setY(…), g.describe(text)
        g.px(x), g.py(y)   logical → SVG coordinates
      Styling is by class (kg-*) in /assets/css/sims.css, so it follows
@@ -679,7 +680,17 @@
       series = keep.filter(function (s) { return s.kind === "marker"; });
       drawSeries(el("g", {}, root));
       series = keep;
+      cursorEl = el("line", { "class": "kg-cursor", y1: box.t, y2: box.b }, root);
+      placeCursor();
       label();
+    }
+    // a moving "now" line, cheap enough to move every animation frame
+    var cursorEl = null, cursorX = null;
+    function placeCursor() {
+      if (!cursorEl) { return; }
+      var on = cursorX !== null && cursorX >= X.min && cursorX <= X.max;
+      cursorEl.style.display = on ? "" : "none";
+      if (on) { var x = px(cursorX).toFixed(1); cursorEl.setAttribute("x1", x); cursorEl.setAttribute("x2", x); }
     }
     function label() {
       svg.setAttribute("role", "img");
@@ -701,6 +712,7 @@
       setX: function (a) { X = Object.assign({}, X, a); redraw(); return api; },
       setY: function (a) { Y = Object.assign({}, Y, a); redraw(); return api; },
       describe: function (text) { desc = text || ""; label(); return api; },
+      cursor: function (x) { cursorX = (x === null || x === undefined) ? null : x; placeCursor(); return api; },
       px: function (x) { return px(x); },
       py: function (y) { return py(y); },
       now: function () { render(); return api; }
