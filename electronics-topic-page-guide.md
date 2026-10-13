@@ -31,7 +31,11 @@ classes/electronics/planning.html          — Practical activity
 - Link shared chrome: `/assets/css/site-menu.css`, `/assets/js/site-menu.js` (defer), and
   **`/assets/css/electronics.css?v=el-YYYYMMDDx`** (teal tokens + chrome + dark mode).
   Bump `?v=` only when you change the shared sheet.
-- Page-specific component + widget CSS/JS stays **inline** (same rule as Higher).
+- Page-specific component + widget CSS/JS stays **inline** (same rule as Higher). **Simulators use
+  the shared kit** (`/assets/css/sims.css` + `/assets/js/widget-kit.js`, CLAUDE.md "Simulations");
+  copy `classes/electronics/555-astable.html` (#sim555). A stripboard layout on a page is a
+  `[data-board]` figure drawn by `/assets/js/board-figure.js` from a layout file in `assets/boards/`,
+  checked against its netlist — never a screenshot.
 - Skip link, `{% include site-menu.html %}`, banner (`/assets/Electronicsbanner.png`), sticky sub-nav.
 - Per-page `localStorage` prefix is unique: `el-thy-`, `el-sim-`, `el-con-`, `el-tst-`, `el-pln-`.
 

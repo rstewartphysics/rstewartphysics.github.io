@@ -14,8 +14,9 @@
 //   - every graph has numbered ticks and labelled axes
 //   - with reduced motion asked for, nothing moves until the pupil presses play
 //   - every drawn stripboard ([data-board]) matches its own netlist
-// Pages with sliders that are not yet in a `.sim` are listed as "not migrated"; that is a
-// warning, not a failure, until Stage C of the simulator plan is complete.
+// It prints every simulator it found (page, id, title, stage height at 1180 × 760), so the list
+// of simulators on the site never has to be kept by hand. Pages with sliders outside a `.sim`
+// are listed as "not migrated" (a warning).
 
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
@@ -44,7 +45,7 @@ for (const file of htmlFiles(SITE)) {
   const html = readFileSync(file, "utf8");
   const url = "/" + file.slice(SITE.length + 1).replace(/\\/g, "/");
   if (/class="sim[ "]/.test(html) || /data-board="/.test(html)) pages.push(url);
-  else if (/type="range"/.test(html)) legacy.push(url);
+  else if (/<input[^>]*type="range"/.test(html)) legacy.push(url);
 }
 
 const server = createServer(async (req, res) => {
@@ -70,6 +71,7 @@ const VIEWS = [
 
 const browser = await chromium.launch();
 const failures = [];
+const inventory = [];
 
 for (const url of pages) {
   for (const view of VIEWS) {
@@ -162,6 +164,13 @@ for (const url of pages) {
       if (res) found.push(res);
     }
 
+    if (view === VIEWS[0]) {
+      inventory.push(...(await page.$$eval(".sim", (sims) => sims.map((s) => ({
+        id: s.id,
+        title: ((s.querySelector(".sim-head h3") || {}).textContent || "").trim(),
+        stage: Math.round((s.querySelector(".sim-stage") || s).getBoundingClientRect().height),
+      })))).map((x) => ({ url, ...x })));
+    }
     for (const msg of found) failures.push(`${url} [${view.name}] ${msg}`);
     for (const msg of errors) failures.push(`${url} [${view.name}] script error: ${msg}`);
     await ctx.close();
@@ -182,7 +191,8 @@ for (const url of pages) {
 await browser.close();
 server.close();
 
-console.log(`sim-check: ${pages.length} page(s) with simulators checked.`);
+console.log(`sim-check: ${pages.length} page(s) with simulators checked.\n`);
+for (const x of inventory) console.log(`  ${x.url}#${x.id}  "${x.title}"  stage ${x.stage} px`);
 if (legacy.length) {
   console.log(`\nNot migrated to the simulator kit yet (${legacy.length}) — warning only:`);
   for (const u of legacy) console.log(`  ${u}`);
