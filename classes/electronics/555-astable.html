@@ -1,1003 +1,1089 @@
 ---
 layout: none
-title: 555 Astable Simulator
+title: The 555 astable — National 5 Electronics
 ---
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Site icons. Kept literal: this page is not Liquid-processed. -->
-<link rel="icon" href="/favicon.ico" sizes="32x32">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="stylesheet" href="/assets/css/site-menu.css">
-<script src="/assets/js/site-menu.js" defer></script>
-<script src="/assets/js/progress.js" defer></script>
-<script src="/assets/js/progress/electronics.js" defer></script>
-<style>
-:root {
-  --el-green: #00e6b3;
-  --el-green-glow: rgba(0,255,200,0.55);
-  --el-bg1: #003c2e;
-  --el-bg2: #005f47;
-  --el-bg3: #052a1f;
-  --font-stack: "Trebuchet MS","Segoe UI",sans-serif;
-  --tile-border: rgba(0,255,200,0.35);
-  --tile-outline: rgba(0,255,200,0.15);
-
-      --page-accent: #00a878;
-      --menu-accent: #00a878;}
-.collapsible-panel {
-  background: rgba(0,0,0,0.12);
-  border-radius: 22px;
-  padding: 1.2rem;
-  margin-top: 1.2rem;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
-}
-.subtitle {
-  opacity: 0.75;
-  font-size: 1.1rem;
-  text-align: center;
-  margin-top: -0.5rem;
-}
-
-/* BASE PAGE */
-body {
-  margin: 0;
-  background: radial-gradient(circle at 25% 30%, var(--el-bg1), var(--el-bg2), var(--el-bg3));
-  background-attachment: scroll;
-  color: white;
-  font-family: var(--font-stack);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  overflow-x: hidden;
-}
-
-.page-wrap {
-  max-width: 1000px;
-  margin: 2rem auto;
-  padding: 0 1rem 4rem;
-}
-
-/* MENU BUTTON */
-/* SIDEMENU */
-/* TABS */
-.tab-buttons {
-  display: flex; gap: 10px;
-  margin: 1.5rem 0; flex-wrap: wrap;
-}
-.tab-buttons button {
-  flex: 1; min-width: 160px;
-  background: rgba(0,255,200,0.15);
-  border: 2px solid var(--tile-border);
-  padding: 10px 14px;
-  color:white; border-radius:12px;
-  font-weight:600; cursor:pointer;
-  transition:0.2s ease;
-}
-.tab-buttons button.active {
-  background:var(--el-green);
-  color:black;
-}
-.tab { display:none; }
-.tab.active { display:block; }
-
-/* IMAGE BLOCKS */
-.board-img {
-  max-width: 650px;
-  margin: 1.2rem auto;
-  border: 2px solid var(--tile-border);
-  outline: 2px solid var(--tile-outline);
-  border-radius: 14px;
-  background: rgba(255,255,255,0.06);
-  padding: 10px;
-}
-.board-img img {
-  width: 100%;
-  border-radius: 10px;
-}
-.caption {
-  text-align: center;
-  font-size: 0.9rem; 
-  opacity: 0.75;
-  margin-bottom: 6px;
-}
-
-/* INTRO BOXES */
-.intro-box {
-  background: rgba(0,255,200,0.10);
-  border: 1px solid rgba(0,255,200,0.25);
-  padding: 12px 14px;
-  border-radius: 10px;
-  margin: 1rem 0;
-}
-
-/* COLLAPSIBLES */
-details {
-  margin: 0.7rem 0;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.05);
-  padding: 8px 12px;
-}
-details summary {
-  cursor: pointer;
-  font-weight: 700;
-  padding: 10px 4px;
-  text-shadow: 0 0 10px var(--el-green-glow);
-}
-
-h1, h2, h3 {
-  text-shadow: 0 0 12px var(--el-green-glow);
-}
-.led {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--tile-border);
-  outline: 2px solid var(--tile-outline);
-  transition: 0.15s ease;
-}
-canvas {
-  width: 100%;
-  border: 2px solid var(--tile-border);
-  outline: 2px solid var(--tile-outline);
-  border-radius: 14px;
-  background: black;
-  margin-bottom: 15px;
-}
-canvas {
-  min-height: 150px;
-}
-#charge-bar {
-  text-shadow: 0 0 12px var(--el-green-glow);
-}
-
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
-footer{text-align:center;padding:1rem;margin-top:auto;font-size:.92rem;color:rgba(255,255,255,.72);border-top:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25)}
-</style>
-
-<a class="skip-link" href="#mainContent">Skip to content</a>
-{% include site-menu.html %}
-
-<!-- SIDEMENU -->
-
-<main class="page-wrap" id="mainContent">
-
-<h1 style="text-align:center;">555 Astable Simulator</h1>
-
-<!-- TAB BUTTONS -->
-<div class="tab-buttons">
-  <button class="active" onclick="switchTab('overview', this)">Overview</button>
-  <button onclick="switchTab('how', this)">How It Works</button>
-  <button onclick="switchTab('sim', this)">Simulator</button>
-  <button onclick="switchTab('schematic', this)">Schematic & Stripboard</button>
-  <button onclick="switchTab('build', this)">Build Guide</button>
-  <button onclick="switchTab('student', this)">Student Explanation</button>
-  <button onclick="switchTab('quiz', this)">Quiz</button>
-</div>
-
-<!-- ========================== OVERVIEW TAB =========================== -->
-<div id="overview" class="tab active">
-
-<h2>Learning Goals</h2>
-<div class="intro-box">
-  <ul>
-    <li>Understand how R1, R2 and C1 set the flash rate</li>
-    <li>Explain why LEDs flash alternately</li>
-    <li>Relate the capacitor voltage curve to LED behaviour</li>
-    <li>Link a stripboard layout to a circuit diagram</li>
-    <li>Calculate Tm, Ts, T, f and duty cycle</li>
-  </ul>
-</div>
-
-<h2>Key Misconceptions</h2>
-<div class="intro-box">
-  <ul>
-    <li><strong>The capacitor never reaches 0V or full supply voltage.</strong></li>
-    <li>R1 affects charge time but <strong>NOT</strong> discharge time.</li>
-    <li>LEDs do not both connect the same way — one lights on HIGH, one on LOW.</li>
-    <li>R1, R2, C1 change the timing <strong>non-linearly</strong>.</li>
-  </ul>
-</div>
-
-<h2>What this Page Is For</h2>
-<div class="intro-box">
-  <p>This page helps you understand, build, and test a 555 astable circuit.  
-  Use the tabs at the top to explore how it works, try the simulator, compare the schematic to a stripboard, and read a simple student explanation.</p>
-  <p>Move slowly, test often, and try each slider to see what changes.</p>
-</div>
-
-</div> <!-- end overview tab -->
-
-  <!-- ========================== HOW IT WORKS TAB =========================== -->
-<div id="how" class="tab">
-
-<h2>How the 555 Astable Works</h2>
-
-<div class="intro-box">
-  <p><strong>The most important idea:</strong>  
-  The capacitor does NOT fully charge or fully discharge.  
-  It moves only between <strong>1/3</strong> and <strong>2/3</strong> of the supply voltage.</p>
-</div>
-
-<h3>Overview</h3>
-<div class="intro-box">
-  <p>The 555 astable creates a repeating HIGH–LOW output.  
-  The timing is controlled by three components:</p>
-  <ul>
-    <li><strong>R1</strong> – charge resistor</li>
-    <li><strong>R2</strong> – charge & discharge resistor</li>
-    <li><strong>C1</strong> – timing capacitor</li>
-  </ul>
-</div>
-
-<div class="collapsible-panel">
-
-  <details>
-    <summary>🔼 Threshold & Trigger – the 1/3 and 2/3 rule</summary>
-    <p>Inside the 555 are two voltage comparators:</p>
-    <ul>
-      <li><strong>Upper comparator:</strong> switches the output LOW when the capacitor reaches 2/3 Vcc</li>
-      <li><strong>Lower comparator:</strong> switches the output HIGH when the capacitor falls to 1/3 Vcc</li>
-    </ul>
-    <p>This causes the capacitor to “bounce” between these two levels forever.</p>
-  </details>
-
-  <details>
-    <summary>⚡ Charging Phase – Output HIGH</summary>
-    <p>When the output is HIGH:</p>
-    <ul>
-      <li>C1 charges through <strong>R1 + R2</strong></li>
-      <li>The voltage rises from 1/3 → 2/3 Vcc</li>
-      <li>The green LED lights (on your circuit)</li>
-    </ul>
-  </details>
-
-  <details>
-    <summary>⬇ Discharging Phase – Output LOW</summary>
-    <p>When the output is LOW:</p>
-    <ul>
-      <li>C1 discharges through <strong>R2 only</strong></li>
-      <li>Voltage falls from 2/3 → 1/3 Vcc</li>
-      <li>The red LED lights</li>
-    </ul>
-  </details>
-
-  <details>
-    <summary>🧮 R1, R2, C1 Timing Equations</summary>
-    <p><strong>Mark (HIGH) time:</strong>  
-       T<sub>m</sub> = 0.7 × (R1 + R2) × C1</p>
-
-    <p><strong>Space (LOW) time:</strong>  
-       T<sub>s</sub> = 0.7 × R2 × C1</p>
-
-    <p><strong>Period:</strong>  
-       T = T<sub>m</sub> + T<sub>s</sub></p>
-
-    <p><strong>Frequency:</strong>  
-       f = 1 / T</p>
-  </details>
-
-  <details>
-    <summary>🚫 Common Misconceptions Explained</summary>
-    <ul>
-      <li><strong>“R1 controls discharge time.”</strong><br>  
-          False — only R2 is in the discharge path.</li>
-
-      <li><strong>“The capacitor reaches full 0–Vcc.”</strong><br>  
-          False — the comparators limit it.</li>
-
-      <li><strong>“LEDs are symmetrical.”</strong><br>  
-          False — they need opposite driving for HIGH/LOW light.</li>
-    </ul>
-  </details>
-
-</div>
-
-</div> <!-- end how tab -->
-
-<!-- ========================== SIMULATOR TAB =========================== -->
-<div id="sim" class="tab">
-
-  <h2>Interactive Simulator</h2>
-  <p class="subtitle">Adjust R1, R2 and C1 to explore the 555 astable</p>
-
-  <div class="intro-box">
-    <p>This simulator shows the live behaviour of the 555:</p>
-    <ul>
-      <li>Real-time LED flashing</li>
-      <li>Output HIGH/LOW state</li>
-      <li>Charging/discharging phase</li>
-      <li>Waveform output</li>
-      <li>Capacitor voltage curve</li>
-      <li>Calculated timing values</li>
-    </ul>
-    <p>Everything updates instantly when you move the sliders.</p>
-  </div>
-
-  <!-- LED OUTPUT PANEL -->
-  <h3>LED Output</h3>
-  <p class="intro-box">
-    GREEN = Output HIGH (charging phase)<br>
-    RED = Output LOW (discharging phase)
-  </p>
-
-  <div style="display:flex;justify-content:center;gap:60px;margin:16px 0;">
-    <div style="text-align:center;">
-      <div id="led-red" class="led" style="background:#200;"></div>
-      <small>Red LED<br>(pin 3 → 0V)</small>
-    </div>
-
-    <div style="text-align:center;">
-      <div id="led-green" class="led" style="background:#020;"></div>
-      <small>Green LED<br>(Vsupply → pin 3)</small>
-    </div>
-  </div>
-
-  <h3 id="charge-bar" style="text-align:center;margin-bottom:1rem;">Output State: —</h3>
-
-  <!-- PRESETS -->
-  <h3>Presets</h3>
-  <p class="intro-box">Click a button to instantly load a timing setup.</p>
-
-  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;">
-    <button onclick="applyPreset(1,68,10)">1 Hz Flash</button>
-    <button onclick="applyPreset(1,220,3)">3 Hz Flash</button>
-    <button onclick="applyPreset(1,68,1)">10 Hz Flash</button>
-    <button onclick="applyPreset(1,150,10)">Equal On/Off</button>
-    <button onclick="applyPreset(1,470,10)">0.5 Hz Slow</button>
-  </div>
-
-  <!-- SLIDERS -->
-  <h3>Adjust Component Values</h3>
-  <p class="intro-box">
-    Move the sliders to change resistor and capacitor values.  
-    The flash rate and waveforms update automatically.
-  </p>
-
-  <label>R1 (kΩ): <span id="r1-label">1</span></label>
-  <input id="r1" type="range" min="1" max="100" value="1" oninput="updateSim()">
-
-  <label>R2 (kΩ): <span id="r2-label">68</span></label>
-  <input id="r2" type="range" min="1" max="500" value="68" oninput="updateSim()">
-
-  <label>C1 (µF): <span id="c1-label">10</span></label>
-  <input id="c1" type="range" min="1" max="200" value="10" oninput="updateSim()">
-
-  <hr>
-
-  <!-- WAVEFORMS -->
-  <h3>Output Square Wave</h3>
-  <canvas id="waveform" height="150"></canvas>
-
-  <h3>Capacitor Voltage Curve</h3>
-  <canvas id="cap-curve" height="150"></canvas>
-
-  <hr>
-
-  <!-- CALCULATED VALUES -->
-  <h3>Calculated Values</h3>
-
-  <div class="intro-box">
-    <p><strong>Period T:</strong> <span id="val-T">—</span> s</p>
-    <p><strong>Frequency f:</strong> <span id="val-f">—</span> Hz</p>
-    <p><strong>Mark Time Tm:</strong> <span id="val-Tm">—</span> s (HIGH time)</p>
-    <p><strong>Space Time Ts:</strong> <span id="val-Ts">—</span> s (LOW time)</p>
-    <p><strong>Duty Cycle:</strong> <span id="val-duty">—</span>%</p>
-  </div>
-
-</div> <!-- end simulator tab -->
-
-  <!-- ====================== SCHEMATIC & STRIPBOARD TAB ====================== -->
-<div id="schematic" class="tab">
-
-  <h2>Schematic & Stripboard</h2>
-  <p class="subtitle">Both diagrams show the same circuit in different layouts.</p>
-
-  <div class="intro-box">
-    <p>The schematic shows the <strong>logical</strong> circuit.</p>
-    <p>The stripboard shows the <strong>physical</strong> layout.</p>
-    <p>Every electrical connection must match – even if the picture looks different.</p>
-  </div>
-
-  <!-- IMAGE PANEL -->
-  <div class="board-img">
-    <div class="caption">Schematic (right) and matching Stripboard Layout (left)</div>
-    <img src="/assets/electronics/555new.jpg" alt="555 stripboard and schematic">
-  </div>
-
-  <div class="collapsible-panel">
-
-    <!-- SPOT THE DIFFERENCE -->
-    <details>
-      <summary>🔍 Spot the Difference — Schematic vs Stripboard</summary>
-
-      <p class="intro-box">
-        The pictures look different – but the <strong>connections are identical</strong>.  
-        Here’s what changes when moving from schematic → stripboard.
-      </p>
-
-      <h3>Key Differences</h3>
-      <ul>
-        <li><strong>Schematic is neat</strong> – wires avoid crossing, parts spaced out.</li>
-        <li><strong>Stripboard follows copper tracks</strong> – many parts end up rotated or moved.</li>
-        <li><strong>IC pins look different</strong> – but are still the same numbers.</li>
-        <li><strong>Components may swap sides</strong> of the chip.</li>
-      </ul>
-
-      <h3>What always stays the same</h3>
-      <ul>
-        <li>Pin 2 and pin 6 must be linked (timing node).</li>
-        <li>R1 and R2 must both connect to pin 7.</li>
-        <li>C1 must go between the timing node and 0V.</li>
-        <li>Pin 3 must drive the LEDs.</li>
-        <li>+V must always go to pin 8.</li>
-      </ul>
-
-      <p class="intro-box">
-        If the schematic says two things join →  
-        <strong>they MUST join on the stripboard</strong>,  
-        even if the picture layout is very different.
-      </p>
-
-    </details>
-
-    <!-- COMPARISON NOTES -->
-    <details>
-      <summary>📘 Key Comparison Notes</summary>
-
-      <h3>1. Pin Numbers NEVER change</h3>
-      <p>Pin 1 is always the bottom-left of the notch. Count anticlockwise.</p>
-
-      <h3>2. Timing node is the heart of the circuit</h3>
-      <p>Pins 2 and 6 must be connected together AND go to R5 and C1.</p>
-
-      <h3>3. LED wiring flips depending on HIGH/LOW driving</h3>
-      <ul>
-        <li>Green LEDs turn on when pin 3 is HIGH</li>
-        <li>Red LEDs turn on when pin 3 is LOW</li>
-      </ul>
-
-      <h3>4. Track cuts under pins</h3>
-      <p>Every IC pin must sit on isolated copper.</p>
-
-      <h3>5. Real boards look “messier” than diagrams</h3>
-      <p>This is normal. Electrical connections matter — not neatness.</p>
-
-    </details>
-
-  </div>
-
-</div> <!-- end schematic tab -->
-
-<!-- ========================== BUILD GUIDE TAB =========================== -->
-<div id="build" class="tab">
-
-<h2>Build Guide – 555 Astable Stripboard</h2>
-<div class="subtitle">A clear, student-friendly, step-by-step process</div>
-
-<div class="intro-box">
-  <h3>I can...</h3>
-  <ul>
-    <li>Place the 555 IC the correct way around</li>
-    <li>Wire the timing components correctly</li>
-    <li>Check LED polarity</li>
-    <li>Match every connection to the schematic</li>
-  </ul>
-</div>
-
-<div class="collapsible-panel">
-
-  <!-- STEP 1 -->
-  <details>
-    <summary>🧭 Step 1 — Place the 555 and mark pin 1</summary>
-
-    <p>The 555 has a notch or a dot marking <strong>pin 1</strong>.  
-       Make sure this is at the top-left of the chip.</p>
-
-    <pre style="background:#001c14;padding:12px;border-radius:8px;">
-     Notch ↑
-      ___
-     |   |   ← 555 IC
- 1 • |   | • 8
- 2 • |   | • 7
- 3 • |   | • 6
- 4 • |___| • 5
-
-Pin numbers go counter-clockwise.
-    </pre>
-
-    <ul>
-      <li>Pin 1 → 0V</li>
-      <li>Pin 8 → +V</li>
-      <li>Each pin must sit on its own copper strip</li>
-    </ul>
-
-    <p class="intro-box"><strong>Common error:</strong> rotating the chip 180°.  
-    Always check pins 1 and 8.</p>
-  </details>
-
-  <!-- STEP 2 -->
-  <details>
-    <summary>🔌 Step 2 — Add the power rails (+V and 0V)</summary>
-
-    <p>Use standard colour coding:</p>
-    <ul>
-      <li><strong style="color:#f55;">Red = +V</strong></li>
-      <li><strong style="color:#ccc;">Black = 0V</strong></li>
-    </ul>
-
-    <pre style="background:#001c14;padding:12px;border-radius:8px;">
-Top of board:
-+V  ───────────────────────────────
-
-Bottom of board:
-0V  ───────────────────────────────
-    </pre>
-
-    <p class="intro-box">
-      +V must reach pin 8.  
-      0V must reach pin 1.
-    </p>
-  </details>
-
-  <!-- STEP 3 -->
-  <details>
-    <summary>⏱ Step 3 — Build the timing network (R4, R5, C1)</summary>
-
-    <h3>Connections</h3>
-    <ul>
-      <li>R4 → +V → pin 7</li>
-      <li>R5 → pin 7 → timing node (pins 2 & 6)</li>
-      <li>C1 → timing node → 0V</li>
-    </ul>
-
-    <pre style="background:#001c14;padding:12px;border-radius:8px;">
-      +V
-       │
-      [R4]
-       │
-      Pin 7 ─────[R5]─────┐
-                          │
-                      Pins 2 & 6
-                          │
-                         [C1]
-                          │
-                         0V
-    </pre>
-
-    <p class="intro-box"><strong>Polarity warning:</strong>  
-      C1 is electrolytic → long leg = timing node, short leg = 0V.
-    </p>
-  </details>
-
-  <!-- STEP 4 -->
-  <details>
-    <summary>💡 Step 4 — Add the LEDs and resistors</summary>
-
-    <h3>Green LED (HIGH output)</h3>
-    <pre style="background:#001c14;padding:12px;border-radius:8px;">
-Pin 3 ──[Resistor]──►|── 0V
-                     LED
-(►| = arrow points from + to –)
-    </pre>
-
-    <h3>Red LED (LOW output)</h3>
-    <pre style="background:#001c14;padding:12px;border-radius:8px;">
-+V ──[Resistor]──►|── Pin 3
-                  LED
-    </pre>
-
-    <p class="intro-box">
-      The <strong>flat edge</strong> of an LED = negative (–).
-    </p>
-  </details>
-
-  <!-- STEP 5 -->
-  <details>
-    <summary>🖇 Step 5 — Add all required links</summary>
-
-    <p>Any schematic connections not joined by copper tracks must be wired manually.</p>
-
-    <p>Most common links:</p>
-    <ul>
-      <li>Pin 2 ↔ Pin 6 (timing node)</li>
-      <li>+V rail extensions</li>
-      <li>0V rail extensions</li>
-      <li>Long cross-board connections</li>
-    </ul>
-
-    <pre style="background:#001c14;padding:12px;border-radius:8px;">
-Pins 2 and 6:
-   2 ─────────── 6
-(Use a short wire link)
-    </pre>
-
-    <p class="intro-box">Use <strong>purple</strong> for timing node links (recommended colour convention).</p>
-  </details>
-
-  <!-- STEP 6 -->
-  <details>
-    <summary>✔ Step 6 — Full Build Check</summary>
-
-    <div class="intro-box">
-      <ul>
-        <li>Pin 1 → 0V</li>
-        <li>Pin 8 → +V</li>
-        <li>Pins 2 & 6 joined</li>
-        <li>R4, R5, C1 correctly connected</li>
-        <li>C1 polarity correct</li>
-        <li>LED polarity correct</li>
-        <li>No pins share the same strip accidentally</li>
-      </ul>
-    </div>
-
-    <p><strong>If the LED does not flash:</strong></p>
-    <ul>
-      <li>Check C1 orientation</li>
-      <li>Check pins 2 & 6 are linked</li>
-      <li>Check R4/R5 values</li>
-      <li>Check correct pin numbering</li>
-    </ul>
-  </details>
-
-</div>
-
-</div> <!-- end build tab -->
-
-<!-- ========================== STUDENT EXPLANATION TAB =========================== -->
-<div id="student" class="tab">
-
-  <h2>Student-Friendly Explanation</h2>
-
-  <div class="intro-box">
-    <p>This section explains the 555 astable in simple language.  
-    It is written for a reading age of 11–12 and uses clear, everyday ideas.</p>
-  </div>
-
-  <h3>The Big Picture</h3>
-  <div class="intro-box">
-    <p>The 555 makes a repeating ON–OFF signal all by itself.  
-    This is called an <strong>astable</strong> because it never stays still.</p>
-    <p>It keeps flashing between HIGH and LOW forever.</p>
-  </div>
-
-  <h3>The Capacitor: The “Bucket” of Charge</h3>
-  <div class="intro-box">
-    <p>Think of the capacitor like a bucket that fills and empties.</p>
-    <ul>
-      <li>When the bucket is filling → the output is HIGH</li>
-      <li>When the bucket is emptying → the output is LOW</li>
-    </ul>
-    <p>But it never fills all the way and never empties all the way —  
-       it goes between 1/3 full and 2/3 full.</p>
-  </div>
-
-  <h3>What R1, R2 and C1 Do</h3>
-  <div class="intro-box">
-    <ul>
-      <li><strong>R1</strong> controls how fast the bucket fills</li>
-      <li><strong>R2</strong> controls filling AND emptying</li>
-      <li><strong>C1</strong> is the size of the bucket</li>
-    </ul>
-    <p>Bigger resistors → slower charging  
-       Bigger capacitor → longer flashes</p>
-  </div>
-
-  <h3>Why the LEDs Flash</h3>
-  <div class="intro-box">
-    <p>The output pin (pin 3) goes HIGH and LOW over and over.</p>
-    <ul>
-      <li>HIGH turns the <strong>green</strong> LED on</li>
-      <li>LOW turns the <strong>red</strong> LED on</li>
-    </ul>
-    <p>This creates an alternating flash.</p>
-  </div>
-
-  <h3>What You Control</h3>
-  <div class="intro-box">
-    <p>By changing R1, R2 or C1 you control:</p>
-    <ul>
-      <li>How fast the LEDs flash</li>
-      <li>How long the HIGH part lasts</li>
-      <li>How long the LOW part lasts</li>
-      <li>The overall frequency</li>
-    </ul>
-    <p>This is why the sliders in the simulator change the pattern instantly.</p>
-  </div>
-
-  <h3>Why the 555 is So Useful</h3>
-  <div class="intro-box">
-    <p>The 555 is one of the most used chips in electronics because it can:</p>
-    <ul>
-      <li>Make clocks and timers</li>
-      <li>Blink LEDs</li>
-      <li>Drive buzzers</li>
-      <li>Generate repeating pulses</li>
-    </ul>
-    <p>It is simple, cheap and reliable — perfect for learning electronics.</p>
-  </div>
-
-</div> <!-- end student tab -->
-<!-- =============================== QUIZ TAB =============================== -->
-<div id="quiz" class="tab">
-
-  <h2>Quick Quiz – Test Your Understanding</h2>
-
-  <div class="intro-box">
-    <p>Answer the questions below. Your score updates automatically.  
-    You can retry any question until it is correct.</p>
-  </div>
-
-  <h3>Your Score: <span id="quiz-score">0</span> / 6</h3>
-
-  <div class="collapsible-panel">
-
-    <!-- Q1 -->
-    <details class="quiz-question" data-answer="b">
-      <summary>1️⃣ What voltage levels does the capacitor move between?</summary>
-      <ul>
-        <li><label><input type="radio" name="q1" value="a"> 0 V and Vcc</label></li>
-        <li><label><input type="radio" name="q1" value="b"> 1/3 Vcc and 2/3 Vcc</label></li>
-        <li><label><input type="radio" name="q1" value="c"> 0 V and 1/2 Vcc</label></li>
-      </ul>
-      <button class="quiz-check">Check</button>
-      <p class="quiz-feedback"></p>
-    </details>
-
-    <!-- Q2 -->
-    <details class="quiz-question" data-answer="c">
-      <summary>2️⃣ Which component controls BOTH charging and discharging?</summary>
-      <ul>
-        <li><label><input type="radio" name="q2" value="a"> R1 only</label></li>
-        <li><label><input type="radio" name="q2" value="b"> C1 only</label></li>
-        <li><label><input type="radio" name="q2" value="c"> R2</label></li>
-      </ul>
-      <button class="quiz-check">Check</button>
-      <p class="quiz-feedback"></p>
-    </details>
-
-    <!-- Q3 -->
-    <details class="quiz-question" data-answer="a">
-      <summary>3️⃣ What happens when the capacitor reaches 2/3 Vcc?</summary>
-      <ul>
-        <li><label><input type="radio" name="q3" value="a"> Output switches LOW</label></li>
-        <li><label><input type="radio" name="q3" value="b"> Output switches HIGH</label></li>
-        <li><label><input type="radio" name="q3" value="c"> LEDs stop flashing</label></li>
-      </ul>
-      <button class="quiz-check">Check</button>
-      <p class="quiz-feedback"></p>
-    </details>
-
-    <!-- Q4 -->
-    <details class="quiz-question" data-answer="c">
-      <summary>4️⃣ Which part increases BOTH mark and space time?</summary>
-      <ul>
-        <li><label><input type="radio" name="q4" value="a"> Smaller capacitor</label></li>
-        <li><label><input type="radio" name="q4" value="b"> Smaller R2</label></li>
-        <li><label><input type="radio" name="q4" value="c"> Larger capacitor C1</label></li>
-      </ul>
-      <button class="quiz-check">Check</button>
-      <p class="quiz-feedback"></p>
-    </details>
-
-    <!-- Q5 -->
-    <details class="quiz-question" data-answer="b">
-      <summary>5️⃣ When the output is HIGH, which LED lights?</summary>
-      <ul>
-        <li><label><input type="radio" name="q5" value="a"> Red</label></li>
-        <li><label><input type="radio" name="q5" value="b"> Green</label></li>
-        <li><label><input type="radio" name="q5" value="c"> Both</label></li>
-      </ul>
-      <button class="quiz-check">Check</button>
-      <p class="quiz-feedback"></p>
-    </details>
-
-    <!-- Q6 -->
-    <details class="quiz-question" data-answer="a">
-      <summary>6️⃣ Which formula gives the HIGH time (mark time)?</summary>
-      <ul>
-        <li><label><input type="radio" name="q6" value="a"> 0.7 × (R1 + R2) × C1</label></li>
-        <li><label><input type="radio" name="q6" value="b"> 0.7 × R2 × C1</label></li>
-        <li><label><input type="radio" name="q6" value="c"> 1 / T</label></li>
-      </ul>
-      <button class="quiz-check">Check</button>
-      <p class="quiz-feedback"></p>
-    </details>
-
-  </div>
-</div>
-
-{% include site-footer.html %}
-
-<script>
-/* =============================== */
-/*          SIDE MENU              */
-/* =============================== */
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-  }
-});
-
-/* =============================== */
-/*          TAB SWITCHING          */
-/* =============================== */
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  // FIX: Recalculate canvas sizes when the Simulator tab becomes visible
-  if (id === "sim") {
-    const wf = document.getElementById("waveform");
-    const cc = document.getElementById("cap-curve");
-
-    if (wf) wf.width = wf.clientWidth;
-    if (cc) cc.width = cc.clientWidth;
-  }
-
-  document.querySelectorAll('.tab-buttons button')
-    .forEach(b => b.classList.remove('active'));
-
-  btn.classList.add('active');
-}
-
-/* ===================================================== */
-/*                 555 SIMULATOR ENGINE                  */
-/* ===================================================== */
-
-const el = id => document.getElementById(id);
-
-let T = 1, Tm = 0.5, Ts = 0.5;
-let simTime = 0;
-let wave, cap;
-
-/* INIT SIMULATOR */
-window.addEventListener("load", () => {
-  wave = el("waveform").getContext("2d");
-  cap  = el("cap-curve").getContext("2d");
-
-  // Make canvas match responsive width
-  el("waveform").width = el("waveform").clientWidth;
-  el("cap-curve").width = el("cap-curve").clientWidth;
-
-  updateSim();
-  requestAnimationFrame(animate);
-});
-
-/* Apply preset R1/R2/C1 */
-function applyPreset(R1, R2, C1){
-  el("r1").value = R1;
-  el("r2").value = R2;
-  el("c1").value = C1;
-  updateSim();
-}
-
-/* UPDATE TIMING VALUES */
-function updateSim(){
-  const R1 = parseFloat(el("r1").value) * 1000;
-  const R2 = parseFloat(el("r2").value) * 1000;
-  const C1 = parseFloat(el("c1").value) / 1e6;
-
-  el("r1-label").innerText = (R1/1000).toFixed(0);
-  el("r2-label").innerText = (R2/1000).toFixed(0);
-  el("c1-label").innerText = (C1*1e6).toFixed(0);
-
-  Tm = 0.7 * (R1 + R2) * C1;
-  Ts = 0.7 * (R2) * C1;
-  T  = Tm + Ts;
-
-  el("val-T").innerText = T.toFixed(3);
-  el("val-f").innerText = (1/T).toFixed(2);
-  el("val-Tm").innerText = Tm.toFixed(3);
-  el("val-Ts").innerText = Ts.toFixed(3);
-  el("val-duty").innerText = ((Tm/T) * 100).toFixed(1);
-}
-
-/* =============================== */
-/*         MAIN ANIMATION          */
-/* =============================== */
-function animate(){
-  requestAnimationFrame(animate);
-
-  simTime += 0.01;
-  const t = simTime % T;
-
-  const outputHigh = (t < Tm);
-  const red = el("led-red");
-  const green = el("led-green");
-  const bar = el("charge-bar");
-
-  /* LED Behaviour */
-  if (outputHigh) {
-    green.style.background = "rgb(0,255,160)";
-    red.style.background = "#200";
-    bar.innerText = "Output State: HIGH (charging)";
-    bar.style.color = "#00ffcc";
-  } else {
-    red.style.background = "rgb(255,80,80)";
-    green.style.background = "#020";
-    bar.innerText = "Output State: LOW (discharging)";
-    bar.style.color = "#ff8080";
-  }
-
-  /* ========== OUTPUT WAVEFORM ========== */
-  const W = wave.canvas.width;
-  const H = wave.canvas.height;
-
-  wave.fillStyle = "black";
-  wave.fillRect(0,0,W,H);
-
-  wave.strokeStyle = "#00ff99";
-  wave.beginPath();
-
-  for (let x = 0; x < W; x++) {
-    let tau = (simTime - (W-x)/W * T * 2) % T;
-    wave.lineTo(x, tau < Tm ? 30 : H - 30);
-  }
-  wave.stroke();
-
-  /* ========== CAPACITOR VOLTAGE CURVE ========== */
-  const CW = cap.canvas.width;
-  const CH = cap.canvas.height;
-
-  cap.fillStyle = "black";
-  cap.fillRect(0,0,CW,CH);
-
-  cap.strokeStyle = "#00baff";
-  cap.beginPath();
-
-  for (let x = 0; x < CW; x++) {
-    let tau = (simTime - (CW-x)/CW * T * 2) % T;
-
-    // Cap voltage between 1/3 and 2/3
-    let v = tau < Tm
-      ? 1/3 + (tau/Tm) * (1/3)   // charging
-      : 2/3 - ((tau-Tm)/Ts) * (1/3); // discharging
-
-    cap.lineTo(x, (CH - 10) - v * (CH - 20));
-  }
-  cap.stroke();
-}
-
-/* ===================================================== */
-/*                       QUIZ SYSTEM                     */
-/* ===================================================== */
-
-let quizScore = 0;
-
-function checkQuizAnswer(questionId, correctAnswer) {
-  const q = document.getElementById(questionId);
-  const selected = q.querySelector("input[type=radio]:checked");
-  const feedback = q.querySelector(".quiz-feedback");
-
-  if (!selected) {
-    feedback.textContent = "❗ Choose an answer first.";
-    feedback.style.color = "#ff6666";
-    return;
-  }
-
-  if (selected.value === correctAnswer) {
-    feedback.textContent = "✅ Correct!";
-    feedback.style.color = "#66ffb3";
-
-    // Only score once
-    if (!q.dataset.done) {
-      quizScore++;
-      q.dataset.done = "1";
-      updateQuizScore();
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>The 555 astable — National 5 Electronics</title>
+  {% include site-head-icons.html %}
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260926a">
+  <link rel="stylesheet" href="/assets/css/reading.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/electronics.js" defer></script>
+  <style>
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+    .notes p { margin: .5rem 0 0; }
+    .notes strong { color: var(--text); }
+    .notes a { color: var(--accent-2); font-weight: 900; text-decoration: none; }
+    .notes a:hover, .notes a:focus-visible { text-decoration: underline; }
+
+    /* equation cards with real 2-D fractions */
+    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(230px,100%), 1fr)); margin: .8rem 0 .2rem; }
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.55rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .calc var, .ms var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .4em; }
+    .frac > .fr-n { border-bottom: 2.5px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 1px; }
+
+    /* worked examples */
+    .example { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
+    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .65rem; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; justify-content: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.12rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .eq { text-align: center; }
+    .calc .rhs { text-align: left; white-space: nowrap; }
+    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .78rem; color: var(--accent-2); white-space: normal; max-width: 17ch; align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
+    .ex-flow .calc { grid-column: 2; justify-self: center; }
+    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
+    .ex-conv var { font-style: italic; }
+    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
+    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
+    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
+    @media (max-width: 600px) { .ex-flow { grid-template-columns: 1fr; } .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; } .ex-flow .calc { grid-column: 1; }
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
     }
 
-  } else {
-    feedback.textContent = "❌ Not quite. Try again!";
-    feedback.style.color = "#ff6666";
-  }
-}
+    /* practice callout */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #008063, #00604a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .15rem 0 0; font-weight: 900; color: var(--text); }
 
-function updateQuizScore(){
-  const box = document.getElementById("quiz-score");
-  if (box) box.textContent = quizScore;
-}
-</script>
+    /* reveal answers */
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .ms { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.05rem; color: var(--text); white-space: pre-wrap; }
+
+    /* diagrams */
+    .figure { margin: .8rem 0 .2rem; }
+    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .circ-pair { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; justify-content: center; margin: .8rem 0 .2rem; }
+    .circ-pair .figure { flex: 1 1 260px; min-width: 240px; max-width: 360px; margin: 0; }
+    .pin-cap { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
+    .cphoto { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; background: #fff; border: 1px solid var(--border-soft); border-radius: 10px; padding: .5rem; box-sizing: border-box; }
+    .sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: .7rem; margin: .8rem 0 .2rem; }
+    .sensor-grid .figure { margin: 0; }
+    .circuit { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .node { fill: var(--text); }
+    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
+    .circuit .sig  { stroke: var(--accent); stroke-width: 2.6; fill: none; }
+    .circuit .warm { stroke: var(--warm); stroke-width: 2.6; fill: none; }
+    .circuit .s  { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .circuit .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .circuit .fill { fill: var(--text); }
+
+    /* data + truth tables */
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
+    .dtable thead th { background: var(--surface-2); }
+    .dtable td.l { text-align: left; }
+    .ttable { border-collapse: collapse; margin: .6rem auto 0; font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--text); }
+    .ttable caption { font-family: var(--font-stack); font-weight: 900; color: var(--text); margin-bottom: .35rem; }
+    .ttable th, .ttable td { border: 1px solid var(--border); padding: .4rem .8rem; text-align: center; min-width: 38px; }
+    .ttable thead th { background: var(--surface-2); }
+    .ttable td.out { color: var(--accent-2); font-weight: 900; }
+
+    /* interactive widget */
+    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
+    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+    .field .row { display: flex; align-items: center; gap: .5rem; }
+    input[type="range"] { width: 130px; accent-color: var(--accent); }
+    .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .readout { font-size: 1.15rem; font-weight: 900; color: var(--text); margin-top: .8rem; }
+    .cmp-state { font-weight: 900; margin-top: .35rem; }
+    .working { font-family: ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .65rem; margin-top: .55rem; color: var(--text); font-weight: 700; white-space: pre-wrap; font-size: .9rem; line-height: 1.5; }
+
+    /* quiz */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+
+    /* RAG */
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    .note { border-left: 4px solid var(--warm); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note strong { color: var(--text); }
+    .prefix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px,1fr)); gap: .5rem; margin-top: .6rem; }
+    .pfx { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .5rem; text-align: center; font-weight: 800; color: var(--text); }
+    .pfx b { display: block; font-size: 1.15rem; color: var(--accent-2); }
+
+    /* symbol reference grid */
+    .sym-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .55rem; margin-top: .7rem; }
+    .sym-cell { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .55rem; text-align: center; }
+    .symdef { width: 100%; max-width: 120px; height: 56px; display: block; margin: 0 auto .3rem; }
+    .symdef .s { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .symdef .sf { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .symdef .fill { fill: var(--text); }
+    .symdef text { fill: var(--text); font-weight: 800; font-size: 12px; }
+    .sym-name { font-weight: 900; color: var(--text); font-size: .9rem; }
+    .sym-fn { font-weight: 800; color: var(--muted); font-size: .78rem; margin-top: .1rem; }
+
+    /* gate explorer widget */
+    .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; }
+    .seg button { border: 0; border-right: 1px solid var(--border-soft); background: var(--card); color: var(--text); font-weight: 900; padding: .5rem .8rem; min-height: 44px; cursor: pointer; font-family: inherit; font-size: .92rem; }
+    .seg button:last-child { border-right: 0; }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #04241d; }
+    .toggle-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; align-items: center; }
+    .tbtn { min-width: 80px; min-height: 48px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .tbtn[aria-pressed="true"] { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .tbtn:focus-visible, .seg button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .ttable tr.hi td { background: rgba(0,200,150,.16); }
+
+    /* IC pin-out diagrams */
+    .pinout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%),1fr)); gap: .9rem; margin-top: .7rem; }
+    .pinout { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .7rem; }
+    .pinout h3 { margin: 0 0 .3rem; font-size: .95rem; font-weight: 900; color: var(--text); text-align: center; }
+    .dip { display: block; width: 100%; max-width: 280px; height: auto; margin: 0 auto; }
+    .dip .body { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.2; }
+    .dip .pin { fill: var(--card); stroke: var(--text); stroke-width: 1.8; }
+    .dip .notch { fill: none; stroke: var(--text); stroke-width: 1.8; }
+    .dip .pn { fill: var(--text); font-weight: 900; font-size: 10px; text-anchor: middle; }
+    .dip .lbl { fill: var(--muted); font-weight: 800; font-size: 10px; }
+    .dip text { font-family: inherit; }
+
+    /* ===== student-friendly scaffolds ===== */
+    /* 5-step maths method */
+    .method { margin: .8rem 0; padding: .7rem .85rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); }
+    .method h3 { margin: 0 0 .4rem; font-size: .95rem; font-weight: 900; color: var(--text); }
+    .method ol { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+    .method li { flex: 1 1 150px; position: relative; padding: .45rem .55rem .45rem 2.1rem; border: 1px solid var(--border-soft); border-radius: 8px; background: var(--card); font-weight: 800; color: var(--text); font-size: .86rem; line-height: 1.35; }
+    .method li::before { counter-increment: step; content: counter(step); position: absolute; left: .45rem; top: 50%; transform: translateY(-50%); width: 1.45rem; height: 1.45rem; border-radius: 999px; background: linear-gradient(135deg, #008063, #00604a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: .82rem; }
+
+    /* key-words box */
+    .keywords { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin: .7rem 0; }
+    .keywords h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
+    .keywords dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; }
+    .keywords dt { font-weight: 900; color: var(--text); }
+    .keywords dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    /* number helper / prefix ladder */
+    .numhelper { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .7rem .8rem; margin: .7rem 0; text-align: center; }
+    .numhelper .ladder { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .3rem; font-weight: 900; }
+    .numhelper .pfx-step { border: 1px solid var(--border-accent); border-radius: 8px; padding: .35rem .55rem; background: var(--surface-2); color: var(--text); min-width: 44px; }
+    .numhelper .pfx-step.base { background: var(--accent); color: #04241d; border-color: transparent; }
+    .numhelper .arrow { font-weight: 900; color: var(--accent-2); }
+    .numhelper .cap { font-weight: 800; color: var(--muted); font-size: .82rem; margin-top: .45rem; }
+    .numhelper .cap b { color: var(--text); }
+
+    /* formula triangles */
+    .ftri-wrap { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: .6rem 0 .2rem; }
+    .ftri { text-align: center; }
+    .ftri svg { width: 110px; height: auto; display: block; margin: 0 auto; }
+    .ftri .lbl { font-weight: 800; color: var(--muted); font-size: .8rem; margin-top: .25rem; }
+    .ftri .s { stroke: var(--text); stroke-width: 2.4; fill: none; stroke-linejoin: round; }
+    .ftri text { fill: var(--text); font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-weight: 700; font-size: 22px; text-anchor: middle; }
+
+    /* writing frame (sentence starters) */
+    .frame { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .7rem .85rem; margin-top: .8rem; }
+    .frame .frame-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .3rem; }
+    .frame p { margin: .25rem 0; font-weight: 800; color: var(--text); line-height: 1.75; }
+    .frame .blank { color: var(--accent-2); font-weight: 900; }
+
+    /* challenge marker */
+    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+
+    /* guided "we do" example (worked layout with blanks to fill) */
+    .guided { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .8rem .9rem; margin-top: .7rem; }
+    .guided .ex-type { background: var(--surface-2); }
+    .guided .gq { display: block; font-weight: 900; color: var(--text); margin: .35rem 0 .55rem; }
+    .guided .gwork { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.12rem; font-weight: 600; color: var(--text); line-height: 1.9; }
+    .guided .gwork var { font-style: italic; }
+    .guided .gwork > div { margin: .15rem 0; }
+    .guided .blank { display: inline-block; min-width: 2.6em; border-bottom: 2px dashed var(--accent-2); color: var(--accent-2); font-weight: 900; text-align: center; padding: 0 .2em; }
+    .guided .ghint { font-family: var(--font-stack); font-weight: 800; font-size: .82rem; color: var(--muted); margin-top: .5rem; }
+
+    /* "you can now…" can-do list */
+    .cando { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin-top: 1rem; }
+    .cando h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #15803d; }
+    .cando ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25rem; }
+    .cando li { position: relative; padding-left: 1.6rem; font-weight: 800; color: var(--text); line-height: 1.4; }
+    .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
+    @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
+
+    /* Wave Reader challenge */
+    .sc-item { padding: .75rem 0; border-bottom: 1px solid var(--border-soft); }
+    .sc-item .sc-q { font-weight: 800; color: var(--text); }
+    .sc-item .sc-q b { color: var(--accent-2); }
+    .sc-readout { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--accent-2); font-size: .8rem; margin: .25rem 0; }
+    .sc-scope { display: block; width: 100%; max-width: 340px; height: auto; margin: .35rem 0; }
+    .sc-scope rect.frame { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .sc-scope .grid { stroke: var(--border); stroke-width: 1; }
+    .sc-scope .axis { stroke: var(--border-strong, var(--text)); stroke-width: 1.4; opacity: .6; }
+    .sc-scope .trace { stroke: var(--accent); stroke-width: 2.4; fill: none; }
+    .sc-ans { display: inline-flex; align-items: center; gap: .35rem; font-weight: 900; color: var(--muted); margin-top: .35rem; }
+    .sc-ans .num { width: 6.4rem; }
+    .sc-unit { font-weight: 900; color: var(--text); }
+    .sc-note { font-weight: 900; margin-top: .25rem; }
+    .sc-item.ok .sc-note { color: #15803d; }
+    .sc-item.no .sc-note { color: var(--warm); }
+    .sc-item.ok .num { border-color: #15803d; }
+    .sc-item.no .num { border-color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .sc-item.ok .sc-note { color: #5dd693; } .sc-item.ok .num { border-color: #5dd693; } }
+
+    @media print {
+      .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+    /* ===== 555 page ===== */
+    .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px,100%), 1fr)); gap: .9rem; margin-top: .9rem; }
+    .phase { margin: 0; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .75rem .85rem; }
+    .phase h3 { margin: 0 0 .35rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+    .phase p { margin: .45rem 0 0; font-weight: 800; color: var(--text); line-height: 1.5; }
+    .subnav .sn-short { display: none; }
+    @media (max-width: 600px) { .subnav .sn-full { display: none; } .subnav .sn-short { display: inline; } }
+    .schem { display: block; width: 100%; max-width: 470px; height: auto; margin: 0 auto; }
+    .schem .w { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .schem .w.thin { stroke-width: 1.6; }
+    .schem .res { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .schem .plate, .schem .node { fill: var(--text); }
+    .schem .ic { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.2; }
+    .schem text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 13px; }
+    .schem .val { font-size: 11px; fill: var(--muted); }
+    .schem .big { font-size: 18px; }
+    .schem .pin { font-size: 12px; }
+    .schem .state { font-weight: 900; font-size: 14px; }
+    .schem .led { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .schem.is-charge .led-r, .bigled.red.on { fill: #dc2626; background: #dc2626; }
+    .schem.is-dis .led-g, .bigled.green.on { fill: #16a34a; background: #16a34a; }
+    .schem.is-both .led-r { fill: #dc2626; } .schem.is-both .led-g { fill: #16a34a; }
+    .schem .flow { fill: none; stroke-width: 4; stroke-dasharray: 8 7; stroke-linecap: round; opacity: 0; }
+    .schem .f-charge { stroke: #dc2626; } .schem .ah-c { fill: #dc2626; }
+    .schem .f-dis { stroke: #16a34a; } .schem .ah-d { fill: #16a34a; }
+    .schem.is-charge .f-charge, .schem.is-dis .f-dis { opacity: 1; animation: flow 1s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -15; } }
+    @media (prefers-color-scheme: dark) {
+      .schem.is-charge .led-r, .bigled.red.on, .schem.is-both .led-r { fill: #f87171; background: #f87171; }
+      .schem.is-dis .led-g, .bigled.green.on, .schem.is-both .led-g { fill: #4ade80; background: #4ade80; }
+      .schem .f-charge { stroke: #f87171; } .schem .ah-c { fill: #f87171; }
+      .schem .f-dis { stroke: #4ade80; } .schem .ah-d { fill: #4ade80; }
+    }
+    .pair-key { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px,100%),1fr)); gap: .6rem; margin-top: .8rem; }
+    .pair-key div { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .55rem .7rem; font-weight: 800; color: var(--text); }
+
+    /* simulator */
+    .sim-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.25fr); gap: 1rem; align-items: start; margin-top: .9rem; }
+    @media (max-width: 860px) { .sim-grid { grid-template-columns: minmax(0,1fr); } }
+    .sim-panel { border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); padding: .6rem; }
+    .leds { display: flex; justify-content: center; gap: 2.2rem; margin: .4rem 0 .6rem; flex-wrap: wrap; }
+    .bigled-wrap { text-align: center; font-weight: 800; color: var(--text); font-size: .9rem; max-width: 12rem; }
+    .bigled { width: 54px; height: 54px; border-radius: 50%; margin: 0 auto .35rem; border: 3px solid var(--text); background: var(--card); }
+    .bigled.red.on { box-shadow: 0 0 22px 6px rgba(220,38,38,.55); }
+    .bigled.green.on { box-shadow: 0 0 22px 6px rgba(22,163,74,.55); }
+    .bigled.dim { opacity: .75; }
+    .now { text-align: center; font-weight: 900; color: var(--text); min-height: 1.5em; }
+    .fast-note { text-align: center; font-weight: 800; color: var(--muted); margin-top: .3rem; }
+    .fast-note[hidden] { display: none; }
+    .graph { display: block; width: 100%; height: auto; }
+    .graph .ax { stroke: var(--text); stroke-width: 1.6; fill: none; }
+    .graph .gl { stroke: var(--border); stroke-width: 1; }
+    .graph .th { stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 5 5; }
+    .graph .vc { stroke: var(--accent); stroke-width: 2.8; fill: none; stroke-linejoin: round; }
+    .graph .out { stroke: var(--text); stroke-width: 2.4; fill: none; }
+    .graph .cur { stroke: var(--warm); stroke-width: 2; }
+    .graph text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 12px; }
+    .graph text.mut { fill: var(--muted); font-size: 11px; }
+    .sim-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px,100%),1fr)); gap: .7rem 1rem; }
+    .sim-controls .field input[type="range"] { width: 100%; min-height: 44px; }
+    .field[hidden] { display: none; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px,100%),1fr)); gap: .5rem; margin-top: .8rem; }
+    .readouts div { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .5rem .65rem; }
+    .readouts .k { display: block; font-size: .78rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .readouts .v { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.25rem; font-weight: 700; color: var(--text); }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #04241d; }
+
+    /* symbol glossary + practice */
+    .sym-gloss { display: grid; grid-template-columns: auto auto auto; gap: .3rem .8rem; width: fit-content; max-width: 100%; margin: .7rem 0 0; padding: .6rem .8rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); font-weight: 800; color: var(--text); }
+    .sym-gloss dt { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.15rem; text-align: center; }
+    .sym-gloss dt var { font-style: italic; }
+    .sym-gloss dd { margin: 0; }
+    .sym-gloss .u { color: var(--muted); white-space: nowrap; }
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--warm); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #008063, #00604a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .3rem 0 0; font-weight: 800; color: var(--text); }
+    .data { margin: .4rem 0 0; padding-left: 1.2rem; font-weight: 800; color: var(--text); }
+    .answer-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .6rem; font-weight: 900; color: var(--text); }
+    .fb-line { margin-top: .6rem; font-weight: 900; min-height: 1.2em; color: var(--text); }
+    .fb-line.ok { color: #15803d; } .fb-line.no { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .fb-line.ok { color: #5dd693; } }
+    .working[hidden] { display: none; }
+
+    /* build */
+    #build .dip { max-width: 400px; }
+    #build .dip .lbl { font-size: 13px; } #build .dip .pn { font-size: 12px; }
+    .board-fig { margin: .8rem 0 0; }
+    .board-fig img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border-soft); background: #fff; }
+    .board-fig figcaption { color: var(--muted); font-weight: 800; font-size: .88rem; margin-top: .35rem; }
+    .steps { counter-reset: st; margin-top: .6rem; }
+    .steps details { margin-top: .5rem; }
+    .steps summary::before { counter-increment: st; content: counter(st) ". "; }
+    .steps .reveal-body ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+
+    /* multiple choice: every option teaches */
+    .mcq { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .mcq .qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .mcq-opts { display: grid; gap: .4rem; }
+    .mcq-opt { display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 48px; padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .mcq-opt:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .mcq-opt .ol { flex: 0 0 auto; width: 1.8rem; height: 1.8rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border-accent); font-weight: 900; }
+    .mcq-opt .om { margin-left: auto; font-weight: 900; white-space: nowrap; }
+    .mcq-opt.right { border-color: #15803d; background: rgba(21,128,61,.12); } .mcq-opt.right .om { color: #15803d; }
+    .mcq-opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.10); } .mcq-opt.wrong .om { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .mcq-opt.right { border-color: #5dd693; } .mcq-opt.right .om { color: #5dd693; } }
+    .mcq-fb { margin: .55rem 0 0; padding: .55rem .75rem; border-radius: 10px; background: var(--surface-2); font-weight: 800; color: var(--text); }
+    .mcq-fb:empty { display: none; }
+    .words { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px,100%),1fr)); gap: .6rem; margin: .6rem 0 0; }
+    .words div { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .6rem .75rem; }
+    .words dt { font-weight: 900; color: var(--text); } .words dd { margin: .2rem 0 0; font-weight: 700; color: var(--text); }
+    .cl-sel.is-ok { border-color: #15803d; } .cl-sel.is-no { border-color: var(--warm); }
+    .cl-sel { min-height: 40px; padding: .25rem .45rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-family: inherit; font-size: .95rem; margin: 0 .12rem; }
+    .cl-text { font-weight: 800; color: var(--text); line-height: 2.2; }
+
+    @media (max-width: 600px) {
+      .schem text { font-size: 16px; } .schem .val { font-size: 13px; } .schem .big { font-size: 20px; }
+      .graph text { font-size: 15px; } .graph text.mut { font-size: 13px; }
+      .sim-panel { padding: .3rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+
+</head>
+<body class="reading">
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics circuit design banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>The 555 astable</h1>
+      <p>How a 555, two resistors and a capacitor flash two LEDs.</p>
+    </div>
+  </header>
+
+  <nav class="subnav-wrap" aria-label="On this page">
+    <div class="subnav">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#how"><span class="sn-full">How it works</span><span class="sn-short">How</span></a>
+        <a class="subnav-link" href="#sim">Simulator</a>
+        <a class="subnav-link" href="#timing">Timing</a>
+        <a class="subnav-link" href="#build">Build it</a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/electronics.html">Electronics hub &rarr;</a>
+    </div>
+  </nav>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">The 555 astable</h1>
+    <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics hub</a>
+
+    <!-- ================= CONCEPT 1 ================= -->
+    <section class="panel" id="how" aria-labelledby="how-title">
+      <span class="concept-tag">Concept 1</span>
+      <h2 id="how-title">How it works</h2>
+      <div class="notes">
+        <p>A 555 <strong>astable</strong> switches its output, <strong>pin 3</strong>, between <strong>HIGH</strong> and <strong>LOW</strong> again and again, with nothing pressing a button. Capacitor <strong>C1</strong> sets the rhythm. It charges and discharges, but only between <strong>⅓</strong> and <strong>⅔</strong> of the supply: 3 V and 6 V on a 9 V supply. It never fills up and never empties.</p>
+      </div>
+
+      <div class="phase-grid">
+        <figure class="phase">
+          <h3>1 · Charging: pin 3 HIGH</h3>
+          <svg class="schem is-charge"  viewBox="0 0 470 300" role="img" aria-label="Charging: current flows from the supply through R1 and R2 into C1; output pin 3 is high and the red LED is on">
+  <path class="w" d="M44 24 H352 M44 280 H352"/>
+  <text x="40" y="20" text-anchor="end" class="lab">+9 V</text><text x="40" y="292" text-anchor="end" class="lab">0 V</text>
+  <path class="w" d="M80 24 V44 M80 88 V140 M80 184 V231 M80 247 V280"/>
+  <rect class="res" x="72" y="44" width="16" height="44"/><text x="96" y="62" class="lab">R1</text><text x="96" y="80" class="val">1 kΩ</text>
+  <rect class="res" x="72" y="140" width="16" height="44"/><text x="96" y="158" class="lab">R2</text><text x="96" y="176" class="val">10 kΩ</text>
+  <rect class="res" x="64" y="231" width="32" height="5"/><rect class="plate" x="64" y="242" width="32" height="5"/>
+  <text x="100" y="233" class="lab">+</text><text x="112" y="250" class="lab">C1</text><text x="112" y="268" class="val">100 µF</text>
+  <path class="w" d="M80 120 H170 M80 210 H140 V180 H170 M140 200 H170 M200 24 V90 M250 24 V90 M225 230 V280 M280 160 H350"/>
+  <circle class="node" cx="80" cy="120" r="3.5"/><circle class="node" cx="80" cy="210" r="3.5"/><circle class="node" cx="140" cy="200" r="3.5"/>
+  <circle class="node" cx="80" cy="24" r="3.5"/><circle class="node" cx="200" cy="24" r="3.5"/><circle class="node" cx="250" cy="24" r="3.5"/>
+  <circle class="node" cx="80" cy="280" r="3.5"/><circle class="node" cx="225" cy="280" r="3.5"/><circle class="node" cx="350" cy="160" r="3.5"/>
+  <rect class="ic" x="170" y="90" width="110" height="140" rx="4"/><text x="225" y="166" text-anchor="middle" class="lab big">555</text>
+  <text x="178" y="125" class="pin">7</text><text x="178" y="185" class="pin">6</text><text x="178" y="205" class="pin">2</text>
+  <text x="200" y="106" text-anchor="middle" class="pin">8</text><text x="250" y="106" text-anchor="middle" class="pin">4</text>
+  <text x="225" y="224" text-anchor="middle" class="pin">1</text><text x="272" y="165" text-anchor="end" class="pin">3</text>
+  <text x="300" y="150" class="state">HIGH</text>
+  <path class="w" d="M350 24 V40 M350 80 V94 M350 114 V160 M350 160 V176 M350 196 V214 M350 254 V280"/>
+  <circle class="node" cx="350" cy="24" r="3.5"/><circle class="node" cx="350" cy="280" r="3.5"/>
+  <rect class="res" x="342" y="40" width="16" height="40"/><text x="336" y="64" text-anchor="end" class="val">680 Ω</text>
+  <polygon class="led led-g" points="338,94 362,94 350,114"/><line class="w" x1="338" y1="114" x2="362" y2="114"/><path class="w thin" d="M365 98 l11 -9 M371 88 l5 1 l-1 5 M365 107 l11 -9 M371 97 l5 1 l-1 5"/><text x="380" y="122" class="lab">green LED</text>
+  <polygon class="led led-r" points="338,176 362,176 350,196"/><line class="w" x1="338" y1="196" x2="362" y2="196"/><path class="w thin" d="M365 180 l11 -9 M371 170 l5 1 l-1 5 M365 189 l11 -9 M371 179 l5 1 l-1 5"/><text x="380" y="204" class="lab">red LED</text>
+  <rect class="res" x="342" y="214" width="16" height="40"/><text x="336" y="238" text-anchor="end" class="val">680 Ω</text>
+  <defs><marker id="arCc" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" class="ah-c"/></marker><marker id="arDc" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" class="ah-d"/></marker></defs>
+  <path class="flow f-charge" d="M60 30 V222" marker-end="url(#arCc)"/><path class="flow f-dis" d="M60 226 V128 H160" marker-end="url(#arDc)"/>
+</svg>
+          <p>C1 charges through <strong>R1 and R2</strong>. When it reaches <strong>⅔</strong> of the supply, the 555 switches pin 3 LOW.</p>
+          <p>While pin 3 is HIGH, the <strong>red LED</strong> is on.</p>
+        </figure>
+        <figure class="phase">
+          <h3>2 · Discharging: pin 3 LOW</h3>
+          <svg class="schem is-dis"  viewBox="0 0 470 300" role="img" aria-label="Discharging: C1 empties through R2 into pin 7; output pin 3 is low and the green LED is on">
+  <path class="w" d="M44 24 H352 M44 280 H352"/>
+  <text x="40" y="20" text-anchor="end" class="lab">+9 V</text><text x="40" y="292" text-anchor="end" class="lab">0 V</text>
+  <path class="w" d="M80 24 V44 M80 88 V140 M80 184 V231 M80 247 V280"/>
+  <rect class="res" x="72" y="44" width="16" height="44"/><text x="96" y="62" class="lab">R1</text><text x="96" y="80" class="val">1 kΩ</text>
+  <rect class="res" x="72" y="140" width="16" height="44"/><text x="96" y="158" class="lab">R2</text><text x="96" y="176" class="val">10 kΩ</text>
+  <rect class="res" x="64" y="231" width="32" height="5"/><rect class="plate" x="64" y="242" width="32" height="5"/>
+  <text x="100" y="233" class="lab">+</text><text x="112" y="250" class="lab">C1</text><text x="112" y="268" class="val">100 µF</text>
+  <path class="w" d="M80 120 H170 M80 210 H140 V180 H170 M140 200 H170 M200 24 V90 M250 24 V90 M225 230 V280 M280 160 H350"/>
+  <circle class="node" cx="80" cy="120" r="3.5"/><circle class="node" cx="80" cy="210" r="3.5"/><circle class="node" cx="140" cy="200" r="3.5"/>
+  <circle class="node" cx="80" cy="24" r="3.5"/><circle class="node" cx="200" cy="24" r="3.5"/><circle class="node" cx="250" cy="24" r="3.5"/>
+  <circle class="node" cx="80" cy="280" r="3.5"/><circle class="node" cx="225" cy="280" r="3.5"/><circle class="node" cx="350" cy="160" r="3.5"/>
+  <rect class="ic" x="170" y="90" width="110" height="140" rx="4"/><text x="225" y="166" text-anchor="middle" class="lab big">555</text>
+  <text x="178" y="125" class="pin">7</text><text x="178" y="185" class="pin">6</text><text x="178" y="205" class="pin">2</text>
+  <text x="200" y="106" text-anchor="middle" class="pin">8</text><text x="250" y="106" text-anchor="middle" class="pin">4</text>
+  <text x="225" y="224" text-anchor="middle" class="pin">1</text><text x="272" y="165" text-anchor="end" class="pin">3</text>
+  <text x="300" y="150" class="state">LOW</text>
+  <path class="w" d="M350 24 V40 M350 80 V94 M350 114 V160 M350 160 V176 M350 196 V214 M350 254 V280"/>
+  <circle class="node" cx="350" cy="24" r="3.5"/><circle class="node" cx="350" cy="280" r="3.5"/>
+  <rect class="res" x="342" y="40" width="16" height="40"/><text x="336" y="64" text-anchor="end" class="val">680 Ω</text>
+  <polygon class="led led-g" points="338,94 362,94 350,114"/><line class="w" x1="338" y1="114" x2="362" y2="114"/><path class="w thin" d="M365 98 l11 -9 M371 88 l5 1 l-1 5 M365 107 l11 -9 M371 97 l5 1 l-1 5"/><text x="380" y="122" class="lab">green LED</text>
+  <polygon class="led led-r" points="338,176 362,176 350,196"/><line class="w" x1="338" y1="196" x2="362" y2="196"/><path class="w thin" d="M365 180 l11 -9 M371 170 l5 1 l-1 5 M365 189 l11 -9 M371 179 l5 1 l-1 5"/><text x="380" y="204" class="lab">red LED</text>
+  <rect class="res" x="342" y="214" width="16" height="40"/><text x="336" y="238" text-anchor="end" class="val">680 Ω</text>
+  <defs><marker id="arCd" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" class="ah-c"/></marker><marker id="arDd" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" class="ah-d"/></marker></defs>
+  <path class="flow f-charge" d="M60 30 V222" marker-end="url(#arCd)"/><path class="flow f-dis" d="M60 226 V128 H160" marker-end="url(#arDd)"/>
+</svg>
+          <p>Pin 7 now connects to 0 V inside the chip. C1 empties through <strong>R2 only</strong>, into pin 7. At <strong>⅓</strong> of the supply, pin 3 goes HIGH again.</p>
+          <p>While pin 3 is LOW, the <strong>green LED</strong> is on.</p>
+        </figure>
+      </div>
+
+      <div class="pair-key">
+        <div>The <strong>red LED</strong> joins pin 3 to <strong>0 V</strong>. It lights when pin 3 is <strong>HIGH</strong>.</div>
+        <div>The <strong>green LED</strong> joins <strong>+9 V</strong> to pin 3. It lights when pin 3 is <strong>LOW</strong>.</div>
+      </div>
+      <div class="note"><strong>Watch out:</strong> R1 is only in the charging path. Changing R1 changes how long pin 3 stays HIGH, but not how long it stays LOW.</div>
+    </section>
+
+    <!-- ================= SIMULATOR ================= -->
+    <section class="panel" id="sim" aria-labelledby="sim-title">
+      <h2 id="sim-title">Simulator</h2>
+      <div class="widget" id="sim555">
+        <h3>Change R1, R2 and C1</h3>
+        <p class="hint">The diagram, the LEDs and the graph all follow the same 555. Start with <strong>Our board</strong>, the circuit you build.</p>
+        <div class="sim-controls">
+          <label class="field">R1 (kΩ)
+            <span class="row"><input type="range" id="r1r" min="1" max="100" step="1" value="1" aria-label="R1 in kilohms"><input class="num" type="number" id="r1n" min="1" max="100" step="1" value="1" aria-label="R1 in kilohms, typed"></span>
+          </label>
+          <label class="field">R2 (kΩ)
+            <span class="row"><input type="range" id="r2r" min="1" max="470" step="1" value="10" aria-label="R2 in kilohms"><input class="num" type="number" id="r2n" min="1" max="470" step="1" value="10" aria-label="R2 in kilohms, typed"></span>
+          </label>
+          <label class="field">C1 (µF)
+            <span class="row"><input type="range" id="c1r" min="1" max="470" step="1" value="100" aria-label="C1 in microfarads"><input class="num" type="number" id="c1n" min="1" max="470" step="1" value="100" aria-label="C1 in microfarads, typed"></span>
+          </label>
+        </div>
+        <div class="btnrow">
+          <div class="seg" role="group" aria-label="Presets">
+            <button type="button" data-p="1,10,100" aria-pressed="true">Our board</button>
+            <button type="button" data-p="1,68,10" aria-pressed="false">About 1 Hz</button>
+            <button type="button" data-p="1,150,10" aria-pressed="false">Nearly equal on and off</button>
+            <button type="button" data-p="10,470,10" aria-pressed="false">Slow</button>
+          </div>
+        </div>
+        <div class="btnrow">
+          <div class="seg" role="group" aria-label="Speed">
+            <button type="button" data-speed="1" aria-pressed="true">Real speed</button>
+            <button type="button" data-speed="0.25" aria-pressed="false">Slow motion</button>
+          </div>
+          <button class="btn" type="button" id="playBtn" aria-pressed="false">Pause</button>
+        </div>
+
+        <div class="sim-grid">
+          <div class="sim-panel">
+            <div class="leds">
+              <div class="bigled-wrap"><div class="bigled red" id="ledR"></div>red LED: on when pin 3 is HIGH</div>
+              <div class="bigled-wrap"><div class="bigled green" id="ledG"></div>green LED: on when pin 3 is LOW</div>
+            </div>
+            <p class="now" id="nowText"></p>
+            <p class="fast-note" id="fastNote" hidden>Too fast to see the flashing, so both LEDs look on. Try slow motion or a bigger C1.</p>
+            <svg class="schem " id="liveSchem" viewBox="0 0 470 300" role="img" aria-label="555 astable circuit diagram">
+  <path class="w" d="M44 24 H352 M44 280 H352"/>
+  <text x="40" y="20" text-anchor="end" class="lab">+9 V</text><text x="40" y="292" text-anchor="end" class="lab">0 V</text>
+  <path class="w" d="M80 24 V44 M80 88 V140 M80 184 V231 M80 247 V280"/>
+  <rect class="res" x="72" y="44" width="16" height="44"/><text x="96" y="62" class="lab">R1</text><text x="96" y="80" class="val">1 kΩ</text>
+  <rect class="res" x="72" y="140" width="16" height="44"/><text x="96" y="158" class="lab">R2</text><text x="96" y="176" class="val">10 kΩ</text>
+  <rect class="res" x="64" y="231" width="32" height="5"/><rect class="plate" x="64" y="242" width="32" height="5"/>
+  <text x="100" y="233" class="lab">+</text><text x="112" y="250" class="lab">C1</text><text x="112" y="268" class="val">100 µF</text>
+  <path class="w" d="M80 120 H170 M80 210 H140 V180 H170 M140 200 H170 M200 24 V90 M250 24 V90 M225 230 V280 M280 160 H350"/>
+  <circle class="node" cx="80" cy="120" r="3.5"/><circle class="node" cx="80" cy="210" r="3.5"/><circle class="node" cx="140" cy="200" r="3.5"/>
+  <circle class="node" cx="80" cy="24" r="3.5"/><circle class="node" cx="200" cy="24" r="3.5"/><circle class="node" cx="250" cy="24" r="3.5"/>
+  <circle class="node" cx="80" cy="280" r="3.5"/><circle class="node" cx="225" cy="280" r="3.5"/><circle class="node" cx="350" cy="160" r="3.5"/>
+  <rect class="ic" x="170" y="90" width="110" height="140" rx="4"/><text x="225" y="166" text-anchor="middle" class="lab big">555</text>
+  <text x="178" y="125" class="pin">7</text><text x="178" y="185" class="pin">6</text><text x="178" y="205" class="pin">2</text>
+  <text x="200" y="106" text-anchor="middle" class="pin">8</text><text x="250" y="106" text-anchor="middle" class="pin">4</text>
+  <text x="225" y="224" text-anchor="middle" class="pin">1</text><text x="272" y="165" text-anchor="end" class="pin">3</text>
+  <text x="300" y="150" class="state"></text>
+  <path class="w" d="M350 24 V40 M350 80 V94 M350 114 V160 M350 160 V176 M350 196 V214 M350 254 V280"/>
+  <circle class="node" cx="350" cy="24" r="3.5"/><circle class="node" cx="350" cy="280" r="3.5"/>
+  <rect class="res" x="342" y="40" width="16" height="40"/><text x="336" y="64" text-anchor="end" class="val">680 Ω</text>
+  <polygon class="led led-g" points="338,94 362,94 350,114"/><line class="w" x1="338" y1="114" x2="362" y2="114"/><path class="w thin" d="M365 98 l11 -9 M371 88 l5 1 l-1 5 M365 107 l11 -9 M371 97 l5 1 l-1 5"/><text x="380" y="122" class="lab">green LED</text>
+  <polygon class="led led-r" points="338,176 362,176 350,196"/><line class="w" x1="338" y1="196" x2="362" y2="196"/><path class="w thin" d="M365 180 l11 -9 M371 170 l5 1 l-1 5 M365 189 l11 -9 M371 179 l5 1 l-1 5"/><text x="380" y="204" class="lab">red LED</text>
+  <rect class="res" x="342" y="214" width="16" height="40"/><text x="336" y="238" text-anchor="end" class="val">680 Ω</text>
+  <defs><marker id="arCl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" class="ah-c"/></marker><marker id="arDl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" class="ah-d"/></marker></defs>
+  <path class="flow f-charge" d="M60 30 V222" marker-end="url(#arCl)"/><path class="flow f-dis" d="M60 226 V128 H160" marker-end="url(#arDl)"/>
+</svg>
+          </div>
+          <div class="sim-panel">
+            <svg class="graph" id="graph" viewBox="0 0 600 290" role="img" aria-label="Graph of the capacitor p.d. rising and falling between one third and two thirds of the supply, above the square wave on pin 3"></svg>
+          </div>
+        </div>
+
+        <div class="readouts" aria-live="polite" id="readouts">
+          <div><span class="k">Mark time <var>T</var><sub>m</sub> (HIGH)</span><span class="v" id="vTm"></span></div>
+          <div><span class="k">Space time <var>T</var><sub>s</sub> (LOW)</span><span class="v" id="vTs"></span></div>
+          <div><span class="k">Period <var>T</var></span><span class="v" id="vT"></span></div>
+          <div><span class="k">Frequency <var>f</var></span><span class="v" id="vf"></span></div>
+          <div><span class="k">Duty cycle</span><span class="v" id="vd"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 2 ================= -->
+    <section class="panel" id="timing" aria-labelledby="timing-title">
+      <span class="concept-tag">Concept 2</span>
+      <h2 id="timing-title">Working out the timing</h2>
+
+      <div class="eq-cards">
+        <div class="eq-card">
+          <div class="eq-name">Mark time (pin 3 HIGH)</div>
+          <div class="eq-formula"><var>T</var><sub>m</sub> = 0.7 (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>) <var>C</var><sub>1</sub></div>
+          <div class="eq-desc">charging: through R1 and R2</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Space time (pin 3 LOW)</div>
+          <div class="eq-formula"><var>T</var><sub>s</sub> = 0.7 <var>R</var><sub>2</sub> <var>C</var><sub>1</sub></div>
+          <div class="eq-desc">discharging: through R2 only</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Period</div>
+          <div class="eq-formula"><var>T</var> = <var>T</var><sub>m</sub> + <var>T</var><sub>s</sub></div>
+          <div class="eq-desc">one HIGH plus one LOW</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Frequency</div>
+          <div class="eq-formula"><var>f</var> = <span class="frac" aria-label="1 over T"><span class="fr-n">1</span><span class="fr-d"><var>T</var></span></span></div>
+          <div class="eq-desc">flashes each second</div>
+        </div>
+      </div>
+      <dl class="sym-gloss" aria-label="Symbols in the 555 timing relationships">
+        <dt><var>T</var><sub>m</sub></dt><dd>mark time: how long pin 3 is HIGH</dd><dd class="u">s</dd>
+        <dt><var>T</var><sub>s</sub></dt><dd>space time: how long pin 3 is LOW</dd><dd class="u">s</dd>
+        <dt><var>R</var><sub>1</sub>, <var>R</var><sub>2</sub></dt><dd>the two timing resistors</dd><dd class="u">Ω</dd>
+        <dt><var>C</var><sub>1</sub></dt><dd>the timing capacitor</dd><dd class="u">F</dd>
+        <dt><var>f</var></dt><dd>frequency</dd><dd class="u">Hz</dd>
+      </dl>
+
+      <div class="notes">
+        <ul>
+          <li>The 0.7 comes from the ⅓ to ⅔ swing. It is 0.693 rounded.</li>
+          <li><strong>Mark time is always longer than space time</strong> in this circuit, because R1 + R2 is bigger than R2.</li>
+          <li>Doubling C1 doubles both times, so the frequency halves.</li>
+          <li>Convert first: kΩ → Ω (× 1000) and µF → F (÷ 1 000 000).</li>
+        </ul>
+      </div>
+
+      <h3 class="ex-divider">Worked examples</h3>
+      <div class="example">
+        <span class="ex-type">Substitute &amp; solve</span>
+        <div class="ex-q">Our board has R1 = 1 kΩ, R2 = 10 kΩ and C1 = 100 µF. Calculate the frequency of the flashing.</div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>R</var><sub>1</sub> = 1000 Ω, <var>R</var><sub>2</sub> = 10 000 Ω</div>
+            <div><var>C</var><sub>1</sub> = 100 × 10<sup>−6</sup> F</div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>T</var><sub>m</sub></span><span class="eq">=</span><span class="rhs">0.7 × 11 000 × 100 × 10<sup>−6</sup> = 0.77 s</span><span class="note-cell">R1 + R2 first</span></div>
+            <div class="calc-row"><span class="lhs"><var>T</var><sub>s</sub></span><span class="eq">=</span><span class="rhs">0.7 × 10 000 × 100 × 10<sup>−6</sup> = 0.70 s</span><span class="note-cell">R2 only</span></div>
+            <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">0.77 + 0.70 = 1.47 s</span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs"><var>f</var></span><span class="eq">=</span><span class="rhs">1 ÷ 1.47 = 0.68 Hz</span><span class="note-cell">less than one flash a second</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <span class="ex-type">Rearrange — numbers in first</span>
+        <div class="ex-q">With C1 = 47 µF, the green LED must stay on for 0.33 s each time. Calculate the value of R2.</div>
+        <div class="ex-flow">
+          <div class="ex-conv">
+            <span class="conv-label">Convert first</span>
+            <div><var>C</var><sub>1</sub> = 47 × 10<sup>−6</sup> F</div>
+            <div>green LED on = pin 3 LOW <span class="u">so it is <var>T</var><sub>s</sub></span></div>
+          </div>
+          <div class="calc">
+            <div class="calc-row"><span class="lhs"><var>T</var><sub>s</sub></span><span class="eq">=</span><span class="rhs">0.7 <var>R</var><sub>2</sub> <var>C</var><sub>1</sub></span><span class="note-cell"></span></div>
+            <div class="calc-row"><span class="lhs">0.33</span><span class="eq">=</span><span class="rhs">0.7 × <var>R</var><sub>2</sub> × 47 × 10<sup>−6</sup></span><span class="note-cell">numbers in first</span></div>
+            <div class="calc-row"><span class="lhs"><var>R</var><sub>2</sub></span><span class="eq">=</span><span class="rhs">0.33 ÷ (0.7 × 47 × 10<sup>−6</sup>)</span><span class="note-cell">now rearrange</span></div>
+            <div class="calc-row"><span class="lhs"><var>R</var><sub>2</sub></span><span class="eq">=</span><span class="rhs">10 000 Ω = 10 kΩ</span><span class="note-cell">10 030 Ω, to 2 sig. figs</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice" id="pf">
+        <span class="practice-tag">Practice</span>
+        <p class="stem" id="pf-stem"></p>
+        <ul class="data" id="pf-data"></ul>
+        <div class="answer-row">
+          <label for="pf-in">Your answer</label>
+          <input class="num" id="pf-in" type="text" inputmode="decimal" autocomplete="off" style="width:7rem">
+          <span id="pf-unit"></span>
+          <button class="btn primary" type="button" id="pf-check">Check</button>
+          <button class="btn" type="button" id="pf-new">New question</button>
+        </div>
+        <p class="fb-line" id="pf-fb" aria-live="polite"></p>
+        <div class="working" id="pf-work" hidden></div>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 3 ================= -->
+    <section class="panel" id="build" aria-labelledby="build-title">
+      <span class="concept-tag">Concept 3</span>
+      <h2 id="build-title">Build it on stripboard</h2>
+      <figure class="board-fig">
+        <img src="/assets/electronics/555new.jpg" alt="The 555 astable as a circuit diagram on the left, with R1 1 kilohm, R2 10 kilohm, C1 100 microfarad and two LEDs each with a 680 ohm resistor; the same circuit laid out on stripboard on the right, with the track cuts marked by red crosses" loading="lazy" width="2360" height="993">
+        <figcaption>The same circuit twice: the circuit diagram (left) and the stripboard layout (right). The parts move around on the board, but every connection is the same.</figcaption>
+      </figure>
+
+      <div class="pinout-grid">
+        <div class="pinout">
+          <h3>555 pins, seen from above</h3>
+          <svg class="dip" viewBox="0 0 320 190" role="img" aria-label="555 pin-out from above: notch at the top, pin 1 top left, pins 1 to 4 down the left side, pins 5 to 8 up the right side"><rect class="body" x="120" y="18" width="80" height="160" rx="4"/><path class="notch" d="M150 18 A10 10 0 0 0 170 18"/><text class="lbl" x="160" y="105" text-anchor="middle">555</text><rect class="pin" x="104" y="40" width="16" height="12"/><text class="pn" x="132" y="50">1</text><text class="lbl" x="98" y="50" text-anchor="end">0 V</text><rect class="pin" x="104" y="75" width="16" height="12"/><text class="pn" x="132" y="85">2</text><text class="lbl" x="98" y="85" text-anchor="end">trigger</text><rect class="pin" x="104" y="110" width="16" height="12"/><text class="pn" x="132" y="120">3</text><text class="lbl" x="98" y="120" text-anchor="end">output</text><rect class="pin" x="104" y="145" width="16" height="12"/><text class="pn" x="132" y="155">4</text><text class="lbl" x="98" y="155" text-anchor="end">reset → +V</text><rect class="pin" x="200" y="145" width="16" height="12"/><text class="pn" x="188" y="155">5</text><text class="lbl" x="222" y="155">control (not used)</text><rect class="pin" x="200" y="110" width="16" height="12"/><text class="pn" x="188" y="120">6</text><text class="lbl" x="222" y="120">threshold</text><rect class="pin" x="200" y="75" width="16" height="12"/><text class="pn" x="188" y="85">7</text><text class="lbl" x="222" y="85">discharge</text><rect class="pin" x="200" y="40" width="16" height="12"/><text class="pn" x="188" y="50">8</text><text class="lbl" x="222" y="50">+V</text><circle class="pn" cx="132" cy="30" r="3"/></svg>
+        </div>
+        <div class="notes">
+          <ul>
+            <li>Find the <strong>notch</strong>. With the notch at the top, <strong>pin 1</strong> is top left.</li>
+            <li>Count <strong>anticlockwise</strong>: down the left side 1 to 4, then up the right side 5 to 8.</li>
+            <li>Pin 8 is top right, opposite pin 1.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="steps">
+        <details class="reveal"><summary>Fit the chip and cut the tracks</summary><div class="reveal-body"><ul>
+          <li>Place the chip where the layout shows it, notch the same way round.</li>
+          <li>Make every track cut the layout marks with a red ✗. No two pins of the chip may share a copper track, or they are joined together.</li>
+        </ul></div></details>
+        <details class="reveal"><summary>Power: pins 8, 4 and 1</summary><div class="reveal-body"><ul>
+          <li><strong>Pin 8</strong> and <strong>pin 4</strong> go to +9 V.</li>
+          <li><strong>Pin 1</strong> goes to 0 V.</li>
+          <li>Pin 5 is not used in this circuit.</li>
+        </ul></div></details>
+        <details class="reveal"><summary>The timing parts: R1, R2 and C1</summary><div class="reveal-body"><ul>
+          <li><strong>R1</strong> from +9 V to <strong>pin 7</strong>.</li>
+          <li><strong>R2</strong> from <strong>pin 7</strong> to <strong>pins 2 and 6</strong>.</li>
+          <li>Link <strong>pin 2 to pin 6</strong> with a wire.</li>
+          <li><strong>C1</strong> from pins 2 and 6 to 0 V. It is polarised: the long leg (+) goes to pins 2 and 6, the striped side to 0 V.</li>
+        </ul></div></details>
+        <details class="reveal"><summary>The LEDs and their 680 Ω resistors</summary><div class="reveal-body"><ul>
+          <li><strong>Red LED</strong> and a 680 Ω resistor from <strong>pin 3 to 0 V</strong>. The flat edge (short leg) faces 0 V.</li>
+          <li><strong>Green LED</strong> and a 680 Ω resistor from <strong>+9 V to pin 3</strong>. The flat edge (short leg) faces pin 3.</li>
+        </ul></div></details>
+        <details class="reveal"><summary>Check before you switch on</summary><div class="reveal-body"><ul>
+          <li>Pin 1 is at the notch end, top left.</li>
+          <li>Every marked track cut is made, and there are no solder bridges.</li>
+          <li>Pins 2 and 6 are linked.</li>
+          <li>C1 and both LEDs are the right way round.</li>
+        </ul></div></details>
+        <details class="reveal"><summary>It doesn't flash: what to check</summary><div class="reveal-body"><ul>
+          <li><strong>Nothing lights:</strong> check pins 8 and 4 reach +9 V and pin 1 reaches 0 V.</li>
+          <li><strong>One LED stays on:</strong> check the link from pin 2 to pin 6, and that C1 is the right way round.</li>
+          <li><strong>One LED never lights:</strong> that LED is probably the wrong way round.</li>
+          <li><strong>Both look on all the time:</strong> it may be flashing too fast to see. Check C1's value.</li>
+        </ul></div></details>
+      </div>
+    </section>
+
+    <!-- ================= CHECK ================= -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check yourself</h2>
+
+      <div class="widget">
+        <h3>Multiple choice</h3>
+        <p class="hint">Pick an answer to see feedback on it, then try the others to see why they are wrong. The score counts first tries only.</p>
+        <div id="mcq" data-prog-challenge="mcq-555"></div>
+        <p class="score" id="mcqScore" aria-live="polite"></p>
+      </div>
+
+      <div class="prog-cloze widget" data-prog-challenge="cloze-555" aria-label="Fill the gaps: the 555 cycle">
+        <h3>Fill the gaps</h3>
+        <p class="cl-text">C1 charges through
+          <select class="cl-sel" data-answer="R1 and R2" aria-label="gap 1"><option value="">choose…</option><option>R2 only</option><option>R1 and R2</option></select>
+          until it reaches
+          <select class="cl-sel" data-answer="two thirds" aria-label="gap 2"><option value="">choose…</option><option>two thirds</option><option>all</option></select>
+          of the supply. Then pin 3 goes
+          <select class="cl-sel" data-answer="LOW" aria-label="gap 3"><option value="">choose…</option><option>HIGH</option><option>LOW</option></select>,
+          the
+          <select class="cl-sel" data-answer="green" aria-label="gap 4"><option value="">choose…</option><option>red</option><option>green</option></select>
+          LED comes on, and C1 discharges through
+          <select class="cl-sel" data-answer="R2 only" aria-label="gap 5"><option value="">choose…</option><option>R2 only</option><option>R1 and R2</option></select>
+          into pin
+          <select class="cl-sel" data-answer="7" aria-label="gap 6"><option value="">choose…</option><option>3</option><option>7</option></select>.</p>
+        <div class="btnrow"><button class="btn primary cl-check" type="button">Check</button><button class="btn cl-reset" type="button">Reset</button></div>
+        <p class="fb-line" aria-live="polite"></p>
+      </div>
+
+      <div class="widget">
+        <h3>Rate your confidence</h3>
+        <p class="hint">Red = not yet, Amber = getting there, Green = confident. Saved on this device only.</p>
+        <div id="rag"></div>
+        <p class="rag-summary" id="ragSummary" aria-live="polite"></p>
+      </div>
+
+      <h3 class="ex-divider">Words to know</h3>
+      <dl class="words">
+        <div><dt>Astable</dt><dd>Has no stable state: it switches HIGH and LOW by itself, again and again.</dd></div>
+        <div><dt>Mark time</dt><dd>How long the output stays HIGH in each cycle.</dd></div>
+        <div><dt>Space time</dt><dd>How long the output stays LOW in each cycle.</dd></div>
+        <div><dt>Period</dt><dd>One HIGH plus one LOW: mark time + space time.</dd></div>
+        <div><dt>Frequency</dt><dd>How many cycles happen each second, in hertz (Hz).</dd></div>
+        <div><dt>Duty cycle</dt><dd>The share of each cycle that the output is HIGH, as a percentage.</dd></div>
+      </dl>
+    </section>
+
+    <p data-credit-note style="max-width:1100px;margin:0.5rem auto 0;padding:0 12px;font-size:0.82rem;opacity:0.78;">Sources &amp; credits: text, simulator and drawn diagrams by R Stewart. The circuit diagram and stripboard layout photo are R Stewart's, drawn in Yenka.</p>
+  </main>
+
+  {% include site-footer.html %}
+
+  <script>
+  (function () {
+    "use strict";
+    function $(id) { return document.getElementById(id); }
+    var VS = 9, R1 = 1, R2 = 10, C1 = 100, speed = 1;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var running = !reduce, t = 0, last = null, phase = null;
+    var tm, ts, T;
+
+    function fmt(x, unit) {
+      if (!isFinite(x)) { return "—"; }
+      var s = x >= 1000 ? String(Math.round(x)) : x.toPrecision(3);
+      return s + (unit ? " " + unit : "");
+    }
+    function niceStep(span) {
+      var raw = span / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+      return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+    }
+
+    /* ---------- timing + graph (rebuilt only when a value changes) ---------- */
+    var X0 = 70, X1 = 580, W = 1, VBW = 600;
+    function Y(v) { return 136 - v / VS * 120; }
+    function X(tt) { return X0 + tt / W * (X1 - X0); }
+    function vcap(ph) {
+      var Ccf = C1 * 1e-6;
+      return ph < tm ? VS - (2 / 3) * VS * Math.exp(-ph / ((R1 + R2) * 1e3 * Ccf))
+                     : (2 / 3) * VS * Math.exp(-(ph - tm) / (R2 * 1e3 * Ccf));
+    }
+    function rebuild() {
+      var Cf = C1 * 1e-6;
+      tm = 0.7 * (R1 + R2) * 1e3 * Cf; ts = 0.7 * R2 * 1e3 * Cf; T = tm + ts; W = 2 * T;
+      $("vTm").textContent = fmt(tm, "s"); $("vTs").textContent = fmt(ts, "s");
+      $("vT").textContent = fmt(T, "s"); $("vf").textContent = fmt(1 / T, "Hz");
+      $("vd").textContent = (tm / T * 100).toFixed(0) + " %";
+
+      VBW = $("graph").clientWidth && $("graph").clientWidth < 480 ? 400 : 600;
+      X1 = VBW - 20;
+      $("graph").setAttribute("viewBox", "0 0 " + VBW + " 290");
+      var g = [], i, step = niceStep(W * (VBW === 400 ? 1.6 : 1)), tt, x;
+      g.push('<path class="ax" d="M' + X0 + ' 12 V136 H' + X1 + ' M' + X0 + ' 160 V228 H' + X1 + '"/>');
+      [0, 3, 6, 9].forEach(function (v) {
+        g.push('<text x="' + (X0 - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + '</text>');
+      });
+      g.push('<line class="th" x1="' + X0 + '" y1="' + Y(6) + '" x2="' + X1 + '" y2="' + Y(6) + '"/>');
+      g.push('<line class="th" x1="' + X0 + '" y1="' + Y(3) + '" x2="' + X1 + '" y2="' + Y(3) + '"/>');
+      g.push('<text class="mut" x="' + (X1 - 2) + '" y="' + (Y(6) - 5) + '" text-anchor="end">⅔ of the supply</text>');
+      g.push('<text class="mut" x="' + (X1 - 2) + '" y="' + (Y(3) + 15) + '" text-anchor="end">⅓ of the supply</text>');
+      g.push('<text x="' + (X0 - 6) + '" y="176" text-anchor="end">9</text><text x="' + (X0 - 6) + '" y="232" text-anchor="end">0</text>');
+      for (tt = 0; tt <= W + 1e-12; tt += step) {
+        x = X(tt).toFixed(1);
+        g.push('<line class="ax" x1="' + x + '" y1="228" x2="' + x + '" y2="233"/><line class="ax" x1="' + x + '" y1="136" x2="' + x + '" y2="141"/>');
+        g.push('<text x="' + x + '" y="248" text-anchor="middle">' + Number(tt.toPrecision(3)) + '</text>');
+      }
+      g.push('<text x="' + ((X0 + X1) / 2) + '" y="276" text-anchor="middle">time (s)</text>');
+      g.push('<text transform="translate(18 76) rotate(-90)" text-anchor="middle">C1 p.d. (V)</text>');
+      g.push('<text transform="translate(18 194) rotate(-90)" text-anchor="middle">pin 3 (V)</text>');
+      var pv = [], po = [];
+      for (i = 0; i <= 300; i++) {
+        tt = W * i / 300;
+        var ph = tt % T;
+        pv.push(X(tt).toFixed(1) + "," + Y(vcap(ph)).toFixed(1));
+      }
+      [0, tm, T, T + tm, W].forEach(function (b, k, arr) {
+        if (k === arr.length - 1) { return; }
+        var y = (k % 2 === 0) ? 172 : 228;
+        po.push(X(b).toFixed(1) + "," + y, X(arr[k + 1]).toFixed(1) + "," + y);
+      });
+      g.push('<polyline class="vc" points="' + pv.join(" ") + '"/>');
+      g.push('<polyline class="out" points="' + po.join(" ") + '"/>');
+      g.push('<line class="cur" id="cursor" x1="' + X0 + '" y1="12" x2="' + X0 + '" y2="228"/>');
+      $("graph").innerHTML = g.join("");
+      phase = null; draw();
+    }
+
+    /* ---------- live state ---------- */
+    var schem = $("liveSchem"), stateTxt = schem.querySelector(".state");
+    function draw() {
+      var fast = speed / T > 3;
+      var ph = t % T, charging = ph < tm;
+      var c = $("cursor");
+      if (c) {
+        var cx = fast ? -10 : X(t % W);
+        c.setAttribute("x1", cx); c.setAttribute("x2", cx);
+      }
+      var key = fast ? "fast" : (charging ? "c" : "d");
+      if (key === phase) { return; }
+      phase = key;
+      $("fastNote").hidden = !fast;
+      schem.classList.toggle("is-both", fast);
+      schem.classList.toggle("is-charge", !fast && charging);
+      schem.classList.toggle("is-dis", !fast && !charging);
+      $("ledR").className = "bigled red" + ((fast || charging) ? " on" : "") + (fast ? " dim" : "");
+      $("ledG").className = "bigled green" + ((fast || !charging) ? " on" : "") + (fast ? " dim" : "");
+      stateTxt.textContent = fast ? "" : (charging ? "HIGH" : "LOW");
+      $("nowText").textContent = fast ? "" : (charging
+        ? "Charging through R1 and R2 · pin 3 HIGH"
+        : "Discharging through R2 · pin 3 LOW");
+    }
+    function frame(ts2) {
+      if (!running) { last = null; return; }
+      if (last !== null) { t += Math.min(0.1, (ts2 - last) / 1000) * speed; }
+      last = ts2;
+      draw();
+      requestAnimationFrame(frame);
+    }
+    var play = $("playBtn");
+    function paintPlay() { play.textContent = running ? "Pause" : "Play"; play.setAttribute("aria-pressed", String(!running)); }
+    play.addEventListener("click", function () { running = !running; paintPlay(); if (running) { requestAnimationFrame(frame); } });
+
+    /* ---------- controls ---------- */
+    var pairs = [["r1r", "r1n", function (v) { R1 = v; }], ["r2r", "r2n", function (v) { R2 = v; }], ["c1r", "c1n", function (v) { C1 = v; }]];
+    function presetsPaint() {
+      document.querySelectorAll("[data-p]").forEach(function (b) {
+        var p = b.dataset.p.split(",").map(Number);
+        b.setAttribute("aria-pressed", String(p[0] === R1 && p[1] === R2 && p[2] === C1));
+      });
+    }
+    pairs.forEach(function (pr) {
+      var r = $(pr[0]), n = $(pr[1]);
+      function set(v, from) {
+        v = Math.round(Math.min(+r.max, Math.max(+r.min, v)));
+        if (!isFinite(v)) { return; }
+        if (from !== r) { r.value = v; }
+        if (from !== n) { n.value = v; }
+        pr[2](v); presetsPaint(); rebuild();
+      }
+      r.addEventListener("input", function () { set(+r.value, r); });
+      n.addEventListener("change", function () { set(parseFloat(n.value), null); });
+      pr.push(set);
+    });
+    document.querySelectorAll("[data-p]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var p = b.dataset.p.split(",").map(Number);
+        R1 = p[0]; R2 = p[1]; C1 = p[2];
+        pairs.forEach(function (pr, i) { $(pr[0]).value = p[i]; $(pr[1]).value = p[i]; });
+        t = 0; presetsPaint(); rebuild();
+      });
+    });
+    document.querySelectorAll("[data-speed]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        speed = +b.dataset.speed;
+        document.querySelectorAll("[data-speed]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        phase = null; draw();
+      });
+    });
+
+    /* ---------- practice ---------- */
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    var q = null;
+    function fresh() {
+      var a = pick([1, 2.2, 4.7, 10]), b = pick([10, 22, 47, 68, 100]), c = pick([10, 22, 47, 100]);
+      var Cf = c * 1e-6, m = 0.7 * (a + b) * 1e3 * Cf, s = 0.7 * b * 1e3 * Cf, per = m + s;
+      var kind = pick(["f", "f", "m", "s"]);
+      var ask = { f: ["the frequency of the flashing", "Hz", 1 / per], m: ["the mark time", "s", m], s: ["the space time", "s", s] }[kind];
+      q = { kind: kind, a: a, b: b, c: c, m: m, s: s, per: per, ans: ask[2], unit: ask[1] };
+      $("pf-stem").innerHTML = "<b>Calculate</b> " + ask[0] + ". (3)";
+      $("pf-data").innerHTML = "<li>R1 = " + a + " kΩ</li><li>R2 = " + b + " kΩ</li><li>C1 = " + c + " µF</li>";
+      $("pf-unit").textContent = ask[1];
+      $("pf-in").value = ""; $("pf-fb").textContent = ""; $("pf-fb").className = "fb-line"; $("pf-work").hidden = true;
+    }
+    function near(x, y) { return Math.abs(x - y) <= Math.abs(y) * 0.02; }
+    $("pf-check").addEventListener("click", function () {
+      var raw = $("pf-in").value.replace(",", ".").trim(), x = parseFloat(raw), fb = $("pf-fb");
+      if (raw === "" || !isFinite(x)) { fb.className = "fb-line no"; fb.textContent = "Type a number first, in " + q.unit + "."; return; }
+      var ok = near(x, q.ans), msg;
+      if (ok) { msg = "Right."; }
+      else if ([1000, 0.001, 1e6, 1e-6].some(function (k) { return near(x, q.ans * k); })) { msg = "Check your conversions: kΩ → Ω (× 1000) and µF → F (÷ 1 000 000)."; }
+      else if (q.kind === "f" && near(x, q.per)) { msg = "That is the period. The frequency is 1 ÷ T."; }
+      else if (q.kind === "f" && near(x, 1 / q.m)) { msg = "You used the mark time only. The period is the mark time plus the space time."; }
+      else if (q.kind === "m" && near(x, q.s)) { msg = "That is the space time. The mark time uses R1 + R2."; }
+      else if (q.kind === "s" && near(x, q.m)) { msg = "That is the mark time. The space time uses R2 only."; }
+      else { msg = "Not yet. Convert to Ω and F first, then use the relationship for what is asked."; }
+      fb.className = "fb-line " + (ok ? "ok" : "no"); fb.textContent = msg;
+      var w = "Tm = 0.7 × (" + q.a * 1000 + " + " + q.b * 1000 + ") × " + q.c + " × 10⁻⁶ = " + fmt(q.m, "s");
+      if (q.kind !== "m") { w += "\nTs = 0.7 × " + q.b * 1000 + " × " + q.c + " × 10⁻⁶ = " + fmt(q.s, "s"); }
+      if (q.kind === "f") { w += "\nT = " + fmt(q.m) + " + " + fmt(q.s) + " = " + fmt(q.per, "s") + "\nf = 1 ÷ " + fmt(q.per) + " = " + fmt(1 / q.per, "Hz"); }
+      $("pf-work").textContent = w; $("pf-work").hidden = false;
+    });
+    $("pf-new").addEventListener("click", fresh);
+    $("pf-in").addEventListener("keydown", function (e) { if (e.key === "Enter") { $("pf-check").click(); } });
+    fresh();
+
+    /* ---------- multiple choice: every option teaches ---------- */
+    var QS = [
+      { q: "The astable runs from a 9 V supply. Between which voltages does C1 move?",
+        o: [["0 V and 9 V", "C1 never fills or empties completely. The 555 switches at one third and two thirds of the supply."],
+            ["3 V and 6 V", "Right. One third and two thirds of 9 V. The 555 switches pin 3 at each of these."],
+            ["0 V and 4.5 V", "C1 never empties to 0 V. It swings between one third and two thirds of the supply."],
+            ["4.5 V and 9 V", "C1 never charges to the full 9 V. The 555 switches at two thirds of the supply, 6 V."]], a: 1 },
+      { q: "C1 is discharging. Which resistor does its current flow through?",
+        o: [["R1 and R2", "R1 is only in the charging path. When pin 7 connects to 0 V, C1 empties through R2 into pin 7."],
+            ["R2 only", "Right. C1 empties through R2 into pin 7, which the 555 connects to 0 V."],
+            ["R1 only", "R1 sits above pin 7, so the discharge current never reaches it. It goes through R2 into pin 7."],
+            ["Neither: it goes through the red LED", "The LEDs hang off pin 3, not C1. C1 empties through R2 into pin 7."]], a: 1 },
+      { q: "Pin 3 is HIGH. Which LED is on?",
+        o: [["The red LED", "Right. The red LED joins pin 3 to 0 V, so a HIGH pin 3 drives current through it."],
+            ["The green LED", "The green LED joins +9 V to pin 3. With pin 3 HIGH there is almost no p.d. across it."],
+            ["Both LEDs", "Only one has a p.d. across it at a time. Look at which one joins pin 3 to 0 V."],
+            ["Neither LED", "Pin 3 HIGH puts 9 V across one of them. Look at which LED joins pin 3 to 0 V."]], a: 0 },
+      { q: "You swap C1 for one twice the size. What happens to the frequency?",
+        o: [["It doubles", "A bigger capacitor takes longer to charge and discharge, so the flashing gets slower, not faster."],
+            ["It halves", "Right. Both times double, so the period doubles and the frequency halves."],
+            ["It stays the same", "C1 is in both relationships, so both times change."],
+            ["Only the mark time changes", "C1 is in both relationships, so the space time changes too."]], a: 1 },
+      { q: "You make R1 bigger and leave everything else alone. What changes?",
+        o: [["The mark time only", "Right. R1 is only in the charging path, so only the HIGH time gets longer."],
+            ["The space time only", "The space time uses R2 only. R1 is in the charging path, which sets the mark time."],
+            ["Both times, by the same amount", "R1 is not in the discharge path, so the space time does not change."],
+            ["Nothing", "R1 is in the charging path, so the mark time changes."]], a: 0 },
+      { q: "R1 = 1 kΩ, R2 = 10 kΩ and C1 = 100 µF. What is the mark time?",
+        o: [["0.70 s", "That is the space time, 0.7 × R2 × C1. The mark time uses R1 + R2."],
+            ["0.77 s", "Right. 0.7 × 11 000 Ω × 100 × 10⁻⁶ F = 0.77 s."],
+            ["770 s", "You used kΩ and µF without converting. Change them to Ω and F first."],
+            ["1.47 s", "That is the period, mark time plus space time. The question asks for the mark time only."]], a: 1 }
+    ];
+    var first = {}, everRight = {}, LET = "ABCD", box = $("mcq");
+    QS.forEach(function (it, qi) {
+      var d = document.createElement("div"); d.className = "mcq";
+      var h = '<p class="qstem">' + (qi + 1) + ". " + it.q + '</p><div class="mcq-opts" role="group" aria-label="Answers for question ' + (qi + 1) + '">';
+      it.o.forEach(function (o, oi) {
+        h += '<button type="button" class="mcq-opt" data-q="' + qi + '" data-o="' + oi + '" aria-pressed="false"><span class="ol">' + LET[oi] + '</span><span class="ot">' + o[0] + '</span><span class="om" aria-hidden="true"></span></button>';
+      });
+      d.innerHTML = h + '</div><p class="mcq-fb" aria-live="polite"></p>';
+      box.appendChild(d);
+    });
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest(".mcq-opt"); if (!b) { return; }
+      var qi = +b.dataset.q, oi = +b.dataset.o, it = QS[qi], d = b.closest(".mcq"), ok = oi === it.a;
+      d.querySelectorAll(".mcq-opt").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+      b.setAttribute("aria-pressed", "true");
+      b.classList.add(ok ? "right" : "wrong");
+      b.querySelector(".om").textContent = ok ? "✓ right" : "✗ not this";
+      d.querySelector(".mcq-fb").textContent = it.o[oi][1];
+      if (!(qi in first)) { first[qi] = ok; }
+      if (ok) { everRight[qi] = true; }
+      var done = Object.keys(first).length, got = Object.keys(first).filter(function (k) { return first[k]; }).length;
+      $("mcqScore").textContent = "First tries: " + got + " out of " + done + " answered (" + QS.length + " questions).";
+      if (Object.keys(everRight).length === QS.length && window.Progress) { window.Progress.complete("mcq-555"); }
+    });
+
+    /* ---------- confidence rating (device only) ---------- */
+    var CRIT = ["I can explain how C1 charging and discharging makes pin 3 switch.",
+      "I can say which LED is on when pin 3 is HIGH, and why.",
+      "I can calculate the mark time, space time, period and frequency.",
+      "I can build the circuit with pin 1 and C1 the right way round."];
+    var KEY = "el-555-rag", rag = {};
+    try { rag = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e1) { rag = {}; }
+    CRIT.forEach(function (c, i) {
+      var row = document.createElement("div"); row.className = "rag-item";
+      row.innerHTML = '<span class="crit" id="crit' + i + '">' + c + '</span><span class="rag-btns" role="group" aria-labelledby="crit' + i + '">' +
+        ["R", "A", "G"].map(function (k) {
+          return '<button type="button" data-i="' + i + '" data-on="' + k + '" aria-label="' + { R: "Red, not yet", A: "Amber, getting there", G: "Green, confident" }[k] + '" aria-pressed="' + (rag[i] === k) + '">' + k + "</button>";
+        }).join("") + "</span>";
+      $("rag").appendChild(row);
+    });
+    function ragSum() {
+      var n = { R: 0, A: 0, G: 0 };
+      Object.keys(rag).forEach(function (k) { n[rag[k]]++; });
+      $("ragSummary").textContent = (n.R + n.A + n.G) ? "Green " + n.G + ", amber " + n.A + ", red " + n.R + "." : "";
+    }
+    $("rag").addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) { return; }
+      rag[b.dataset.i] = b.dataset.on;
+      b.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      try { localStorage.setItem(KEY, JSON.stringify(rag)); } catch (e2) {}
+      ragSum();
+    });
+    ragSum();
+
+    var lastVBW = 0;
+    window.addEventListener("resize", function () {
+      var w = $("graph").clientWidth < 480 ? 400 : 600;
+      if (w !== lastVBW) { lastVBW = w; rebuild(); }
+    });
+
+    /* ---------- start ---------- */
+    paintPlay(); rebuild();
+    if (running) { requestAnimationFrame(frame); }
+  })();
+  </script>
+</body>
+</html>

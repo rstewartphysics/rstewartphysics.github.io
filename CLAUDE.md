@@ -191,7 +191,7 @@ pages to the drawer.**
 
 **Level rows (28 Sep 2026).** A level with more than its hub is a `.site-menu-level` split row: the
 name links to the hub, and a separate arrow (`<details class="site-menu-level-more">`) opens its
-hub, Topic pages, Slides and Practice tests. A level with only a hub is a plain link with no arrow —
+hub, Topic pages, Slides and Practice tests (Higher adds Past papers, 12 Oct 2026). A level with only a hub is a plain link with no arrow —
 never an arrow that opens onto nothing. When a level gains an index page, give it a split row (or
 add the link to its list). Groups share `name="site-menu-group"` and level lists
 `name="site-menu-level"`, so opening one closes the other with no JS. The list icons are drawer
@@ -411,7 +411,7 @@ same symbol wherever it appears — the hub tile, the slides hub, the topic page
   notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper, doc),
   `_includes/physics-icons.html` (18 topic marks shared across the Physics levels — S3 Electricity 1
   and Higher current/p.d./resistance are the same idea, so they are the same mark),
-  `_includes/eng-icons.html` (14), `_includes/electronics-icons.html` (26) and
+  `_includes/eng-icons.html` (13), `_includes/electronics-icons.html` (26) and
   `_includes/higher-hub-icons.html` (14 — one per Higher hub tile, `ic-hh-*`, RS-picked 29 Sep 2026), with `ah-hub-icons.html` (`ic-ah-*`) and `s3-hub-icons.html` (`ic-s3-*`) adding
   only the marks those hubs don't share with Higher.
 - **Paint must be inline `style=` on every shape.** Document CSS cannot reach into a `<use>` shadow

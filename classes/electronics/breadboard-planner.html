@@ -14,7 +14,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
   {% include site-head-icons.html %}
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260828b">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20260926a">
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/electronics.js" defer></script>
@@ -492,6 +492,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     #sbd .btn:focus-visible{outline:var(--focus-ring);outline-offset:2px}
     #sbd .btn.primary{background:linear-gradient(135deg,#00c79a,#00705a);color:#fff;border-color:transparent}
     #sbd .btn.ghost{background:transparent}
+    #sbd .arm{border-color:var(--bad);color:var(--bad);font-weight:900}
     #sbd .feedback{margin-top:12px;border-radius:14px;overflow:hidden;display:none}
     #sbd .feedback.show{display:block}
     #sbd .fb-head{padding:10px 14px;font-weight:800;font-size:.93rem}
@@ -7119,6 +7120,27 @@ function describe(h){
 }
 function say(msg){ $("liveMsg").textContent = msg; }
 
+/* Two taps, no confirm() dialog (site rule): the first tap arms the button and
+   says on it what the second will do; it disarms itself after 4 seconds. */
+let armedBtn = null, armedHtml = "", armTimer = null;
+function disarm(){
+  if (!armedBtn) return;
+  clearTimeout(armTimer);
+  armedBtn.classList.remove("arm");
+  armedBtn.innerHTML = armedHtml;
+  armedBtn = null;
+}
+function secondTap(btn, prompt){
+  if (armedBtn === btn){ disarm(); return true; }
+  disarm();
+  armedBtn = btn; armedHtml = btn.innerHTML;
+  btn.classList.add("arm");
+  btn.textContent = prompt;
+  say(prompt);
+  armTimer = setTimeout(disarm, 4000);
+  return false;
+}
+
 /* ============================================================
    The tools
    ============================================================ */
@@ -7977,7 +7999,11 @@ if (FEATURES && $("saveRow")){
   $("btnPrint").addEventListener("click", () => { promptTitle(); buildPrintSheet(); window.print(); });
   $("btnSaveFile").addEventListener("click", () => { promptTitle(); exportBoard(); });
   $("btnSaveSvg").addEventListener("click", () => { promptTitle(); exportSvg(); });
-  $("btnOpenFile").addEventListener("click", () => $("fileIn").click());
+  $("btnOpenFile").addEventListener("click", e => {
+    const used = A.placements.length || A.cuts.length || A.links.length;
+    if (used && !secondTap(e.currentTarget, "Tap again: a file replaces this board")) return;
+    $("fileIn").click();
+  });
   $("fileIn").addEventListener("change", e => {
     const f = e.target.files && e.target.files[0];
     if (f) importBoard(f);
@@ -9217,7 +9243,7 @@ $("boardPick").addEventListener("click", e => {
   // the two boards are different sizes, so nothing on one can be carried to the
   // other — say so before it goes, rather than after
   const used = A.placements.length || A.cuts.length || A.links.length || A.testpoints.length;
-  if (used && !window.confirm("Changing the board size clears what is on it. Carry on?")) return;
+  if (used && !secondTap(b, "Tap again: this clears the board")) return;
   freeBoard = b.dataset.board;
   FREEC.length = 0;
   A = blank();
@@ -9364,8 +9390,6 @@ function importBoard(file){
     if (!rec){
       say("That is not a board file this tool can open, so nothing has changed."); return;
     }
-    const used = A.placements.length || A.cuts.length || A.links.length;
-    if (used && !window.confirm("Opening this file replaces the board you have now. Carry on?")) return;
     /* Undoable only when the file is for the SAME board: a snapshot of a 9×25
        layout cannot be restored onto a 24×37 one, which is the rule the board
        buttons already follow. */

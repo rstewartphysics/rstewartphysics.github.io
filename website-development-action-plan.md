@@ -110,7 +110,7 @@ Order is by visibility to pupils.
 - [ ] **2.2 `classes/adv-higher-physics.html`** — same treatment (632 lines, same subnav bug).
       **Model: Sonnet 5.**
 - [ ] **2.3 `classes/physics.html` landing hub** — light modernisation pass. **Model: Sonnet 5.**
-- [ ] **2.4 `classes/workinprogress.html`** — restyle the stub to the modern template (audit note:
+- [x] **2.4 `classes/workinprogress.html`** — *deleted 12 Oct 2026: nothing linked to it any more.* Was: restyle the stub to the modern template (audit note:
       "update style to newer preferences"). Keep it generic; it's the placeholder target until
       Space/Nuclear pages exist (Phase 4). **Model: Sonnet 5.**
 - [ ] **2.5 `classes/s3-physics/electricity-2.html` — split it.** 2,828 lines: the same overload
@@ -164,7 +164,7 @@ One page per session, one commit per page, `.beta-note` while in beta, progress 
 | # | Build | Why this order | Model |
 |---|---|---|---|
 | 4.1 | **S3 Engineering set** — the six stubs (`what-is-an-engineer` is done; build `energy` sub-sections, then `logic`, `electronics`, `mechanisms`, `pneumatics`, `computer-control`) per `s3-engineering-pages-outline.md` | Spec already written; pupils hit "Coming Soon" today; N5 template pages are fresh and proven | **Fable 5** to kick off (hub/config/architecture + first page), **Opus 5** per subsequent page |
-| 4.2 | **S3 Physics: Space, Nuclear Radiation** | The only two S3 tiles still dead-ending on `workinprogress.html` | **Opus 5** per page |
+| 4.2 | **S3 Physics: Space, Nuclear Radiation** | Space has slides and a hub page; Nuclear Radiation is still a `soon` tile | **Opus 5** per page |
 | 4.3 | **Higher Physics: Our Dynamic Universe topics** (6), then **Particles & Waves** (7), in hub order | Completes the Higher offer; `higher-topic-page-guide.md` + reference page make these formulaic | **Opus 5** per page (Sonnet 5 for lighter topics) |
 | 4.4 | **Higher Engineering Science** — new level: hub, `progress/eng-higher.js` config, then topics | Last "coming soon" in the nav drawer; needs an outline doc first (mirror the N5 one) | **Fable 5** for the outline + hub + config, **Opus 5** per topic page |
 
