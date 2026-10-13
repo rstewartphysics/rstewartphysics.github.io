@@ -83,6 +83,13 @@ for (const url of pages) {
     page.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
     await page.goto(BASE + url, { waitUntil: "load" });
     await page.waitForTimeout(400);
+    // a simulator may live in a lesson panel that starts closed; open it, as a pupil would
+    await page.evaluate(() => {
+      for (const sim of document.querySelectorAll(".sim")) {
+        for (let d = sim.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) d.open = true;
+      }
+    });
+    await page.waitForTimeout(200);
 
     const found = await page.evaluate(({ wide, stageMax }) => {
       const out = [];
