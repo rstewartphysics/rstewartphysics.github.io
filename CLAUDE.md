@@ -389,7 +389,15 @@ axes or animation loops. Link `sims.css` after the subject sheet, and load `widg
 - **Checked automatically.** `npm run sims` (`scripts/sim-check.mjs`) runs every `.sim` at
   1180 × 760 light and dark and at 390 px, in the PR build: no errors or sideways scroll, stage fits,
   slider ↔ box sync, 44 px controls, named drawings, labelled graph axes, nothing moving under
-  reduced motion. Pages with sliders outside a `.sim` are listed as not yet migrated.
+  reduced motion, every drawn stripboard matches its netlist. A slider outside a `.sim` fails.
+  It prints the list of every simulator on the site — that list is the inventory.
+- **Kit details worth knowing:** `WidgetKit.svgLabel(textEl, "<i>V</i><sub>2</sub>")` writes SVG
+  labels with italic symbols and real subscripts; `graph.ref(…, { side, below })` places a guide
+  line's label; a simulator may hide a slider for one mode (hidden sliders are not measured); a
+  simulator inside a closed `<details>` is fine (the check opens it, as a pupil would). Engineering
+  pages add `.sim { --sim-accent-ink: var(--eng-ink-accent); }` so accent text stays AA.
+- **Adopted (13 Oct 2026): every simulator on the site** — 21 across Electronics (555, theory),
+  Higher (electricity, relativity), N5 Engineering and S3 Physics. No page carries `bindPair`.
 - **Still check by eye**, as for every page: real iPad Safari, and the physics by the teacher.
 
 ---

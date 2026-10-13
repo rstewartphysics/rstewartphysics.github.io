@@ -15,8 +15,8 @@
 //   - with reduced motion asked for, nothing moves until the pupil presses play
 //   - every drawn stripboard ([data-board]) matches its own netlist
 // It prints every simulator it found (page, id, title, stage height at 1180 × 760), so the list
-// of simulators on the site never has to be kept by hand. Pages with sliders outside a `.sim`
-// are listed as "not migrated" (a warning).
+// of simulators on the site never has to be kept by hand. A page with a slider outside a `.sim`
+// fails: every simulator on the site is on the kit (all migrated 13 October 2026).
 
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
@@ -201,10 +201,7 @@ server.close();
 
 console.log(`sim-check: ${pages.length} page(s) with simulators checked.\n`);
 for (const x of inventory) console.log(`  ${x.url}#${x.id}  "${x.title}"  stage ${x.stage} px`);
-if (legacy.length) {
-  console.log(`\nNot migrated to the simulator kit yet (${legacy.length}) — warning only:`);
-  for (const u of legacy) console.log(`  ${u}`);
-}
+for (const u of legacy) failures.push(`${u} has a slider outside a .sim — every simulator uses the kit`);
 if (failures.length) {
   console.error(`\n${failures.length} problem(s):`);
   for (const f of failures) console.error(`  ✗ ${f}`);
