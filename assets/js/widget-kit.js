@@ -15,6 +15,8 @@
      WidgetKit.graph(svg, opts)           -> live axes + series
      WidgetKit.clock(opts)                -> play/pause animation loop
      WidgetKit.fmt(x, sf), .si(x, unit)   -> readout text
+     WidgetKit.svgLabel(textEl, "<i>V</i><sub>2</sub> = 3 V") -> SVG label with
+                                          italic symbols and real subscripts
    ============================================================ */
 (function (win, doc) {
   "use strict";
@@ -523,7 +525,7 @@
      Labels may use <i> and <sub>.  Series are drawn in order:
        g.line(name, fn | [[x,y]…], { cls:"kg-c2", dash:true, samples })
        g.band(name, y0, y1, { cls })          shaded horizontal band
-       g.ref(name, "x"|"y", value, { cls, label })   a guide line
+       g.ref(name, "x"|"y", value, { cls, label, side:"left"|"right", below })   a guide line
        g.marker(name, x, y, { cls, label })
        g.cursor(x | null)   a "now" line, moved without a redraw
        g.remove(name), g.setX({min,max,…}), g.setY(…), g.describe(text)
@@ -646,9 +648,19 @@
           a["class"] = "kg-ref" + cls;
           el("line", a, g);
           if (s.opts.label) {
-            e = s.axis === "x"
-              ? el("text", { "class": "kg-note" + cls, x: px(s.v) + 5, y: box.t + 13 }, g)
-              : el("text", { "class": "kg-note" + cls, x: box.r - 4, y: py(s.v) - 5, "text-anchor": "end" }, g);
+            // side: "left"/"right" (x guides: which side of the line; y guides:
+            // which end of the plot) and "below" for a y guide
+            var side = s.opts.side;
+            if (s.axis === "x") {
+              e = side === "left"
+                ? el("text", { "class": "kg-note" + cls, x: px(s.v) - 5, y: box.t + 13, "text-anchor": "end" }, g)
+                : el("text", { "class": "kg-note" + cls, x: px(s.v) + 5, y: box.t + 13 }, g);
+            } else {
+              var ly = s.opts.below ? py(s.v) + 15 : py(s.v) - 5;
+              e = side === "left"
+                ? el("text", { "class": "kg-note" + cls, x: box.l + 4, y: ly }, g)
+                : el("text", { "class": "kg-note" + cls, x: box.r - 4, y: ly, "text-anchor": "end" }, g);
+            }
             richText(e, s.opts.label);
           }
         } else if (s.kind === "marker") {
@@ -733,6 +745,7 @@
     clock: clock,
     graph: graph,
     fmt: fmt,
-    si: si
+    si: si,
+    svgLabel: richText
   };
 })(window, document);

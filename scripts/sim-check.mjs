@@ -101,6 +101,7 @@ for (const url of pages) {
             say(sim, "controls sit below the picture; they go beside it");
         }
         for (const r of sim.querySelectorAll('input[type="range"]')) {
+          if (!r.offsetParent) continue; // a slider the simulator has hidden for this mode
           const key = r.getAttribute("data-sim");
           const name = r.getAttribute("aria-label") || (r.labels && r.labels[0] && r.labels[0].textContent.trim());
           if (!name) say(sim, `slider ${key || "?"} has no name`);
@@ -108,7 +109,7 @@ for (const url of pages) {
           const n = sim.querySelector(`input[type="number"][data-sim="${key}"]`);
           if (!n) say(sim, `slider ${key} has no number box`);
           if (r.getBoundingClientRect().height < 43.5) say(sim, `slider ${key} is under 44 px tall`);
-          if (n && n.getBoundingClientRect().height < 43.5) say(sim, `number box ${key} is under 44 px tall`);
+          if (n && n.offsetParent && n.getBoundingClientRect().height < 43.5) say(sim, `number box ${key} is under 44 px tall`);
         }
         for (const b of sim.querySelectorAll("button")) {
           if (b.offsetParent && b.getBoundingClientRect().height < 43.5)
