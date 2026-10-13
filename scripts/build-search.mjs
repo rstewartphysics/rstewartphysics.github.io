@@ -132,8 +132,12 @@ function linkTitle(a) {
   }
   const text = squash(a.text).replace(/[↗→]/g, "").trim();
   if (text.replace(GENERIC, "").trim().length >= 4) return { t: text, score: 2 };
-  const label = squash(a.getAttribute("aria-label")).replace(/\.?\s*Opens in a new tab\.?$/i, "");
-  if (label) return { t: label.split(/\s[—–]\s|\.\s|, PDF/)[0].replace(/^Recommended:\s*/i, ""), score: 1 };
+  // "Lesson 1 — Engineers and What They Do slides. PDF, 43 slides. Opens in a new tab"
+  const label = squash(a.getAttribute("aria-label"))
+    .replace(/\.?\s*Opens in a new tab\.?$/i, "")
+    .split(/\.\s|,\s*PDF\b|\s[—–]\s*PDF\b/)[0]
+    .replace(/^Recommended:\s*/i, "").replace(/\s+slides$/i, "").trim();
+  if (label) return { t: label, score: 1 };
   return text ? { t: text, score: 0 } : null;
 }
 
