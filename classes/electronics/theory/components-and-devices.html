@@ -18,6 +18,7 @@ title: Theory — Components and Devices · National 5 Electronics
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/electronics.js" defer></script>
+  <script src="/assets/js/electronics-theory.js?v=elt-20261013a" defer></script>
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
     .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
@@ -134,6 +135,11 @@ title: Theory — Components and Devices · National 5 Electronics
     .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
     .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
     .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt-fb { margin: .2rem 0 0; padding: .55rem .75rem; border-radius: 10px; border-left: 4px solid var(--border-accent); background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .opt-fb:empty { display: none; }
+    .opt-fb.is-right { border-left-color: #15803d; }
+    .opt-fb.is-wrong { border-left-color: var(--warm); }
+    .opt-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
     .opt.correct .mark-note { color: #15803d; }
     .opt.wrong .mark-note { color: var(--warm); }
     @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
@@ -296,7 +302,7 @@ title: Theory — Components and Devices · National 5 Electronics
   <main class="page-wrap" id="mainContent">
     <h1 class="visually-hidden">Theory — Components and Devices</h1>
     <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics hub</a>
-    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;"><span aria-hidden="true">📖</span> Glossary</a>
+    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;">Glossary</a>
     <p class="lead">The <strong>magnetic effect</strong> of a current and the electromechanical devices it
       drives (incl. the relay and flyback diode), then the <strong>component symbols</strong> you must know.</p>
 
@@ -331,7 +337,7 @@ title: Theory — Components and Devices · National 5 Electronics
         <figcaption>A small input switches the transistor on, energising the relay coil; the coil pulls the contacts closed and switches on the lamp in a separate circuit. The flyback diode (reverse-biased across the coil) safely conducts the back-EMF and protects the transistor.</figcaption>
       </figure>
       <div class="frame prog-cloze" data-prog-challenge="cloze-1" aria-label="How to say it — fill the gaps">
-        <span class="frame-tag">✍️ How to say it</span>
+        <span class="frame-tag">How to say it</span>
         <p>The diode is fitted in
           <select class="cl-sel" data-answer="reverse bias" aria-label="gap 1"><option value="">choose…</option><option>reverse bias</option><option>forward bias</option></select>
           across the relay coil.</p>
@@ -568,7 +574,7 @@ title: Theory — Components and Devices · National 5 Electronics
       <span class="concept-tag">Interactive</span>
       <h2>Component Collector quiz</h2>
       <p class="notes">Name the component from its <strong>UK (BS) symbol</strong>. Ten symbols are drawn from
-        the reference grid above — get <strong>8 / 10</strong> to earn the 🔌 <strong>Component Collector</strong>
+        the reference grid above — get <strong>8 / 10</strong> to earn the <strong>Component Collector</strong>
         badge.</p>
       <div class="widget" aria-label="Symbol identification quiz">
         <h3>Name the symbol <span class="challenge-tag">scored</span></h3>
@@ -587,7 +593,7 @@ title: Theory — Components and Devices · National 5 Electronics
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
       <h2>Check your understanding</h2>
-      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <p>Pick an answer to see feedback on it. You can then try the others. Your score counts first tries only.</p>
       <div id="quiz" aria-label="Multiple choice questions"></div>
       <div class="btnrow">
         <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
@@ -609,7 +615,7 @@ title: Theory — Components and Devices · National 5 Electronics
 
   {% include site-footer.html %}
 
-  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">🔤 Reading help</button>
+  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">Reading help</button>
   <script>
   (function(){
     var RKEY="el-reading-help", el=document.documentElement, rbtn=document.getElementById("readingToggle");
@@ -622,187 +628,37 @@ title: Theory — Components and Devices · National 5 Electronics
   </script>
 
   <script>
-  (function(){
-    "use strict";
-    var KEY = "el-thy-cd-";
-    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
-    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
-    function $(id){ return document.getElementById(id); }
-    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
-    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
-    function bindPair(rangeId, numId, onChange){
-      var r=$(rangeId), n=$(numId);
-      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
-      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ if(r) r.value=v; onChange(v); } });
-    }
-
-    /* Voltage divider + comparator */
-    (function(){
-      if(!$("el-out")) return;
-      var vs=12, r1=3, r2=7, vref=6;
-      function update(){
-        if(!(r1+r2>0)) return;
-        var v2 = vs * r2/(r1+r2);
-        setT("el-out","Output V₂ = "+round(v2,2)+" V");
-        var high = v2 >= vref;
-        setT("el-cmp", "Comparator: output "+(high?"HIGH (≈ +"+round(vs,1)+" V)":"LOW (≈ 0 V)")+"  — V₂ "+(high?"≥":"<")+" reference "+round(vref,1)+" V");
-        $("el-work").textContent =
-          "V₂ = (R₂ / (R₁ + R₂)) × V_s\n"+
-          "V₂ = ("+round(r2,2)+" / ("+round(r1,2)+" + "+round(r2,2)+")) × "+round(vs,1)+"\n"+
-          "V₂ = "+round(v2,2)+" V";
-      }
-      bindPair("el-vs","el-vs-n",function(v){ vs=v; update(); });
-      bindPair("el-r1","el-r1-n",function(v){ r1=v; update(); });
-      bindPair("el-r2","el-r2-n",function(v){ r2=v; update(); });
-      bindPair("el-vref","el-vref-n",function(v){ vref=v; update(); });
-      update();
-    })();
-
-    /* Logic gate explorer */
-    (function(){
-      if(!$("lg-gate")) return;
-      var gate="AND", a=0, b=0;
-      function calc(g,A,B){
-        switch(g){
-          case "AND": return A & B;
-          case "OR": return A | B;
-          case "NAND": return (A & B)?0:1;
-          case "NOR": return (A | B)?0:1;
-          case "XOR": return A ^ B;
-          case "NOT": return A?0:1;
-        }
-        return 0;
-      }
-      function rows(g){ return g==="NOT" ? [[0],[1]] : [[0,0],[0,1],[1,0],[1,1]]; }
-      function render(){
-        var single = (gate==="NOT");
-        $("lg-b").style.display = single ? "none" : "";
-        var out = calc(gate, a, single?0:b);
-        setT("lg-out", gate + " output = " + out);
-        var tt=$("lg-tt"), html="<caption>"+gate+"</caption><thead><tr>"+(single?"<th>A</th>":"<th>A</th><th>B</th>")+"<th>out</th></tr></thead><tbody>";
-        rows(gate).forEach(function(r){
-          var A=r[0], B=single?0:r[1], o=calc(gate,A,B);
-          var active = (A===a) && (single || B===b);
-          html += '<tr class="'+(active?"hi":"")+'">'+(single?("<td>"+A+"</td>"):("<td>"+A+"</td><td>"+B+"</td>"))+'<td class="out">'+o+'</td></tr>';
-        });
-        html+="</tbody>"; tt.innerHTML=html;
-      }
-      $("lg-gate").addEventListener("click", function(e){
-        var btn=e.target.closest("button"); if(!btn) return;
-        gate=btn.dataset.g;
-        [].forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===btn); });
-        render();
-      });
-      function toggle(id, get, set){
-        $(id).addEventListener("click", function(){ set(get()?0:1); var v=get(); this.setAttribute("aria-pressed", v===1); this.textContent=(id==="lg-a"?"A = ":"B = ")+v; render(); });
-      }
-      toggle("lg-a", function(){return a;}, function(v){a=v;});
-      toggle("lg-b", function(){return b;}, function(v){b=v;});
-      render();
-    })();
-
-    /* Mixed multiple-choice */
-    (function(){
-      var QS=[
-        { q:"A relay is best described as", o:["a coil-operated switch for a separate circuit","a resistor that drops voltage","a one-way valve for current","a store of charge"], a:0 },
-        { q:"A flyback diode across a relay coil is fitted", o:["in series, forward biased","in reverse bias across the coil","in series with the supply","across the transistor base"], a:1 },
-        { q:"On a UK (BS) circuit diagram a resistor is drawn as a", o:["zig-zag","rectangle","circle","triangle"], a:1 }
-      ];
-      var box=$("quiz");
-      QS.forEach(function(item,qi){
-        var d=document.createElement("div"); d.className="q";
-        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
-        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
-        d.innerHTML=html; box.appendChild(d);
-      });
-      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
-      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
-      $("quiz-mark").addEventListener("click", function(){
-        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
-        var score=0; clearNotes();
-        QS.forEach(function(item,qi){
-          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
-          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
-          right.classList.add("correct"); addNote(right, "✓ correct answer");
-          if(chosen){ var oi=parseInt(chosen.value,10);
-            if(oi===item.a) score++;
-            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
-          }
-        });
-        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
-        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
-      });
-      $("quiz-reset").addEventListener("click", function(){
-        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
-        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
-        clearNotes(); setT("quiz-score","");
-      });
-      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
-    })();
-
-    /* RAG self-check */
-    (function(){
-      var CRIT=[
-        "Explain the relay and the flyback diode.",
-        "Draw and identify the mandated component symbols."
-      ];
-      var box=$("rag"), state=load("rag",{});
-      function summary(){
-        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
-        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
-      }
-      CRIT.forEach(function(c,i){
-        var row=document.createElement("div"); row.className="rag-item";
-        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
-        var btns=document.createElement("span"); btns.className="rag-btns";
-        ["R","A","G"].forEach(function(k){
-          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
-          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
-          b.setAttribute("aria-pressed", state[i]===k);
-          b.addEventListener("click", function(){
-            state[i]=k; save("rag",state);
-            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
-            summary();
-          });
-          btns.appendChild(b);
-        });
-        row.appendChild(btns); box.appendChild(row);
-      });
-      $("rag-reset").addEventListener("click", function(){
-        state={}; save("rag",state);
-        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
-        summary();
-      });
-      summary();
-    })();
-
-    /* Subnav scrollspy */
-    (function(){
-      if(!("IntersectionObserver" in window)) return;
-      var links=document.querySelectorAll(".subnav-link"), map={};
-      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
-      var obs=new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if(!en.isIntersecting) return;
-          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
-          var l=map[en.target.id];
-          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
-        });
-      }, { rootMargin: "-25% 0px -65% 0px" });
-      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
-    })();
-
-    /* Print: open every reveal, then restore */
-    (function(){
-      var opened=[];
-      window.addEventListener("beforeprint", function(){
-        opened=[];
-        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
-      });
-      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
-    })();
-  })();
+  window.EL_THEORY = {
+    key: "el-thy-cd-",
+    badge: "thy-cd",
+    qs: [
+      { q: "A relay is best described as",
+        o: ["a coil-operated switch for a separate circuit", "a resistor that drops voltage", "a one-way valve for current", "a store of charge"], a: 0,
+        f: [
+          "Right. Current in the coil makes an electromagnet that closes the switch contacts. The contacts can switch a separate circuit, even one with a bigger current.",
+          "That describes a resistor. A relay has a coil and a set of switch contacts.",
+          "A one-way valve for current is a diode. A relay is a switch worked by an electromagnet.",
+          "Storing charge is what a capacitor does. A relay is a switch worked by a coil."
+        ] },
+      { q: "A flyback diode across a relay coil is fitted",
+        o: ["in series, forward biased", "in reverse bias across the coil", "in series with the supply", "across the transistor base"], a: 1,
+        f: [
+          "In series it would sit in the path of the coil current. The diode goes across the coil, not in series with it.",
+          "Right. Across the coil and reverse biased, so normally no current flows through it. At switch-off the coil makes a large voltage, and the diode carries that current safely so the transistor is not damaged.",
+          "In series with the supply it would not protect anything from the coil. The danger comes from the coil itself.",
+          "The danger comes from the coil when it switches off, so the diode belongs across the coil."
+        ] },
+      { q: "On a UK (BS) circuit diagram a resistor is drawn as a",
+        o: ["zig-zag", "rectangle", "circle", "triangle"], a: 1,
+        f: [
+          "The zig-zag is the American (US) symbol. UK (BS) diagrams and SQA papers use a different shape.",
+          "Right. The UK (BS/IEC) resistor symbol is a plain rectangle.",
+          "Circles are used for symbols such as a lamp, a motor or a meter. A resistor is drawn differently.",
+          "Triangles appear in the diode and op-amp symbols. The resistor symbol has no triangle."
+        ] }
+    ],
+    crit: ["Explain the relay and the flyback diode.", "Draw and identify the mandated component symbols."]
+  };
   </script>
 
   <script>
@@ -867,7 +723,7 @@ title: Theory — Components and Devices · National 5 Electronics
       if(window.Progress){
         var res = Progress.record(BADGE, score, current.length);
         if(res.justUnlocked){
-          msg += " — 🔌 Component Collector unlocked!";
+          msg += " — Component Collector unlocked!";
         } else if(res.unlocked){ msg += " — badge already earned."; }
       }
       document.getElementById("cd-score").textContent = msg;
