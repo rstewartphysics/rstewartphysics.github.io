@@ -18,9 +18,10 @@ title: Energy & Efficiency — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261007">
   <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261012a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
   <style>
     :root {
@@ -206,7 +207,7 @@ title: Energy & Efficiency — National 5 Engineering Science
     .mode-card[href="#answers"], .mode-card[href="#s3"] { border-left-color: var(--ex-bd); }
 
     @media print {
-          .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
+          .skip-link, .subnav-wrap, .backlink, .widget, .sim, .btnrow, #siteMenuButton, footer,
           .modebar, .toolbar, .sec-toggle { display: none !important; }
           .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
           .sec.collapsed .sec-body { display: block !important; }
@@ -225,6 +226,37 @@ title: Energy & Efficiency — National 5 Engineering Science
     @media (prefers-reduced-motion: reduce){ .effsim-seg { transition:none; } }
 
     @media (max-width:520px){ .kit-row { grid-template-columns:1fr; gap:.25rem; } .kit-row > label { min-width:0; } }
+    .opt .mark-note.opt-why { display: block; white-space: normal; margin: .35rem 0 0 1.6rem; font-weight: 700; color: var(--eng-text); line-height: 1.5; }
+
+        /* ---------- simulators (sims.css + WidgetKit) ---------- */
+    .sim { --sim-accent-ink: var(--eng-ink-accent); }
+    .simdraw text { font-family: var(--font-stack); font-weight: 800; font-size: 15px; fill: var(--text); }
+    .simdraw .small { font-size: 14px; fill: var(--muted); }
+    .simdraw .big { font-size: 17px; font-weight: 900; }
+    .simdraw .v { fill: var(--sim-ink); font-weight: 900; }
+    .simdraw .q { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 17px; }
+    .simdraw .sb { font-size: 13.5px; }
+    .simdraw .w { fill: none; stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .simdraw .w.thick { stroke-width: 5; }
+    .simdraw .w.thin { stroke-width: 1.5; stroke-linecap: butt; }
+    .simdraw .tip, .simdraw .dot { fill: var(--text); }
+    .simdraw .body, .simdraw .term { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .simdraw .flow { fill: var(--sim-ink); }
+    .sim-task { border-top: 1px solid var(--border); padding-top: 8px; }
+    .sim-task p { margin: 0 0 6px; font-weight: 800; line-height: 1.4; font-size: .95rem; }
+    .sim-task .kit-fb { margin: 6px 0 0; }
+    @media (min-width:1000px){ .eng-dense .sec-body > .sim { clear: both; margin-right: -346px; } }
+    .sankey .s-in { fill: var(--eng-muted); fill-opacity: .45; }
+    .sankey .s-use { fill: #15803d; }
+    .sankey .s-waste { fill: #b91c1c; }
+    .sankey .t-use { fill: var(--good); font-weight: 900; }
+    .sankey .t-waste { fill: var(--bad); font-weight: 900; }
+    .sankey .on-band { fill: #fff; font-weight: 900; }
+    .sankey .mark { fill: none; stroke: var(--text); stroke-width: 2; stroke-dasharray: 5 4; }
+    .sankey.narrow text { font-size: 17px; } .sankey.narrow .small { font-size: 16px; }
+    .sim-fig .t-use { color: var(--good); } .sim-fig .t-waste { color: var(--bad); }
+    .sim-try { margin: .5rem 0 0; }
+    .sim-try[hidden] { display: none; }
   </style>
 </head>
 
@@ -440,28 +472,51 @@ title: Energy & Efficiency — National 5 Engineering Science
         <div class="score" data-out aria-live="polite"></div>
       </div>
 
-      <div class="widget" id="balSim" data-prog-challenge="ch-energy-balance">
-        <h3>Energy balance — make it add up</h3>
-        <p class="hint">The input is fixed at <strong>1000 J</strong>. Share it between useful and wasted output. Energy can't be created or destroyed, so the two outputs must add up to exactly the input.</p>
-        <div class="kit-row">
-          <label for="bal-u">Useful output (J)</label>
-          <input type="range" id="bal-u" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules">
-          <input type="number" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules (number)">
+      <div class="sim" id="balSim" data-prog-challenge="ch-energy-balance">
+        <div class="sim-head">
+          <h3>Energy balance: make it add up</h3>
+          <p class="sim-hint">The input is fixed at <strong>1000 J</strong>. Share it between useful and wasted output. Energy can't be created or destroyed, so the outputs must add up to exactly the input.</p>
         </div>
-        <div class="kit-row">
-          <label for="bal-w">Wasted output (J)</label>
-          <input type="range" id="bal-w" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules">
-          <input type="number" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules (number)">
+
+        <div class="sim-predict" id="balPredict">
+          <p class="sim-q"><b>Predict</b> the wasted energy when a motor takes in 1000 J and gives out 700 J of useful kinetic energy.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="0" aria-pressed="false">0 J<template data-feedback><p>That would make the motor 100% efficient, and no real motor is. Friction and warm wires always take a share. How much of the 1000 J is left over?</p></template></button>
+            <button type="button" data-predict="300" aria-pressed="false">300 J<template data-feedback><p><strong>Right.</strong> Energy is conserved: wasted = input − useful = 1000 − 700 = 300 J, mostly as heat and sound.</p></template></button>
+            <button type="button" data-predict="700" aria-pressed="false">700 J<template data-feedback><p>700 J is the useful output. The wasted energy is the part of the input that did <strong>not</strong> become useful.</p></template></button>
+            <button type="button" data-predict="1700" aria-pressed="false">1700 J<template data-feedback><p>That adds the input and the useful output together. Energy can't be created, so all the outputs together come to only 1000 J.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" hidden><button class="sim-btn" type="button" id="bal-try">Try it: set the useful output to 700 J</button></p>
         </div>
-        <div class="bal-track" role="img" aria-label="Useful and wasted energy shown against the 1000 joule input" aria-describedby="bal-status">
-          <div class="bal-fill"><div class="effsim-seg effsim-useful" id="bal-useful"></div><div class="effsim-seg effsim-wasted" id="bal-wasted"></div></div>
-          <div class="bal-target" style="left:66.667%"></div>
-        </div>
-        <p class="bal-status" id="bal-status" aria-live="polite"></p>
-        <div class="kit-task">
-          <strong>Challenge:</strong> set the outputs so they add up to exactly the 1000 J input.
-          <div class="kit-actions"><button type="button" id="bal-check">Check</button></div>
-          <p class="kit-fb" id="bal-fb" role="status" aria-live="polite"></p>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+              <svg class="simdraw sankey" id="balDraw" viewBox="0 0 600 402" role="img" aria-label="Energy diagram.">
+                <g data-sankey></g>
+                <g data-balance></g>
+              </svg>
+              <figcaption>Each band is as wide as its energy: <span class="t-use">useful in green</span>, <span class="t-waste">wasted in red</span>. The bars underneath compare everything out with what went in.</figcaption>
+            </figure>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out"><span class="k">Useful output</span><span class="v" id="bal-u">—</span></div>
+              <div class="sim-out"><span class="k">Wasted output</span><span class="v" id="bal-w">—</span></div>
+              <div class="sim-out is-key"><span class="k">Total out (input 1000 J)</span><span class="v" id="bal-t">—</span></div>
+            </div>
+            <p class="bal-status" id="bal-status" aria-live="polite"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field"><span class="sim-name">Useful output energy (J)</span>
+              <span class="sim-row"><input type="range" data-sim="Eu" min="0" max="1000" step="50" value="500" aria-label="Useful output energy in joules"><input class="sim-num" type="number" data-sim="Eu" min="0" max="1000" step="50" value="500" inputmode="numeric" aria-label="Useful output energy in joules, typed"></span></label>
+            <label class="sim-field"><span class="sim-name">Wasted output energy (J)</span>
+              <span class="sim-row"><input type="range" data-sim="Ew" min="0" max="1000" step="50" value="300" aria-label="Wasted output energy in joules"><input class="sim-num" type="number" data-sim="Ew" min="0" max="1000" step="50" value="300" inputmode="numeric" aria-label="Wasted output energy in joules, typed"></span></label>
+            <div class="sim-task">
+              <p><b>Set</b> the outputs so they add up to exactly the 1000 J input.</p>
+              <button class="sim-btn" type="button" id="bal-check">Check</button>
+              <p class="kit-fb" id="bal-fb" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="practice">
@@ -814,29 +869,51 @@ title: Energy & Efficiency — National 5 Engineering Science
         </div>
       </div></details>
 
-      <div class="widget" id="effSim" data-prog-challenge="ch-efficiency-target">
-        <h3>Efficiency explorer — live</h3>
-        <p class="hint">Drag the input and useful energy. The efficiency and the energy bar (green = useful, red = wasted) update instantly. Useful output can never beat the input.</p>
-        <div class="kit-row">
-          <label for="eff-in">Input energy (J)</label>
-          <input type="range" id="eff-in" data-sim="Ein" min="200" max="1000" step="50" value="1000" aria-label="Input energy in joules">
-          <input type="number" data-sim="Ein" min="200" max="1000" step="50" value="1000" aria-label="Input energy in joules (number)">
+      <div class="sim" id="effSim" data-prog-challenge="ch-efficiency-target">
+        <div class="sim-head">
+          <h3>Efficiency explorer</h3>
+          <p class="sim-hint">Change the input energy and the useful output. The useful output can never beat the input.</p>
         </div>
-        <div class="kit-row">
-          <label for="eff-out">Useful output (J)</label>
-          <input type="range" id="eff-out" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules">
-          <input type="number" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules (number)">
+
+        <div class="sim-predict" id="effPredict">
+          <p class="sim-q"><b>Predict</b> what happens to the efficiency if the input energy goes up but the useful output stays the same.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="down" aria-pressed="false">It goes down<template data-feedback><p><strong>Right.</strong> <var>η</var> = <var>E</var><sub>out</sub> ÷ <var>E</var><sub>in</sub>. The same useful output from a bigger input is a smaller fraction of it, so more is wasted and the efficiency falls.</p></template></button>
+            <button type="button" data-predict="up" aria-pressed="false">It goes up<template data-feedback><p>Not this one. More input with no more useful output means all the extra is wasted. Which way does that push useful ÷ input?</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">No change<template data-feedback><p>Not quite. Efficiency is a fraction, useful ÷ input. The top stays the same, but the bottom gets bigger.</p></template></button>
+            <button type="button" data-predict="over" aria-pressed="false">It goes over 100%<template data-feedback><p>Efficiency can never be over 100%, because the useful output can't beat the input. And here it is the input that grows.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" hidden><button class="sim-btn" type="button" id="eff-try">Try it: raise the input to 1000 J</button></p>
         </div>
-        <div class="effsim-readout"><b id="eff-pct">—</b><span>efficiency = useful ÷ input × 100</span></div>
-        <div class="effsim-bar" role="img" aria-label="Energy bar: useful share in green, wasted share in red" aria-describedby="eff-desc">
-          <div class="effsim-seg effsim-useful" id="eff-useful"></div>
-          <div class="effsim-seg effsim-wasted" id="eff-wasted"></div>
-        </div>
-        <p id="eff-desc" class="effsim-readout" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
-        <div class="kit-task">
-          <strong>Challenge:</strong> set the device to <strong id="eff-target">60%</strong> efficient (within ±2%).
-          <div class="kit-actions"><button type="button" id="eff-check">Check</button></div>
-          <p class="kit-fb" id="eff-fb" role="status" aria-live="polite"></p>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+              <svg class="simdraw sankey" id="effDraw" viewBox="0 0 600 368" role="img" aria-label="Energy diagram.">
+                <g data-sankey></g>
+                <g data-share></g>
+              </svg>
+              <figcaption>Each band is as wide as its energy: <span class="t-use">useful in green</span>, <span class="t-waste">wasted in red</span>. The bar underneath shows each as a percentage of the input.</figcaption>
+            </figure>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Efficiency <var>η</var></span><span class="v" id="eff-pct">—</span></div>
+              <div class="sim-out"><span class="k">Wasted energy</span><span class="v" id="eff-w">—</span></div>
+            </div>
+            <p class="sim-working" id="eff-work"></p>
+            <p class="sim-note" id="eff-desc" aria-live="polite"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field"><span class="sim-name">Input energy <var>E</var><sub>in</sub> (J)</span>
+              <span class="sim-row"><input type="range" data-sim="Ein" min="200" max="1000" step="50" value="600" aria-label="Input energy in joules"><input class="sim-num" type="number" data-sim="Ein" min="200" max="1000" step="50" value="600" inputmode="numeric" aria-label="Input energy in joules, typed"></span></label>
+            <label class="sim-field"><span class="sim-name">Useful output energy <var>E</var><sub>out</sub> (J)</span>
+              <span class="sim-row"><input type="range" data-sim="Eout" min="0" max="1000" step="50" value="400" aria-label="Useful output energy in joules"><input class="sim-num" type="number" data-sim="Eout" min="0" max="1000" step="50" value="400" inputmode="numeric" aria-label="Useful output energy in joules, typed"></span></label>
+            <div class="sim-task">
+              <p><b>Set</b> the device to <strong id="eff-target">60%</strong> efficient (within 2%).</p>
+              <button class="sim-btn" type="button" id="eff-check">Check</button>
+              <p class="kit-fb" id="eff-fb" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="practice">
@@ -1227,16 +1304,16 @@ title: Energy & Efficiency — National 5 Engineering Science
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"Which of these is NOT one of the four forms of energy used in National 5 calculations?", o:["kinetic","potential","chemical","heat"], a:2 },
-        { q:"An electric motor turns electrical energy mainly into", o:["chemical energy","kinetic energy","light energy","sound energy"], a:1 },
-        { q:"A system is given 1000 J and produces 600 J of useful energy. The wasted energy is", o:["400 J","600 J","1600 J","1000 J"], a:0 },
-        { q:"Before using Ee = V I t, a time of 3 minutes must be entered as", o:["3 s","30 s","180 s","300 s"], a:2 },
-        { q:"In Ek = ½ m v², a mass of 4 kg at 3 m/s gives a kinetic energy of", o:["6 J","12 J","18 J","36 J"], a:2 },
-        { q:"A kettle heats water from 20 °C to 70 °C. The value of ΔT to use is", o:["20 °C","50 °C","70 °C","90 °C"], a:1 },
-        { q:"A motor transfers 12 000 J in 20 s. Its power is", o:["240 000 W","600 W","6000 W","60 W"], a:1 },
-        { q:"A heater uses 2000 J and produces 1500 J of useful heat. Its percentage efficiency is", o:["133%","75%","50%","25%"], a:1 },
-        { q:"Which statement about wasted energy is correct?", o:["It is destroyed by the system","It is usually transferred as heat and sound","It is the same as the input energy","It is the useful output"], a:1 },
-        { q:"Choosing the more efficient of two motors is good engineering because the efficient motor", o:["is always cheaper to buy","wastes less energy, lowering running costs","never needs maintenance","produces more input energy"], a:1 }
+        { q:"Which of these is NOT one of the four forms of energy used in National 5 calculations?", o:["kinetic","potential","chemical","heat"], a:2, f:["Kinetic energy is one of them: Ek = ½mv². Look for the form with no relationship on the data sheet.", "Potential energy is one of them: Ep = mgh. Which form has no relationship on the data sheet?", "Right. The four with relationships are kinetic, potential, electrical and heat. Chemical energy is not calculated at National 5.", "Heat is one of them: Eh = cmΔT. Which form has no relationship on the data sheet?"] },
+        { q:"An electric motor turns electrical energy mainly into", o:["chemical energy","kinetic energy","light energy","sound energy"], a:1, f:["Chemical energy is stored in fuels and batteries. A motor's job is to make something move.", "Right. A motor turns electrical energy into movement, kinetic energy. Some is wasted as heat and sound.", "A motor does not light up. Think about what its useful output does: it turns a shaft.", "Sound is one of the wasted outputs, not the main useful one. What does a motor make happen?"] },
+        { q:"A system is given 1000 J and produces 600 J of useful energy. The wasted energy is", o:["400 J","600 J","1600 J","1000 J"], a:0, f:["Right. Wasted = input − useful = 1000 − 600 = 400 J.", "600 J is the useful energy. The wasted energy is what is left of the input.", "1600 J adds the two together. Energy can't be created, so the outputs can't add up to more than the input.", "1000 J is all of the input. Some of it became useful, so less than that is wasted."] },
+        { q:"Before using Ee = V I t, a time of 3 minutes must be entered as", o:["3 s","30 s","180 s","300 s"], a:2, f:["Time in Ee = VIt must be in seconds, and 3 minutes is far more than 3 seconds.", "Check the conversion: there are 60 seconds in a minute, not 10.", "Right. 3 × 60 = 180 s.", "300 s is 5 minutes. Multiply the minutes by 60."] },
+        { q:"In Ek = ½ m v², a mass of 4 kg at 3 m/s gives a kinetic energy of", o:["6 J","12 J","18 J","36 J"], a:2, f:["6 J is ½ × 4 × 3: the speed has not been squared.", "12 J is 4 × 3. Square the speed, and remember the ½.", "Right. Ek = ½ × 4 × 3² = ½ × 4 × 9 = 18 J.", "36 J is 4 × 9: the ½ has been missed out."] },
+        { q:"A kettle heats water from 20 °C to 70 °C. The value of ΔT to use is", o:["20 °C","50 °C","70 °C","90 °C"], a:1, f:["20 °C is the starting temperature. ΔT is the change.", "Right. ΔT is the change in temperature: 70 − 20 = 50 °C.", "70 °C is the final temperature. ΔT is how much it changed by.", "90 °C adds the two temperatures. ΔT is the difference between them."] },
+        { q:"A motor transfers 12 000 J in 20 s. Its power is", o:["240 000 W","600 W","6000 W","60 W"], a:1, f:["240 000 multiplies the energy by the time. Power is energy ÷ time.", "Right. P = E ÷ t = 12 000 ÷ 20 = 600 W.", "Check the division: 12 000 ÷ 20 is ten times smaller than that.", "Check the division: 12 000 ÷ 20 is ten times bigger than that."] },
+        { q:"A heater uses 2000 J and produces 1500 J of useful heat. Its percentage efficiency is", o:["133%","75%","50%","25%"], a:1, f:["133% is input ÷ output. Efficiency is useful out ÷ total in, so it can never be over 100%.", "Right. η = (1500 ÷ 2000) × 100 = 75%.", "Check the division: 1500 is more than half of 2000.", "25% is the wasted share (500 J of the 2000 J). Efficiency uses the useful output."] },
+        { q:"Which statement about wasted energy is correct?", o:["It is destroyed by the system","It is usually transferred as heat and sound","It is the same as the input energy","It is the useful output"], a:1, f:["Energy can't be destroyed. Wasted energy still exists; it has gone into forms we can't use.", "Right. Wasted energy is usually transferred to the surroundings as heat and sound.", "The input is useful and wasted together, so the wasted part is only some of it.", "Useful and wasted are opposites: wasted is the part we don't want."] },
+        { q:"Choosing the more efficient of two motors is good engineering because the efficient motor", o:["is always cheaper to buy","wastes less energy, lowering running costs","never needs maintenance","produces more input energy"], a:1, f:["An efficient motor can cost more to buy. The saving comes later, every time it runs.", "Right. It wastes less, so it needs less input energy for the same job, which lowers running costs.", "Efficiency is about energy, not repairs. Every motor needs maintenance.", "No motor can produce its own input energy. Think about what happens to the wasted share."] }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -1260,6 +1337,7 @@ title: Energy & Efficiency — National 5 Engineering Science
             var oi=parseInt(chosen.value,10);
             if(oi===item.a) score++;
             else { var wr=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); wr.classList.add("wrong"); addNote(wr, "✗ your answer"); }
+            if(item.f){ var picked=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); var why=document.createElement("span"); why.className="mark-note opt-why"; why.textContent=item.f[oi]; picked.appendChild(why); }
           }
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
@@ -1462,95 +1540,178 @@ title: Energy & Efficiency — National 5 Engineering Science
   })();
   </script>
 
-  <!-- WP-2 — live efficiency + Sankey -->
+  <!-- Energy-balance and efficiency simulators (WidgetKit: liveSim, poeCard) -->
   <script>
   document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
-    var root = document.getElementById("effSim");
-    if(!root) return;
+    var K = window.WidgetKit;
+    if(!K) return;
     var $ = function(id){ return document.getElementById(id); };
-    var lastEff = 0;
-    /* a fresh target each visit, so the task can be repeated */
-    var TARGET = [40, 50, 60, 70, 75, 80][Math.floor(Math.random() * 6)];
-    var tEl = $("eff-target"); if(tEl) tEl.textContent = TARGET + "%";
-
-    function render(s){
-      var Ein = Math.max(1, s.Ein);
-      var useful = Math.min(s.Eout, Ein);
-      var wasted = Ein - useful;
-      var eff = useful / Ein * 100;
-      lastEff = eff;
-      $("eff-pct").textContent = eff.toFixed(0) + "%";
-      $("eff-useful").style.width = eff.toFixed(1) + "%";
-      $("eff-wasted").style.width = (100 - eff).toFixed(1) + "%";
-      $("eff-useful").textContent = eff >= 18 ? "useful " + eff.toFixed(0) + "%" : "";
-      $("eff-wasted").textContent = (100 - eff) >= 18 ? "wasted " + (100 - eff).toFixed(0) + "%" : "";
-      var capped = s.Eout > Ein
-        ? " — the useful output cannot beat the input, so it is held at " + Ein + " J"
-        : "";
-      $("eff-desc").textContent = "Useful " + useful + " J · wasted " + wasted + " J · " + eff.toFixed(0) + "% efficient" + capped;
+    var seen = false;
+    function touched(){
+      if(seen) return;
+      seen = true;
+      if(window.Progress && Progress.markSeen) Progress.markSeen("eng-energy");
+    }
+    function n(x){ return Math.round(x * 10) / 10; }
+    function txt(x, y, cls, s, anchor){
+      return '<text class="' + cls + '" x="' + n(x) + '" y="' + n(y) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : "") + ">" + s + "</text>";
     }
 
-    window.WidgetKit.liveSim(root, { render: render });
-
-    var fb = $("eff-fb");
-    $("eff-check").addEventListener("click", function(){
-      if(Math.abs(lastEff - TARGET) <= 2){
-        fb.className = "kit-fb ok";
-        fb.textContent = "✓ " + lastEff.toFixed(0) + "% — that's " + TARGET + "% efficient: " + TARGET +
-          "% of the input becomes useful energy and " + (100 - TARGET) + "% is wasted, usually as heat and sound.";
-        if(window.Progress) Progress.complete("ch-efficiency-target");
-      } else {
-        fb.className = "kit-fb no";
-        fb.textContent = "✗ " + lastEff.toFixed(0) + "% — aim for " + TARGET +
-          "%. Efficiency = useful ÷ input × 100, so the useful output must be " + (TARGET / 100).toFixed(2) + " × the input.";
-        if(window.Progress) Progress.miss();
+    /* A Sankey diagram: every band is as wide as its energy (0.08 px per joule). */
+    var WIDE = { W: 600, k: 0.08, x0: 40, bx0: 190, bx1: 270, ux1: 470, tip: 500, cx: 300, r0: 12, b0: 90, b1: 570, lab: 64 };
+    var NARROW = { W: 360, k: 0.06, x0: 12, bx0: 88, bx1: 150, ux1: 290, tip: 314, cx: 166, r0: 10, b0: 62, b1: 328, lab: 104 };
+    function layout(svg, h){
+      var L = (svg.parentNode.clientWidth || 600) < 480 ? NARROW : WIDE;
+      svg.setAttribute("viewBox", "0 0 " + L.W + " " + h);
+      svg.classList.toggle("narrow", L === NARROW);
+      return L;
+    }
+    function sankey(L, Ein, Eu, Ew){
+      var k = L.k, y0 = 52, x0 = L.x0, bx0 = L.bx0, bx1 = L.bx1, ux1 = L.ux1, tip = L.tip, cx = L.cx, r0 = L.r0, yEnd = 246;
+      var hi = Ein * k, hu = Eu * k, hw = Ew * k, out = "";
+      var bh = Math.max(44, hi, hu + hw) + 16;
+      out += '<rect class="s-in" x="' + x0 + '" y="' + y0 + '" width="' + (bx0 - x0) + '" height="' + n(Math.max(hi, 0.5)) + '"/>';
+      if(hu > 0.5){
+        out += '<path class="s-use" d="M' + bx1 + " " + y0 + "H" + ux1 + "V" + n(y0 - 6) + "L" + tip + " " + n(y0 + hu / 2) +
+          "L" + ux1 + " " + n(y0 + hu + 6) + "V" + n(y0 + hu) + "H" + bx1 + 'Z"/>';
       }
-    });
-  });
-  </script>
-
-  <!-- WP-10 — live energy-balance model -->
-  <script>
-  document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
-    var root = document.getElementById("balSim");
-    if(!root) return;
-    var $ = function(id){ return document.getElementById(id); };
-    var INPUT = 1000, SCALE = 1500, lastTotal = 0, lastWasted = 0;
-
-    function render(s){
-      var Eu = s.Eu, Ew = s.Ew, total = Eu + Ew;
-      lastTotal = total; lastWasted = Ew;
-      $("bal-useful").style.width = (Eu / SCALE * 100).toFixed(1) + "%";
-      $("bal-wasted").style.width = (Ew / SCALE * 100).toFixed(1) + "%";
-      $("bal-useful").textContent = Eu >= 250 ? "useful " + Eu : "";
-      $("bal-wasted").textContent = Ew >= 250 ? "wasted " + Ew : "";
-      var st = $("bal-status");
-      if(total === INPUT && Ew === 0){ st.className = "bal-status off"; st.textContent = "The outputs add up — but a system that wastes nothing would be 100% efficient, and none are."; }
-      else if(total === INPUT){ st.className = "bal-status ok"; st.textContent = "✓ Balanced — the outputs add up to the 1000 J input. Efficiency = " + Math.round(Eu / INPUT * 100) + "%."; }
-      else if(total < INPUT){ st.className = "bal-status off"; st.textContent = "Total out " + total + " J — short by " + (INPUT - total) + " J. Energy can't vanish; where does the rest go?"; }
-      else { st.className = "bal-status off"; st.textContent = "Total out " + total + " J — over by " + (total - INPUT) + " J. Energy can't be created."; }
+      if(hw > 0.5){
+        var a = y0 + hu, R = hw + r0, vx = cx + r0;
+        out += '<path class="s-waste" d="M' + bx1 + " " + n(a) + "H" + cx + "A" + n(R) + " " + n(R) + " 0 0 1 " + n(vx + hw) + " " + n(a + R) +
+          "V" + yEnd + "H" + n(vx + hw + 6) + "L" + n(vx + hw / 2) + " " + (yEnd + 22) + "L" + n(vx - 6) + " " + yEnd + "H" + vx +
+          "V" + n(a + R) + "A" + r0 + " " + r0 + " 0 0 0 " + cx + " " + n(a + hw) + "H" + bx1 + 'Z"/>';
+        out += txt(vx + hw + 12, (a + R + yEnd) / 2 + 2, "t-waste", "wasted " + Ew + " J");
+      }
+      out += '<rect class="body" x="' + bx0 + '" y="' + (y0 - 8) + '" width="' + (bx1 - bx0) + '" height="' + n(bh) + '" rx="6"/>';
+      out += txt((bx0 + bx1) / 2, y0 - 8 + bh / 2 + 5, "", "device", "middle");
+      out += txt((x0 + bx0) / 2, y0 - 16, "", "input " + Ein + " J", "middle");
+      out += txt((bx1 + tip) / 2 + 10, y0 - 16, "t-use", "useful " + Eu + " J", "middle");
+      return out;
+    }
+    /* a horizontal bar made of a useful (green) and a wasted (red) part */
+    function stack(x, y, h, wu, ww, lu, lw, min){
+      var out = "";
+      if(wu > 0.5) out += '<rect class="s-use" x="' + n(x) + '" y="' + y + '" width="' + n(wu) + '" height="' + h + '"/>';
+      if(ww > 0.5) out += '<rect class="s-waste" x="' + n(x + wu) + '" y="' + y + '" width="' + n(ww) + '" height="' + h + '"/>';
+      if(lu && wu >= min) out += txt(x + wu / 2, y + h / 2 + 5, "on-band", lu, "middle");
+      if(lw && ww >= min) out += txt(x + wu + ww / 2, y + h / 2 + 5, "on-band", lw, "middle");
+      return out;
+    }
+    function axis(x0, x1, y, ticks, unitLabel){
+      var out = '<path class="w thin" d="M' + x0 + " " + y + "H" + x1 + '"/>';
+      ticks.forEach(function(t){
+        var x = x0 + (x1 - x0) * t[0];
+        out += '<path class="w thin" d="M' + n(x) + " " + y + "v6" + '"/>' + txt(x, y + 22, "small", t[1], "middle");
+      });
+      return out + txt((x0 + x1) / 2, y + 42, "", unitLabel, "middle");
     }
 
-    window.WidgetKit.liveSim(root, { render: render });
-
-    var fb = $("bal-fb");
-    $("bal-check").addEventListener("click", function(){
-      if(lastTotal === INPUT && lastWasted === 0){
-        fb.className = "kit-fb no";
-        fb.textContent = "The numbers add up — but nothing is wasted, and no real system manages that. Friction and warm components always take a share. Give the waste some energy and balance it again.";
-        if(window.Progress) Progress.miss();
-      } else if(lastTotal === INPUT){
-        fb.className = "kit-fb ok";
-        fb.textContent = "✓ Useful + wasted = 1000 J = the input. That's conservation of energy: every joule in is accounted for.";
-        if(window.Progress) Progress.complete("ch-energy-balance");
-      } else {
-        fb.className = "kit-fb no";
-        fb.textContent = "✗ The outputs add up to " + lastTotal + " J, not 1000 J. Adjust them so useful + wasted = the input exactly.";
-        if(window.Progress) Progress.miss();
+    /* ---------- energy balance ---------- */
+    (function(){
+      var root = $("balSim");
+      if(!root) return;
+      var INPUT = 1000, svg = $("balDraw"), lastTotal = 0, lastWasted = 0, lastKey = null;
+      function render(s){
+        var Eu = s.Eu, Ew = s.Ew, total = Eu + Ew;
+        lastTotal = total; lastWasted = Ew;
+        var L = layout(svg, 402);
+        svg.querySelector("[data-sankey]").innerHTML = sankey(L, INPUT, Eu, Ew);
+        var x0 = L.b0, x1 = L.b1, kx = (x1 - x0) / 2000, b = "";
+        b += txt(x0 - 10, 310, "", "in", "end") + '<rect class="s-in" x="' + x0 + '" y="294" width="' + n(INPUT * kx) + '" height="22"/>';
+        b += txt(x0 - 10, 340, "", "out", "end") + stack(x0, 324, 22, Eu * kx, Ew * kx, "", "", 0);
+        b += '<path class="mark" d="M' + n(x0 + INPUT * kx) + ' 286V352"/>';
+        b += axis(x0, x1, 352, [[0, "0"], [0.25, "500"], [0.5, "1000"], [0.75, "1500"], [1, "2000"]], "energy (J)");
+        svg.querySelector("[data-balance]").innerHTML = b;
+        svg.setAttribute("aria-label", "Energy diagram: 1000 joules in, " + Eu + " joules useful out and " + Ew + " joules wasted out, " + total + " joules out in total.");
+        $("bal-u").textContent = Eu + " J";
+        $("bal-w").textContent = Ew + " J";
+        $("bal-t").textContent = total + " J";
+        var st = $("bal-status");
+        if(total === INPUT && Ew === 0){ st.className = "bal-status off"; st.textContent = "The outputs add up, but a system that wastes nothing would be 100% efficient, and none are."; }
+        else if(total === INPUT){ st.className = "bal-status ok"; st.textContent = "✓ Balanced: the outputs add up to the 1000 J input. Efficiency = " + Math.round(Eu / INPUT * 100) + "%."; }
+        else if(total < INPUT){ st.className = "bal-status off"; st.textContent = "Total out " + total + " J, short by " + (INPUT - total) + " J. Energy can't vanish: where does the rest go?"; }
+        else { st.className = "bal-status off"; st.textContent = "Total out " + total + " J, over by " + (total - INPUT) + " J. Energy can't be created."; }
+        var key = Eu + "," + Ew;
+        if(lastKey !== null && key !== lastKey) touched();
+        lastKey = key;
       }
-    });
+      var sim = K.liveSim(root, { render: render });
+      if(window.ResizeObserver) new ResizeObserver(function(){ sim.refresh(); }).observe(svg.parentNode);
+      K.poeCard($("balPredict"), {
+        answer: "300",
+        onPredict: function(){ touched(); root.querySelector("#balPredict .sim-try").hidden = false; }
+      });
+      $("bal-try").addEventListener("click", function(){ sim.set("Eu", 700); });
+
+      var fb = $("bal-fb");
+      $("bal-check").addEventListener("click", function(){
+        if(lastTotal === INPUT && lastWasted === 0){
+          fb.className = "kit-fb no";
+          fb.textContent = "The numbers add up, but nothing is wasted, and no real system manages that. Friction and warm components always take a share. Give the waste some energy and balance it again.";
+          if(window.Progress) Progress.miss();
+        } else if(lastTotal === INPUT){
+          fb.className = "kit-fb ok";
+          fb.textContent = "✓ Useful + wasted = 1000 J = the input. That's conservation of energy: every joule in is accounted for.";
+          if(window.Progress) Progress.complete("ch-energy-balance");
+        } else {
+          fb.className = "kit-fb no";
+          fb.textContent = "✗ The outputs add up to " + lastTotal + " J, not 1000 J. Adjust them so useful + wasted = the input exactly.";
+          if(window.Progress) Progress.miss();
+        }
+      });
+    })();
+
+    /* ---------- efficiency ---------- */
+    (function(){
+      var root = $("effSim");
+      if(!root) return;
+      var svg = $("effDraw"), lastEff = 0, lastKey = null;
+      /* a fresh target each visit, so the task can be repeated */
+      var TARGET = [40, 50, 60, 70, 75, 80][Math.floor(Math.random() * 6)];
+      var tEl = $("eff-target"); if(tEl) tEl.textContent = TARGET + "%";
+
+      function render(s){
+        var Ein = Math.max(1, s.Ein);
+        var useful = Math.min(s.Eout, Ein), wasted = Ein - useful, eff = useful / Ein * 100;
+        lastEff = eff;
+        var L = layout(svg, 368);
+        svg.querySelector("[data-sankey]").innerHTML = sankey(L, Ein, useful, wasted);
+        var x0 = L.b0, x1 = L.b1, w = x1 - x0, b = "";
+        b += txt(x0 - 10, 310, "", "share", "end") + stack(x0, 292, 26, w * eff / 100, w * (100 - eff) / 100, "useful " + K.fmt(eff, 2) + "%", "wasted " + K.fmt(100 - eff, 2) + "%", L.lab);
+        b += axis(x0, x1, 318, [[0, "0"], [0.25, "25"], [0.5, "50"], [0.75, "75"], [1, "100"]], "percentage of the input (%)");
+        svg.querySelector("[data-share]").innerHTML = b;
+        svg.setAttribute("aria-label", "Energy diagram: " + Ein + " joules in, " + useful + " joules useful and " + wasted + " joules wasted. Efficiency " + K.fmt(eff, 2) + " percent.");
+        $("eff-pct").textContent = Math.round(eff) + "%";
+        $("eff-w").textContent = wasted + " J";
+        $("eff-work").innerHTML = "<var>η</var> = <var>E</var><sub>out</sub> ÷ <var>E</var><sub>in</sub> × 100 = " + useful + " ÷ " + Ein + " × 100 = " + Math.round(eff) + "%";
+        $("eff-desc").textContent = s.Eout > Ein ? "The useful output can't beat the input, so it is held at " + Ein + " J." : "";
+        var key = s.Ein + "," + s.Eout;
+        if(lastKey !== null && key !== lastKey) touched();
+        lastKey = key;
+      }
+      var sim = K.liveSim(root, { render: render });
+      if(window.ResizeObserver) new ResizeObserver(function(){ sim.refresh(); }).observe(svg.parentNode);
+      K.poeCard($("effPredict"), {
+        answer: "down",
+        onPredict: function(){ touched(); root.querySelector("#effPredict .sim-try").hidden = false; }
+      });
+      $("eff-try").addEventListener("click", function(){ sim.set("Ein", 1000); });
+
+      var fb = $("eff-fb");
+      $("eff-check").addEventListener("click", function(){
+        if(Math.abs(lastEff - TARGET) <= 2){
+          fb.className = "kit-fb ok";
+          fb.textContent = "✓ " + Math.round(lastEff) + "%. That's " + TARGET + "% efficient: " + TARGET +
+            "% of the input becomes useful energy and " + (100 - TARGET) + "% is wasted, usually as heat and sound.";
+          if(window.Progress) Progress.complete("ch-efficiency-target");
+        } else {
+          fb.className = "kit-fb no";
+          fb.textContent = "✗ " + Math.round(lastEff) + "%. Aim for " + TARGET +
+            "%. Efficiency = useful ÷ input × 100, so the useful output must be " + (TARGET / 100).toFixed(2) + " × the input.";
+          if(window.Progress) Progress.miss();
+        }
+      });
+    })();
   });
   </script>
 
