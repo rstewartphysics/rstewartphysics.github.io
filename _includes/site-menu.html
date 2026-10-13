@@ -21,7 +21,8 @@
 
 {% comment %}
 Drawer copies of marks from the subject sprites (atom, logic, gears, chat, doc) and
-resource-icons.html (folder, book, slides, quiz), plus the drawer's own home mark. They carry
+resource-icons.html (folder, book, slides, quiz, notes, paper), plus the drawer's own home and
+search marks. They carry
 their own smi- ids because a page that also includes those sprites would otherwise have two
 elements with the same id.
 {% endcomment %}
@@ -77,11 +78,20 @@ elements with the same id.
       <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round" d="M14 17 l3 3 6 -6 M14 30 l3 3 6 -6"/>
       <path style="fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round" d="M28 17 H34 M28 30 H34"/>
     </symbol>
-    <symbol id="smi-papers" viewBox="0 0 48 48">
+    <symbol id="smi-notes" viewBox="0 0 48 48">
+      <path style="fill:none;stroke:currentColor;stroke-width:2.6;stroke-linejoin:round" d="M11 5 H29 L37 13 V43 H11 Z"/>
+      <path style="fill:none;stroke:currentColor;stroke-width:2.6;stroke-linejoin:round" d="M29 5 V13 H37"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.4;stroke-linecap:round" d="M17 23 H31 M17 30 H31 M17 37 H25"/>
+    </symbol>
+    <symbol id="smi-paper" viewBox="0 0 48 48">
       <path style="fill:none;stroke:currentColor;stroke-width:2.4;stroke-linejoin:round" d="M8 4 H26 L34 12 V36 H8 Z"/>
       <path style="fill:none;stroke:currentColor;stroke-width:2.4;stroke-linejoin:round" d="M26 4 V12 H34"/>
       <path style="fill:none;stroke:var(--ic-accent);stroke-width:2.4;stroke-linejoin:round" d="M14 40 V44 H40 V16 H36"/>
       <path style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round" d="M14 20 H26 M14 27 H26"/>
+    </symbol>
+    <symbol id="smi-search" viewBox="0 0 48 48">
+      <circle style="fill:none;stroke:currentColor;stroke-width:3.4" cx="20" cy="20" r="12"/>
+      <path style="fill:none;stroke:var(--ic-accent);stroke-width:4.4;stroke-linecap:round" d="M29 29 L41 41"/>
     </symbol>
   </defs>
 </svg>
@@ -111,6 +121,42 @@ elements with the same id.
       ×
     </button>
   </div>
+
+  {% comment %}
+  Site search. Typing swaps the folders below for results; the index (Pagefind, built by
+  scripts/build-search.mjs) and site-search.js load only when the box is first used. Recent
+  searches and the chosen course stay on the device.
+  {% endcomment %}
+  <form class="site-search" id="siteSearch" role="search" aria-label="Search the site" action="#" novalidate>
+    <label class="site-search-label" for="siteSearchInput">Search the site</label>
+    <div class="site-search-field">
+      <svg class="site-search-glass" aria-hidden="true" focusable="false"><use href="#smi-search"/></svg>
+      <input class="site-search-input" id="siteSearchInput" type="search" name="q"
+             placeholder="Search the site" autocomplete="off" autocorrect="off" autocapitalize="off"
+             spellcheck="false" enterkeyhint="search" aria-describedby="siteSearchStatus">
+    </div>
+    <div class="site-search-recent" id="siteSearchRecent" hidden>
+      <div class="site-search-recent-head">
+        <span id="siteSearchRecentLabel">Recent searches</span>
+        <button class="site-search-text-btn" id="siteSearchRecentClear" type="button" aria-label="Clear recent searches">Clear</button>
+      </div>
+      <ul class="site-search-recent-list" aria-labelledby="siteSearchRecentLabel"></ul>
+    </div>
+    <div class="site-search-panel" id="siteSearchPanel" hidden>
+      <div class="site-search-chips" role="group" aria-label="Show results from">
+        <button class="site-search-chip" type="button" data-course="" aria-pressed="true">All</button>
+        <button class="site-search-chip" type="button" data-course="s3" aria-pressed="false" aria-label="S3 only">S3</button>
+        <button class="site-search-chip" type="button" data-course="n5" aria-pressed="false" aria-label="National 5 only">N5</button>
+        <button class="site-search-chip" type="button" data-course="higher" aria-pressed="false" aria-label="Higher only">Higher</button>
+        <button class="site-search-chip" type="button" data-course="ah" aria-pressed="false" aria-label="Advanced Higher only">AH</button>
+        <button class="site-search-chip" type="button" data-course="electronics" aria-pressed="false" aria-label="Electronics only">Electronics</button>
+        <button class="site-search-chip" type="button" data-course="engineering" aria-pressed="false" aria-label="Engineering Science only">Engineering</button>
+      </div>
+      <ul class="site-search-results" id="siteSearchResults" aria-label="Search results"></ul>
+      <button class="site-search-more" id="siteSearchMore" type="button" hidden>Show more results</button>
+    </div>
+    <p class="site-search-status" id="siteSearchStatus" role="status"></p>
+  </form>
 
   {% comment %}
   Every subject is a group: tap its row to open it. Inside a group, a level with more than its
@@ -150,7 +196,7 @@ elements with the same id.
               <a href="/classes/higher/topics.html"><svg aria-hidden="true" focusable="false"><use href="#smi-topics"/></svg>Topic pages</a>
               <a href="/classes/higher/slides.html"><svg aria-hidden="true" focusable="false"><use href="#smi-slides"/></svg>Slides</a>
               <a href="/classes/higher/practice-tests.html"><svg aria-hidden="true" focusable="false"><use href="#smi-tests"/></svg>Practice tests</a>
-              <a href="/classes/higher/past-papers.html"><svg aria-hidden="true" focusable="false"><use href="#smi-papers"/></svg>Past papers</a>
+              <a href="/classes/higher/past-papers.html"><svg aria-hidden="true" focusable="false"><use href="#smi-paper"/></svg>Past papers</a>
             </div>
           </details>
         </div>

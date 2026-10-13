@@ -33,6 +33,9 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
 
 - **PhET Interactive Simulations**, University of Colorado Boulder — embedded under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). <https://phet.colorado.edu>
+- **Pagefind** (© Pagefind) — the site search index and the search code it serves, used under
+  the [MIT licence](https://github.com/Pagefind/pagefind/blob/main/LICENSE) (added 12 October 2026).
+  <https://pagefind.app>
 - **Photographs under open licences** (added 15 September 2026) — real-life applications in the
   Higher Physics *Semiconductors & p-n Junctions* slides (`classes/higher/slides/h-e5-semiconductors-pn-junctions.pdf`),
   each credited on the slide it appears on. Resized to fit; not otherwise changed.

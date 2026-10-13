@@ -24,6 +24,10 @@ files are the nav components and the two shared stylesheets (Engineering Science
 _includes/site-menu.html              — nav drawer markup (every page includes it)
 assets/css/site-menu.css              — nav drawer styles (every page links it)
 assets/js/site-menu.js                — nav drawer behaviour (every page links it)
+assets/js/site-search.js              — drawer search, loaded by site-menu.js on first use
+scripts/build-search.mjs              — builds the search index after Jekyll (`npm run search`)
+_data/search.yml, search-synonyms.yml — pages left out of search; pupils' words → site words
+.github/workflows/pages.yml           — builds, indexes and deploys the site (GitHub Actions)
 assets/css/engineering-science.css    — shared sheet for all Engineering Science pages
 assets/css/higher-physics.css         — shared sheet for Higher hub + topic pages
 classes/                              — all subject pages
@@ -194,6 +198,33 @@ add the link to its list). Groups share `name="site-menu-group"` and level lists
 copies of `resource-icons.html` marks under `smi-` ids, so a page that includes both sprites has no
 duplicate ids. Group and level arrows are one glyph, size and colour (`--menu-muted`); the level
 toggle's divider is a short faint line, not a full-height wall.
+
+### Site search (12 Oct 2026)
+A search box sits under the drawer header on every page (it is part of the include, so a page adds
+nothing). Typing hides the folders and lists results; Esc empties the box first, then closes the
+menu; closing the menu clears it. Chips filter by S3 / N5 / Higher / AH / Electronics /
+Engineering. Each result shows a drawn mark for its type, the title, its course in the subject
+colour and a line of matching text — the course/type line and the excerpt are 16px, the one
+exception to the drawer's 18px. **Recent searches (last 5) and the chosen chip stay on the device**
+(`site-search-recent-v1`, `site-search-course-v1`); nothing about a search is sent anywhere.
+
+**How it is built.** Pagefind (MIT, credited) indexes the finished `_site` in GitHub Actions after
+`jekyll build`, into `/pagefind/`, split so a search downloads only what it needs.
+`scripts/build-search.mjs` decides what goes in:
+- **Pages:** every Jekyll page, indexed from its `<main>` only. Answers (`.reveal`, `#answers`),
+  quiz feedback, SVG labels, nav, footer and buttons are left out (`EXCLUDE_SELECTORS`).
+- **Left out:** `search: false` or `sitemap: false` in front matter, a robots `noindex`, a redirect,
+  or a pattern in `_data/search.yml` (teacher views, placeholders, alpha/beta tools, `/assets/`).
+- **PDFs:** only PDFs a searchable page links to, each its own result, named from the link
+  (a card's `.deck-name`/`.tile-name`/`.tile-title` first). A vague name ("the booklet") gets
+  the page's title in front. Credits-page links don't count.
+- **Course and type come from the URL** (`COURSES` and `typeOf()` in the script). A page in an
+  existing folder needs nothing; **a new course folder needs one line in `COURSES`.**
+- **Titles** are the front-matter `title` (or `search_title`), minus a course part like
+  "— Higher Physics", which the result's label already shows. `search_keywords:` in front matter
+  adds extra words a page should be found by.
+- **Synonyms:** `_data/search-synonyms.yml` (`ohms law: resistance`). Add a line when pupils use a
+  word the site doesn't.
 
 ### Accent colouring
 Pages set `--page-accent` or `--menu-accent` in their own `:root`; the menu CSS reads
@@ -786,6 +817,13 @@ started**.
 
 To build/preview locally the repo uses **chruby** (system Ruby is too old):
 `source /opt/homebrew/opt/chruby/share/chruby/chruby.sh && chruby ruby-3.3.11 && bundle exec jekyll build`.
+For search in the preview, run `npm install` once, then `npm run search` after each build and serve
+`_site` (e.g. `npx pagefind --site _site --serve`, or any static server). Plain `jekyll serve`
+works without it; the search box then says the index isn't built.
+
+**Deploying.** The live site is built by `.github/workflows/pages.yml` (Settings → Pages → Source:
+GitHub Actions), not the classic branch build, because the search index is built after Jekyll.
+Pull requests build and index too, so a failure shows before merge; only `main` deploys.
 
 ---
 
