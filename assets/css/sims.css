@@ -1,0 +1,214 @@
+/* ============================================================
+   sims.css — the shared simulator component (site standard, Oct 2026)
+
+   One component, every subject's palette: it reads only the tokens every
+   subject sheet already defines (--accent, --accent-2, --text, --muted,
+   --border, --border-strong, --card, --surface-2, --warm, --focus-ring),
+   so link it after the subject sheet and it themes itself in both
+   appearances.  Behaviour lives in /assets/js/widget-kit.js.
+
+   Layout rule (CLAUDE.md "Simulations"): a simulator's controls, picture
+   and graph fit one landscape tablet screen, 1180 × 760, with the
+   controls BESIDE the picture, never below it.
+
+     <div class="sim" id="…">
+       <div class="sim-head"><h3>…</h3><p class="sim-hint">…</p></div>
+       <div class="sim-predict">…</div>              optional, first
+       <div class="sim-stage">
+         <div class="sim-view">figures, graph, readouts</div>
+         <div class="sim-controls">
+           <label class="sim-field">
+             <span class="sim-name">Resistance <var>R</var><sub>1</sub> (kΩ)</span>
+             <span class="sim-row"><input type="range" data-sim="r1" …>
+               <input class="sim-num" type="number" data-sim="r1" …></span>
+           </label>
+           <div class="sim-seg" role="group" aria-label="Presets">buttons</div>
+         </div>
+       </div>
+     </div>
+   ============================================================ */
+
+.sim {
+  --sim-ink: var(--sim-accent-ink, var(--accent-2));
+  --sim-c1: var(--accent);
+  --sim-c2: var(--warm, #c2410c);
+  --sim-c3: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  padding: 14px 16px 16px;
+  margin: 1rem 0;
+  color: var(--text);
+}
+.sim-head h3 { margin: 0 0 .25rem; font-size: 1.12rem; font-weight: 900; line-height: 1.3; }
+.sim-hint { margin: 0 0 .6rem; color: var(--muted); font-weight: 800; font-size: .95rem; line-height: 1.45; }
+
+/* ---------- stage: picture left, controls right ---------- */
+.sim-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 272px;
+  gap: 14px 18px;
+  align-items: start;
+}
+.sim-view { min-width: 0; display: grid; gap: 10px; }
+.sim-figs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+.sim-figs > * { min-width: 0; }
+.sim-fig {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  padding: 6px;
+}
+.sim-fig svg { display: block; width: 100%; height: auto; }
+.sim-fig figcaption { font-size: .85rem; font-weight: 800; color: var(--muted); padding: 2px 4px 0; line-height: 1.35; }
+
+.sim-controls { display: grid; gap: 10px; align-content: start; }
+@media (max-width: 820px) {
+  .sim-stage { grid-template-columns: minmax(0, 1fr); }
+  .sim-figs { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- a slider and its number box ----------
+   The field is a block, not a flex column: a flex column makes every
+   text run, <var> and <sub> in the name its own line ("R" / "1" / "(kΩ)"). */
+.sim-field { display: block; margin: 0; }
+.sim-name { display: block; font-weight: 900; font-size: .92rem; color: var(--muted); line-height: 1.3; margin-bottom: 2px; }
+.sim-name var { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.12em; color: var(--text); }
+.sim-row { display: flex; align-items: center; gap: 8px; }
+.sim-row input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--accent);
+  background: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.sim-num {
+  width: 6.2em;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font: 800 1rem/1.2 var(--font-stack, "Trebuchet MS", "Segoe UI", system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+}
+.sim-unit { font-weight: 800; color: var(--muted); font-size: .9rem; }
+
+/* ---------- segmented buttons (presets, modes, speed) ---------- */
+.sim-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.sim-seg-label { display: block; width: 100%; font-weight: 900; font-size: .85rem; color: var(--muted); }
+.sim-btn,
+.sim-seg button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font: 800 .92rem/1.2 var(--font-stack, "Trebuchet MS", "Segoe UI", system-ui, sans-serif);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.sim-seg button[aria-pressed="true"] {
+  background: var(--surface-2);
+  border-color: var(--sim-ink);
+  color: var(--sim-ink);
+  box-shadow: inset 0 0 0 1px var(--sim-ink);
+}
+.sim-btn:hover, .sim-seg button:hover { border-color: var(--sim-ink); }
+.sim-btn:focus-visible, .sim-seg button:focus-visible,
+.sim-row input:focus-visible, .sim-num:focus-visible,
+.sim-predict button:focus-visible {
+  outline: var(--focus-ring, 3px solid var(--accent));
+  outline-offset: var(--focus-offset, 2px);
+}
+
+/* ---------- readouts ---------- */
+.sim-readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 8px;
+}
+.sim-out {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px 10px;
+  background: var(--surface-2);
+}
+.sim-out .k { display: block; font-size: .82rem; font-weight: 900; color: var(--muted); line-height: 1.3; }
+.sim-out .k var { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.12em; }
+.sim-out .v { display: block; font-size: 1.15rem; font-weight: 900; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.3; }
+.sim-out.is-key .v { color: var(--sim-ink); }
+.sim-note { margin: 0; font-size: .9rem; font-weight: 800; color: var(--muted); line-height: 1.45; }
+.sim-working {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 4px solid var(--sim-ink);
+  background: var(--surface-2);
+  border-radius: 0 10px 10px 0;
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* ---------- predict first ---------- */
+.sim-predict {
+  border: 2px dashed var(--border-strong, var(--border));
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin: 0 0 12px;
+  background: var(--surface-2);
+}
+.sim-predict .sim-q { margin: 0 0 8px; font-weight: 900; line-height: 1.45; }
+.sim-predict .sim-q b:first-child { color: var(--sim-ink); }
+.sim-predict .sim-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.sim-predict button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font: 800 .95rem/1.2 var(--font-stack, "Trebuchet MS", "Segoe UI", system-ui, sans-serif);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.sim-predict button[aria-pressed="true"] { border-color: var(--sim-ink); color: var(--sim-ink); box-shadow: inset 0 0 0 1px var(--sim-ink); }
+.sim-predict [data-reveal] { margin: 10px 0 0; line-height: 1.5; }
+.sim-predict [data-reveal] p { margin: 0 0 .35rem; }
+.sim-predict [data-reveal] p:last-child { margin-bottom: 0; }
+
+/* ---------- graphs drawn by WidgetKit.graph ---------- */
+.sim-graph svg, svg.sim-graph { display: block; width: 100%; height: auto; overflow: visible; }
+.kg { font-family: var(--font-stack, "Trebuchet MS", "Segoe UI", system-ui, sans-serif); }
+.kg-grid { stroke: var(--border); stroke-width: 1; }
+.kg-axis { fill: none; stroke: var(--text); stroke-width: 1.6; }
+.kg-tick { fill: var(--muted); font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.kg-label { fill: var(--text); font-size: 14px; font-weight: 900; }
+.kg-note { fill: var(--text); font-size: 13px; font-weight: 900; paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; }
+.kg-line { fill: none; stroke: var(--sim-c1); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.kg-dash { stroke-dasharray: 6 5; }
+.kg-ref { stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.kg-band { fill: var(--surface-2); stroke: none; }
+.kg-marker { fill: var(--card); stroke: var(--sim-c1); stroke-width: 3; }
+.kg-c2.kg-line, .kg-c2.kg-ref { stroke: var(--sim-c2); }
+.kg-c2.kg-marker { stroke: var(--sim-c2); }
+.kg-c2.kg-note { fill: var(--sim-c2); }
+.kg-c3.kg-line, .kg-c3.kg-ref { stroke: var(--sim-c3); }
+.kg-c1.kg-note { fill: var(--sim-ink); }
+
+@media (max-width: 520px) {
+  .sim { padding: 12px 10px 12px; }
+  .kg-tick { font-size: 14px; }
+  .kg-label, .kg-note { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sim *, .sim *::before, .sim *::after { transition: none !important; animation: none !important; }
+}

@@ -1,5 +1,5 @@
 # Builds the site with the same Jekyll and plugins as GitHub Pages (the github-pages gem in the
-# Gemfile), adds the site-search index, and publishes it. Pull requests build and index too, so a
+# Gemfile), adds the site-search index, checks the simulators, and publishes it. Pull requests build and index too, so a
 # broken page or index shows up before it reaches main; only main is deployed.
 #
 # One-off setting: Settings → Pages → Build and deployment → Source: "GitHub Actions".
@@ -48,6 +48,17 @@ jobs:
 
       - name: Build the search index
         run: npm run search
+
+      # The stripboard renderer is copied out of the Planner bundle; a stale copy fails here.
+      - name: Check the shared stripboard renderer
+        run: npm run stripboard -- --check
+
+      # Every simulator against the site standard (CLAUDE.md "Simulations"), in a real browser.
+      - name: Install a browser for the simulator check
+        run: npx playwright install --with-deps chromium
+
+      - name: Check the simulators
+        run: npm run sims
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

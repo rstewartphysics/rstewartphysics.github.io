@@ -26,6 +26,10 @@ assets/css/site-menu.css              — nav drawer styles (every page links it
 assets/js/site-menu.js                — nav drawer behaviour (every page links it)
 assets/js/site-search.js              — drawer search, loaded by site-menu.js on first use
 scripts/build-search.mjs              — builds the search index after Jekyll (`npm run search`)
+scripts/sim-check.mjs                 — checks every simulator in a browser (`npm run sims`)
+scripts/build-stripboard.mjs          — copies the stripboard engine out (`npm run stripboard`)
+assets/css/sims.css, js/widget-kit.js — the shared simulator component (see "Simulations")
+assets/js/stripboard.js               — generated stripboard engine + renderer (do not edit)
 _data/search.yml, search-synonyms.yml — pages left out of search; pupils' words → site words
 .github/workflows/pages.yml           — builds, indexes and deploys the site (GitHub Actions)
 assets/css/engineering-science.css    — shared sheet for all Engineering Science pages
@@ -338,6 +342,55 @@ working. Reference implementation: `classes/electronics/block-diagram-builder.ht
 
 **Check it before calling it done:** screenshot at 1180 × 760 and confirm the problem, the pieces and
 the working area are all visible at once.
+
+---
+
+## Simulations — the simulator standard (site standard, 13 October 2026)
+
+Every simulator on the site is one component with each subject's palette: **`assets/css/sims.css`**
+(layout, controls, readouts, graph styling, token-driven like `hub-tiles.css`) plus
+**`assets/js/widget-kit.js`** (`window.WidgetKit`). Pages do not hand-roll slider pairing, graph
+axes or animation loops. Link `sims.css` after the subject sheet, and load `widget-kit.js` with
+`defer`.
+
+```html
+<div class="sim" id="sim-x">
+  <div class="sim-head"><h3>…</h3><p class="sim-hint">One line on what to try.</p></div>
+  <div class="sim-predict">…</div>                       <!-- predict first, before the stage -->
+  <div class="sim-stage">
+    <div class="sim-view">figures (.sim-figs/.sim-fig), .sim-graph, .sim-readouts</div>
+    <div class="sim-controls">
+      <label class="sim-field"><span class="sim-name">Resistance <var>R</var><sub>1</sub> (kΩ)</span>
+        <span class="sim-row"><input type="range" data-sim="r1" …><input class="sim-num" type="number" data-sim="r1" …></span></label>
+    </div>
+  </div>
+</div>
+```
+
+- **One screen.** At 1180 × 760 the stage — picture, graph and controls — fits on screen at once,
+  controls **beside** the picture (the one-screen rule above, applied to a block inside a page).
+- **Predict first.** A `.sim-predict` card asks what will happen before the pupil can find out;
+  every option carries its own feedback (`<template data-feedback>` inside the button,
+  `WidgetKit.poeCard`). Same rule as quizzes: a wrong pick says why, the right one starts "Right."
+- **Every slider has a number box** (`WidgetKit.liveSim`, same `data-sim` key). A range that spans
+  decades uses `data-scale="log"`; one that crowds against a limit (speeds near *c*) uses
+  `data-scale="near"`. Values are clamped to the box's min/max when the pupil leaves it.
+- **The picture moves with the numbers** (dual coding): a live diagram, labelled with the same
+  words as the text, beside every simulator. UK symbols.
+- **Graphs** come from `WidgetKit.graph`: "quantity (unit)" on both axes, numbered ticks, the origin
+  at 0 unless the physics needs otherwise, a phone layout (`layouts`) so labels stay ≥ 12 px.
+- **Readouts** use `WidgetKit.fmt` / `WidgetKit.si` (3 s.f., real minus sign, SI prefixes) and real
+  `<var>`/`<sub>` — never `V_s`-style code subscripts. Results announce via `aria-live="polite"`.
+- **Motion** runs on `WidgetKit.clock` (pauses with the tab, no autoplay under reduced motion).
+- **Progress.** A simulator counts toward its page's badge (`Progress.markSeen` on first use).
+- **Stripboard pictures** come from **`assets/js/stripboard.js`** (`SBD.render.renderBoard`), copied
+  out of the Planner bundle by `npm run stripboard`; never edit it. A layout shown on a page is
+  checked with `SBD.check` against its netlist before it is published.
+- **Checked automatically.** `npm run sims` (`scripts/sim-check.mjs`) runs every `.sim` at
+  1180 × 760 light and dark and at 390 px, in the PR build: no errors or sideways scroll, stage fits,
+  slider ↔ box sync, 44 px controls, named drawings, labelled graph axes, nothing moving under
+  reduced motion. Pages with sliders outside a `.sim` are listed as not yet migrated.
+- **Still check by eye**, as for every page: real iPad Safari, and the physics by the teacher.
 
 ---
 
