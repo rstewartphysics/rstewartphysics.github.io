@@ -633,7 +633,8 @@
       return d;
     }
 
-    function drawSeries(g) {
+    function drawSeries(g, notes) {
+      notes = notes || g;
       series.forEach(function (s) {
         var cls = s.opts.cls ? " " + s.opts.cls : "", e;
         if (s.kind === "line") {
@@ -653,13 +654,13 @@
             var side = s.opts.side;
             if (s.axis === "x") {
               e = side === "left"
-                ? el("text", { "class": "kg-note" + cls, x: px(s.v) - 5, y: box.t + 13, "text-anchor": "end" }, g)
-                : el("text", { "class": "kg-note" + cls, x: px(s.v) + 5, y: box.t + 13 }, g);
+                ? el("text", { "class": "kg-note" + cls, x: px(s.v) - 5, y: box.t + 13, "text-anchor": "end" }, notes)
+                : el("text", { "class": "kg-note" + cls, x: px(s.v) + 5, y: box.t + 13 }, notes);
             } else {
               var ly = s.opts.below ? py(s.v) + 15 : py(s.v) - 5;
               e = side === "left"
-                ? el("text", { "class": "kg-note" + cls, x: box.l + 4, y: ly }, g)
-                : el("text", { "class": "kg-note" + cls, x: box.r - 4, y: ly, "text-anchor": "end" }, g);
+                ? el("text", { "class": "kg-note" + cls, x: box.l + 4, y: ly }, notes)
+                : el("text", { "class": "kg-note" + cls, x: box.r - 4, y: ly, "text-anchor": "end" }, notes);
             }
             richText(e, s.opts.label);
           }
@@ -688,7 +689,9 @@
       var defs = el("defs", {}, root), clip = el("clipPath", { id: id + "c" }, defs);
       el("rect", { x: box.l, y: box.t - 2, width: box.r - box.l, height: box.b - box.t + 4 }, clip);
       drawAxes(el("g", {}, root));
-      drawSeries(el("g", { "clip-path": "url(#" + id + "c)" }, root));
+      var clipped = el("g", { "clip-path": "url(#" + id + "c)" }, root);
+      var notes = el("g", {}, root);
+      drawSeries(clipped, notes);
       series = keep.filter(function (s) { return s.kind === "marker"; });
       drawSeries(el("g", {}, root));
       series = keep;
