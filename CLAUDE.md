@@ -67,6 +67,25 @@ these. **Remove this section once every box is ticked.**
    - [ ] **"Beta testing" panels** on the four Electronics planners/builders (`.beta` section). The
      teacher removed every other beta notice on 14 Oct; decide whether these go too (they also say
      how to report a wrong mark).
+   - [ ] **Check the four stripboard/breadboard pages against "Plan your own Stripboard
+     Schematic"** (`classes/electronics/stripboard-planner.html`, the standard). The other three:
+     `stripboard-builder.html` (Learn to Plan a Stripboard Schematic), `breadboard-planner.html`
+     (Plan your own Breadboard Circuit), `breadboard-builder.html` (Learn to Plan a Breadboard
+     Schematic). A quick side-by-side on 14 Oct found the same version strings (v3.0 / v3.2), the
+     same five task modes and two progress challenges each, and no duplicate ids. Differences
+     worth a look:
+     **breadboard-builder** carries about 70 KB less inline engine code than the other three (an
+     older or trimmed copy?), and only the stripboard planner links a "How to use" guide (there is
+     no breadboard guide). All four still have the Beta panel and their own inline engine copy
+     (item 2, planner bundle). For each page, confirm:
+     - the rules, worked layouts, tasks and answers are physically correct, and every marked
+       answer passes `SBD.check` against its netlist;
+     - the one-screen rule at 1180 × 760, all three inputs (drag, tap-tap, keyboard), light and
+       dark, and 390 px;
+     - progress challenges, printable planning sheet and save/load behave as on the stripboard
+       planner;
+     - then bring any page that falls short up to the planner, and add a breadboard guide if the
+       teacher wants one.
    - [ ] **Small contrast misses left** (all under 4.5:1 by a little): `.lvl[aria-pressed]` buttons
      on the planners/builders (white on `#0a9d7f`, 3.4:1), Construction's `.sw-title` (4.2:1),
      N5 Energy's "useful in green" caption (4.46:1), the Logic page's `.lamp` digit (4.25:1).
