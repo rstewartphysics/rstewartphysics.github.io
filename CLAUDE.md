@@ -41,8 +41,19 @@ these. **Remove this section once every box is ticked.**
    - **The cost of the split.** Cloud and terminal sessions working at once collided on
      stylesheet `?v=` lines and merges (PRs #188–#194 had to be folded into #195). Recommend a
      rule for that too, e.g. one session at a time on shared sheets, or bump `?v=` only at merge.
+   - **How Claude is used on the Mac as a whole, not just in this repo.** Read
+     `~/.claude/CLAUDE.md`, `~/.claude/settings.json`, the skills, agents, commands and hooks under
+     `~/.claude/`, the MCP servers configured, and the session history in `~/.claude/projects/`
+     (which folders get sessions, how often, what kinds of task). Look at `~/claude-work/` too:
+     the deck kit, the learning standard, the booklet and question-bank sources, and any other
+     repos the website work depends on. From that, say which of those habits and tools a cloud
+     session could share (by moving a file into a repo, a skill into the repo's `.claude/`, or a
+     setting into the cloud environment) and which must stay on the Mac.
    Then suggest any setup that would move work to the cloud safely (generators in the repo,
    a SessionStart hook that builds the site, a CI check per generated page).
+   **This repo is public.** Give the teacher the full findings in the terminal; put only the
+   resulting cloud/terminal table and rules in this file, with no personal paths, session
+   contents or anything from `~/.claude` beyond what the rules need.
 0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh`, then `gh auth login`
    (GitHub.com → HTTPS → log in with a browser) and `gh auth setup-git`. In `~/.claude/settings.json`
    allow the PR commands so they don't prompt each time:
