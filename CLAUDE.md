@@ -12,6 +12,40 @@ palette, not its blue): `classes/higher/electricity/current-pd-power-resistance.
 
 ---
 
+## Open jobs — do these first on the Mac (left 14 Oct 2026)
+
+Some pages are built by scripts that live only on the Mac, so a cloud session could not finish
+these. **Remove this section once every box is ticked.**
+
+1. **Move the generator scripts into this repo** under `tools/generators/` (RS decision, 14 Oct):
+   `~/claude-work/n5-engineering/b4b/web/build_page.py`, the practice-test and graphing
+   generators, `~/claude-work/n5-eng-mcq-bank/` (`bank_src.md` + `build_all.py`) and the
+   Stripboard/Breadboard Planner bundle sources (`sbd-engine.js`, `sbd-render.js`,
+   `sbd-circuit.js`, `questions.js`, …). Add `tools/` to `exclude:` in `_config.yml`. The repo is
+   **public**: keep out `~/SQA Images`, SQA source PDFs and planning notes. Point each script's
+   output paths at the repo, not `~/`.
+2. **Make the edits the cloud session could not** (full checklist: PR #187, last comment):
+   - [ ] `build_page.py` → `programmable-control.html`: emit `{% include uno-getting-started.html %}`
+     after the "On the Uno, the plan becomes real" keypoint in section 4; emit
+     `{% include resource-icons.html %}` before `eng-icons.html`; use
+     `engineering-topic.css?v=engt-20261014a`. Then re-run and diff — the page in the repo
+     already has these, so the only diff should be none.
+   - [ ] Practice-test/graphing generators: no `beta-note` on S3 Electricity 1 A/B + graphing,
+     Higher PW6 A/B, AH SHM A/B (it stays on Higher Electricity A/B, AH Stellar A/B, S3 Eng A/B).
+   - [ ] `build_all.py` → `unit-1-question-bank.html`: duplicate `id="next"` — rename the
+     "Where next" section to `where-next` and its sub-nav link; the button keeps `next`.
+   - [ ] Planner bundle: build `assets/js/stripboard.js` from the sources and have the four
+     planner/builder pages load it instead of their inline copy; point
+     `scripts/build-stripboard.mjs` at the sources. Until then, run `npm run stripboard` after
+     any bundle rebuild, or CI's staleness check fails.
+3. **Add a CI step** in `.github/workflows/pages.yml` that regenerates each generated page and
+   fails if it differs from the committed copy (same idea as `npm run stripboard -- --check`).
+4. **Teacher checks still open** (no code needed unless something is wrong): physics and
+   wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
+   answers; and every simulator on a real iPad in Safari (`npm run sims` lists them all).
+
+---
+
 ## Site overview
 
 Static HTML on GitHub Pages via Jekyll. Audience: Scottish secondary pupils (S3–Advanced Higher),
