@@ -112,7 +112,7 @@ Structures — align hub card order and titles to the booklets, and add card 8 (
   extract the common set; follow whatever the template does at build time).
 
 ### Body skeleton (same order as the template)
-1. Skip link; `{% include site-menu.html %}`; banner
+1. `{% include site-menu.html %}`; banner
    `/assets/s3-engineering-science-banner.jpeg` + overlay (topic title / "S3 Engineering Science").
 2. Sticky subnav: one link per section + `Booklet Answers` + `Quiz` + `Self-check`;
    `.subnav-cta` → `/classes/s3-engineering-science.html` ("S3 hub").

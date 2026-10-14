@@ -33,7 +33,7 @@ classes/higher/<unit>/<topic>.html
 - Page-specific widget CSS/JS stays **inline** on the page. No external frameworks, no build step.
   **Simulators are the exception:** they use the shared kit (`/assets/css/sims.css` +
   `/assets/js/widget-kit.js`) — see §8 and CLAUDE.md "Simulations".
-- Skip link, `{% include site-menu.html %}`, banner (`/assets/hphysicsbanner.png`), then the sticky sub-nav.
+- `{% include site-menu.html %}`, banner (`/assets/hphysicsbanner.png`), then the sticky sub-nav.
 
 ## 3. Page skeleton — concept blocks
 
@@ -203,7 +203,7 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
 
 ## 9. Accessibility & platform guardrails
 
-- Skip link, `id="mainContent"`, focus rings ≥3px on every control, tap targets ≥44–48px,
+- `id="mainContent"`, focus rings ≥3px on every control, tap targets ≥44–48px,
   `prefers-reduced-motion` honoured, `aria-live` on widget results.
 - Blue Higher identity; dark mode must work (the shared sheet handles chrome; any bespoke colour needs a
   dark value or a theme var).
