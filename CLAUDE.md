@@ -17,6 +17,12 @@ palette, not its blue): `classes/higher/electricity/current-pd-power-resistance.
 Some pages are built by scripts that live only on the Mac, so a cloud session could not finish
 these. **Remove this section once every box is ticked.**
 
+0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh`, then `gh auth login`
+   (GitHub.com → HTTPS → log in with a browser) and `gh auth setup-git`. In `~/.claude/settings.json`
+   allow the PR commands so they don't prompt each time:
+   `"permissions": { "allow": ["Bash(gh pr create:*)", "Bash(gh pr view:*)", "Bash(gh pr checks:*)",
+   "Bash(gh pr list:*)", "Bash(gh run view:*)", "Bash(git push -u origin:*)"] }`.
+   Check with `gh auth status`. Then ask Claude to "open a PR" and it runs `gh pr create` itself.
 1. **Move the generator scripts into this repo** under `tools/generators/` (RS decision, 14 Oct):
    `~/claude-work/n5-engineering/b4b/web/build_page.py`, the practice-test and graphing
    generators, `~/claude-work/n5-eng-mcq-bank/` (`bank_src.md` + `build_all.py`) and the
@@ -30,8 +36,21 @@ these. **Remove this section once every box is ticked.**
      `{% include resource-icons.html %}` before `eng-icons.html`; use
      `engineering-topic.css?v=engt-20261014a`. Then re-run and diff — the page in the repo
      already has these, so the only diff should be none.
-   - [ ] Practice-test/graphing generators: no `beta-note` on S3 Electricity 1 A/B + graphing,
-     Higher PW6 A/B, AH SHM A/B (it stays on Higher Electricity A/B, AH Stellar A/B, S3 Eng A/B).
+   - [ ] Practice-test/graphing generators: the live pages were edited by hand on 14 Oct (PR #195),
+     so the generators must now emit the same, or a re-run will undo it. On **every** generated page
+     (S3 Electricity 1 A/B + graphing, S3 Eng A/B, Higher Electricity A/B + PW6 A/B, AH SHM A/B +
+     Stellar A/B, the Unit 1 question bank, Programmable Control):
+     no skip link and no `.skip-link` CSS; no `beta-note`, `beta-flag` or `wip-notice` (markup or
+     CSS); no `<h1 class="visually-hidden">` where the banner already has the `<h1>`. **S3 Eng
+     tests A/B** and the **question bank** open with the drawn `<header class="band-banner">`
+     (S3: `style="--bb-a:#006e74; --bb-b:#0a5f57"`, chip `#ic-quiz` with
+     `style="--ic-accent:var(--eng-ink-teal)"`, `{% include resource-icons.html %}` after the menu
+     include, print rule hides `.band-banner`). Stylesheet versions as now live:
+     `engineering-science.css?v=eng-20261014c`, `engineering-topic.css?v=engt-20261014a`,
+     `s3-physics.css?v=s3-20261014c`, `higher-physics.css?v=hp-20261014b`,
+     `adv-higher-physics.css?v=ah-20261014b`, `electronics.css?v=el-20261014b`,
+     `reading.css?v=rd-20261014a`. Check: re-run each generator, then `git diff` — it should be
+     empty.
    - [ ] `build_all.py` → `unit-1-question-bank.html`: duplicate `id="next"` — rename the
      "Where next" section to `where-next` and its sub-nav link; the button keeps `next`.
    - [ ] Planner bundle: build `assets/js/stripboard.js` from the sources and have the four
@@ -40,7 +59,18 @@ these. **Remove this section once every box is ticked.**
      any bundle rebuild, or CI's staleness check fails.
 3. **Add a CI step** in `.github/workflows/pages.yml` that regenerates each generated page and
    fails if it differs from the committed copy (same idea as `npm run stripboard -- --check`).
-4. **Teacher checks still open** (no code needed unless something is wrong): physics and
+4. **Left from the 14 Oct theme audit** (need a decision or a Mac-side check):
+   - [ ] **Block Diagram Builder, one-screen rule.** At 1180 × 760 the stage ends at 761 px and the
+     Check/Reset buttons at 853 px, even at the minimum scale (0.65): the question text above it
+     takes 512 px. Options: put the scenario beside the stage, or shorten the task box. Check on a
+     real iPad held sideways.
+   - [ ] **"Beta testing" panels** on the four Electronics planners/builders (`.beta` section). The
+     teacher removed every other beta notice on 14 Oct; decide whether these go too (they also say
+     how to report a wrong mark).
+   - [ ] **Small contrast misses left** (all under 4.5:1 by a little): `.lvl[aria-pressed]` buttons
+     on the planners/builders (white on `#0a9d7f`, 3.4:1), Construction's `.sw-title` (4.2:1),
+     N5 Energy's "useful in green" caption (4.46:1), the Logic page's `.lamp` digit (4.25:1).
+5. **Teacher checks still open** (no code needed unless something is wrong): physics and
    wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
    answers; and every simulator on a real iPad in Safari (`npm run sims` lists them all).
 
