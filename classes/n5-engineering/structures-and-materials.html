@@ -18,9 +18,10 @@ title: Structures & Materials — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261007">
   <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261012a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
   <style>
     :root {
@@ -156,6 +157,29 @@ title: Structures & Materials — National 5 Engineering Science
     .mode-card { border-left: 4px solid var(--eng-border); }
 
     .mode-card[href="#answers"], .mode-card[href="#s3"] { border-left-color: var(--ex-bd); }
+
+
+    /* beam-reactions explorer (layout and controls from /assets/css/sims.css) */
+    .sim { --sim-accent-ink: var(--eng-ink-accent); }
+    /* a simulator needs the full column, not the prose column beside the callouts */
+    @media (min-width:1000px){ .eng-dense .sec-body > .sim { clear: both; margin-right: -362px; } }
+    #beamSim .b-beam { fill: var(--eng-surface); stroke: var(--eng-text); stroke-width: 2; }
+    #beamSim .b-sup { fill: var(--eng-text); }
+    #beamSim .b-load { stroke: var(--bad); stroke-width: 4; }
+    #beamSim .b-load-h { fill: var(--bad); }
+    #beamSim .b-up { stroke: var(--good); stroke-width: 4; }
+    #beamSim .b-up-h { fill: var(--good); }
+    #beamSim .b-dim { stroke: var(--eng-muted); stroke-width: 1.4; }
+    #beamSim .b-t { fill: var(--eng-text); font-family: var(--font-stack); font-size: 16px; font-weight: 800; }
+    #beamSim .b-name { font-weight: 900; font-size: 17px; }
+    #beamSim .b-loadt { fill: var(--bad); font-weight: 900; }
+    #beamSim .b-upt { fill: var(--good); font-weight: 900; }
+    #beamSim .sim-working { font-size: 1rem; }
+    #beamSim .sim-choices var, #beamSim .kit-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
+
+    .q .q-fb { margin: .55rem 0 0; padding: .45rem .7rem; border-left: 4px solid var(--bad); border-radius: 0 8px 8px 0; background: var(--eng-surface-2); color: var(--eng-text); font-weight: 600; line-height: 1.55; }
+    .q .q-fb.ok { border-left-color: var(--good); }
+    .q .q-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
 
     @media print {
           .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
@@ -410,7 +434,7 @@ title: Structures & Materials — National 5 Engineering Science
         <div class="example"><span class="ex-type">Take moments about A</span>
           <div class="ex-q">A 4 m beam rests on supports A and B at each end. A 600 N load is placed 1 m from support A. Find the reaction at each support.</div>
           <div class="calc">
-            <div class="calc-row"><span class="lhs">ΣCWM</span><span class="eq">=</span><span class="rhs">ΣACWM (about A)</span><span class="note-cell">R_A drops out</span></div>
+            <div class="calc-row"><span class="lhs">ΣCWM</span><span class="eq">=</span><span class="rhs">ΣACWM (about A)</span><span class="note-cell"><var>R</var><sub>A</sub> drops out</span></div>
             <div class="calc-row"><span class="lhs">600 × 1</span><span class="eq">=</span><span class="rhs"><var>R</var><sub>B</sub> × 4</span><span class="note-cell"></span></div>
             <div class="calc-row"><span class="lhs"><var>R</var><sub>B</sub></span><span class="eq">=</span><span class="rhs">600 ÷ 4 = 150 N</span><span class="note-cell"></span></div>
             <div class="calc-row"><span class="lhs"><var>R</var><sub>A</sub></span><span class="eq">=</span><span class="rhs">600 − 150 = 450 N</span><span class="note-cell">reactions sum to the load</span></div>
@@ -429,21 +453,50 @@ title: Structures & Materials — National 5 Engineering Science
         </div>
       </div></details>
 
-      <div class="widget" id="beamSim" data-prog-challenge="ch-beam-sim">
-        <h3>Beam-reactions explorer — live</h3>
-        <p class="hint">A <strong>2000 N person</strong> stands on a <strong>4 m walkway beam</strong> supported at each end (this is Design Brief A from your booklet). Drag their position and watch the two reactions — taking moments about A gives R<sub>B</sub> = 2000 × x ÷ 4.</p>
-        <div class="kit-row">
-          <label for="beam-x">Position from A (m)</label>
-          <input type="range" id="beam-x" data-sim="x" min="0" max="4" step="0.25" value="2" aria-label="Load position from support A in metres">
-          <input type="number" data-sim="x" min="0" max="4" step="0.25" value="2" aria-label="Load position from support A in metres (number)">
+      <div class="sim" id="beamSim" data-prog-challenge="ch-beam-sim">
+        <div class="sim-head">
+          <h3>Beam-reactions explorer</h3>
+          <p class="sim-hint">A person stands on a <strong>4 m walkway beam</strong> supported at each end (Design Brief A in your booklet). Move them and change their weight.</p>
         </div>
-        <div class="sim-readout">
-          <div class="sr-item"><b id="beam-ra">—</b><span>R<sub>A</sub> (N)</span></div>
-          <div class="sr-item"><b id="beam-rb">—</b><span>R<sub>B</sub> (N)</span></div>
+
+        <div class="sim-predict" id="beam-predict">
+          <p class="sim-q"><b>Predict</b> what happens to the two reactions as the person walks from support A towards support B.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="ab" aria-pressed="false"><var>R</var><sub>A</sub> rises, <var>R</var><sub>B</sub> falls<template data-feedback><p>Other way round. A support carries more of the load the closer the load is to it. As the person gets nearer to B, which support carries more?</p></template></button>
+            <button type="button" data-predict="ba" aria-pressed="false"><var>R</var><sub>A</sub> falls, <var>R</var><sub>B</sub> rises<template data-feedback><p><strong>Right.</strong> Moments about A: 2000 × <var>x</var> = <var>R</var><sub>B</sub> × 4, so <var>R</var><sub>B</sub> grows as <var>x</var> grows. The reactions always add up to 2000 N, so <var>R</var><sub>A</sub> falls by the same amount.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">Both stay at 1000 N<template data-feedback><p>That is only true when the person stands in the middle. Moments about A give <var>R</var><sub>B</sub> × 4 = 2000 × <var>x</var>, so <var>R</var><sub>B</sub> depends on where they stand.</p></template></button>
+            <button type="button" data-predict="up" aria-pressed="false">Both rise<template data-feedback><p>The two reactions must always add up to the load, 2000 N. If one rises, the other has to fall.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
         </div>
-        <p class="sim-readout" id="beam-desc" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+              <svg id="beam-draw" viewBox="0 0 600 272" role="img" aria-label="Simply-supported beam"></svg>
+            </figure>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Reaction <var>R</var><sub>A</sub></span><span class="v" id="beam-ra">—</span></div>
+              <div class="sim-out is-key"><span class="k">Reaction <var>R</var><sub>B</sub></span><span class="v" id="beam-rb">—</span></div>
+              <div class="sim-out"><span class="k">Check: <var>R</var><sub>A</sub> + <var>R</var><sub>B</sub></span><span class="v" id="beam-sum">—</span></div>
+            </div>
+            <p class="sim-working" id="beam-work"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Position from A, <var>x</var> (m)</span>
+              <span class="sim-row"><input type="range" data-sim="x" min="0" max="4" step="0.25" value="2" aria-label="Load position x from support A in metres"><input class="sim-num" type="number" data-sim="x" min="0" max="4" step="0.25" value="2" inputmode="decimal" aria-label="Load position x from support A in metres, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Load (N)</span>
+              <span class="sim-row"><input type="range" data-sim="W" min="500" max="3000" step="100" value="2000" aria-label="Load in newtons"><input class="sim-num" type="number" data-sim="W" min="500" max="3000" step="100" value="2000" inputmode="numeric" aria-label="Load in newtons, typed"></span>
+            </label>
+            <p class="sim-note">Arrow lengths are drawn to scale: a force twice as big has an arrow twice as long.</p>
+          </div>
+        </div>
+
         <div class="kit-task">
-          <strong>Challenge:</strong> stand the person where support <strong>B carries exactly 1500 N</strong>.
+          <strong>Challenge:</strong> with the <strong>2000 N person</strong>, find where they stand so that support <strong>B carries exactly 1500 N</strong>.
           <div class="kit-actions"><button type="button" id="beam-check">Check</button></div>
           <p class="kit-fb" id="beam-fb" role="status" aria-live="polite"></p>
         </div>
@@ -800,16 +853,16 @@ title: Structures & Materials — National 5 Engineering Science
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"The unit of force is the", o:["joule","newton","watt","pascal"], a:1 },
-        { q:"A rope holding up a load is in", o:["compression","tension","bending","torsion"], a:1 },
-        { q:"A column supporting a roof is in", o:["compression","tension","bending","shear"], a:0 },
-        { q:"At National 5, unknown forces in a triangle of forces are found by", o:["resolving with sin and cos","an accurate scale drawing","adding the forces together","using a calculator function"], a:1 },
-        { q:"A force of 40 N acts 0.25 m from a nut. The moment is", o:["10 Nm","16 Nm","100 Nm","160 Nm"], a:0 },
-        { q:"A 250 N child sits 2 m left of a see-saw pivot. A 500 N child balances it by sitting", o:["0.5 m right","1 m right","2 m right","4 m right"], a:1 },
-        { q:"A 3 m beam has a 900 N load 2 m from support A. The reaction at B is", o:["300 N","450 N","600 N","900 N"], a:2 },
-        { q:"The best material for an electrical wire is copper because of its", o:["hardness","density","conductivity","elasticity"], a:2 },
-        { q:"A bar of area 200 mm² carries 6000 N. The stress is", o:["0.03 N mm⁻²","3 N mm⁻²","30 N mm⁻²","300 N mm⁻²"], a:2 },
-        { q:"Strain has", o:["units of N mm⁻²","units of metres","units of newtons","no units — it is a ratio"], a:3 }
+        { q:"The unit of force is the", o:["joule","newton","watt","pascal"], a:1, f:["The joule is the unit of energy and work done.", "<strong>Right.</strong> Force is measured in newtons (N).", "The watt is the unit of power.", "The pascal is a unit of pressure or stress: force on each square metre."] },
+        { q:"A rope holding up a load is in", o:["compression","tension","bending","torsion"], a:1, f:["Compression squashes a member. The load pulls on the rope and tries to stretch it.", "<strong>Right.</strong> The load pulls on the rope and tries to stretch it: tension.", "Bending happens when loads act across a member, like a beam. The rope is pulled along its length.", "Torsion is twisting, like a turning shaft. The rope is pulled, not twisted."] },
+        { q:"A column supporting a roof is in", o:["compression","tension","bending","shear"], a:0, f:["<strong>Right.</strong> The roof pushes down on the column and tries to squash it: compression.", "Tension stretches a member. The roof pushes down on the column, it does not pull it.", "The column carries its load along its length. Bending comes from loads across a member, like a beam.", "Shear is two forces sliding parts past each other, like scissors. The column is squashed along its length."] },
+        { q:"At National 5, unknown forces in a triangle of forces are found by", o:["resolving with sin and cos","an accurate scale drawing","adding the forces together","using a calculator function"], a:1, f:["Resolving with sin and cos is the Higher method. At National 5 the method is a drawing.", "<strong>Right.</strong> Draw the triangle accurately to scale, then measure the unknown sides and angles.", "Forces at angles cannot just be added together, because their directions matter.", "There is no calculator function for this. The National 5 method is a drawing."] },
+        { q:"A force of 40 N acts 0.25 m from a nut. The moment is", o:["10 Nm","16 Nm","100 Nm","160 Nm"], a:0, f:["<strong>Right.</strong> <var>M</var> = <var>F</var> <var>x</var> = 40 × 0.25 = 10 Nm.", "Check the multiplication: <var>M</var> = <var>F</var> <var>x</var> = 40 × 0.25.", "Check the decimal point: the distance is 0.25 m, not 2.5 m.", "You divided 40 by 0.25. A moment is force × distance, so multiply."] },
+        { q:"A 250 N child sits 2 m left of a see-saw pivot. A 500 N child balances it by sitting", o:["0.5 m right","1 m right","2 m right","4 m right"], a:1, f:["Check it: 500 × 0.5 = 250 Nm, but the other child gives 250 × 2 = 500 Nm. The moments do not balance yet.", "<strong>Right.</strong> ΣCWM = ΣACWM: 250 × 2 = 500 × <var>d</var>, so <var>d</var> = 500 ÷ 500 = 1 m.", "At 2 m the heavier child gives twice the moment of the lighter one. The heavier child must sit closer.", "Sitting further out makes the moment even bigger. The heavier child must sit closer to the pivot."] },
+        { q:"A 3 m beam has a 900 N load 2 m from support A. The reaction at B is", o:["300 N","450 N","600 N","900 N"], a:2, f:["300 N is the reaction at A. Take moments about A to find the reaction at B: 900 × 2 = <var>R</var><sub>B</sub> × 3.", "450 N would be right if the load were in the middle. It is 2 m from A, so it is nearer B.", "<strong>Right.</strong> Moments about A: 900 × 2 = <var>R</var><sub>B</sub> × 3, so <var>R</var><sub>B</sub> = 600 N, and <var>R</var><sub>A</sub> = 900 − 600 = 300 N.", "The two supports share the load. One support only takes all 900 N if the load is right over it."] },
+        { q:"The best material for an electrical wire is copper because of its", o:["hardness","density","conductivity","elasticity"], a:2, f:["Hardness resists scratching and wear. A wire's job is to carry current.", "Density is mass for each unit of volume. It does not help a wire carry current.", "<strong>Right.</strong> Copper is an excellent electrical conductor, and it is ductile, so it can be drawn into wire.", "Elasticity is about springing back to shape. A wire's job is to carry current."] },
+        { q:"A bar of area 200 mm² carries 6000 N. The stress is", o:["0.03 N mm⁻²","3 N mm⁻²","30 N mm⁻²","300 N mm⁻²"], a:2, f:["You divided the area by the force. Stress = force ÷ area, <var>σ</var> = <var>F</var> ÷ <var>A</var>.", "Check the division: 6000 ÷ 200.", "<strong>Right.</strong> <var>σ</var> = <var>F</var> ÷ <var>A</var> = 6000 ÷ 200 = 30 N mm⁻².", "Check the division: 6000 ÷ 200 is not 300."] },
+        { q:"Strain has", o:["units of N mm⁻²","units of metres","units of newtons","no units — it is a ratio"], a:3, f:["N mm⁻² is the unit of stress. Strain compares two lengths.", "Strain is change in length ÷ original length. The metres cancel out.", "Newtons measure force. Strain compares two lengths.", "<strong>Right.</strong> <var>ε</var> = Δ<var>l</var> ÷ <var>l</var>. Both lengths are in the same unit, so the units cancel: strain has no units."] }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -818,7 +871,9 @@ title: Structures & Materials — National 5 Engineering Science
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
         d.innerHTML=html; box.appendChild(d);
       });
-      function clearNotes(){ [].forEach.call(box.querySelectorAll(".mark-note"), function(s){ s.parentNode.removeChild(s); }); }
+      function clearNotes(){ [].forEach.call(box.querySelectorAll(".mark-note, .q-fb"), function(s){ s.parentNode.removeChild(s); }); }
+      /* every option teaches: the picked option's own feedback appears under the question */
+      function addFb(qi, item, oi){ var p=document.createElement("p"); p.className="q-fb "+(oi===item.a?"ok":"no"); p.innerHTML=item.f[oi]; box.children[qi].appendChild(p); }
       function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
       $("quiz-mark").addEventListener("click", function(){
         if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
@@ -831,6 +886,7 @@ title: Structures & Materials — National 5 Engineering Science
           right.classList.add("correct"); addNote(right, "✓ correct answer");
           if(chosen){
             var oi=parseInt(chosen.value,10);
+            addFb(qi, item, oi);
             if(oi===item.a) score++;
             else { var wr=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); wr.classList.add("wrong"); addNote(wr, "✗ your answer"); }
           }
@@ -1016,37 +1072,123 @@ title: Structures & Materials — National 5 Engineering Science
   })();
   </script>
 
-  <!-- Beam-reactions live sim (flagship) -->
+  <!-- Beam-reactions explorer (WidgetKit: liveSim, poeCard) -->
   <script>
   document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
+    var K = window.WidgetKit;
     var root = document.getElementById("beamSim");
-    if(!root) return;
+    if(!K || !root) return;
     var $ = function(id){ return document.getElementById(id); };
-    var W = 2000, L = 4, lastRB = 0;
+    var NS = "http://www.w3.org/2000/svg", svg = $("beam-draw");
+    var L = 4, WMAX = 3000, last = { x: 2, W: 2000, RB: 1000 }, used = false, first = true;
 
-    function render(s){
-      var x = Math.min(L, Math.max(0, s.x));
-      var RB = W * x / L;
-      var RA = W - RB;
-      lastRB = RB;
-      $("beam-ra").textContent = RA.toFixed(0);
-      $("beam-rb").textContent = RB.toFixed(0);
-      $("beam-desc").textContent = "Moments about A: 2000 × " + x + " = R_B × 4, so R_B = " + RB.toFixed(0) +
-        " N and R_A = 2000 − " + RB.toFixed(0) + " = " + RA.toFixed(0) + " N. Check: " + RA.toFixed(0) + " + " + RB.toFixed(0) + " = 2000 N ✓";
+    function el(name, attrs){
+      var e = document.createElementNS(NS, name);
+      for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+      svg.appendChild(e);
+      return e;
+    }
+    function text(x, y, html, anchor, cls){
+      var t = el("text", { x: x, y: y, "text-anchor": anchor || "middle", "class": cls || "b-t" }), it = false, sub = false, shift = 0;
+      String(html).split(/(<\/?(?:i|sub)>)/).forEach(function(p){
+        if(p === "<i>"){ it = true; return; } if(p === "</i>"){ it = false; return; }
+        if(p === "<sub>"){ sub = true; shift = 1; return; } if(p === "</sub>"){ sub = false; shift = -1; return; }
+        if(!p) return;
+        var s = document.createElementNS(NS, "tspan"); s.textContent = p; t.appendChild(s);
+        if(it){ s.setAttribute("font-style", "italic"); s.setAttribute("font-family", "\"Times New Roman\", Times, Georgia, serif"); }
+        if(sub) s.setAttribute("font-size", "75%");
+        if(shift === 1){ s.setAttribute("dy", "0.3em"); shift = 0; } else if(shift === -1){ s.setAttribute("dy", "-0.3em"); shift = 0; }
+      });
+      return t;
+    }
+    function arrow(x, y1, y2, cls){
+      var dir = y2 > y1 ? 1 : -1, h = 12, w = 7;
+      el("line", { x1: x, y1: y1, x2: x, y2: y2 - dir * h * 0.8, "class": cls });
+      el("path", { d: "M" + x + " " + y2 + "L" + (x - w) + " " + (y2 - dir * h) + "L" + (x + w) + " " + (y2 - dir * h) + "Z", "class": cls + "-h" });
+    }
+    function dim(xa, xb, y, label){
+      if(xb - xa < 2) return;
+      el("line", { x1: xa, y1: y - 6, x2: xa, y2: y + 6, "class": "b-dim" });
+      el("line", { x1: xb, y1: y - 6, x2: xb, y2: y + 6, "class": "b-dim" });
+      el("line", { x1: xa, y1: y, x2: xb, y2: y, "class": "b-dim" });
+      return text((xa + xb) / 2, y - 8, label, "middle", "b-t b-dimt");
+    }
+    function layoutW(){ return (svg.parentNode.clientWidth || 600) < 520 ? 340 : 600; }
+    function metres(v){ return String(Number(v.toFixed(2))); }
+
+    function draw(x, W, RA, RB){
+      var VW = layoutW(), narrow = VW < 600, H = 272;
+      var b0 = narrow ? 40 : 70, b1 = narrow ? 300 : 530, by = 128, bh = 16, sc = (b1 - b0) / L;
+      var lx = b0 + x * sc;
+      svg.setAttribute("viewBox", "0 0 " + VW + " " + H);
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      /* distances, measured from A */
+      var t1 = dim(b0, lx, 26, "<i>x</i> = " + metres(x) + " m");
+      var t2 = dim(lx, b1, 26, metres(L - x) + " m");
+      /* a label too wide for its gap moves to a second row, beside the load arrow */
+      [[t1, lx - b0, 1], [t2, b1 - lx, -1]].forEach(function(p){
+        if(p[0] && p[0].getComputedTextLength && p[0].getComputedTextLength() + 6 > p[1]){
+          p[0].setAttribute("y", 54); p[0].setAttribute("x", lx + 9 * p[2]); p[0].setAttribute("text-anchor", p[2] > 0 ? "start" : "end");
+        }
+      });
+      /* the beam on its two supports */
+      el("rect", { x: b0 - 14, y: by, width: b1 - b0 + 28, height: bh, rx: 2, "class": "b-beam" });
+      [b0, b1].forEach(function(sx){
+        el("path", { d: "M" + sx + " " + (by + bh) + "L" + (sx - 15) + " " + (by + bh + 24) + "L" + (sx + 15) + " " + (by + bh + 24) + "Z", "class": "b-sup" });
+      });
+      text(b0 - 22, by + bh + 22, "A", "end", "b-t b-name");
+      text(b1 + 22, by + bh + 22, "B", "start", "b-t b-name");
+      /* the load, its length to scale */
+      var ll = Math.max(16, W * 85 / WMAX);
+      arrow(lx, by - 4 - ll, by - 3, "b-load");
+      var right = lx < (b0 + b1) / 2;
+      text(lx + (right ? 10 : -10), by - 14, W + " N", right ? "start" : "end", "b-t b-loadt");
+      /* the reactions, lengths to scale */
+      var base = by + bh + 30, scale = 85 / WMAX;
+      var ta = base + Math.max(16, RA * scale), tb = base + Math.max(16, RB * scale);
+      if(RA > 0.5) arrow(b0, ta, base, "b-up");
+      if(RB > 0.5) arrow(b1, tb, base, "b-up");
+      text(b0 + 12, Math.min(H - 6, (RA > 0.5 ? ta : base + 18) + 4), "<i>R</i><sub>A</sub> = " + RA.toFixed(0) + " N", "start", "b-t b-upt");
+      text(b1 - 12, Math.min(H - 6, (RB > 0.5 ? tb : base + 18) + 4), "<i>R</i><sub>B</sub> = " + RB.toFixed(0) + " N", "end", "b-t b-upt");
+      svg.setAttribute("aria-label", "A 4 metre beam on supports A and B. A load of " + W + " newtons acts " + metres(x) +
+        " metres from A. Reaction at A " + RA.toFixed(0) + " newtons, reaction at B " + RB.toFixed(0) + " newtons, arrows drawn to scale.");
     }
 
-    window.WidgetKit.liveSim(root, { render: render });
+    function render(s){
+      var x = Math.min(L, Math.max(0, s.x)), W = s.W, RB = Math.round(W * x / L), RA = W - RB;
+      last = { x: x, W: W, RB: RB };
+      draw(x, W, RA, RB);
+      $("beam-ra").textContent = RA.toFixed(0) + " N";
+      $("beam-rb").textContent = RB.toFixed(0) + " N";
+      $("beam-sum").textContent = (RA + RB).toFixed(0) + " N";
+      $("beam-work").innerHTML = "Moments about A: ΣCWM = ΣACWM<br>" + W + " × " + metres(x) + " = <var>R</var><sub>B</sub> × 4, so <var>R</var><sub>B</sub> = " +
+        (W * x).toFixed(0) + " ÷ 4 = <strong>" + RB.toFixed(0) + " N</strong><br><var>R</var><sub>A</sub> = " + W + " − " + RB.toFixed(0) + " = <strong>" + RA.toFixed(0) + " N</strong>";
+      if(first){ first = false; } else if(!used){
+        used = true;
+        if(window.Progress && Progress.markSeen) Progress.markSeen("eng-structures");
+      }
+    }
+
+    var sim = K.liveSim(root, { render: render });
+    K.poeCard($("beam-predict"), { answer: "ba" });
+    if(window.ResizeObserver){
+      var lastW = null;
+      new ResizeObserver(function(){ var w = layoutW(); if(w !== lastW){ lastW = w; sim.refresh(); } }).observe(svg.parentNode);
+    }
 
     var fb = $("beam-fb");
     $("beam-check").addEventListener("click", function(){
-      if(Math.abs(lastRB - 1500) <= 1){
+      if(last.W !== 2000){
+        fb.className = "kit-fb no";
+        fb.textContent = "Not yet. Set the load back to 2000 N first: the challenge is about the 2000 N person.";
+        if(window.Progress) Progress.miss();
+      } else if(Math.abs(last.RB - 1500) <= 1){
         fb.className = "kit-fb ok";
-        fb.textContent = "✓ R_B = 1500 N with the person 3 m from A — moments about A: 2000 × 3 = R_B × 4. Notice the worst case for a support is the load standing directly over it.";
+        fb.innerHTML = "Right. With the person 3 m from A, moments about A give 2000 × 3 = <var>R</var><sub>B</sub> × 4, so <var>R</var><sub>B</sub> = 1500 N. A support carries the most when the load stands right over it.";
         if(window.Progress) Progress.complete("ch-beam-sim");
       } else {
         fb.className = "kit-fb no";
-        fb.textContent = "✗ R_B = " + lastRB.toFixed(0) + " N — aim for 1500 N. Rearrange 2000 × x = 1500 × 4 to find where to stand.";
+        fb.innerHTML = "Not yet. <var>R</var><sub>B</sub> is " + last.RB.toFixed(0) + " N; aim for 1500 N. Put the numbers in first: 2000 × <var>x</var> = 1500 × 4, then find <var>x</var>.";
         if(window.Progress) Progress.miss();
       }
     });

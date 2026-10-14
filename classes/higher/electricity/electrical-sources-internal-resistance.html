@@ -19,6 +19,8 @@ title: Electrical sources & internal resistance — Higher Physics
   <script src="/assets/js/progress/higher-physics.js" defer></script>
 
   <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20261013a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
 
   <title>Electrical sources &amp; internal resistance — Higher Physics</title>
   {% include site-head-icons.html %}
@@ -131,7 +133,6 @@ title: Electrical sources & internal resistance — Higher Physics
     .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
     .field[hidden] { display: none; }
     .field .row { display: flex; align-items: center; gap: .5rem; }
-    input[type="range"] { width: 140px; accent-color: var(--accent); }
     .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
     .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .btn:hover { border-color: var(--border-strong); }
@@ -178,6 +179,29 @@ title: Electrical sources & internal resistance — Higher Physics
 
     .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
     .ex-divider { margin: 1.1rem 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+
+    /* ---- simulator circuit drawings (live, inside .sim) ---- */
+    .sim-circuit text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 14.5px; }
+    .sim-circuit .it { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 17px; }
+    .sim-circuit .val { fill: var(--accent-2); font-weight: 900; }
+    .sim-circuit .sm { fill: var(--muted); }
+    .sim-circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim-circuit .thick { stroke-width: 5; }
+    .sim-circuit .res, .sim-circuit .meter { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .sim-circuit .node { fill: var(--text); }
+    .sim-circuit .term { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .sim-circuit .dash { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+    .sim-circuit .flow { stroke: var(--warm); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim-circuit .flow-t { fill: var(--warm); font-weight: 900; }
+    .sim-working var, .sim-note var, .sim-out .v var { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; }
+
+    /* ---- per-option quiz feedback ---- */
+    .q-fb { margin: .45rem 0 0; padding: .5rem .7rem; border-left: 4px solid var(--warm); border-radius: 0 8px 8px 0; background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .q-fb.ok { border-left-color: #15803d; }
+    @media (prefers-color-scheme: dark) { .q-fb.ok { border-left-color: #5dd693; } }
+    .predict-btns button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .vi-figs { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+    @media (max-width: 820px) { .vi-figs { grid-template-columns: minmax(0, 1fr); } }
 
     @media print {
       .skip-link, .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
@@ -771,13 +795,11 @@ V = 4.8 V             (target value, with unit)</div>
           <figcaption>The second lamp adds a parallel path, so the total outside resistance <strong>falls</strong> — watch what that does to the current.</figcaption>
         </figure>
         <div class="predict-btns">
-          <button class="btn" type="button" data-pred="0">Increase</button>
-          <button class="btn" type="button" data-pred="0">Stay the same</button>
-          <button class="btn" type="button" data-pred="1">Decrease</button>
+          <button class="btn" type="button" data-pred="0">Increase<template><strong>Not this one.</strong> The second lamp lowers the total outside resistance, so the current goes <strong>up</strong>. Think about what a bigger current does to the lost volts <var>I</var><var>r</var>, and so to <var>E</var> − <var>I</var><var>r</var>.</template></button>
+          <button class="btn" type="button" data-pred="0">Stay the same<template><strong>Not quite.</strong> That would be true for an ideal supply with no internal resistance. This battery has <var>r</var> = 0.10 Ω, so the lost volts change whenever the current changes.</template></button>
+          <button class="btn" type="button" data-pred="1">Decrease<template><strong>Right.</strong> Adding a parallel lamp <strong>lowers the total external resistance</strong>, so the <strong>current increases</strong>. A larger current means <strong>larger lost volts (<var>I</var><var>r</var>)</strong>, so the terminal p.d. (= <var>E</var> − <var>I</var><var>r</var>) <strong>falls</strong>.</template></button>
         </div>
-        <div class="predict-fb" id="pred-fb" hidden>
-          <div class="note"><strong>Decrease.</strong> Adding a parallel lamp <strong>lowers the total external resistance</strong>, so the <strong>current increases</strong>. A larger current means <strong>larger lost volts (<var>I</var><var>r</var>)</strong>, so the terminal p.d. (= <var>E</var> − <var>I</var><var>r</var>) <strong>falls</strong>.</div>
-        </div>
+        <div class="predict-fb" id="pred-fb" hidden aria-live="polite"></div>
       </div>
 
       <div class="practice">
@@ -916,62 +938,87 @@ Larger current → larger lost volts (Ir), so t.p.d. = E − Ir falls.  (1)</div
         </ul>
       </div>
 
-      <figure class="figure">
-        <svg class="circuit wide" viewBox="0 0 300 180" role="img" aria-label="Experiment circuit: a cell, an ammeter in series, a variable resistor, and a voltmeter connected across the terminals">
-          <title>Experiment to measure EMF and internal resistance</title>
-          <path class="wire" d="M50 40 V70"/>
-          <path class="wire" d="M35 70 H65"/>
-          <path class="wire" d="M43 80 H57" stroke-width="5"/>
-          <path class="wire" d="M50 80 V140"/>
-          <path class="wire" d="M50 40 H116"/>
-          <circle class="meter" cx="130" cy="40" r="14"/>
-          <text x="130" y="44" text-anchor="middle">A</text>
-          <path class="wire" d="M144 40 H250"/>
-          <path class="wire" d="M250 40 V72"/>
-          <rect class="res" x="238" y="72" width="24" height="44" rx="2"/>
-          <path class="wire" d="M228 122 L272 60 M272 60 L264 62 M272 60 L268 69"/>
-          <path class="wire" d="M250 116 V140"/>
-          <text x="278" y="100"><tspan font-style="italic">R</tspan></text>
-          <path class="wire" d="M50 140 H250"/>
-          <circle class="node" cx="185" cy="40" r="3"/>
-          <circle class="node" cx="185" cy="140" r="3"/>
-          <path class="wire" d="M185 40 V76"/>
-          <circle class="meter" cx="185" cy="92" r="14"/>
-          <text x="185" y="96" text-anchor="middle">V</text>
-          <path class="wire" d="M185 108 V140"/>
-        </svg>
-        <figcaption>The ammeter reads the current <var>I</var>; the voltmeter reads the terminal p.d. <var>V</var>. Vary <var>R</var> and plot <var>V</var> against <var>I</var>.</figcaption>
-      </figure>
-
-      <div class="widget" id="vi-sim">
-        <h3>V–I graph simulator</h3>
-        <p class="hint">Change the EMF and internal resistance and watch the line tilt. Read off the y-intercept (EMF), the gradient (−<var>r</var>) and the x-intercept (short-circuit current).</p>
-        <div class="controls">
-          <label class="field">EMF <var>E</var> (V)<span class="row"><input type="range" id="vi-e" min="1" max="6" step="0.5" value="3"><input class="num" id="vi-e-n" type="number" step="0.5" value="3" inputmode="decimal"></span></label>
-          <label class="field">Internal resistance <var>r</var> (Ω)<span class="row"><input type="range" id="vi-r" min="0.5" max="5" step="0.5" value="1"><input class="num" id="vi-r-n" type="number" step="0.5" value="1" inputmode="decimal"></span></label>
+      <div class="sim" id="vi-sim">
+        <div class="sim-head">
+          <h3>V–I graph simulator</h3>
+          <p class="sim-hint">Change the load resistor <var>R</var> to move along the line. Change <var>E</var> and <var>r</var> to move the line itself.</p>
         </div>
-        <figure class="figure">
-          <svg class="circuit wide" id="vi-svg" viewBox="0 0 290 200" role="img" aria-label="Graph of terminal p.d. against current: a straight line of negative gradient with the y-intercept marked as the EMF and the x-intercept marked as the short-circuit current">
-            <title>Terminal p.d. against current</title>
-            <path class="wire" d="M48 22 V164 H268"/>
-            <path class="wire" d="M48 22 L44 30 M48 22 L52 30"/>
-            <path class="wire" d="M268 164 L260 160 M268 164 L260 168"/>
-            <line class="vi-a" id="vi-line" x1="48" y1="42" x2="264" y2="164"/>
-            <circle class="node" id="vi-yint" cx="48" cy="42" r="4"/>
-            <circle class="node" id="vi-xint" cx="264" cy="164" r="4"/>
-            <text transform="rotate(-90 16 95)" x="16" y="95" text-anchor="middle">terminal p.d. <tspan font-style="italic">V</tspan> (V)</text>
-            <text x="158" y="190" text-anchor="middle">current <tspan font-style="italic">I</tspan> (A)</text>
-            <text id="vi-elab" x="56" y="40"><tspan font-style="italic">E</tspan></text>
-            <text id="vi-ilab" x="260" y="156" text-anchor="end"><tspan font-style="italic">I</tspan>(short)</text>
-          </svg>
-        </figure>
-        <div class="readout" id="vi-out" aria-live="polite">—</div>
-        <div class="working" id="vi-work"></div>
+        <div class="sim-predict" id="vi-predict">
+          <p class="sim-q"><b>Predict</b> what the voltmeter reads when the load resistor <var>R</var> is turned down to 0 Ω (a short circuit).</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="emf" aria-pressed="false">The EMF <var>E</var><template data-feedback><p>Not this one. The voltmeter reads the EMF only when <strong>no current</strong> flows. A short circuit gives the <strong>largest</strong> current, so the lost volts <var>I</var><var>r</var> are as big as they can be. Think about what is left for the terminals.</p></template></button>
+            <button type="button" data-predict="zero" aria-pressed="false">Zero<template data-feedback><p><strong>Right.</strong> With <var>R</var> = 0 the terminal p.d. is <var>V</var> = <var>I</var><var>R</var> = 0. All of the EMF is lost inside the cell: <var>E</var> = <var>I</var><var>r</var>, so the current is the short-circuit current <var>I</var> = <var>E</var> ÷ <var>r</var>. On the graph this is where the line meets the current axis.</p></template></button>
+            <button type="button" data-predict="half" aria-pressed="false">Half the EMF<template data-feedback><p>Not quite. Half the EMF is lost only when <var>R</var> = <var>r</var>. With <var>R</var> = 0 there is no outside resistance at all for a p.d. to appear across. Use <var>V</var> = <var>I</var><var>R</var>.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+        </div>
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs vi-figs">
+              <figure class="sim-fig">
+                <svg class="sim-circuit" id="vi-circ" viewBox="0 0 320 214" role="img" aria-label="Circuit">
+                  <title>The cell, with its EMF and internal resistance inside a dashed box, connected to a variable load resistor</title>
+                  <rect class="dash" x="8" y="46" width="124" height="128" rx="6"/>
+                  <path class="wire" d="M40 30 V46 M40 46 V66 M40 76 V100 M40 136 V174 M40 174 V190"/>
+                  <path class="wire" d="M26 66 H54"/>
+                  <path class="wire thick" d="M32 76 H48"/>
+                  <rect class="res" x="31" y="100" width="18" height="36" rx="1"/>
+                  <circle class="term" cx="40" cy="46" r="4"/>
+                  <circle class="term" cx="40" cy="174" r="4"/>
+                  <text x="60" y="77"><tspan class="it">E</tspan> = <tspan id="vi-c-e">3.0</tspan> V</text>
+                  <text x="60" y="124"><tspan class="it">r</tspan> = <tspan id="vi-c-r">1.0</tspan> Ω</text>
+                  <text class="sm" x="126" y="166" text-anchor="end">cell</text>
+                  <path class="wire" d="M40 30 H290 V86 M290 134 V190 H40"/>
+                  <circle class="node" cx="160" cy="30" r="3.5"/>
+                  <circle class="node" cx="160" cy="190" r="3.5"/>
+                  <path class="wire" d="M160 30 V86 M160 114 V190"/>
+                  <circle class="meter" cx="160" cy="100" r="14"/>
+                  <text x="160" y="105.5" text-anchor="middle">V</text>
+                  <text class="val" x="180" y="146"><tspan id="vi-c-v">2.50</tspan> V</text>
+                  <circle class="meter" cx="226" cy="30" r="14"/>
+                  <text x="226" y="35.5" text-anchor="middle">A</text>
+                  <text class="val" x="226" y="64" text-anchor="middle"><tspan id="vi-c-i">0.500</tspan> A</text>
+                  <rect class="res" x="281" y="86" width="18" height="48" rx="1"/>
+                  <path class="wire" d="M268 148 L310 72 M310 72 L300 76 M310 72 L309 82"/>
+                  <text x="272" y="116" text-anchor="end"><tspan class="it">R</tspan> = <tspan id="vi-c-rl">5.0</tspan> Ω</text>
+                </svg>
+                <figcaption>The voltmeter reads the terminal p.d. <var>V</var>; the ammeter reads the current <var>I</var>.</figcaption>
+              </figure>
+              <figure class="sim-fig sim-graph">
+                <svg id="vi-graph"></svg>
+              </figure>
+            </div>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out"><span class="k">Current <var>I</var></span><span class="v" id="vi-o-i">—</span></div>
+              <div class="sim-out is-key"><span class="k">Terminal p.d. <var>V</var></span><span class="v" id="vi-o-v">—</span></div>
+              <div class="sim-out"><span class="k">Lost volts <var>I</var><var>r</var></span><span class="v" id="vi-o-lost">—</span></div>
+              <div class="sim-out"><span class="k">Short-circuit current</span><span class="v" id="vi-o-short">—</span></div>
+            </div>
+            <p class="sim-working" id="vi-work" aria-live="polite"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Load resistor <var>R</var> (Ω)</span>
+              <span class="sim-row"><input type="range" data-sim="rl" min="0" max="20" step="0.5" value="5" aria-label="Load resistance R in ohms"><input class="sim-num" type="number" data-sim="rl" min="0" max="20" step="0.5" value="5" inputmode="decimal" aria-label="Load resistance R in ohms, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">EMF <var>E</var> (V)</span>
+              <span class="sim-row"><input type="range" data-sim="e" min="1" max="6" step="0.5" value="3" aria-label="EMF E in volts"><input class="sim-num" type="number" data-sim="e" min="1" max="6" step="0.5" value="3" inputmode="decimal" aria-label="EMF E in volts, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Internal resistance <var>r</var> (Ω)</span>
+              <span class="sim-row"><input type="range" data-sim="r" min="0.5" max="5" step="0.5" value="1" aria-label="Internal resistance r in ohms"><input class="sim-num" type="number" data-sim="r" min="0.5" max="5" step="0.5" value="1" inputmode="decimal" aria-label="Internal resistance r in ohms, typed"></span>
+            </label>
+            <p class="sim-note">The line meets the p.d. axis at <var>E</var> and the current axis at the short-circuit current. Its gradient is −<var>r</var>.</p>
+            <p class="sim-note" id="vi-grad" aria-live="polite"></p>
+            <p class="sim-note">The orange ring is the reading for this load resistor.</p>
+          </div>
+        </div>
       </div>
 
       <div class="widget" data-prog-challenge="ch-graph" id="graph-quiz">
         <h3>Read the V–I graph</h3>
-        <p class="hint">Use the graph above, then check both answers.</p>
+        <p class="hint">Use the simulator above, then check both answers.</p>
         <p class="qstem" style="font-weight:900; margin:.2rem 0 .4rem;">1. On a graph of terminal p.d. (y) against current (x), the y-intercept gives you…</p>
         <label class="opt"><input type="radio" name="gq1" value="0">the internal resistance</label>
         <label class="opt"><input type="radio" name="gq1" value="1">the EMF</label>
@@ -1063,7 +1110,7 @@ Larger current → larger lost volts (Ir), so t.p.d. = E − Ir falls.  (1)</div
         </figure>
         <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) EMF = y-intercept = 1.50 V
 (b) short-circuit current = x-intercept = 5.0 A
-(c) I_short = E ÷ r → r = E ÷ I_short = 1.50 ÷ 5.0 = 0.30 Ω</div></div></details>
+(c) <var>I</var><sub>short</sub> = <var>E</var> ÷ <var>r</var> → <var>r</var> = <var>E</var> ÷ <var>I</var><sub>short</sub> = 1.50 ÷ 5.0 = 0.30 Ω</div></div></details>
       </div>
 
       <details class="reveal">
@@ -1131,81 +1178,50 @@ Larger current → larger lost volts (Ir), so t.p.d. = E − Ir falls.  (1)</div
     function $(id){ return document.getElementById(id); }
     function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
     function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
-    function bindPair(rangeId, numId, onChange){
-      var r=$(rangeId), n=$(numId);
-      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
-      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ r.value=v; onChange(parseFloat(r.value)); } });
-    }
-
-    /* V–I graph simulator */
-    (function(){
-      if(!$("vi-svg")) return;
-      var E=3, r=1;
-      var OX=48, TOP=22, BOT=164, RIGHT=268;
-      var W=RIGHT-OX, H=BOT-TOP, YMAX=6;
-      function niceCeil(v){ var s=[1,2,3,4,5,6,8,10,12,15,20,24]; for(var i=0;i<s.length;i++){ if(s[i]>=v) return s[i]; } return Math.ceil(v); }
-      function update(){
-        var ishort = E/r;
-        var xmax = niceCeil(ishort);
-        var ay = BOT - (E/YMAX)*H;
-        var bx = OX + (ishort/xmax)*W;
-        var line=$("vi-line"); line.setAttribute("x1",OX); line.setAttribute("y1",round(ay,1)); line.setAttribute("x2",round(bx,1)); line.setAttribute("y2",BOT);
-        var yi=$("vi-yint"); yi.setAttribute("cx",OX); yi.setAttribute("cy",round(ay,1));
-        var xi=$("vi-xint"); xi.setAttribute("cx",round(bx,1)); xi.setAttribute("cy",BOT);
-        $("vi-elab").setAttribute("y", round(ay,1)-4);
-        var il=$("vi-ilab"); il.setAttribute("x", round(bx,1)-4); il.setAttribute("y", BOT-8);
-        setT("vi-out","EMF = "+E+" V · internal resistance = "+r+" Ω · short-circuit current = "+round(ishort,2)+" A");
-        $("vi-work").textContent =
-          "V = E − rI   (straight line)\n"+
-          "y-intercept = EMF = "+E+" V\n"+
-          "gradient = −r = −"+r+" V A⁻¹\n"+
-          "I_short = E ÷ r = "+E+" ÷ "+r+" = "+round(ishort,2)+" A";
-      }
-      bindPair("vi-e","vi-e-n",function(v){ E=v; update(); });
-      bindPair("vi-r","vi-r-n",function(v){ r=v; update(); });
-      update();
-    })();
-
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"The EMF of a battery is best described as", o:["the energy lost in the internal resistance","the energy supplied to each coulomb of charge passing through it","the total charge it can deliver","the current it supplies per second"], a:1 },
-        { q:"A cell of EMF 1.5 V and internal resistance 0.50 Ω drives a current of 0.20 A. The lost volts are", o:["0.30 V","0.10 V","0.75 V","3.0 V"], a:1 },
-        { q:"A 6.0 V battery of internal resistance 0.50 Ω is connected to a 2.5 Ω resistor. The current is", o:["2.4 A","12 A","2.0 A","0.42 A"], a:2 },
-        { q:"A graph of terminal p.d. against current has a gradient of −0.25 V A⁻¹ and a y-intercept of 1.5 V. The internal resistance is", o:["1.5 Ω","0.25 Ω","6.0 Ω","−0.25 Ω"], a:1 },
-        { q:"For the cell in the previous question, the short-circuit current is", o:["0.17 A","1.5 A","6.0 A","0.38 A"], a:2 },
-        { q:"A second resistor is added in parallel across a real battery. The terminal p.d.", o:["increases","decreases, because the current rises and the lost volts rise","stays the same","becomes equal to the EMF"], a:1 }
+        {"q": "The EMF of a battery is best described as", "o": ["the energy lost in the internal resistance", "the energy supplied to each coulomb of charge passing through it", "the total charge it can deliver", "the current it supplies per second"], "a": 1, "f": ["Not this one. Energy lost inside the source is the <strong>lost volts</strong>. EMF is about the energy the source <strong>gives</strong> to the charge.", "<strong>Right.</strong> EMF is the energy supplied to each coulomb of charge passing through the source: 1 V = 1 J C<sup>−1</sup>.", "Not this one. Total charge is measured in coulombs, but EMF is measured in volts. A volt is energy per coulomb.", "Not this one. Charge per second is current, measured in amps. EMF is measured in volts, so think energy per coulomb."]},
+        {"q": "A cell of EMF 1.5 V and internal resistance 0.50 Ω drives a current of 0.20 A. The lost volts are", "o": ["0.30 V", "0.10 V", "0.75 V", "3.0 V"], "a": 1, "f": ["Not this one. That is <var>E</var> × <var>I</var>. The lost volts happen across the internal resistance, so they use <var>r</var>, not <var>E</var>.", "<strong>Right.</strong> Lost volts = <var>I</var><var>r</var> = 0.20 × 0.50 = 0.10 V.", "Not this one. That is <var>E</var> × <var>r</var>. The lost volts depend on the current through <var>r</var>.", "Not this one. That is a division. Lost volts are a p.d., so use <var>V</var> = <var>I</var><var>R</var> with the internal resistance."]},
+        {"q": "A 6.0 V battery of internal resistance 0.50 Ω is connected to a 2.5 Ω resistor. The current is", "o": ["2.4 A", "12 A", "2.0 A", "0.42 A"], "a": 2, "f": ["Not this one. That is <var>E</var> ÷ <var>R</var>, which leaves out the internal resistance. The current passes through <var>R</var> and <var>r</var>.", "Not this one. That is <var>E</var> ÷ <var>r</var>, the short-circuit current. The 2.5 Ω resistor is still in the circuit.", "<strong>Right.</strong> <var>I</var> = <var>E</var> ÷ (<var>R</var> + <var>r</var>) = 6.0 ÷ 3.0 = 2.0 A.", "Not this one. Check which way up the division goes: current = EMF ÷ total resistance."]},
+        {"q": "A graph of terminal p.d. against current has a gradient of −0.25 V A⁻¹ and a y-intercept of 1.5 V. The internal resistance is", "o": ["1.5 Ω", "0.25 Ω", "6.0 Ω", "−0.25 Ω"], "a": 1, "f": ["Not this one. 1.5 V is the y-intercept, which gives the EMF. <var>r</var> comes from a different feature of the line.", "<strong>Right.</strong> The gradient is −<var>r</var>, so <var>r</var> = 0.25 Ω.", "Not this one. 1.5 ÷ 0.25 is <var>E</var> ÷ <var>r</var>, the short-circuit current in amps, not a resistance.", "Not quite. A resistance is never negative. The gradient is −<var>r</var>, so take its size."]},
+        {"q": "For the cell in the previous question, the short-circuit current is", "o": ["0.17 A", "1.5 A", "6.0 A", "0.38 A"], "a": 2, "f": ["Not this one. Check the division is the right way up: EMF on top, internal resistance underneath.", "Not this one. 1.5 is the EMF in volts. The short-circuit current is where the line meets the current axis.", "<strong>Right.</strong> <var>I</var><sub>short</sub> = <var>E</var> ÷ <var>r</var> = 1.5 ÷ 0.25 = 6.0 A.", "Not this one. That multiplies <var>E</var> by <var>r</var>. At a short circuit <var>V</var> = 0, so <var>E</var> = <var>I</var><var>r</var>. Rearrange for <var>I</var>."]},
+        {"q": "A second resistor is added in parallel across a real battery. The terminal p.d.", "o": ["increases", "decreases, because the current rises and the lost volts rise", "stays the same", "becomes equal to the EMF"], "a": 1, "f": ["Not this one. A parallel path lowers the total resistance, so the current rises. Think about what that does to the lost volts <var>I</var><var>r</var>.", "<strong>Right.</strong> Lower total resistance gives a bigger current, so bigger lost volts <var>I</var><var>r</var>, and <var>V</var> = <var>E</var> − <var>I</var><var>r</var> falls.", "Not quite. That is true only for an ideal supply. A real battery has internal resistance, so its lost volts change with the current.", "Not this one. The terminal p.d. equals the EMF only when <strong>no</strong> current flows. Here the current gets bigger."]}
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
         var d=document.createElement("div"); d.className="q";
         var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        html+='<p class="q-fb" id="qfb'+qi+'" hidden></p>';
         d.innerHTML=html; box.appendChild(d);
       });
       function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
       function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      /* every option teaches: the pupil sees feedback on the option they picked; a wrong
+         pick is not given the answer, so they can think again and re-mark */
       $("quiz-mark").addEventListener("click", function(){
         if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
-        var score=0;
+        var score=0, done=0;
         clearNotes();
         QS.forEach(function(item,qi){
-          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked'), out=$("qfb"+qi);
           box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
-          right.classList.add("correct"); addNote(right, "✓ correct answer");
-          if(chosen){
-            var oi=parseInt(chosen.value,10);
-            if(oi===item.a) score++;
-            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
-          }
+          if(!chosen){ out.hidden=true; return; }
+          done++;
+          var oi=parseInt(chosen.value,10), ok=(oi===item.a), lab=chosen.parentNode;
+          if(ok) score++;
+          lab.classList.add(ok?"correct":"wrong");
+          addNote(lab, ok?"✓ right":"✗ not this one");
+          out.innerHTML=item.f[oi]; out.className="q-fb "+(ok?"ok":"no"); out.hidden=false;
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
-        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+        setT("quiz-score","Score: "+score+" / "+QS.length+(done<QS.length?" ("+(QS.length-done)+" not answered)":"")+"   (best: "+best+")");
       });
       $("quiz-reset").addEventListener("click", function(){
         box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
         box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        box.querySelectorAll(".q-fb").forEach(function(p){ p.hidden=true; p.innerHTML=""; });
         clearNotes();
         setT("quiz-score","");
       });
@@ -1219,9 +1235,9 @@ Larger current → larger lost volts (Ir), so t.p.d. = E − Ir falls.  (1)</div
         "Explain ideal supply, open circuit and short circuit.",
         "Use E = V + Ir and E = I(R + r) in multi-step problems.",
         "Find the lost volts and terminal p.d. for a circuit.",
-        "Find the short-circuit current (I_short = E ÷ r).",
+        "Find the short-circuit current (E ÷ r).",
         "Describe the experiment to measure EMF and internal resistance.",
-        "Read EMF (intercept), r (gradient) and I_short from a V–I graph.",
+        "Read EMF (intercept), r (gradient) and the short-circuit current from a V–I graph.",
         "Justify the effect on terminal p.d. when the circuit changes.",
         "Lay out an internal-resistance calculation the SQA way."
       ];
@@ -1416,33 +1432,111 @@ Larger current → larger lost volts (Ir), so t.p.d. = E − Ir falls.  (1)</div
       });
     })();
 
-    /* ---- predict & justify ---- */
+    /* ---- predict & justify: every option carries its own feedback ---- */
     (function(){
       var w=$("predict"); if(!w) return;
-      [].forEach.call(w.querySelectorAll(".predict-btns button"), function(b){
+      var btns=w.querySelectorAll(".predict-btns button"), out=$("pred-fb");
+      [].forEach.call(btns, function(b){
+        b.setAttribute("aria-pressed","false");
         b.addEventListener("click", function(){
-          var ok=b.getAttribute("data-pred")==="1";
-          $("pred-fb").hidden=false;
-          [].forEach.call(w.querySelectorAll(".predict-btns button"), function(x){ x.disabled=true; });
+          var ok=b.getAttribute("data-pred")==="1", t=b.querySelector("template");
+          [].forEach.call(btns, function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+          out.innerHTML='<div class="note">'+(t?t.innerHTML:"")+'</div>'; out.hidden=false;
+          if(ok){ [].forEach.call(btns, function(x){ x.disabled=true; }); }
           award("ch-predict",10,ok);
         });
       });
     })();
 
-    /* ---- V–I graph MCQ ---- */
+    /* ---- graph MCQ: feedback on each picked option ---- */
     (function(){
       var w=$("graph-quiz"); if(!w) return;
+      var ANS={"gq1": "1", "gq2": "1"}, FB={"gq1": ["Not this one. <var>r</var> sets how steeply the line falls, not where it starts. Look at what <var>V</var> is when no current flows.", "<strong>Right.</strong> At the y-intercept <var>I</var> = 0, so there are no lost volts and <var>V</var> = <var>E</var>.", "Not quite. The short-circuit current is on the <strong>current</strong> axis, where <var>V</var> = 0. The y-intercept is on the p.d. axis."], "gq2": ["Not this one. The y-intercept is the p.d. when no current flows. Think about what decides how fast <var>V</var> falls as <var>I</var> rises.", "<strong>Right.</strong> <var>V</var> = <var>E</var> − <var>r</var><var>I</var>, so the gradient is −<var>r</var> and <var>r</var> is its size.", "Not quite. The x-intercept is the short-circuit current. It gives <var>r</var> only if you also use <var>E</var>. Which feature of the line gives <var>r</var> on its own?"]};
+      Object.keys(ANS).forEach(function(name){
+        var labs=w.querySelectorAll('input[name="'+name+'"]'), last=labs[labs.length-1].parentNode;
+        var p=document.createElement("p"); p.className="q-fb"; p.id="fb-"+name; p.hidden=true; p.setAttribute("aria-live","polite");
+        last.parentNode.insertBefore(p, last.nextSibling);
+      });
       $("gq-check").addEventListener("click", function(){
-        var a1=w.querySelector('input[name="gq1"]:checked');
-        var a2=w.querySelector('input[name="gq2"]:checked');
-        if(!a1||!a2){ fb($("gq-fb"), false, "Answer both questions first."); return; }
-        var ok = a1.value==="1" && a2.value==="1";
-        if(ok){ fb($("gq-fb"), true, "Yes — the y-intercept is the EMF, and the internal resistance is the magnitude of the gradient."); award("ch-graph",10,true); }
-        else { fb($("gq-fb"), false, "Not quite — the y-intercept is the EMF (V when I = 0) and r is the size of the gradient. Try again."); award("ch-graph",0,false); }
+        var all=true, ok=true;
+        Object.keys(ANS).forEach(function(name){
+          var c=w.querySelector('input[name="'+name+'"]:checked'), p=$("fb-"+name);
+          if(!c){ all=false; p.hidden=true; return; }
+          var right=c.value===ANS[name];
+          if(!right) ok=false;
+          p.innerHTML=FB[name][parseInt(c.value,10)]; p.className="q-fb "+(right?"ok":"no"); p.hidden=false;
+        });
+        if(!all){ fb($("gq-fb"), false, "Answer both questions first."); return; }
+        if(ok){ fb($("gq-fb"), true, "Both right: the y-intercept is the EMF, and the internal resistance is the size of the gradient."); award("ch-graph",10,true); }
+        else { fb($("gq-fb"), false, "Read the feedback under the one that needs another look, then check again."); award("ch-graph",0,false); }
       });
     })();
 
   })();
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+    var K = window.WidgetKit, root = document.getElementById("vi-sim");
+    if (!K || !root) { return; }
+    function $(id) { return document.getElementById(id); }
+    var NICE = [0.4, 0.5, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
+    function niceAbove(v) { for (var i = 0; i < NICE.length; i++) { if (NICE[i] >= v) { return NICE[i]; } } return Math.ceil(v); }
+    function one(x) { return K.fmt(x, x < 10 ? 2 : 3); }
+
+    var seen = false;
+    function firstUse() {
+      if (seen) { return; }
+      seen = true;
+      if (window.Progress && Progress.markSeen) { Progress.markSeen("hp-emf"); }
+    }
+    root.addEventListener("input", firstUse);
+    root.addEventListener("click", function (e) { if (e.target.closest("button")) { firstUse(); } });
+
+    K.poeCard($("vi-predict"), { answer: "zero" });
+
+    var g = K.graph($("vi-graph"), {
+      x: { min: 0, max: 5, label: "current", unit: "A" },
+      y: { min: 0, max: 8, label: "terminal p.d.", unit: "V", step: 1 },
+      title: "Graph of terminal p.d. against current",
+      layouts: [{ maxWidth: 520, w: 320, h: 280 }, { w: 420, h: 320 }]
+    });
+
+    K.liveSim(root, {
+      render: function (s) {
+        var E = s.e, r = s.r, R = s.rl;
+        var Is = E / r, I = E / (R + r), V = I * R, lost = I * r;
+        var xmax = niceAbove(Is * 1.8);
+        g.setX({ min: 0, max: xmax, step: undefined });
+        g.line("vi", [[0, E], [Is, 0]]);
+        g.ref("e", "y", E, { label: "<i>E</i> = " + one(E) + " V" });
+        g.ref("is", "x", Is, { label: "<i>I</i><sub>short</sub> = " + K.fmt(Is) + " A" });
+        g.marker("yint", 0, E);
+        g.marker("xint", Is, 0);
+        g.marker("now", I, V, { cls: "kg-c2" });
+        g.describe("A straight line falling from the EMF, " + one(E) + " volts, on the p.d. axis to the short-circuit current, " +
+          K.fmt(Is) + " amps, on the current axis. Gradient minus " + one(r) + " volts per amp. This setting: " +
+          K.fmt(I) + " amps at " + K.fmt(V) + " volts.");
+
+        $("vi-c-e").textContent = one(E);
+        $("vi-c-r").textContent = one(r);
+        $("vi-c-rl").textContent = one(R);
+        $("vi-c-v").textContent = K.fmt(V);
+        $("vi-c-i").textContent = K.fmt(I);
+        $("vi-circ").setAttribute("aria-label", "Circuit: a cell of EMF " + one(E) + " volts with internal resistance " + one(r) +
+          " ohms inside a dashed box, connected to a load resistor of " + one(R) + " ohms. The ammeter in series reads " +
+          K.fmt(I) + " amps. The voltmeter across the terminals reads " + K.fmt(V) + " volts.");
+
+        $("vi-o-i").textContent = K.fmt(I) + " A";
+        $("vi-o-v").textContent = K.fmt(V) + " V";
+        $("vi-o-lost").textContent = K.fmt(lost) + " V";
+        $("vi-o-short").textContent = K.fmt(Is) + " A";
+        $("vi-grad").innerHTML = "Gradient = −<var>r</var> = " + "−" + one(r) + " V A<sup>−1</sup>";
+        $("vi-work").innerHTML = "<var>I</var> = <var>E</var> ÷ (<var>R</var> + <var>r</var>) = " + one(E) + " ÷ (" + one(R) + " + " + one(r) + ") = " +
+          K.fmt(I) + " A<br><var>V</var> = <var>E</var> − <var>I</var><var>r</var> = " + one(E) + " − (" + K.fmt(I) + " × " + one(r) + ") = " + K.fmt(V) + " V";
+      }
+    });
+  });
   </script>
 </body>
 </html>
