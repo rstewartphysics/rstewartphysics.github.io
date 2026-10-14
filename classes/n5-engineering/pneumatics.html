@@ -18,9 +18,10 @@ title: Pneumatics — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261014b">
   <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261014a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
   <style>
     :root {
@@ -158,6 +159,34 @@ title: Pneumatics — National 5 Engineering Science
     .mode-card { border-left: 4px solid var(--eng-border); }
 
     .mode-card[href="#answers"], .mode-card[href="#s5"] { border-left-color: var(--ex-bd); }
+
+
+    /* cylinder force calculator (layout and controls from /assets/css/sims.css) */
+    .sim { --sim-accent-ink: var(--eng-ink-accent); }
+    #forceSim .c-wall { fill: var(--eng-muted); }
+    #forceSim .c-port { fill: var(--eng-surface); stroke: var(--eng-text); stroke-width: 1.2; }
+    #forceSim .c-air { fill: var(--eng-teal); }
+    #forceSim .c-rod { fill: var(--eng-surface); stroke: var(--eng-text); stroke-width: 1.6; }
+    #forceSim .c-piston { fill: var(--eng-surface); stroke: var(--eng-text); stroke-width: 1.6; }
+    #forceSim .c-face { fill: var(--eng-orange); stroke: var(--eng-text); stroke-width: 1.4; }
+    #forceSim .c-press { stroke: var(--eng-text); stroke-width: 2.2; }
+    #forceSim .c-press-h { fill: var(--eng-text); }
+    #forceSim .c-flow { stroke: var(--eng-ink-teal); stroke-width: 3; }
+    #forceSim .c-flow-h { fill: var(--eng-ink-teal); }
+    #forceSim .c-force { stroke: var(--good); stroke-width: 4; }
+    #forceSim .c-force-h { fill: var(--good); }
+    #forceSim .c-dim { stroke: var(--eng-text); stroke-width: 1.4; }
+    #forceSim .c-dim-h { fill: var(--eng-text); }
+    #forceSim .c-ext { stroke: var(--eng-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+    #forceSim .c-t { fill: var(--eng-text); font-family: var(--font-stack); font-size: 15px; font-weight: 800; }
+    #forceSim .c-small { font-size: 15px; }
+    #forceSim .c-strong { font-weight: 900; fill: var(--good); }
+    #forceSim .sim-working { font-size: 1rem; }
+    #forceSim .sim-note var, .q .q-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
+
+    .q .q-fb { margin: .55rem 0 0; padding: .45rem .7rem; border-left: 4px solid var(--bad); border-radius: 0 8px 8px 0; background: var(--eng-surface-2); color: var(--eng-text); font-weight: 600; line-height: 1.55; }
+    .q .q-fb.ok { border-left-color: var(--good); }
+    .q .q-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
 
     @media print {
           .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
@@ -602,24 +631,47 @@ title: Pneumatics — National 5 Engineering Science
 
       <div class="note"><strong>Outstroke vs instroke.</strong> On a double-acting cylinder the <strong>instroke force is smaller</strong> than the outstroke force at the same pressure — the piston rod takes up some of the area on the instroke side, so the air acts on a smaller (effective) area.</div>
 
-      <div class="widget" id="forceSim" data-prog-challenge="ch-force-calc">
-        <h3>Cylinder force calculator — live</h3>
-        <p class="hint">Drag the piston diameter and the working pressure. The calculator shows <strong>both steps</strong>: area first (A = πd²/4), then force (F = P × A).</p>
-        <div class="kit-row">
-          <label for="fs-d">Piston diameter (mm)</label>
-          <input type="range" id="fs-d" data-sim="d" min="10" max="100" step="5" value="50" aria-label="Piston diameter in millimetres">
-          <input type="number" data-sim="d" min="10" max="100" step="5" value="50" aria-label="Piston diameter in millimetres (number)">
+      <div class="sim" id="forceSim" data-prog-challenge="ch-force-calc">
+        <div class="sim-head">
+          <h3>Cylinder force calculator</h3>
+          <p class="sim-hint">Change the piston diameter and the working pressure. The cylinder, the arrows and both steps of the working follow the numbers.</p>
         </div>
-        <div class="kit-row">
-          <label for="fs-p">Pressure (N mm⁻²)</label>
-          <input type="range" id="fs-p" data-sim="P" min="0.1" max="1" step="0.1" value="0.5" aria-label="Working pressure in newtons per square millimetre">
-          <input type="number" data-sim="P" min="0.1" max="1" step="0.1" value="0.5" aria-label="Working pressure in newtons per square millimetre (number)">
+
+        <div class="sim-predict" id="fs-predict">
+          <p class="sim-q"><b>Predict</b> what happens to the outstroke force when the piston diameter doubles from 50 mm to 100 mm, at the same pressure.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="x2" aria-pressed="false">It doubles<template data-feedback><p>Not quite. The force depends on the area, and <var>A</var> = π<var>d</var><sup>2</sup>/4 has <var>d</var> <strong>squared</strong> in it. Doubling <var>d</var> does more than double the area.</p></template></button>
+            <button type="button" data-predict="x4" aria-pressed="false">It is four times bigger<template data-feedback><p><strong>Right.</strong> <var>A</var> = π<var>d</var><sup>2</sup>/4, so doubling <var>d</var> makes the area 2<sup>2</sup> = 4 times bigger. <var>F</var> = <var>P</var> × <var>A</var>, so the force is 4 times bigger too: 982 N becomes 3927 N. Try it on the slider.</p></template></button>
+            <button type="button" data-predict="half" aria-pressed="false">It halves<template data-feedback><p>A wider piston gives the air more area to push on, so the force goes up, not down.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">It stays the same<template data-feedback><p>The pressure is the same, but force is pressure × area (<var>F</var> = <var>P</var> × <var>A</var>). A wider piston has a bigger area.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
         </div>
-        <div class="sim-readout">
-          <div class="sr-item"><b id="fs-a">—</b><span>step 1 — area (mm²)</span></div>
-          <div class="sr-item"><b id="fs-f">—</b><span>step 2 — outstroke force (N)</span></div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+              <svg id="fs-draw" viewBox="0 0 600 312" role="img" aria-label="Double-acting cylinder on its outstroke"></svg>
+            </figure>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out"><span class="k">Step 1: piston area <var>A</var></span><span class="v" id="fs-a">—</span></div>
+              <div class="sim-out is-key"><span class="k">Step 2: outstroke force <var>F</var></span><span class="v" id="fs-f">—</span></div>
+            </div>
+            <p class="sim-working" id="fs-work"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Piston diameter <var>d</var> (mm)</span>
+              <span class="sim-row"><input type="range" data-sim="d" min="10" max="100" step="5" value="50" aria-label="Piston diameter d in millimetres"><input class="sim-num" type="number" data-sim="d" min="10" max="100" step="5" value="50" inputmode="numeric" aria-label="Piston diameter d in millimetres, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Working pressure <var>P</var> (N mm⁻²)</span>
+              <span class="sim-row"><input type="range" data-sim="P" min="0.1" max="1" step="0.1" value="0.5" aria-label="Working pressure P in newtons per square millimetre"><input class="sim-num" type="number" data-sim="P" min="0.1" max="1" step="0.1" value="0.5" inputmode="decimal" aria-label="Working pressure P in newtons per square millimetre, typed"></span>
+            </label>
+            <p class="sim-note">Air pushes on the whole piston face. The shaded face is the area <var>A</var>.</p>
+          </div>
         </div>
-        <p class="sim-readout" id="fs-desc" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
+
         <div class="kit-task">
           <strong>Challenge:</strong> a machine needs an outstroke force between <strong>1400 N and 1430 N</strong>. Find a diameter-and-pressure combination that delivers it.
           <div class="kit-actions"><button type="button" id="fs-check">Check</button></div>
@@ -883,16 +935,16 @@ title: Pneumatics — National 5 Engineering Science
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"Pneumatics is the use of", o:["pressurised oil to move machines","compressed air to move and control machines","electric motors to compress air","steam to drive pistons"], a:1 },
-        { q:"The component that stores compressed air ready for use is the", o:["compressor","regulator","reservoir","restrictor"], a:2 },
-        { q:"A single-acting cylinder is controlled by a", o:["3/2 valve","5/2 valve","shuttle valve","diaphragm valve"], a:0 },
-        { q:"A double-acting cylinder is controlled by a", o:["3/2 valve","5/2 valve","shuttle valve","roller valve"], a:1 },
-        { q:"A piston of area 2000 mm² works at 0.6 N mm⁻². The outstroke force is", o:["333 N","1200 N","2000 N","3333 N"], a:1 },
-        { q:"A piston has diameter 60 mm at 0.5 N mm⁻². The outstroke force is about", o:["94 N","707 N","1414 N","2827 N"], a:2 },
-        { q:"Two 3/2 valves connected in series give the logic function", o:["OR","NOT","AND","XOR"], a:2 },
-        { q:"A shuttle valve gives the logic function", o:["OR","NOT","AND","NAND"], a:0 },
-        { q:"The instroke force of a double-acting cylinder is less than its outstroke force because", o:["the air pressure drops on the instroke","the piston rod reduces the effective area","the spring resists the instroke","the exhaust port is smaller"], a:1 },
-        { q:"A pneumatic time delay is made from", o:["two shuttle valves in series","a unidirectional restrictor and a small reservoir piloting a valve","a 5/2 valve and a spring","a solenoid and a diaphragm"], a:1 }
+        { q:"Pneumatics is the use of", o:["pressurised oil to move machines","compressed air to move and control machines","electric motors to compress air","steam to drive pistons"], a:1, f:["Pressurised oil is hydraulics. Pneumatics uses a gas.", "<strong>Right.</strong> Pneumatics uses compressed air to move and control machines.", "A motor drives the compressor, but pneumatics means using the compressed air itself to do the work.", "Steam drives the pistons in a steam engine. Pneumatic systems use air."] },
+        { q:"The component that stores compressed air ready for use is the", o:["compressor","regulator","reservoir","restrictor"], a:2, f:["The compressor makes the compressed air. Another part holds it ready for use.", "The regulator sets the working pressure. It does not store air.", "<strong>Right.</strong> The reservoir stores compressed air, so the supply stays steady.", "A restrictor slows the flow of air to control speed. It does not store air."] },
+        { q:"A single-acting cylinder is controlled by a", o:["3/2 valve","5/2 valve","shuttle valve","diaphragm valve"], a:0, f:["<strong>Right.</strong> A single-acting cylinder has one port, so a 3/2 valve is enough: it sends air in, then lets it out to exhaust.", "A 5/2 valve has two outlets, one for each port of a double-acting cylinder. A single-acting cylinder has only one port.", "A shuttle valve gives OR control between two signals. It does not control a cylinder on its own.", "A diaphragm valve reacts to a small pressure signal. Count the cylinder's ports, then pick the valve that suits it."] },
+        { q:"A double-acting cylinder is controlled by a", o:["3/2 valve","5/2 valve","shuttle valve","roller valve"], a:1, f:["A 3/2 valve has one outlet. A double-acting cylinder has two ports, so it needs a valve with two outlets.", "<strong>Right.</strong> A 5/2 valve feeds one port and exhausts the other, then swaps them over.", "A shuttle valve gives OR control between two signals. It cannot drive both ports of a cylinder.", "\"Roller\" says how a valve is operated, not which valve a double-acting cylinder needs. Count the cylinder's ports."] },
+        { q:"A piston of area 2000 mm² works at 0.6 N mm⁻². The outstroke force is", o:["333 N","1200 N","2000 N","3333 N"], a:1, f:["Check the operation. <var>F</var> = <var>P</var> × <var>A</var>, so multiply the pressure by the area.", "<strong>Right.</strong> <var>F</var> = <var>P</var> × <var>A</var> = 0.6 × 2000 = 1200 N.", "2000 is the area in mm². Multiply it by the pressure to get the force.", "You divided the area by the pressure. <var>F</var> = <var>P</var> × <var>A</var>, so multiply."] },
+        { q:"A piston has diameter 60 mm at 0.5 N mm⁻². The outstroke force is about", o:["94 N","707 N","1414 N","2827 N"], a:2, f:["The diameter has not been squared. Start with <var>A</var> = π<var>d</var><sup>2</sup>/4 = π × 60<sup>2</sup> ÷ 4.", "This is half the force. Find the area first, then multiply by the pressure once: <var>F</var> = <var>P</var> × <var>A</var>.", "<strong>Right.</strong> <var>A</var> = π × 60<sup>2</sup> ÷ 4 = 2827 mm², then <var>F</var> = <var>P</var> × <var>A</var> = 0.5 × 2827 = 1414 N.", "2827 mm² is the area. Step 2 is still to do: <var>F</var> = <var>P</var> × <var>A</var>."] },
+        { q:"Two 3/2 valves connected in series give the logic function", o:["OR","NOT","AND","XOR"], a:2, f:["OR works when either valve is pressed on its own. In series, the air has to pass through both valves.", "NOT gives an output when the input is off. Here, nothing comes out until valves are pressed.", "<strong>Right.</strong> Air only reaches the output when both valves are operated: AND control.", "In series, the air must pass through one valve and then the other. Think about which valves have to be pressed."] },
+        { q:"A shuttle valve gives the logic function", o:["OR","NOT","AND","NAND"], a:0, f:["<strong>Right.</strong> A signal at either input moves the shuttle and passes through: OR control.", "A shuttle valve passes a signal through. It does not turn a signal off.", "AND needs both inputs on. A shuttle valve passes air from just one input.", "NAND would give an output with no input on. A shuttle valve only passes air when an input is on."] },
+        { q:"The instroke force of a double-acting cylinder is less than its outstroke force because", o:["the air pressure drops on the instroke","the piston rod reduces the effective area","the spring resists the instroke","the exhaust port is smaller"], a:1, f:["The supply pressure is the same on both strokes. Look at what takes up space on the rod side of the piston.", "<strong>Right.</strong> On the instroke the air pushes on the ring round the rod, a smaller area, so <var>F</var> = <var>P</var> × <var>A</var> is smaller.", "A double-acting cylinder has no spring. Air drives both strokes.", "Port size changes how fast the air flows, not the force on the piston."] },
+        { q:"A pneumatic time delay is made from", o:["two shuttle valves in series","a unidirectional restrictor and a small reservoir piloting a valve","a 5/2 valve and a spring","a solenoid and a diaphragm"], a:1, f:["Shuttle valves give OR control. They do not make a delay.", "<strong>Right.</strong> The restrictor fills the reservoir slowly. When the pressure is high enough it pilots the valve. A bigger reservoir or a tighter restrictor gives a longer delay.", "A spring-return 5/2 valve switches at once. A delay needs air to build up slowly.", "A solenoid switches a valve electrically and at once. A delay needs air to build up slowly."] }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -901,7 +953,9 @@ title: Pneumatics — National 5 Engineering Science
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
         d.innerHTML=html; box.appendChild(d);
       });
-      function clearNotes(){ [].forEach.call(box.querySelectorAll(".mark-note"), function(s){ s.parentNode.removeChild(s); }); }
+      function clearNotes(){ [].forEach.call(box.querySelectorAll(".mark-note, .q-fb"), function(s){ s.parentNode.removeChild(s); }); }
+      /* every option teaches: the picked option's own feedback appears under the question */
+      function addFb(qi, item, oi){ var p=document.createElement("p"); p.className="q-fb "+(oi===item.a?"ok":"no"); p.innerHTML=item.f[oi]; box.children[qi].appendChild(p); }
       function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
       $("quiz-mark").addEventListener("click", function(){
         if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
@@ -914,6 +968,7 @@ title: Pneumatics — National 5 Engineering Science
           right.classList.add("correct"); addNote(right, "✓ correct answer");
           if(chosen){
             var oi=parseInt(chosen.value,10);
+            addFb(qi, item, oi);
             if(oi===item.a) score++;
             else { var wr=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); wr.classList.add("wrong"); addNote(wr, "✗ your answer"); }
           }
@@ -1103,36 +1158,130 @@ title: Pneumatics — National 5 Engineering Science
   })();
   </script>
 
-  <!-- Cylinder force calculator (flagship) -->
+  <!-- Cylinder force calculator (WidgetKit: liveSim, poeCard) -->
   <script>
   document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
+    var K = window.WidgetKit;
     var root = document.getElementById("forceSim");
-    if(!root) return;
+    if(!K || !root) return;
     var $ = function(id){ return document.getElementById(id); };
-    var lastF = 0;
+    var NS = "http://www.w3.org/2000/svg", svg = $("fs-draw");
+    var lastF = 0, used = false, first = true, st = null;
+    var FMAX = Math.PI * 100 * 100 / 4;
 
-    function render(s){
-      var d = Math.max(1, s.d), P = Math.max(0.01, s.P);
-      var A = Math.PI * d * d / 4;
-      var F = P * A;
-      lastF = F;
-      $("fs-a").textContent = A.toFixed(0);
-      $("fs-f").textContent = F.toFixed(0);
-      $("fs-desc").textContent = "A = π × " + d + "² ÷ 4 = " + A.toFixed(0) + " mm² · F = " + P.toFixed(1) + " × " + A.toFixed(0) + " = " + F.toFixed(0) + " N";
+    function el(name, attrs, parent){
+      var e = document.createElementNS(NS, name);
+      for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+      (parent || svg).appendChild(e);
+      return e;
+    }
+    function rich(t, html){
+      var it = false, sup = false, shift = 0;
+      String(html).split(/(<\/?(?:i|sup)>)/).forEach(function(p){
+        if(p === "<i>"){ it = true; return; } if(p === "</i>"){ it = false; return; }
+        if(p === "<sup>"){ sup = true; shift = 1; return; } if(p === "</sup>"){ sup = false; shift = -1; return; }
+        if(!p) return;
+        var s = el("tspan", {}, t); s.textContent = p;
+        if(it){ s.setAttribute("font-style", "italic"); s.setAttribute("font-family", "\"Times New Roman\", Times, Georgia, serif"); }
+        if(sup) s.setAttribute("font-size", "75%");
+        if(shift === 1){ s.setAttribute("dy", "-0.45em"); shift = 0; } else if(shift === -1){ s.setAttribute("dy", "0.45em"); shift = 0; }
+      });
+      return t;
+    }
+    function text(x, y, html, anchor, cls){ return rich(el("text", { x: x, y: y, "text-anchor": anchor || "start", "class": cls || "c-t" }), html); }
+    function arrow(x1, y1, x2, y2, cls, head){
+      var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, h = head || 9, w = h * 0.55;
+      el("line", { x1: x1, y1: y1, x2: (x2 - ux * h * 0.8).toFixed(1), y2: (y2 - uy * h * 0.8).toFixed(1), "class": cls });
+      el("path", { d: "M" + x2.toFixed(1) + " " + y2.toFixed(1) + "L" + (x2 - ux * h - uy * w).toFixed(1) + " " + (y2 - uy * h + ux * w).toFixed(1) +
+        "L" + (x2 - ux * h + uy * w).toFixed(1) + " " + (y2 - uy * h - ux * w).toFixed(1) + "Z", "class": cls + "-h" });
+    }
+    function layout(){
+      return (svg.parentNode.clientWidth || 600) < 520
+        ? { W: 340, x0: 66, x1: 236, pist: 146, pw: 16, rodEnd: 268, Lmax: 64, dimX: 54, labX: 48, lp: 28 }
+        : { W: 600, x0: 112, x1: 392, pist: 252, pw: 22, rodEnd: 470, Lmax: 112, dimX: 98, labX: 90, lp: 40 };
     }
 
-    window.WidgetKit.liveSim(root, { render: render });
+    function draw(d, P, A, F){
+      var L = layout(), cy = 160, h = 40 + d * 1.4, top = cy - h / 2, bot = cy + h / 2, wall = 8, cap = 10;
+      svg.setAttribute("viewBox", "0 0 " + L.W + " 312");
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      /* air on the cap side, stronger tint for higher pressure */
+      el("rect", { x: L.x0 + cap, y: top, width: L.pist - L.x0 - cap, height: h, "class": "c-air", "fill-opacity": (0.12 + 0.45 * P).toFixed(2) });
+      /* barrel walls and end caps, cut in section */
+      el("rect", { x: L.x0, y: top - wall, width: L.x1 - L.x0, height: wall, "class": "c-wall" });
+      el("rect", { x: L.x0, y: bot, width: L.x1 - L.x0, height: wall, "class": "c-wall" });
+      el("rect", { x: L.x0, y: top - wall, width: cap, height: h + 2 * wall, "class": "c-wall" });
+      var rodH = Math.max(10, h * 0.28);
+      el("rect", { x: L.x1 - cap, y: top - wall, width: cap, height: (h - rodH) / 2 + wall, "class": "c-wall" });
+      el("rect", { x: L.x1 - cap, y: cy + rodH / 2, width: cap, height: (h - rodH) / 2 + wall, "class": "c-wall" });
+      /* ports: air in behind the piston, air out in front of it */
+      var pin = L.x0 + cap + 12, pout = L.x1 - cap - 14;
+      el("rect", { x: pin - 8, y: 30, width: 16, height: top - wall - 30, "class": "c-port" });
+      el("rect", { x: pout - 8, y: 30, width: 16, height: top - wall - 30, "class": "c-port" });
+      arrow(pin, 30, pin, top - 2, "c-flow", 10);
+      arrow(pout, top - 2, pout, 28, "c-flow", 10);
+      text(pin, 20, "Air in", "middle", "c-t c-small");
+      text(pout, 20, "Air out", "middle", "c-t c-small");
+      /* rod and piston; the piston face (area A) is shaded */
+      el("rect", { x: L.pist + L.pw, y: cy - rodH / 2, width: L.rodEnd - L.pist - L.pw, height: rodH, "class": "c-rod" });
+      el("rect", { x: L.pist, y: top, width: L.pw, height: h, "class": "c-piston" });
+      el("ellipse", { cx: L.pist, cy: cy, rx: Math.max(4, L.pw * 0.32), ry: h / 2, "class": "c-face" });
+      /* pressure arrows push on the face */
+      var n = h > 135 ? 5 : (h > 90 ? 4 : 3), len = 10 + L.lp * P;
+      for(var i = 0; i < n; i++){
+        var y = top + h * (i + 0.5) / n;
+        arrow(L.pist - 6 - len, y, L.pist - 6, y, "c-press", 8);
+      }
+      /* the force on the rod */
+      var fl = 14 + (L.Lmax - 14) * F / FMAX;
+      arrow(L.rodEnd + 3, cy, L.rodEnd + 3 + fl, cy, "c-force", 12);
+      if(L.W < 600){ text(L.W - 6, cy - rodH / 2 - 12, "<i>F</i> = " + F.toFixed(0) + " N", "end", "c-t c-strong"); }
+      else { text(L.rodEnd + 3, cy - rodH / 2 - 12, "<i>F</i> = " + F.toFixed(0) + " N", "start", "c-t c-strong"); }
+      /* diameter d */
+      el("line", { x1: L.dimX - 6, y1: top, x2: L.x0, y2: top, "class": "c-ext" });
+      el("line", { x1: L.dimX - 6, y1: bot, x2: L.x0, y2: bot, "class": "c-ext" });
+      arrow(L.dimX, cy, L.dimX, top + 1, "c-dim", 8);
+      arrow(L.dimX, cy, L.dimX, bot - 1, "c-dim", 8);
+      text(L.labX, cy - 4, "<i>d</i> =", "end");
+      text(L.labX, cy + 16, d + " mm", "end");
+      /* pressure and area */
+      text(8, 286, "Pressure <i>P</i> = " + P.toFixed(1) + " N mm<sup>−2</sup>", "start");
+      text(8, 307, "Piston area <i>A</i> = " + A.toFixed(0) + " mm<sup>2</sup> (shaded)", "start");
+      svg.setAttribute("aria-label", "Double-acting cylinder on its outstroke. Air at pressure " + P.toFixed(1) +
+        " newtons per square millimetre pushes on a piston of diameter " + d + " millimetres, area " + A.toFixed(0) +
+        " square millimetres. The rod pushes out with a force of " + F.toFixed(0) + " newtons.");
+    }
+
+    function render(s){
+      var d = s.d, P = s.P, A = Math.PI * d * d / 4, F = P * A;
+      st = s; lastF = F;
+      draw(d, P, A, F);
+      $("fs-a").innerHTML = A.toFixed(0) + " mm<sup>2</sup>";
+      $("fs-f").textContent = F.toFixed(0) + " N";
+      $("fs-work").innerHTML = "<var>A</var> = π<var>d</var><sup>2</sup> ÷ 4 = π × " + d + "<sup>2</sup> ÷ 4 = " + A.toFixed(0) + " mm<sup>2</sup><br>" +
+        "<var>F</var> = <var>P</var> × <var>A</var> = " + P.toFixed(1) + " × " + A.toFixed(0) + " = <strong>" + F.toFixed(0) + " N</strong>";
+      if(first){ first = false; } else if(!used){
+        used = true;
+        if(window.Progress && Progress.markSeen) Progress.markSeen("eng-pneumatics");
+      }
+    }
+
+    var sim = K.liveSim(root, { render: render });
+    K.poeCard($("fs-predict"), { answer: "x4" });
+    if(window.ResizeObserver){
+      var lastW = null;
+      new ResizeObserver(function(){ var w = layout().W; if(w !== lastW){ lastW = w; sim.refresh(); } }).observe(svg.parentNode);
+    }
 
     var fb = $("fs-fb");
     $("fs-check").addEventListener("click", function(){
       if(lastF >= 1400 && lastF <= 1430){
         fb.className = "kit-fb ok";
-        fb.textContent = "✓ " + lastF.toFixed(0) + " N — in range. One classic combination: d = 60 mm at 0.5 N mm⁻² gives A = 2827 mm² and F = 1414 N.";
+        fb.textContent = "Right. " + lastF.toFixed(0) + " N is in range. One combination that works: d = 60 mm at 0.5 N mm⁻² gives A = 2827 mm² and F = 1414 N.";
         if(window.Progress) Progress.complete("ch-force-calc");
       } else {
         fb.className = "kit-fb no";
-        fb.textContent = "✗ " + lastF.toFixed(0) + " N — aim for 1400–1430 N. Remember F = P × A and A = πd²/4: try d = 60 mm at 0.5 N mm⁻².";
+        fb.textContent = "Not yet. " + lastF.toFixed(0) + " N is " + (lastF < 1400 ? "too small" : "too big") + "; aim for 1400 to 1430 N. Remember F = P × A and A = πd²/4.";
         if(window.Progress) Progress.miss();
       }
     });

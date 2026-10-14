@@ -19,6 +19,8 @@ title: Monitoring & measuring a.c. — Higher Physics
   <script src="/assets/js/progress/higher-physics.js" defer></script>
 
   <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
 
   <title>Monitoring &amp; measuring a.c. — Higher Physics</title>
   {% include site-head-icons.html %}
@@ -120,7 +122,6 @@ title: Monitoring & measuring a.c. — Higher Physics
     .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
     .field[hidden] { display: none; }
     .field .row { display: flex; align-items: center; gap: .5rem; }
-    input[type="range"] { width: 140px; accent-color: var(--accent); }
     .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
     .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .btn:hover { border-color: var(--border-strong); }
@@ -167,6 +168,37 @@ title: Monitoring & measuring a.c. — Higher Physics
 
     .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
     .ex-divider { margin: 1.1rem 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+
+    /* ---- simulator circuit drawings (live, inside .sim) ---- */
+    .sim-circuit text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 14.5px; }
+    .sim-circuit .it { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 17px; }
+    .sim-circuit .val { fill: var(--accent-2); font-weight: 900; }
+    .sim-circuit .sm { fill: var(--muted); }
+    .sim-circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim-circuit .thick { stroke-width: 5; }
+    .sim-circuit .res, .sim-circuit .meter { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .sim-circuit .node { fill: var(--text); }
+    .sim-circuit .term { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .sim-circuit .dash { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+    .sim-circuit .flow { stroke: var(--warm); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim-circuit .flow-t { fill: var(--warm); font-weight: 900; }
+    .sim-working var, .sim-note var, .sim-out .v var { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; }
+
+    /* ---- per-option quiz feedback ---- */
+    .q-fb { margin: .45rem 0 0; padding: .5rem .7rem; border-left: 4px solid var(--warm); border-radius: 0 8px 8px 0; background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .q-fb.ok { border-left-color: #15803d; }
+    @media (prefers-color-scheme: dark) { .q-fb.ok { border-left-color: #5dd693; } }
+    .predict-btns button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .scope-live text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 16px; }
+    .scope-live .val { fill: var(--accent-2); font-weight: 900; }
+    .scope-live .screen { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .scope-live .grid { stroke: var(--border-strong); stroke-width: 1; fill: none; }
+    .scope-live .axis { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+    .scope-live .trace { stroke: var(--accent); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .scope-live .mark { stroke: var(--warm); stroke-width: 2.4; stroke-dasharray: 6 4; fill: none; }
+    .sc-outs { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
+    #scope-sim .sim-seg button { min-width: 48px; }
+    @media (max-width: 520px) { .scope-live text { font-size: 18px; } }
 
     @media print {
       .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
@@ -524,7 +556,7 @@ title: Monitoring & measuring a.c. — Higher Physics
       <div class="practice">
         <span class="practice-tag">Practice 1</span>
         <p class="stem">An a.c. supply has a peak current of 0.50 A. Calculate the rms current. <span class="marks">3 marks</span></p>
-        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">I_rms = I_peak ÷ √2 = 0.50 ÷ 1.41 = 0.35 A</div></div></details>
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms"><var>I</var><sub>rms</sub> = <var>I</var><sub>peak</sub> ÷ √2 = 0.50 ÷ 1.41 = 0.35 A</div></div></details>
       </div>
     </section>
 
@@ -596,40 +628,77 @@ title: Monitoring & measuring a.c. — Higher Physics
         <figcaption>Peak voltage = (divisions to the peak) × volts/div. Period <var>T</var> = (divisions for one cycle) × time/div.</figcaption>
       </figure>
 
-      <div class="widget" id="scope-sim">
-        <h3>Oscilloscope simulator</h3>
-        <p class="hint">Set the controls and the divisions, and read off the peak voltage, period, frequency and rms.</p>
-        <div class="controls">
-          <label class="field">Y-gain (volts/div)<span class="row"><input type="range" id="sc-vd" min="0.5" max="5" step="0.5" value="2"><input class="num" id="sc-vd-n" type="number" step="0.5" value="2" inputmode="decimal"></span></label>
-          <label class="field">Time-base (ms/div)<span class="row"><input type="range" id="sc-td" min="0.5" max="10" step="0.5" value="5"><input class="num" id="sc-td-n" type="number" step="0.5" value="5" inputmode="decimal"></span></label>
-          <label class="field">Peak (divisions)<span class="row"><input type="range" id="sc-ph" min="1" max="3.5" step="0.5" value="3"><input class="num" id="sc-ph-n" type="number" step="0.5" value="3" inputmode="decimal"></span></label>
-          <label class="field">Divisions / cycle<span class="row"><input type="range" id="sc-pc" min="2" max="8" step="1" value="4"><input class="num" id="sc-pc-n" type="number" step="1" value="4" inputmode="decimal"></span></label>
+      <div class="sim" id="scope-sim">
+        <div class="sim-head">
+          <h3>Oscilloscope simulator</h3>
+          <p class="sim-hint">Set the signal, then choose the Y-gain and time-base so you can read one whole cycle and its peak from the screen.</p>
         </div>
-        <figure class="figure">
-          <svg class="scope" id="sc-svg" viewBox="0 0 320 170" role="img" aria-label="A live oscilloscope trace that changes shape as the Y-gain, time-base, peak height and divisions per cycle controls are adjusted">
-            <title>Live oscilloscope trace for the chosen settings</title>
-            <rect class="frame" x="20" y="15" width="280" height="130" rx="6"/>
-            <line class="grid" x1="48.0" y1="15" x2="48.0" y2="145"/>
-            <line class="grid" x1="76.0" y1="15" x2="76.0" y2="145"/>
-            <line class="grid" x1="104.0" y1="15" x2="104.0" y2="145"/>
-            <line class="grid" x1="132.0" y1="15" x2="132.0" y2="145"/>
-            <line class="grid" x1="160.0" y1="15" x2="160.0" y2="145"/>
-            <line class="grid" x1="188.0" y1="15" x2="188.0" y2="145"/>
-            <line class="grid" x1="216.0" y1="15" x2="216.0" y2="145"/>
-            <line class="grid" x1="244.0" y1="15" x2="244.0" y2="145"/>
-            <line class="grid" x1="272.0" y1="15" x2="272.0" y2="145"/>
-            <line class="grid" x1="20" y1="31.25" x2="300" y2="31.25"/>
-            <line class="grid" x1="20" y1="47.5" x2="300" y2="47.5"/>
-            <line class="grid" x1="20" y1="63.75" x2="300" y2="63.75"/>
-            <line class="grid" x1="20" y1="96.25" x2="300" y2="96.25"/>
-            <line class="grid" x1="20" y1="112.5" x2="300" y2="112.5"/>
-            <line class="grid" x1="20" y1="128.75" x2="300" y2="128.75"/>
-            <line class="axis" x1="20" y1="80.0" x2="300" y2="80.0"/>
-            <path class="trace" id="sc-trace" d=""/>
-          </svg>
-        </figure>
-        <div class="readout" id="sc-out" aria-live="polite">—</div>
-        <div class="working" id="sc-work"></div>
+        <div class="sim-predict" id="sc-predict">
+          <p class="sim-q">The time-base is changed from 5 ms/div to 10 ms/div. The signal does not change. <b>Predict</b> what happens to the trace.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="more" aria-pressed="false">More cycles fit on the screen<template data-feedback><p><strong>Right.</strong> Each division now stands for twice as much time, so one cycle takes up half as many divisions. Twice as many cycles fit across the screen. The period and frequency of the signal have not changed.</p></template></button>
+            <button type="button" data-predict="fewer" aria-pressed="false">Fewer cycles, spread out wider<template data-feedback><p>Not this one. The signal's period has not changed. If each division now stands for <strong>more</strong> time, does one cycle need more divisions or fewer?</p></template></button>
+            <button type="button" data-predict="taller" aria-pressed="false">The trace gets taller<template data-feedback><p>Not this one. The time-base only changes the <strong>horizontal</strong> scale. The height of the trace is set by the signal's peak voltage and the Y-gain.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">Nothing changes<template data-feedback><p>Not quite. The signal is the same, but the screen now shows a different stretch of time. Think about how many milliseconds the 10 divisions across the screen now cover.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+        </div>
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs">
+              <figure class="sim-fig">
+                <svg class="scope-live" id="sc-svg" viewBox="0 0 400 344" role="img" aria-label="Oscilloscope screen">
+                  <title>Oscilloscope screen showing the trace for the chosen settings</title>
+                  <defs><clipPath id="sc-clip"><rect x="20" y="14" width="360" height="288"/></clipPath></defs>
+                  <rect class="screen" x="20" y="14" width="360" height="288" rx="4"/>
+                  <g id="sc-grid"></g>
+                  <path class="mark" id="sc-mpeak" d=""/>
+                  <path class="mark" id="sc-mcycle" d=""/>
+                  <path class="trace" id="sc-trace" d="" clip-path="url(#sc-clip)"/>
+                  <text x="20" y="330">Y-gain <tspan class="val" id="sc-t-y">2</tspan> V/div</text>
+                  <text x="380" y="330" text-anchor="end">time-base <tspan class="val" id="sc-t-t">5</tspan> ms/div</text>
+                </svg>
+                <figcaption>Dashed lines: the peak height (centre line to the top of a wave) and one full cycle, in divisions.</figcaption>
+              </figure>
+              <div class="sim-readouts sc-outs" aria-live="polite">
+                <div class="sim-out"><span class="k">Peak height</span><span class="v" id="sc-o-ph">—</span></div>
+                <div class="sim-out"><span class="k">One cycle</span><span class="v" id="sc-o-pc">—</span></div>
+                <div class="sim-out is-key"><span class="k">Peak voltage <var>V</var><sub>peak</sub></span><span class="v" id="sc-o-vp">—</span></div>
+                <div class="sim-out"><span class="k">r.m.s. voltage <var>V</var><sub>rms</sub></span><span class="v" id="sc-o-vr">—</span></div>
+                <div class="sim-out"><span class="k">Period <var>T</var></span><span class="v" id="sc-o-t">—</span></div>
+                <div class="sim-out is-key"><span class="k">Frequency <var>f</var></span><span class="v" id="sc-o-f">—</span></div>
+              </div>
+            </div>
+            <p class="sim-working" id="sc-work" aria-live="polite"></p>
+          </div>
+          <div class="sim-controls">
+            <span class="sim-seg-label">The signal</span>
+            <label class="sim-field">
+              <span class="sim-name">Peak voltage <var>V</var><sub>peak</sub> (V)</span>
+              <span class="sim-row"><input type="range" data-sim="vp" min="0.5" max="20" step="0.1" value="5" aria-label="Signal peak voltage in volts"><input class="sim-num" type="number" data-sim="vp" min="0.5" max="20" step="0.1" value="5" inputmode="decimal" aria-label="Signal peak voltage in volts, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Frequency <var>f</var> (Hz)</span>
+              <span class="sim-row"><input type="range" data-sim="f" data-scale="log" data-min="10" data-max="1000" data-step="1" min="0" max="1000" step="1" aria-label="Signal frequency in hertz"><input class="sim-num" type="number" data-sim="f" min="10" max="1000" step="1" value="40" inputmode="decimal" aria-label="Signal frequency in hertz, typed"></span>
+            </label>
+            <div class="sim-seg" role="group" aria-label="Y-gain, volts per division">
+              <span class="sim-seg-label">Y-gain (V/div)</span>
+              <button type="button" data-sim-toggle="vd" data-value="0.5" aria-pressed="false" aria-label="0.5 volts per division">0.5</button>
+              <button type="button" data-sim-toggle="vd" data-value="1" aria-pressed="false" aria-label="1 volt per division">1</button>
+              <button type="button" data-sim-toggle="vd" data-value="2" aria-pressed="true" aria-label="2 volts per division">2</button>
+              <button type="button" data-sim-toggle="vd" data-value="5" aria-pressed="false" aria-label="5 volts per division">5</button>
+            </div>
+            <div class="sim-seg" role="group" aria-label="Time-base, milliseconds per division">
+              <span class="sim-seg-label">Time-base (ms/div)</span>
+              <button type="button" data-sim-toggle="td" data-value="0.5" aria-pressed="false" aria-label="0.5 milliseconds per division">0.5</button>
+              <button type="button" data-sim-toggle="td" data-value="1" aria-pressed="false" aria-label="1 millisecond per division">1</button>
+              <button type="button" data-sim-toggle="td" data-value="2" aria-pressed="false" aria-label="2 milliseconds per division">2</button>
+              <button type="button" data-sim-toggle="td" data-value="5" aria-pressed="true" aria-label="5 milliseconds per division">5</button>
+              <button type="button" data-sim-toggle="td" data-value="10" aria-pressed="false" aria-label="10 milliseconds per division">10</button>
+            </div>
+            <p class="sim-note" id="sc-tip" aria-live="polite"></p>
+          </div>
+        </div>
       </div>
 
       <div class="widget" data-prog-challenge="ch-graph" id="graph-quiz">
@@ -679,8 +748,8 @@ title: Monitoring & measuring a.c. — Higher Physics
       <div class="practice">
         <span class="practice-tag">Practice 2</span>
         <p class="stem">An a.c. trace shows a peak that is 2.5 divisions high with the Y-gain at 4.0 V/div, and one full cycle spanning 5.0 divisions with the time-base at 2.0 ms/div. Determine (a) the peak voltage, (b) the rms voltage and (c) the frequency. <span class="marks">5 marks</span></p>
-        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) V_peak = 2.5 × 4.0 = 10 V
-(b) V_rms = 10 ÷ 1.41 = 7.1 V
+        <details class="reveal"><summary>Answer</summary><div class="reveal-body"><div class="ms">(a) <var>V</var><sub>peak</sub> = 2.5 × 4.0 = 10 V
+(b) <var>V</var><sub>rms</sub> = 10 ÷ 1.41 = 7.1 V
 (c) T = 5.0 × 2.0 × 10⁻³ = 0.010 s   (ms → s)
     f = 1 ÷ 0.010 = 100 Hz</div></div></details>
       </div>
@@ -740,87 +809,51 @@ title: Monitoring & measuring a.c. — Higher Physics
     function $(id){ return document.getElementById(id); }
     function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
     function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
-    function bindPair(rangeId, numId, onChange){
-      var r=$(rangeId), n=$(numId);
-      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
-      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ r.value=v; onChange(parseFloat(r.value)); } });
-    }
-
-    /* Oscilloscope simulator */
-    (function(){
-      if(!$("sc-svg")) return;
-      var vd=2, td=5, ph=3, pc=4;
-      var GX=20, GW=280, DIVW=28;      /* grid: 10 divisions of 28 px from x=20 */
-      var CY=80, DIVH=16.25;           /* centre line; 8 vertical divisions across the 130 px screen */
-      function draw(){
-        var amp = ph*DIVH;            /* pixels */
-        var lambda = pc*DIVW;         /* pixels per cycle */
-        var d="", N=160;
-        for(var i=0;i<=N;i++){
-          var x=GX + (GW)*i/N;
-          var y=CY - amp*Math.sin(2*Math.PI*(x-GX)/lambda);
-          d += (i===0?"M":"L") + round(x,1) + " " + round(y,1) + " ";
-        }
-        $("sc-trace").setAttribute("d", d.trim());
-        var vpeak = ph*vd;
-        var vrms = vpeak/Math.SQRT2;
-        var T = pc*td*1e-3;           /* seconds */
-        var f = 1/T;
-        setT("sc-out","V_peak = "+round(vpeak,2)+" V · V_rms = "+round(vrms,2)+" V · T = "+round(T,4)+" s · f = "+round(f,1)+" Hz");
-        $("sc-work").textContent =
-          "V_peak = divisions × volts/div = "+ph+" × "+vd+" = "+round(vpeak,2)+" V\n"+
-          "V_rms = V_peak ÷ √2 = "+round(vpeak,2)+" ÷ 1.41 = "+round(vrms,2)+" V\n"+
-          "T = divisions × time/div = "+pc+" × "+td+" ms = "+round(T*1000,2)+" ms = "+round(T,4)+" s\n"+
-          "f = 1 ÷ T = "+round(f,1)+" Hz";
-      }
-      bindPair("sc-vd","sc-vd-n",function(v){ vd=v; draw(); });
-      bindPair("sc-td","sc-td-n",function(v){ td=v; draw(); });
-      bindPair("sc-ph","sc-ph-n",function(v){ ph=v; draw(); });
-      bindPair("sc-pc","sc-pc-n",function(v){ pc=v; draw(); });
-      draw();
-    })();
-
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"Alternating current is current that", o:["always increases","changes direction with time","flows one way only","has no frequency"], a:1 },
-        { q:"The mains is quoted as 230 V. This value is the", o:["peak voltage","rms voltage","peak-to-peak voltage","average voltage"], a:1 },
-        { q:"An a.c. supply has a peak voltage of 14.1 V. Its rms voltage is about", o:["20 V","10 V","14.1 V","7.1 V"], a:1 },
-        { q:"A signal of rms current 2.0 A has a peak current of about", o:["1.4 A","2.8 A","2.0 A","4.0 A"], a:1 },
-        { q:"One cycle of an a.c. trace takes 0.020 s. The frequency is", o:["20 Hz","50 Hz","0.020 Hz","500 Hz"], a:1 },
-        { q:"On an oscilloscope, the peak voltage is found from", o:["divisions per cycle × time/div","divisions to the peak × volts/div","volts/div ÷ time/div","1 ÷ T"], a:1 },
-        { q:"A trace shows one cycle over 5.0 divisions with the time-base at 2.0 ms/div. The frequency is", o:["100 Hz","10 Hz","50 Hz","200 Hz"], a:0 }
+        {"q": "Alternating current is current that", "o": ["always increases", "changes direction with time", "flows one way only", "has no frequency"], "a": 1, "f": ["Not this one. An a.c. current rises and falls. What happens to it after it falls through zero?", "<strong>Right.</strong> In a.c. the direction of the current changes back and forth, many times a second.", "Not this one. Current that flows one way only is d.c.", "Not this one. An a.c. supply repeats, so it has a frequency (the mains is 50 Hz)."]},
+        {"q": "The mains is quoted as 230 V. This value is the", "o": ["peak voltage", "rms voltage", "peak-to-peak voltage", "average voltage"], "a": 1, "f": ["Not this one. The mains peak is about 325 V. Quoted mains values are the ones that compare fairly with d.c.", "<strong>Right.</strong> 230 V is the r.m.s. value: it gives the same power as 230 V d.c.", "Not this one. Peak-to-peak would be about 650 V. Quoted mains values compare fairly with d.c.", "Not this one. Over a whole cycle the average of a sine wave is zero. Quoted mains values compare fairly with d.c."]},
+        {"q": "An a.c. supply has a peak voltage of 14.1 V. Its rms voltage is about", "o": ["20 V", "10 V", "14.1 V", "7.1 V"], "a": 1, "f": ["Not this one. That multiplies by √2. The r.m.s. value is always <strong>smaller</strong> than the peak.", "<strong>Right.</strong> <var>V</var><sub>rms</sub> = <var>V</var><sub>peak</sub> ÷ √2 = 14.1 ÷ 1.41 = 10 V.", "Not this one. That is the peak itself. The r.m.s. value is smaller than the peak.", "Not this one. That divides by 2, not √2 (about 1.41)."]},
+        {"q": "A signal of rms current 2.0 A has a peak current of about", "o": ["1.4 A", "2.8 A", "2.0 A", "4.0 A"], "a": 1, "f": ["Not this one. That divides by √2. The peak is always <strong>bigger</strong> than the r.m.s. value.", "<strong>Right.</strong> <var>I</var><sub>peak</sub> = √2 × <var>I</var><sub>rms</sub> = 1.41 × 2.0 = 2.8 A.", "Not this one. That is the r.m.s. value itself. The peak is bigger.", "Not this one. That multiplies by 2, not √2 (about 1.41)."]},
+        {"q": "One cycle of an a.c. trace takes 0.020 s. The frequency is", "o": ["20 Hz", "50 Hz", "0.020 Hz", "500 Hz"], "a": 1, "f": ["Not this one. Check the arithmetic of 1 ÷ 0.020.", "<strong>Right.</strong> <var>f</var> = 1 ÷ <var>T</var> = 1 ÷ 0.020 = 50 Hz.", "Not this one. 0.020 s is the period <var>T</var>. Frequency is 1 ÷ <var>T</var>.", "Not this one. Check the arithmetic of 1 ÷ 0.020: how many 0.020 s cycles fit in one second?"]},
+        {"q": "On an oscilloscope, the peak voltage is found from", "o": ["divisions per cycle × time/div", "divisions to the peak × volts/div", "volts/div ÷ time/div", "1 ÷ T"], "a": 1, "f": ["Not this one. That gives the period <var>T</var>, a time. Voltage is measured up the screen.", "<strong>Right.</strong> Divisions from the centre line to the peak × volts per division (Y-gain).", "Not this one. Dividing one setting by the other gives nothing you can measure.", "Not this one. 1 ÷ <var>T</var> is the frequency. Voltage is measured up the screen."]},
+        {"q": "A trace shows one cycle over 5.0 divisions with the time-base at 2.0 ms/div. The frequency is", "o": ["100 Hz", "10 Hz", "50 Hz", "200 Hz"], "a": 0, "f": ["<strong>Right.</strong> <var>T</var> = 5.0 × 2.0 ms = 10 ms = 0.010 s, so <var>f</var> = 1 ÷ 0.010 = 100 Hz.", "Not this one. 10 is the period in <strong>milliseconds</strong>. Change it to seconds before using <var>f</var> = 1 ÷ <var>T</var>.", "Not this one. Find the period first: divisions × time-base, then <var>f</var> = 1 ÷ <var>T</var>.", "Not this one. Find the period first: divisions × time-base. Check you multiplied, not divided."]}
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
         var d=document.createElement("div"); d.className="q";
         var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        html+='<p class="q-fb" id="qfb'+qi+'" hidden></p>';
         d.innerHTML=html; box.appendChild(d);
       });
       function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
       function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      /* every option teaches: the pupil sees feedback on the option they picked; a wrong
+         pick is not given the answer, so they can think again and re-mark */
       $("quiz-mark").addEventListener("click", function(){
         if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
-        var score=0;
+        var score=0, done=0;
         clearNotes();
         QS.forEach(function(item,qi){
-          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked'), out=$("qfb"+qi);
           box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
-          right.classList.add("correct"); addNote(right, "✓ correct answer");
-          if(chosen){
-            var oi=parseInt(chosen.value,10);
-            if(oi===item.a) score++;
-            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
-          }
+          if(!chosen){ out.hidden=true; return; }
+          done++;
+          var oi=parseInt(chosen.value,10), ok=(oi===item.a), lab=chosen.parentNode;
+          if(ok) score++;
+          lab.classList.add(ok?"correct":"wrong");
+          addNote(lab, ok?"✓ right":"✗ not this one");
+          out.innerHTML=item.f[oi]; out.className="q-fb "+(ok?"ok":"no"); out.hidden=false;
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
-        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+        setT("quiz-score","Score: "+score+" / "+QS.length+(done<QS.length?" ("+(QS.length-done)+" not answered)":"")+"   (best: "+best+")");
       });
       $("quiz-reset").addEventListener("click", function(){
         box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
         box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        box.querySelectorAll(".q-fb").forEach(function(p){ p.hidden=true; p.innerHTML=""; });
         clearNotes();
         setT("quiz-score","");
       });
@@ -1019,8 +1052,8 @@ title: Monitoring & measuring a.c. — Higher Physics
       $("cc-check").addEventListener("click", function(){
         var v=parseFloat($("cc-ans").value);
         if(isNaN(v)){ fb($("cc-fb"), false, "Type a number first."); return; }
-        if(Math.abs(v-325)<4){ fb($("cc-fb"), true, "Correct — V_peak = √2 × V_rms = 1.41 × 230 = 325 V."); award("ch-calc",10,true); return; }
-        var msg="Not yet — V_peak = √2 × V_rms = 1.41 × 230 = 325 V.";
+        if(Math.abs(v-325)<4){ fb($("cc-fb"), true, "Correct: peak voltage = √2 × r.m.s. voltage = 1.41 × 230 = 325 V."); award("ch-calc",10,true); return; }
+        var msg="Not yet: peak voltage = √2 × r.m.s. voltage = 1.41 × 230 = 325 V.";
         if(Math.abs(v-163)<3) msg="That's 230 ÷ √2 — you divided instead of multiplying. To go rms → peak, multiply: 1.41 × 230 = 325 V.";
         else if(Math.abs(v-230)<1) msg="That's just the rms value. Multiply by √2 to get the peak: 1.41 × 230 = 325 V.";
         else if(Math.abs(v-460)<3) msg="That's 2 × 230 — use √2 (≈1.41), not 2: 1.41 × 230 = 325 V.";
@@ -1028,20 +1061,117 @@ title: Monitoring & measuring a.c. — Higher Physics
       });
     })();
 
-    /* ---- read-the-trace MCQ ---- */
+    /* ---- graph MCQ: feedback on each picked option ---- */
     (function(){
       var w=$("graph-quiz"); if(!w) return;
+      var ANS={"gq1": "1", "gq2": "0"}, FB={"gq1": ["Not this one. Divisions along the time axis, with the time-base, give the <strong>period</strong>. The peak is measured up the screen.", "<strong>Right.</strong> Count the divisions from the centre line to the top of a wave and multiply by the volts per division (the Y-gain).", "Not this one. Dividing one setting by the other gives nothing you can measure. Which setting tells you how many volts one division up the screen is worth?"], "gq2": ["<strong>Right.</strong> Divisions for one cycle × time-base gives the period <var>T</var>; then <var>f</var> = 1 ÷ <var>T</var>.", "Not this one. Multiplying by √2 turns an r.m.s. value into a peak value. Frequency is about time, so start from the time-base.", "Not this one. Dividing one setting by the other gives nothing you can measure. Frequency comes from how long one cycle takes."]};
+      Object.keys(ANS).forEach(function(name){
+        var labs=w.querySelectorAll('input[name="'+name+'"]'), last=labs[labs.length-1].parentNode;
+        var p=document.createElement("p"); p.className="q-fb"; p.id="fb-"+name; p.hidden=true; p.setAttribute("aria-live","polite");
+        last.parentNode.insertBefore(p, last.nextSibling);
+      });
       $("gq-check").addEventListener("click", function(){
-        var a1=w.querySelector('input[name="gq1"]:checked');
-        var a2=w.querySelector('input[name="gq2"]:checked');
-        if(!a1||!a2){ fb($("gq-fb"), false, "Answer both questions first."); return; }
-        var ok = a1.value==="1" && a2.value==="0";
-        if(ok){ fb($("gq-fb"), true, "Yes — peak = divisions to the peak × volts/div; for frequency, find T then f = 1 ÷ T."); award("ch-graph",10,true); }
-        else { fb($("gq-fb"), false, "Not quite — peak voltage uses the Y-gain (volts/div); frequency needs the period first (f = 1 ÷ T). Try again."); award("ch-graph",0,false); }
+        var all=true, ok=true;
+        Object.keys(ANS).forEach(function(name){
+          var c=w.querySelector('input[name="'+name+'"]:checked'), p=$("fb-"+name);
+          if(!c){ all=false; p.hidden=true; return; }
+          var right=c.value===ANS[name];
+          if(!right) ok=false;
+          p.innerHTML=FB[name][parseInt(c.value,10)]; p.className="q-fb "+(right?"ok":"no"); p.hidden=false;
+        });
+        if(!all){ fb($("gq-fb"), false, "Answer both questions first."); return; }
+        if(ok){ fb($("gq-fb"), true, "Both right: peak voltage from the Y-gain, and frequency from the period, f = 1 ÷ T."); award("ch-graph",10,true); }
+        else { fb($("gq-fb"), false, "Read the feedback under the one that needs another look, then check again."); award("ch-graph",0,false); }
       });
     })();
 
   })();
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+    var K = window.WidgetKit, root = document.getElementById("scope-sim");
+    if (!K || !root) { return; }
+    function $(id) { return document.getElementById(id); }
+    var X0 = 20, Y0 = 14, DIV = 36, CY = Y0 + 4 * DIV, NS = "http://www.w3.org/2000/svg";
+
+    (function grid() {
+      var g = $("sc-grid"), i, d = "", t = "";
+      for (i = 1; i < 10; i++) { d += "M" + (X0 + i * DIV) + " " + Y0 + "V" + (Y0 + 8 * DIV); }
+      for (i = 1; i < 8; i++) { if (i !== 4) { d += "M" + X0 + " " + (Y0 + i * DIV) + "H" + (X0 + 10 * DIV); } }
+      for (i = 1; i < 50; i++) { if (i % 5) { var x = X0 + i * DIV / 5; t += "M" + x + " " + (CY - 4) + "V" + (CY + 4); } }
+      for (i = 1; i < 40; i++) { if (i % 5) { var y = Y0 + i * DIV / 5; t += "M" + (X0 + 5 * DIV - 4) + " " + y + "H" + (X0 + 5 * DIV + 4); } }
+      [["grid", d], ["axis", "M" + X0 + " " + CY + "H" + (X0 + 10 * DIV) + "M" + (X0 + 5 * DIV) + " " + Y0 + "V" + (Y0 + 8 * DIV)], ["axis", t]].forEach(function (p) {
+        var e = document.createElementNS(NS, "path"); e.setAttribute("class", p[0]); e.setAttribute("d", p[1]); g.appendChild(e);
+      });
+    })();
+
+    var seen = false;
+    function firstUse() {
+      if (seen) { return; }
+      seen = true;
+      if (window.Progress && Progress.markSeen) { Progress.markSeen("hp-ac"); }
+    }
+    root.addEventListener("input", firstUse);
+    root.addEventListener("click", function (e) { if (e.target.closest("button")) { firstUse(); } });
+
+    K.poeCard($("sc-predict"), { answer: "more" });
+
+    function divs(x) { return K.fmt(x, 2) + " div"; }
+    function n(x) { return String(Number(x)); }
+
+    K.liveSim(root, {
+      render: function (s) {
+        var Vp = s.vp, f = s.f, vd = parseFloat(s.vd), td = parseFloat(s.td);
+        var T = 1 / f, ph = Vp / vd, pc = (T * 1000) / td;
+        var A = ph * DIV, L = pc * DIV, d = "", N = 400, i;
+        for (i = 0; i <= N; i++) {
+          var x = X0 + 10 * DIV * i / N, y = CY - A * Math.sin(2 * Math.PI * (x - X0) / L);
+          y = Math.max(Y0 - 40, Math.min(Y0 + 8 * DIV + 40, y));
+          d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+        }
+        $("sc-trace").setAttribute("d", d);
+
+        var peakOn = ph <= 4, cycleOn = pc <= 10, tooSquashed = pc < 1;
+        var xc = X0 + L / 4;
+        $("sc-mpeak").setAttribute("d", peakOn && xc <= X0 + 10 * DIV ? "M" + xc.toFixed(1) + " " + CY + "V" + (CY - A).toFixed(1) + "M" + (xc - 6).toFixed(1) + " " + (CY - A).toFixed(1) + "h12" : "");
+        var yb = Y0 + 8 * DIV - 10;
+        $("sc-mcycle").setAttribute("d", cycleOn && !tooSquashed ? "M" + X0 + " " + yb + "H" + (X0 + L).toFixed(1) + "M" + (X0 + L).toFixed(1) + " " + (yb - 7) + "v14" : "");
+        $("sc-t-y").textContent = n(vd);
+        $("sc-t-t").textContent = n(td);
+
+        var tip = "";
+        if (!peakOn) { tip = "The peaks are off the screen. Choose more volts per division."; }
+        else if (!cycleOn) { tip = "One cycle does not fit on the screen. Choose more milliseconds per division."; }
+        else if (tooSquashed) { tip = "The cycles are squashed together. Choose fewer milliseconds per division."; }
+        else if (ph < 1) { tip = "The trace is very small. Choose fewer volts per division to read it more accurately."; }
+        $("sc-tip").textContent = tip;
+
+        var readable = cycleOn && !tooSquashed;
+        $("sc-o-ph").textContent = peakOn ? divs(ph) : "off the screen";
+        $("sc-o-pc").textContent = cycleOn && !tooSquashed ? divs(pc) : (cycleOn ? "too squashed" : "off the screen");
+        $("sc-o-vp").textContent = peakOn ? K.fmt(ph * vd) + " V" : "—";
+        $("sc-o-vr").textContent = peakOn ? K.fmt(ph * vd / Math.SQRT2) + " V" : "—";
+        $("sc-o-t").textContent = readable ? K.si(T, "s") : "—";
+        $("sc-o-f").textContent = readable ? K.fmt(f) + " Hz" : "—";
+
+        var w = [];
+        if (peakOn) {
+          w.push("<var>V</var><sub>peak</sub> = divisions × volts/div = " + K.fmt(ph, 2) + " × " + n(vd) + " = " + K.fmt(ph * vd) + " V");
+          w.push("<var>V</var><sub>rms</sub> = <var>V</var><sub>peak</sub> ÷ √2 = " + K.fmt(ph * vd) + " ÷ 1.41 = " + K.fmt(ph * vd / Math.SQRT2) + " V");
+        }
+        if (readable) {
+          w.push("<var>T</var> = divisions × time/div = " + K.fmt(pc, 2) + " × " + n(td) + " ms = " + K.si(T, "s"));
+          w.push("<var>f</var> = 1 ÷ <var>T</var> = 1 ÷ " + K.fmt(T) + " s = " + K.fmt(f) + " Hz");
+        }
+        $("sc-work").innerHTML = w.length ? w.join("<br>") : "Change the settings until the trace can be read.";
+
+        $("sc-svg").setAttribute("aria-label", "Oscilloscope screen, Y-gain " + n(vd) + " volts per division, time-base " + n(td) +
+          " milliseconds per division. " + (peakOn ? "The peaks are " + K.fmt(ph, 2) + " divisions above the centre line. " : "The peaks go off the screen. ") +
+          (cycleOn && !tooSquashed ? "One cycle takes " + K.fmt(pc, 2) + " divisions." : cycleOn ? "The cycles are squashed together." : "One cycle is wider than the screen."));
+      }
+    });
+  });
   </script>
 </body>
 </html>

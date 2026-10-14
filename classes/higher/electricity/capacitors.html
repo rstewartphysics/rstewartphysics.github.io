@@ -19,6 +19,8 @@ title: Capacitors — Higher Physics
   <script src="/assets/js/progress/higher-physics.js" defer></script>
 
   <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
 
   <title>Capacitors — Higher Physics</title>
   {% include site-head-icons.html %}
@@ -121,7 +123,6 @@ title: Capacitors — Higher Physics
     .field { display: flex; flex-direction: column; gap: .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
     .field[hidden] { display: none; }
     .field .row { display: flex; align-items: center; gap: .5rem; }
-    input[type="range"] { width: 140px; accent-color: var(--accent); }
     .num { width: 5.2rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
     .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .btn:hover { border-color: var(--border-strong); }
@@ -173,6 +174,30 @@ title: Capacitors — Higher Physics
 
     .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
     .ex-divider { margin: 1.1rem 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+
+    /* ---- simulator circuit drawings (live, inside .sim) ---- */
+    .sim-circuit text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 14.5px; }
+    .sim-circuit .it { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 17px; }
+    .sim-circuit .val { fill: var(--accent-2); font-weight: 900; }
+    .sim-circuit .sm { fill: var(--muted); }
+    .sim-circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim-circuit .thick { stroke-width: 5; }
+    .sim-circuit .res, .sim-circuit .meter { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .sim-circuit .node { fill: var(--text); }
+    .sim-circuit .term { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .sim-circuit .dash { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+    .sim-circuit .flow { stroke: var(--warm); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sim-circuit .flow-t { fill: var(--warm); font-weight: 900; }
+    .sim-working var, .sim-note var, .sim-out .v var { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; }
+
+    /* ---- per-option quiz feedback ---- */
+    .q-fb { margin: .45rem 0 0; padding: .5rem .7rem; border-left: 4px solid var(--warm); border-radius: 0 8px 8px 0; background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .q-fb.ok { border-left-color: #15803d; }
+    @media (prefers-color-scheme: dark) { .q-fb.ok { border-left-color: #5dd693; } }
+    .predict-btns button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    @media (max-width: 520px) { .sim-circuit text { font-size: 16.5px; } .sim-circuit .it { font-size: 19px; } }
+    .rc-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
+    .go-further > summary { font-weight: 900; }
 
     @media print {
       .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
@@ -571,8 +596,8 @@ title: Capacitors — Higher Physics
       <div class="eq-cards">
         <div class="eq-card">
           <div class="eq-name">Key idea</div>
-          <div class="eq-formula">time to charge ∝ <var>R</var> × <var>C</var></div>
-          <div class="eq-desc">bigger <var>R</var> or <var>C</var> → slower charge / discharge</div>
+          <div class="eq-formula">bigger <var>R</var> or <var>C</var> → slower</div>
+          <div class="eq-desc">charging and discharging both take longer</div>
         </div>
       </div>
 
@@ -580,7 +605,7 @@ title: Capacitors — Higher Physics
         <ul>
           <li><strong>Charging (through a resistor <var>R</var>):</strong> the instant the switch closes the capacitor is uncharged, so the <strong>current is a maximum</strong> and the <strong>p.d. across the capacitor is zero</strong>. As charge builds up, the capacitor p.d. <strong>rises towards the supply voltage</strong> while the <strong>current falls towards zero</strong>. Both curves are <strong>exponential</strong> in shape.</li>
           <li><strong>Discharging:</strong> the capacitor p.d. <strong>falls from a maximum towards zero</strong>. The current now flows the <strong>opposite way</strong>, so it is <strong>negative</strong> — it starts at its largest reverse value and rises back up to zero.</li>
-          <li><strong>Effect of <var>R</var> and <var>C</var>:</strong> increasing <strong>either <var>R</var> or <var>C</var> makes charging and discharging take longer</strong> (a more gradual curve, smaller initial current). Decreasing them makes it faster. The product <var>R</var><var>C</var> sets the timescale — the numerical value is not needed at Higher, only this effect.</li>
+          <li><strong>Effect of <var>R</var> and <var>C</var>:</strong> increasing <strong>either <var>R</var> or <var>C</var> makes charging and discharging take longer</strong> (a more gradual curve, smaller initial current). Decreasing them makes it faster. A bigger <var>R</var> means a smaller current, so charge flows on or off more slowly; a bigger <var>C</var> needs more charge for the same p.d.</li>
           <li><strong>Fully charged:</strong> no current flows, the capacitor p.d. equals the supply p.d., and a capacitor <strong>blocks steady d.c.</strong> once charged.</li>
         </ul>
       </div>
@@ -616,44 +641,103 @@ title: Capacitors — Higher Physics
         <span><span class="sw b"></span> current</span>
       </div>
 
-      <div class="widget" id="rc-sim">
-        <h3>Charging-curve simulator</h3>
-        <p class="hint">Change <var>R</var> and <var>C</var> and watch the charging curves. A bigger <var>R</var> or <var>C</var> makes the same window cover less of the curve — the capacitor charges more slowly.</p>
-        <div class="controls">
-          <label class="field">Resistance <var>R</var> (kΩ)<span class="row"><input type="range" id="rc-r" min="1" max="10" step="0.5" value="2"><input class="num" id="rc-r-n" type="number" step="0.5" value="2" inputmode="decimal"></span></label>
-          <label class="field">Capacitance <var>C</var> (µF)<span class="row"><input type="range" id="rc-c" min="100" max="1000" step="100" value="1000"><input class="num" id="rc-c-n" type="number" step="100" value="1000" inputmode="decimal"></span></label>
+      <div class="sim" id="rc-sim">
+        <div class="sim-head">
+          <h3>Charging and discharging simulator</h3>
+          <p class="sim-hint">Switch between charge and discharge, then change <var>R</var> and <var>C</var>. The time axis stretches so the whole curve always fits: watch its numbers.</p>
         </div>
-        <figure class="figure">
-          <svg class="circuit wide" id="rc-svg" viewBox="0 0 290 200" role="img" aria-label="Graph of capacitor p.d. rising and charging current decaying against time, both changing shape as R and C change">
-            <title>Charging curves for the chosen R and C</title>
-            <path class="wire" d="M48 22 V164 H268"/>
-            <path class="wire" d="M48 22 L44 30 M48 22 L52 30"/>
-            <path class="wire" d="M268 164 L260 160 M268 164 L260 168"/>
-            <path class="vi-a" id="rc-vline" d=""/>
-            <path class="vi-b" id="rc-iline" d=""/>
-            <text transform="rotate(-90 16 95)" x="16" y="95" text-anchor="middle">p.d. / current</text>
-            <text x="158" y="190" text-anchor="middle">time <tspan font-style="italic">t</tspan> (s)</text>
-          </svg>
-        </figure>
-        <div class="legend" aria-hidden="true">
-          <span><span class="sw a"></span> capacitor p.d.</span>
-          <span><span class="sw b"></span> charging current</span>
+        <div class="sim-predict" id="rc-predict">
+          <p class="sim-q">The capacitor is fully charged. The switch moves to <strong>discharge</strong>. <b>Predict</b> what the current does.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="zero" aria-pressed="false">No current flows<template data-feedback><p>Not this one. The charged capacitor has a p.d. across it, and the discharge position gives the charge a path through <var>R</var>. A p.d. across a resistor drives a current.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">Largest at the start, same direction as charging<template data-feedback><p>Nearly: it is largest at the start. But now the capacitor, not the supply, pushes the charge round. Charge that flowed on to a plate while charging has to come back off it. Which way does it go through <var>R</var>?</p></template></button>
+            <button type="button" data-predict="rev" aria-pressed="false">Largest at the start, opposite direction, then falls to zero<template data-feedback><p><strong>Right.</strong> At the start the capacitor p.d. is at its biggest, so the current is biggest. The charge flows back the other way, so the current is <strong>negative</strong>. As the capacitor empties its p.d. falls, so the current falls to zero.</p></template></button>
+            <button type="button" data-predict="grow" aria-pressed="false">Starts small and grows<template data-feedback><p>Not this one. The current is set by the p.d. across <var>R</var>. When is the capacitor p.d. biggest: at the start of discharging or at the end?</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
         </div>
-        <div class="readout" id="rc-out" aria-live="polite">—</div>
-        <div class="working" id="rc-work"></div>
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs">
+              <div class="rc-col">
+                <figure class="sim-fig">
+                  <svg class="sim-circuit" id="rc-circ" viewBox="0 0 360 228" role="img" aria-label="Circuit">
+                    <title>A supply, a two-way switch, a resistor, an ammeter and a capacitor, with a voltmeter across the capacitor</title>
+                    <path class="wire" d="M36 40 V98 M36 108 V200 H300 V134 M300 124 V70 H281 M255 70 H244 M200 70 H180 M36 40 H136"/>
+                    <path class="wire" d="M22 98 H50"/>
+                    <path class="wire thick" d="M28 108 H44"/>
+                    <text x="50" y="150"><tspan class="it">V</tspan><tspan dy="5" font-size="12">s</tspan><tspan dy="-5"> = </tspan><tspan id="rc-c-vs">6.0</tspan> V</text>
+                    <text class="sm" x="50" y="171">supply</text>
+                    <path class="wire" d="M140 104 V200"/>
+                    <circle class="term" cx="140" cy="40" r="4"/>
+                    <circle class="term" cx="140" cy="100" r="4"/>
+                    <text x="140" y="27" text-anchor="middle">charge</text>
+                    <text x="130" y="88" text-anchor="end">discharge</text>
+                    <path class="wire" id="rc-blade" d="M180 70 L143 42"/>
+                    <circle class="node" cx="180" cy="70" r="4"/>
+                    <text class="sm" x="188" y="98">switch</text>
+                    <rect class="res" x="200" y="62" width="44" height="16" rx="1"/>
+                    <text x="222" y="52" text-anchor="middle"><tspan class="it">R</tspan> = <tspan id="rc-c-r">10</tspan> kΩ</text>
+                    <circle class="meter" cx="268" cy="70" r="13"/>
+                    <text x="268" y="75.5" text-anchor="middle">A</text>
+                    <path class="wire" d="M284 124 H316 M284 134 H316"/>
+                    <text x="276" y="134" text-anchor="end"><tspan class="it">C</tspan> = <tspan id="rc-c-c">470</tspan> µF</text>
+                    <circle class="node" cx="300" cy="96" r="3.5"/>
+                    <circle class="node" cx="300" cy="170" r="3.5"/>
+                    <path class="wire" d="M300 96 H340 V116 M340 142 V170 H300"/>
+                    <circle class="meter" cx="340" cy="129" r="13"/>
+                    <text x="340" y="134.5" text-anchor="middle">V</text>
+                    <path class="flow" id="rc-arrow" d="M250 214 H196 M206 207 L196 214 L206 221"/>
+                    <text class="flow-t" x="258" y="219">current</text>
+                  </svg>
+                  <figcaption id="rc-cap">Switch at <strong>charge</strong>: the supply pushes charge on to the capacitor.</figcaption>
+                </figure>
+                <div class="sim-readouts" aria-live="polite">
+                  <div class="sim-out is-key"><span class="k">Current at the start</span><span class="v" id="rc-o-i0">—</span></div>
+                  <div class="sim-out"><span class="k">p.d. across <var>C</var> at the end</span><span class="v" id="rc-o-vend">—</span></div>
+                  <div class="sim-out"><span class="k">Charge when full, <var>Q</var> = <var>C</var><var>V</var></span><span class="v" id="rc-o-q">—</span></div>
+                  <div class="sim-out"><span class="k">Energy when full, ½<var>Q</var><var>V</var></span><span class="v" id="rc-o-e">—</span></div>
+                </div>
+              </div>
+              <div class="rc-col">
+                <figure class="sim-fig sim-graph"><svg id="rc-gv"></svg></figure>
+                <figure class="sim-fig sim-graph"><svg id="rc-gi"></svg></figure>
+              </div>
+            </div>
+            <p class="sim-working" id="rc-work" aria-live="polite"></p>
+          </div>
+          <div class="sim-controls">
+            <div class="sim-seg" role="group" aria-label="Switch position">
+              <span class="sim-seg-label">Switch</span>
+              <button type="button" data-sim-toggle="mode" data-value="charge" aria-pressed="true">Charge</button>
+              <button type="button" data-sim-toggle="mode" data-value="discharge" aria-pressed="false">Discharge</button>
+            </div>
+            <label class="sim-field">
+              <span class="sim-name">Resistance <var>R</var> (kΩ)</span>
+              <span class="sim-row"><input type="range" data-sim="r" data-scale="log" data-min="1" data-max="100" data-step="0.1" min="0" max="1000" step="1" aria-label="Resistance R in kilohms"><input class="sim-num" type="number" data-sim="r" min="1" max="100" step="0.1" value="10" inputmode="decimal" aria-label="Resistance R in kilohms, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Capacitance <var>C</var> (µF)</span>
+              <span class="sim-row"><input type="range" data-sim="c" data-scale="log" data-min="10" data-max="2200" data-step="1" min="0" max="1000" step="1" aria-label="Capacitance C in microfarads"><input class="sim-num" type="number" data-sim="c" min="10" max="2200" step="1" value="470" inputmode="decimal" aria-label="Capacitance C in microfarads, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Supply p.d. <var>V</var><sub>s</sub> (V)</span>
+              <span class="sim-row"><input type="range" data-sim="vs" min="1" max="12" step="0.5" value="6" aria-label="Supply p.d. in volts"><input class="sim-num" type="number" data-sim="vs" min="1" max="12" step="0.5" value="6" inputmode="decimal" aria-label="Supply p.d. in volts, typed"></span>
+            </label>
+            <p class="sim-note" id="rc-window" aria-live="polite"></p>
+          </div>
+        </div>
       </div>
 
       <div class="widget" data-prog-challenge="ch-predict" id="predict">
         <h3>Predict &amp; justify</h3>
         <p class="qstem" style="font-weight:900; margin:.2rem 0 .5rem;">A capacitor is charged through a resistor from a d.c. supply. The resistor is replaced with one of <strong>larger</strong> resistance. The time taken to fully charge the capacitor will…</p>
         <div class="predict-btns">
-          <button class="btn" type="button" data-pred="1">Increase</button>
-          <button class="btn" type="button" data-pred="0">Stay the same</button>
-          <button class="btn" type="button" data-pred="0">Decrease</button>
+          <button class="btn" type="button" data-pred="1">Increase<template><strong>Right.</strong> A larger resistance limits the charging current, so charge builds up on the capacitor more slowly. It takes <strong>longer</strong> to reach the supply voltage.</template></button>
+          <button class="btn" type="button" data-pred="0">Stay the same<template><strong>Not quite.</strong> The capacitor still ends at the supply p.d., but the resistor controls the current. Think about what a smaller current means for how fast charge arrives.</template></button>
+          <button class="btn" type="button" data-pred="0">Decrease<template><strong>Not this one.</strong> A larger resistance lets <strong>less</strong> current flow. With less charge arriving each second, does the capacitor fill faster or slower?</template></button>
         </div>
-        <div class="predict-fb" id="pred-fb" hidden>
-          <div class="note"><strong>Increase.</strong> A larger resistance limits the charging current, so charge builds up on the capacitor more slowly — it takes <strong>longer</strong> to reach the supply voltage (the product <var>R</var><var>C</var> is larger).</div>
-        </div>
+        <div class="predict-fb" id="pred-fb" hidden aria-live="polite"></div>
       </div>
 
       <figure class="figure">
@@ -716,11 +800,12 @@ title: Capacitors — Higher Physics
 (b) The capacitor takes longer to fully charge.</div></div></details>
       </div>
 
-      <details class="reveal">
-        <summary>Beyond Higher — the time constant <var>τ</var> = <var>R</var><var>C</var> (Advanced Higher)</summary>
+      <details class="reveal go-further">
+        <summary>Go further (Advanced Higher): the time constant <var>τ</var> = <var>R</var><var>C</var></summary>
         <div class="reveal-body">
           <p style="margin:0 0 .5rem;"><strong>This is Advanced Higher — you do not need it for Higher.</strong> It is just here as an interesting extra to explain <em>why</em> <var>R</var> and <var>C</var> change the curves.</p>
           <p style="margin:0;">The product <var>R</var><var>C</var> is called the <strong>time constant <var>τ</var></strong> (unit: seconds): <var>τ</var> = <var>R</var><var>C</var>. It sets roughly how long the capacitor takes to charge or discharge — a larger <var>τ</var> means a slower, more gradual curve. At Higher you only need the <em>effect</em> of <var>R</var> and <var>C</var>, never a numerical time constant.</p>
+          <p style="margin:.5rem 0 0;">The simulator's graphs always show at least five time constants. That is why the curves fill the graph whatever <var>R</var> and <var>C</var> you choose: watch the numbers on the time axis change instead.</p>
         </div>
       </details>
     </section>
@@ -777,86 +862,51 @@ title: Capacitors — Higher Physics
     function $(id){ return document.getElementById(id); }
     function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
     function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
-    function bindPair(rangeId, numId, onChange){
-      var r=$(rangeId), n=$(numId);
-      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
-      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ r.value=v; onChange(parseFloat(r.value)); } });
-    }
-
-    /* Charging-curve simulator */
-    (function(){
-      if(!$("rc-svg")) return;
-      var R=2, C=1000;
-      var OX=48, TOP=22, BOT=164, RIGHT=268;
-      var W=RIGHT-OX, H=BOT-TOP, TWIN=10; /* fixed 10 s window */
-      function path(fn){
-        var d="", N=60;
-        for(var i=0;i<=N;i++){
-          var t=TWIN*i/N;
-          var x=OX + (t/TWIN)*W;
-          var y=BOT - fn(t)*H;
-          d += (i===0?"M":"L") + round(x,1) + " " + round(y,1) + " ";
-        }
-        return d.trim();
-      }
-      function update(){
-        var tau = (R*1000)*(C*1e-6); /* seconds */
-        var vfn = function(t){ return 1 - Math.exp(-t/tau); };       /* p.d. rises */
-        var ifn = function(t){ return Math.exp(-t/tau); };           /* current decays */
-        $("rc-vline").setAttribute("d", path(vfn));
-        $("rc-iline").setAttribute("d", path(ifn));
-        setT("rc-out","Time constant RC = "+round(tau,2)+" s — bigger R or C → slower charging and discharging.");
-        $("rc-work").textContent =
-          "R = "+R+" kΩ = "+(R*1000)+" Ω\n"+
-          "C = "+C+" µF = "+round(C*1e-6,7)+" F\n"+
-          "RC = "+round(tau,2)+" s   (the time constant — sets how quickly the curves change)";
-      }
-      bindPair("rc-r","rc-r-n",function(v){ R=v; update(); });
-      bindPair("rc-c","rc-c-n",function(v){ C=v; update(); });
-      update();
-    })();
-
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"A capacitance of 1 farad means the capacitor stores", o:["1 joule for every volt","1 coulomb when the p.d. across it is 1 volt","1 volt for every coulomb","1 amp for 1 second"], a:1 },
-        { q:"A 100 µF capacitor has a p.d. of 10 V across it. The charge stored is", o:["1.0 × 10⁻⁵ C","1.0 × 10⁻³ C","0.10 C","10 C"], a:1 },
-        { q:"A constant current of 5.0 mA charges a capacitor for 4.0 s. The charge stored is", o:["2.0 × 10⁻² C","1.25 × 10⁻³ C","20 C","8.0 × 10⁻⁴ C"], a:0 },
-        { q:"The energy stored in a 200 µF capacitor charged to 50 V is", o:["5.0 × 10⁻³ J","0.50 J","0.25 J","0.010 J"], a:2 },
-        { q:"The energy stored in a charged capacitor is equal to", o:["the gradient of its Q–V graph","Q × V","the area under its Q–V graph","the area under its I–t graph"], a:2 },
-        { q:"At the instant a capacitor begins charging through a resistor, the current is", o:["zero","a maximum","equal to the final current","steadily increasing"], a:1 },
-        { q:"Increasing the resistance in an RC charging circuit makes the capacitor charge", o:["faster","more slowly","to a higher voltage","instantly"], a:1 }
+        {"q": "A capacitance of 1 farad means the capacitor stores", "o": ["1 joule for every volt", "1 coulomb when the p.d. across it is 1 volt", "1 volt for every coulomb", "1 amp for 1 second"], "a": 1, "f": ["Not this one. Capacitance compares charge with p.d., not energy: <var>C</var> = <var>Q</var> ÷ <var>V</var>.", "<strong>Right.</strong> <var>C</var> = <var>Q</var> ÷ <var>V</var>, so 1 F means 1 coulomb stored for every volt across it.", "Not quite: that is upside down. <var>C</var> = <var>Q</var> ÷ <var>V</var> puts the charge on top.", "Not this one. 1 A for 1 s is 1 C of charge, but capacitance also depends on the p.d. Use <var>C</var> = <var>Q</var> ÷ <var>V</var>."]},
+        {"q": "A 100 µF capacitor has a p.d. of 10 V across it. The charge stored is", "o": ["1.0 × 10⁻⁵ C", "1.0 × 10⁻³ C", "0.10 C", "10 C"], "a": 1, "f": ["Not this one. That is <var>C</var> ÷ <var>V</var>. Rearrange <var>C</var> = <var>Q</var> ÷ <var>V</var> to get <var>Q</var>.", "<strong>Right.</strong> <var>Q</var> = <var>C</var><var>V</var> = 100 × 10<sup>−6</sup> × 10 = 1.0 × 10<sup>−3</sup> C.", "Not this one. Check the conversion: 1 µF = 10<sup>−6</sup> F, so 100 µF = 1.0 × 10<sup>−4</sup> F.", "Not this one. 100 µF is a small capacitance. Convert µF to F (× 10<sup>−6</sup>) before you use <var>Q</var> = <var>C</var><var>V</var>."]},
+        {"q": "A constant current of 5.0 mA charges a capacitor for 4.0 s. The charge stored is", "o": ["2.0 × 10⁻² C", "1.25 × 10⁻³ C", "20 C", "8.0 × 10⁻⁴ C"], "a": 0, "f": ["<strong>Right.</strong> <var>Q</var> = <var>I</var><var>t</var> = 5.0 × 10<sup>−3</sup> × 4.0 = 2.0 × 10<sup>−2</sup> C.", "Not this one. That divides the current by the time. Charge = current × time.", "Not this one. 5.0 mA must be changed to amps (× 10<sup>−3</sup>) first.", "Not this one. That is <var>t</var> ÷ <var>I</var>. Charge = current × time."]},
+        {"q": "The energy stored in a 200 µF capacitor charged to 50 V is", "o": ["5.0 × 10⁻³ J", "0.50 J", "0.25 J", "0.010 J"], "a": 2, "f": ["Not this one. That uses the p.d. only once. In <var>E</var> = ½<var>C</var><var>V</var><sup>2</sup> the p.d. is squared.", "Not this one. That is <var>C</var><var>V</var><sup>2</sup> without the ½. Look again at the relationship.", "<strong>Right.</strong> <var>E</var> = ½<var>C</var><var>V</var><sup>2</sup> = 0.5 × 200 × 10<sup>−6</sup> × 50<sup>2</sup> = 0.25 J.", "Not this one. 0.010 is <var>C</var><var>V</var>, the charge in coulombs, not the energy."]},
+        {"q": "The energy stored in a charged capacitor is equal to", "o": ["the gradient of its Q–V graph", "Q × V", "the area under its Q–V graph", "the area under its I–t graph"], "a": 2, "f": ["Not this one. The gradient of a <var>Q</var>–<var>V</var> graph is <var>Q</var> ÷ <var>V</var>, the capacitance.", "Not quite. <var>Q</var> × <var>V</var> would be right only if the p.d. were <var>V</var> the whole time. It rises from zero while the capacitor charges.", "<strong>Right.</strong> The energy is the area under the <var>Q</var>–<var>V</var> graph, a triangle: ½<var>Q</var><var>V</var>.", "Not this one. The area under an <var>I</var>–<var>t</var> graph is the charge, <var>Q</var> = <var>I</var><var>t</var>."]},
+        {"q": "At the instant a capacitor begins charging through a resistor, the current is", "o": ["zero", "a maximum", "equal to the final current", "steadily increasing"], "a": 1, "f": ["Not this one. At the start the capacitor is uncharged, so there is no p.d. across it to oppose the supply.", "<strong>Right.</strong> At the start the capacitor p.d. is zero, so all of the supply p.d. is across <var>R</var> and the current is as big as it gets.", "Not this one. When the capacitor is fully charged the current is zero. Is the starting current zero?", "Not this one. As charge builds up, the capacitor p.d. rises and opposes the supply. What does that do to the current?"]},
+        {"q": "Increasing the resistance in an RC charging circuit makes the capacitor charge", "o": ["faster", "more slowly", "to a higher voltage", "instantly"], "a": 1, "f": ["Not this one. A bigger resistance lets less current flow. What does a smaller current mean for how fast charge arrives?", "<strong>Right.</strong> A bigger <var>R</var> means a smaller current, so the charge builds up more slowly.", "Not this one. The capacitor always ends at the supply p.d. <var>R</var> changes how the charge gets there.", "Not this one. Charging through a resistor always takes time. Think about what a bigger <var>R</var> does to the current."]}
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
         var d=document.createElement("div"); d.className="q";
         var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
         item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
+        html+='<p class="q-fb" id="qfb'+qi+'" hidden></p>';
         d.innerHTML=html; box.appendChild(d);
       });
       function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
       function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
+      /* every option teaches: the pupil sees feedback on the option they picked; a wrong
+         pick is not given the answer, so they can think again and re-mark */
       $("quiz-mark").addEventListener("click", function(){
         if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
-        var score=0;
+        var score=0, done=0;
         clearNotes();
         QS.forEach(function(item,qi){
-          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
+          var chosen=box.querySelector('input[name="q'+qi+'"]:checked'), out=$("qfb"+qi);
           box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
-          right.classList.add("correct"); addNote(right, "✓ correct answer");
-          if(chosen){
-            var oi=parseInt(chosen.value,10);
-            if(oi===item.a) score++;
-            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
-          }
+          if(!chosen){ out.hidden=true; return; }
+          done++;
+          var oi=parseInt(chosen.value,10), ok=(oi===item.a), lab=chosen.parentNode;
+          if(ok) score++;
+          lab.classList.add(ok?"correct":"wrong");
+          addNote(lab, ok?"✓ right":"✗ not this one");
+          out.innerHTML=item.f[oi]; out.className="q-fb "+(ok?"ok":"no"); out.hidden=false;
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
-        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
+        setT("quiz-score","Score: "+score+" / "+QS.length+(done<QS.length?" ("+(QS.length-done)+" not answered)":"")+"   (best: "+best+")");
       });
       $("quiz-reset").addEventListener("click", function(){
         box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
         box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
+        box.querySelectorAll(".q-fb").forEach(function(p){ p.hidden=true; p.innerHTML=""; });
         clearNotes();
         setT("quiz-score","");
       });
@@ -1067,33 +1117,138 @@ title: Capacitors — Higher Physics
       });
     })();
 
-    /* ---- predict & justify ---- */
+    /* ---- predict & justify: every option carries its own feedback ---- */
     (function(){
       var w=$("predict"); if(!w) return;
-      [].forEach.call(w.querySelectorAll(".predict-btns button"), function(b){
+      var btns=w.querySelectorAll(".predict-btns button"), out=$("pred-fb");
+      [].forEach.call(btns, function(b){
+        b.setAttribute("aria-pressed","false");
         b.addEventListener("click", function(){
-          var ok=b.getAttribute("data-pred")==="1";
-          $("pred-fb").hidden=false;
-          [].forEach.call(w.querySelectorAll(".predict-btns button"), function(x){ x.disabled=true; });
+          var ok=b.getAttribute("data-pred")==="1", t=b.querySelector("template");
+          [].forEach.call(btns, function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+          out.innerHTML='<div class="note">'+(t?t.innerHTML:"")+'</div>'; out.hidden=false;
+          if(ok){ [].forEach.call(btns, function(x){ x.disabled=true; }); }
           award("ch-predict",10,ok);
         });
       });
     })();
 
-    /* ---- charging-curve MCQ ---- */
+    /* ---- graph MCQ: feedback on each picked option ---- */
     (function(){
       var w=$("graph-quiz"); if(!w) return;
+      var ANS={"gq1": "1", "gq2": "1"}, FB={"gq1": ["Not this one. The capacitor is uncharged, so there is no p.d. across it to oppose the supply.", "<strong>Right.</strong> With no p.d. across <var>C</var>, all of the supply p.d. is across <var>R</var>, so the current is at its largest.", "Not this one. When the capacitor is full the current is zero. Look at where the current curve starts."], "gq2": ["Not this one. Charge is building up on the plates. More charge on a capacitor means a bigger p.d. (<var>Q</var> = <var>C</var><var>V</var>).", "<strong>Right.</strong> As charge builds up the p.d. rises, more and more slowly, towards the supply p.d.", "Not this one. Charge flows on to the plates while there is a current. <var>Q</var> = <var>C</var><var>V</var>: what happens to <var>V</var> as <var>Q</var> grows?"]};
+      Object.keys(ANS).forEach(function(name){
+        var labs=w.querySelectorAll('input[name="'+name+'"]'), last=labs[labs.length-1].parentNode;
+        var p=document.createElement("p"); p.className="q-fb"; p.id="fb-"+name; p.hidden=true; p.setAttribute("aria-live","polite");
+        last.parentNode.insertBefore(p, last.nextSibling);
+      });
       $("gq-check").addEventListener("click", function(){
-        var a1=w.querySelector('input[name="gq1"]:checked');
-        var a2=w.querySelector('input[name="gq2"]:checked');
-        if(!a1||!a2){ fb($("gq-fb"), false, "Answer both questions first."); return; }
-        var ok = a1.value==="1" && a2.value==="1";
-        if(ok){ fb($("gq-fb"), true, "Yes — the current starts at a maximum and decays, while the capacitor p.d. rises towards the supply voltage."); award("ch-graph",10,true); }
-        else { fb($("gq-fb"), false, "Not quite — at the start the capacitor is uncharged, so the current is a maximum and the p.d. rises from zero. Try again."); award("ch-graph",0,false); }
+        var all=true, ok=true;
+        Object.keys(ANS).forEach(function(name){
+          var c=w.querySelector('input[name="'+name+'"]:checked'), p=$("fb-"+name);
+          if(!c){ all=false; p.hidden=true; return; }
+          var right=c.value===ANS[name];
+          if(!right) ok=false;
+          p.innerHTML=FB[name][parseInt(c.value,10)]; p.className="q-fb "+(right?"ok":"no"); p.hidden=false;
+        });
+        if(!all){ fb($("gq-fb"), false, "Answer both questions first."); return; }
+        if(ok){ fb($("gq-fb"), true, "Both right: the current starts at a maximum and falls, while the capacitor p.d. rises towards the supply p.d."); award("ch-graph",10,true); }
+        else { fb($("gq-fb"), false, "Read the feedback under the one that needs another look, then check again."); award("ch-graph",0,false); }
       });
     })();
 
   })();
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+    var K = window.WidgetKit, root = document.getElementById("rc-sim");
+    if (!K || !root) { return; }
+    function $(id) { return document.getElementById(id); }
+    function niceAbove(v) {
+      var e = Math.pow(10, Math.floor(Math.log10(v))), m = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+      for (var i = 0; i < m.length; i++) { if (m[i] * e >= v * 0.9999) { return m[i] * e; } }
+      return 10 * e;
+    }
+    function v2(x) { return K.fmt(x, x < 10 ? 2 : 3); }
+
+    var seen = false;
+    function firstUse() {
+      if (seen) { return; }
+      seen = true;
+      if (window.Progress && Progress.markSeen) { Progress.markSeen("hp-cap"); }
+    }
+    root.addEventListener("input", firstUse);
+    root.addEventListener("click", function (e) { if (e.target.closest("button")) { firstUse(); } });
+
+    K.poeCard($("rc-predict"), { answer: "rev" });
+
+    var lay = [{ maxWidth: 520, w: 320, h: 220 }, { w: 340, h: 214 }];
+    var gv = K.graph($("rc-gv"), {
+      x: { min: 0, max: 30, label: "time", unit: "s" },
+      y: { min: 0, max: 8, label: "p.d. across <i>C</i>", unit: "V" },
+      title: "Graph of the p.d. across the capacitor against time", layouts: lay
+    });
+    var gi = K.graph($("rc-gi"), {
+      x: { min: 0, max: 30, label: "time", unit: "s" },
+      y: { min: 0, max: 1, label: "current", unit: "mA" },
+      title: "Graph of the current against time", layouts: lay
+    });
+
+    K.liveSim(root, {
+      render: function (s) {
+        var charge = s.mode !== "discharge";
+        var R = s.r, C = s.c, Vs = s.vs;
+        var k = R * C / 1000;                 /* R (kΩ) × C (µF) in seconds: sets the time scale */
+        var tEnd = niceAbove(5 * k);
+        var I0 = Vs / (R * 1000);             /* A */
+        var micro = I0 < 1e-3, mul = micro ? 1e6 : 1e3, unit = micro ? "µA" : "mA";
+        var Iu = I0 * mul, Itop = niceAbove(Iu * 1.1), Vtop = niceAbove(Vs * 1.1);
+        var Q = C * 1e-6 * Vs, En = 0.5 * Q * Vs;
+
+        gv.setX({ min: 0, max: tEnd }).setY({ min: 0, max: Vtop });
+        gi.setX({ min: 0, max: tEnd }).setY(charge ? { min: 0, max: Itop, unit: unit } : { min: -Itop, max: 0, unit: unit });
+        if (charge) {
+          gv.line("v", function (t) { return Vs * (1 - Math.exp(-t / k)); });
+          gi.line("i", function (t) { return Iu * Math.exp(-t / k); });
+          gi.remove("zero");
+        } else {
+          gv.line("v", function (t) { return Vs * Math.exp(-t / k); });
+          gi.line("i", function (t) { return -Iu * Math.exp(-t / k); });
+          gi.ref("zero", "y", 0);
+        }
+        gv.ref("vs", "y", Vs, { label: "supply p.d. " + v2(Vs) + " V" });
+        gv.describe(charge
+          ? "The p.d. rises quickly at first, then more and more slowly towards the supply p.d., " + v2(Vs) + " volts, over about " + K.fmt(tEnd) + " seconds."
+          : "The p.d. falls from " + v2(Vs) + " volts, quickly at first, then more and more slowly towards zero, over about " + K.fmt(tEnd) + " seconds.");
+        gi.describe(charge
+          ? "The current starts at its largest value, " + K.fmt(Iu) + " " + unit + ", and falls towards zero."
+          : "The current is negative: it starts at minus " + K.fmt(Iu) + " " + unit + " and rises towards zero.");
+
+        $("rc-c-vs").textContent = v2(Vs);
+        $("rc-c-r").textContent = K.fmt(R);
+        $("rc-c-c").textContent = K.fmt(C);
+        $("rc-blade").setAttribute("d", charge ? "M180 70 L143 42" : "M180 70 L143 98");
+        $("rc-arrow").setAttribute("d", charge ? "M250 214 H196 M206 207 L196 214 L206 221" : "M196 214 H250 M240 207 L250 214 L240 221");
+        $("rc-cap").innerHTML = charge
+          ? "Switch at <strong>charge</strong>: the supply pushes charge on to the capacitor."
+          : "Switch at <strong>discharge</strong>: the supply is cut out and the capacitor pushes the charge back round, the other way.";
+        $("rc-circ").setAttribute("aria-label", "Circuit with the switch at " + (charge ? "charge" : "discharge") +
+          ": a " + v2(Vs) + " volt supply, a " + K.fmt(R) + " kilohm resistor, an ammeter and a " + K.fmt(C) +
+          " microfarad capacitor with a voltmeter across it. The arrow shows the current " +
+          (charge ? "flowing from the supply on to the capacitor." : "flowing the opposite way as the capacitor discharges."));
+
+        $("rc-o-i0").textContent = (charge ? "" : "−") + K.fmt(Iu) + " " + unit;
+        $("rc-o-vend").textContent = charge ? v2(Vs) + " V" : "0 V";
+        $("rc-o-q").textContent = K.si(Q, "C");
+        $("rc-o-e").textContent = K.si(En, "J");
+        $("rc-window").textContent = "The graphs show the first " + String(Number(tEnd.toPrecision(3))) + " s.";
+        $("rc-work").innerHTML = charge
+          ? "At the start <var>C</var> is uncharged, so all of the supply p.d. is across <var>R</var>:<br><var>I</var> = <var>V</var><sub>s</sub> ÷ <var>R</var> = " + v2(Vs) + " ÷ " + K.fmt(R * 1000) + " = " + K.fmt(Iu) + " " + unit
+          : "At the start the p.d. across <var>C</var> is " + v2(Vs) + " V, all across <var>R</var>, driving charge the other way:<br><var>I</var> = −<var>V</var> ÷ <var>R</var> = −" + v2(Vs) + " ÷ " + K.fmt(R * 1000) + " = −" + K.fmt(Iu) + " " + unit;
+      }
+    });
+  });
   </script>
 </body>
 </html>

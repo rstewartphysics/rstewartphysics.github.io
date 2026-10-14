@@ -17,8 +17,9 @@ layout: none
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/s3-physics.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/s3-physics.css?v=s3-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
 <style>
 /* ============================================================
@@ -184,6 +185,19 @@ layout: none
   box-shadow: 0 8px 20px rgba(0,138,145,0.40);
 }
 @media (prefers-color-scheme: dark){ .subnav-cta { color: #04211b; } }
+/* ===== combine-resistors simulator (layout and controls from /assets/css/sims.css) ===== */
+#combineSim .w-wire { fill: none; stroke: var(--text); stroke-width: 2.5; stroke-linejoin: round; }
+#combineSim .w-res { fill: var(--card); stroke: var(--text); stroke-width: 2.5; }
+#combineSim .w-meter { fill: var(--card); stroke: var(--text); stroke-width: 2.5; }
+#combineSim .w-plate { stroke: var(--text); stroke-width: 2.5; }
+#combineSim .w-thick { stroke-width: 6; }
+#combineSim .w-dot { fill: var(--text); }
+#combineSim .w-t { fill: var(--text); font-family: var(--font-stack); font-size: 16px; font-weight: 800; }
+#combineSim .w-sym { font-weight: 900; }
+#combineSim .w-cur { fill: var(--accent-2); font-weight: 900; }
+#combineSim .sim-working { font-size: 1.05rem; }
+#combineSim .sim-seg button { flex: 1 1 auto; }
+.quiz-fb var, .ord-tile var, .ord-slot var { font-family: "Times New Roman", Times, Georgia, serif; }
 </style>
 </head>
 <body>
@@ -237,7 +251,7 @@ layout: none
   <a href="/classes/s3-physics/RS Electricity B1 N5 2025.pdf"
      target="_blank"
      class="download-btn">
-     📘 Download the Full Booklet (PDF)
+     Download the Full Booklet (PDF)
   </a>
 </p>
 
@@ -268,39 +282,60 @@ layout: none
 
     <span class="step-label try">Try</span>
 
-    <div class="widget" id="combineSim" data-prog-challenge="ch-combine-target">
-      <h3>Combine two resistors — beat the target</h3>
-      <p class="hint"><strong>Challenge below:</strong> get the total under 4 Ω. Set the two resistors and the connection — the total and its working update instantly, so you can see why series always adds up while parallel always gives less than the smaller resistor.</p>
-      <div class="csim">
-        <div class="csim-controls">
-          <div class="csim-row">
-            <label for="comb-r1">Resistor 1</label>
-            <input type="range" id="comb-r1" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms">
-            <input type="number" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor 1 in ohms (number)">
-          </div>
-          <div class="csim-row">
-            <label for="comb-r2">Resistor 2</label>
-            <input type="range" id="comb-r2" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms">
-            <input type="number" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor 2 in ohms (number)">
-          </div>
-          <div class="csim-row">
-            <label id="comb-mode-lab">Connection</label>
-            <div class="csim-toggle" role="group" aria-labelledby="comb-mode-lab">
-              <button type="button" data-sim-toggle="mode" data-value="series" aria-pressed="true">Series</button>
-              <button type="button" data-sim-toggle="mode" data-value="parallel" aria-pressed="false">Parallel</button>
-            </div>
-          </div>
+    <div class="sim" id="combineSim" data-prog-challenge="ch-combine-target">
+      <div class="sim-head">
+        <h3>Combine two resistors</h3>
+        <p class="sim-hint">Set the two resistors, the supply and the connection. The circuit, the total and the current all follow.</p>
+      </div>
+
+      <div class="sim-predict" id="comb-predict">
+        <p class="sim-q"><b>Predict</b> the total resistance when a 10 Ω and a 20 Ω resistor are joined in parallel.</p>
+        <div class="sim-choices">
+          <button type="button" data-predict="30" aria-pressed="false">30 Ω<template data-feedback><p>That is the series total: in series the resistances add. In parallel the charge has two paths, so it is easier for charge to flow.</p></template></button>
+          <button type="button" data-predict="15" aria-pressed="false">15 Ω<template data-feedback><p>15 Ω is the average of the two. A second path makes it easier for charge to flow than through either resistor on its own, so the total is not the average.</p></template></button>
+          <button type="button" data-predict="lt10" aria-pressed="false">Less than 10 Ω<template data-feedback><p><strong>Right.</strong> Two paths make it easier for charge to flow than through the 10 Ω on its own, so the total is less than the smaller resistor. It comes out at 6.67 Ω. Switch the circuit to parallel to see it.</p></template></button>
+          <button type="button" data-predict="20" aria-pressed="false">20 Ω<template data-feedback><p>Adding a path never makes it harder for charge to flow. In parallel the total can't be bigger than either resistor.</p></template></button>
         </div>
-        <div class="combine-out">
-          <div class="combine-total"><b id="comb-rt">—</b><span>Total resistance R<sub>T</sub> (Ω)</span></div>
-          <p class="combine-work" id="comb-work" aria-live="polite"></p>
-          <p class="combine-note" id="comb-note"></p>
+        <div data-reveal hidden aria-live="polite"></div>
+      </div>
+
+      <div class="sim-stage">
+        <div class="sim-view">
+          <figure class="sim-fig">
+            <svg id="comb-draw" viewBox="0 0 600 250" role="img" aria-label="Circuit diagram"></svg>
+          </figure>
+          <div class="sim-readouts" aria-live="polite">
+            <div class="sim-out is-key"><span class="k">Total resistance <var>R</var><sub>T</sub></span><span class="v" id="comb-rt">—</span></div>
+            <div class="sim-out"><span class="k">Current from the supply <var>I</var></span><span class="v" id="comb-i">—</span></div>
+          </div>
+          <p class="sim-working" id="comb-work"></p>
+          <p class="sim-note" id="comb-note"></p>
         </div>
-        <div class="csim-task">
-          <strong>Challenge:</strong> make the total resistance <strong>less than 4 Ω</strong>. Only one of the two connections can do it — find out which.
-          <div class="meter-actions"><button type="button" id="comb-check">Check</button></div>
-          <p class="csim-fb" id="comb-fb" role="status" aria-live="polite"></p>
+        <div class="sim-controls">
+          <div class="sim-seg" role="group" aria-label="Connection">
+            <span class="sim-seg-label">Connection</span>
+            <button type="button" data-sim-toggle="mode" data-value="series" aria-pressed="true">Series</button>
+            <button type="button" data-sim-toggle="mode" data-value="parallel" aria-pressed="false">Parallel</button>
+          </div>
+          <label class="sim-field">
+            <span class="sim-name">Resistor <var>R</var><sub>1</sub> (Ω)</span>
+            <span class="sim-row"><input type="range" data-sim="R1" min="2" max="20" step="1" value="10" aria-label="Resistor R1 in ohms"><input class="sim-num" type="number" data-sim="R1" min="2" max="20" step="1" value="10" inputmode="numeric" aria-label="Resistor R1 in ohms, typed"></span>
+          </label>
+          <label class="sim-field">
+            <span class="sim-name">Resistor <var>R</var><sub>2</sub> (Ω)</span>
+            <span class="sim-row"><input type="range" data-sim="R2" min="2" max="20" step="1" value="20" aria-label="Resistor R2 in ohms"><input class="sim-num" type="number" data-sim="R2" min="2" max="20" step="1" value="20" inputmode="numeric" aria-label="Resistor R2 in ohms, typed"></span>
+          </label>
+          <label class="sim-field">
+            <span class="sim-name">Supply voltage <var>V</var> (V)</span>
+            <span class="sim-row"><input type="range" data-sim="V" min="1" max="12" step="0.5" value="6" aria-label="Supply voltage V in volts"><input class="sim-num" type="number" data-sim="V" min="1" max="12" step="0.5" value="6" inputmode="decimal" aria-label="Supply voltage V in volts, typed"></span>
+          </label>
         </div>
+      </div>
+
+      <div class="csim-task">
+        <strong>Challenge:</strong> make the total resistance <strong>less than 4 Ω</strong>. Only one of the two connections can do it. Find out which.
+        <div class="meter-actions"><button type="button" id="comb-check">Check</button></div>
+        <p class="csim-fb" id="comb-fb" role="status" aria-live="polite"></p>
       </div>
     </div>
 
@@ -335,7 +370,7 @@ layout: none
 
     <span class="step-label check">Check</span>
     <p>Predict, then (in class) measure the total resistance for series and equal-value parallel sets.</p>
-    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L5"></div></div>
+    <div class="self-check"><p class="self-check-lead">Rate yourself</p><div class="gar-inline" data-gar-level="L5"></div></div>
 
   </div>
 
@@ -385,10 +420,10 @@ layout: none
         <button type="button" class="ord-slot"><span class="step-n">4.</span> <span class="ord-word">—</span></button>
       </div>
       <div class="ord-bank">
-        <button type="button" class="ord-tile" data-word="Add the series resistor: R_T = R_p + R₃">Add the series resistor: R_T = R_p + R₃</button>
-        <button type="button" class="ord-tile" data-word="Find the parallel pair: 1/R_p = 1/R₁ + 1/R₂">Find the parallel pair: 1/R_p = 1/R₁ + 1/R₂</button>
-        <button type="button" class="ord-tile" data-word="State the total resistance R_T">State the total resistance R_T</button>
-        <button type="button" class="ord-tile" data-word="Flip 1/R_p to get R_p">Flip 1/R_p to get R_p</button>
+        <button type="button" class="ord-tile" data-word="series">Add the series resistor: <var>R</var><sub>T</sub> = <var>R</var><sub>p</sub> + <var>R</var><sub>3</sub></button>
+        <button type="button" class="ord-tile" data-word="pair">Find the parallel pair: 1/<var>R</var><sub>p</sub> = 1/<var>R</var><sub>1</sub> + 1/<var>R</var><sub>2</sub></button>
+        <button type="button" class="ord-tile" data-word="state">State the total resistance <var>R</var><sub>T</sub></button>
+        <button type="button" class="ord-tile" data-word="flip">Flip 1/<var>R</var><sub>p</sub> to get <var>R</var><sub>p</sub></button>
       </div>
       <div class="btnrow"><button class="wbtn primary" type="button" id="ord-check">Check order</button><button class="wbtn" type="button" id="ord-reset">Reset</button></div>
       <p class="fb-line" id="ord-fb" aria-live="polite"></p>
@@ -455,7 +490,7 @@ layout: none
 
     <span class="step-label check">Check</span>
     <p>Can you find the total resistance of a combination circuit, parallel part first?</p>
-    <div class="self-check"><p class="self-check-lead">✅ Rate yourself</p><div class="gar-inline" data-gar-level="L6"></div></div>
+    <div class="self-check"><p class="self-check-lead">Rate yourself</p><div class="gar-inline" data-gar-level="L6"></div></div>
 
   </div>
 
@@ -497,7 +532,7 @@ function buildQuiz(containerId, questions, scoreId, opts2) {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'quiz-opt';
-      b.textContent = o;
+      b.innerHTML = o;
       b.addEventListener('click', () => {
         if (wrap.dataset.done) return;
         wrap.dataset.done = '1';
@@ -505,13 +540,13 @@ function buildQuiz(containerId, questions, scoreId, opts2) {
         if (oi === q.a) {
           b.classList.add('correct');
           fb.className = 'quiz-fb fb-correct';
-          fb.textContent = 'Correct — ' + q.why;
+          fb.innerHTML = q.fb ? q.fb[oi] : 'Correct — ' + q.why;
           score++;
         } else {
           b.classList.add('wrong');
           fb.className = 'quiz-fb fb-incorrect';
           const hint = (q.hints && q.hints[oi]) ? q.hints[oi] : q.why;
-          fb.textContent = 'Not quite. ' + hint;
+          fb.innerHTML = q.fb ? q.fb[oi] : 'Not quite. ' + hint;
           opts.children[q.a].classList.add('correct');
         }
         Array.from(opts.children).forEach(x => x.disabled = true);
@@ -534,15 +569,33 @@ function buildQuiz(containerId, questions, scoreId, opts2) {
 }
 
 buildQuiz('check-l5', [
-  { q: 'Two resistors in series: the total resistance is…', opts: ['Their sum', 'Smaller than either', 'Their average'], a: 0, why: 'In series, R_T = R₁ + R₂ + …' },
-  { q: 'Four equal 12 Ω resistors in parallel give…', opts: ['48 Ω', '3 Ω', '12 Ω'], a: 1, why: 'Equal parallel: 12 ÷ 4 = 3 Ω.' },
-  { q: 'Adding more resistors in series makes the current…', opts: ['Larger', 'Smaller', 'Unchanged'], a: 1, why: 'More resistance, same voltage → smaller current.' }
+  { q: 'Two resistors in series: the total resistance is…', opts: ['Their sum', 'Smaller than either', 'Their average'], a: 0, fb: [
+    '<strong>Right.</strong> In series the charge goes through one resistor and then the next, so the resistances add: <var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>.',
+    'That is true in parallel, where charge has more than one path. In series there is only one path, through both resistors.',
+    'An average would sit between the two values. In series the charge must pass through both, so the total is bigger than either.'] },
+  { q: 'Four equal 12 Ω resistors in parallel give…', opts: ['48 Ω', '3 Ω', '12 Ω'], a: 1, fb: [
+    '48 Ω is the series total. In parallel, more branches make the total smaller.',
+    '<strong>Right.</strong> Equal resistors in parallel: 12 ÷ 4 = 3 Ω.',
+    '12 Ω is one resistor on its own. Four paths make it easier for charge to flow, so the total is smaller.'] },
+  { q: 'Adding more resistors in series makes the current…', opts: ['Larger', 'Smaller', 'Unchanged'], a: 1, fb: [
+    'More resistors in series means more resistance. With the same voltage, <var>I</var> = <var>V</var> ÷ <var>R</var> gets smaller, not larger.',
+    '<strong>Right.</strong> More resistance in series with the same voltage, so the current is smaller (<var>I</var> = <var>V</var> ÷ <var>R</var>).',
+    'The total resistance changes when you add a resistor, so the current changes too.'] }
 ], 'check-l5-done', { challenge: 'ch-check-l5', pts: 10 });
 
 buildQuiz('check-l6', [
-  { q: 'In a combination circuit, you should first solve the…', opts: ['Series part', 'Parallel part', 'Largest resistor'], a: 1, why: 'Always combine the parallel part first, then add the series resistor.' },
-  { q: 'For different parallel resistors you use…', opts: ['R_T = R₁ + R₂', '1/R_T = 1/R₁ + 1/R₂', 'R_T = R₁ ÷ 2'], a: 1, why: 'Different values need the reciprocal method.' },
-  { q: 'A parallel total is always…', opts: ['Bigger than the biggest', 'Smaller than the smallest', 'Equal to the average'], a: 1, why: 'Parallel total is smaller than the smallest branch resistor.' }
+  { q: 'In a combination circuit, you should first solve the…', opts: ['Series part', 'Parallel part', 'Largest resistor'], a: 1, fb: [
+    'The series resistor can only be added once the parallel pair is one value. Start with the pair.',
+    '<strong>Right.</strong> Combine the parallel pair into one value first, then add the series resistor.',
+    'The size of a resistor does not decide the order. The way it is connected does.'] },
+  { q: 'For different parallel resistors you use…', opts: ['<var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>', '1/<var>R</var><sub>T</sub> = 1/<var>R</var><sub>1</sub> + 1/<var>R</var><sub>2</sub>', '<var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> ÷ 2'], a: 1, fb: [
+    'That is the series rule. Parallel resistors need a different method.',
+    '<strong>Right.</strong> For different values in parallel use the reciprocal method, then flip the answer.',
+    'Dividing by 2 only works when the two parallel resistors are equal.'] },
+  { q: 'A parallel total is always…', opts: ['Bigger than the biggest', 'Smaller than the smallest', 'Equal to the average'], a: 1, fb: [
+    'Adding a branch gives charge another path, which makes flow easier, not harder.',
+    '<strong>Right.</strong> Each extra path makes it easier for charge to flow, so the total is less than the smallest branch resistor.',
+    'The average sits between the two values. In parallel the total is below both.'] }
 ], 'check-l6-done', { challenge: 'ch-check-l6', pts: 10 });
 </script>
 
@@ -659,10 +712,10 @@ buildGAR();
   (function(){
     var w=document.querySelector('[data-prog-challenge="ch-order-combo"]'); if(!w) return;
     var CORRECT=[
-      "Find the parallel pair: 1/R_p = 1/R₁ + 1/R₂",
-      "Flip 1/R_p to get R_p",
-      "Add the series resistor: R_T = R_p + R₃",
-      "State the total resistance R_T"
+      "pair",
+      "flip",
+      "series",
+      "state"
     ];
     var slotWrap=w.querySelector(".ord-slots");
     var slots=[].slice.call(w.querySelectorAll(".ord-slot"));
@@ -672,7 +725,7 @@ buildGAR();
       for(var i=0;i<slots.length;i++){
         if(!slots[i].getAttribute("data-word")){
           slots[i].setAttribute("data-word", word);
-          slots[i].querySelector(".ord-word").textContent=word;
+          var src=tileFor(word); slots[i].querySelector(".ord-word").innerHTML=src?src.innerHTML:word;
           slots[i].classList.add("filled");
           return true;
         }
@@ -703,7 +756,7 @@ buildGAR();
         s.classList.toggle("ok",ok); s.classList.toggle("no",!ok);
         if(!ok) allOk=false;
       });
-      if(allOk){ fb($("ord-fb"), true, "Correct — parallel pair, flip it, add the series resistor, then state R_T."); award("ch-order-combo",10,true); }
+      if(allOk){ fb($("ord-fb"), true, "Correct: parallel pair, flip it, add the series resistor, then state the total."); award("ch-order-combo",10,true); }
       else { fb($("ord-fb"), false, "Not in order yet — tap a step to clear it and rethink the sequence."); award("ch-order-combo",0,false); }
     });
     $("ord-reset").addEventListener("click", function(){
@@ -714,43 +767,118 @@ buildGAR();
 })();
 </script>
 
-<!-- live combined-resistance sim (L5) -->
+<!-- Combine two resistors (WidgetKit: liveSim, poeCard) -->
 <script>
 document.addEventListener("DOMContentLoaded", function(){
-  if(!window.WidgetKit) return;
+  var K = window.WidgetKit;
   var root = document.getElementById("combineSim");
-  if(!root) return;
+  if(!K || !root) return;
   var $ = function(id){ return document.getElementById(id); };
-  var lastRt = 0;
+  var NS = "http://www.w3.org/2000/svg", svg = $("comb-draw");
+  var lastRt = 0, used = false, first = true;
+
+  function el(name, attrs){
+    var e = document.createElementNS(NS, name);
+    for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+    svg.appendChild(e);
+    return e;
+  }
+  function text(x, y, html, anchor, cls){
+    var t = el("text", { x: x, y: y, "text-anchor": anchor || "middle", "class": cls || "w-t" }), it = false, sub = false, shift = 0;
+    String(html).split(/(<\/?(?:i|sub)>)/).forEach(function(p){
+      if(p === "<i>"){ it = true; return; } if(p === "</i>"){ it = false; return; }
+      if(p === "<sub>"){ sub = true; shift = 1; return; } if(p === "</sub>"){ sub = false; shift = -1; return; }
+      if(!p) return;
+      var s = document.createElementNS(NS, "tspan"); s.textContent = p; t.appendChild(s);
+      if(it){ s.setAttribute("font-style", "italic"); s.setAttribute("font-family", "\"Times New Roman\", Times, Georgia, serif"); }
+      if(sub) s.setAttribute("font-size", "75%");
+      if(shift === 1){ s.setAttribute("dy", "0.3em"); shift = 0; } else if(shift === -1){ s.setAttribute("dy", "-0.3em"); shift = 0; }
+    });
+    return t;
+  }
+  function wire(d){ el("path", { d: d, "class": "w-wire" }); }
+  function resistor(cx, cy, w, label){
+    el("rect", { x: cx - w / 2, y: cy - 11, width: w, height: 22, "class": "w-res" });
+    text(cx, cy - 18, label);
+  }
+  function dot(x, y){ el("circle", { cx: x, cy: y, r: 4, "class": "w-dot" }); }
+  function layoutW(){ return (svg.parentNode.clientWidth || 600) < 520 ? 340 : 600; }
+  function ohms(v){ return K.fmt(v, 3) + " Ω"; }
+  function amps(v){ return K.fmt(v, 2) + " A"; }
+
+  function draw(s, rt, I){
+    var W = layoutW(), narrow = W < 600, H = 250;
+    var xl = narrow ? 34 : 60, xr = W - xl, yt = 50, yb = 210, rw = narrow ? 52 : 70, ay = 160;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    var cx = W / 2;
+    /* outer loop: left wire with the ammeter, bottom wire with the cell, right wire */
+    wire("M" + xl + " " + yt + "V" + (ay - 15) + "M" + xl + " " + (ay + 15) + "V" + yb + "H" + (cx - 6) + "M" + (cx + 6) + " " + yb + "H" + xr + "V" + yt);
+    el("circle", { cx: xl, cy: ay, r: 15, "class": "w-meter" });
+    text(xl, ay + 6, "A", "middle", "w-t w-sym");
+    text(xl + 24, ay + 6, "<i>I</i> = " + amps(I), "start", "w-t w-cur");
+    el("line", { x1: cx - 6, y1: yb - 18, x2: cx - 6, y2: yb + 18, "class": "w-plate" });
+    el("line", { x1: cx + 6, y1: yb - 9, x2: cx + 6, y2: yb + 9, "class": "w-plate w-thick" });
+    text(cx, yb + 34, "<i>V</i> = " + K.fmt(s.V, 2) + " V");
+    var l1 = "<i>R</i><sub>1</sub> = " + s.R1 + " Ω", l2 = "<i>R</i><sub>2</sub> = " + s.R2 + " Ω";
+    if(s.mode === "series"){
+      var x1 = xl + (xr - xl) * 0.3, x2 = xl + (xr - xl) * 0.7;
+      wire("M" + xl + " " + yt + "H" + (x1 - rw / 2) + "M" + (x1 + rw / 2) + " " + yt + "H" + (x2 - rw / 2) + "M" + (x2 + rw / 2) + " " + yt + "H" + xr);
+      resistor(x1, yt, rw, l1); resistor(x2, yt, rw, l2);
+    } else {
+      var xa = xl + (xr - xl) * 0.24, xb = xr - (xr - xl) * 0.24, y2 = yt + 66, xm = (xa + xb) / 2;
+      wire("M" + xl + " " + yt + "H" + (xm - rw / 2) + "M" + (xm + rw / 2) + " " + yt + "H" + xr);
+      wire("M" + xa + " " + yt + "V" + y2 + "H" + (xm - rw / 2) + "M" + (xm + rw / 2) + " " + y2 + "H" + xb + "V" + yt);
+      dot(xa, yt); dot(xb, yt);
+      resistor(xm, yt, rw, l1); resistor(xm, y2, rw, l2);
+    }
+    svg.setAttribute("aria-label", "Circuit diagram: a " + K.fmt(s.V, 2) + " volt cell, an ammeter and resistors R1, " + s.R1 + " ohms, and R2, " + s.R2 +
+      " ohms, in " + s.mode + ". Total resistance " + K.fmt(rt, 3) + " ohms; the ammeter reads " + K.fmt(I, 2) + " amps.");
+  }
 
   function render(s){
     var R1 = s.R1, R2 = s.R2, rt, work, note;
     if(s.mode === "series"){
       rt = R1 + R2;
       work = "<var>R</var><sub>T</sub> = <var>R</var><sub>1</sub> + <var>R</var><sub>2</sub> = " + R1 + " + " + R2 + " = " + rt + " Ω";
-      note = "Series adds up — the total is larger than either resistor.";
+      note = "Series adds up: the total is bigger than either resistor.";
     } else {
-      rt = (R1 * R2) / (R1 + R2);
-      work = "<var>R</var><sub>T</sub> = (<var>R</var><sub>1</sub> × <var>R</var><sub>2</sub>) ÷ (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>) = (" + R1 + " × " + R2 + ") ÷ " + (R1 + R2) + " = " + rt.toFixed(2) + " Ω";
-      note = "Parallel — the total is smaller than the smaller resistor (" + Math.min(R1, R2) + " Ω).";
+      rt = 1 / (1 / R1 + 1 / R2);
+      work = R1 === R2
+        ? "Equal resistors: <var>R</var><sub>T</sub> = " + R1 + " ÷ 2 = " + K.fmt(rt, 3) + " Ω"
+        : "1/<var>R</var><sub>T</sub> = 1/" + R1 + " + 1/" + R2 + " = " + K.fmt(1 / R1 + 1 / R2, 3) + ", so <var>R</var><sub>T</sub> = " + K.fmt(rt, 3) + " Ω";
+      note = "Parallel gives the charge two paths: the total is smaller than the smaller resistor (" + Math.min(R1, R2) + " Ω).";
     }
+    var I = s.V / rt;
+    work += "<br><var>I</var> = <var>V</var> ÷ <var>R</var><sub>T</sub> = " + K.fmt(s.V, 2) + " ÷ " + K.fmt(rt, 3) + " = " + amps(I);
     lastRt = rt;
-    $("comb-rt").textContent = (Math.round(rt * 100) / 100).toFixed(2);
+    draw(s, rt, I);
+    $("comb-rt").textContent = ohms(rt);
+    $("comb-i").textContent = amps(I);
     $("comb-work").innerHTML = work;
     $("comb-note").textContent = note;
+    if(first){ first = false; } else if(!used){
+      used = true;
+      if(window.Progress && Progress.markSeen) Progress.markSeen("elec1c");
+    }
   }
 
-  window.WidgetKit.liveSim(root, { render: render });
+  var sim = K.liveSim(root, { render: render });
+  K.poeCard($("comb-predict"), { answer: "lt10" });
+  if(window.ResizeObserver){
+    var lastW = null;
+    new ResizeObserver(function(){ var w = layoutW(); if(w !== lastW){ lastW = w; sim.refresh(); } }).observe(svg.parentNode);
+  }
 
   var fb = $("comb-fb");
   $("comb-check").addEventListener("click", function(){
     if(lastRt < 4){
       fb.className = "csim-fb ok";
-      fb.textContent = "✓ " + lastRt.toFixed(2) + " Ω — under 4 Ω. Only parallel can do this: it gives the charge two paths, so the total is always less than the smaller resistor. Series just adds up.";
+      fb.textContent = "Right. " + K.fmt(lastRt, 3) + " Ω is under 4 Ω. Only parallel can do this: it gives the charge two paths, so the total is always less than the smaller resistor. Series just adds up.";
       if(window.Progress) Progress.complete("ch-combine-target");
     } else {
       fb.className = "csim-fb no";
-      fb.textContent = "✗ " + lastRt.toFixed(2) + " Ω is not below 4 Ω yet. Series only adds up — switch to parallel and use small resistors.";
+      fb.textContent = "Not yet. " + K.fmt(lastRt, 3) + " Ω is not below 4 Ω. Which connection makes the total smaller than either resistor?";
       if(window.Progress) Progress.miss();
     }
   });

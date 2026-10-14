@@ -34,6 +34,12 @@
     { id: "thy-li", name: "Logic Lord", emoji: "🚦", section: "Theory", thr: 1,
       href: "/classes/electronics/theory/logic-and-ics.html",
       cond: "Complete the target truth tables" },
+    /* The 555 astable page (13 Oct 2026): earned by finishing every challenge
+       on the page — the simulator's predict-and-test, the quiz and the gap
+       fill.  Its own section, so "all six Theory topics" keeps its meaning. */
+    { id: "thy-555", name: "Timer Tamer", emoji: "⏱️", section: "Circuits", unlock: "page",
+      href: "/classes/electronics/555-astable.html",
+      cond: "Finish every challenge on the 555 astable page" },
     { id: "sim-io", name: "The Operator", emoji: "🎛️", section: "Simulation", thr: 1,
       href: "/classes/electronics/simulation.html",
       cond: "Satisfy the input → process → output brief" },

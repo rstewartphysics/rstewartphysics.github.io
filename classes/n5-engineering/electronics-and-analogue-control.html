@@ -18,9 +18,10 @@ title: Electronics & Analogue Control — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261014b">
   <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261014a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
   <style>
     :root {
@@ -166,11 +167,37 @@ title: Electronics & Analogue Control — National 5 Engineering Science
           .opt.wrong { background: rgba(255,157,138,.12); }
         }
 
-    .kit-row > label { font-weight:900; font-size:.9rem; color:var(--eng-text); min-width:8.5rem; }
 
-    @media (max-width:520px){ .kit-row { grid-template-columns:1fr; gap:.25rem; } .kit-row > label { min-width:0; } }
+        /* ---------- simulators (sims.css + WidgetKit) ---------- */
+    .sim { --sim-accent-ink: var(--eng-ink-accent); }
+    .simdraw text { font-family: var(--font-stack); font-weight: 800; font-size: 15px; fill: var(--text); }
+    .simdraw .small { font-size: 14px; fill: var(--muted); }
+    .simdraw .big { font-size: 17px; font-weight: 900; }
+    .simdraw .v { fill: var(--sim-ink); font-weight: 900; }
+    .simdraw .q { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 17px; }
+    .simdraw .sb { font-size: 13.5px; }
+    .simdraw .w { fill: none; stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .simdraw .w.thick { stroke-width: 5; }
+    .simdraw .w.thin { stroke-width: 1.5; stroke-linecap: butt; }
+    .simdraw .tip, .simdraw .dot { fill: var(--text); }
+    .simdraw .body, .simdraw .term { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .simdraw .flow { fill: var(--sim-ink); }
+    @media (max-width:520px){
+      .simdraw text { font-size: 17px; } .simdraw .small { font-size: 16px; }
+      .simdraw .sb { font-size: 15px; } .simdraw .q { font-size: 19px; } .simdraw .big { font-size: 18px; }
+    }
+    .sim-task { border-top: 1px solid var(--border); padding-top: 8px; }
+    .sim-task p { margin: 0 0 6px; font-weight: 800; line-height: 1.4; font-size: .95rem; }
+    .sim-task .kit-fb { margin: 6px 0 0; }
+    .sim-try { margin: .5rem 0 0; }
+    .sim-try[hidden] { display: none; }
+    #divCircuit .seg1 { fill: var(--eng-teal); }
+    #divCircuit .seg2 { fill: var(--eng-orange); }
+    #divCircuit .barframe { fill: none; stroke: var(--text); stroke-width: 1.6; }
+    #divCircuit .barlab { fill: #1c1408; }
 
-    @media (prefers-reduced-motion: reduce){ .vbar > div { transition:none; } }
+
+
 
         /* mode cards: colour-code the destination */
 
@@ -179,7 +206,7 @@ title: Electronics & Analogue Control — National 5 Engineering Science
     .mode-card[href="#answers"], .mode-card[href="#s2"] { border-left-color: var(--ex-bd); }
 
     @media print {
-          .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
+          .subnav-wrap, .backlink, .widget, .sim, .btnrow, #siteMenuButton, footer,
           .modebar, .toolbar, .sec-toggle { display: none !important; }
           .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
           .sec.collapsed .sec-body { display: block !important; }
@@ -190,6 +217,7 @@ title: Electronics & Analogue Control — National 5 Engineering Science
     @media (prefers-reduced-motion: reduce) {
           * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
         }
+    .opt .mark-note.opt-why { display: block; white-space: normal; margin: .35rem 0 0 1.6rem; font-weight: 700; color: var(--eng-text); line-height: 1.5; }
   </style>
 </head>
 
@@ -498,28 +526,71 @@ title: Electronics & Analogue Control — National 5 Engineering Science
         </div>
       </div></details>
 
-      <div class="widget" id="ohmSim" data-prog-challenge="ch-ohms-calc">
-        <h3>Ohm's law explorer — live</h3>
-        <p class="hint">Drag the voltage and resistance. The current updates instantly from <var>I</var> = <var>V</var> ÷ <var>R</var>.</p>
-        <div class="kit-row">
-          <label for="ohm-v">Voltage (V)</label>
-          <input type="range" id="ohm-v" data-sim="V" min="1" max="24" step="1" value="12" aria-label="Supply voltage in volts">
-          <input type="number" data-sim="V" min="1" max="24" step="1" value="12" aria-label="Supply voltage in volts (number)">
+      <div class="sim" id="ohmSim" data-prog-challenge="ch-ohms-calc">
+        <div class="sim-head">
+          <h3>Ohm's law explorer</h3>
+          <p class="sim-hint">Change the supply voltage and the resistance. The circuit, the graph and the current all follow <var>V</var> = <var>I</var> <var>R</var>.</p>
         </div>
-        <div class="kit-row">
-          <label for="ohm-r">Resistance (Ω)</label>
-          <input type="range" id="ohm-r" data-sim="R" min="50" max="1200" step="50" value="600" aria-label="Resistance in ohms">
-          <input type="number" data-sim="R" min="50" max="1200" step="50" value="600" aria-label="Resistance in ohms (number)">
+
+        <div class="sim-predict" id="ohmPredict">
+          <p class="sim-q"><b>Predict</b> what happens to the current if the resistance is doubled and the supply voltage stays the same.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="up" aria-pressed="false">It doubles<template data-feedback><p>Not this one. Resistance <strong>opposes</strong> the current, so more resistance lets less current through, not more. Look at where <var>R</var> sits in <var>I</var> = <var>V</var> ÷ <var>R</var>.</p></template></button>
+            <button type="button" data-predict="half" aria-pressed="false">It halves<template data-feedback><p><strong>Right.</strong> <var>I</var> = <var>V</var> ÷ <var>R</var>, and <var>R</var> is on the bottom. Double <var>R</var> with the same <var>V</var> and the current halves: 12 V across 400 Ω gives 30 mA, across 800 Ω it gives 15 mA.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">It stays the same<template data-feedback><p>Not quite. The voltage is the same, but the current depends on the resistance as well. Put a bigger <var>R</var> into <var>I</var> = <var>V</var> ÷ <var>R</var> and see what happens to <var>I</var>.</p></template></button>
+            <button type="button" data-predict="zero" aria-pressed="false">It drops to zero<template data-feedback><p>Too far. A bigger resistance makes the current smaller, but current still flows while the circuit is complete. Work out <var>I</var> = <var>V</var> ÷ <var>R</var> with twice the resistance.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" hidden><button class="sim-btn" type="button" id="ohm-try">Try it: double <var>R</var> to 800 Ω</button></p>
         </div>
-        <div class="sim-readout">
-          <div class="sr-item"><b id="ohm-i">—</b><span>current (mA)</span></div>
-          <div class="sr-item"><b id="ohm-p">—</b><span>power (W) — P = IV</span></div>
-        </div>
-        <p class="sim-readout" id="ohm-desc" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
-        <div class="kit-task">
-          <strong>Challenge:</strong> set the circuit so exactly <strong>20 mA</strong> flows.
-          <div class="kit-actions"><button type="button" id="ohm-check">Check</button></div>
-          <p class="kit-fb" id="ohm-fb" role="status" aria-live="polite"></p>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs">
+              <figure class="sim-fig">
+                <svg class="simdraw" id="ohmCircuit" viewBox="0 0 320 240" role="img" aria-label="Circuit diagram: a supply, an ammeter and a resistor in series.">
+                  <path class="w" d="M100 117 V50 H168 M202 50 H270 V95 M270 155 V200 H100 V131"/>
+                  <line class="w" x1="82" y1="117" x2="118" y2="117"/>
+                  <line class="w thick" x1="90" y1="131" x2="110" y2="131"/>
+                  <text x="122" y="112">+</text>
+                  <text x="78" y="104" text-anchor="end">supply</text>
+                  <text x="78" y="126" text-anchor="end"><tspan class="q">V</tspan> =</text>
+                  <text class="v" x="78" y="148" text-anchor="end" data-v="V">12 V</text>
+                  <circle class="body" cx="185" cy="50" r="17"/>
+                  <text x="185" y="56" text-anchor="middle" class="big">A</text>
+                  <text x="185" y="22" text-anchor="middle"><tspan class="q">I</tspan> = <tspan class="v" data-v="I">30.0 mA</tspan></text>
+                  <rect class="body" x="258" y="95" width="24" height="60"/>
+                  <text x="248" y="118" text-anchor="end"><tspan class="q">R</tspan> =</text>
+                  <text class="v" x="248" y="140" text-anchor="end" data-v="R">400 Ω</text>
+                  <path class="flow" data-arrow="top" d=""/>
+                  <path class="flow" data-arrow="bot" d=""/>
+                  <text x="185" y="226" text-anchor="middle" class="small">current</text>
+                </svg>
+                <figcaption>Supply, ammeter and resistor in series.</figcaption>
+              </figure>
+              <figure class="sim-fig sim-graph">
+                <svg id="ohmGraph"></svg>
+                <figcaption>The line is this resistor; the dot is your circuit.</figcaption>
+              </figure>
+            </div>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Current <var>I</var></span><span class="v" id="ohm-i">—</span></div>
+              <div class="sim-out"><span class="k">Power <var>P</var> = <var>I</var> <var>V</var></span><span class="v" id="ohm-p">—</span></div>
+            </div>
+            <p class="sim-working" id="ohm-work"></p>
+            <p class="sim-note" id="ohm-off" hidden>The current is off the top of the graph. A small resistance lets a big current through.</p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field"><span class="sim-name">Supply voltage <var>V</var> (V)</span>
+              <span class="sim-row"><input type="range" data-sim="V" min="1" max="24" step="1" value="12" aria-label="Supply voltage in volts"><input class="sim-num" type="number" data-sim="V" min="1" max="24" step="1" value="12" inputmode="numeric" aria-label="Supply voltage in volts, typed"></span></label>
+            <label class="sim-field"><span class="sim-name">Resistance <var>R</var> (Ω)</span>
+              <span class="sim-row"><input type="range" data-sim="R" min="50" max="1200" step="50" value="400" aria-label="Resistance in ohms"><input class="sim-num" type="number" data-sim="R" min="50" max="1200" step="50" value="400" inputmode="numeric" aria-label="Resistance in ohms, typed"></span></label>
+            <div class="sim-task">
+              <p><b>Set</b> the supply and the resistance so that exactly <strong>20 mA</strong> flows.</p>
+              <button class="sim-btn" type="button" id="ohm-check">Check</button>
+              <p class="kit-fb" id="ohm-fb" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -729,32 +800,81 @@ title: Electronics & Analogue Control — National 5 Engineering Science
       </table></div>
       <div class="note"><strong>How to describe a sensor circuit</strong> (the most-missed marks): say what happens to the <strong>sensor's resistance</strong>, then to <strong><var>V</var><sub>out</sub></strong>, then to the transistor and output. <em>"As it gets darker the LDR's resistance increases, so V<sub>out</sub> across the LDR increases; when V<sub>out</sub> is high enough the transistor switches on and the lamp lights."</em></div>
 
-      <div class="widget" id="divSim" data-prog-challenge="ch-divider-sim">
-        <h3>Voltage-divider explorer — live</h3>
-        <p class="hint">The supply is fixed at <strong>12 V</strong>. Drag R₁ and R₂ and watch how the 12 V is shared — the bigger resistance always takes the bigger share.</p>
-        <div class="kit-row">
-          <label for="div-r1">R₁ — upper (Ω)</label>
-          <input type="range" id="div-r1" data-sim="R1" min="100" max="5000" step="100" value="1000" aria-label="Upper resistance R1 in ohms">
-          <input type="number" data-sim="R1" min="100" max="5000" step="100" value="1000" aria-label="Upper resistance R1 in ohms (number)">
+      <div class="sim" id="divSim" data-prog-challenge="ch-divider-sim">
+        <div class="sim-head">
+          <h3>Voltage-divider explorer</h3>
+          <p class="sim-hint">The supply is fixed at <strong>12 V</strong>. Change <var>R</var><sub>1</sub> and <var>R</var><sub>2</sub> and watch how the 12 V is shared between them.</p>
         </div>
-        <div class="kit-row">
-          <label for="div-r2">R₂ — lower (Ω)</label>
-          <input type="range" id="div-r2" data-sim="R2" min="100" max="5000" step="100" value="2000" aria-label="Lower resistance R2 in ohms">
-          <input type="number" data-sim="R2" min="100" max="5000" step="100" value="2000" aria-label="Lower resistance R2 in ohms (number)">
+
+        <div class="sim-predict" id="divPredict">
+          <p class="sim-q"><b>Predict</b> what happens to the output <var>V</var><sub>2</sub> if <var>R</var><sub>2</sub> is made bigger and <var>R</var><sub>1</sub> stays the same.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="up" aria-pressed="false"><var>V</var><sub>2</sub> goes up<template data-feedback><p><strong>Right.</strong> <var>R</var><sub>2</sub> is now a bigger part of the total resistance, so it takes a bigger share of the 12 V. <var>V</var><sub>1</sub> goes down by the same amount, because <var>V</var><sub>1</sub> + <var>V</var><sub>2</sub> is still 12 V.</p></template></button>
+            <button type="button" data-predict="down" aria-pressed="false"><var>V</var><sub>2</sub> goes down<template data-feedback><p>Not this one. In series, the <strong>bigger</strong> resistance takes the bigger share of the supply. Whose share grows when <var>R</var><sub>2</sub> grows?</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">No change<template data-feedback><p>Not quite. The supply stays at 12 V, but how it is shared depends on the ratio <var>R</var><sub>1</sub> : <var>R</var><sub>2</sub>. Change the ratio and the shares change.</p></template></button>
+            <button type="button" data-predict="both" aria-pressed="false">Both <var>V</var><sub>1</sub> and <var>V</var><sub>2</sub> go up<template data-feedback><p>They can't both go up. <var>V</var><sub>1</sub> + <var>V</var><sub>2</sub> must still add up to the 12 V supply, so if one share grows the other shrinks. Which one grows?</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" hidden><button class="sim-btn" type="button" id="div-try">Try it: set <var>R</var><sub>2</sub> to 4000 Ω</button></p>
         </div>
-        <div class="sim-readout">
-          <div class="sr-item"><b id="div-v1">—</b><span>V₁ across R₁ (V)</span></div>
-          <div class="sr-item"><b id="div-v2">—</b><span>V₂ across R₂ — the output (V)</span></div>
-        </div>
-        <div class="vbar" role="img" aria-describedby="div-desc">
-          <div class="v1seg" id="div-bar1"></div>
-          <div class="v2seg" id="div-bar2"></div>
-        </div>
-        <p id="div-desc" class="sim-readout" aria-live="polite" style="font-size:.84rem;color:var(--eng-muted);font-weight:800;margin:.1rem 0 0;"></p>
-        <div class="kit-task">
-          <strong>Challenge:</strong> make the output <strong>V₂ = 9 V</strong> (within ±0.1 V). Hint: what ratio of R₂ to R₁ puts three-quarters of the supply across R₂?
-          <div class="kit-actions"><button type="button" id="div-check">Check</button></div>
-          <p class="kit-fb" id="div-fb" role="status" aria-live="polite"></p>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs">
+              <figure class="sim-fig">
+                <svg class="simdraw" id="divCircuit" viewBox="0 0 350 262" role="img" aria-label="Voltage divider circuit.">
+                  <path class="w" d="M60 26 H250 M60 244 H240 M150 26 V50 M150 110 V158 M150 218 V244 M150 134 H240"/>
+                  <circle class="dot" cx="150" cy="134" r="3.5"/>
+                  <circle class="term" cx="244" cy="134" r="4"/>
+                  <circle class="term" cx="244" cy="244" r="4"/>
+                  <text x="56" y="31" text-anchor="end">+12 V</text>
+                  <text x="56" y="249" text-anchor="end">0 V</text>
+                  <text x="62" y="16"><tspan class="q">V</tspan><tspan class="sb" dy="4">s</tspan><tspan dy="-4"> = 12 V supply</tspan></text>
+                  <rect class="body" x="137" y="50" width="26" height="60"/>
+                  <rect class="body" x="137" y="158" width="26" height="60"/>
+                  <text x="172" y="76"><tspan class="q">R</tspan><tspan class="sb" dy="4">1</tspan></text>
+                  <text class="v" x="172" y="96" data-v="R1">1000 Ω</text>
+                  <text x="172" y="184"><tspan class="q">R</tspan><tspan class="sb" dy="4">2</tspan></text>
+                  <text class="v" x="172" y="204" data-v="R2">2000 Ω</text>
+                  <path class="w thin" d="M104 32 V128 M104 140 V238"/>
+                  <path class="tip" d="M104 30 l-5 9 h10 z M104 130 l-5 -9 h10 z M104 138 l-5 9 h10 z M104 240 l-5 -9 h10 z"/>
+                  <text x="96" y="76" text-anchor="end"><tspan class="q">V</tspan><tspan class="sb" dy="4">1</tspan></text>
+                  <text class="v" x="96" y="96" text-anchor="end" data-v="V1">4.00 V</text>
+                  <text x="96" y="184" text-anchor="end"><tspan class="q">V</tspan><tspan class="sb" dy="4">2</tspan></text>
+                  <text class="v" x="96" y="204" text-anchor="end" data-v="V2">8.00 V</text>
+                  <text x="244" y="122" text-anchor="middle" class="small">output</text>
+                  <rect class="seg1" data-bar="1" x="290" y="26" width="34" height="73"/>
+                  <rect class="seg2" data-bar="2" x="290" y="99" width="34" height="145"/>
+                  <rect class="barframe" x="290" y="26" width="34" height="218"/>
+                  <text class="barlab" data-bar="t1" x="307" y="66" text-anchor="middle"><tspan class="q">V</tspan><tspan class="sb" dy="4">1</tspan></text>
+                  <text class="barlab" data-bar="t2" x="307" y="176" text-anchor="middle"><tspan class="q">V</tspan><tspan class="sb" dy="4">2</tspan></text>
+                  <text x="307" y="260" text-anchor="middle" class="small">share</text>
+                </svg>
+                <figcaption>The bar beside the circuit shows how the 12 V is shared.</figcaption>
+              </figure>
+              <figure class="sim-fig sim-graph">
+                <svg id="divGraph"></svg>
+                <figcaption>How <var>V</var><sub>2</sub> changes with <var>R</var><sub>2</sub> for this <var>R</var><sub>1</sub>. The dot is your circuit.</figcaption>
+              </figure>
+            </div>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out"><span class="k"><var>V</var><sub>1</sub> across <var>R</var><sub>1</sub></span><span class="v" id="div-v1">—</span></div>
+              <div class="sim-out is-key"><span class="k">Output <var>V</var><sub>2</sub> across <var>R</var><sub>2</sub></span><span class="v" id="div-v2">—</span></div>
+            </div>
+            <p class="sim-working" id="div-work"></p>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field"><span class="sim-name">Top resistor <var>R</var><sub>1</sub> (Ω)</span>
+              <span class="sim-row"><input type="range" data-sim="R1" min="100" max="5000" step="100" value="1000" aria-label="Top resistor R1 in ohms"><input class="sim-num" type="number" data-sim="R1" min="100" max="5000" step="100" value="1000" inputmode="numeric" aria-label="Top resistor R1 in ohms, typed"></span></label>
+            <label class="sim-field"><span class="sim-name">Bottom resistor <var>R</var><sub>2</sub> (Ω)</span>
+              <span class="sim-row"><input type="range" data-sim="R2" min="100" max="5000" step="100" value="2000" aria-label="Bottom resistor R2 in ohms"><input class="sim-num" type="number" data-sim="R2" min="100" max="5000" step="100" value="2000" inputmode="numeric" aria-label="Bottom resistor R2 in ohms, typed"></span></label>
+            <div class="sim-task">
+              <p><b>Set</b> <var>R</var><sub>1</sub> and <var>R</var><sub>2</sub> so that the output <var>V</var><sub>2</sub> = <strong>9 V</strong> (within 0.1 V).</p>
+              <p class="sim-note">Hint: what ratio of <var>R</var><sub>2</sub> to <var>R</var><sub>1</sub> puts three-quarters of the supply across <var>R</var><sub>2</sub>?</p>
+              <button class="sim-btn" type="button" id="div-check">Check</button>
+              <p class="kit-fb" id="div-fb" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1206,16 +1326,16 @@ title: Electronics & Analogue Control — National 5 Engineering Science
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"A voltmeter is connected", o:["in series with the component","in parallel with the component","between the battery terminals only","in series with the ammeter"], a:1 },
-        { q:"A resistor has 6 V across it and 0.2 A through it. Its resistance is", o:["1.2 Ω","12 Ω","30 Ω","60 Ω"], a:2 },
-        { q:"Resistors of 220 Ω and 330 Ω in series give a total resistance of", o:["110 Ω","132 Ω","550 Ω","72 600 Ω"], a:2 },
-        { q:"Two 470 Ω resistors in parallel give a total resistance of", o:["940 Ω","470 Ω","235 Ω","117 Ω"], a:2 },
-        { q:"A 1 kΩ resistor carries 50 mA. The power dissipated is", o:["0.05 W","2.5 W","50 W","2500 W"], a:1 },
-        { q:"In darkness, the resistance of an LDR is", o:["zero","low","high","the same as in bright light"], a:2 },
-        { q:"In a voltage divider R₁ = 1 kΩ (V₁ = 3 V) and R₂ = 2 kΩ. V₂ is", o:["1.5 V","3 V","6 V","9 V"], a:2 },
-        { q:"An NPN transistor switches on when its base voltage reaches about", o:["0.07 V","0.7 V","7 V","70 V"], a:1 },
-        { q:"The protection diode across a relay coil", o:["increases the coil current","protects the transistor from the switch-off voltage spike","makes the relay switch faster","lights up when the relay operates"], a:1 },
-        { q:"For a security lamp that switches on when it gets dark, the LDR goes", o:["in the top position (R₁)","in the bottom position (R₂)","in series with the lamp","across the relay coil"], a:1 }
+        { q:"A voltmeter is connected", o:["in series with the component","in parallel with the component","between the battery terminals only","in series with the ammeter"], a:1, f:["A voltmeter measures the voltage across a component, so it must connect to both sides of it, not sit in the current's path.", "Right. A voltmeter measures the voltage across a component, so it goes in parallel, one lead each side.", "It can measure the supply there, but a voltmeter can go across any component. Think about how it reaches both ends of the part you are measuring.", "Series is where an ammeter goes, to measure the current through. A voltmeter compares two points, one each side of the component."] },
+        { q:"A resistor has 6 V across it and 0.2 A through it. Its resistance is", o:["1.2 Ω","12 Ω","30 Ω","60 Ω"], a:2, f:["1.2 is 6 × 0.2: that multiplies. Rearrange V = IR to R = V ÷ I.", "Check your division: 6 ÷ 0.2 asks how many 0.2s fit into 6.", "Right. R = V ÷ I = 6 ÷ 0.2 = 30 Ω.", "That is double the answer. R = V ÷ I: check 6 ÷ 0.2 again."] },
+        { q:"Resistors of 220 Ω and 330 Ω in series give a total resistance of", o:["110 Ω","132 Ω","550 Ω","72 600 Ω"], a:2, f:["110 Ω is the difference. In series the resistances add.", "132 Ω is the parallel total. In series the current passes through both, so the resistances add.", "Right. In series the resistances add: 220 + 330 = 550 Ω.", "72 600 is 220 × 330. Series resistances add; they are not multiplied."] },
+        { q:"Two 470 Ω resistors in parallel give a total resistance of", o:["940 Ω","470 Ω","235 Ω","117 Ω"], a:2, f:["940 Ω is the series total. In parallel the current has two paths, so the total is less than either resistor.", "The parallel total is always less than the smallest resistor, so it can't be 470 Ω.", "Right. 1/R = 1/470 + 1/470, so R = 235 Ω. Two equal resistors in parallel give half of one.", "That is a quarter of 470. Work out 1/470 + 1/470, then flip the answer."] },
+        { q:"A 1 kΩ resistor carries 50 mA. The power dissipated is", o:["0.05 W","2.5 W","50 W","2500 W"], a:1, f:["0.05 is the current in amps. Use P = I²R with I in amps and R in ohms.", "Right. P = I²R = 0.05² × 1000 = 2.5 W.", "50 is I × R, which is the voltage (50 V), not the power. Use P = I²R: square the current first.", "2500 comes from leaving the current in mA and the resistance in kΩ. Convert first: 50 mA = 0.05 A and 1 kΩ = 1000 Ω."] },
+        { q:"In darkness, the resistance of an LDR is", o:["zero","low","high","the same as in bright light"], a:2, f:["An LDR never reaches zero resistance. Think about what light does to it, and what happens when the light is taken away.", "Low resistance is what an LDR has in bright light. Darkness does the opposite.", "Right. An LDR's resistance rises as the light falls, so in darkness it is high.", "LDR stands for light-dependent resistor: its resistance changes with the light."] },
+        { q:"In a voltage divider R₁ = 1 kΩ (V₁ = 3 V) and R₂ = 2 kΩ. V₂ is", o:["1.5 V","3 V","6 V","9 V"], a:2, f:["1.5 V would give the bigger resistor the smaller voltage. In series, the bigger resistance takes the bigger share.", "3 V is V₁. R₂ is twice R₁, so V₂ is not the same as V₁.", "Right. V₁ ÷ V₂ = R₁ ÷ R₂, so 3 ÷ V₂ = 1000 ÷ 2000, and V₂ = 6 V.", "9 V is the whole supply (3 V + 6 V). The question asks for the share across R₂ only."] },
+        { q:"An NPN transistor switches on when its base voltage reaches about", o:["0.07 V","0.7 V","7 V","70 V"], a:1, f:["That is ten times too small. A transistor needs a little under 1 V at its base.", "Right. An NPN transistor switches on when its base voltage reaches about 0.7 V.", "That is ten times too big. The switch-on voltage is less than 1 V.", "That is far bigger than the supply in these circuits. The base needs less than 1 V."] },
+        { q:"The protection diode across a relay coil", o:["increases the coil current","protects the transistor from the switch-off voltage spike","makes the relay switch faster","lights up when the relay operates"], a:1, f:["The diode sits in reverse across the coil, so normally no current flows through it. Its job only starts at switch-off.", "Right. When the coil switches off it makes a voltage spike; the diode gives it a safe path so the transistor isn't damaged.", "The diode doesn't change the relay's speed. Think about what happens at the moment the coil switches off.", "It's an ordinary diode, not an LED. Its job is to deal with the spike when the coil switches off."] },
+        { q:"For a security lamp that switches on when it gets dark, the LDR goes", o:["in the top position (R₁)","in the bottom position (R₂)","in series with the lamp","across the relay coil"], a:1, f:["With the LDR on top, darkness makes its resistance high, so it takes most of the voltage and V₂ falls. That would switch the lamp on in the light.", "Right. In darkness the LDR's resistance is high, so it takes the bigger share: V₂ across it rises and switches the transistor on.", "The LDR belongs in the input voltage divider, not the output circuit. Where must it sit so that V₂ rises as it gets dark?", "The relay coil is on the output side. The sensor belongs in the voltage divider that feeds the transistor."] }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -1239,6 +1359,7 @@ title: Electronics & Analogue Control — National 5 Engineering Science
             var oi=parseInt(chosen.value,10);
             if(oi===item.a) score++;
             else { var wr=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); wr.classList.add("wrong"); addNote(wr, "✗ your answer"); }
+            if(item.f){ var picked=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); var why=document.createElement("span"); why.className="mark-note opt-why"; why.textContent=item.f[oi]; picked.appendChild(why); }
           }
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
@@ -1433,80 +1554,142 @@ title: Electronics & Analogue Control — National 5 Engineering Science
   })();
   </script>
 
-  <!-- Ohm's law live sim (flagship) -->
+  <!-- Ohm's law and voltage-divider simulators (WidgetKit: liveSim, graph, poeCard) -->
   <script>
   document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
-    var root = document.getElementById("ohmSim");
-    if(!root) return;
+    var K = window.WidgetKit;
+    if(!K) return;
     var $ = function(id){ return document.getElementById(id); };
-    var lastI = 0;
-
-    function render(s){
-      var V = Math.max(0, s.V), R = Math.max(1, s.R);
-      var I = V / R;
-      lastI = I;
-      $("ohm-i").textContent = (I * 1000).toFixed(1);
-      $("ohm-p").textContent = (I * V).toFixed(2);
-      $("ohm-desc").textContent = "I = V ÷ R = " + V + " ÷ " + R + " = " + (I * 1000).toFixed(1) + " mA · P = IV = " + (I * V).toFixed(2) + " W";
+    var seen = false;
+    function touched(){
+      if(seen) return;
+      seen = true;
+      if(window.Progress && Progress.markSeen) Progress.markSeen("eng-electronics");
+    }
+    function chevron(x, y, dir, s){
+      return "M" + (x - dir * s) + " " + (y - s) + " L" + (x + dir * s) + " " + y + " L" + (x - dir * s) + " " + (y + s) + " Z";
     }
 
-    window.WidgetKit.liveSim(root, { render: render });
+    /* ---------- Ohm's law ---------- */
+    (function(){
+      var root = $("ohmSim");
+      if(!root) return;
+      var svg = $("ohmCircuit"), lastI = 0, first = true;
+      var vText = function(k){ return svg.querySelector('[data-v="' + k + '"]'); };
+      var g = K.graph($("ohmGraph"), {
+        x: { min: 0, max: 24, label: "voltage <i>V</i>", unit: "V", step: 4 },
+        y: { min: 0, max: 50, label: "current <i>I</i>", unit: "mA", step: 10 },
+        title: "Graph of current against voltage for the resistor",
+        layouts: [{ maxWidth: 520, w: 300, h: 280, m: { l: 52, r: 14, t: 12, b: 46 } },
+                  { w: 340, h: 270, m: { l: 52, r: 14, t: 12, b: 46 } }]
+      });
 
-    var fb = $("ohm-fb");
-    $("ohm-check").addEventListener("click", function(){
-      var mA = lastI * 1000;
-      if(Math.abs(mA - 20) <= 0.05){
-        fb.className = "kit-fb ok";
-        fb.textContent = "✓ 20 mA — from I = V ÷ R the resistance must be exactly 50 × the voltage (e.g. 12 V and 600 Ω, or 6 V and 300 Ω).";
-        if(window.Progress) Progress.complete("ch-ohms-calc");
-      } else {
-        fb.className = "kit-fb no";
-        fb.textContent = "✗ " + mA.toFixed(1) + " mA — aim for 20 mA. Use I = V ÷ R: 0.02 = V ÷ R, so R must be 50 × V. Try 12 V with 600 Ω.";
-        if(window.Progress) Progress.miss();
+      function render(s){
+        var V = Math.max(0, s.V), R = Math.max(1, s.R);
+        var I = V / R, mA = I * 1000;
+        lastI = I;
+        $("ohm-i").textContent = K.fmt(mA) + " mA";
+        $("ohm-p").textContent = K.si(I * V, "W");
+        $("ohm-work").innerHTML = "<var>I</var> = <var>V</var> ÷ <var>R</var> = " + V + " ÷ " + R + " = " + K.fmt(I) + " A = " + K.fmt(mA) + " mA";
+        vText("V").textContent = V + " V";
+        vText("R").textContent = R + " Ω";
+        vText("I").textContent = K.fmt(mA) + " mA";
+        var s2 = 5 + Math.min(1, mA / 50) * 7;
+        svg.querySelector('[data-arrow="top"]').setAttribute("d", chevron(135, 50, 1, s2));
+        svg.querySelector('[data-arrow="bot"]').setAttribute("d", chevron(185, 200, -1, s2));
+        svg.setAttribute("aria-label", "Circuit diagram: a " + V + " volt supply, an ammeter and a " + R + " ohm resistor in series. The ammeter reads " + K.fmt(mA) + " milliamps.");
+        g.line("iv", function(v){ return v / R * 1000; }, { samples: 2 });
+        g.marker("now", V, mA, { label: K.fmt(mA) + " mA" });
+        g.describe("A straight line through the origin. At " + V + " volts the current is " + K.fmt(mA) + " milliamps.");
+        $("ohm-off").hidden = mA <= 50;
+        if(first){ first = false; } else { touched(); }
       }
-    });
-  });
-  </script>
+      var sim = K.liveSim(root, { render: render });
 
-  <!-- Voltage-divider live sim (flagship) -->
-  <script>
-  document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
-    var root = document.getElementById("divSim");
-    if(!root) return;
-    var $ = function(id){ return document.getElementById(id); };
-    var VS = 12, lastV2 = 0;
+      K.poeCard($("ohmPredict"), {
+        answer: "half",
+        onPredict: function(){ touched(); root.querySelector("#ohmPredict .sim-try").hidden = false; }
+      });
+      $("ohm-try").addEventListener("click", function(){ sim.set("R", 800); });
 
-    function render(s){
-      var R1 = Math.max(1, s.R1), R2 = Math.max(1, s.R2);
-      var V2 = VS * R2 / (R1 + R2);
-      var V1 = VS - V2;
-      lastV2 = V2;
-      $("div-v1").textContent = V1.toFixed(2);
-      $("div-v2").textContent = V2.toFixed(2);
-      var pct2 = V2 / VS * 100;
-      $("div-bar1").style.width = (100 - pct2).toFixed(1) + "%";
-      $("div-bar2").style.width = pct2.toFixed(1) + "%";
-      $("div-bar1").textContent = (100 - pct2) >= 16 ? "V₁ " + V1.toFixed(1) + " V" : "";
-      $("div-bar2").textContent = pct2 >= 16 ? "V₂ " + V2.toFixed(1) + " V" : "";
-      $("div-desc").textContent = "V₁ + V₂ = " + VS + " V · V₁/V₂ = R₁/R₂ = " + (R1 / R2).toFixed(2) + " — the bigger resistance takes the bigger share.";
-    }
+      var fb = $("ohm-fb");
+      $("ohm-check").addEventListener("click", function(){
+        var mA = lastI * 1000;
+        if(Math.abs(mA - 20) <= 0.05){
+          fb.className = "kit-fb ok";
+          fb.innerHTML = "✓ 20 mA. From <var>I</var> = <var>V</var> ÷ <var>R</var> the resistance must be exactly 50 × the voltage (for example 12 V and 600 Ω, or 6 V and 300 Ω).";
+          if(window.Progress) Progress.complete("ch-ohms-calc");
+        } else {
+          fb.className = "kit-fb no";
+          fb.innerHTML = "✗ " + K.fmt(mA) + " mA. Aim for 20 mA. Use <var>I</var> = <var>V</var> ÷ <var>R</var>: 0.02 = <var>V</var> ÷ <var>R</var>, so <var>R</var> must be 50 × <var>V</var>.";
+          if(window.Progress) Progress.miss();
+        }
+      });
+    })();
 
-    window.WidgetKit.liveSim(root, { render: render });
+    /* ---------- voltage divider ---------- */
+    (function(){
+      var root = $("divSim");
+      if(!root) return;
+      var VS = 12, svg = $("divCircuit"), lastV2 = 0, first = true;
+      var q = function(sel){ return svg.querySelector(sel); };
+      var g = K.graph($("divGraph"), {
+        x: { min: 0, max: 5000, label: "resistance <i>R</i><sub>2</sub>", unit: "Ω", step: 1000 },
+        y: { min: 0, max: 13.5, label: "output <i>V</i><sub>2</sub>", unit: "V", step: 3 },
+        title: "Graph of the output voltage V2 against R2",
+        layouts: [{ maxWidth: 520, w: 300, h: 280, m: { l: 52, r: 18, t: 12, b: 46 } },
+                  { w: 340, h: 270, m: { l: 52, r: 18, t: 12, b: 46 } }]
+      });
+      g.ref("vs", "y", 12, { label: "supply 12 V" });
 
-    var fb = $("div-fb");
-    $("div-check").addEventListener("click", function(){
-      if(Math.abs(lastV2 - 9) <= 0.1){
-        fb.className = "kit-fb ok";
-        fb.textContent = "✓ V₂ = " + lastV2.toFixed(2) + " V — R₂ is 3 × R₁, so R₂ takes ¾ of the 12 V supply: 9 V.";
-        if(window.Progress) Progress.complete("ch-divider-sim");
-      } else {
-        fb.className = "kit-fb no";
-        fb.textContent = "✗ V₂ = " + lastV2.toFixed(2) + " V — aim for 9 V. For ¾ of the supply across R₂ you need R₂ = 3 × R₁ (try 1000 Ω and 3000 Ω).";
-        if(window.Progress) Progress.miss();
+      function render(s){
+        var R1 = Math.max(1, s.R1), R2 = Math.max(1, s.R2);
+        var V2 = VS * R2 / (R1 + R2), V1 = VS - V2;
+        lastV2 = V2;
+        $("div-v1").textContent = K.fmt(V1) + " V";
+        $("div-v2").textContent = K.fmt(V2) + " V";
+        $("div-work").innerHTML = "<var>V</var><sub>1</sub> ÷ <var>V</var><sub>2</sub> = <var>R</var><sub>1</sub> ÷ <var>R</var><sub>2</sub> = " + R1 + " ÷ " + R2 + " = " + K.fmt(R1 / R2) +
+          "<br><var>V</var><sub>1</sub> + <var>V</var><sub>2</sub> = " + K.fmt(V1) + " + " + K.fmt(V2) + " = 12 V";
+        q('[data-v="R1"]').textContent = R1 + " Ω";
+        q('[data-v="R2"]').textContent = R2 + " Ω";
+        q('[data-v="V1"]').textContent = K.fmt(V1) + " V";
+        q('[data-v="V2"]').textContent = K.fmt(V2) + " V";
+        var top = 26, h = 218, h1 = h * V1 / VS;
+        q('[data-bar="1"]').setAttribute("height", h1.toFixed(1));
+        q('[data-bar="2"]').setAttribute("y", (top + h1).toFixed(1));
+        q('[data-bar="2"]').setAttribute("height", (h - h1).toFixed(1));
+        var t1 = q('[data-bar="t1"]'), t2 = q('[data-bar="t2"]');
+        t1.setAttribute("y", (top + h1 / 2 + 5).toFixed(1));
+        t2.setAttribute("y", (top + h1 + (h - h1) / 2 + 5).toFixed(1));
+        t1.style.display = h1 >= 24 ? "" : "none";
+        t2.style.display = (h - h1) >= 24 ? "" : "none";
+        svg.setAttribute("aria-label", "Voltage divider: R1 of " + R1 + " ohms above R2 of " + R2 + " ohms across a 12 volt supply. V1 is " + K.fmt(V1) + " volts and the output V2 is " + K.fmt(V2) + " volts.");
+        g.line("v2", function(r){ return VS * r / (R1 + r); }, { samples: 120 });
+        g.marker("now", R2, V2, { label: K.fmt(V2) + " V" });
+        g.describe("V2 rises quickly then levels off towards 12 volts as R2 grows. With R2 at " + R2 + " ohms, V2 is " + K.fmt(V2) + " volts.");
+        if(first){ first = false; } else { touched(); }
       }
-    });
+      var sim = K.liveSim(root, { render: render });
+
+      K.poeCard($("divPredict"), {
+        answer: "up",
+        onPredict: function(){ touched(); root.querySelector("#divPredict .sim-try").hidden = false; }
+      });
+      $("div-try").addEventListener("click", function(){ sim.set("R2", 4000); });
+
+      var fb = $("div-fb");
+      $("div-check").addEventListener("click", function(){
+        if(Math.abs(lastV2 - 9) <= 0.1){
+          fb.className = "kit-fb ok";
+          fb.innerHTML = "✓ <var>V</var><sub>2</sub> = " + K.fmt(lastV2) + " V. <var>R</var><sub>2</sub> is 3 × <var>R</var><sub>1</sub>, so <var>R</var><sub>2</sub> takes three-quarters of the 12 V supply: 9 V.";
+          if(window.Progress) Progress.complete("ch-divider-sim");
+        } else {
+          fb.className = "kit-fb no";
+          fb.innerHTML = "✗ <var>V</var><sub>2</sub> = " + K.fmt(lastV2) + " V. Aim for 9 V. For three-quarters of the supply across <var>R</var><sub>2</sub> you need <var>R</var><sub>2</sub> = 3 × <var>R</var><sub>1</sub>.";
+          if(window.Progress) Progress.miss();
+        }
+      });
+    })();
   });
   </script>
 </body>

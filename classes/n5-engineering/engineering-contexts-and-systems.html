@@ -18,9 +18,10 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <script src="/assets/js/widget-kit.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
   <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261014b">
   <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261014a">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
 
   <style>
     :root {
@@ -175,7 +176,7 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     .mode-card { border-left: 4px solid var(--eng-border); }
 
     @media print {
-          .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer,
+          .subnav-wrap, .backlink, .widget, .sim, .btnrow, #siteMenuButton, footer,
           .modebar, .toolbar, .sec-toggle { display: none !important; }
           .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
           .sec.collapsed .sec-body { display: block !important; }
@@ -219,7 +220,38 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
 
     .practice{ border-left:5px solid var(--f-prac); }
 
-    @media (max-width:520px){ .loop-row { grid-template-columns:1fr; gap:.25rem; } .loop-row > label { min-width:0; } }
+
+        /* ---------- simulators (sims.css + WidgetKit) ---------- */
+    .sim { --sim-accent-ink: var(--eng-ink-accent); }
+    .simdraw text { font-family: var(--font-stack); font-weight: 800; font-size: 15px; fill: var(--text); }
+    .simdraw .small { font-size: 14px; fill: var(--muted); }
+    .simdraw .big { font-size: 17px; font-weight: 900; }
+    .simdraw .v { fill: var(--sim-ink); font-weight: 900; }
+    .simdraw .q { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 17px; }
+    .simdraw .sb { font-size: 11px; }
+    .simdraw .w { fill: none; stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .simdraw .w.thick { stroke-width: 5; }
+    .simdraw .w.thin { stroke-width: 1.5; stroke-linecap: butt; }
+    .simdraw .tip, .simdraw .dot { fill: var(--text); }
+    .simdraw .body, .simdraw .term { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .simdraw .flow { fill: var(--sim-ink); }
+    .sim-task { border-top: 1px solid var(--border); padding-top: 8px; }
+    .sim-task p { margin: 0 0 6px; font-weight: 800; line-height: 1.4; font-size: .95rem; }
+    .sim-task .kit-fb { margin: 6px 0 0; }
+    .sim { border-left: 5px solid var(--f-int); }
+    #loopSim.sim { display: block; }
+    #loopSim .sim-view > * { min-width: 0; }
+    .loopdraw .blk { font-size: 13px; font-weight: 900; }
+    .loopdraw [data-fb], .loopdraw .fbpath { transition: opacity .2s; }
+    .loopdraw.is-open [data-fb] { opacity: .4; }
+    .loopdraw.is-open .fbpath { stroke-dasharray: 6 5; }
+    .loopdraw.is-heating .heater { fill: rgba(185,28,28,.14); stroke: var(--bad); }
+    .loopdraw.narrow { display: none; }
+    .loopdraw.narrow text { font-size: 16px; } .loopdraw.narrow .blk { font-size: 15px; } .loopdraw.narrow .small { font-size: 15.5px; }
+    @media (max-width:520px){ .loopdraw.narrow { display: block; } #loopDraw { display: none; } }
+    .sim-try { margin: .5rem 0 0; }
+    .sim-try[hidden] { display: none; }
+    .opt .mark-note.opt-why { display: block; white-space: normal; margin: .35rem 0 0 1.6rem; font-weight: 700; color: var(--eng-text); line-height: 1.5; }
   </style>
 </head>
 
@@ -765,38 +797,110 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
         <div class="score" data-out aria-live="polite"></div>
       </div>
 
-      <div class="widget" id="loopSim" data-prog-challenge="ch-loop-stabilise">
-        <h3>Run the control loop — feedback on or off</h3>
-        <p class="hint">This is the central-heating loop actually running. With <strong>feedback on</strong>, the thermostat watches the temperature and holds it at the set value. Turn feedback <strong>off</strong> (open loop) and it just heats blindly. Hit “Cold draught” to disturb it and see which one recovers.</p>
-        <div class="loop-row">
-          <label for="loop-sp">Set value</label>
-          <input type="range" id="loop-sp" data-sim="SP" min="16" max="24" step="1" value="20" aria-label="Set value temperature in degrees Celsius">
-          <output id="loop-sp-out">20 °C</output>
+      <div class="sim" id="loopSim" data-prog-challenge="ch-loop-stabilise">
+        <div class="sim-head">
+          <h3>Run the control loop: feedback on or off</h3>
+          <p class="sim-hint">This is the central-heating loop running. It is 10 °C outside. Press <strong>Cold draught</strong> to disturb the room and see which loop recovers.</p>
         </div>
-        <div class="loop-controls">
-          <div class="loop-toggle" role="group" aria-label="Feedback control">
-            <button type="button" data-sim-toggle="fb" data-value="on" aria-pressed="true">Feedback ON</button>
-            <button type="button" data-sim-toggle="fb" data-value="off" aria-pressed="false">Feedback OFF</button>
+
+        <div class="sim-predict" id="loopPredict">
+          <p class="sim-q"><b>Predict</b> what the room temperature does in the end if feedback is turned off, so the heater stays on full.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="sv" aria-pressed="false">It settles at the set value<template data-feedback><p>Not with feedback off. Nothing measures the room, so nothing compares it with the set value. The heater has no way of knowing when to stop.</p></template></button>
+            <button type="button" data-predict="up" aria-pressed="false">It keeps rising for ever<template data-feedback><p>Close, but the warmer the room gets, the faster it loses heat to the cold outside. Think about what happens when heat is lost as fast as the heater puts it in.</p></template></button>
+            <button type="button" data-predict="level" aria-pressed="false">It levels off, ignoring the set value<template data-feedback><p><strong>Right.</strong> With no feedback the heater runs flat out. The room warms until it loses heat as fast as the heater supplies it, here about 28 °C, whatever the set value says.</p></template></button>
+            <button type="button" data-predict="down" aria-pressed="false">It falls to the outdoor temperature<template data-feedback><p>That would happen with the heater off. Here it is on full the whole time, so the room warms up.</p></template></button>
           </div>
-          <button type="button" class="loop-disturb" id="loop-disturb">❄ Cold draught</button>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" hidden><button class="sim-btn" type="button" id="loop-try">Try it: turn feedback off</button></p>
         </div>
-        <div class="loop-stage">
-          <svg viewBox="0 0 320 150" role="img" aria-label="Temperature against time, with the set value shown as a dashed line">
-            <line class="loop-axis" x1="34" y1="130" x2="312" y2="130"/>
-            <line class="loop-axis" x1="34" y1="14" x2="34" y2="130"/>
-            <line class="loop-sp" id="loop-sp-line" x1="34" y1="70" x2="312" y2="70"/>
-            <polyline class="loop-line" id="loop-poly" points=""/>
-            <text class="loop-axis-txt" x="40" y="24" id="loop-sp-label">set 20°C</text>
-            <text class="loop-axis-txt" x="270" y="143">time →</text>
-          </svg>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+                              <svg class="simdraw loopdraw" id="loopDraw" viewBox="0 0 570 196" role="img" aria-label="Closed-loop control diagram.">
+                  <rect class="body" x="4" y="32" width="84" height="44" rx="4"/>
+                  <rect class="body" x="116" y="32" width="104" height="44" rx="4"/>
+                  <rect class="body" x="248" y="32" width="84" height="44" rx="4"/>
+                  <rect class="body heater" x="360" y="32" width="76" height="44" rx="4"/>
+                  <rect class="body" x="464" y="32" width="92" height="44" rx="4"/>
+                  <path class="w" d="M88 54 H106 M220 54 H238 M332 54 H350 M436 54 H454"/>
+                  <path class="tip" d="M114 54 l-10 -4.5 v9 z M246 54 l-10 -4.5 v9 z M358 54 l-10 -4.5 v9 z M462 54 l-10 -4.5 v9 z"/>
+                  <text x="46" y="50" text-anchor="middle" class="blk">SET</text><text x="46" y="66" text-anchor="middle" class="blk">VALUE</text>
+                  <text x="168" y="50" text-anchor="middle" class="blk">ERROR</text><text x="168" y="66" text-anchor="middle" class="blk">DETECTOR</text>
+                  <text x="290" y="59" text-anchor="middle" class="blk">CONTROL</text>
+                  <text x="398" y="59" text-anchor="middle" class="blk">HEATER</text>
+                  <text x="510" y="50" text-anchor="middle" class="blk">ROOM</text><text x="510" y="66" text-anchor="middle" class="blk">TEMP</text>
+                  <text class="v" x="46" y="22" text-anchor="middle" data-v="sp">20 °C</text>
+                  <text class="v" x="168" y="22" text-anchor="middle" data-v="err">error 0 °C</text>
+                  <text class="v" x="398" y="22" text-anchor="middle" data-v="heat">off</text>
+                  <text class="v" x="510" y="22" text-anchor="middle" data-v="room">20.0 °C</text>
+                  <g data-fb>
+                    <path class="w fbpath" d="M510 76 V150 H348 M260 150 H168 V86"/>
+                    <path class="tip" d="M340 150 l10 -4.5 v9 z M168 78 l-4.5 10 h9 z"/>
+                    <rect class="body" x="260" y="132" width="80" height="36" rx="4"/>
+                    <text x="300" y="155" text-anchor="middle" class="blk">SENSOR</text>
+                    <text class="v" x="300" y="188" text-anchor="middle" data-v="sens">reads 20.0 °C</text>
+                  </g>
+                  <text x="430" y="142" text-anchor="middle" class="small" data-v="fbl">feedback</text>
+                </svg>
+                <svg class="simdraw loopdraw narrow" id="loopDrawN" viewBox="0 0 340 296" role="img" aria-label="Closed-loop control diagram.">
+                  <rect class="body" x="4" y="40" width="84" height="44" rx="4"/>
+                  <rect class="body" x="112" y="40" width="108" height="44" rx="4"/>
+                  <rect class="body" x="244" y="40" width="92" height="44" rx="4"/>
+                  <rect class="body heater" x="244" y="130" width="92" height="44" rx="4"/>
+                  <rect class="body" x="244" y="220" width="92" height="44" rx="4"/>
+                  <path class="w" d="M88 62 H104 M220 62 H236 M290 84 V122 M290 174 V212"/>
+                  <path class="tip" d="M112 62 l-10 -4.5 v9 z M244 62 l-10 -4.5 v9 z M290 130 l-4.5 -10 h9 z M290 220 l-4.5 -10 h9 z"/>
+                  <text x="46" y="58" text-anchor="middle" class="blk">SET</text><text x="46" y="76" text-anchor="middle" class="blk">VALUE</text>
+                  <text x="166" y="58" text-anchor="middle" class="blk">ERROR</text><text x="166" y="76" text-anchor="middle" class="blk">DETECTOR</text>
+                  <text x="290" y="67" text-anchor="middle" class="blk">CONTROL</text>
+                  <text x="290" y="149" text-anchor="middle" class="blk">HEATER</text>
+                  <text x="290" y="238" text-anchor="middle" class="blk">ROOM</text><text x="290" y="256" text-anchor="middle" class="blk">TEMP</text>
+                  <text class="v" x="46" y="30" text-anchor="middle" data-v="sp">20 °C</text>
+                  <text class="v" x="166" y="30" text-anchor="middle" data-v="err">error 0 °C</text>
+                  <text class="v" x="290" y="168" text-anchor="middle" data-v="heat">off</text>
+                  <text class="v" x="290" y="286" text-anchor="middle" data-v="room">20.0 °C</text>
+                  <g data-fb>
+                    <path class="w fbpath" d="M244 242 H222 M174 224 V94"/>
+                    <path class="tip" d="M214 242 l10 -4.5 v9 z M174 86 l-4.5 10 h9 z"/>
+                    <rect class="body" x="134" y="224" width="80" height="36" rx="4"/>
+                    <text x="174" y="247" text-anchor="middle" class="blk">SENSOR</text>
+                    <text class="v" x="174" y="286" text-anchor="middle" data-v="sens">reads 20.0 °C</text>
+                  </g>
+                  <text x="166" y="182" text-anchor="end" class="small" data-v="fbl">feedback</text>
+                </svg>
+              <figcaption>The sensor feeds the room temperature back to the error detector, which compares it with the set value.</figcaption>
+            </figure>
+            <figure class="sim-fig sim-graph">
+              <svg id="loopGraph"></svg>
+              <figcaption class="sim-key"><span><i></i>room temperature</span><span><i class="c2 dash"></i>set value</span></figcaption>
+            </figure>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Room temperature</span><span class="v" id="loop-temp">—</span></div>
+              <div class="sim-out"><span class="k">Error (set − actual)</span><span class="v" id="loop-err">—</span></div>
+              <div class="sim-out"><span class="k">Heater power</span><span class="v" id="loop-heater">—</span></div>
+              <div class="sim-out"><span class="k">Control</span><span class="v" id="loop-mode">—</span></div>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field"><span class="sim-name">Set value (°C)</span>
+              <span class="sim-row"><input type="range" data-sim="SP" min="16" max="24" step="1" value="20" aria-label="Set value temperature in degrees Celsius"><input class="sim-num" type="number" data-sim="SP" min="16" max="24" step="1" value="20" inputmode="numeric" aria-label="Set value temperature in degrees Celsius, typed"></span></label>
+            <div class="sim-seg" role="group" aria-label="Feedback">
+              <span class="sim-seg-label">Feedback</span>
+              <button type="button" data-sim-toggle="fb" data-value="on" aria-pressed="true">Feedback on</button>
+              <button type="button" data-sim-toggle="fb" data-value="off" aria-pressed="false">Feedback off</button>
+            </div>
+            <div class="sim-seg" role="group" aria-label="Run">
+              <button class="sim-btn" type="button" id="loop-play" aria-pressed="false" data-play-text="Play" data-pause-text="Pause">Play</button>
+              <button class="sim-btn" type="button" id="loop-disturb">Cold draught</button>
+            </div>
+            <div class="sim-task">
+              <p><b>Turn</b> feedback on, press Cold draught, and let the loop bring the temperature back to the set value.</p>
+              <p class="loop-status" id="loop-status" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
-        <div class="loop-readouts" aria-live="polite">
-          <div class="loop-stat"><b id="loop-temp">—</b><span>Temperature (°C)</span></div>
-          <div class="loop-stat"><b id="loop-heater">—</b><span>Heater</span></div>
-          <div class="loop-stat"><b id="loop-mode">—</b><span>Control</span></div>
-        </div>
-        <p class="loop-status" id="loop-status" role="status" aria-live="polite"></p>
-        <p class="hint" style="margin:.3rem 0 0;">Challenge: with feedback <strong>on</strong>, hit “Cold draught” and let the loop bring the temperature back to the set value.</p>
       </div>
 
     </section>
@@ -1255,16 +1359,16 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
     /* Mixed multiple-choice */
     (function(){
       var QS=[
-        { q:"Which branch of engineering checks that structures can withstand forces and loads safely?", o:["Civil","Structural","Mechanical","Chemical"], a:1 },
-        { q:"A company needs a sensor circuit designed to control automatic lights. The most suitable engineer is an", o:["electrical engineer","electronic engineer","mechanical engineer","environmental engineer"], a:1 },
-        { q:"A new factory creates 200 jobs in a town. This is a positive", o:["social impact","economic impact","environmental impact","sustainable impact"], a:1 },
-        { q:"Construction noise from a bridge project disturbs local residents. This is a negative", o:["economic impact","environmental impact","social impact","emerging impact"], a:2 },
-        { q:"Which change would make an engineering solution more sustainable?", o:["Using a renewable energy source","Using cheaper materials that break sooner","Adding more packaging","Running diesel generators"], a:0 },
-        { q:"In the system diagram for an automatic cooling fan, the temperature sensor is the", o:["process","output device","input device","feedback"], a:2 },
-        { q:"A sub-system is best described as", o:["the line around a system","a smaller part of a larger system","the output of a system","a system with no feedback"], a:1 },
-        { q:"Which of these is an example of automatic control?", o:["A person presses a button to open a door","A driver presses the brake pedal","A person turns a tap off","A thermostat switches heating on and off"], a:3 },
-        { q:"A toaster heats bread for a fixed time and does not check the colour of the toast. The toaster is", o:["closed-loop, because it has a timer","open-loop, because the output is not monitored","closed-loop, because it switches off","open-loop, because it uses feedback"], a:1 },
-        { q:"In a closed-loop heating system, the error is the difference between", o:["the input and the output","the sensor and the heater","the set value and the actual value","the feedback and the control"], a:2 }
+        { q:"Which branch of engineering checks that structures can withstand forces and loads safely?", o:["Civil","Structural","Mechanical","Chemical"], a:1, f:["Civil engineers plan large projects such as roads, bridges and drainage. Which branch is named after the structures themselves?", "Right. Structural engineers check that buildings and bridges can carry their loads safely.", "Mechanical engineers design machines and moving parts. This question is about loads on structures.", "Chemical engineers work with processes that change substances, not loads on structures."] },
+        { q:"A company needs a sensor circuit designed to control automatic lights. The most suitable engineer is an", o:["electrical engineer","electronic engineer","mechanical engineer","environmental engineer"], a:1, f:["Electrical engineers work with power: generation, supply and wiring. A sensor circuit is small-signal control.", "Right. Electronic engineers design control circuits with sensors, transistors and microcontrollers.", "Mechanical engineers design machines and moving parts. This job is a circuit.", "Environmental engineers look at effects on air, water and wildlife. This job is a control circuit."] },
+        { q:"A new factory creates 200 jobs in a town. This is a positive", o:["social impact","economic impact","environmental impact","sustainable impact"], a:1, f:["Jobs do change people's lives, but this impact is about money and employment. Which type covers that?", "Right. Jobs bring wages and spending into the town, so this is an economic impact.", "Environmental impacts are about the natural world: pollution, habitats and resources. Jobs are not.", "Sustainable is not one of the impact types. Which type covers money and jobs?"] },
+        { q:"Construction noise from a bridge project disturbs local residents. This is a negative", o:["economic impact","environmental impact","social impact","emerging impact"], a:2, f:["Economic impacts are about money and jobs. Here the noise affects the people who live nearby.", "Noise can harm wildlife too, but here it is the residents who are disturbed. Which impact type is about people and communities?", "Right. It affects local people's quality of life, so it is a social impact.", "Emerging describes new technology, not a type of impact."] },
+        { q:"Which change would make an engineering solution more sustainable?", o:["Using a renewable energy source","Using cheaper materials that break sooner","Adding more packaging","Running diesel generators"], a:0, f:["Right. A renewable source won't run out and causes less pollution, so the solution is more sustainable.", "Materials that break sooner must be replaced more often, using more resources. That is less sustainable.", "More packaging means more material used and more waste.", "Diesel is a fossil fuel: it will run out and it causes pollution."] },
+        { q:"In the system diagram for an automatic cooling fan, the temperature sensor is the", o:["process","output device","input device","feedback"], a:2, f:["The process is the part that decides what to do, the control circuit. The sensor comes before it.", "The output device is the fan, the part that does the job. The sensor collects information.", "Right. The temperature sensor detects the temperature, so it is the input device.", "Feedback is a path that carries information back. In a system diagram the sensor is a block. Which block takes information in?"] },
+        { q:"A sub-system is best described as", o:["the line around a system","a smaller part of a larger system","the output of a system","a system with no feedback"], a:1, f:["That line is the system boundary. A sub-system sits inside it.", "Right. A sub-system is a smaller part of a larger system, with its own inputs and outputs.", "The output is what a system produces. A sub-system is a part of the system.", "A system with no feedback is open-loop. A sub-system is about being part of something bigger."] },
+        { q:"Which of these is an example of automatic control?", o:["A person presses a button to open a door","A driver presses the brake pedal","A person turns a tap off","A thermostat switches heating on and off"], a:3, f:["A person pressing a button is manual control. Automatic control works without a person.", "The driver is controlling the car by hand. Automatic control works without a person.", "A person is doing the controlling here. Which one works without anyone?", "Right. The thermostat switches the heating on and off by itself, with no person needed."] },
+        { q:"A toaster heats bread for a fixed time and does not check the colour of the toast. The toaster is", o:["closed-loop, because it has a timer","open-loop, because the output is not monitored","closed-loop, because it switches off","open-loop, because it uses feedback"], a:1, f:["A timer doesn't check the output. Closed-loop control needs a sensor feeding back what the output is doing.", "Right. Nothing checks the colour of the toast, so there is no feedback: open-loop.", "Switching off after a set time is not feedback. Nothing checks how the toast turned out.", "Open-loop systems have no feedback; that is what makes them open-loop."] },
+        { q:"In a closed-loop heating system, the error is the difference between", o:["the input and the output","the sensor and the heater","the set value and the actual value","the feedback and the control"], a:2, f:["Too general. The error detector compares what you want with what you have.", "The sensor and the heater are parts of the loop, not values. Which two values does the error detector compare?", "Right. Error = set value − actual value. The control acts to make it zero.", "Feedback carries the actual value back. What is it compared with?"] }
       ];
       var box=$("quiz");
       QS.forEach(function(item,qi){
@@ -1288,6 +1392,7 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
             var oi=parseInt(chosen.value,10);
             if(oi===item.a) score++;
             else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
+            if(item.f){ var picked=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); var why=document.createElement("span"); why.className="mark-note opt-why"; why.textContent=item.f[oi]; picked.appendChild(why); }
           }
         });
         var best=Math.max(load("quizbest",0), score); save("quizbest",best);
@@ -1540,80 +1645,117 @@ title: Engineering Contexts & Systems — National 5 Engineering Science
   })();
   </script>
 
-  <!-- WP-6 — runnable closed-loop control sim -->
+  <!-- Closed-loop control simulator (WidgetKit: liveSim, graph, clock, poeCard) -->
   <script>
   document.addEventListener("DOMContentLoaded", function(){
-    if(!window.WidgetKit) return;
+    var K = window.WidgetKit;
+    if(!K) return;
     var root = document.getElementById("loopSim");
     if(!root) return;
     var $ = function(id){ return document.getElementById(id); };
+    var draws = [$("loopDraw"), $("loopDrawN")];
+    function setV(k, text){ draws.forEach(function(d){ d.querySelector('[data-v="' + k + '"]').textContent = text; }); }
 
-    var Tamb = 10, heatRate = 11, lossCoef = 0.6, Kp = 2, SPEED = 3;
-    var T = 20, SP = 20, fbOn = true;
-    var MAXN = 90, samples = [], sampleAcc = 0;
-    var disturbedArmed = false, stableTimer = 0, doneFired = false;
+    var Tamb = 10, heatRate = 11, lossCoef = 0.6, Kp = 2, WIN = 60;
+    var T = 20, SP = 20, fbOn = true, duty = 0, t = 0;
+    var temps = [[0, T]], sps = [[0, SP]], sampleAcc = 0;
+    var disturbedArmed = false, stableTimer = 0, doneFired = false, seen = false;
 
-    function mapY(t){ var lo = 6, hi = 34, c = Math.max(lo, Math.min(hi, t)); return 130 - (c - lo) / (hi - lo) * (130 - 14); }
-    function mapX(i){ return 34 + (i / (MAXN - 1)) * (312 - 34); }
-
-    function render(s){
-      SP = s.SP; fbOn = (s.fb === "on");
-      $("loop-sp-out").textContent = SP + " °C";
-      var y = mapY(SP);
-      $("loop-sp-line").setAttribute("y1", y); $("loop-sp-line").setAttribute("y2", y);
-      $("loop-sp-label").textContent = "set " + SP + "°C";
-      $("loop-sp-label").setAttribute("y", Math.max(12, y - 4));
-      $("loop-mode").textContent = fbOn ? "closed loop" : "open loop";
+    function touched(){
+      if(seen) return;
+      seen = true;
+      if(window.Progress && Progress.markSeen) Progress.markSeen("eng-contexts");
     }
-    window.WidgetKit.liveSim(root, { render: render });
+    function signed(x){ return (x > 0.05 ? "+" : "") + K.fmt(Math.abs(x) < 0.05 ? 0 : x, 2); }
 
-    $("loop-disturb").addEventListener("click", function(){
-      T = Math.max(6, T - 7);
-      if(fbOn && !doneFired){ disturbedArmed = true; stableTimer = 0; }
-      var st = $("loop-status"); st.className = "loop-status"; st.textContent = "Cold draught! Temperature dropped — watch the loop respond.";
+    var g = K.graph($("loopGraph"), {
+      x: { min: 0, max: WIN, label: "time", unit: "min", step: 10 },
+      y: { min: 0, max: 30, label: "temperature", unit: "°C", step: 5 },
+      title: "Graph of room temperature against time, with the set value",
+      layouts: [{ maxWidth: 520, w: 300, h: 260, m: { l: 50, r: 12, t: 12, b: 46 } },
+                { w: 640, h: 220, m: { l: 52, r: 14, t: 12, b: 44 } }]
     });
 
-    function drawGraph(){
-      var pts = [];
-      for(var i = 0; i < samples.length; i++){ pts.push(mapX(i) + "," + mapY(samples[i]).toFixed(1)); }
-      $("loop-poly").setAttribute("points", pts.join(" "));
+    function readouts(){
+      duty = fbOn ? Math.max(0, Math.min(1, Kp * (SP - T))) : 1;
+      var on = duty > 0.05, err = SP - T;
+      $("loop-temp").textContent = K.fmt(T, 3) + " °C";
+      $("loop-err").textContent = fbOn ? signed(err) + " °C" : "not measured";
+      $("loop-heater").textContent = on ? "on, " + Math.round(duty * 100) + "%" : "off";
+      $("loop-mode").textContent = fbOn ? "closed loop" : "open loop";
+      setV("sp", SP + " °C");
+      setV("err", fbOn ? "error " + signed(err) + " °C" : "no feedback");
+      setV("heat", on ? "on " + Math.round(duty * 100) + "%" : "off");
+      setV("room", K.fmt(T, 3) + " °C");
+      setV("sens", fbOn ? "reads " + K.fmt(T, 3) + " °C" : "not connected");
+      setV("fbl", fbOn ? "feedback" : "feedback OFF");
+      var label = (fbOn ? "Closed-loop" : "Open-loop") + " control diagram. Set value " + SP + " degrees, room " + K.fmt(T, 3) + " degrees, heater " + (on ? "on at " + Math.round(duty * 100) + " percent" : "off") + (fbOn ? ". The sensor feeds the room temperature back to the error detector." : ". The feedback path is off, so nothing measures the room.");
+      draws.forEach(function(d){
+        d.classList.toggle("is-open", !fbOn);
+        d.classList.toggle("is-heating", on);
+        d.setAttribute("aria-label", label);
+      });
     }
+    function plot(){
+      if(t > WIN) g.setX({ min: t - WIN, max: t });
+      g.line("sp", sps, { cls: "kg-c2", dash: true });
+      g.line("T", temps);
+      g.describe("Now " + K.fmt(T, 3) + " degrees against a set value of " + SP + " degrees.");
+    }
+    function sample(){
+      temps.push([t, T]); sps.push([t, SP]);
+      while(temps.length && temps[0][0] < t - WIN - 1){ temps.shift(); sps.shift(); }
+    }
+
+    var first = true;
+    K.liveSim(root, {
+      render: function(s){
+        var nextFb = (s.fb === "on");
+        if(!first && (s.SP !== SP || nextFb !== fbOn)) touched();
+        SP = s.SP; fbOn = nextFb; first = false;
+        sps[sps.length - 1] = [sps[sps.length - 1][0], SP];
+        sample();
+        readouts(); plot();
+      }
+    });
 
     function step(dt){
       var err = SP - T;
-      var duty = fbOn ? Math.max(0, Math.min(1, Kp * err)) : 1;
+      duty = fbOn ? Math.max(0, Math.min(1, Kp * err)) : 1;
       T += heatRate * duty * dt - lossCoef * (T - Tamb) * dt;
-      var heaterOn = duty > 0.05;
-      $("loop-temp").textContent = T.toFixed(1);
-      $("loop-heater").textContent = heaterOn ? "ON" : "off";
-      $("loop-heater").className = heaterOn ? "loop-heater-on" : "loop-heater-off";
+      t += dt;
       sampleAcc += dt;
-      if(sampleAcc >= 0.06){ samples.push(T); if(samples.length > MAXN){ samples.shift(); } sampleAcc = 0; drawGraph(); }
+      if(sampleAcc >= 0.25){ sampleAcc = 0; sample(); plot(); readouts(); }
       if(disturbedArmed && fbOn && !doneFired){
         if(Math.abs(T - SP) <= 0.4){ stableTimer += dt; } else { stableTimer = 0; }
         if(stableTimer >= 1.2){
           doneFired = true; disturbedArmed = false;
           var st = $("loop-status"); st.className = "loop-status ok";
-          st.textContent = "✓ Stabilised — feedback brought the temperature back to the set value. That's closed-loop control.";
+          st.textContent = "✓ Stabilised: feedback brought the temperature back to the set value. That's closed-loop control.";
           if(window.Progress) Progress.complete("ch-loop-stabilise");
         }
       }
     }
+    var clock = K.clock({ onFrame: function(dt){ step(Math.min(dt, 0.15)); }, speed: 3, autoplay: true, button: $("loop-play") });
+    $("loop-play").addEventListener("click", touched);
 
-    for(var i = 0; i < MAXN; i++){ samples.push(T); }
-    drawGraph();
+    $("loop-disturb").addEventListener("click", function(){
+      touched();
+      T = Math.max(6, T - 7);
+      if(fbOn && !doneFired){ disturbedArmed = true; stableTimer = 0; }
+      sample(); plot(); readouts();
+      var st = $("loop-status"); st.className = "loop-status";
+      st.textContent = clock.running() ? "Cold draught! The temperature dropped. Watch the loop respond." : "Cold draught! The temperature dropped. Press Play to watch the loop respond.";
+    });
 
-    if(window.WidgetKit.reducedMotion()){
-      setInterval(function(){ step(0.25); }, 400);
-    } else {
-      var last = 0;
-      (function raf(ts){
-        if(!last){ last = ts; }
-        var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
-        step(dt * SPEED);
-        requestAnimationFrame(raf);
-      })(0);
-    }
+    K.poeCard($("loopPredict"), {
+      answer: "level",
+      onPredict: function(){ touched(); root.querySelector("#loopPredict .sim-try").hidden = false; }
+    });
+    $("loop-try").addEventListener("click", function(){
+      root.querySelector('[data-sim-toggle="fb"][data-value="off"]').click();
+      if(!clock.running()) clock.play();
+    });
   });
   </script>
 </body>

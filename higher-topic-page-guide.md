@@ -31,6 +31,8 @@ classes/higher/<unit>/<topic>.html
   `/assets/css/higher-physics.css?v=hp-YYYYMMDDx`. **Bump the `?v=` only if you change the shared sheet**;
   if you only change the page's inline `<style>`, no bump is needed (the page is served fresh).
 - Page-specific widget CSS/JS stays **inline** on the page. No external frameworks, no build step.
+  **Simulators are the exception:** they use the shared kit (`/assets/css/sims.css` +
+  `/assets/js/widget-kit.js`) — see §8 and CLAUDE.md "Simulations".
 - `{% include site-menu.html %}`, banner (`/assets/hphysicsbanner.png`), then the sticky sub-nav.
 
 ## 3. Page skeleton — concept blocks
@@ -180,9 +182,13 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
 
 - Keep them few and inside the relevant concept. Reference page keeps: a series/parallel calculator and a
   potential-divider simulator; the secondary sim is demoted into a `<details>` "Go further".
-- Sliders **must** pair with a number input (`bindPair`) so they're keyboard/iPad-typeable.
-- Toggling visibility: use the `hidden` attribute **plus** a CSS rule `.field[hidden]{display:none}` —
-  `.field{display:flex}` otherwise overrides plain `[hidden]`.
+- **A simulator is a `.sim` block on the shared kit** (CLAUDE.md "Simulations — the simulator
+  standard"): `sims.css` for layout (controls beside the picture, one screen at 1180 × 760),
+  `WidgetKit.liveSim` for slider + number-box pairs (`data-sim`; never a hand-rolled `bindPair`),
+  `WidgetKit.graph` for graphs, `WidgetKit.clock` for motion, a `.sim-predict` card first, a live
+  diagram beside it. Copy `classes/higher/relativity-simulation.html` (#simClock). `npm run sims`
+  must pass.
+- Toggling visibility: use the `hidden` attribute; `.sim-field` is a block, so plain `[hidden]` works.
 - Results announce via `aria-live="polite"`. No `alert()`.
 - **`localStorage` prefix is per-topic and unique**, e.g. `hp-cpr-` for this page. Pick a new prefix per
   topic (`hp-<topic>-`); never reuse another page's keys. *(This applies to exploratory widget state.)*

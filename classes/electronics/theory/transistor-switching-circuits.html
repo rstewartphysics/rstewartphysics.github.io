@@ -15,9 +15,12 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/electronics.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
+  <script src="/assets/js/electronics-theory.js?v=elt-20261013a" defer></script>
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
     .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
@@ -133,6 +136,11 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
     .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
     .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
     .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt-fb { margin: .2rem 0 0; padding: .55rem .75rem; border-radius: 10px; border-left: 4px solid var(--border-accent); background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .opt-fb:empty { display: none; }
+    .opt-fb.is-right { border-left-color: #15803d; }
+    .opt-fb.is-wrong { border-left-color: var(--warm); }
+    .opt-fb var { font-family: "Times New Roman", Times, Georgia, serif; }
     .opt.correct .mark-note { color: #15803d; }
     .opt.wrong .mark-note { color: var(--warm); }
     @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
@@ -253,20 +261,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
     .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
     @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
 
-    /* transistor-switch simulator */
-    .ts-env { width: 100%; }
-    .ts-env .row { width: 100%; }
-    .ts-env input[type="range"] { flex: 1; width: auto; min-width: 120px; }
-    .ts-env .end { font-weight: 900; color: var(--accent-2); font-size: .82rem; white-space: nowrap; }
-    .circuit [hidden] { display: none; }
-    .circuit .ts-led-glow { fill: #ffd33d; opacity: 0; transition: opacity .2s ease; }
-    .circuit.is-on .ts-led-glow { opacity: .55; }
-    .circuit .ts-led { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
-    .circuit.is-on .ts-led { fill: #ffd33d; stroke: #b8860b; }
-    .ts-state { font-weight: 900; }
-    .ts-state.on { color: #15803d; }
-    .ts-state.off { color: var(--warm); }
-    @media (prefers-color-scheme: dark) { .ts-state.on { color: #5dd693; } }
+    /* transistor-switch design challenges */
     .ts-brief { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .7rem .8rem; margin-top: .6rem; }
     .ts-brief .ts-q { font-weight: 900; color: var(--text); margin: 0 0 .55rem; }
     .ts-brief .ts-q b { color: var(--accent-2); }
@@ -280,10 +275,39 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
     .ts-brief.ok .ts-verdict { color: #15803d; }
     .ts-brief.no .ts-verdict { color: var(--warm); }
     @media (prefers-color-scheme: dark) { .ts-brief.ok .ts-verdict { color: #5dd693; } .ts-brief.ok { border-color: #5dd693; } }
-    @media (prefers-reduced-motion: reduce) { .circuit .ts-led-glow { transition: none; } }
+
+    /* live circuit diagrams beside the simulators (layout and controls from /assets/css/sims.css) */
+    .schem { display: block; width: 100%; height: auto; }
+    .schem .w { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .schem .w.thin { stroke-width: 1.6; }
+    .schem .res, .schem .ic { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .schem .node, .schem .fill { fill: var(--text); }
+    .schem .term { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .schem text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 14px; }
+    .schem .val { font-size: 13px; fill: var(--muted); }
+    .schem .key { font-size: 15px; font-weight: 900; fill: var(--accent-2); }
+    .schem .pm { font-size: 17px; font-weight: 900; }
+    .schem .state { font-size: 15px; font-weight: 900; }
+    .schem .sym { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; }
+    .schem .led { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
+    .schem .led-glow { fill: #f59e0b; opacity: 0; }
+    .schem.is-high .led, .schem.is-on .led { fill: #dc2626; }
+    .schem.is-high .led-glow, .schem.is-on .led-glow { opacity: .35; }
+    @media (prefers-color-scheme: dark) { .schem.is-high .led, .schem.is-on .led { fill: #f87171; } }
+    .sim-out .v .why { display: block; font-size: .85rem; font-weight: 800; color: var(--muted); }
+    .sim-out .v var { font-family: "Times New Roman", Times, Georgia, serif; }
+    .sim-working var { font-style: italic; }
+    .sim-predict button var { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.1em; }
+    .sim-hint var { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.1em; }
+    .sim-top { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+    .sim-side { display: grid; gap: 8px; }
+    .sim-side .sim-readouts { grid-template-columns: minmax(0, 1fr); }
+    @media (max-width: 820px) { .sim-top { grid-template-columns: minmax(0, 1fr); } .sim-side .sim-readouts { grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); } }
+    @media (max-width: 520px) { .schem text, .schem .val, .schem .key { font-size: 17px; } .schem .state { font-size: 17.5px; } }
+    @media (prefers-reduced-motion: reduce) { .schem * { transition: none !important; } }
 
     @media print {
-      .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .subnav-wrap, .backlink, .widget, .sim, .btnrow, #siteMenuButton, footer { display: none !important; }
       .panel, .example, .practice { box-shadow: none; break-inside: avoid; }
       details.reveal > summary::after { content: ""; }
       body { background: #fff; }
@@ -317,7 +341,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
   <main class="page-wrap" id="mainContent">
     <h1 class="visually-hidden">Theory — Transistor Switching Circuits</h1>
     <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">&larr;</span> Back to Electronics hub</a>
-    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;"><span aria-hidden="true">📖</span> Glossary</a>
+    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;">Glossary</a>
     <p class="lead">A <strong>transistor switch</strong> lets a tiny input from a sensor switch a much
       bigger current on or off. It builds straight on the <a href="/classes/electronics/theory/resistor-circuits.html#dividers">voltage divider</a>.</p>
 
@@ -357,7 +381,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
       </figure>
       </div>
       <div class="frame prog-cloze" data-prog-challenge="cloze-1" aria-label="How to say it — fill the gaps">
-        <span class="frame-tag">✍️ How to say it — transistor switch</span>
+        <span class="frame-tag">How to say it — transistor switch</span>
         <p>A sensor in a voltage divider feeds the transistor's
           <select class="cl-sel" data-answer="base" aria-label="gap 1"><option value="">choose…</option><option>base</option><option>collector</option><option>emitter</option></select>.</p>
         <p>When the voltage there reaches about
@@ -395,104 +419,85 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
       <h2>Transistor-switch simulator</h2>
       <p class="notes">Build the switch, drag the sensor's surroundings and watch the base voltage reach
         <strong>0.7 V</strong> — the moment the transistor turns on. Then take the four design challenges
-        to earn the <strong>💡 Bright Spark</strong> badge.</p>
+        to earn the <strong>Bright Spark</strong> badge.</p>
 
-      <div class="widget" aria-label="Explore the transistor switch">
-        <h3>Explore</h3>
-        <p class="hint">Choose a sensor and which arm of the divider it sits in, then drag the slider.</p>
-        <div class="controls">
-          <div class="field">Sensor
-            <div class="seg" id="ts-sensor" role="group" aria-label="Sensor type">
-              <button type="button" data-s="ldr" aria-pressed="true">LDR (light)</button>
-              <button type="button" data-s="ther" aria-pressed="false">Thermistor (temperature)</button>
+      <div class="sim" id="sim-transistor">
+        <div class="sim-head">
+          <h3>Explore the transistor switch</h3>
+          <p class="sim-hint">Choose a sensor and the arm it sits in, then change the light or temperature. The transistor switches on when the base voltage <var>V</var><sub>b</sub> reaches 0.7 V.</p>
+        </div>
+        <div class="sim-predict">
+          <p class="sim-q">An LDR sits in the lower arm, next to 0 V. <b>Predict</b> what happens to the LED as the room gets darker.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="on" aria-pressed="false">It switches on<template data-feedback><p><strong>Right.</strong> In the dark the LDR's resistance rises, so it takes a bigger share of the 5 V. The base voltage rises, and at about 0.7 V the transistor switches on and the LED lights. Slide the light level down to see it.</p></template></button>
+            <button type="button" data-predict="off" aria-pressed="false">It switches off<template data-feedback><p>Not this one. Darker means a bigger LDR resistance. The LDR is the arm next to 0 V, so the p.d. across it is the base voltage. Does a bigger resistance take a bigger or smaller share?</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">Nothing changes<template data-feedback><p>Not quite. The LDR's resistance changes with the light, so its share of the supply changes too. Watch the base voltage as the light changes.</p></template></button>
+            <button type="button" data-predict="dim" aria-pressed="false">It slowly gets dimmer<template data-feedback><p>Not this one. A transistor switch is either on or off; it is not a dimmer. Think about what happens to the base voltage as the LDR's resistance rises.</p></template></button>
+          </div>
+          <div data-reveal hidden></div>
+        </div>
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-top">
+              <figure class="sim-fig">
+                <svg class="schem" id="ts-svg" viewBox="0 0 400 290" role="img" aria-label="Transistor switch">
+                  <path class="w" d="M64 24 H280 M64 266 H280 M120 24 V60 M120 104 V196 M120 240 V266 M120 150 H160 M200 150 H260 M260 143 L280 130 V110 M260 157 L280 170 V266 M280 82 V72 M280 24 V40 M280 100 V110"/>
+                  <path class="w" d="M260 136 V164" style="stroke-width:3"/>
+                  <circle class="w" cx="270" cy="150" r="23"/>
+                  <path class="fill" d="M276 167.4 L267.9 167 L272.3 160.2 Z"/>
+                  <rect class="res" x="160" y="143" width="40" height="14"/>
+                  <rect class="res" x="273" y="40" width="14" height="32"/>
+                  <circle class="led-glow" cx="280" cy="91" r="17"/>
+                  <polygon class="led" points="270,82 290,82 280,100"/><line class="w" x1="270" y1="100" x2="290" y2="100"/>
+                  <path class="w thin" d="M294 86 l10 -9 M296 96 l10 -9"/><path class="fill" d="M306 75 l-6 1 l4 4 z M308 85 l-6 1 l4 4 z"/>
+                  <circle class="node" cx="120" cy="24" r="3.5"/><circle class="node" cx="120" cy="266" r="3.5"/><circle class="node" cx="120" cy="150" r="3.5"/>
+                  <text x="60" y="29" text-anchor="end">+5 V</text><text x="60" y="271" text-anchor="end">0 V</text>
+                  <text x="180" y="136" text-anchor="middle"><tspan font-style="italic">R</tspan><tspan font-size="75%" dy="0.3em">b</tspan></text>
+                  <text x="294" y="61" class="val">330 Ω</text>
+                  <text x="312" y="104">LED</text>
+                  <text x="298" y="144" class="val">transistor</text>
+                  <g class="arms"></g>
+                  <g class="dyn"></g>
+                </svg>
+              </figure>
+              <div class="sim-side">
+                <div class="sim-readouts" aria-live="polite">
+                  <div class="sim-out"><span class="k">Sensor resistance</span><span class="v" id="ts-rs"></span></div>
+                  <div class="sim-out is-key"><span class="k">Base voltage <var>V</var><sub>b</sub></span><span class="v" id="ts-vb"></span></div>
+                  <div class="sim-out"><span class="k">Transistor</span><span class="v" id="ts-state"></span></div>
+                </div>
+                <p class="sim-working" id="ts-work"></p>
+              </div>
             </div>
           </div>
-          <div class="field">Sensor position
-            <div class="seg" id="ts-arm" role="group" aria-label="Where the sensor sits in the divider">
-              <button type="button" data-a="lower" aria-pressed="true">Lower arm (next to 0&nbsp;V)</button>
-              <button type="button" data-a="upper" aria-pressed="false">Upper arm (next to +V)</button>
+          <div class="sim-controls">
+            <div class="sim-seg" role="group" aria-label="Sensor">
+              <span class="sim-seg-label">Sensor</span>
+              <button type="button" data-sim-toggle="sensor" data-value="ldr" aria-pressed="true">LDR (light)</button>
+              <button type="button" data-sim-toggle="sensor" data-value="ther" aria-pressed="false">Thermistor</button>
             </div>
+            <div class="sim-seg" role="group" aria-label="Where the sensor sits in the divider">
+              <span class="sim-seg-label">Sensor position</span>
+              <button type="button" data-sim-toggle="arm" data-value="lower" aria-pressed="true">Lower arm (next to 0&nbsp;V)</button>
+              <button type="button" data-sim-toggle="arm" data-value="upper" aria-pressed="false">Upper arm (next to +5&nbsp;V)</button>
+            </div>
+            <label class="sim-field">
+              <span class="sim-name" id="ts-env-name">Light level on the LDR (lux)</span>
+              <span class="sim-row"><input type="range" data-sim="env" data-scale="log" data-min="1" data-max="10000" data-step="1" min="0" max="1000" step="1" aria-label="Light level on the LDR in lux"><input class="sim-num" type="number" data-sim="env" min="1" max="10000" step="1" value="100" inputmode="decimal" aria-label="Light level on the LDR in lux, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Variable resistor <var>R</var> (kΩ)</span>
+              <span class="sim-row"><input type="range" data-sim="r" data-scale="log" data-min="0.5" data-max="220" data-step="0.1" min="0" max="1000" step="1" aria-label="Variable resistor R in kilohms"><input class="sim-num" type="number" data-sim="r" min="0.5" max="220" step="0.1" value="33" inputmode="decimal" aria-label="Variable resistor R in kilohms, typed"></span>
+            </label>
+            <p class="sim-note">Changing the sensor or its arm resets <var>R</var> so the switch point sits mid-way along the slider.</p>
           </div>
         </div>
-
-        <div class="field ts-env" style="margin-top:.9rem;">
-          <label id="ts-env-label" for="ts-env">Brightness on the LDR</label>
-          <div class="row">
-            <span class="end" id="ts-env-min">Dark</span>
-            <input type="range" id="ts-env" min="0" max="100" value="50" step="1" aria-describedby="ts-env-label">
-            <span class="end" id="ts-env-max">Bright</span>
-          </div>
-        </div>
-
-        <div class="figure">
-          <svg class="circuit" id="ts-circuit" viewBox="0 0 340 234" role="img" aria-labelledby="ts-svg-title">
-            <title id="ts-svg-title">Transistor switch: a sensor in a voltage divider feeds the base through a base resistor; the transistor switches an LED on its collector.</title>
-            <!-- supply rails -->
-            <line class="wire" x1="44" y1="22" x2="300" y2="22"/>
-            <line class="wire" x1="44" y1="212" x2="300" y2="212"/>
-            <text x="40" y="18" text-anchor="end">+5 V</text>
-            <text x="40" y="224" text-anchor="end">0 V</text>
-            <!-- voltage divider (left) -->
-            <line class="wire" x1="72" y1="22" x2="72" y2="58"/>
-            <rect class="res" x="58" y="58" width="28" height="42" rx="3"/>
-            <g id="ts-upper-ldr" hidden>
-              <circle class="wire" cx="72" cy="79" r="26"/>
-              <line class="wire" x1="34" y1="49" x2="46" y2="61"/><path class="fill" d="M46 61 l-2 -9 l-7 4 z"/>
-              <line class="wire" x1="44" y1="41" x2="56" y2="53"/><path class="fill" d="M56 53 l-2 -9 l-7 4 z"/>
-            </g>
-            <polyline id="ts-upper-th" class="wire" points="50,104 50,98 94,58" hidden/>
-            <text id="ts-upper-label" x="104" y="83">R</text>
-            <line class="wire" x1="72" y1="100" x2="72" y2="124"/>
-            <circle class="node" cx="72" cy="124" r="3.4"/>
-            <line class="wire" x1="72" y1="124" x2="72" y2="148"/>
-            <rect class="res" x="58" y="148" width="28" height="42" rx="3"/>
-            <g id="ts-lower-ldr" hidden>
-              <circle class="wire" cx="72" cy="169" r="26"/>
-              <line class="wire" x1="34" y1="139" x2="46" y2="151"/><path class="fill" d="M46 151 l-2 -9 l-7 4 z"/>
-              <line class="wire" x1="44" y1="131" x2="56" y2="143"/><path class="fill" d="M56 143 l-2 -9 l-7 4 z"/>
-            </g>
-            <polyline id="ts-lower-th" class="wire" points="50,194 50,188 94,148" hidden/>
-            <text id="ts-lower-label" x="104" y="173">LDR</text>
-            <line class="wire" x1="72" y1="190" x2="72" y2="212"/>
-            <!-- base resistor to transistor -->
-            <line class="wire" x1="72" y1="124" x2="118" y2="124"/>
-            <rect class="res" x="118" y="116" width="34" height="16" rx="3"/>
-            <text x="135" y="111" text-anchor="middle">Rb</text>
-            <line class="wire" x1="152" y1="124" x2="188" y2="124"/>
-            <!-- transistor (NPN) -->
-            <line class="wire" x1="200" y1="98" x2="200" y2="150"/>
-            <line class="wire" x1="188" y1="124" x2="200" y2="124"/>
-            <line class="wire" x1="200" y1="110" x2="232" y2="92"/>
-            <line class="wire" x1="200" y1="138" x2="232" y2="156"/>
-            <path class="fill" d="M226 158 l8 -2 l-4 -7 z"/>
-            <text x="184" y="170" text-anchor="middle">T</text>
-            <!-- emitter to 0 V -->
-            <line class="wire" x1="232" y1="156" x2="232" y2="212"/>
-            <!-- collector up through LED to +V -->
-            <line class="wire" x1="232" y1="92" x2="232" y2="80"/>
-            <circle class="ts-led-glow" cx="232" cy="71" r="17"/>
-            <path class="ts-led" d="M222 62 L242 62 L232 80 Z"/>
-            <line class="wire" x1="222" y1="80" x2="242" y2="80"/>
-            <line class="wire" x1="246" y1="60" x2="255" y2="51"/>
-            <line class="wire" x1="251" y1="65" x2="260" y2="56"/>
-            <path class="fill" d="M255 51 l5 -1 l-1 5 z"/>
-            <path class="fill" d="M260 56 l5 -1 l-1 5 z"/>
-            <text x="264" y="76">LED</text>
-            <line class="wire" x1="232" y1="62" x2="232" y2="56"/>
-            <rect class="res" x="218" y="30" width="28" height="26" rx="3"/>
-            <text x="252" y="40"><tspan font-style="italic">R</tspan>s</text>
-            <line class="wire" x1="232" y1="30" x2="232" y2="22"/>
-          </svg>
-        </div>
-
-        <div class="readout" id="ts-readout" aria-live="polite"></div>
-        <div class="working" id="ts-work"></div>
       </div>
 
       <div class="widget" aria-label="Design challenges">
         <h3>Design challenges <span class="challenge-tag">scored</span></h3>
         <p class="hint">For each brief, pick the right sensor and the arm it belongs in. Get all four
-          correct to earn 💡 <strong>Bright Spark</strong>.</p>
+          correct to earn <strong>Bright Spark</strong>.</p>
         <div id="ts-challenge"></div>
         <div class="btnrow">
           <button class="btn primary" id="ts-check" type="button">Check my designs</button>
@@ -507,7 +512,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
     <section class="panel" id="check" aria-label="Check your understanding">
       <span class="concept-tag">Check</span>
       <h2>Check your understanding</h2>
-      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <p>Pick an answer to see feedback on it. You can then try the others. Your score counts first tries only.</p>
       <div id="quiz" aria-label="Multiple choice questions"></div>
       <div class="btnrow">
         <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
@@ -529,7 +534,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
 
   {% include site-footer.html %}
 
-  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">🔤 Reading help</button>
+  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">Reading help</button>
   <script>
   (function(){
     var RKEY="el-reading-help", el=document.documentElement, rbtn=document.getElementById("readingToggle");
@@ -542,211 +547,48 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
   </script>
 
   <script>
-  (function(){
-    "use strict";
-    var KEY = "el-thy-ts-";
-    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
-    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
-    function $(id){ return document.getElementById(id); }
-    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
-    function round(x,n){ var p=Math.pow(10,n==null?2:n); return Math.round(x*p)/p; }
-    function bindPair(rangeId, numId, onChange){
-      var r=$(rangeId), n=$(numId);
-      if(r) r.addEventListener("input", function(){ if(n) n.value=r.value; onChange(parseFloat(r.value)); });
-      if(n) n.addEventListener("input", function(){ var v=parseFloat(n.value); if(!isNaN(v)){ if(r) r.value=v; onChange(v); } });
-    }
-
-    /* Voltage divider + comparator */
-    (function(){
-      if(!$("el-out")) return;
-      var vs=12, r1=3, r2=7, vref=6;
-      function update(){
-        if(!(r1+r2>0)) return;
-        var v2 = vs * r2/(r1+r2);
-        setT("el-out","Output V₂ = "+round(v2,2)+" V");
-        var high = v2 >= vref;
-        setT("el-cmp", "Comparator: output "+(high?"HIGH (≈ +"+round(vs,1)+" V)":"LOW (≈ 0 V)")+"  — V₂ "+(high?"≥":"<")+" reference "+round(vref,1)+" V");
-        $("el-work").textContent =
-          "V₂ = (R₂ / (R₁ + R₂)) × V_s\n"+
-          "V₂ = ("+round(r2,2)+" / ("+round(r1,2)+" + "+round(r2,2)+")) × "+round(vs,1)+"\n"+
-          "V₂ = "+round(v2,2)+" V";
-      }
-      bindPair("el-vs","el-vs-n",function(v){ vs=v; update(); });
-      bindPair("el-r1","el-r1-n",function(v){ r1=v; update(); });
-      bindPair("el-r2","el-r2-n",function(v){ r2=v; update(); });
-      bindPair("el-vref","el-vref-n",function(v){ vref=v; update(); });
-      update();
-    })();
-
-    /* Logic gate explorer */
-    (function(){
-      if(!$("lg-gate")) return;
-      var gate="AND", a=0, b=0;
-      function calc(g,A,B){
-        switch(g){
-          case "AND": return A & B;
-          case "OR": return A | B;
-          case "NAND": return (A & B)?0:1;
-          case "NOR": return (A | B)?0:1;
-          case "XOR": return A ^ B;
-          case "NOT": return A?0:1;
-        }
-        return 0;
-      }
-      function rows(g){ return g==="NOT" ? [[0],[1]] : [[0,0],[0,1],[1,0],[1,1]]; }
-      function render(){
-        var single = (gate==="NOT");
-        $("lg-b").style.display = single ? "none" : "";
-        var out = calc(gate, a, single?0:b);
-        setT("lg-out", gate + " output = " + out);
-        var tt=$("lg-tt"), html="<caption>"+gate+"</caption><thead><tr>"+(single?"<th>A</th>":"<th>A</th><th>B</th>")+"<th>out</th></tr></thead><tbody>";
-        rows(gate).forEach(function(r){
-          var A=r[0], B=single?0:r[1], o=calc(gate,A,B);
-          var active = (A===a) && (single || B===b);
-          html += '<tr class="'+(active?"hi":"")+'">'+(single?("<td>"+A+"</td>"):("<td>"+A+"</td><td>"+B+"</td>"))+'<td class="out">'+o+'</td></tr>';
-        });
-        html+="</tbody>"; tt.innerHTML=html;
-      }
-      $("lg-gate").addEventListener("click", function(e){
-        var btn=e.target.closest("button"); if(!btn) return;
-        gate=btn.dataset.g;
-        [].forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===btn); });
-        render();
-      });
-      function toggle(id, get, set){
-        $(id).addEventListener("click", function(){ set(get()?0:1); var v=get(); this.setAttribute("aria-pressed", v===1); this.textContent=(id==="lg-a"?"A = ":"B = ")+v; render(); });
-      }
-      toggle("lg-a", function(){return a;}, function(v){a=v;});
-      toggle("lg-b", function(){return b;}, function(v){b=v;});
-      render();
-    })();
-
-    /* Mixed multiple-choice */
-    (function(){
-      var QS=[
-        { q:"In a transistor switch, the sensor and a resistor form a voltage divider that feeds the transistor's", o:["collector","base","emitter","output device"], a:1 },
-        { q:"A transistor switch turns on when its base voltage rises to about", o:["0.2 V","0.7 V","5 V","9 V"], a:1 },
-        { q:"The transistor switches on a much bigger current through the", o:["base resistor","voltage divider","output device (lamp, LED or relay)","sensor"], a:2 }
-      ];
-      var box=$("quiz");
-      QS.forEach(function(item,qi){
-        var d=document.createElement("div"); d.className="q";
-        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
-        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
-        d.innerHTML=html; box.appendChild(d);
-      });
-      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
-      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
-      $("quiz-mark").addEventListener("click", function(){
-        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
-        var score=0; clearNotes();
-        QS.forEach(function(item,qi){
-          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
-          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
-          right.classList.add("correct"); addNote(right, "✓ correct answer");
-          if(chosen){ var oi=parseInt(chosen.value,10);
-            if(oi===item.a) score++;
-            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
-          }
-        });
-        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
-        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
-      });
-      $("quiz-reset").addEventListener("click", function(){
-        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
-        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
-        clearNotes(); setT("quiz-score","");
-      });
-      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
-    })();
-
-    /* RAG self-check */
-    (function(){
-      var CRIT=[
-        "Describe a transistor switch: sensor → voltage divider → base → output device.",
-        "Explain how swapping the divider arm switches on for high or low light/temperature."
-      ];
-      var box=$("rag"), state=load("rag",{});
-      function summary(){
-        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
-        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
-      }
-      CRIT.forEach(function(c,i){
-        var row=document.createElement("div"); row.className="rag-item";
-        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
-        var btns=document.createElement("span"); btns.className="rag-btns";
-        ["R","A","G"].forEach(function(k){
-          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
-          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
-          b.setAttribute("aria-pressed", state[i]===k);
-          b.addEventListener("click", function(){
-            state[i]=k; save("rag",state);
-            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
-            summary();
-          });
-          btns.appendChild(b);
-        });
-        row.appendChild(btns); box.appendChild(row);
-      });
-      $("rag-reset").addEventListener("click", function(){
-        state={}; save("rag",state);
-        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
-        summary();
-      });
-      summary();
-    })();
-
-    /* Subnav scrollspy */
-    (function(){
-      if(!("IntersectionObserver" in window)) return;
-      var links=document.querySelectorAll(".subnav-link"), map={};
-      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
-      var obs=new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if(!en.isIntersecting) return;
-          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
-          var l=map[en.target.id];
-          if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
-        });
-      }, { rootMargin: "-25% 0px -65% 0px" });
-      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
-    })();
-
-    /* Print: open every reveal, then restore */
-    (function(){
-      var opened=[];
-      window.addEventListener("beforeprint", function(){
-        opened=[];
-        document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); });
-      });
-      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
-    })();
-  })();
+  window.EL_THEORY = {
+    key: "el-thy-ts-",
+    badge: "thy-ts",
+    qs: [
+      { q: "In a transistor switch, the sensor and a resistor form a voltage divider that feeds the transistor's",
+        o: ["collector", "base", "emitter", "output device"], a: 1,
+        f: [
+          "The collector connects to the output device that gets switched on. The divider feeds the transistor's control input.",
+          "Right. The divider output goes to the base, through a base resistor. The base is the control input that switches the transistor.",
+          "In these circuits the emitter goes to 0 V. The divider feeds the transistor's control input.",
+          "The output device sits in the collector circuit. The divider feeds the transistor, which then switches the output device."
+        ] },
+      { q: "A transistor switch turns on when its base voltage rises to about",
+        o: ["0.2 V", "0.7 V", "5 V", "9 V"], a: 1,
+        f: [
+          "Too low. A silicon transistor needs a little more than this between its base and emitter before it turns on.",
+          "Right. A silicon transistor switches on when its base–emitter voltage reaches about 0.7 V.",
+          "Much more than needed. The transistor is already on at a far smaller base voltage.",
+          "That is a typical supply voltage. The transistor switches on at a much smaller base voltage."
+        ] },
+      { q: "The transistor switches on a much bigger current through the",
+        o: ["base resistor", "voltage divider", "output device (lamp, LED or relay)", "sensor"], a: 2,
+        f: [
+          "The base resistor carries only the small base current. It limits that current to protect the transistor.",
+          "The divider carries only a small current. Its job is to set the base voltage.",
+          "Right. A small base current switches on a much bigger collector current, and that current flows through the output device.",
+          "The sensor is part of the voltage divider, which carries only a small current."
+        ] }
+    ],
+    crit: ["Describe a transistor switch: sensor → voltage divider → base → output device.", "Explain how swapping the divider arm switches on for high or low light/temperature."]
+  };
   </script>
 
   <script>
-  /* Transistor-switch simulator + scored design challenges (badge: thy-ts) */
+  /* Scored design challenges (badge: thy-ts) */
   (function(){
     "use strict";
-    if(!document.getElementById("ts-circuit")) return;
+    if(!document.getElementById("ts-challenge")) return;
     var $ = function(id){ return document.getElementById(id); };
     var BADGE = "thy-ts";
 
-    /* ---- model: both sensors are NTC-like (more light / more heat -> less resistance) ---- */
-    var VS = 5, RFIX = 10000;
-    function sensorR(env){            /* env 0..100; returns ohms, 100k (low end) -> 1k (high end) */
-      var hi = Math.log10(100000), lo = Math.log10(1000);
-      return Math.pow(10, hi + (env/100)*(lo - hi));
-    }
-    function vbase(arm, env){
-      var rs = sensorR(env);
-      var rLower = (arm === "lower") ? rs : RFIX;
-      var rUpper = (arm === "lower") ? RFIX : rs;
-      return VS * rLower / (rLower + rUpper);
-    }
-    function fmtR(r){ return r >= 1000 ? (Math.round(r/100)/10) + " kΩ" : Math.round(r) + " Ω"; }
-    /* the four switch behaviours, keyed by sensor + arm */
+    /* the four switch behaviours, keyed by sensor + arm (the simulator itself is in electronics-theory.js) */
     function behaviour(sensor, arm){
       if(sensor === "ldr")  return (arm === "lower") ? "on-dark" : "on-light";
       return (arm === "lower") ? "on-cold" : "on-hot";
@@ -757,50 +599,6 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
       "on-cold":  "switches ON when it gets cold",
       "on-hot":   "switches ON when it gets hot"
     };
-
-    /* ---- explore widget ---- */
-    var sensor = "ldr", arm = "lower";
-    function segPick(groupId, attr, cb){
-      var g = $(groupId);
-      g.addEventListener("click", function(e){
-        var b = e.target.closest("button"); if(!b) return;
-        [].forEach.call(g.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===b ? "true" : "false"); });
-        cb(b.getAttribute(attr));
-      });
-    }
-    function refreshLabels(){
-      var isLight = (sensor === "ldr");
-      $("ts-env-label").textContent = isLight ? "Brightness on the LDR" : "Temperature at the thermistor";
-      $("ts-env-min").textContent = isLight ? "Dark" : "Cold";
-      $("ts-env-max").textContent = isLight ? "Bright" : "Hot";
-      $("ts-lower-label").textContent = (arm === "lower") ? (isLight ? "LDR" : "Th") : "R";
-      $("ts-upper-label").textContent = (arm === "upper") ? (isLight ? "LDR" : "Th") : "R";
-      ["upper","lower"].forEach(function(a){
-        var sensor = (arm === a);
-        $("ts-"+a+"-ldr").hidden = !(sensor && isLight);
-        $("ts-"+a+"-th").hidden  = !(sensor && !isLight);
-      });
-    }
-    function update(){
-      var env = parseInt($("ts-env").value, 10);
-      var vb = vbase(arm, env), rs = sensorR(env), on = vb >= 0.7;
-      $("ts-circuit").classList.toggle("is-on", on);
-      var isLight = (sensor === "ldr");
-      var envWord = isLight ? (env < 35 ? "fairly dark" : env > 65 ? "bright" : "dim") : (env < 35 ? "cold" : env > 65 ? "hot" : "warm");
-      $("ts-readout").innerHTML =
-        "Sensor ≈ <strong>" + fmtR(rs) + "</strong> · base voltage <strong>" + (Math.round(vb*100)/100) + " V</strong> " +
-        "(" + (on ? "≥" : "&lt;") + " 0.7 V) → transistor <span class='ts-state " + (on?"on":"off") + "'>" +
-        (on ? "ON" : "OFF") + "</span> → LED <span class='ts-state " + (on?"on":"off") + "'>" + (on ? "lit 💡" : "off") + "</span>";
-      $("ts-work").textContent =
-        "It is " + envWord + ".\n" +
-        "V_base = V_s × R_lower / (R_upper + R_lower)\n" +
-        "V_base = " + VS + " × " + fmtR(arm==="lower"?rs:RFIX) + " / (" + fmtR(arm==="lower"?RFIX:rs) + " + " + fmtR(arm==="lower"?rs:RFIX) + ")\n" +
-        "V_base = " + (Math.round(vb*100)/100) + " V  " + (on ? "≥ 0.7 V → ON" : "< 0.7 V → OFF");
-    }
-    segPick("ts-sensor", "data-s", function(v){ sensor = v; refreshLabels(); update(); });
-    segPick("ts-arm", "data-a", function(v){ arm = v; refreshLabels(); update(); });
-    $("ts-env").addEventListener("input", update);
-    refreshLabels(); update();
 
     /* ---- scored design challenges ---- */
     var BRIEFS = [
@@ -841,7 +639,7 @@ title: Theory — Transistor Switching Circuits · National 5 Electronics
       if(window.Progress){
         var res = Progress.record(BADGE, score, BRIEFS.length);
         if(res.justUnlocked){
-          msg += " — 💡 Bright Spark unlocked!";
+          msg += " — Bright Spark unlocked!";
         } else if(res.unlocked){ msg += " — badge already earned."; }
       }
       $("ts-score").textContent = msg;
