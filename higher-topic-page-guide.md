@@ -31,7 +31,7 @@ classes/higher/<unit>/<topic>.html
   `/assets/css/higher-physics.css?v=hp-YYYYMMDDx`. **Bump the `?v=` only if you change the shared sheet**;
   if you only change the page's inline `<style>`, no bump is needed (the page is served fresh).
 - Page-specific widget CSS/JS stays **inline** on the page. No external frameworks, no build step.
-- Skip link, `{% include site-menu.html %}`, banner (`/assets/hphysicsbanner.png`), then the sticky sub-nav.
+- `{% include site-menu.html %}`, banner (`/assets/hphysicsbanner.png`), then the sticky sub-nav.
 
 ## 3. Page skeleton — concept blocks
 
@@ -197,7 +197,7 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
 
 ## 9. Accessibility & platform guardrails
 
-- Skip link, `id="mainContent"`, focus rings ≥3px on every control, tap targets ≥44–48px,
+- `id="mainContent"`, focus rings ≥3px on every control, tap targets ≥44–48px,
   `prefers-reduced-motion` honoured, `aria-live` on widget results.
 - Blue Higher identity; dark mode must work (the shared sheet handles chrome; any bespoke colour needs a
   dark value or a theme var).

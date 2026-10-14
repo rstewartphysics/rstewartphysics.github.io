@@ -108,11 +108,10 @@ title: Page Title
     html, body { max-width: 100%; }
     body { margin: 0; overflow-x: hidden; }
     img, iframe { max-width: 100%; height: auto; display: block; }
-    /* .visually-hidden, .skip-link, :root tokens, prefers-reduced-motion block, page styles */
+    /* .visually-hidden, :root tokens, prefers-reduced-motion block, page styles */
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#mainContent">Skip to content</a>
   {% include site-menu.html %}
 
   <header class="banner-wrap">
@@ -252,16 +251,16 @@ Each subject has its own identity — always use the right one. Full `:root` tok
 page itself (inline-themed subjects) or the shared CSS (Higher, Engineering Science). This table is
 the quick map; copy exact values from the source.
 
-| Subject | Accent | `theme-color` (light) | Skip-link | Token source |
-|---------|--------|-----------------------|-----------|--------------|
-| Home / Physics | `#0aa8b5` teal | `#eaf7fa` | teal | inline per page |
-| S3 Physics | `#00747c` blue-teal | `#eaf7fa` (dark `#0d1f1a`) | accent bg / `--on-accent` text | `assets/css/s3-physics.css` |
-| Science (S1/S2) | `#16a34a` green | `#eef7ff` | dark | inline per page |
-| Electronics | `#0a9d7f` green (dark `#00e6b3`) | `#e8fbf5` (dark `#06140f`) | `#00e6b3` bg / `#022a22` text | `assets/css/electronics.css` |
-| National 5 | `#d74a84` pink | `#fff0f7` (dark `#1d0b14`) | `#d74a84` bg / `#1a0510` text | `assets/css/national-5-physics.css` |
-| Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | accent bg / `--on-accent` text | `assets/css/higher-physics.css` |
-| Advanced Higher | `#b8860b` gold (dark `#e8bf55`) | `#f6efdc`, hub `#fff6d6` (dark `#14100a`) | `#111827` bg, white | `assets/css/adv-higher-physics.css` |
-| Engineering Science | `#fd9700` orange | `#fbf6ef` (dark `#15110b`) | orange bg / `#1c1408` text | `assets/css/engineering-science.css` |
+| Subject | Accent | `theme-color` (light) | Token source |
+|---------|--------|-----------------------|--------------|
+| Home / Physics | `#0aa8b5` teal | `#eaf7fa` | inline per page |
+| S3 Physics | `#00747c` blue-teal | `#eaf7fa` (dark `#0d1f1a`) | `assets/css/s3-physics.css` |
+| Science (S1/S2) | `#16a34a` green | `#eef7ff` | inline per page |
+| Electronics | `#0a9d7f` green (dark `#00e6b3`) | `#e8fbf5` (dark `#06140f`) | `assets/css/electronics.css` |
+| National 5 | `#d74a84` pink | `#fff0f7` (dark `#1d0b14`) | `assets/css/national-5-physics.css` |
+| Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | `assets/css/higher-physics.css` |
+| Advanced Higher | `#b8860b` gold (dark `#e8bf55`) | `#f6efdc`, hub `#fff6d6` (dark `#14100a`) | `assets/css/adv-higher-physics.css` |
+| Engineering Science | `#fd9700` orange | `#fbf6ef` (dark `#15110b`) | `assets/css/engineering-science.css` |
 
 - **Every subject follows the device appearance** (light and dark) from its sheet. Engineering
   Science's dark mode uses its `--eng-*` tokens. Main column is 1100px in every subject (Science
@@ -481,10 +480,8 @@ Advanced Higher — 104 tiles. Only the Science (S1/S2) hub still uses its own `
 `.topic-tile` variants.
 
 **A subject sheet comes before the component sheet, and both come after `site-menu.css`.**
-`site-menu.css` defines a generic `.skip-link` at the same specificity as a subject's, so a subject
-sheet loaded before it silently loses. That is what an inline `<style>` block placed above the links
-does — the Advanced Higher page had a 3.25:1 skip link for exactly that reason, and extracting its
-CSS to a linked sheet in the right position fixed it.
+`site-menu.css` defines generic rules at the same specificity as a subject's, so a subject sheet
+loaded before it silently loses. That is what an inline `<style>` block placed above the links does.
 
 **Stage a course before its pages exist.** The Advanced Higher hub carries all 17 topics as inert
 `soon` tiles, grouped by unit and captioned, before a single topic page is written. Publishing one
@@ -585,8 +582,8 @@ already-published deck gets its pair, and this card, on its next touch.
 
 ## Accessibility requirements (every page)
 
-- **Skip link** `<a class="skip-link" href="#mainContent">Skip to content</a>` — off-screen, visible
-  on focus. `id="mainContent"` on `<main>`.
+- **No skip link** (teacher, 14 Oct 2026: removed site-wide; don't add one). Keep
+  `id="mainContent"` on `<main>`.
 - **Focus rings** `outline: var(--focus-ring); outline-offset: var(--focus-offset)` on
   `:focus-visible` — never removed, ≥3px.
 - **`aria-label`** on every `a.card`, `<section>`, and `.tile-grid`.

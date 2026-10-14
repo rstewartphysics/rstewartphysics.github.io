@@ -44,7 +44,7 @@ const SITE_COURSE = { label: "Site", subject: "site", levels: [] };
 const EXCLUDE_SELECTORS = [
   "svg", "script", "style", "noscript", "template", "nav", "footer", "button",
   "input", "select", "textarea", "[aria-hidden='true']",
-  ".skip-link", ".backlink", ".beta-note", "[data-credit-note]", ".subnav-wrap",
+  ".backlink", ".beta-note", "[data-credit-note]", ".subnav-wrap",
   "#answers", ".answers", ".reveal", ".reveal-body", ".solution",
   ".feedback", ".quiz-feedback", ".mcq-fb", ".kit-fb", ".predict-fb", ".match-fb", ".csim-fb",
   ".fb", ".fb-line", ".fb-head", ".fb-body", ".fbh", ".fbt", ".fb-ans",

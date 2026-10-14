@@ -44,7 +44,7 @@ nav drawer.
 - Page widget CSS/JS stays inline. No Liquid-unsafe `{{`/`{%` in inline CSS/JS.
 
 ### Body skeleton (same order as the energy page)
-1. Skip link → `#mainContent`; `{% include site-menu.html %}`.
+1. `{% include site-menu.html %}`; `id="mainContent"` on `<main>`.
 2. Banner: `/assets/national-5-engineering-science-banner.jpeg` with overlay text = topic title
    (keep overlay on topic pages).
 3. Sticky `.subnav-wrap`: one short link per section + `Answers` + `Check`, and

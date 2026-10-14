@@ -32,7 +32,7 @@ classes/electronics/planning.html          — Practical activity
   **`/assets/css/electronics.css?v=el-YYYYMMDDx`** (teal tokens + chrome + dark mode).
   Bump `?v=` only when you change the shared sheet.
 - Page-specific component + widget CSS/JS stays **inline** (same rule as Higher).
-- Skip link, `{% include site-menu.html %}`, banner (`/assets/Electronicsbanner.png`), sticky sub-nav.
+- `{% include site-menu.html %}`, banner (`/assets/Electronicsbanner.png`), sticky sub-nav.
 - Per-page `localStorage` prefix is unique: `el-thy-`, `el-sim-`, `el-con-`, `el-tst-`, `el-pln-`.
 
 ## 3. Page skeleton
@@ -118,7 +118,7 @@ changing any progress/badge behaviour.
 
 ## 9. Accessibility & platform guardrails (every page)
 
-- Skip link + `id="mainContent"`, focus rings ≥3px, tap targets ≥44–48px, `prefers-reduced-motion`,
+- `id="mainContent"`, focus rings ≥3px, tap targets ≥44–48px, `prefers-reduced-motion`,
   widget results announce via `aria-live="polite"`, no `alert()`.
 - `overflow-x:hidden`, `max-width:100%`, `env(safe-area-inset-*)` on sticky controls.
 - **Liquid safety:** never put `{{`, `{%`, `%}` in inline CSS/JS (only `{% include site-menu.html %}`).

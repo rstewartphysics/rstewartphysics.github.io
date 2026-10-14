@@ -14,12 +14,12 @@ Used by `/new-page`, `/improve-page`, `/from-pdf`. Read this once per task.
 Pick the subject's palette from the CLAUDE.md colour table: Physics/Home teal,
 Science pastel, Electronics dark green, N5 pink, Higher blue, Adv Higher gold,
 Engineering Science graphite+orange (external CSS). Set `--page-accent`/`--menu-accent`,
-the two `theme-color` metas, and the skip-link colour to match.
+and the two `theme-color` metas to match.
 
 ## Non-negotiable guardrails (from CLAUDE.md)
 - Standard head block: `color-scheme: light dark`, dual `theme-color` metas, shared
   menu CSS/JS, page-specific CSS/JS inline, absolute `/assets/…` `/classes/…` links.
-- A11y: skip link, `id="mainContent"`, focus rings ≥3px, tap targets ≥44–48px,
+- A11y: no skip link (removed site-wide 14 Oct 2026), `id="mainContent"`, focus rings ≥3px, tap targets ≥44–48px,
   `aria-label` on cards/sections/grids, decorative imgs `aria-hidden`+`alt=""`,
   `prefers-reduced-motion` block, `aria-live` on widget results, no `alert()`.
 - **Banner:** use the subject's 3:1 `.jpeg` banner from `/assets/` (see CLAUDE.md table). The
