@@ -245,7 +245,7 @@ the quick map; copy exact values from the source.
 | S3 Physics | `#00747c` blue-teal | `#eaf7fa` | teal | `assets/css/s3-physics.css` |
 | Science (S1/S2) | `#16a34a` green | `#eef7ff` | dark | inline per page |
 | Electronics | `#00e6b3` teal-green | `#0b1f1a` (dark page) | `#00e6b3` bg | inline; `color-scheme: dark` |
-| National 5 | `#d74a84` pink | `#d74a84` | `#d74a84` bg / `#2a0a1a` text | inline per page |
+| National 5 | `#d74a84` pink | `#fff0f7` (dark `#1d0b14`) | `#d74a84` bg / `#1a0510` text | `assets/css/national-5-physics.css` |
 | Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | `#0a6fbf` bg, white | `assets/css/higher-physics.css` |
 | Advanced Higher | `#b8860b` gold | `#b8860b` | `#111827` bg, white | `assets/css/adv-higher-physics.css` |
 | Engineering Science | `#f28c28` orange | — | — | `assets/css/engineering-science.css` |
