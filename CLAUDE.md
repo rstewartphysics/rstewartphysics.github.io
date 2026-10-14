@@ -64,11 +64,61 @@ these. **Remove this section once every box is ticked.**
      Check/Reset buttons at 853 px, even at the minimum scale (0.65): the question text above it
      takes 512 px. Options: put the scenario beside the stage, or shorten the task box. Check on a
      real iPad held sideways.
-   - [ ] **"Beta testing" panels** on the four Electronics planners/builders (`.beta` section). The
-     teacher removed every other beta notice on 14 Oct; decide whether these go too (they also say
-     how to report a wrong mark).
-   - [ ] **Small contrast misses left** (all under 4.5:1 by a little): `.lvl[aria-pressed]` buttons
-     on the planners/builders (white on `#0a9d7f`, 3.4:1), Construction's `.sw-title` (4.2:1),
+   - [ ] **Bring the four stripboard/breadboard pages up to "Plan your own Stripboard
+     Schematic"** (`classes/electronics/stripboard-planner.html`, the standard). Checked in a
+     browser on 14 Oct; the fixes belong in the Mac sources, because each page is built whole
+     from them (engine, banks, app code and the page shell), so an edit made in the repo copy is
+     overwritten at the next build.
+
+     **What is already right on all four.** The three engine modules are byte-identical
+     (`npm run stripboard -- --check` passes). Every model answer passes `SBD.check`; every
+     Trace item's `connected` matches `SBD.sameNet`; every Fault-finder board fails with the
+     fault its first choice names; every Reverse item builds. No page errors, no sideways
+     scroll at 390 px or 1180 px, the small-screen note shows on a phone, keyboard placement
+     (Tab to a part, Enter, arrows on the board, Enter) and tap-tap placement work.
+
+     **Stripboard Builder** (`stripboard-builder.html`, "Learn to Plan a Stripboard Schematic"):
+     - [ ] One-screen rule fails in **Convert**: the circuit diagram takes the right-hand column,
+       so the Components bank starts at 717 px of 760 and runs to 933 px. Put the bank beside
+       the board and the circuit above or in "Enlarge", as the planner does.
+     - [ ] **Test points**: the Check button sits at 760–804 px, just below the screen.
+     - [ ] Version chip says v3.0; the planner is v3.4. Same engine, so bump it or explain.
+     - [ ] No "How to use" guide link (the guide is `plan-only`). Decide whether the Learn page
+       gets its own guide or a link to the planner's.
+
+     **Breadboard Planner** (`breadboard-planner.html`, "Plan your own Breadboard Circuit"),
+     the page that should match the planner most closely:
+     - [ ] `VARIANT.features` is `false`, so **Undo/Redo, Renumber, Print my board, Save to a
+       file, Open a file and Save the picture are all missing**. Set `features: true` for the
+       `bread` variant and check each tool on a breadboard.
+     - [ ] `<body>` has no `v-read` class and the page carries **none of the 76 `v-read`
+       reading-layout rules** the stripboard pages have, so text is smaller and denser. Give it
+       the planner's page shell.
+     - [ ] The intro is the old 600-character paragraph; the planner replaced it with two short
+       sentences (`$("qscenario")` in the `VARIANT.id === "plan"` branch). Do the same for `bread`.
+     - [ ] One-screen rule fails: the board runs to 774 px and Check my layout sits at 882 px.
+     - [ ] No "How to use" guide (there is no breadboard guide). Decide whether to write one.
+     - [ ] Version chip v3.0 (planner v3.4).
+
+     **Breadboard Builder** (`breadboard-builder.html`, "Learn to Plan a Breadboard Schematic"):
+     - [ ] **Wrong words for a breadboard.** The Convert intro (`CONVERT_LEDE`) says "Turn the
+       circuit diagram into a stripboard layout … cut a track"; the task line always adds "cut
+       the tracks that need cutting" (`bits.push(...)` in the task builder); the board label
+       reads "bb-400 · 14 tracks × 30 holes" (every `$("qsrc").textContent = … " tracks × "`).
+       Make all three board-aware (`BB ? … : …`), as the mode cards already are.
+     - [ ] **Two model answers raise a warning**: the reference layouts of `lift-interlock-bb`
+       and `transistor-buzzer-bb` trigger `link-under-body`, so "Show the answer" shows a board
+       the checker warns about. Re-route those links.
+     - [ ] **Much smaller banks than the stripboard builder**: Convert 3 circuits (stripboard 12),
+       Trace 8 (10), Fault-finder 7 (10), Reverse 10 (10). Add circuits if the teacher wants parity.
+     - [ ] No `v-read` reading layout (same as the Breadboard Planner).
+     - [ ] Version chip v1.0.
+
+     **All four**: the Beta panel (`#betaBox`) is hidden because `VARIANT.beta` is `false`, so
+     it can simply be dropped from the shell. The selected-level buttons (`.lvl[aria-pressed]`)
+     are white on `#0a9d7f`, 3.4:1. Still to do by hand: drag-and-drop on a real iPad, and the
+     physics of every circuit (teacher).
+   - [ ] **Small contrast misses left** (all under 4.5:1 by a little): Construction's `.sw-title` (4.2:1),
      N5 Energy's "useful in green" caption (4.46:1), the Logic page's `.lamp` digit (4.25:1).
 5. **Teacher checks still open** (no code needed unless something is wrong): physics and
    wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
