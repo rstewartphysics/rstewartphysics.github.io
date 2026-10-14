@@ -146,6 +146,19 @@ the page title as a real-text `<h1>` + one-line `<p>` (pattern: `classes/s3-engi
 `classes/n5-engineering/checkpoint-revision.html`). The banner carries the page's only `<h1>`. Older
 pages with the photo banner move to it on their next touch.
 
+**Banner colours (`--bb-a` → `--bb-b`), one per level, written down 14 Oct 2026.** White text
+is 5.75:1 or more on every pair.
+
+| Where | `--bb-a` / `--bb-b` | Chip mark accent |
+|-------|---------------------|------------------|
+| Engineering hub, N5 level and topic pages (sheet default) | `#9a5410` / `#b3352e` (N5 hub `#9a5410` / `#9a3412`) | `--eng-ink-accent` |
+| S3 level and topic pages | `#006e74` / `#0a5f57` | `--eng-ink-teal` |
+| Pneumatic component pages, by type | valves `#1F5A99`/`#184778` · cylinders `#5B3A8C`/`#472D6E` · air supply and exhaust `#1D6363`/`#164D4D` · flow and timing `#2B6A2F`/`#215224` | per page |
+
+The chip holds the same sprite mark as that page's hub tile. On a `body.eng-dense` topic page a
+short landscape screen slims the banner to a 76px strip (`engineering-topic.css`), as the
+practical pages do.
+
 ---
 
 ## Navigation drawer
@@ -245,7 +258,7 @@ the quick map; copy exact values from the source.
 | S3 Physics | `#00747c` blue-teal | `#eaf7fa` | teal | `assets/css/s3-physics.css` |
 | Science (S1/S2) | `#16a34a` green | `#eef7ff` | dark | inline per page |
 | Electronics | `#00e6b3` teal-green | `#0b1f1a` (dark page) | `#00e6b3` bg | inline; `color-scheme: dark` |
-| National 5 | `#d74a84` pink | `#d74a84` | `#d74a84` bg / `#2a0a1a` text | inline per page |
+| National 5 | `#d74a84` pink | `#fff0f7` (dark `#1d0b14`) | `#d74a84` bg / `#1a0510` text | `assets/css/national-5-physics.css` |
 | Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | `#0a6fbf` bg, white | `assets/css/higher-physics.css` |
 | Advanced Higher | `#b8860b` gold | `#b8860b` | `#111827` bg, white | `assets/css/adv-higher-physics.css` |
 | Engineering Science | `#f28c28` orange | — | — | `assets/css/engineering-science.css` |
