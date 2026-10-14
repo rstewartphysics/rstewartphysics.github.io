@@ -800,8 +800,8 @@ need retrofitting):**
 were authored from the source booklets, each with a flagship live widget (gear-train, Ohm's-law &
 voltage-divider, cylinder-force, beam-reactions, gate-playground) plus match/builder challenges wired
 to the progress engine, and NoStrainSim/NoPressureSim `.simcard` task cards where the booklet has
-▶ simulate-it tasks. **Every new page carries a `.beta-note` beta-testing banner under the back-link**
-(a deliberate, shared style — remove all of them together when the pages leave beta). The booklet-PDF
+▶ simulate-it tasks. The pages left beta on 14 Oct 2026 and every `.beta-note` banner (and Higher's
+`.wip-notice`) came off together, with their CSS; don't add a new one. The booklet-PDF
 buttons on topics 3/5/6/7 are `cta soon` placeholders until the PDFs land in
 `assets/engineering-science/national-5/<nn-topic>/`. **The build spec for these pages is
 `n5-engineering-pages-outline.md`** (repo root, git-excluded); its §8 is the phased build order.
