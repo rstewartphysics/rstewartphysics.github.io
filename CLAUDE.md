@@ -146,6 +146,19 @@ the page title as a real-text `<h1>` + one-line `<p>` (pattern: `classes/s3-engi
 `classes/n5-engineering/checkpoint-revision.html`). The banner carries the page's only `<h1>`. Older
 pages with the photo banner move to it on their next touch.
 
+**Banner colours (`--bb-a` → `--bb-b`), one per level, written down 14 Oct 2026.** White text
+is 5.75:1 or more on every pair.
+
+| Where | `--bb-a` / `--bb-b` | Chip mark accent |
+|-------|---------------------|------------------|
+| Engineering hub, N5 level and topic pages (sheet default) | `#9a5410` / `#b3352e` (N5 hub `#9a5410` / `#9a3412`) | `--eng-ink-accent` |
+| S3 level and topic pages | `#006e74` / `#0a5f57` | `--eng-ink-teal` |
+| Pneumatic component pages, by type | valves `#1F5A99`/`#184778` · cylinders `#5B3A8C`/`#472D6E` · air supply and exhaust `#1D6363`/`#164D4D` · flow and timing `#2B6A2F`/`#215224` | per page |
+
+The chip holds the same sprite mark as that page's hub tile. On a `body.eng-dense` topic page a
+short landscape screen slims the banner to a 76px strip (`engineering-topic.css`), as the
+practical pages do.
+
 ---
 
 ## Navigation drawer
@@ -801,8 +814,8 @@ need retrofitting):**
 were authored from the source booklets, each with a flagship live widget (gear-train, Ohm's-law &
 voltage-divider, cylinder-force, beam-reactions, gate-playground) plus match/builder challenges wired
 to the progress engine, and NoStrainSim/NoPressureSim `.simcard` task cards where the booklet has
-▶ simulate-it tasks. **Every new page carries a `.beta-note` beta-testing banner under the back-link**
-(a deliberate, shared style — remove all of them together when the pages leave beta). The booklet-PDF
+▶ simulate-it tasks. The pages left beta on 14 Oct 2026 and every `.beta-note` banner (and Higher's
+`.wip-notice`) came off together, with their CSS; don't add a new one. The booklet-PDF
 buttons on topics 3/5/6/7 are `cta soon` placeholders until the PDFs land in
 `assets/engineering-science/national-5/<nn-topic>/`. **The build spec for these pages is
 `n5-engineering-pages-outline.md`** (repo root, git-excluded); its §8 is the phased build order.
