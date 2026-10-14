@@ -242,16 +242,17 @@ the quick map; copy exact values from the source.
 | Subject | Accent | `theme-color` (light) | Skip-link | Token source |
 |---------|--------|-----------------------|-----------|--------------|
 | Home / Physics | `#0aa8b5` teal | `#eaf7fa` | teal | inline per page |
-| S3 Physics | `#00747c` blue-teal | `#eaf7fa` | teal | `assets/css/s3-physics.css` |
+| S3 Physics | `#00747c` blue-teal | `#eaf7fa` (dark `#0d1f1a`) | accent bg / `--on-accent` text | `assets/css/s3-physics.css` |
 | Science (S1/S2) | `#16a34a` green | `#eef7ff` | dark | inline per page |
-| Electronics | `#00e6b3` teal-green | `#0b1f1a` (dark page) | `#00e6b3` bg | inline; `color-scheme: dark` |
-| National 5 | `#d74a84` pink | `#d74a84` | `#d74a84` bg / `#2a0a1a` text | inline per page |
-| Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | `#0a6fbf` bg, white | `assets/css/higher-physics.css` |
-| Advanced Higher | `#b8860b` gold | `#b8860b` | `#111827` bg, white | `assets/css/adv-higher-physics.css` |
-| Engineering Science | `#f28c28` orange | — | — | `assets/css/engineering-science.css` |
+| Electronics | `#0a9d7f` green (dark `#00e6b3`) | `#e8fbf5` (dark `#06140f`) | `#00e6b3` bg / `#022a22` text | `assets/css/electronics.css` |
+| National 5 | `#d74a84` pink | `#fff0f7` (dark `#1d0b14`) | `#d74a84` bg / `#1a0510` text | `assets/css/national-5-physics.css` |
+| Higher | `#0a6fbf` azure | `#eef8ff` (dark `#0a0f1f`) | accent bg / `--on-accent` text | `assets/css/higher-physics.css` |
+| Advanced Higher | `#b8860b` gold (dark `#e8bf55`) | `#f6efdc`, hub `#fff6d6` (dark `#14100a`) | `#111827` bg, white | `assets/css/adv-higher-physics.css` |
+| Engineering Science | `#fd9700` orange | `#fbf6ef` (dark `#15110b`) | orange bg / `#1c1408` text | `assets/css/engineering-science.css` |
 
-- **Electronics** and **Engineering Science** are dark-capable; Engineering Science has full
-  `prefers-color-scheme` dark mode built into its sheet (`--eng-*` tokens).
+- **Every subject follows the device appearance** (light and dark) from its sheet. Engineering
+  Science's dark mode uses its `--eng-*` tokens. Main column is 1100px in every subject (Science
+  1200px).
 - **Higher** topic pages also use these extra tokens from the shared sheet — reuse them, don't
   reinvent: `--accent-2`, `--border-accent`, `--surface-2`, `--font-stack`, and `--warm` (a warm
   accent that needs a brighter value on dark: `#c2410c` light / `#ff9d6e` dark).
