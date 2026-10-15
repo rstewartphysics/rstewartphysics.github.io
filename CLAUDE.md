@@ -167,6 +167,12 @@ these. **Remove this section once every box is ticked.**
    colour-coded build guides (`tools/build-guides/preview/conversion-trainer.html`). Its §8 is the
    Mac checklist: iPad and physics audit, the Block 6 booklet and slides rebuilt to the same
    circuits and figures, then the real pages. `tools/` is excluded from the site build.
+7. **Electronics joined-up audit: tie the simulators, theory and tools together** (cloud session,
+   15 Oct 2026). Read **`tools/audits/electronics-joined-up-audit.md`**: 11 findings (theory pages
+   never link to the Builders, Planners or slides; only three simulators; the 555 page stranded;
+   content gaps such as LED series resistors and E12), the learning path (which simulator and
+   practice tool belongs in each section), a simulator plan and the order of work. Block 6
+   (job 6) comes first. Needs a teacher decision on the hub's course order.
 
 ---
 
