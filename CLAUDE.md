@@ -160,6 +160,13 @@ these. **Remove this section once every box is ticked.**
 5. **Teacher checks still open** (no code needed unless something is wrong): physics and
    wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
    answers; and every simulator on a real iPad in Safari (`npm run sims` lists them all).
+6. **Block 6 (555 timers and op-amp comparator): audit and finish** (cloud session, 15 Oct 2026).
+   Read **`tools/build-guides/README.md`** first: the audit of `555-astable.html`, every decision
+   made with the teacher, the lesson plan (hub + comparator → monostable → astable), the three
+   circuits and their checked layouts, and a working prototype of the chip-first,
+   colour-coded build guides (`tools/build-guides/preview/conversion-trainer.html`). Its §8 is the
+   Mac checklist: iPad and physics audit, the Block 6 booklet and slides rebuilt to the same
+   circuits and figures, then the real pages. `tools/` is excluded from the site build.
 
 ---
 
