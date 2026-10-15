@@ -39,8 +39,8 @@ figure here is drawn; nothing was copied from it.
 | 555 pin 5 | Left unconnected (no 10 nF capacitor). |
 | LED resistors | 270 Ω at 5 V (about 11 mA); 680 Ω for the 9 V comparator. |
 | Comparator sensor | **Thermistor only**, all three tabs and the simulator (no LDR option). |
-| Monostable trigger | **3-pin slide switch** with a 10 kΩ pull-up (R1). Common on pin 2, one outer pin to 0 V, the other outer pin unused (see open questions). |
-| Capacitor symbol | **Two flat plates with a +** on the diagrams (the engine's own `ecap` still draws a curved plate — see §8). |
+| Monostable trigger | **3-pin slide switch**: common on pin 2, outer pins to **+5 V and 0 V**. R1 (10 kΩ) stays as a pull-up so pin 2 never floats while the switch is between positions. |
+| Capacitor symbol | **Two flat plates with a +**, **site-wide**. The guides draw it now; the engine's own `ecap` (Planner, Builder, every `SBD.circuit` diagram) still draws a curved plate and must change in the Mac sources — see §8. |
 | Breadboard | Half board, 400 holes (`bb-400`). |
 | Board rows | Engine letters A–V (the classroom sheet's 22–1 numbering is dropped). |
 | Yenka | Kept alongside the on-page simulator. |
@@ -150,7 +150,7 @@ Nets: 1 +9 V · 2 0 V · 3 V<sub>in</sub> (TH1, VR1 wiper, pin 3) · 4 V<sub>ref
 TP5 V<sub>out</sub> (the booklet's TP1–TP5).
 
 **555 monostable, 5 V** — R2 100 kΩ, C1 100 µF on pins 6/7 (T ≈ 1.1 R2 C1 = 11 s); R1 10 kΩ
-pull-up and SW1 slide switch on pin 2; pin 3 → R3 270 Ω → LED1. Nets: 1 +5 V · 2 0 V ·
+pull-up and SW1 slide switch on pin 2 (outer pins to +5 V and 0 V); pin 3 → R3 270 Ω → LED1. Nets: 1 +5 V · 2 0 V ·
 3 trigger (SW1 common, R1, pin 2) · 4 timing (R2, pins 6 and 7, C1+) · 5 pin 3, R3 · 6 R3, LED1.
 
 **555 astable, 5 V** — R1 1 kΩ, R2 10 kΩ, C1 100 µF (the classroom board's values; f ≈ 0.68 Hz);
@@ -182,10 +182,11 @@ claude.ai artifact takes).
 - [ ] Every generated step text and every spot-the-mistake explanation (`build-trainer.mjs`).
 - [ ] Re-run `check.mjs`, `build-trainer.mjs` and `test-trainer.mjs` after any change.
 
-**Open questions for the teacher**
-- [ ] SW1's spare outer pin: leave it unconnected (as now, R1 holds pin 2 HIGH) or take it to +5 V.
-- [ ] Engine `ecap` symbol: switch the Planner/Builder to flat plates + "+" too, so the site has one
-      capacitor symbol? (Change in the Mac bundle sources; then `npm run stripboard`.)
+**Decided, to do on the Mac**
+- [ ] **One capacitor symbol site-wide** (teacher, 15 Oct): change `ecap()` in the bundle's
+      `sbd-circuit.js` to two flat plates with a "+" beside the positive plate (the guides'
+      `pcap` in `circuits.mjs` is the drawing to match), rebuild the four planner/builder pages,
+      run `npm run stripboard`, then look at every Planner/Builder diagram that has a capacitor.
 
 **Booklet and slides (the wider job)**
 - [ ] Rebuild the Block 6 booklet sources around these three circuits in the new order (comparator,

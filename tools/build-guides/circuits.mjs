@@ -157,14 +157,14 @@ export const monostable = {
     { id: "LED1", footprint: "led-2", name: "LED1", colour: "red" }
   ],
   target: [
-    ["+5V.1", "IC1.8", "IC1.4", "R1.1", "R2.1"],
+    ["+5V.1", "IC1.8", "IC1.4", "R1.1", "R2.1", "SW1.1"],
     ["0V.1", "IC1.1", "C1.-", "LED1.k", "SW1.2"],
     ["SW1.c", "R1.2", "IC1.2"],
     ["R2.2", "IC1.7", "IC1.6", "C1.+"],
     ["IC1.3", "R3.1"],
     ["R3.2", "LED1.a"]
   ],
-  dontcare: ["IC1.5", "SW1.1"],
+  dontcare: ["IC1.5"],
   steps: [
     { key: "chip", title: "The chip",
       circuit: "Start with the chip. Draw the 555 as a box and write each pin number where its wire will meet it. Those numbers are what you convert later.",
@@ -179,9 +179,9 @@ export const monostable = {
       bread: "R2 from the + rail to pin 7's column. A short yellow link joins pin 7 to pin 6. C1's + leg goes in pin 6's column, its − leg in the 0 V rail.",
       strip: "R2 from +5 V to pin 7. The yellow links join pin 7 to pin 6 and bring the timing net down to C1, whose − leg is linked to 0 V." },
     { key: "trigger", title: "The trigger: R1 and the slide switch",
-      circuit: "R1 holds pin 2 HIGH. SW1's middle pin (common) is on pin 2. Sliding SW1 across joins pin 2 to 0 V, which starts the pulse. Slide it back straight away: while pin 2 is held LOW the output stays HIGH.",
-      bread: "A link carries pin 2 to a spare column. SW1 sits along a row with its middle pin in that column and one outer pin in a column linked to 0 V. Its other outer pin is not used. R1 runs from pin 2's column to a column linked to +5 V.",
-      strip: "A link carries pin 2 down to a spare track. SW1 stands across three tracks: middle pin on that track, one outer pin on a track linked to 0 V, the other outer pin on an empty track. R1 runs from +5 V to pin 2's track." },
+      circuit: "SW1's middle pin (common) is on pin 2; its outer pins go to +5 V and 0 V. Slid one way, pin 2 is held at +5 V. Slid the other way, pin 2 goes to 0 V and the pulse starts. Slide it back straight away: while pin 2 is held LOW the output stays HIGH. R1 keeps pin 2 HIGH while the switch is between its two positions.",
+      bread: "A link carries pin 2 to a spare column. SW1 sits along a row with its middle pin in that column and its outer pins in columns linked to +5 V and 0 V. R1 runs from pin 2's column to a column linked to +5 V.",
+      strip: "A link carries pin 2 down to a spare track. SW1 stands across three tracks: middle pin on that track, outer pins on tracks linked to +5 V and 0 V. R1 runs from +5 V to pin 2's track." },
     { key: "output", title: "The LED",
       circuit: "From pin 3, R3 and the LED go down to 0 V. The LED is on while pin 3 is HIGH.",
       bread: "R3 from pin 3's column to the LED; the LED's short leg goes to a column linked to 0 V.",
@@ -208,7 +208,7 @@ export const monostable = {
         L("A30", "M30", "red", 1), L("B29", "N29", "black", 1),
         L("A10", "C10", "red", 2), L("L13", "M13", "red", 2), L("L10", "N10", "black", 2),
         L("F11", "F12", "yellow", 3),
-        L("L14", "M14", "red", 4), L("I7", "I11", "green", 4), L("L8", "N8", "black", 4),
+        L("L14", "M14", "red", 4), L("L6", "M6", "red", 4), L("I7", "I11", "green", 4), L("L8", "N8", "black", 4),
         L("L16", "N16", "black", 5)
       ],
       testpoints: [
@@ -231,7 +231,7 @@ export const monostable = {
       links: [
         L("B1", "V1", "black", 1), L("A8", "I8", "red", 2), L("A17", "F17", "red", 2), L("F10", "V10", "black", 2),
         L("G16", "H16", "yellow", 3), L("H21", "M21", "yellow", 3), L("N24", "V24", "black", 3),
-        L("G9", "P9", "green", 4), L("Q12", "V12", "black", 4),
+        L("G9", "P9", "green", 4), L("A26", "O26", "red", 4), L("Q12", "V12", "black", 4),
         L("L7", "V7", "black", 5)
       ],
       testpoints: [
@@ -265,6 +265,7 @@ export const monostable = {
         C.res(XS, 68, { dir: "v", span: 56, label: "R1", value: "10 kΩ", labelLeft: true }) +
         C.wire([[XS, 96], [XS, 250], [XS + 15, 250]]) + C.node(XS, P["2"][1]) + C.wire([[XS, P["2"][1]], P["2"]]) +
         C.spdt(XS + 26, 250, {}) + C.text(XS + 20, 284, "SW1") +
+        C.wire([[XS + 52, 237], [XS + 52, TOP]], "sbd-pos") + C.node(XS + 52, TOP) +
         C.wire([[XS + 52, 263], [XS + 52, BOT]]) + C.node(XS + 52, BOT),
       C.wire([P["3"], [XO, P["3"][1]], [XO, 190]]) +
         C.res(XO, 214, { dir: "v", span: 48, label: "R3", value: "270 Ω", labelLeft: true }) +
