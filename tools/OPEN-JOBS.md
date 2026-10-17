@@ -45,7 +45,9 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
      any bundle rebuild, or CI's staleness check fails.
 3. **Add a CI step** in `.github/workflows/pages.yml` that regenerates each generated page and
    fails if it differs from the committed copy (same idea as `npm run stripboard -- --check`).
-4. **Left from the 14 Oct theme audit** (need a decision or a Mac-side check):
+4. **DONE 17 Oct** (PR `open-job-4-theme-audit`; Block Diagram Q12 still ~45 px over at the 0.62
+   legibility floor; real-iPad check and the re-routed breadboard answers' physics left to RS).
+   **Left from the 14 Oct theme audit** (need a decision or a Mac-side check):
    - [ ] **Block Diagram Builder, one-screen rule.** At 1180 × 760 the stage ends at 761 px and the
      Check/Reset buttons at 853 px, even at the minimum scale (0.65): the question text above it
      takes 512 px. Options: put the scenario beside the stage, or shorten the task box. Check on a
