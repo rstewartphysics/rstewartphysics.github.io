@@ -179,6 +179,10 @@ claude.ai artifact takes).
 - [ ] Physics and wording of every circuit and step (teacher): the four flags in §3; the
       monostable's "slide it back straight away, while pin 2 is held LOW the output stays HIGH";
       thermistor value and VR1 range for a sensible switching temperature; LED currents.
+- [ ] **Bench test: does the comparator's LED glow when it should be off?** (physics audit,
+      17 Oct). A 741 on a single 9 V supply only pulls its output down to about 1–2 V, close to
+      a red LED's forward voltage. If the LED glows faintly when cold, put a 1N4148 in series with
+      it (and add it to the circuit, layouts and step text here) rather than changing the chip.
 - [ ] Every generated step text and every spot-the-mistake explanation (`build-trainer.mjs`).
 - [ ] Re-run `check.mjs`, `build-trainer.mjs` and `test-trainer.mjs` after any change.
 
