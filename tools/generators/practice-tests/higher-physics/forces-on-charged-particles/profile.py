@@ -99,7 +99,7 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Higher Physics past
 
 def apply(meta):
     """Point the shared builder at Higher, for the test described by `meta`."""
-    P.use(css="/assets/css/higher-physics.css?v=hp-20260828b",
+    P.use(css="/assets/css/higher-physics.css?v=hp-20261014b",
           progress_js="/assets/js/progress/higher-physics.js",
           banner="/assets/higher-physics-banner.jpeg",
           banner_alt="Higher Physics banner",

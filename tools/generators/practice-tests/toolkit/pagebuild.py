@@ -613,9 +613,6 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 .split { font-size: .86rem; color: var(--muted); font-weight: 800; text-align: center; line-height: 1.6; }
 .split b { color: var(--text); }
 
-.beta-note { margin: 1rem auto 0; max-width: 860px; border: 1px solid var(--border-accent);
-  border-left: 4px solid var(--pt-accent); border-radius: 12px; background: var(--surface-2);
-  padding: .6rem .85rem; font-size: .86rem; font-weight: 800; color: var(--text); }
 [data-credit-note] { max-width: 860px; margin: 1.5rem auto 0; }
 
 @media (max-width: 700px) {
@@ -629,8 +626,8 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 
 @media print {
   @page { size: A4; margin: 12.7mm; }
-  .banner-wrap, .subnav-wrap, .skip-link, footer,
-  .begin, .finish-wrap, .peek, .reset, .back-to-s3, .backlink, .beta-note,
+  .banner-wrap, .subnav-wrap, footer,
+  .begin, .finish-wrap, .peek, .reset, .back-to-s3, .backlink,
   .cover-note,
   .site-menu-button, .site-menu-drawer, .site-menu-overlay,
   .prog-counter, .prog-toast, .prog-dialog, .prog-dialog-overlay { display: none !important; }
@@ -1081,7 +1078,7 @@ COLOUR_SHEET = """
 # The N5/S3 Electricity 1 profile — the defaults, because it is what the pilot
 # was built against.  A Higher test calls `use(...)` to swap the parts it needs.
 PROFILE = {
-    "css": "/assets/css/s3-physics.css?v=s3-20260828a",
+    "css": "/assets/css/s3-physics.css?v=s3-20261014c",
     "progress_js": "/assets/js/progress/s3-physics.js",
     "banner": "/assets/s3-physics-banner.jpeg",
     "banner_alt": "S3 Physics banner",
@@ -1111,10 +1108,12 @@ PROFILE = {
                    "page asks only for the relationship you used and your final answer "
                    "with its unit."),
     "extra_css": "",
+    # the drawn banner, as {"style": …, "icon": …, "icon_style": …, "sub": …}; None = the photo
+    "band": None,
     "sections": SECTIONS,                 # [(key, name, blurb), …] — split follows this order
     "powers_note": True,
     "example": None,                      # answer-box placeholder; None = a power-of-ten example                  # the cover's "powers of ten" typing note
-    "paper_note": ("✏️ Working goes in your jotter. On this page you give the relationship "
+    "paper_note": ("Working goes in your jotter. On this page you give the relationship "
                    "and the final answer only — the mark scheme at the end shows the "
                    "substitution you should have written down."),
     "self_prompt": "Check the working in your jotter against the scheme above",
@@ -1242,6 +1241,25 @@ def page(meta, qs, d, dia, data):
             .replace("__EXPLAIN__", "%s or %s" % (example_number(d)[0],
                                                   example_number(d)[1])))
 
+    title = "%s · %s" % (meta["topic"], meta["short"])
+    band = PROFILE["band"]
+    if band:
+        # the drawn banner carries the page's only <h1>
+        css = CSS.replace("  .banner-wrap, .subnav-wrap, footer,", "  .band-banner, .subnav-wrap, footer,")
+        banner_html = ('<header class="band-banner" style="%s">\n'
+                       '  <span class="bb-chip" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false" '
+                       'style="%s"><use href="#%s"/></svg></span>\n'
+                       '  <div>\n    <h1>%s</h1>\n    <p>%s</p>\n  </div>\n</header>'
+                       % (band["style"], band["icon_style"], band["icon"], title, band["sub"]))
+        icons, hidden_h1 = "\n  {% include resource-icons.html %}", ""
+    else:
+        css = CSS
+        banner_html = ('<div class="banner-wrap">\n'
+                       '  <img src="%s" alt="%s" class="banner" loading="eager">\n'
+                       '  <div class="banner-tint"></div>\n'
+                       '  <div class="banner-overlay-text">\n    <h1>%s</h1>\n  </div>\n</div>'
+                       % (PROFILE["banner"], PROFILE["banner_alt"], title))
+        icons, hidden_h1 = "", '<h1 class="visually-hidden">%s</h1>\n' % meta["title"]
     return """---
 layout: none
 ---
@@ -1269,26 +1287,16 @@ layout: none
 </style>
 </head>
 <body>
-  <a class="skip-link" href="#mainContent">Skip to content</a>
 
-  {%% include site-menu.html %%}
+  {%% include site-menu.html %%}%(icons)s
 
-<div class="banner-wrap">
-  <img src="%(banner)s" alt="%(banneralt)s" class="banner" loading="eager">
-  <div class="banner-tint"></div>
-  <div class="banner-overlay-text">
-    <h1>%(topic)s · %(short)s</h1>
-  </div>
-</div>
+%(banner_html)s
 
 %(subnav)s
 
 <main class="page-wrap" id="mainContent">
-<h1 class="visually-hidden">%(title)s</h1>
-
+%(hidden_h1)s
 <a href="%(backhref)s" class="%(backclass)s">%(backlabel)s</a>
-
-<p class="beta-note">New page — if anything looks wrong or a mark scheme disagrees with your working, tell Mr Stewart.</p>
 
 %(cover)s
 
@@ -1314,12 +1322,12 @@ layout: none
 </body>
 </html>
 """ % {"title": meta["title"], "topic": meta["topic"], "short": meta["short"],
-       "css": CSS, "subnav": subnav(meta["slug"]), "cover": cover, "secs": "".join(secs),
+       "css": css, "subnav": subnav(meta["slug"]), "cover": cover, "secs": "".join(secs),
        "score": score, "data": data, "js": js,
        "tlight": PROFILE["theme_light"], "tdark": PROFILE["theme_dark"],
        "progressjs": PROFILE["progress_js"], "sitecss": PROFILE["css"],
        "builder": PROFILE["builder"], "extracss": PROFILE["extra_css"],
-       "banner": PROFILE["banner"], "banneralt": PROFILE["banner_alt"],
+       "banner_html": banner_html, "icons": icons, "hidden_h1": hidden_h1,
        "backhref": PROFILE["back_href"], "backclass": PROFILE["back_class"],
        "backlabel": PROFILE["back_label"], "credit": PROFILE["credit"],
        "papernote": PROFILE["paper_note"]}
@@ -1365,7 +1373,8 @@ def check(html, meta, qs, d, values):
         if ('id="%s"' % ident) not in html:
             errs.append("JS references missing id #%s" % ident)
 
-    ALLOWED_INCLUDES = ("site-menu.html", "site-footer.html", "site-head-icons.html")
+    ALLOWED_INCLUDES = ("site-menu.html", "site-footer.html", "site-head-icons.html",
+                        "resource-icons.html")
     liquid = [m for m in re.findall(r"\{\{.*?\}\}|\{%.*?%\}", html)
               if not any(("include " + i) in m for i in ALLOWED_INCLUDES)]
     if liquid:

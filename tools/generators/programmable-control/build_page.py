@@ -155,14 +155,14 @@ title: Programmable Control — National 5 Engineering Science
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/eng-n5.js" defer></script>
-  <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261007">
-  <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20260828b">
+  <link rel="stylesheet" href="/assets/css/engineering-science.css?v=eng-20261014c">
+  <link rel="stylesheet" href="/assets/css/engineering-topic.css?v=engt-20261014a">
   <link rel="stylesheet" href="/assets/css/reading.css">
   <style>{CSS}  </style>
 </head>
 <body class="reading">
-  <a class="skip-link" href="#mainContent">Skip to content</a>
   {{% include site-menu.html %}}
+  {{% include resource-icons.html %}}
   {{% include eng-icons.html %}}
 
   <header class="band-banner">
@@ -183,11 +183,6 @@ title: Programmable Control — National 5 Engineering Science
 
   <main class="container" id="mainContent">
     <a class="backlink" href="/classes/n5-engineering-science.html">← Back to N5 Engineering Science</a>
-
-    <div class="beta-note" role="note">
-      <span class="beta-tag">Beta</span>
-      <span>This page is new and still in <strong>beta testing</strong> — the content is being checked and may change. Spotted a mistake or something that doesn't work? Please tell Mr&nbsp;Stewart.</span>
-    </div>
 
     <div class="panel-pair">
       <section class="panel" id="about" aria-labelledby="about-title">
