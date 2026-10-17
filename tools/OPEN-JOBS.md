@@ -3,7 +3,7 @@
 Some pages are built by scripts that live only on the Mac, so a cloud session could not finish
 these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is ticked.**
 
-0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh` (done 17 Oct; settings allow-list added 17 Oct; Claude now opens PRs, RS merges), then `gh auth login`
+0. **DONE 17 Oct** (gh logged in, PR #202 opened by Claude). **Let Claude open PRs from the Mac terminal** (once): `brew install gh` (done 17 Oct; settings allow-list added 17 Oct; Claude now opens PRs, RS merges), then `gh auth login`
    (GitHub.com → HTTPS → log in with a browser) and `gh auth setup-git`. In `~/.claude/settings.json`
    allow the PR commands so they don't prompt each time:
    `"permissions": { "allow": ["Bash(gh pr create:*)", "Bash(gh pr view:*)", "Bash(gh pr checks:*)",
