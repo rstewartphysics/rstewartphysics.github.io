@@ -3,7 +3,7 @@
 Some pages are built by scripts that live only on the Mac, so a cloud session could not finish
 these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is ticked.**
 
-0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh` (done 17 Oct), then `gh auth login`
+0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh` (done 17 Oct; settings allow-list added 17 Oct; Claude now opens PRs, RS merges), then `gh auth login`
    (GitHub.com → HTTPS → log in with a browser) and `gh auth setup-git`. In `~/.claude/settings.json`
    allow the PR commands so they don't prompt each time:
    `"permissions": { "allow": ["Bash(gh pr create:*)", "Bash(gh pr view:*)", "Bash(gh pr checks:*)",
@@ -50,6 +50,7 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
      Check/Reset buttons at 853 px, even at the minimum scale (0.65): the question text above it
      takes 512 px. Options: put the scenario beside the stage, or shorten the task box. Check on a
      real iPad held sideways.
+     **Decided 17 Oct: put the scenario beside the stage** (left column).
    - [ ] **Bring the four stripboard/breadboard pages up to "Plan your own Stripboard
      Schematic"** (`classes/electronics/stripboard-planner.html`, the standard). Checked in a
      browser on 14 Oct; the fixes belong in the Mac sources, because each page is built whole
@@ -71,6 +72,7 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
      - [ ] Version chip says v3.0; the planner is v3.4. Same engine, so bump it or explain.
      - [ ] No "How to use" guide link (the guide is `plan-only`). Decide whether the Learn page
        gets its own guide or a link to the planner's.
+       **Decided 17 Oct: link the planner's guide** from all four pages; no new guide.
 
      **Breadboard Planner** (`breadboard-planner.html`, "Plan your own Breadboard Circuit"),
      the page that should match the planner most closely:
@@ -84,6 +86,7 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
        sentences (`$("qscenario")` in the `VARIANT.id === "plan"` branch). Do the same for `bread`.
      - [ ] One-screen rule fails: the board runs to 774 px and Check my layout sits at 882 px.
      - [ ] No "How to use" guide (there is no breadboard guide). Decide whether to write one.
+       **Decided 17 Oct: link the planner's guide**; no breadboard guide.
      - [ ] Version chip v3.0 (planner v3.4).
 
      **Breadboard Builder** (`breadboard-builder.html`, "Learn to Plan a Breadboard Schematic"):
@@ -97,6 +100,7 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
        the checker warns about. Re-route those links.
      - [ ] **Much smaller banks than the stripboard builder**: Convert 3 circuits (stripboard 12),
        Trace 8 (10), Fault-finder 7 (10), Reverse 10 (10). Add circuits if the teacher wants parity.
+       **Decided 17 Oct: leave for now** — a later job.
      - [ ] No `v-read` reading layout (same as the Breadboard Planner).
      - [ ] Version chip v1.0.
 
