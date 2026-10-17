@@ -28,7 +28,7 @@ scripts, real Safari and the teacher's OneDrive. Pick the place before starting.
 | Site-wide sweeps: CSS, markup, contrast, nav, includes, search, removing old notices | Cloud | Everything needed is in the repo; it can screenshot every page in both appearances |
 | Audits and plans written as repo docs (`tools/audits/`, `tools/build-guides/`) | Cloud | Reading and writing only; no Mac files needed |
 | Edits to hand-built pages (no generator) | Either | Same result; use whichever session is open |
-| **Generated pages** (practice tests, graphing, question bank, Programmable Control, pneumatic components, the four stripboard/breadboard pages) | **Mac** | The generator lives on the Mac; a hand edit in the repo is overwritten at the next run |
+| **Generated pages** (practice tests, graphing, question bank, Programmable Control, pneumatic components, the four stripboard/breadboard pages) | **Mac** | The generators are in `tools/generators/` (README there), but some steps read Mac-only inputs; pneumatic components' generator is still on the Mac. A hand edit to the page is overwritten at the next run |
 | Anything needing SQA figures, past papers or MIs | Mac | The source papers and figure library are not in the repo |
 | Decks, booklets, tests, posters, then publishing their PDFs | Mac | The deck kit, OneDrive and LibreOffice are on the Mac |
 | New topic pages and rebuilds (dual coding, dyslexia audit) | Mac | Needs the image library and the audit scripts |
@@ -919,8 +919,7 @@ buttons on topics 3/5/6/7 are `cta soon` placeholders until the PDFs land in
 **Unit 1 Question Bank** (`classes/n5-engineering/unit-1-question-bank.html`, linked from the hub's
 `#unit1` card): a 236-question random MCQ generator covering Topics 1–2, one question at a time with
 immediate right/wrong marking. It is **generated**, not hand-edited — the source bank and build script
-live in `~/claude-work/n5-eng-mcq-bank/` (`bank_src.md` + `build_all.py`, which writes this page
-directly into the repo). Edit the source and re-run the script; do not edit the page's embedded JSON.
+live in `tools/generators/mcq-bank/` (`bank_src.md` + `build_all.py`, which writes this page). Edit the source and re-run the script; do not edit the page's embedded JSON.
 localStorage prefix `n5q1-`. No progress badge is wired to it.
 
 A sibling **`s3-engineering-pages-outline.md`** specs the S3 Engineering pages — that job is **not yet

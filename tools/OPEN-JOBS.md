@@ -9,7 +9,12 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
    `"permissions": { "allow": ["Bash(gh pr create:*)", "Bash(gh pr view:*)", "Bash(gh pr checks:*)",
    "Bash(gh pr list:*)", "Bash(gh run view:*)", "Bash(git push -u origin:*)"] }`.
    Check with `gh auth status`. Then ask Claude to "open a PR" and it runs `gh pr create` itself.
-1. **Move the generator scripts into this repo** under `tools/generators/` (RS decision, 14 Oct):
+1. **DONE 17 Oct** (branch `open-job-1-generators`; see `tools/generators/README.md`. Every
+   generator re-run from the repo gives byte-for-byte the same page as from its old folder.
+   Not moved, not on this list: the pneumatic components generator,
+   `~/claude-work/pneumatics-posters/web.py`. For job 2: the live practice-test pages predate
+   some toolkit JS changes, so a re-run brings those in as well as the 14 Oct edits.)
+   **Move the generator scripts into this repo** under `tools/generators/` (RS decision, 14 Oct):
    `~/claude-work/n5-engineering/b4b/web/build_page.py`, the practice-test and graphing
    generators, `~/claude-work/n5-eng-mcq-bank/` (`bank_src.md` + `build_all.py`) and the
    Stripboard/Breadboard Planner bundle sources (`sbd-engine.js`, `sbd-render.js`,
