@@ -115,6 +115,12 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
 5. **Teacher checks still open** (no code needed unless something is wrong): physics and
    wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
    answers; and every simulator on a real iPad in Safari (`npm run sims` lists them all).
+   - [x] **Physics audit done 17 Oct** (Mac session): every cloud edit since 12 Oct, plus Higher
+     Semiconductors. No physics errors. Fixed in PR `physics-audit-fixes`: two quiz/predict
+     feedback slips (Higher current/p.d.), one capacitor feedback line, the N5 hub's "substitution
+     with units", and the thermistor presets in the transistor-switch simulator (both arms now
+     switch at about 25 °C). 555 LED currents are about 8 mA (red) and 10 mA (green), safe.
+   - [ ] Every simulator on a real iPad in Safari (teacher).
 6. **Block 6 (555 timers and op-amp comparator): audit and finish** (cloud session, 15 Oct 2026).
    Read **`tools/build-guides/README.md`** first: the audit of `555-astable.html`, every decision
    made with the teacher, the lesson plan (hub + comparator → monostable → astable), the three

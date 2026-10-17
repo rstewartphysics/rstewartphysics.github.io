@@ -115,7 +115,7 @@
     var K = WidgetKit, svg = $("ts-svg"), arms = svg.querySelector(".arms"), dyn = svg.querySelector(".dyn");
     var VS = 5, VON = 0.7;
     /* R values that put the switch-on point mid-way along the slider */
-    var PRESET = { "ldr-lower": 33, "ldr-upper": 1, "ther-lower": 150, "ther-upper": 1 };
+    var PRESET = { "ldr-lower": 33, "ldr-upper": 1, "ther-lower": 62, "ther-upper": 1.6 };
     var envR = root.querySelector('input[type="range"][data-sim="env"]');
     var envN = root.querySelector('input[type="number"][data-sim="env"]');
     var envName = $("ts-env-name");
