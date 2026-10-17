@@ -223,6 +223,17 @@
     "mosfet-3": { pins: [{ pin: "g", dr: 0, dc: 0 }, { pin: "d", dr: 0, dc: 1 },
                          { pin: "s", dr: 0, dc: 2 }],
                  body: [], symmetric: false, kind: "inline3", sym: "to220" },
+    /* N5 Eng 4b L4 (8 Oct 2026; no kit photos, so the common parts — teacher's
+       call).  A round piezo buzzer: legs 0.3 in apart, + marked on the top. */
+    "buzzer-2": { pins: [{ pin: "+", dr: 0, dc: 0 }, { pin: "-", dr: 0, dc: 3 }],
+                  body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }], symmetric: false,
+                  polarised: ["+", "-"], kind: "axial", sym: "buzzer" },
+    /* A 6 mm four-leg tactile push button straddling the centre channel, legs
+       0.2 in apart along the row.  The legs facing each other across the
+       channel are joined inside, so pressing it joins column c to column c + 2. */
+    "button-4": { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 2 },
+                         { pin: "3", dr: 1, dc: 0 }, { pin: "4", dr: 1, dc: 2 }],
+                  body: [], symmetric: false, kind: "button", straddle: true, fixedRot: true },
     "term-1":  { pins: [{ pin: "1", dr: 0, dc: 0 }], body: [],
                  symmetric: false, kind: "terminal" },
     "term-2":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 2 }],
@@ -1557,7 +1568,8 @@
   const BODY_DEFAULT = {
     axial: "brown", res: "brown", ther: "brown", led: "red", ldr: "yellow",
     cap: "orange", ecap: "blue", diode: "black",
-    pot: "blue", to220: "black", spdt: "grey", can: "grey", to92: "black"
+    pot: "blue", to220: "black", spdt: "grey", can: "grey", to92: "black",
+    buzzer: "black", button: "black"
   };
   // which parts a pupil may recolour — everything with a body, chips and
   // terminals excepted (a terminal's colour is its WIRE's colour, set already)
@@ -1786,6 +1798,19 @@
       s += `<path class="sbd-bline" d="M ${pts.map(z => n(z[0]) + " " + n(z[1])).join(" L ")}"/>`;
       return s;
     }
+    if (fp.sym === "buzzer") {
+      // a round piezo buzzer: a black disc over both legs, + beside the + leg,
+      // the sound hole in the middle
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2, rr = P * 1.05;
+      const plus = cells.pins.find(z => z.pin === "+").hole;
+      s += `<circle class="sbd-body" cx="${n(cx)}" cy="${n(cy)}" r="${n(rr)}"/>`;
+      s += `<circle class="sbd-bline" cx="${n(cx)}" cy="${n(cy)}" r="${n(P * 0.22)}"/>`;
+      const ux = X(plus.c) - cx, uy = Y(plus.r) - cy;
+      const m = Math.sqrt(ux * ux + uy * uy) || 1;
+      s += `<text class="sbd-pmark" x="${n(cx + (ux / m) * rr * 0.55)}" ` +
+           `y="${n(cy + (uy / m) * rr * 0.55 + 4)}" text-anchor="middle">+</text>`;
+      return s;
+    }
     if (fp.sym === "cap") {
       // a radial capacitor: a plain disc sitting over its two legs
       const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
@@ -1911,6 +1936,22 @@
       const dy = vertical ? 3 : (py < cy ? 12 : -6);
       s += `<text class="sbd-pn" x="${n(px + dx)}" y="${n(py + dy)}" text-anchor="middle">${z.pin}</text>`;
     }
+    return s;
+  }
+
+  /* The tactile push button: a square black body over its four legs (they sit
+     either side of the channel) with the round grey plunger in the middle. */
+  function drawButton(p, fp, cells) {
+    const xs = cells.pins.map(z => X(z.hole.c)), ys = cells.pins.map(z => Y(z.hole.r));
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const pad = P * 0.30, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    let s = "";
+    for (const z of cells.pins)
+      s += `<line class="sbd-lead" x1="${n(X(z.hole.c))}" y1="${n(Y(z.hole.r))}" ` +
+           `x2="${n(X(z.hole.c))}" y2="${n(Y(z.hole.r) < cy ? y0 + pad : y1 - pad)}"/>`;
+    s += `<rect class="sbd-body" x="${n(x0 - pad * 0.4)}" y="${n(y0 + pad)}" ` +
+         `width="${n(x1 - x0 + pad * 0.8)}" height="${n(y1 - y0 - 2 * pad)}" rx="3"/>`;
+    s += `<circle class="sbd-mark" cx="${n(cx)}" cy="${n(cy)}" r="${n(P * 0.62)}"/>`;
     return s;
   }
 
@@ -2190,6 +2231,7 @@
                      fp.kind === "dil" ? drawDil(withLabel, fp, cells)
                    : fp.kind === "terminal" ? drawTerminal(withLabel, fp, cells)
                    : fp.kind === "can" ? drawCan(withLabel, fp, cells)
+                   : fp.kind === "button" ? drawButton(withLabel, fp, cells)
                    : (fp.kind === "to92" || fp.kind === "inline3") ? drawTo92(withLabel, fp, cells)
                    : drawAxial(withLabel, fp, cells), withLabel, fp);
 

@@ -73,12 +73,6 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     .vertable td:first-child{font-weight:800;white-space:nowrap;color:var(--accent-2)}
     .vertable td:nth-child(2){white-space:nowrap;color:var(--muted)}
     .vertable tr:last-child td{border-bottom:0}
-    .beta{border-left:5px solid var(--warm)}
-    .beta h2{color:var(--warm)}
-    .beta .lead.beta-short{display:none}
-    .beta .beta-tag{display:inline-block;font-size:.7rem;font-weight:900;letter-spacing:.08em;
-      text-transform:uppercase;color:#fff;background:var(--warm);border-radius:999px;
-      padding:2px 9px;vertical-align:middle;margin-left:.4rem}
 
     /* a tool page needs its vertical space: slim banner, title in the page, no sub-nav */
     .banner-wrap.is-tool{aspect-ratio:auto;height:118px}
@@ -133,6 +127,8 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     #sbd .qtitle{margin:0;font-size:1.06rem}
     #sbd .qsrc{font-size:.76rem;color:var(--muted);border:1px solid var(--border-soft);
       background:var(--surface-2);padding:3px 9px;border-radius:999px;white-space:nowrap}
+    /* the breadboard's label is long (“30 columns, rows a–j plus four power rails”): on a phone it wraps */
+    @media (max-width:560px){#sbd .qsrc{white-space:normal;border-radius:12px}}
     #sbd .scenario{margin:8px 0 0;line-height:1.5;font-size:.9rem}
     #sbd .scenario p{margin:0 0 5px}
 
@@ -142,9 +138,36 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
        not room for a 24-track board AND a schematic side by side, so the
        schematic is the compact strip above the board that PLAN.md §10 names as
        the mitigation, and the bank keeps the right-hand column. */
-    #sbd .workarea{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:14px;
-      align-items:stretch;margin-top:10px}
+    #sbd .workarea{display:grid;grid-template-columns:minmax(0,1fr) 268px;column-gap:14px;
+      align-items:stretch}
+    #sbd .workarea>.qhead,#sbd .workarea>.scenario{grid-column:1/-1}
+    #sbd .workarea>.diagcol,#sbd .workarea>.bankcol{margin-top:10px}
     #sbd .diagcol{min-width:0}
+    /* Marked modes on a wide screen (OPEN-JOBS job 4, 17 Oct 2026): the side
+       column starts level with the question title, not with the board, so the
+       circuit and the parts list sit beside the question and the board and
+       neither is pushed below the screen.  Free build keeps the planner's layout. */
+    @media (min-width:821px){
+      #sbd:not([data-mode="free"]) .workarea{grid-template-rows:auto auto 1fr;align-content:start}
+      #sbd:not([data-mode="free"]) .workarea>.qhead,#sbd:not([data-mode="free"]) .workarea>.scenario,
+      #sbd:not([data-mode="free"]) .workarea>.diagcol{grid-column:1}
+      /* sticky: a long brief pushes the board down, and the circuit and parts
+         must still be beside it once the pupil scrolls to the tools */
+      #sbd:not([data-mode="free"]) .workarea>.bankcol{grid-column:2;grid-row:1/span 3;align-self:start;
+        margin-top:0;position:sticky;top:8px}
+      /* Test points: every part is already on the board, so the struck-out parts
+         list goes and the task sits beside the board instead */
+      #sbd[data-mode="points"] .workarea>.scenario{grid-column:2;grid-row:1/span 3}
+      #sbd[data-mode="points"] .workarea>.bankcol{display:none}
+    }
+    /* Convert on a short wide screen (RS, 17 Oct 2026): the circuit shows small,
+       with Enlarge on its corner and its caption in the enlarged view, so the
+       parts list below it always shows at least two rows. */
+    @media (min-width:821px) and (max-height:900px){
+      #sbd[data-mode="convert"] .circhead{position:absolute;top:4px;right:4px;z-index:1;margin:0}
+      #sbd[data-mode="convert"] .circhead>span,#sbd[data-mode="convert"] .circkey{display:none}
+      #sbd[data-mode="convert"] .circwrap{min-height:52px}
+    }
     #sbd .circwrap{position:relative;border:1px solid var(--border-soft);border-radius:12px;
       background:var(--card);padding:6px 8px 4px;overflow:hidden;flex:0 0 auto}
     #sbd .circwrap .cinner{transform-origin:top left}
@@ -299,7 +322,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     #sbd .lvl{min-width:44px;min-height:44px;padding:0 7px;border-radius:999px;
       border:1.5px solid var(--border);background:var(--card);cursor:pointer;
       font:800 .8rem/1 var(--font-stack);color:var(--text)}
-    #sbd .lvl[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+    #sbd .lvl[aria-pressed="true"]{background:#007a61;border-color:#007a61;color:#fff}
     /* A tap has no hover, so on an iPad the on-board ghost never appears before
        the drop — a pupil has no way of knowing a 14-pin DIL covers 28 holes
        until it is already there.  So the selected tile opens out into the
@@ -560,6 +583,132 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       padding:0 18px;border-radius:11px;font:700 .86rem/1 var(--font-stack,inherit);cursor:pointer}
     .sbd-modal .btn:focus-visible{outline:3px solid var(--accent,#0b6b4f);outline-offset:2px}
 
+    /* ---- the dyslexia standard (D2-D6, N4): planner 25 Sep, Learn page 29 Sep 2026 ----
+       build.py keeps this block for the `reading` variants and drops it from
+       the breadboard pair, so their bytes do not change.  Board
+       and tool-button text keep their sizes on purpose: the tools are exempt
+       from D2/D3 and the board has to fit the screen. */
+    body.v-read{
+      background:
+        radial-gradient(900px 520px at 12% 0%, var(--glow-1), transparent 62%),
+        radial-gradient(900px 520px at 88% 6%, var(--glow-2), transparent 58%),
+        linear-gradient(180deg, var(--bg0), var(--bg1))}
+    @media (prefers-color-scheme: light){
+      body.v-read #sbd{--warn:#8a560c}
+      body.v-read{--bg2:#f6fcf9;--card:#f6fcf9;--glass:rgba(246,252,249,.9);--tile-bg:rgba(246,252,249,.92);
+        --label-bg:rgba(246,252,249,.88);--overlay-bg:rgba(246,252,249,.82);
+        --subnav-bg:rgba(246,252,249,.78);--summary-bg:rgba(246,252,249,.70);
+        --footer-bg:rgba(246,252,249,.80)}
+    }
+    body.v-read .backlink,body.v-read .prog-meter-lab,body.v-read .prog-meter-num,
+    body.v-read #sbd .lede,body.v-read #sbd .smallscreen,body.v-read #sbd .panhint,body.v-read #sbd .modedesc,
+    body.v-read #sbd .stagebar,body.v-read .lead,body.v-read #sbd .qsrc,body.v-read #sbd .hint,body.v-read #sbd .netempty,
+    body.v-read #sbd .dslink,body.v-read .vertable td,body.v-read .vertable th,
+    body.v-read #sbd .scenario,body.v-read #sbd .scenario p,body.v-read #sbd .lcrule{
+      font-size:1.125rem;line-height:1.5}
+    body.v-read #sbd .netempty,body.v-read #sbd .lede,body.v-read .lead,body.v-read #sbd .tptablewrap .hint{max-width:52ch}
+    /* a long fault reads as one line across the panel without this (D4; OPEN-JOBS job 4) */
+    body.v-read #sbd .flist{max-width:52ch}
+    body.v-read #sbd .netrow *,body.v-read #sbd .feedback,body.v-read #sbd .feedback *,
+    body.v-read #sbd .tptablewrap .hint,body.v-read #sbd .tptable td,body.v-read #sbd .tptable th{
+      font-size:1.125rem;line-height:1.5}
+    body.v-read #sbd .netlist{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+    body.v-read #sbd .netrow .nline{flex-wrap:wrap;row-gap:0}
+    /* the list scrolls inside a fixed height so a busy board cannot push Check off the screen */
+    body.v-read #sbd .netlist{max-height:200px}
+    body.v-read #sbd .nethead{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:14px}
+    body.v-read #sbd .nethead .hint{display:inline;margin-top:0}
+    body.v-read #sbd .netlist>li:has(.netempty){grid-column:1/-1}
+    body.v-read #sbd .qsrc{padding:0 10px}
+    /* the how-to, a real button beside the planner's intro (RS, 29 Sep 2026) */
+    body.v-read .ledepair{display:grid;gap:14px 32px;align-items:center;margin-bottom:14px}
+    body.v-read .ledepair .lede{margin:0}
+    /* the how-to comes first, to the left of the intro (RS, 29 Sep 2026) */
+    body.v-read .ledepair .helplink{order:-1}
+    body.v-read .helplink{display:flex;align-items:center;gap:14px;min-height:44px;padding:12px 16px;
+      border:2px solid var(--accent-2);border-radius:14px;background:var(--card);
+      color:var(--text);text-decoration:none;font-size:1.125rem;line-height:1.5}
+    body.v-read .helplink:hover,body.v-read .helplink:focus-visible{background:var(--ok-bg)}
+    /* the hub's own mark for the planner guide, so the same thing looks the same everywhere */
+    body.v-read .helplink .hl-ic{flex:0 0 auto;width:40px;height:40px}
+    body.v-read .helplink .hl-txt{display:flex;flex-direction:column;gap:2px}
+    body.v-read .helplink strong{font-weight:800;color:var(--accent-2)}
+    body.v-read .helplink .hl-sub{color:var(--muted)}
+    body.v-read .helplink[hidden]{display:none}
+    body.v-read .titlerow .hl-compact{display:none}
+    /* outside the planner's intro pair the full button stands on its own line */
+    body.v-read #sbd>.hl-full{width:fit-content;margin:0 0 14px}
+    /* every wide screen, not just a short one: the title-line button and no intro
+       read clearer with less text (RS, 29 Sep 2026) */
+    @media (min-width:821px){
+      body.v-read .titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:.3rem}
+      body.v-read .titlerow .backlink,body.v-read .titlerow .page-title{margin:0}
+      body.v-read .ledepair,body.v-read .hl-full{display:none}
+      body.v-read .titlerow .hl-compact:not([hidden]){display:inline-flex;align-self:center;gap:8px;padding:2px 14px 2px 8px;
+        border-radius:22px}
+      body.v-read .hl-compact .hl-ic{width:30px;height:30px}
+    }
+    @media (min-width:821px){
+      body.v-read #sbd .toolgrid{gap:5px}
+      body.v-read #sbd .tool{padding:7px 9px;gap:5px}
+    }
+    body.v-read #sbd .bankhead{flex-wrap:wrap}
+    /* One type scale (RS, 26 Sep 2026): 24 title, 20 panel headings, 18 reading text and part
+       names, 16 controls and part descriptions, 14 part codes. The spacing is the font's own
+       (learning-standard decision 65). "What is joined to what" is demoted to 16 text under an
+       18 heading so it sits under the board rather than dominating it — RS's written D2
+       override, recorded in ~/claude-work/electronics-hub-dyslexia/STATE.md. */
+    body.v-read .page-title{font-size:1.5rem;line-height:1.3}
+    body.v-read #sbd .qtitle,body.v-read #sbd .bankhead h3{font-size:1.25rem;line-height:1.3;font-weight:900}
+    body.v-read #sbd .nethead h3{font-size:1.125rem;line-height:1.3;font-weight:900}
+    body.v-read #sbd .nethead .hint,body.v-read #sbd .netrow,
+    body.v-read #sbd .netrow *{font-size:1rem}
+    body.v-read #sbd .part{font-size:1.125rem;line-height:1.3;font-weight:800;padding:8px 10px}
+    body.v-read #sbd .part .sub,body.v-read #sbd .part .tspan{font-size:1rem;line-height:1.35}
+    body.v-read #sbd .part .nid{font-size:.875rem}
+    body.v-read #sbd .tool,body.v-read #sbd .btn,body.v-read #sbd .bp,body.v-read #sbd .boardpick .bplab{font-size:1rem}
+    body.v-read #sbd .tool .k{font-size:1.1rem}
+    body.v-read #sbd .bankhead .hint,body.v-read #sbd .bankempty{font-size:1.125rem}
+    body.v-read #sbd .bankhead .hint{flex-basis:100%}
+    @media (min-width:821px){body.v-read #sbd .workarea,
+      body.v-read #sbd:not([data-mode="free"]) .workarea{grid-template-columns:minmax(0,1fr) 300px}}
+    body.v-read .vertable{width:auto}
+    body.v-read .vertable td:nth-child(3){width:36rem;max-width:100%}
+    @media (max-width:700px){body.v-read .vertable td:nth-child(3){width:auto}}
+    body.v-read #sbd .dslink{color:var(--accent-2)}
+    body.v-read #sbd .part .nid,body.v-read .verchip,body.v-read .vertable td:first-child,
+    body.v-read .verlog>summary{color:var(--accent-2)}
+    body.v-read .verchip{border-color:var(--accent-2)}
+    body.v-read #sbd .seg button[aria-pressed="true"],body.v-read #sbd .qchip[aria-current="true"],
+    body.v-read #sbd .tool[aria-pressed="true"],body.v-read #sbd .btn.primary{
+      background:linear-gradient(135deg,#007a61,#00705a)}
+    /* Learn page (29 Sep 2026): its modes' own reading text (D2-D5).  #tpRow, not
+       .lchint, so the planner's "Wire colour" label keeps its size. */
+    body.v-read #sbd .chooser .ch-rules li,body.v-read #sbd .chooser .ch-lede,
+    body.v-read #sbd .traceq,body.v-read #sbd .faultq,body.v-read #sbd .faulthint,body.v-read #sbd .circkey,
+    body.v-read #sbd #tpRow .lchint,body.v-read #sbd details.reveal .ms{font-size:1.125rem;line-height:1.5}
+    body.v-read #sbd .chooser .ch-rules li,body.v-read #sbd .chooser .ch-lede,body.v-read #sbd .modedesc,
+    body.v-read #sbd:not([data-mode="free"]) .scenario p,body.v-read #sbd .circkey,body.v-read #sbd details.reveal .ms>*{max-width:52ch}
+    /* Where to start fills the width without breaking the 52ch cap (RS, 29 Sep 2026):
+       the four rules sit two by two, and the five mode cards go 3 + 2, the bottom
+       pair stretched, so no card is left alone on a row. */
+    @media (min-width:900px){
+      body.v-read #sbd .chooser .ch-rules{grid-template-columns:repeat(2,minmax(0,52ch));gap:12px 44px}
+      body.v-read #sbd .ch-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+      body.v-read #sbd .ch-card{grid-column:span 2}
+      body.v-read #sbd .ch-card:nth-child(4):nth-last-child(2),
+      body.v-read #sbd .ch-card:nth-child(5):nth-last-child(1){grid-column:span 3}
+    }
+    /* a stretched card still keeps its lines short (D4) */
+    body.v-read #sbd .ch-card .ch-what,body.v-read #sbd .ch-card .ch-can{max-width:52ch}
+    @media (min-width:600px) and (max-width:899px){
+      body.v-read #sbd .ch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      body.v-read #sbd .ch-card:last-child:nth-child(odd){grid-column:1/-1}
+    }
+    body.v-read #sbd em,body.v-read .vertable em{font-style:normal;font-weight:700}
+    /* its controls join the 16 px control step of the type scale above */
+    body.v-read #sbd .seg button,body.v-read #sbd .qchip,body.v-read #sbd .fopt{font-size:1rem}
+    body.v-read #sbd .fopt{line-height:1.4}
     /* ---- one-screen trim on a landscape tablet -------------------------
        The 24-track board is 614 logical px tall.  At 1180x760, keeping the page
        chrome the Block Diagram Builder keeps, it does not fit — measured, not
@@ -574,13 +723,6 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       .titlerow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:.3rem}
       .titlerow .backlink{margin:0}
       .page-title{font-size:1.06rem;margin:0}
-      .beta{padding:0;border:0;background:none;box-shadow:none;margin:0;border-radius:0;
-        flex:1 1 320px;min-width:0}
-      .beta h2{display:inline;font-size:.78rem;margin:0 .35rem 0 0}
-      .beta .lead{display:inline;font-size:.75rem;line-height:1.3;color:var(--muted)}
-      .beta .lead.beta-full{display:none}
-      .beta .lead.beta-short{display:inline}
-      .beta .beta-tag{display:none}
       #sbd{padding:6px 10px}
       #sbd>.panel{padding:0;border:0;background:none;box-shadow:none;margin:0}
       #sbd .lede{display:none}
@@ -595,7 +737,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       #sbd .seg{order:1}
       #sbd .qchips{order:2;flex:1 1 auto}
       #sbd .modedesc{order:3;font:600 .72rem/1.2 var(--font-stack)}
-      #sbd .workarea{margin-top:4px}
+      #sbd .workarea>.diagcol,#sbd .workarea>.bankcol{margin-top:4px}
       #sbd .controls{margin-top:5px}
       #sbd .stagebar{padding:.3rem .6rem;line-height:1.3;margin:-2px 0 5px}
       #sbd .linkcolours{margin:-4px 0 4px}
@@ -610,7 +752,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
   </style>
 </head>
 
-<body>
+<body class="v-read">
   {% include site-menu.html %}
   {% include resource-icons.html %}
   {% include electronics-icons.html %}
@@ -629,15 +771,12 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       <h1 class="page-title">Plan your own Breadboard Circuit</h1>
       <button type="button" class="verchip" id="verChip"
               aria-label="Version — show what has changed"></button>
-      <!-- hidden by default and un-hidden only on a beta variant, so a page
-           that is out of beta never flashes the notice before JS runs -->
-      <section class="panel beta" aria-label="Beta notice" id="betaBox" hidden>
-      <h2>Beta <span class="beta-tag">testing</span></h2>
-      <p class="lead beta-full">This tool is <strong>new and still being tested</strong>. It marks your board by
-        working out what is actually connected to what, so any layout that is electrically correct will pass — but
-        if something looks wrong, please tell Mr Stewart rather than assuming your own answer is at fault.</p>
-      <p class="lead beta-short">Still being tested — if something looks wrong, tell Mr Stewart.</p>
-      </section>
+      <!-- The same how-to, compact, for a wide screen: there the intro is hidden
+           to keep Check on screen, so the button rides the title line.  All four
+           pages link the planner's guide (RS, 17 Oct 2026): the tools are the same. -->
+      <a class="helplink hl-compact" href="/classes/electronics/stripboard-planner-guide.html"
+         target="_blank" rel="noopener">
+        <svg class="hl-ic" aria-hidden="true"><use href="#ic-sb-help"/></svg><strong>How to use the planner</strong></a>
     </div>
 
     <section class="panel" id="sbd" aria-label="Stripboard builder" data-mode="trace">
@@ -647,8 +786,19 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       <p class="smallscreen" id="smallScreenNote">This tool is made for a
         <strong>tablet or a computer</strong>. On a phone the board is too small to work on
         comfortably &mdash; the tasks all still run, but come back to it on a bigger screen.</p>
+      <!-- The how-to sits beside the intro it goes with, as a button that says
+           what it opens (RS, 29 Sep 2026: the old text link in the title row
+           was not obviously a button). -->
+      <div class="ledepair">
       <p class="lede" id="lede">Look at the board, then answer the question beside it: are the two named holes
         electrically connected? Answer, and the board shows you the copper that makes it true or false.</p>
+      <a class="helplink hl-full" href="/classes/electronics/stripboard-planner-guide.html"
+         target="_blank" rel="noopener">
+        <svg class="hl-ic" aria-hidden="true"><use href="#ic-sb-help"/></svg>
+        <span class="hl-txt"><strong>How to use the planner</strong>
+          <span class="hl-sub">The stripboard planner’s guide — the tools work the same way here. Opens in a new tab ↗</span></span>
+      </a>
+      </div>
 
       <div class="bar">
         <!-- The two pages share this markup; the ones this page does not use are
@@ -712,13 +862,15 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
            the Completionist achievement unreachable the moment these pages join
            the badge list. -->
       <section class="panel" id="workPanel" data-prog-challenge="sbd-bread">
-        <div class="qhead">
-          <h2 class="qtitle" id="qtitle"></h2>
-          <span class="qsrc" id="qsrc"></span>
-        </div>
-        <div class="scenario" id="qscenario"></div>
-
+        <!-- The title and brief are inside the work area so that, in the marked
+             modes, the sticky side column's parent ends where the board ends
+             (OPEN-JOBS job 4, 17 Oct 2026). -->
         <div class="workarea">
+          <div class="qhead">
+            <h2 class="qtitle" id="qtitle"></h2>
+            <span class="qsrc" id="qsrc"></span>
+          </div>
+          <div class="scenario" id="qscenario"></div>
           <div class="diagcol" id="diagcolEl">
             <div class="toolgrid build-only" role="group" aria-label="Tool">
               <button type="button" class="tool" data-tool="place" aria-pressed="true"><span class="k">▭</span>Place part</button>
@@ -910,7 +1062,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
         external verification reports, and the linked IC pin-out sheet is the National 5 data sheet X860/75/12 —
         all © Qualifications Scotland (SQA), reproduced for educational use. Circuits, diagrams and code are
         original work written for this site, © R Stewart, 2026. Full site credits are on the
-        <a href="/classes/credits.html">credits page</a>.</p>
+        <a href="/classes/credits.html">credits page</a>. R Stewart - October 2026</p>
       <p class="lead bb-only" data-credit-note hidden><strong>Sources &amp; credits:</strong> The board is a
         standard 0.1 in prototype breadboard — a 400-point half board (30 columns) and an 830-point full board
         (63 columns), drawn to the hole pitch and channel width of the boards used in class. The drawing
@@ -1169,6 +1321,17 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
     "mosfet-3": { pins: [{ pin: "g", dr: 0, dc: 0 }, { pin: "d", dr: 0, dc: 1 },
                          { pin: "s", dr: 0, dc: 2 }],
                  body: [], symmetric: false, kind: "inline3", sym: "to220" },
+    /* N5 Eng 4b L4 (8 Oct 2026; no kit photos, so the common parts — teacher's
+       call).  A round piezo buzzer: legs 0.3 in apart, + marked on the top. */
+    "buzzer-2": { pins: [{ pin: "+", dr: 0, dc: 0 }, { pin: "-", dr: 0, dc: 3 }],
+                  body: [{ dr: 0, dc: 1 }, { dr: 0, dc: 2 }], symmetric: false,
+                  polarised: ["+", "-"], kind: "axial", sym: "buzzer" },
+    /* A 6 mm four-leg tactile push button straddling the centre channel, legs
+       0.2 in apart along the row.  The legs facing each other across the
+       channel are joined inside, so pressing it joins column c to column c + 2. */
+    "button-4": { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 2 },
+                         { pin: "3", dr: 1, dc: 0 }, { pin: "4", dr: 1, dc: 2 }],
+                  body: [], symmetric: false, kind: "button", straddle: true, fixedRot: true },
     "term-1":  { pins: [{ pin: "1", dr: 0, dc: 0 }], body: [],
                  symmetric: false, kind: "terminal" },
     "term-2":  { pins: [{ pin: "1", dr: 0, dc: 0 }, { pin: "2", dr: 0, dc: 2 }],
@@ -2503,7 +2666,8 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
   const BODY_DEFAULT = {
     axial: "brown", res: "brown", ther: "brown", led: "red", ldr: "yellow",
     cap: "orange", ecap: "blue", diode: "black",
-    pot: "blue", to220: "black", spdt: "grey", can: "grey", to92: "black"
+    pot: "blue", to220: "black", spdt: "grey", can: "grey", to92: "black",
+    buzzer: "black", button: "black"
   };
   // which parts a pupil may recolour — everything with a body, chips and
   // terminals excepted (a terminal's colour is its WIRE's colour, set already)
@@ -2732,6 +2896,19 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       s += `<path class="sbd-bline" d="M ${pts.map(z => n(z[0]) + " " + n(z[1])).join(" L ")}"/>`;
       return s;
     }
+    if (fp.sym === "buzzer") {
+      // a round piezo buzzer: a black disc over both legs, + beside the + leg,
+      // the sound hole in the middle
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2, rr = P * 1.05;
+      const plus = cells.pins.find(z => z.pin === "+").hole;
+      s += `<circle class="sbd-body" cx="${n(cx)}" cy="${n(cy)}" r="${n(rr)}"/>`;
+      s += `<circle class="sbd-bline" cx="${n(cx)}" cy="${n(cy)}" r="${n(P * 0.22)}"/>`;
+      const ux = X(plus.c) - cx, uy = Y(plus.r) - cy;
+      const m = Math.sqrt(ux * ux + uy * uy) || 1;
+      s += `<text class="sbd-pmark" x="${n(cx + (ux / m) * rr * 0.55)}" ` +
+           `y="${n(cy + (uy / m) * rr * 0.55 + 4)}" text-anchor="middle">+</text>`;
+      return s;
+    }
     if (fp.sym === "cap") {
       // a radial capacitor: a plain disc sitting over its two legs
       const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
@@ -2857,6 +3034,22 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
       const dy = vertical ? 3 : (py < cy ? 12 : -6);
       s += `<text class="sbd-pn" x="${n(px + dx)}" y="${n(py + dy)}" text-anchor="middle">${z.pin}</text>`;
     }
+    return s;
+  }
+
+  /* The tactile push button: a square black body over its four legs (they sit
+     either side of the channel) with the round grey plunger in the middle. */
+  function drawButton(p, fp, cells) {
+    const xs = cells.pins.map(z => X(z.hole.c)), ys = cells.pins.map(z => Y(z.hole.r));
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const pad = P * 0.30, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    let s = "";
+    for (const z of cells.pins)
+      s += `<line class="sbd-lead" x1="${n(X(z.hole.c))}" y1="${n(Y(z.hole.r))}" ` +
+           `x2="${n(X(z.hole.c))}" y2="${n(Y(z.hole.r) < cy ? y0 + pad : y1 - pad)}"/>`;
+    s += `<rect class="sbd-body" x="${n(x0 - pad * 0.4)}" y="${n(y0 + pad)}" ` +
+         `width="${n(x1 - x0 + pad * 0.8)}" height="${n(y1 - y0 - 2 * pad)}" rx="3"/>`;
+    s += `<circle class="sbd-mark" cx="${n(cx)}" cy="${n(cy)}" r="${n(P * 0.62)}"/>`;
     return s;
   }
 
@@ -3136,6 +3329,7 @@ title: Plan your own Breadboard Circuit · National 5 Electronics
                      fp.kind === "dil" ? drawDil(withLabel, fp, cells)
                    : fp.kind === "terminal" ? drawTerminal(withLabel, fp, cells)
                    : fp.kind === "can" ? drawCan(withLabel, fp, cells)
+                   : fp.kind === "button" ? drawButton(withLabel, fp, cells)
                    : (fp.kind === "to92" || fp.kind === "inline3") ? drawTo92(withLabel, fp, cells)
                    : drawAxial(withLabel, fp, cells), withLabel, fp);
 
@@ -6766,11 +6960,20 @@ let mode = null;
    modes: the marked ones are a course to work through, Free build is a
    workbench, and putting them on one page meant a pupil looking for either had
    to know which tab it was behind.  build.py substitutes this line. */
-const VARIANT = /*@VARIANT*/ { id: "bread", modes: ["free"], boards: ["bb-400", "bb-830"], beta: false, features: false };
+const VARIANT = /*@VARIANT*/ { id: "bread", modes: ["free"], boards: ["bb-400", "bb-830"], beta: false, features: true };
 const HAS = m => VARIANT.modes.indexOf(m) >= 0;
 /* Whether this page is a breadboard.  Asked of the BOARD, never of the variant
    id, so the two can never disagree about what is on screen. */
 const BB = SBD.isBread(SBD.BOARDS[VARIANT.boards[0]]);
+/* the Breadboard Planner's floor when it squeezes: its hole pitch at this scale
+   matches the stripboard's at full size */
+const BB_MIN_SCALE = 0.8;
+/* Breadboard Planner: the net list sits under the Check row, so Check can sit
+   right under the board (RS, 17 Oct 2026) */
+if (BB && VARIANT.modes.includes("free")){
+  const nets = document.getElementById("freeWrap");
+  document.querySelector("#workPanel > .controls").after(nets);
+}
 /* Whether this page still carries the beta mark.  Set per variant rather than
    unconditionally, so the mark can come off the finished pages (21 Sep 2026,
    once the three bugs pupils reported were fixed) while a future beta variant
@@ -6841,9 +7044,13 @@ const CHOOSE_LEDE = "Five ways of thinking about the same board. Read the rules,
   "to start \u2014 you can move between them whenever you like.";
 const POINTS_LEDE = "This board is built and correct. Mark the test points a marker would expect, " +
   "and say what each one will read with the inputs given.";
-const CONVERT_LEDE = "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
-  "tap a hole to place it — or use the tools to cut a track, run a link wire or mark a test point. " +
-  "Tap a placed part again to pick it up and move it.";
+const CONVERT_LEDE = BB
+  ? "Turn the circuit diagram into a breadboard layout. Pick a component, then " +
+    "tap a hole to place it — or use the tools to run a jumper wire or mark a test point. " +
+    "Tap a placed part again to pick it up and move it."
+  : "Turn the circuit diagram into a stripboard layout. Pick a component, then " +
+    "tap a hole to place it — or use the tools to cut a track, run a link wire or mark a test point. " +
+    "Tap a placed part again to pick it up and move it.";
 const TRACE_LEDE = "Look at the board, then answer the question beside it: are the two named holes " +
   "electrically connected? Answer, and the board shows you the copper that makes it true or false.";
 const FAULT_LEDE = "Every board here is somebody's finished layout with exactly one thing wrong " +
@@ -6988,8 +7195,21 @@ function fit(){
      illegibility or pushing the buttons off the bottom — panning is the site
      rule's own answer to a working area that will not fit. */
   const stageTop = $("stage").getBoundingClientRect().top + window.scrollY;
-  const room = window.innerHeight - stageTop - 62;   // 62px keeps the buttons on screen
-  if (window.matchMedia("(min-width:821px) and (max-height:900px)").matches && room > 180){
+  let room = window.innerHeight - stageTop - 62;   // 62px keeps the buttons on screen
+  /* A long brief can push the board below the screen.  Then the one screen that
+     matters is the one the pupil scrolls to: tools at the top, Check at the
+     bottom, and the sticky side column beside them (OPEN-JOBS job 4, 17 Oct 2026). */
+  const shortWide = window.matchMedia("(min-width:821px) and (max-height:900px)").matches;
+  const workTop = $("diagcolEl").getBoundingClientRect().top + window.scrollY;
+  const workView = shortWide && room < Math.min(size.h * MIN_SCALE, 300);
+  if (workView) room = window.innerHeight - 8 - (stageTop - workTop) - 62;
+  /* A board that will pan has the scroll hint under it, a line the buttons sit
+     below too (OPEN-JOBS job 4: Test points' Check was that line off the screen). */
+  if (room > 180 && size.h * MIN_SCALE > room){
+    $("panhint").classList.add("show");
+    room -= $("panhint").offsetHeight;
+  }
+  if (shortWide && room > 180){
     sb = Math.max(MIN_SCALE, Math.min(sb, room / size.h));
     stageH = Math.max(200, Math.min(size.h * sb, room));
   }
@@ -7001,7 +7221,10 @@ function fit(){
      whatever height that leaves once the bank has its minimum, with Enlarge
      for anything smaller than comfortable. */
   const colW = $("circwrapTop").clientWidth - 18;
-  const colRoom = room > 180 ? room : stageH;
+  /* the column starts at the question title on a wide screen, above the board */
+  const colTop = $("bankcolEl").getBoundingClientRect().top + window.scrollY;
+  const colRoom = workView ? window.innerHeight - 8 - 62 - 8
+                : room > 180 ? window.innerHeight - colTop - 62 : stageH + stageTop - colTop;
 
   /* How much the bank needs is measured, not guessed: the tiles are two to a
      row and their height depends on whether the component has a second line.
@@ -7025,19 +7248,28 @@ function fit(){
      bank). Closed tiles pair two to a row; the open one takes a whole row. */
   const closedCount = tiles - (openTileEl ? 1 : 0);   // one tile to a row now
   const openH = openTileEl ? openTileEl.offsetHeight + 6 : 0;
-  // circuit box heading and border, bank heading, and the reference links
-  const CHROME = 44 + 26 + ($("sheetLinks") ? $("sheetLinks").offsetHeight + 6 : 0);
+  /* Everything in the column that is not the circuit or the tiles, measured:
+     the circuit box's own heading, caption and border, the bank heading, the
+     reference links and the gaps between them.  (It was a guess, 44 + 26, which
+     the larger reading text outgrew.) */
+  const vis = el => el && el.offsetParent !== null;
+  const cwEl = $("circwrapTop"), bhEl = document.querySelector("#bankcolEl .bankhead");
+  const kids = Array.from($("bankcolEl").children).filter(vis).length;
+  const CHROME = (cwEl.offsetHeight - $("cinner").offsetHeight) + (vis(bhEl) ? bhEl.offsetHeight : 0) +
+                 (vis($("sheetLinks")) ? $("sheetLinks").offsetHeight : 0) + 8 * Math.max(0, kids - 1);
   const bankWant = closedCount * rowH + openH + 18;
   /* Two rows of closed parts normally; with one open, its REAL height plus one
      closed row, so the open tile is never clipped — the bank still scrolls for
      anything beyond that, which is what it is for. */
   const bankFloor = openTileEl
     ? Math.min(bankWant, openH + rowH + 24)
-    : Math.min(bankWant, Math.max(3 * rowH + 18, 168));
+    : Math.min(bankWant, shortWide ? 2 * rowH + 18 : Math.max(3 * rowH + 18, 168));
   $("bank").style.minHeight = bankFloor + "px";
 
-  const cs = Math.max(0.5, Math.min(1, colW / cw, (colRoom - CHROME - bankFloor) / ch));
-  const sideH = Math.min(colRoom, Math.max(stageH, ch * cs + CHROME + bankWant));
+  // on a short wide screen the circuit may go small: Enlarge is on its corner
+  const cs = Math.max(shortWide ? 0.25 : 0.5, Math.min(1, colW / cw, (colRoom - CHROME - bankFloor) / ch));
+  const sideH = workView ? colRoom
+              : Math.min(colRoom, Math.max(stageTop + stageH - colTop, ch * cs + CHROME + bankWant));
 
   scale = sb;
   $("cinner").style.transform = "scale(" + cs + ")";
@@ -7058,7 +7290,8 @@ function fit(){
 
   $("panhint").classList.toggle("show", panX || panY);
   $("panhint").textContent = panY
-    ? "Scroll the board to reach the tracks below, or press Enlarge on the diagram for more room."
+    ? "Scroll the board to reach the tracks below" +
+      (mode === "convert" ? ", or press Enlarge on the diagram for more room." : ".")
     : "Scroll the board sideways to see the rest of it.";
 }
 
@@ -7661,8 +7894,7 @@ function load(i, keepScroll){
   A.stage = stage;
 
   $("qtitle").textContent = "Q" + (qi + 1) + ". " + Q.title;
-  $("qsrc").textContent = Q.board + " · " + SBD.BOARDS[Q.board].rows + " tracks × " +
-                          SBD.BOARDS[Q.board].cols + " holes";
+  $("qsrc").textContent = Q.board + " · " + boardSize(Q.board);
   /* A staged question's stage bar already says what to do now, so repeating a
      task line above it is a wrapped line of duplicate instruction — and on a
      short landscape screen that line is the difference between the 24-track
@@ -7714,8 +7946,9 @@ function taskLine(){
   const links = (Q.reference.links || []).length > 0;
   const bits = [];
   if (Q.scaffold !== "parts") bits.push("place every component");
-  bits.push("cut the tracks that need cutting");
-  if (links) bits.push("add the link wires");
+  if (!BB) bits.push("cut the tracks that need cutting");
+  if (links) bits.push(BB ? "add the jumper wires" : "add the link wires");
+  if (!bits.length) bits.push("check the board");
   if (tp) bits.push("mark the test point" + (Q.tpRequired.length > 1 ? "s" : "") +
                     " on the process output");
   const last = bits.pop();
@@ -8247,15 +8480,30 @@ const PLAN_CHANGELOG = [
     "If you tried the beta page, its board is copied here the first time you open this page." },
   STRIP_CHANGELOG[0]
 ];
-const CHANGELOG = VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG
+/* v3.5: one version number for all four pages, which have always run one engine
+   (RS, 17 Oct 2026).  One line in common, then what changed on this page. */
+const V35 = { v: "3.5", date: "17 Oct 2026", what:
+  "<strong>One version for all four board pages</strong> — they have always shared one engine. " +
+  "<strong>How to use</strong> now links to the planner’s step-by-step guide. " + ({
+    learn: "On an iPad held sideways, <strong>Check</strong> and the parts list stay on screen: in " +
+      "Convert the circuit sits small beside the board, with <strong>Enlarge</strong> on its corner, " +
+      "and in Test points the task sits beside the board.",
+    plan: "Changing the board size or opening a file now asks for a second tap, not a pop-up box.",
+    bread: "<strong>New tools</strong>, as on the stripboard planner: Undo and Redo, Renumber, " +
+      "Save to a file, Open a file, Save the picture and Print my board. Bigger, clearer text and a " +
+      "two-line intro. On an iPad held sideways the board fits with <strong>Check</strong> under it; " +
+      "<strong>What is joined to what</strong> is now below the buttons.",
+    "bread-learn": "The words now fit a breadboard: no tracks to cut, jumper wires, and the board " +
+      "size in columns. Two model answers moved a jumper wire that ran under a part. Bigger, clearer " +
+      "text, and <strong>Check</strong> stays on screen on an iPad held sideways."
+  })[VARIANT.id] };
+const CHANGELOG = [V35].concat(VARIANT.id === "bread-learn" ? BREAD_LEARN_CHANGELOG
                 : VARIANT.id === "plan"        ? PLAN_CHANGELOG
-                : STRIP_CHANGELOG;
+                : STRIP_CHANGELOG);
 const VERSION = CHANGELOG[0].v;
 
 (function buildVersionBox(){
-  $("verChip").textContent = (BETA ? "Beta v" : "v") + VERSION;
-  const bx = $("betaBox");
-  if (bx) { if (BETA) bx.hidden = false; else bx.remove(); }
+  $("verChip").textContent = "v" + VERSION;
   $("verSummary").textContent = "What\u2019s changed \u2014 v" + VERSION +
     ", " + CHANGELOG[0].date;
   const tb = $("verBody");
@@ -8296,7 +8544,8 @@ $("btnNext").addEventListener("click", () => {
 $("btnBig").addEventListener("click", () => {
   const c = Q.circuit(C, circOpts());
   $("modalTitle").textContent = Q.title + " — circuit diagram";
-  $("modalBody").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title });
+  $("modalBody").innerHTML = C.wrap({ w: c.w, h: c.h, body: c.body, title: Q.title }) +
+    "<p style=\"margin:8px 0 0\">" + $("circKey").textContent + "</p>";
   $("modal").classList.add("show");
   $("btnBigClose").focus();
 });
@@ -8311,6 +8560,10 @@ window.addEventListener("resize", () => {
   else if (mode === "reverse") { if (RV) fitFixed(RV.q.board); }
   else if (TQ) fitTrace();
 });
+/* the first fit runs before the page has settled — fonts and the site includes
+   move the board — so fit again once they have (OPEN-JOBS job 4, 17 Oct 2026) */
+window.addEventListener("load", () => window.dispatchEvent(new Event("resize")));
+if (document.fonts) document.fonts.ready.then(() => window.dispatchEvent(new Event("resize")));
 
 /* ============================================================
    Trace mode — "are these two holes connected?" (PLAN.md §4.1, Mode 1)
@@ -8418,8 +8671,7 @@ function loadTrace(i, keepScroll){
   $("btnNo").classList.remove("right", "wrong");
 
   $("qtitle").textContent = "Trace " + (ti + 1) + ". " + TQ.title;
-  $("qsrc").textContent = TQ.board + " · " + SBD.BOARDS[TQ.board].rows + " tracks × " +
-                          SBD.BOARDS[TQ.board].cols + " holes";
+  $("qsrc").textContent = TQ.board + " · " + boardSize(TQ.board);
   $("qscenario").innerHTML = "<p>This board is already wired — nothing to place or cut here.</p>";
   $("traceQ").textContent = "Are hole " + TQ.a + " and hole " + TQ.b + " connected?";
 
@@ -8500,8 +8752,7 @@ function loadFault(i, keepScroll){
   faultPick = null; faultTap = null; faultAnswered = false;
 
   $("qtitle").textContent = "Fault " + (fi + 1) + ". " + FI.q.title;
-  $("qsrc").textContent = FI.q.board + " · " + SBD.BOARDS[FI.q.board].rows + " tracks × " +
-                          SBD.BOARDS[FI.q.board].cols + " holes";
+  $("qsrc").textContent = FI.q.board + " · " + boardSize(FI.q.board);
   $("qscenario").innerHTML = "<p>This is somebody's finished layout for <strong>" +
     esc(FI.q.title) + "</strong>. Exactly one thing is wrong with it.</p>";
   $("faultQ").textContent = "What is wrong with this board?";
@@ -8638,8 +8889,7 @@ function loadReverse(i, keepScroll){
   $("btnRev").disabled = false;
 
   $("qtitle").textContent = "Reverse " + (ri + 1) + ". " + RV.q.title;
-  $("qsrc").textContent = RV.q.board + " · " + SBD.BOARDS[RV.q.board].rows + " tracks × " +
-                          SBD.BOARDS[RV.q.board].cols + " holes";
+  $("qsrc").textContent = RV.q.board + " · " + boardSize(RV.q.board);
   $("qscenario").innerHTML = "<p>This board is correct and finished. Read the copper and " +
     "work out what it does — there is no circuit diagram to look at.</p>";
   $("revQ").textContent = RV.prompt;
@@ -8983,20 +9233,9 @@ function loadFree(keepScroll){
 
   $("qtitle").textContent = "Free build — your own board";
   $("qsrc").textContent = freeBoard + " · " + boardSize(freeBoard);
+  // two short sentences on one line instead of a 600-character paragraph (D4, D9); the guide has the rest
   $("qscenario").innerHTML =
-    "<p>Nothing here is marked and there is no answer to copy. Build a sub-system you have " +
-    "designed yourself, try out a layout before you commit it to your planning sheet, or just " +
-    (BB ? "find out which holes the board has already joined up for you"
-        : "find out what a cut does") +
-    ". <strong>Check my layout</strong> cannot tell you whether the " +
-    "circuit does what you meant — there is no diagram to check it against. It tells you " +
-    "whether the board could be built and whether it keeps the rules that hold on every board: " +
-    (BB ? "nothing shorted across the supply, no part with both legs in one column, every chip "
-        + "across the centre channel and powered, and "
-        : "nothing shorted across the supply, every chip powered, and ") +
-    "<strong>every gate input held down to 0 V unless another gate is driving it</strong>. " +
-    "The panel below the board tells you what " +
-    (BB ? "the board's own clips have" : "your copper has") + " joined together.</p>";
+    "<p>Nothing here is marked. <strong>Check my layout</strong> tells you if it could be built.</p>";
   paintBoardPick();
   clearFeedback();
   hideTpTable();
@@ -9271,8 +9510,8 @@ function paintNets(){
   const list = $("netList"), count = $("netCount");
   const nets = FREE.netReport(freeBoard, A, FREEC) || [];
   count.textContent = A.placements.length
-    ? nets.length + (nets.length === 1 ? " net · " : " nets · ") + A.placements.length + " parts · " +
-      (BB ? "" : A.cuts.length + " cuts · ") + A.links.length + " links"
+    ? [[nets.length, "net"], [A.placements.length, "part"]].concat(BB ? [] : [[A.cuts.length, "cut"]])
+        .concat([[A.links.length, "link"]]).map(([k, w]) => k + " " + w + (k === 1 ? "" : "s")).join(" · ")
     : "";
   if (!nets.length){
     list.innerHTML = "<li><p class='netempty'>Nothing joined up yet. Pick a part from the list " +
@@ -9354,7 +9593,7 @@ function promptTitle(){
 function slugify(s){
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
-const fileBase = () => (boardTitle && slugify(boardTitle)) || "my-stripboard";
+const fileBase = () => (boardTitle && slugify(boardTitle)) || (BB ? "my-breadboard" : "my-stripboard");
 
 function boardSvg(){
   return R.renderBoard({ board: freeBoard, question: Q, attempt: A, standalone: true,
@@ -9494,7 +9733,7 @@ function buildPrintSheet(){
     /* The full sources note belongs on the page, not on a pupil's layout: it
        ran to six lines of small print for a sheet that is theirs, and the
        whole of it is a click away on the site this points at. */
-    "<p class='pfoot'><b>Stripboard Planner</b> · " + esc(SITE_HOME) +
+    "<p class='pfoot'><b>" + (BB ? "Breadboard" : "Stripboard") + " Planner</b> · " + esc(SITE_HOME) +
       " — board conventions, sources and full credits are on the site · " +
       esc(OWNER_FOOTER) + "</p>";
 }
@@ -9509,6 +9748,16 @@ function fitFree(){
   const availW = $("stage").clientWidth;
   let sb = Math.max(MIN_SCALE, Math.min(1, availW / size.w));
   let stageH = size.h * sb;
+  /* The one exception: the Breadboard Planner on a short wide screen (RS, 17 Oct
+     2026).  Its small board is twice the stripboard's height, so it shrinks just
+     enough for Check to sit under it — never below the stripboard's hole size —
+     and "What is joined to what" goes under the buttons (moved at boot). */
+  const squeeze = BB && window.matchMedia("(min-width:821px) and (max-height:900px)").matches;
+  if (squeeze){
+    const room = window.innerHeight - ($("stage").getBoundingClientRect().top + window.scrollY) - 62;
+    sb = Math.max(BB_MIN_SCALE, Math.min(sb, room / size.h));
+    stageH = size.h * sb;
+  }
 
   /* Free build does NOT squeeze the board to keep the buttons on screen, the
      way the marked modes do.  There is no circuit diagram to read across to
@@ -9538,7 +9787,7 @@ function fitFree(){
      than it is the thing that was reported: nineteen parts behind a scroll. */
   const linksH = $("sheetLinks") ? $("sheetLinks").offsetHeight + 6 : 0;
   $("bankcolEl").style.height = window.matchMedia("(min-width:821px)").matches
-    ? Math.round(Math.max(stageH, 400) + linksH + (panX ? 11 : 0)) + "px"
+    ? Math.round((squeeze ? stageH : Math.max(stageH, 400)) + linksH + (panX ? 11 : 0)) + "px"
     : "";
 
   $("panhint").classList.toggle("show", panX || panY);
@@ -9681,13 +9930,12 @@ function loadPoints(i, keepScroll){
   setTool("tp");
 
   $("qtitle").textContent = "Board " + (pi + 1) + ". " + Q.title;
-  $("qsrc").textContent = Q.board + " · " + SBD.BOARDS[Q.board].rows + " tracks × " +
-                          SBD.BOARDS[Q.board].cols + " holes";
+  $("qsrc").textContent = Q.board + " · " + boardSize(Q.board);
+  // the mode line above already says the board is finished and needs test points
   $("qscenario").innerHTML =
-    "<p>This board is built and it is right. What it has not got is <strong>test points</strong>.</p>" +
-    "<p>Qualifications Scotland asks for one on each sub-system input and output, planned onto the " +
-    "layout <em>before</em> the board is built — so mark the holes a marker would expect to see, " +
-    "and say what each one will read with the inputs given below.</p>";
+    "<p>Qualifications Scotland asks for a <strong>test point</strong> on each sub-system input and " +
+    "output, planned onto the layout <em>before</em> the board is built — so mark the holes a marker " +
+    "would expect to see, and say what each one will read with the inputs given above the board.</p>";
   buildPointChips();
   clearFeedback();
   drawGrid();
@@ -9803,9 +10051,6 @@ if (FEATURES){
 } else {
   document.querySelectorAll(".feat-only").forEach(b => b.remove());
 }
-/* and the link to the how-to guide belongs on the planner alone */
-if (VARIANT.id === "plan") document.querySelectorAll(".plan-only").forEach(b => { b.hidden = false; });
-else document.querySelectorAll(".plan-only").forEach(b => b.remove());
 loadStore();
 
 /* This page offers only its own modes — the buttons for the others are taken
