@@ -3,44 +3,7 @@
 Some pages are built by scripts that live only on the Mac, so a cloud session could not finish
 these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is ticked.**
 
-0a. **Study how this repo is worked on, then recommend a cloud / terminal split** (RS, 14 Oct).
-   Before the other jobs, read the history and the setup, and write the teacher a short
-   recommendation: which kinds of work belong in **Claude Code on the web (cloud)** and which in
-   **Claude Code in the Mac terminal**, with a one-line reason each. Put it as a table in `CLAUDE.md`
-   (and delete this item) so every later session follows it. Look at:
-   - **The history.** `git log --merges` since September: about 180 commits, PRs merged from
-     `claude/*` branches (cloud sessions) and plain topic branches (`n5-eng-4b-web-page`,
-     `electronics-stripboard-reading-cpd`, `s3-pneumatics-practical-pages`, …, mostly the Mac).
-     Note which kinds of change came from which, and which needed a follow-up fix.
-   - **What only the Mac can reach.** Everything under `~/` this file points at: the page
-     generators and the Stripboard/Breadboard bundle sources (items 1–2), `~/SQA Images`,
-     `~/claude-work/_deckkit/DECK-RULES.md`, `~/claude-work/learning-standard/`, the global
-     `~/.claude/CLAUDE.md` and skills (`image-sourcing`, `dual-coding`), real Safari and the
-     chruby Jekyll build. A cloud session sees none of these.
-   - **What the cloud did well on 14 Oct**, as a starting point: site-wide audits with
-     screenshots of every page in both appearances, contrast scans, sweeping CSS/markup changes
-     across 100+ pages, the drawn-banner rollout, removing notices and skip links, stacking and
-     merging PRs, and browser-checking the stripboard/breadboard answers against `SBD.check`.
-   - **Where the cloud hit a wall on 14 Oct**: generated pages (its edits are overwritten by the
-     next generator run, so they became items 1–2), anything needing SQA source PDFs or images,
-     deck work, real iPad/Safari checks, and teacher judgement on physics and wording.
-   - **The cost of the split.** Cloud and terminal sessions working at once collided on
-     stylesheet `?v=` lines and merges (PRs #188–#194 had to be folded into #195). Recommend a
-     rule for that too, e.g. one session at a time on shared sheets, or bump `?v=` only at merge.
-   - **How Claude is used on the Mac as a whole, not just in this repo.** Read
-     `~/.claude/CLAUDE.md`, `~/.claude/settings.json`, the skills, agents, commands and hooks under
-     `~/.claude/`, the MCP servers configured, and the session history in `~/.claude/projects/`
-     (which folders get sessions, how often, what kinds of task). Look at `~/claude-work/` too:
-     the deck kit, the learning standard, the booklet and question-bank sources, and any other
-     repos the website work depends on. From that, say which of those habits and tools a cloud
-     session could share (by moving a file into a repo, a skill into the repo's `.claude/`, or a
-     setting into the cloud environment) and which must stay on the Mac.
-   Then suggest any setup that would move work to the cloud safely (generators in the repo,
-   a SessionStart hook that builds the site, a CI check per generated page).
-   **This repo is public.** Give the teacher the full findings in the terminal; put only the
-   resulting cloud/terminal table and rules in this file, with no personal paths, session
-   contents or anything from `~/.claude` beyond what the rules need.
-0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh`, then `gh auth login`
+0. **Let Claude open PRs from the Mac terminal** (once): `brew install gh` (done 17 Oct), then `gh auth login`
    (GitHub.com → HTTPS → log in with a browser) and `gh auth setup-git`. In `~/.claude/settings.json`
    allow the PR commands so they don't prompt each time:
    `"permissions": { "allow": ["Bash(gh pr create:*)", "Bash(gh pr view:*)", "Bash(gh pr checks:*)",
