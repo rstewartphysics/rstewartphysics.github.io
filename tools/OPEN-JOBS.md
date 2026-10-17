@@ -1,0 +1,128 @@
+# Open jobs — do these first on the Mac (left 14 Oct 2026)
+
+Some pages are built by scripts that live only on the Mac, so a cloud session could not finish
+these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is ticked.**
+
+0. **DONE 17 Oct** (gh logged in, PR #202 opened by Claude). **Let Claude open PRs from the Mac terminal** (once): `brew install gh` (done 17 Oct; settings allow-list added 17 Oct; Claude now opens PRs, RS merges), then `gh auth login`
+   (GitHub.com → HTTPS → log in with a browser) and `gh auth setup-git`. In `~/.claude/settings.json`
+   allow the PR commands so they don't prompt each time:
+   `"permissions": { "allow": ["Bash(gh pr create:*)", "Bash(gh pr view:*)", "Bash(gh pr checks:*)",
+   "Bash(gh pr list:*)", "Bash(gh run view:*)", "Bash(git push -u origin:*)"] }`.
+   Check with `gh auth status`. Then ask Claude to "open a PR" and it runs `gh pr create` itself.
+1. **Move the generator scripts into this repo** under `tools/generators/` (RS decision, 14 Oct):
+   `~/claude-work/n5-engineering/b4b/web/build_page.py`, the practice-test and graphing
+   generators, `~/claude-work/n5-eng-mcq-bank/` (`bank_src.md` + `build_all.py`) and the
+   Stripboard/Breadboard Planner bundle sources (`sbd-engine.js`, `sbd-render.js`,
+   `sbd-circuit.js`, `questions.js`, …). Add `tools/` to `exclude:` in `_config.yml`. The repo is
+   **public**: keep out `~/SQA Images`, SQA source PDFs and planning notes. Point each script's
+   output paths at the repo, not `~/`.
+2. **Make the edits the cloud session could not** (full checklist: PR #187, last comment):
+   - [ ] `build_page.py` → `programmable-control.html`: emit `{% include uno-getting-started.html %}`
+     after the "On the Uno, the plan becomes real" keypoint in section 4; emit
+     `{% include resource-icons.html %}` before `eng-icons.html`; use
+     `engineering-topic.css?v=engt-20261014a`. Then re-run and diff — the page in the repo
+     already has these, so the only diff should be none.
+   - [ ] Practice-test/graphing generators: the live pages were edited by hand on 14 Oct (PR #195),
+     so the generators must now emit the same, or a re-run will undo it. On **every** generated page
+     (S3 Electricity 1 A/B + graphing, S3 Eng A/B, Higher Electricity A/B + PW6 A/B, AH SHM A/B +
+     Stellar A/B, the Unit 1 question bank, Programmable Control):
+     no skip link and no `.skip-link` CSS; no `beta-note`, `beta-flag` or `wip-notice` (markup or
+     CSS); no `<h1 class="visually-hidden">` where the banner already has the `<h1>`. **S3 Eng
+     tests A/B** and the **question bank** open with the drawn `<header class="band-banner">`
+     (S3: `style="--bb-a:#006e74; --bb-b:#0a5f57"`, chip `#ic-quiz` with
+     `style="--ic-accent:var(--eng-ink-teal)"`, `{% include resource-icons.html %}` after the menu
+     include, print rule hides `.band-banner`). Stylesheet versions as now live:
+     `engineering-science.css?v=eng-20261014c`, `engineering-topic.css?v=engt-20261014a`,
+     `s3-physics.css?v=s3-20261014c`, `higher-physics.css?v=hp-20261014b`,
+     `adv-higher-physics.css?v=ah-20261014b`, `electronics.css?v=el-20261014b`,
+     `reading.css?v=rd-20261014a`. Check: re-run each generator, then `git diff` — it should be
+     empty.
+   - [ ] `build_all.py` → `unit-1-question-bank.html`: duplicate `id="next"` — rename the
+     "Where next" section to `where-next` and its sub-nav link; the button keeps `next`.
+   - [ ] Planner bundle: build `assets/js/stripboard.js` from the sources and have the four
+     planner/builder pages load it instead of their inline copy; point
+     `scripts/build-stripboard.mjs` at the sources. Until then, run `npm run stripboard` after
+     any bundle rebuild, or CI's staleness check fails.
+3. **Add a CI step** in `.github/workflows/pages.yml` that regenerates each generated page and
+   fails if it differs from the committed copy (same idea as `npm run stripboard -- --check`).
+4. **Left from the 14 Oct theme audit** (need a decision or a Mac-side check):
+   - [ ] **Block Diagram Builder, one-screen rule.** At 1180 × 760 the stage ends at 761 px and the
+     Check/Reset buttons at 853 px, even at the minimum scale (0.65): the question text above it
+     takes 512 px. Options: put the scenario beside the stage, or shorten the task box. Check on a
+     real iPad held sideways.
+     **Decided 17 Oct: put the scenario beside the stage** (left column).
+   - [ ] **Bring the four stripboard/breadboard pages up to "Plan your own Stripboard
+     Schematic"** (`classes/electronics/stripboard-planner.html`, the standard). Checked in a
+     browser on 14 Oct; the fixes belong in the Mac sources, because each page is built whole
+     from them (engine, banks, app code and the page shell), so an edit made in the repo copy is
+     overwritten at the next build.
+
+     **What is already right on all four.** The three engine modules are byte-identical
+     (`npm run stripboard -- --check` passes). Every model answer passes `SBD.check`; every
+     Trace item's `connected` matches `SBD.sameNet`; every Fault-finder board fails with the
+     fault its first choice names; every Reverse item builds. No page errors, no sideways
+     scroll at 390 px or 1180 px, the small-screen note shows on a phone, keyboard placement
+     (Tab to a part, Enter, arrows on the board, Enter) and tap-tap placement work.
+
+     **Stripboard Builder** (`stripboard-builder.html`, "Learn to Plan a Stripboard Schematic"):
+     - [ ] One-screen rule fails in **Convert**: the circuit diagram takes the right-hand column,
+       so the Components bank starts at 717 px of 760 and runs to 933 px. Put the bank beside
+       the board and the circuit above or in "Enlarge", as the planner does.
+     - [ ] **Test points**: the Check button sits at 760–804 px, just below the screen.
+     - [ ] Version chip says v3.0; the planner is v3.4. Same engine, so bump it or explain.
+     - [ ] No "How to use" guide link (the guide is `plan-only`). Decide whether the Learn page
+       gets its own guide or a link to the planner's.
+       **Decided 17 Oct: link the planner's guide** from all four pages; no new guide.
+
+     **Breadboard Planner** (`breadboard-planner.html`, "Plan your own Breadboard Circuit"),
+     the page that should match the planner most closely:
+     - [ ] `VARIANT.features` is `false`, so **Undo/Redo, Renumber, Print my board, Save to a
+       file, Open a file and Save the picture are all missing**. Set `features: true` for the
+       `bread` variant and check each tool on a breadboard.
+     - [ ] `<body>` has no `v-read` class and the page carries **none of the 76 `v-read`
+       reading-layout rules** the stripboard pages have, so text is smaller and denser. Give it
+       the planner's page shell.
+     - [ ] The intro is the old 600-character paragraph; the planner replaced it with two short
+       sentences (`$("qscenario")` in the `VARIANT.id === "plan"` branch). Do the same for `bread`.
+     - [ ] One-screen rule fails: the board runs to 774 px and Check my layout sits at 882 px.
+     - [ ] No "How to use" guide (there is no breadboard guide). Decide whether to write one.
+       **Decided 17 Oct: link the planner's guide**; no breadboard guide.
+     - [ ] Version chip v3.0 (planner v3.4).
+
+     **Breadboard Builder** (`breadboard-builder.html`, "Learn to Plan a Breadboard Schematic"):
+     - [ ] **Wrong words for a breadboard.** The Convert intro (`CONVERT_LEDE`) says "Turn the
+       circuit diagram into a stripboard layout … cut a track"; the task line always adds "cut
+       the tracks that need cutting" (`bits.push(...)` in the task builder); the board label
+       reads "bb-400 · 14 tracks × 30 holes" (every `$("qsrc").textContent = … " tracks × "`).
+       Make all three board-aware (`BB ? … : …`), as the mode cards already are.
+     - [ ] **Two model answers raise a warning**: the reference layouts of `lift-interlock-bb`
+       and `transistor-buzzer-bb` trigger `link-under-body`, so "Show the answer" shows a board
+       the checker warns about. Re-route those links.
+     - [ ] **Much smaller banks than the stripboard builder**: Convert 3 circuits (stripboard 12),
+       Trace 8 (10), Fault-finder 7 (10), Reverse 10 (10). Add circuits if the teacher wants parity.
+       **Decided 17 Oct: leave for now** — a later job.
+     - [ ] No `v-read` reading layout (same as the Breadboard Planner).
+     - [ ] Version chip v1.0.
+
+     **All four**: the Beta panel (`#betaBox`) is hidden because `VARIANT.beta` is `false`, so
+     it can simply be dropped from the shell. The selected-level buttons (`.lvl[aria-pressed]`)
+     are white on `#0a9d7f`, 3.4:1. Still to do by hand: drag-and-drop on a real iPad, and the
+     physics of every circuit (teacher).
+   - [ ] **Small contrast misses left** (all under 4.5:1 by a little): Construction's `.sw-title` (4.2:1),
+     N5 Energy's "useful in green" caption (4.46:1), the Logic page's `.lamp` digit (4.25:1).
+5. **Teacher checks still open** (no code needed unless something is wrong): physics and
+   wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
+   answers; and every simulator on a real iPad in Safari (`npm run sims` lists them all).
+6. **Block 6 (555 timers and op-amp comparator): audit and finish** (cloud session, 15 Oct 2026).
+   Read **`tools/build-guides/README.md`** first: the audit of `555-astable.html`, every decision
+   made with the teacher, the lesson plan (hub + comparator → monostable → astable), the three
+   circuits and their checked layouts, and a working prototype of the chip-first,
+   colour-coded build guides (`tools/build-guides/preview/conversion-trainer.html`). Its §8 is the
+   Mac checklist: iPad and physics audit, the Block 6 booklet and slides rebuilt to the same
+   circuits and figures, then the real pages. `tools/` is excluded from the site build.
+7. **Electronics joined-up audit: tie the simulators, theory and tools together** (cloud session,
+   15 Oct 2026). Read **`tools/audits/electronics-joined-up-audit.md`**: 11 findings (theory pages
+   never link to the Builders, Planners or slides; only three simulators; the 555 page stranded;
+   content gaps such as LED series resistors and E12), the learning path (which simulator and
+   practice tool belongs in each section), a simulator plan and the order of work. Block 6
+   (job 6) comes first. Needs a teacher decision on the hub's course order.
