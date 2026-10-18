@@ -53,7 +53,7 @@ export const astable = {
       bread: "R3 from pin 3's column to the red LED, which goes to 0 V. R4 drops from the + rail to the green LED; the blue link brings its short leg back to pin 3.",
       strip: "The blue link takes pin 3 down to the LED tracks. R3 and the red LED go to 0 V; R4 and the green LED come from +5 V. Flat edge (short leg) towards 0 V or pin 3." },
     { key: "tp", title: "Test points",
-      circuit: "TP1 +5 V, TP2 0 V, TP3 the output (pin 3), TP4 the capacitor (pins 2 and 6).",
+      circuit: "T1 +5 V, T2 0 V, T3 the output (pin 3), T4 the capacitor (pins 2 and 6).",
       bread: "Mark one empty hole on each net to measure: +5 V, 0 V, pin 3 and the capacitor.",
       strip: "Fit a test pin on each net to measure: +5 V, 0 V, pin 3 and the capacitor." }
   ],
@@ -78,8 +78,8 @@ export const astable = {
         L("L16", "N16", "black", 4), L("K12", "K21", "blue", 4)
       ],
       testpoints: [
-        { id: "TP1", at: "A25", step: 5 }, { id: "TP2", at: "N25", step: 5 },
-        { id: "TP3", at: "L12", step: 5 }, { id: "TP4", at: "L8", step: 5 }
+        { id: "T1", at: "A25", step: 5 }, { id: "T2", at: "N25", step: 5 },
+        { id: "T3", at: "L12", step: 5 }, { id: "T4", at: "L8", step: 5 }
       ]
     } },
     strip: { board: "34-0411", reference: {
@@ -101,8 +101,8 @@ export const astable = {
         L("I7", "K7", "red", 4), L("S15", "V15", "black", 4), L("H6", "O6", "blue", 4)
       ],
       testpoints: [
-        { id: "TP1", at: "A30", step: 5 }, { id: "TP2", at: "V30", step: 5 },
-        { id: "TP3", at: "H5", step: 5 }, { id: "TP4", at: "G3", step: 5 }
+        { id: "T1", at: "A30", step: 5 }, { id: "T2", at: "V30", step: 5 },
+        { id: "T3", at: "H5", step: 5 }, { id: "T4", at: "G3", step: 5 }
       ]
     } }
   },
@@ -136,7 +136,7 @@ export const astable = {
         C.res(XO, 200, { dir: "v", span: 48, label: "R3", value: "270 Ω", labelLeft: true }) +
         C.wire([[XO, 224], [XO, 236]]) + C.led(XO, 252, { dir: "d", span: 32, label: "LED1 red", labelSide: "r" }) +
         C.wire([[XO, 268], [XO, BOT]]) + C.node(XO, BOT),
-      tp(395, TOP, "TP1") + tp(395, BOT, "TP2") + tp(290, P["3"][1], "TP3") + tp(150, P["2"][1], "TP4")
+      tp(395, TOP, "T1") + tp(395, BOT, "T2") + tp(290, P["3"][1], "T3") + tp(150, P["2"][1], "T4")
     ] };
   }
 };
@@ -187,7 +187,7 @@ export const monostable = {
       bread: "R3 from pin 3's column to the LED; the LED's short leg goes to a column linked to 0 V.",
       strip: "R3 from pin 3's track to the LED track. The LED's short leg sits on a track linked to 0 V." },
     { key: "tp", title: "Test points",
-      circuit: "TP1 +5 V, TP2 0 V, TP3 the trigger (pin 2), TP4 the output (pin 3).",
+      circuit: "T1 +5 V, T2 0 V, T3 the trigger (pin 2), T4 the output (pin 3).",
       bread: "One empty hole on each: +5 V, 0 V, pin 2 and pin 3.",
       strip: "A test pin on each: +5 V, 0 V, pin 2 and pin 3." }
   ],
@@ -212,8 +212,8 @@ export const monostable = {
         L("L16", "N16", "black", 5)
       ],
       testpoints: [
-        { id: "TP1", at: "A25", step: 6 }, { id: "TP2", at: "N25", step: 6 },
-        { id: "TP3", at: "J11", step: 6 }, { id: "TP4", at: "L12", step: 6 }
+        { id: "T1", at: "A25", step: 6 }, { id: "T2", at: "N25", step: 6 },
+        { id: "T3", at: "J11", step: 6 }, { id: "T4", at: "L12", step: 6 }
       ]
     } },
     strip: { board: "34-0411", reference: {
@@ -235,8 +235,8 @@ export const monostable = {
         L("L7", "V7", "black", 5)
       ],
       testpoints: [
-        { id: "TP1", at: "A30", step: 6 }, { id: "TP2", at: "V30", step: 6 },
-        { id: "TP3", at: "G3", step: 6 }, { id: "TP4", at: "H11", step: 6 }
+        { id: "T1", at: "A30", step: 6 }, { id: "T2", at: "V30", step: 6 },
+        { id: "T3", at: "G3", step: 6 }, { id: "T4", at: "H11", step: 6 }
       ]
     } }
   },
@@ -271,7 +271,7 @@ export const monostable = {
         C.res(XO, 214, { dir: "v", span: 48, label: "R3", value: "270 Ω", labelLeft: true }) +
         C.wire([[XO, 238], [XO, 250]]) + C.led(XO, 266, { dir: "d", span: 32, label: "LED1", labelSide: "r" }) +
         C.wire([[XO, 282], [XO, BOT]]) + C.node(XO, BOT),
-      tp(410, TOP, "TP1") + tp(410, BOT, "TP2") + tp(196, P["2"][1], "TP3") + tp(312, P["3"][1], "TP4")
+      tp(410, TOP, "T1") + tp(410, BOT, "T2") + tp(196, P["2"][1], "T3") + tp(312, P["3"][1], "T4")
     ] };
   }
 };
@@ -322,7 +322,7 @@ export const comparator = {
       bread: "R4 from pin 6's column to the LED; the LED's short leg goes to 0 V.",
       strip: "The blue link takes pin 6 down. R4 and the LED go to a track linked to 0 V." },
     { key: "tp", title: "Test points",
-      circuit: "TP1 +9 V, TP2 0 V, TP3 V<sub>in</sub> (pin 3), TP4 V<sub>ref</sub> (pin 2), TP5 V<sub>out</sub> (pin 6).",
+      circuit: "T1 +9 V, T2 0 V, T3 V<sub>in</sub> (pin 3), T4 V<sub>ref</sub> (pin 2), T5 V<sub>out</sub> (pin 6).",
       bread: "One empty hole on each: +9 V, 0 V, V<sub>in</sub>, V<sub>ref</sub> and V<sub>out</sub>.",
       strip: "A test pin on each: +9 V, 0 V, V<sub>in</sub>, V<sub>ref</sub> and V<sub>out</sub>." }
   ],
@@ -347,8 +347,8 @@ export const comparator = {
         L("B16", "D16", "black", 5)
       ],
       testpoints: [
-        { id: "TP1", at: "A25", step: 6 }, { id: "TP2", at: "N25", step: 6 },
-        { id: "TP3", at: "I12", step: 6 }, { id: "TP4", at: "L11", step: 6 }, { id: "TP5", at: "D12", step: 6 }
+        { id: "T1", at: "A25", step: 6 }, { id: "T2", at: "N25", step: 6 },
+        { id: "T3", at: "I12", step: 6 }, { id: "T4", at: "L11", step: 6 }, { id: "T5", at: "D12", step: 6 }
       ]
     } },
     strip: { board: "34-0411", reference: {
@@ -369,8 +369,8 @@ export const comparator = {
         L("H19", "N19", "blue", 5), L("R24", "V24", "black", 5)
       ],
       testpoints: [
-        { id: "TP1", at: "A30", step: 6 }, { id: "TP2", at: "V30", step: 6 },
-        { id: "TP3", at: "K30", step: 6 }, { id: "TP4", at: "G2", step: 6 }, { id: "TP5", at: "H30", step: 6 }
+        { id: "T1", at: "A30", step: 6 }, { id: "T2", at: "V30", step: 6 },
+        { id: "T3", at: "K30", step: 6 }, { id: "T4", at: "G2", step: 6 }, { id: "T5", at: "H30", step: 6 }
       ]
     } }
   },
@@ -403,8 +403,8 @@ export const comparator = {
         C.res(XO, 214, { dir: "v", span: 48, label: "R4", value: "680 Ω", labelLeft: true }) +
         C.wire([[XO, 238], [XO, 250]]) + C.led(XO, 266, { dir: "d", span: 32, label: "LED1", labelSide: "r" }) +
         C.wire([[XO, 282], [XO, BOT]]) + C.node(XO, BOT),
-      tp(430, TOP, "TP1") + tp(430, BOT, "TP2") + tp(150, oa.plus[1], "TP3") +
-        tp(240, oa.minus[1], "TP4") + tp(390, oa.out[1], "TP5")
+      tp(430, TOP, "T1") + tp(430, BOT, "T2") + tp(150, oa.plus[1], "T3") +
+        tp(240, oa.minus[1], "T4") + tp(390, oa.out[1], "T5")
     ] };
   }
 };

@@ -1,0 +1,175 @@
+/* ============================================================
+   build-guide.css — the diagram → board build guide (assets/js/build-guide.js).
+
+   Token-driven like sims.css: it reads only what every subject sheet
+   defines (--text, --muted, --border, --card, --surface-2, --accent-2,
+   --warm, --focus-ring), so link it after the subject sheet. Sizes are in
+   em, so body.reading (reading.css) sets the 18 px body.
+
+   The figures sit on light paper in both appearances: the engine draws
+   boards and diagrams in fixed ink, as on every other board figure.
+   ============================================================ */
+
+.build-guide {
+  --bg-ink: var(--text);
+  --bg-muted: var(--muted);
+  --bg-line: var(--border);
+  --bg-card: var(--card);
+  --bg-soft: var(--surface-2);
+  --bg-fill: var(--accent-2);
+  --bg-on-fill: var(--card);
+  --bg-step: var(--warm, #c2410c);
+  --bg-step-soft: #fdf1e1;
+  --bg-trace: #1d6fa5;
+  --bg-trace-soft: #e5f0f9;
+  --bg-good: #116331;
+  --bg-good-soft: #e6f5ec;
+  --bg-bad: #b42318;
+  --bg-bad-soft: #fdecea;
+  --bg-paper: #fbfdfc;
+  --bg-paper-line: #cde3da;
+  display: block;
+  font-size: 1.125rem;
+  min-height: 12em;
+  margin: 1rem 0;
+  color: var(--bg-ink);
+}
+@media (prefers-color-scheme: dark) {
+  .build-guide {
+    --bg-trace: #7cc0f0;
+    --bg-step-soft: #2a1d08;
+    --bg-trace-soft: #0f2536;
+    --bg-good: #5dd693;
+    --bg-good-soft: #0f2a1b;
+    --bg-bad: #ff8f84;
+    --bg-bad-soft: #2d1210;
+  }
+}
+
+.build-guide button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.build-guide button:focus-visible,
+.build-guide input:focus-visible,
+.build-guide summary:focus-visible,
+.build-guide .bg-ring:focus-visible { outline: var(--focus-ring, 3px solid var(--bg-trace)); outline-offset: 2px; }
+.build-guide p { margin: 0 0 .55em; }
+.build-guide p:last-child { margin-bottom: 0; }
+
+/* ---------- part tabs and help level ---------- */
+.bg-parts { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid var(--bg-line); }
+.bg-parts button {
+  border: 0; background: transparent; padding: .5em .8em; min-height: 48px; font-weight: 800;
+  color: var(--bg-muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.bg-parts button[aria-selected="true"] { color: var(--bg-ink); border-bottom-color: var(--bg-fill); }
+.bg-mode { margin-top: .6em; display: flex; flex-wrap: wrap; gap: .4em .8em; align-items: center; font-weight: 700; color: var(--bg-muted); }
+.bg-level { display: inline-block; padding: .1em .65em; border-radius: 999px; font-weight: 900; }
+.bg-level.bg-diagram, .bg-level.bg-faded { background: var(--bg-step-soft); color: var(--bg-ink); box-shadow: inset 0 0 0 2px var(--bg-step); }
+.bg-level.bg-worked { background: var(--bg-good-soft); color: var(--bg-good); }
+.bg-level.bg-yours { background: var(--bg-trace-soft); color: var(--bg-trace); }
+.bg-toggle { display: inline-flex; align-items: center; gap: .45em; font-weight: 800; color: var(--bg-ink); cursor: pointer; min-height: 48px; }
+.bg-toggle input { width: 22px; height: 22px; accent-color: var(--bg-fill); }
+
+/* ---------- step header ---------- */
+.bg-stephead { display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: center; justify-content: space-between; margin: .7em 0 .55em; }
+.bg-stephead h3 { font-size: 1.1em; line-height: 1.3; margin: 0; font-weight: 900; text-wrap: balance; }
+.bg-n {
+  display: inline-grid; place-items: center; min-width: 1.8em; height: 1.8em; border-radius: 999px;
+  background: var(--bg-fill); color: var(--bg-on-fill); margin-right: .45em; font-variant-numeric: tabular-nums;
+}
+.bg-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bg-go {
+  min-height: 48px; min-width: 48px; padding: .4em 1em; border-radius: 10px; border: 1px solid var(--bg-line);
+  background: var(--bg-card); font-weight: 900; cursor: pointer;
+}
+.bg-go.primary { background: var(--bg-fill); color: var(--bg-on-fill); border-color: transparent; }
+.bg-go:disabled { opacity: .4; cursor: default; }
+.bg-dots { display: flex; flex-wrap: wrap; gap: 4px; }
+.bg-dots button {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--bg-line); background: var(--bg-card);
+  font-size: .8em; font-weight: 900; cursor: pointer; padding: 0; color: var(--bg-muted);
+}
+.bg-dots button[aria-current="step"] { background: var(--bg-ink); color: var(--bg-card); border-color: var(--bg-ink); }
+
+/* ---------- stage: diagram and words left, board right ---------- */
+.bg-stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px; align-items: start; }
+.bg-stage.solo { grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); }
+.bg-col { display: grid; gap: 12px; min-width: 0; }
+.bg-fig { background: var(--bg-paper); border: 1px solid var(--bg-paper-line); border-radius: 12px; padding: 8px; overflow-x: auto; }
+.bg-fig svg { display: block; width: 100%; height: auto; }
+.bg-cap { margin: .3em 0 0; font-weight: 800; color: #3d564e; }
+.bg-board svg { cursor: crosshair; }
+.bg-card { background: var(--bg-card); border: 1px solid var(--bg-line); border-radius: 12px; padding: .7em .85em; min-width: 0; }
+.bg-lead { font-weight: 800; }
+.bg-how { color: var(--bg-muted); font-weight: 700; }
+.bg-small { color: var(--bg-muted); font-weight: 700; }
+.bg-ask { border: 2px solid var(--bg-step); background: var(--bg-step-soft); border-radius: 12px; padding: .6em .75em; }
+.bg-q { font-weight: 900; }
+.bg-q .bg-nn { margin-right: .35em; }
+.bg-fb { margin-top: .45em; padding: .5em .65em; border-radius: 10px; font-weight: 700; }
+.bg-fb.good { background: var(--bg-good-soft); color: var(--bg-good); }
+.bg-fb.bad { background: var(--bg-bad-soft); color: var(--bg-bad); }
+.bg-fb.fair { background: var(--bg-trace-soft); color: var(--bg-ink); box-shadow: inset 3px 0 0 var(--bg-trace); }
+.bg-btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: .5em; }
+.bg-stephead .bg-btnrow { margin-top: 0; }
+.bg-btn { min-height: 48px; padding: .4em .9em; border-radius: 10px; border: 1px solid var(--bg-line); background: var(--bg-card); font-weight: 800; cursor: pointer; }
+.bg-btn.primary { background: var(--bg-fill); color: var(--bg-on-fill); border-color: transparent; }
+.bg-items { list-style: none; padding: 0; margin: .4em 0 0; display: grid; gap: .35em; font-weight: 700; color: var(--bg-muted); }
+.bg-nn {
+  display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%;
+  font-weight: 900; font-size: .9em; flex: none; vertical-align: .05em;
+}
+.bg-netref { border-bottom: 3px solid; padding-bottom: 1px; white-space: nowrap; }
+.bg-trace { font-weight: 700; color: var(--bg-muted); }
+.bg-trace b { color: var(--bg-ink); }
+.bg-pins { display: flex; flex-wrap: wrap; gap: 6px; margin: .4em 0; }
+.bg-pins button {
+  min-height: 44px; min-width: 44px; padding: .2em .6em; border-radius: 9px; border: 1px solid var(--bg-line);
+  background: var(--bg-soft); font-weight: 900; cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.bg-pins button[aria-pressed="true"] { background: var(--bg-trace); color: var(--bg-card); border-color: transparent; }
+details.bg-hint summary { cursor: pointer; font-weight: 900; color: var(--bg-ink); min-height: 44px; display: flex; align-items: center; }
+
+/* ---------- net table ---------- */
+.bg-tblwrap { overflow-x: auto; }
+table.bg-nt { width: 100%; border-collapse: collapse; margin-top: .4em; }
+table.bg-nt th, table.bg-nt td { border-bottom: 1px solid var(--bg-line); padding: .35em .3em; text-align: left; vertical-align: middle; }
+table.bg-nt th { color: var(--bg-muted); }
+table.bg-nt input {
+  width: 100%; min-width: 6em; min-height: 44px; padding: .25em .5em; border-radius: 8px; border: 1px solid var(--bg-line);
+  background: var(--bg-soft); color: var(--bg-ink); font: inherit; font-weight: 800;
+}
+table.bg-nt td.ok input { border-color: var(--bg-good); background: var(--bg-good-soft); }
+table.bg-nt td.no input { border-color: var(--bg-bad); background: var(--bg-bad-soft); }
+
+/* ---------- options: spot the mistake and the quiz ---------- */
+.bg-opts { display: grid; gap: 8px; margin-top: .5em; }
+.bg-opt {
+  text-align: left; padding: .55em .8em; border-radius: 10px; border: 1px solid var(--bg-line);
+  background: var(--bg-soft); font-weight: 800; cursor: pointer; min-height: 48px;
+}
+.bg-opt.right { border-color: var(--bg-good); background: var(--bg-good-soft); }
+.bg-opt.wrong { border-color: var(--bg-bad); background: var(--bg-bad-soft); }
+.bg-score { font-weight: 900; margin-top: .6em; }
+.bg-qcard + .bg-qcard { margin-top: 12px; }
+
+/* ---------- diagram: the part this step adds is orange ---------- */
+.bg-cur .sbd-wire, .bg-cur .sbd-pos, .bg-cur .sbd-part, .bg-cur polyline, .bg-cur line, .bg-cur path, .bg-cur rect.sbd-part { stroke: #d97706 !important; }
+.bg-cur .sbd-node, .bg-cur polygon.sbd-node { fill: #d97706 !important; }
+.bg-cur .sbd-clab, .bg-cur .sbd-poslab { fill: #9a4d05 !important; }
+.bg-ring { cursor: pointer; }
+
+@media (max-width: 860px) {
+  .bg-stage, .bg-stage.solo { grid-template-columns: minmax(0, 1fr); }
+}
+/* one landscape iPad screen: the board scales to the height left */
+@media (min-width: 861px) {
+  .bg-board svg { max-height: calc(100vh - 230px); width: auto; max-width: 100%; margin: 0 auto; }
+}
+@media (max-width: 560px) {
+  .bg-dots { display: none; }
+  .bg-parts button { padding: .45em .55em; }
+  table.bg-nt input { min-width: 4.5em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .build-guide * { transition: none !important; animation: none !important; }
+}

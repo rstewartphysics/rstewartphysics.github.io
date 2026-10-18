@@ -1,9 +1,8 @@
-// Builds the conversion-trainer prototype: one self-contained HTML page with
-// the real stripboard engine inlined and every layout checked by SBD.check.
+// Writes one JSON per circuit for assets/js/build-guide.js. Every layout and
+// every spot-the-mistake board is checked by SBD.check, or the build stops.
 //
-//   node tools/build-guides/build-trainer.mjs              -> preview/conversion-trainer.html
-//   node tools/build-guides/build-trainer.mjs out.html --fragment   (no <html> skeleton)
-import { readFileSync, writeFileSync } from "node:fs";
+//   node tools/build-guides/build-guides.mjs        -> assets/guides/<id>.json
+import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { ALL } from "./circuits.mjs";
@@ -21,15 +20,11 @@ const NETPOS = {
   "555-monostable": [[100, 24], [200, 300], [100, 199.6], [195, 118.2], [340, 160], [360, 244]],
   "op-amp-comparator": [[150, 24], [150, 300], [235, 174.1], [218, 145.9], [364, 160], [400, 244]]
 };
-const STEPNETS = {
-  "555-astable": [[1, 2], [], [3, 4], [5, 6, 7], []],
-  "555-monostable": [[1, 2], [], [4], [3], [5, 6], []],
-  "op-amp-comparator": [[1, 2], [], [3], [4], [5, 6], []]
-};
-/* 18 Oct 2026: the comparator is not built (Yenka and the simulator only), so it keeps
-   Part 1 alone and the worked build moves to the monostable. */
-const MODE = { "op-amp-comparator": "diagram", "555-monostable": "worked", "555-astable": "yours" };
-const BUILT = id => MODE[id] !== "diagram";
+/* Teacher, 18 Oct 2026 (Block 6 PLAN D4, D9): the comparator is not built, so it keeps
+   Part 1 alone; the monostable is built on breadboard only, worked; the astable on
+   stripboard only, some steps yours. */
+const MODE = { "op-amp-comparator": "diagram", "555-monostable": "worked", "555-astable": "faded" };
+const KIND = { "op-amp-comparator": null, "555-monostable": "bread", "555-astable": "strip" };
 const SHORT = { "555-monostable": "555 monostable", "555-astable": "555 astable", "op-amp-comparator": "741 comparator" };
 const PINNAMES = {
   "555": { 1: "Ground (0 V)", 2: "Trigger", 3: "Output", 4: "Reset", 5: "Control voltage (not used)", 6: "Threshold", 7: "Discharge", 8: "+Vcc (supply)" },
@@ -201,34 +196,35 @@ function kindData(c, kind) {
 }
 
 /* --------------------------------------------------- spot the mistake */
+/* Teacher, 18 Oct 2026 (D10): the monostable gets three faulty breadboards. */
 const MISTAKES = {
   "555-monostable": [
-    { change: r => { r.cuts = r.cuts.filter(x => x[0] !== "G14"); }, focus: ["G14"],
+    { change: r => { r.placements.find(p => p.id === "C1").rot = 90; }, focus: ["B12", "C12"],
       title: "Board A",
-      why: "Right. The cut at G14 is missing, so pin 2 and pin 7 share track G. The trigger is joined to the timing parts. A 555 needs all four cuts.",
-      options: [
-        { t: "A track cut is missing between the chip's two rows", ok: true },
-        { t: "C1 is the wrong way round", fb: "Look at C1: its + leg is on the timing track, which is right. Check the chip's track cuts." },
-        { t: "R3 has both legs on the same track", fb: "R3 stands across two tracks, so it isn't shorted. Count the red crosses under the chip." },
-        { t: "Pin 4 has no link to +5 V", fb: "The red link from track A to pin 4's track is there. Count the track cuts: a 555 needs four." }
-      ] },
-    { change: r => { r.placements.find(p => p.id === "C1").rot = 270; }, focus: ["M22", "N22"],
-      title: "Board B",
-      why: "Right. C1's + leg is on 0 V and its − leg on the timing track. An electrolytic capacitor's + leg goes on the more positive net, here net 4.",
+      why: "Right. C1's + leg is in the 0 V rail and its − leg is in the timing column. An electrolytic capacitor's + leg goes on the more positive net, here net 4.",
       options: [
         { t: "C1 is the wrong way round", ok: true },
-        { t: "A track cut is missing", fb: "All four cuts are there. Look at the parts that only work one way round." },
-        { t: "The slide switch is on the wrong tracks", fb: "SW1's middle pin is on the trigger track and one outer pin on 0 V. Look at the polarised parts." },
-        { t: "R2 is in the wrong place", fb: "R2 runs from +5 V to pin 7, as the diagram shows. Check which leg of C1 is on 0 V." }
+        { t: "R2 is in the wrong column", fb: "R2 runs from the + rail to pin 7's column, as the diagram shows. Look at the parts that only work one way round." },
+        { t: "The chip is not across the centre gap", fb: "The 555 sits across the gap, so its two rows are kept apart. Check which leg of C1 is in the 0 V rail." },
+        { t: "The LED is the wrong way round", fb: "The LED's long leg is in R3's column, which is right. Look for the other part that only works one way round." }
       ] },
-    { change: r => { const p = r.placements.find(p => p.id === "R3"); p.at = "H3"; p.rot = 0; }, focus: ["H3", "H6"],
-      title: "Board C",
-      why: "Right. Both of R3's legs are in track H, so R3 is shorted out. Nothing joins pin 3 to the LED's track, so the LED never lights.",
+    { change: r => { r.links = r.links.filter(l => !(l.a === "L13" && l.b === "M13")); }, focus: ["L13", "M13"],
+      title: "Board B",
+      why: "Right. The red link from pin 4's column to the + rail is missing. Pin 4 is Reset. Joined to nothing, it can stop the timer working. Pin 4 must be on net 1, +5 V.",
       options: [
-        { t: "R3 has both legs on the same track, so it is shorted out", ok: true },
-        { t: "The LED is the wrong way round", fb: "The LED's long leg is on R3's track. Look at how R3 is fitted." },
-        { t: "R3 should be a link wire", fb: "R3 limits the LED current, so it must stay a resistor. Look at which tracks its two legs are on." },
-        { t: "A track cut is missing", fb: "All four cuts under the chip are there. Follow R3's two legs." }
+        { t: "Pin 4 has no link to +5 V", ok: true },
+        { t: "C1 is the wrong way round", fb: "C1's + leg is in the timing column, which is right. Check every chip pin that should go to a rail." },
+        { t: "R3 has both legs in one column", fb: "R3 runs from pin 3's column to the LED's column, so it isn't shorted. Follow pins 8 and 4 to the + rail." },
+        { t: "Pin 1 has no link to 0 V", fb: "The black link from pin 1's column to the 0 V rail is there. Check the other supply pins." }
+      ] },
+    { change: r => { r.placements.find(p => p.id === "R3").rot = 90; }, focus: ["I12", "L12"],
+      title: "Board C",
+      why: "Right. Both of R3's legs are in column 12, so R3 is shorted out. Nothing joins pin 3 to the LED's column, so the LED never lights.",
+      options: [
+        { t: "R3 has both legs in one column, so it is shorted out", ok: true },
+        { t: "The LED is the wrong way round", fb: "The LED's long leg is in the column R3 should reach. Look at how R3 is fitted." },
+        { t: "R3 should be a link wire", fb: "R3 limits the LED current, so it must stay a resistor. Look at which columns its two legs are in." },
+        { t: "The chip is in the wrong place", fb: "The 555 sits across the centre gap, as it should. Follow R3's two legs." }
       ] }
   ],
   "555-astable": [
@@ -289,44 +285,43 @@ const MISTAKES = {
 };
 
 function mistakes(c) {
-  if (!BUILT(c.id)) return [];
-  const q = question(c, "strip");
+  const kind = KIND[c.id];
+  if (!kind) return [];
+  const q = question(c, kind);
   return MISTAKES[c.id].map(m => {
-    const raw = JSON.parse(JSON.stringify(c.layouts.strip.reference));
+    const raw = JSON.parse(JSON.stringify(c.layouts[kind].reference));
     m.change(raw);
     const att = attemptUpTo(raw, 99);
-    const res = S.check(q, att);
-    if (res.ok) throw new Error(c.id + " " + m.title + ": the mistake was not detected");
-    const f = res.faults[0];
-    return { title: m.title, attempt: att, msg: f.msg, why: m.why, focus: m.focus.map(x => { const h = S.parseRef(x); return [h.r, h.c]; }), options: m.options };
+    if (S.check(q, att).ok) throw new Error(c.id + " " + m.title + ": the mistake was not detected");
+    return { title: m.title, attempt: att, why: m.why, focus: m.focus.map(x => { const h = S.parseRef(x); return [h.r, h.c]; }), options: m.options };
   });
 }
 
 /* ------------------------------------------------------------- quiz */
 const QUIZ = {
   "555-monostable": [
-    { q: "The monostable diagram has 6 numbered nets. What is the fewest number of tracks the stripboard can use?",
-      o: [["6", true, "Right. Each net needs its own track, so 6 is the fewest. A net can spread over more than one track if a link joins them."],
-          ["3", false, "Each net needs a track of its own, or two nets would be joined. Count the numbers on the diagram."],
-          ["8, one per chip pin", false, "Some pins share a net (pins 6 and 7 do), so they can share a track. Count the nets, not the pins."],
-          ["12", false, "That would leave tracks unused. Each net needs at least one track: count the numbers."]] },
+    { q: "The monostable diagram has 6 numbered nets. What is the fewest number of columns and rails the breadboard can use?",
+      o: [["6", true, "Right. Each net needs its own column or rail, so 6 is the fewest. A net can spread over more than one column if a link joins them."],
+          ["3", false, "Each net needs a column or rail of its own, or two nets would be joined. Count the numbers on the diagram."],
+          ["8, one per chip pin", false, "Some pins share a net (pins 6 and 7 do), so they can share a column. Count the nets, not the pins."],
+          ["12", false, "That would leave columns unused. Each net needs at least one column or rail: count the numbers."]] },
+    { q: "Why does the 555 sit across the centre gap?",
+      o: [["So the pins opposite each other are not joined", true, "Right. Each column is joined top to bottom on its own side of the gap. Across the gap, pin 1 and pin 8 are in separate columns."],
+          ["To stop the chip overheating", false, "The gap is about which pins are connected, not heat. Which pins would share a column without it?"],
+          ["So the chip fits the power rails", false, "The rails run along the edges, away from the chip. Think about pin 1 and pin 8 in the same column."],
+          ["It doesn't matter where the chip goes", false, "On one side of the gap, pins opposite each other would share a column. Think about pin 1 and pin 8."]] },
+    { q: "Two legs are labelled with net 4 on the diagram. Where must they go on the breadboard?",
+      o: [["In the same column, or columns joined by a link", true, "Right. Same number means connected."],
+          ["In columns next to each other", false, "Next-door columns are not connected. Same number means the same column, or a link."],
+          ["Anywhere, as long as there is a test point", false, "A test point measures a net; it doesn't join one. Same number means connected."],
+          ["In different columns, so they don't short", false, "That is the rule for different numbers. The same number must be joined."]] }
+  ],
+  "555-astable": [
     { q: "Why are four tracks cut under the 555?",
       o: [["So the pins opposite each other are not joined", true, "Right. Without the cuts, pin 1 would join pin 8, pin 2 pin 7, and so on."],
           ["To stop the chip overheating", false, "The cuts are about which pins are connected, not heat. Which pins share a track without them?"],
           ["To make room for the socket", false, "The socket fits on uncut tracks too. Think about pin 1 and pin 8 on the same track."],
           ["Because the chip uses 4 V", false, "The cuts have nothing to do with the voltage. Count the pins on each side of the chip."]] },
-    { q: "On a breadboard, what does the job of the stripboard's track cuts?",
-      o: [["The centre gap", true, "Right. The chip straddles the gap, so the two rows of pins are in separate columns."],
-          ["The power rails", false, "The rails carry the supply. What keeps the chip's two rows of pins apart?"],
-          ["Link wires", false, "Links join columns. What separates the chip's two rows?"],
-          ["Nothing, a breadboard needs cuts too", false, "You can't cut a breadboard. Its centre gap already keeps the two halves apart."]] }
-  ],
-  "555-astable": [
-    { q: "Two legs are labelled with net 4 on the diagram. Where must they go on the board?",
-      o: [["In the same track or column, or ones joined by a link", true, "Right. Same number means connected."],
-          ["In tracks next to each other", false, "Next-door tracks are not connected. Same number means the same track, or a link."],
-          ["Anywhere, as long as there is a test point", false, "A test point measures a net; it doesn't join one. Same number means connected."],
-          ["In different tracks, so they don't short", false, "That is the rule for different numbers. The same number must be joined."]] },
     { q: "R1 is drawn between +5 V and pin 7. On stripboard it must sit…",
       o: [["Across two tracks: one with +5 V, one with pin 7", true, "Right. Each leg goes in its own net's track."],
           ["Along one track", false, "Both legs on one track short the resistor out. Each leg goes in its net's track."],
@@ -378,32 +373,27 @@ function netColours(c, kinds) {
 }
 
 const circuits = ALL.map(c => {
-  const d = c.circuit(C, tp);
-  return {
-    id: c.id, title: c.title, short: SHORT[c.id], mode: MODE[c.id],
-    steps: c.steps, stepNets: STEPNETS[c.id], chipAsk: CHIPASK[c.id],
+  const d = c.circuit(C, tp), kind = KIND[c.id];
+  const g = {
+    id: c.id, title: c.title, short: SHORT[c.id], mode: MODE[c.id], kind,
+    steps: c.steps.map(s => ({ key: s.key, title: s.title, circuit: s.circuit })),
     chip: c.components.find(x => x.id === "IC1").part,
     pinNames: PINNAMES[c.components.find(x => x.id === "IC1").part],
     target: c.target,
     netParts: c.target.map(list => list.map(p => p.startsWith("IC1.") ? "pin " + p.slice(4) : p.split(".")[0]).filter((v, i, a) => a.indexOf(v) === i)),
     diagram: { w: d.w, h: d.h, groups: d.groups, netPos: NETPOS[c.id], pins: d.pins },
-    kinds: BUILT(c.id) ? { bread: kindData(c, "bread"), strip: kindData(c, "strip") } : {},
+    build: kind ? kindData(c, kind) : null,
     mistakes: mistakes(c), quiz: QUIZ[c.id]
   };
+  if (g.build && (!g.build.ok || g.build.warnings)) throw new Error(c.id + " " + kind + " does not pass SBD.check");
+  g.netColours = netColours(c, kind ? { [kind]: g.build } : {});
+  return g;
 });
 
-for (const c of circuits) c.netColours = netColours(c, c.kinds);
-for (const c of circuits) for (const k of Object.keys(c.kinds))
-  if (!c.kinds[k].ok || c.kinds[k].warnings) throw new Error(c.id + " " + k + " does not pass SBD.check");
-
-const engine = readFileSync(REPO + "/assets/js/stripboard.js", "utf8");
-const tpl = readFileSync(join(HERE, "trainer.tpl.html"), "utf8");
-const out = tpl
-  .replace("/*ENGINE*/", () => engine.replace(/<\/script/gi, "<\\/script"))
-  .replace("/*DATA*/", () => "window.GUIDES = " + JSON.stringify(circuits).replace(/<\/script/gi, "<\\/script") + ";");
-const dest = process.argv[2] || join(HERE, "preview", "conversion-trainer.html");
-const page = process.argv.includes("--fragment") ? out :
-  '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="robots" content="noindex">\n' +
-  out.replace("</style>", "</style>\n</head>\n<body>") + "\n</body>\n</html>\n";
-writeFileSync(dest, page);
-console.log("wrote", dest, page.length);
+const OUT = join(REPO, "assets", "guides");
+mkdirSync(OUT, { recursive: true });
+for (const g of circuits) {
+  const dest = join(OUT, g.id + ".json");
+  writeFileSync(dest, JSON.stringify(g) + "\n");
+  console.log("wrote", dest.slice(REPO.length + 1));
+}

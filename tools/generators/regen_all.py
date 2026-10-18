@@ -36,6 +36,7 @@ RUNS = [
     ("practice-tests/advanced-higher-physics/simple-harmonic-motion", "build_b.py", []),
     ("practice-tests/advanced-higher-physics/stellar-physics", "build.py", ["a"]),
     ("practice-tests/advanced-higher-physics/stellar-physics", "build.py", ["b"]),
+    ("../build-guides", "build-guides.mjs", []),
 ]
 
 
@@ -46,7 +47,8 @@ def main():
     for folder, script, args in RUNS:
         cwd = os.path.join(GEN, folder)
         name = " ".join([folder + "/" + script] + args)
-        r = subprocess.run([sys.executable, script] + args, cwd=cwd, env=env,
+        cmd = ["node", script] if script.endswith(".mjs") else [sys.executable, script]
+        r = subprocess.run(cmd + args, cwd=cwd, env=env,
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         print(("ok    " if r.returncode == 0 else "FAIL  ") + name)
         if r.returncode:
