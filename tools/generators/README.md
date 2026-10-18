@@ -9,11 +9,12 @@ worked out from where the script sits, so it runs from any folder.
 | Programmable Control | `python3 tools/generators/programmable-control/build_page.py` | `classes/n5-engineering/programmable-control.html` |
 | Practice tests | `cd` into the test's folder, then `python3 build.py` / `build_b.py` (S3 Eng and AH Stellar: `build.py a` / `build.py b`; S3 Electricity 1 graphing: `build_graphing.py`) | `classes/{s3-physics/electricity1,s3-engineering,higher/practice-tests,adv/practice-tests}/…` |
 | Unit 1 question bank | `python3 tools/generators/mcq-bank/build_all.py` | `classes/n5-engineering/unit-1-question-bank.html` |
-| Stripboard / breadboard pages | `python3 tools/generators/stripboard/page/build.py` | the four Builder / Planner pages in `classes/electronics/` |
+| Stripboard / breadboard pages | `python3 tools/generators/stripboard/page/build.py` | the four Builder / Planner pages in `classes/electronics/`, and `assets/js/stripboard.js` |
 
 Engine tests (macOS JavaScriptCore, no Node needed): `sh run.sh`, `sh run-bb.sh` and
-`sh run-verify.sh` in `stripboard/engine/`. After a stripboard rebuild, run `npm run stripboard`
-so `assets/js/stripboard.js` keeps up.
+`sh run-verify.sh` in `stripboard/engine/`. The stripboard `build.py` also writes the shared
+engine bundle `assets/js/stripboard.js`, which the four pages load; `npm run stripboard -- --check`
+(CI) proves it matches `engine/`.
 
 ## Mac-only steps
 

@@ -66,7 +66,7 @@ assets/js/site-menu.js                — nav drawer behaviour (every page links
 assets/js/site-search.js              — drawer search, loaded by site-menu.js on first use
 scripts/build-search.mjs              — builds the search index after Jekyll (`npm run search`)
 scripts/sim-check.mjs                 — checks every simulator in a browser (`npm run sims`)
-scripts/build-stripboard.mjs          — copies the stripboard engine out (`npm run stripboard`)
+scripts/build-stripboard.mjs          — checks the stripboard bundle against its sources (`npm run stripboard -- --check`)
 assets/css/sims.css, js/widget-kit.js — the shared simulator component (see "Simulations")
 assets/js/stripboard.js               — generated stripboard engine + renderer (do not edit)
 _data/search.yml, search-synonyms.yml — pages left out of search; pupils' words → site words
@@ -435,8 +435,8 @@ axes or animation loops. Link `sims.css` after the subject sheet, and load `widg
   `<var>`/`<sub>` — never `V_s`-style code subscripts. Results announce via `aria-live="polite"`.
 - **Motion** runs on `WidgetKit.clock` (pauses with the tab, no autoplay under reduced motion).
 - **Progress.** A simulator counts toward its page's badge (`Progress.markSeen` on first use).
-- **Stripboard pictures** come from **`assets/js/stripboard.js`** (`SBD.render.renderBoard`), copied
-  out of the Planner bundle by `npm run stripboard`; never edit it. A layout shown on a page is
+- **Stripboard pictures** come from **`assets/js/stripboard.js`** (`SBD.render.renderBoard`), written
+  from `tools/generators/stripboard/engine/` by the stripboard `build.py`; never edit it. A layout shown on a page is
   checked with `SBD.check` against its netlist before it is published.
 - **Checked automatically.** `npm run sims` (`scripts/sim-check.mjs`) runs every `.sim` at
   1180 × 760 light and dark and at 390 px, in the PR build: no errors or sideways scroll, stage fits,

@@ -49,10 +49,9 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
      empty.
    - [x] `build_all.py` → `unit-1-question-bank.html`: duplicate `id="next"` — rename the
      "Where next" section to `where-next` and its sub-nav link; the button keeps `next`.
-   - [ ] Planner bundle: build `assets/js/stripboard.js` from the sources and have the four
-     planner/builder pages load it instead of their inline copy; point
-     `scripts/build-stripboard.mjs` at the sources. Until then, run `npm run stripboard` after
-     any bundle rebuild, or CI's staleness check fails.
+   - [x] Planner bundle: `build.py` writes `assets/js/stripboard.js` from `engine/` and the four
+     planner/builder pages load it (`?v=sbd-<content hash>`) instead of an inline copy;
+     `scripts/build-stripboard.mjs` builds the same bytes from the sources (18 Oct).
 3. **Add a CI step** in `.github/workflows/pages.yml` that regenerates each generated page and
    fails if it differs from the committed copy (same idea as `npm run stripboard -- --check`).
 4. **DONE 17 Oct** (PR `open-job-4-theme-audit`; Block Diagram Q12 still ~45 px over at the 0.62
