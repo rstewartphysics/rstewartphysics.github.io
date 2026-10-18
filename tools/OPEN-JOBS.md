@@ -59,7 +59,7 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
 4. **DONE 17 Oct** (PR `open-job-4-theme-audit`; Block Diagram Q12 still ~45 px over at the 0.62
    legibility floor; real-iPad check and the re-routed breadboard answers' physics left to RS).
    **Left from the 14 Oct theme audit** (need a decision or a Mac-side check):
-   - [ ] **Block Diagram Builder, one-screen rule.** At 1180 × 760 the stage ends at 761 px and the
+   - [x] **Block Diagram Builder, one-screen rule.** *(Done in PR #203: scenario in a left column; Check on screen at 1180 × 760 for Q1–Q11, Q12 still a short scroll.)* At 1180 × 760 the stage ends at 761 px and the
      Check/Reset buttons at 853 px, even at the minimum scale (0.65): the question text above it
      takes 512 px. Options: put the scenario beside the stage, or shorten the task box. Check on a
      real iPad held sideways.
@@ -121,7 +121,7 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
      it can simply be dropped from the shell. The selected-level buttons (`.lvl[aria-pressed]`)
      are white on `#0a9d7f`, 3.4:1. Still to do by hand: drag-and-drop on a real iPad, and the
      physics of every circuit (teacher).
-   - [ ] **Small contrast misses left** (all under 4.5:1 by a little): Construction's `.sw-title` (4.2:1),
+   - [x] **Small contrast misses left** *(done in PR #203: 5.96:1, 6.34:1, 5.30:1)* (all under 4.5:1 by a little): Construction's `.sw-title` (4.2:1),
      N5 Energy's "useful in green" caption (4.46:1), the Logic page's `.lamp` digit (4.25:1).
 5. **Teacher checks still open** (no code needed unless something is wrong): physics and
    wording of the new simulator quiz feedback, sensor/lamp models, 555 LED current, predict
