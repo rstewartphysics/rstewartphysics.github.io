@@ -210,7 +210,7 @@ const MISTAKES = {
       ] },
     { change: r => { r.links = r.links.filter(l => !(l.a === "L13" && l.b === "M13")); }, focus: ["L13", "M13"],
       title: "Board B",
-      why: "Right. The red link from pin 4's column to the + rail is missing. Pin 4 is Reset. Joined to nothing, it can stop the timer working. Pin 4 must be on net 1, +5 V.",
+      why: "Right. The red link from pin 4's column to the + rail is missing. Pin 4 is Reset. Left joined to nothing, it resets the 555, so the LED never comes on. Pin 4 must be on net 1, +5 V.",
       options: [
         { t: "Pin 4 has no link to +5 V", ok: true },
         { t: "C1 is the wrong way round", fb: "C1's + leg is in the timing column, which is right. Check every chip pin that should go to a rail." },
