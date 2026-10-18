@@ -85,11 +85,10 @@ DATA_SHEET = """
 # is 5.31:1 as text on --card, which is what the mark-scheme labels need.
 EXTRA_CSS = """
 :root {
-  --accent-2:#8a6508;
-  --border-accent: rgba(184,134,11,0.38);
   --cta-1:#8a6508; --cta-2:#6b4e06;
   --good:#15803d; --warm:#9a3412; --bad:var(--warm);
 }
+@media (prefers-color-scheme: dark) { :root { --good:#5dd693; --warm:#ff9d6e; } }
 .backlink { display:inline-flex; align-items:center; gap:.4rem; font-weight:900;
   color:var(--accent-2); text-decoration:none; margin:0 0 .5rem; }
 .backlink:focus-visible { outline:3px solid var(--accent); outline-offset:3px; border-radius:6px; }
@@ -113,11 +112,11 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Advanced Higher Phy
 
 def apply(meta):
     """Point the shared builder at Advanced Higher, for the test in `meta`."""
-    P.use(css="/assets/css/adv-higher-physics.css?v=ah-20260905a",
+    P.use(css="/assets/css/adv-higher-physics.css?v=ah-20261014b",
           progress_js="/assets/js/progress/ah-physics.js",
           banner="/assets/advanced-higher-physics-banner.jpeg",
           banner_alt="Advanced Higher Physics banner",
-          theme_light="#f6efdc", theme_dark="#111827",
+          theme_light="#f6efdc", theme_dark="#14100a",
           back_href="/classes/adv/practice-tests.html",
           back_label="← Back to Advanced Higher practice tests",
           back_class="backlink",

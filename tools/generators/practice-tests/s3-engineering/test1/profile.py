@@ -63,7 +63,9 @@ CREDIT = ("Sources &amp; credits: questions written for this site for S3 Enginee
 
 
 def apply(meta):
-    P.use(css="/assets/css/engineering-science.css?v=eng-20260827b",
+    P.use(css="/assets/css/engineering-science.css?v=eng-20261014c",
+          band={"style": "--bb-a:#006e74; --bb-b:#0a5f57", "icon": "ic-quiz",
+                "icon_style": "--ic-accent:var(--eng-ink-teal)", "sub": "S3 Engineering Science"},
           progress_js="/assets/js/progress/eng-s3.js",
           banner="/assets/s3-engineering-science-banner.jpeg",
           banner_alt="S3 Engineering Science banner",
@@ -73,7 +75,7 @@ def apply(meta):
           relationships=RELATIONSHIPS, relationships_html=RELATIONSHIPS_HTML,
           rel_key=REL_KEY, units=UNITS, unit_js=UNIT_JS, refs=REFS,
           sections=SECTIONS, split=(10, 20), powers_note=False, example="42",
-          paper_note=("✏️ Write your answers in the boxes — a few words or a sentence is "
+          paper_note=("Write your answers in the boxes — a few words or a sentence is "
                       "enough. Do any working and the energy diagram in your jotter. When "
                       "you finish, the page marks the two calculations and you mark the "
                       "rest against the mark scheme."),

@@ -151,6 +151,8 @@ def html():
       <p class="keypoint">On the Uno, the plan becomes real: <strong>NoSyntaxSim → Duino.app: Verify → Upload → build it</strong>. Then you <strong>test</strong> every job, <strong>fix</strong> what fails, and <strong>test again</strong>. The assignment asks for exactly this.</p>
       <p class="exam-ref"><span class="exam-ref-lab">Pins</span> The exam uses inputs on pins <b>0–3</b> and outputs on <b>4–7</b>. Our Uno uses inputs <b>2–3</b> (pins 0 and 1 carry its USB link) and outputs <b>4–7</b>. The booklet's code uses pins 13, 9–11 and 8.</p>
 
+      {{% include uno-getting-started.html %}}
+
       <div class="dual">
         <div class="dual-text">
           <h3>Worked example 1: the flashing lamp</h3>
