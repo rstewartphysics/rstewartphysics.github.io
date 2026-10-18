@@ -11,6 +11,13 @@ worked out from where the script sits, so it runs from any folder.
 | Unit 1 question bank | `python3 tools/generators/mcq-bank/build_all.py` | `classes/n5-engineering/unit-1-question-bank.html` |
 | Stripboard / breadboard pages | `python3 tools/generators/stripboard/page/build.py` | the four Builder / Planner pages in `classes/electronics/`, and `assets/js/stripboard.js` |
 
+**Re-run them all:** `python3 tools/generators/regen_all.py`. With `--check` it then fails if git
+sees any change — CI runs that first on every pull request, so a hand edit to a generated page,
+or a generator change that was never re-run, is caught before it is lost. Run it from a clean
+tree. The packages are pinned in `requirements.txt` to the Mac's versions, because matplotlib's
+SVG output changes between releases; CI also installs Trebuchet MS (Microsoft's core fonts),
+the graphs' font. A new generator goes in `RUNS` in `regen_all.py` as well as in the table above.
+
 Engine tests (macOS JavaScriptCore, no Node needed): `sh run.sh`, `sh run-bb.sh` and
 `sh run-verify.sh` in `stripboard/engine/`. The stripboard `build.py` also writes the shared
 engine bundle `assets/js/stripboard.js`, which the four pages load; `npm run stripboard -- --check`

@@ -48,6 +48,8 @@ scripts, real Safari and the teacher's OneDrive. Pick the place before starting.
   `main`.
 - **Never hand-edit a generated page.** Change the generator, re-run it, and commit both. A cloud
   session that finds a generated page needing a change adds the job to `tools/OPEN-JOBS.md`.
+  CI enforces this: `python3 tools/generators/regen_all.py --check` re-runs every generator in
+  `tools/generators/` and fails if any committed page changes.
 
 ---
 
