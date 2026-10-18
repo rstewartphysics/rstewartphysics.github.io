@@ -52,6 +52,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--trace); out
 
 .mode { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-weight: 700; color: var(--muted); font-size: .93rem; }
 .chip { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 900; letter-spacing: .03em; text-transform: uppercase; }
+.chip.diagram { background: var(--step-soft); color: var(--step-ink); }
 .chip.worked { background: var(--good-soft); color: var(--good); }
 .chip.faded { background: var(--step-soft); color: var(--step-ink); }
 .chip.yours { background: var(--trace-soft); color: var(--trace); }
@@ -164,7 +165,7 @@ g.ring { cursor: pointer; }
 
   var PARTS = [["diagram", "1 · Circuit diagram"], ["bread", "2 · Diagram → breadboard"], ["strip", "3 · Diagram → stripboard"],
                ["mistake", "Spot the mistake"], ["quiz", "Quick quiz"]];
-  var LEVEL = { worked: "Worked example", faded: "Some steps yours", yours: "Your turn" };
+  var LEVEL = { diagram: "Diagram only", worked: "Worked example", faded: "Some steps yours", yours: "Your turn" };
   var state = { ci: 0, part: "diagram", step: 0, tryFirst: false, prompts: null, focusNet: 0, focusPin: null, mi: 0, picked: {}, quiz: {} };
   try { var saved = JSON.parse(localStorage.getItem("cct-v1") || "{}"); if (saved.tryFirst) state.tryFirst = true; } catch (e) {}
 
@@ -242,7 +243,7 @@ g.ring { cursor: pointer; }
     for (var i = 0; i < K.nets.length; i++) if (K.nets[i].indexOf(node) >= 0) return i + 1;
     return 0;
   }
-  function netWhere(K, n) { return K.nets[n - 1].map(function (id) { return K.nodes[id].name; }).join(", "); }
+  function netWhere(K, n) { return K.nets[n - 1].map(function (id) { return K.nodes[id].name; }).join("; "); }
   function unit(K) { return K.isBread ? "column" : "track"; }
 
   /* -------------------------------------------------- diagram */
@@ -285,14 +286,20 @@ g.ring { cursor: pointer; }
   }
 
   /* --------------------------------------------------- rendering */
+  function partsOf(c) {
+    return PARTS.filter(function (p) { return (p[0] !== "bread" && p[0] !== "strip" && p[0] !== "mistake") || c.kinds.strip; });
+  }
   function renderTop() {
     $("circuits").innerHTML = G.map(function (c, i) {
       return '<button type="button" data-ci="' + i + '" aria-pressed="' + (i === state.ci) + '">' + esc(c.short) + '<span class="lvl">' + LEVEL[c.mode] + "</span></button>";
     }).join("");
-    $("parts").innerHTML = PARTS.map(function (p) {
+    var avail = partsOf(circ());
+    if (!avail.some(function (p) { return p[0] === state.part; })) { state.part = "diagram"; state.step = 0; }
+    $("parts").innerHTML = avail.map(function (p) {
       return '<button type="button" role="tab" data-part="' + p[0] + '" aria-selected="' + (p[0] === state.part) + '">' + p[1] + "</button>";
     }).join("");
-    var c = circ(), txt = c.mode === "worked" ? "Follow each step. For a challenge, try each step yourself first."
+    var c = circ(), txt = c.mode === "diagram" ? "Build up the diagram one step at a time. You test this circuit in Yenka and the simulator, not on a board."
+      : c.mode === "worked" ? "Follow each step. For a challenge, try each step yourself first."
       : c.mode === "faded" ? "On the parts steps, tap where each net goes before the answer shows."
       : "Tap where each net goes. Open a hint if you are stuck.";
     $("mode").innerHTML = '<span class="chip ' + c.mode + '">' + LEVEL[c.mode] + "</span><span>" + txt + "</span>" +
@@ -472,7 +479,7 @@ g.ring { cursor: pointer; }
       return '<button type="button" class="opt' + cls + '" data-opt="' + i + '">' + o.t + "</button>";
     }).join("");
     var fb = pick == null ? "" : m.options[pick].ok
-      ? '<div class="fb good">Right. The checker says: ' + m.msg + "</div>"
+      ? '<div class="fb good">' + m.why + "</div>"
       : '<div class="fb bad">' + m.options[pick].fb + "</div>";
     $("main").innerHTML = '<div class="stephead"><h2>Spot the mistake</h2><div class="mtabs">' + tabs + "</div></div>" +
       '<div class="stage"><div class="col"><div class="fig">' + diagramSVG(c, { rings: true }) + '<p class="cap">The circuit it should be</p></div>' +
