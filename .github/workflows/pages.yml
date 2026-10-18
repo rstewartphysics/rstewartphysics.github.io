@@ -1,5 +1,5 @@
-# Builds the site with the same Jekyll and plugins as GitHub Pages (the github-pages gem in the
-# Gemfile), adds the site-search index, checks the simulators, and publishes it. Pull requests build and index too, so a
+# Checks every generated page against its generator, builds the site with the same Jekyll and
+# plugins as GitHub Pages (the github-pages gem in the Gemfile), adds the site-search index, checks the simulators, and publishes it. Pull requests build and index too, so a
 # broken page or index shows up before it reaches main; only main is deployed.
 #
 # One-off setting: Settings → Pages → Build and deployment → Source: "GitHub Actions".
@@ -24,6 +24,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Every generated page must be exactly what its generator emits, or the next re-run quietly
+      # undoes a hand edit (tools/generators/README.md). First, before anything else writes to the
+      # tree. Python and the packages match the Mac; Trebuchet MS is the graphs' font, and without
+      # it matplotlib lays every graph out differently.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: pip
+          cache-dependency-path: tools/generators/requirements.txt
+
+      - name: Install the generators' font and packages
+        run: |
+          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ttf-mscorefonts-installer
+          pip install -r tools/generators/requirements.txt
+
+      - name: Check the generated pages
+        run: python tools/generators/regen_all.py --check
 
       - uses: ruby/setup-ruby@v1
         with:

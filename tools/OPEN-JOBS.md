@@ -52,8 +52,10 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
    - [x] Planner bundle: `build.py` writes `assets/js/stripboard.js` from `engine/` and the four
      planner/builder pages load it (`?v=sbd-<content hash>`) instead of an inline copy;
      `scripts/build-stripboard.mjs` builds the same bytes from the sources (18 Oct).
-3. **Add a CI step** in `.github/workflows/pages.yml` that regenerates each generated page and
-   fails if it differs from the committed copy (same idea as `npm run stripboard -- --check`).
+3. **DONE 18 Oct.** `.github/workflows/pages.yml` runs `tools/generators/regen_all.py --check`
+   first: all 16 generator runs, then fails if git sees any change. CI installs Python 3.9, the
+   packages pinned in `tools/generators/requirements.txt` and Microsoft's core fonts (Trebuchet MS,
+   the graphs' font). Not covered: the pneumatic components generator, still on the Mac.
 4. **DONE 17 Oct** (PR `open-job-4-theme-audit`; Block Diagram Q12 still ~45 px over at the 0.62
    legibility floor; real-iPad check and the re-routed breadboard answers' physics left to RS).
    **Left from the 14 Oct theme audit** (need a decision or a Mac-side check):
