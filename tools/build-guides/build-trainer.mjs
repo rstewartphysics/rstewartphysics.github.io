@@ -26,7 +26,10 @@ const STEPNETS = {
   "555-monostable": [[1, 2], [], [4], [3], [5, 6], []],
   "op-amp-comparator": [[1, 2], [], [3], [4], [5, 6], []]
 };
-const MODE = { "op-amp-comparator": "worked", "555-monostable": "faded", "555-astable": "yours" };
+/* 18 Oct 2026: the comparator is not built (Yenka and the simulator only), so it keeps
+   Part 1 alone and the worked build moves to the monostable. */
+const MODE = { "op-amp-comparator": "diagram", "555-monostable": "worked", "555-astable": "yours" };
+const BUILT = id => MODE[id] !== "diagram";
 const SHORT = { "555-monostable": "555 monostable", "555-astable": "555 astable", "op-amp-comparator": "741 comparator" };
 const PINNAMES = {
   "555": { 1: "Ground (0 V)", 2: "Trigger", 3: "Output", 4: "Reset", 5: "Control voltage (not used)", 6: "Threshold", 7: "Discharge", 8: "+Vcc (supply)" },
@@ -71,7 +74,7 @@ function kindData(c, kind) {
     const h0 = { r: hs[0][0], c: hs[0][1] };
     if (S.isBread(board)) {
       const rail = board.rails.find(x => x.r === h0.r);
-      nodes[id].name = S.netName(board, h0).replace(/^the /, "");
+      nodes[id].name = S.netName(board, h0).replace(/^the /, "").replace(/ \(([a-j])–([a-j])\)$/, " (holes $1–$2)");
       nodes[id].token = rail ? rail.pol : String(h0.c);
     } else {
       const c1 = hs[0][1], c2 = hs[hs.length - 1][1];
@@ -124,6 +127,12 @@ function kindData(c, kind) {
   const anchorNodes = new Set();
   for (const [pid, h] of Object.entries(pinHole)) if (/^(IC1|\+5V|\+9V|0V)\./.test(pid)) anchorNodes.add(nodeAt(h));
   if (S.isBread(board)) board.rails.forEach(r => anchorNodes.add(nodeAt({ r: r.r, c: 1 })));
+  const zeroLead = nodeAt(pinHole[Object.keys(pinHole).find(k => k.startsWith("0V."))]);
+  for (const l of ref.links) {
+    const a = nodeAt(S.parseRef(l.a)), b = nodeAt(S.parseRef(l.b));
+    if (a === zeroLead) anchorNodes.add(b);
+    if (b === zeroLead) anchorNodes.add(a);
+  }
   const readyOf = node => {
     if (anchorNodes.has(node)) return visit[netOfNode[node]];
     const steps = ref2.placements.filter(p => p.id !== "IC1" && legNets(p).some(x => x.node === node)).map(p => p.step);
@@ -134,6 +143,8 @@ function kindData(c, kind) {
   });
   ref2.testpoints.forEach(t => { t.step = order.length + 1; });
   const nodeName = id => nodes[id].name;
+  /* inside "net 3 (…)" a second bracket is hard to read, so its contents follow a comma */
+  const inNet = id => nodes[id].name.replace(/ \((holes [^)]+)\)$/, ", $1");
   const listing = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
   const netParts = n => c.target[n - 1].map(x => x.startsWith("IC1.") ? "pin " + x.slice(4) : x.split(".")[0]).filter((v, i, a) => a.indexOf(v) === i);
   const supplyOf = n => { const t = c.target[n - 1].find(x => /^(\+5V|\+9V|0V)\./.test(x)); return t ? t.split(".")[0].replace("V", " V") : null; };
@@ -161,14 +172,15 @@ function kindData(c, kind) {
     ref2.placements.filter(q => q.step === k).forEach(q => {
       const legs = legNets(q), comp = c.components.find(x => x.id === q.id);
       if (q.footprint.startsWith("term")) step.items.push(`${comp.name} lead: ${listing(legs.map(x => nodeName(x.node)))}, at the top-left corner beside the other supply lead, so both can share one spiral wrap to the power supply.`);
-      else step.items.push(`${q.id} goes in now, from ${listing(legs.map(x => `net ${x.net} (${nodeName(x.node)})`)).replace(/ and /, " to ")}.`);
+      else if (legs.length > 2) step.items.push(`${q.id} goes in now. Its ${legs.length} legs go in ${listing(legs.map(x => `net ${x.net} (${inNet(x.node)})`))}, in that order.`);
+      else step.items.push(`${q.id} goes in now, from ${listing(legs.map(x => `net ${x.net} (${inNet(x.node)})`)).replace(/ and /, " to ")}.`);
       const other = legs.find(x => x.net !== n);
       if (other && legs.length === 2 && step.prompts.length < 2)
         step.prompts.push({ part: q.id, net: other.net, text: `${q.id} joins net ${n} to net ${other.net}. Tap where its other leg goes.` });
     });
     ref2.links.filter(l => l.step === k).forEach(l => {
       const a = nodeAt(S.parseRef(l.a)), b = nodeAt(S.parseRef(l.b));
-      step.items.push(`A ${l.colour} link joins ${nodeName(a)} to ${nodeName(b)}, both net ${netOfNode[a]}.`);
+      step.items.push(`A ${l.colour} link joins ${nodeName(a)} to ${nodeName(b)}. Both are net ${netOfNode[a]}.`);
     });
     seq.push(step);
   });
@@ -193,6 +205,7 @@ const MISTAKES = {
   "555-monostable": [
     { change: r => { r.cuts = r.cuts.filter(x => x[0] !== "G14"); }, focus: ["G14"],
       title: "Board A",
+      why: "Right. The cut at G14 is missing, so pin 2 and pin 7 share track G. The trigger is joined to the timing parts. A 555 needs all four cuts.",
       options: [
         { t: "A track cut is missing between the chip's two rows", ok: true },
         { t: "C1 is the wrong way round", fb: "Look at C1: its + leg is on the timing track, which is right. Check the chip's track cuts." },
@@ -201,6 +214,7 @@ const MISTAKES = {
       ] },
     { change: r => { r.placements.find(p => p.id === "C1").rot = 270; }, focus: ["M22", "N22"],
       title: "Board B",
+      why: "Right. C1's + leg is on 0 V and its − leg on the timing track. An electrolytic capacitor's + leg goes on the more positive net, here net 4.",
       options: [
         { t: "C1 is the wrong way round", ok: true },
         { t: "A track cut is missing", fb: "All four cuts are there. Look at the parts that only work one way round." },
@@ -209,6 +223,7 @@ const MISTAKES = {
       ] },
     { change: r => { const p = r.placements.find(p => p.id === "R3"); p.at = "H3"; p.rot = 0; }, focus: ["H3", "H6"],
       title: "Board C",
+      why: "Right. Both of R3's legs are in track H, so R3 is shorted out. Nothing joins pin 3 to the LED's track, so the LED never lights.",
       options: [
         { t: "R3 has both legs on the same track, so it is shorted out", ok: true },
         { t: "The LED is the wrong way round", fb: "The LED's long leg is on R3's track. Look at how R3 is fitted." },
@@ -219,6 +234,7 @@ const MISTAKES = {
   "555-astable": [
     { change: r => { r.placements.find(p => p.id === "LED1").rot = 270; }, focus: ["R13", "S13"],
       title: "Board A",
+      why: "Right. The red LED's long leg is on the 0 V track and its short leg on R3's track. It is reverse biased, so it never lights. The green LED still flashes.",
       options: [
         { t: "The red LED is the wrong way round", ok: true },
         { t: "R3 is on the wrong tracks", fb: "R3 runs from pin 3's track to the red LED, as it should. Look at the LED's flat edge." },
@@ -227,6 +243,7 @@ const MISTAKES = {
       ] },
     { change: r => { r.links = r.links.filter(l => !(l.a === "G9" && l.b === "U9")); }, focus: ["G9", "U9"],
       title: "Board B",
+      why: "Right. The yellow link from track G to track U is missing, so pin 2 is joined to nothing. Pin 2 must be on net 4 with pin 6 and C1's + leg.",
       options: [
         { t: "Pin 2 is not joined to C1 and pin 6", ok: true },
         { t: "R1 and R2 are swapped", fb: "R1 (1 kΩ) is from +5 V to pin 7 and R2 (10 kΩ) from pin 7 down, as drawn. Follow net 4: pin 2, pin 6 and C1." },
@@ -235,6 +252,7 @@ const MISTAKES = {
       ] },
     { change: r => { r.placements.find(p => p.id === "R2").at = "H19"; }, focus: ["H19", "K19"],
       title: "Board C",
+      why: "Right. R2's top leg is in track H (pin 6) instead of track G (pin 7). R2 now joins net 4 straight to +5 V, and pin 7 has only R1.",
       options: [
         { t: "R2 starts on pin 6's track instead of pin 7's", ok: true },
         { t: "R1 is too short", fb: "R1 reaches from track A to pin 7's track. Look at where R2's top leg sits." },
@@ -271,6 +289,7 @@ const MISTAKES = {
 };
 
 function mistakes(c) {
+  if (!BUILT(c.id)) return [];
   const q = question(c, "strip");
   return MISTAKES[c.id].map(m => {
     const raw = JSON.parse(JSON.stringify(c.layouts.strip.reference));
@@ -279,7 +298,7 @@ function mistakes(c) {
     const res = S.check(q, att);
     if (res.ok) throw new Error(c.id + " " + m.title + ": the mistake was not detected");
     const f = res.faults[0];
-    return { title: m.title, attempt: att, msg: f.msg, focus: m.focus.map(x => { const h = S.parseRef(x); return [h.r, h.c]; }), options: m.options };
+    return { title: m.title, attempt: att, msg: f.msg, why: m.why, focus: m.focus.map(x => { const h = S.parseRef(x); return [h.r, h.c]; }), options: m.options };
   });
 }
 
@@ -325,16 +344,16 @@ const QUIZ = {
           ["Pin 2", false, "Pin 2 is the inverting (−) input, where V<sub>ref</sub> goes. Check the pin-out."],
           ["Pin 6", false, "Pin 6 is the output. The + input is pin 3."],
           ["Pin 7", false, "Pin 7 is the +9 V supply. The + input is pin 3."]] },
-    { q: "TH1 and VR1 meet at net 3. On stripboard that means…",
-      o: [["One leg of each is on net 3's track", true, "Right. The other legs go on +9 V and 0 V."],
-          ["They sit end to end along one track", false, "That shorts both out. Each part bridges two tracks."],
-          ["They must touch each other", false, "Parts are joined by the copper track, not by touching. Put a leg of each on net 3's track."],
-          ["VR1 goes under the chip", false, "Parts never go under the chip. Find net 3's track."]] },
-    { q: "The comparator has 6 nets but the stripboard uses more tracks than that. Why?",
-      o: [["Some nets need two tracks joined by a link", true, "Right. Pin 3 is on its own short track, so a link carries net 3 down to the sensing parts."],
-          ["Extra tracks are always cut off", false, "Unused tracks are fine, but the reason is that some nets span two tracks joined by links."],
-          ["The 741 needs 8 tracks", false, "The chip's pins sit on the tracks it crosses. The extra tracks come from nets that need links."],
-          ["It's a mistake", false, "It's normal: some nets can't fit on one track, so a link joins two."]] }
+    { q: "TH1 warms up. What happens to V<sub>in</sub> at pin 3?",
+      o: [["It rises", true, "Right. TH1's resistance falls, so TH1 takes a smaller share of the 9 V and VR1 a bigger share. V<sub>in</sub> is the voltage across VR1."],
+          ["It falls", false, "That happens when the thermistor is at the bottom. Here TH1 is on top: as its resistance falls, VR1's share grows."],
+          ["It stays the same", false, "V<sub>in</sub> depends on how the 9 V is shared between TH1 and VR1. What happens to TH1's resistance when it warms?"],
+          ["It drops to 0 V", false, "VR1 still has a share of the supply. Think about which resistor gets the bigger share as TH1's resistance falls."]] },
+    { q: "When does the LED come on?",
+      o: [["When V<sub>in</sub> is bigger than V<sub>ref</sub>", true, "Right. The + input (pin 3) is then higher than the − input (pin 2), so the output, pin 6, goes HIGH."],
+          ["When V<sub>ref</sub> is bigger than V<sub>in</sub>", false, "That makes the output LOW. The comparator's output is HIGH when the + input is the higher one."],
+          ["When V<sub>in</sub> reaches 9 V", false, "V<sub>in</sub> only has to pass V<sub>ref</sub>, about 1.6 V. Compare the two inputs."],
+          ["Whenever the supply is on", false, "The output depends on which input is higher. Compare V<sub>in</sub> and V<sub>ref</sub>."]] }
   ]
 };
 
@@ -347,6 +366,7 @@ function netColours(c, kinds) {
   });
   for (const k of ["strip", "bread"]) {
     const K = kinds[k];
+    if (!K) continue;
     for (const l of K.reference.links) {
       const h = S.parseRef(l.a), node = K.holeNode[h.r * 1000 + h.c];
       const n = K.nets.findIndex(ns => ns.includes(node));
@@ -367,13 +387,13 @@ const circuits = ALL.map(c => {
     target: c.target,
     netParts: c.target.map(list => list.map(p => p.startsWith("IC1.") ? "pin " + p.slice(4) : p.split(".")[0]).filter((v, i, a) => a.indexOf(v) === i)),
     diagram: { w: d.w, h: d.h, groups: d.groups, netPos: NETPOS[c.id], pins: d.pins },
-    kinds: { bread: kindData(c, "bread"), strip: kindData(c, "strip") },
+    kinds: BUILT(c.id) ? { bread: kindData(c, "bread"), strip: kindData(c, "strip") } : {},
     mistakes: mistakes(c), quiz: QUIZ[c.id]
   };
 });
 
 for (const c of circuits) c.netColours = netColours(c, c.kinds);
-for (const c of circuits) for (const k of ["bread", "strip"])
+for (const c of circuits) for (const k of Object.keys(c.kinds))
   if (!c.kinds[k].ok || c.kinds[k].warnings) throw new Error(c.id + " " + k + " does not pass SBD.check");
 
 const engine = readFileSync(REPO + "/assets/js/stripboard.js", "utf8");

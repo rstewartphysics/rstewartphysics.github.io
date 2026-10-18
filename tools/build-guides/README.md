@@ -45,6 +45,18 @@ figure here is drawn; nothing was copied from it.
 | Board rows | Engine letters A–V (the classroom sheet's 22–1 numbering is dropped). |
 | Yenka | Kept alongside the on-page simulator. |
 
+**Changed by the teacher, 18 Oct 2026** (these replace the rows above where they differ):
+
+| Question | Decision |
+|----------|----------|
+| Comparator | **Not built.** Yenka and the on-page simulator only: no breadboard or stripboard guide, no bench test, no comparator in the Planner/Builder banks. The guide keeps Part 1 (the diagram) and a quiz on reading it. |
+| 555 circuits | **Both built**, with the breadboard and stripboard guides. |
+| Fading | Moves down one: **monostable worked, astable your turn**. |
+| Old booklet's mock assignment | **Not used any more.** Not carried into the new booklet; no hub capstone built from it. |
+| Timing | Block 6 is taught from about 1 Nov 2026. |
+| Old deck | `555 Timer Tasks.pptx` is replaced by one deck per lesson. |
+| Booklet | Lean: tasks and questions only; the notes are on the lesson pages. |
+
 ## 3. Audit of the current 555 astable page
 
 `classes/electronics/555-astable.html`, checked at 1180 × 760.
@@ -100,10 +112,8 @@ and figure as `.dual` → practice with reveal → **"You can now…"**), then:
 7. **"Next:"** chain: Logic & ICs (theory 6) → hub → lessons in order. Logic & ICs keeps its short
    "describe" section and links down; its Yenka photos are not reused.
 
-**Capstone on the hub:** the booklet's *Flashing lights* brief as a block diagram only
-(thermistor comparator → AND with the master switch → 555 astable reset → LEDs), with a "which
-lesson does each block come from" exercise. **No finished solution** — the Mock Practical Activity
-Guide's rule ("Solutions are not published here") applies.
+~~Capstone on the hub~~ — dropped 18 Oct 2026: the booklet's *Flashing lights* mock assignment is
+not used any more.
 
 Build order agreed for the two weeks: hub + comparator → monostable → astable upgrade → boards,
 capstone, badges → `npm run sims`, screenshots both themes and widths → teacher physics and real
@@ -179,12 +189,19 @@ claude.ai artifact takes).
 - [ ] Physics and wording of every circuit and step (teacher): the four flags in §3; the
       monostable's "slide it back straight away, while pin 2 is held LOW the output stays HIGH";
       thermistor value and VR1 range for a sensible switching temperature; LED currents.
-- [ ] **Bench test: does the comparator's LED glow when it should be off?** (physics audit,
+- [x] ~~**Bench test: does the comparator's LED glow when it should be off?**~~ Dropped 18 Oct:
+      the comparator is not built. (physics audit,
       17 Oct). A 741 on a single 9 V supply only pulls its output down to about 1–2 V, close to
       a red LED's forward voltage. If the LED glows faintly when cold, put a 1N4148 in series with
       it (and add it to the circuit, layouts and step text here) rather than changing the chip.
-- [ ] Every generated step text and every spot-the-mistake explanation (`build-trainer.mjs`).
-- [ ] Re-run `check.mjs`, `build-trainer.mjs` and `test-trainer.mjs` after any change.
+- [x] Every generated step text and every spot-the-mistake explanation (`build-trainer.mjs`),
+      18 Oct: three-legged parts get their own sentence; no brackets inside brackets; on the
+      astable stripboard the 0 V spine (B–V, F–V) now goes in with pin 1, as on the monostable;
+      spot-the-mistake explains each fault in words instead of quoting the checker (which
+      described a reversed C1 or LED as "you need a cut").
+- [x] Re-run `check.mjs`, `build-trainer.mjs` and `test-trainer.mjs` after any change (18 Oct:
+      six OKs, no page errors, 390 px no sideways scroll; the drive test now asserts the
+      comparator shows only its diagram and quiz).
 
 **Decided, to do on the Mac**
 - [ ] **One capacitor symbol site-wide** (teacher, 15 Oct): change `ecap()` in the bundle's
@@ -201,9 +218,7 @@ claude.ai artifact takes).
       booklet and the page show the same picture. Add an export step to `build-trainer.mjs` (or a
       sibling) that writes each step's diagram and board as standalone SVG (`renderBoard` with
       `standalone: true`; `SBD.circuit.wrap` for diagrams) for the deck kit and the booklet.
-- [ ] Check the booklet's mock assignment against the Mock Practical Activity Guide so they don't
-      contradict each other (the site's mock is the pillar-drill brief; the booklet's is
-      *Flashing lights*).
+- [x] ~~Check the booklet's mock assignment~~ — dropped 18 Oct: the old mock is not used.
 
 **Into the site**
 - [ ] Turn the prototype into one shared component (`assets/js/build-guide.js` + one JSON per
@@ -213,7 +228,7 @@ claude.ai artifact takes).
       simulator checks (`npm run sims`) and an `[data-guide]` check in `scripts/sim-check.mjs`.
 - [ ] Update `assets/boards/555-astable.json` to the 5 V layout here (or retire it for the guide).
 - [ ] Apply the audit fixes A1–A3 and A9 to the existing astable page.
-- [ ] Add the three circuits to the Stripboard/Breadboard Planner and Builder question banks (Mac
+- [ ] Add the two 555 circuits (not the comparator) to the Stripboard/Breadboard Planner and Builder question banks (Mac
       sources) so each lesson can end with "Plan it yourself" and a board → diagram ("Reverse")
       exercise; then `npm run stripboard`.
 - [ ] Credits: nothing third-party is used so far; check again if photos are added.
