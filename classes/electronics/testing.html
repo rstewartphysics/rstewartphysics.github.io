@@ -1,6 +1,7 @@
 ---
 layout: none
-title: Testing — National 5 Electronics
+title: Lesson 1 Testing — Timers and Comparators · National 5 Electronics
+search_keywords: multimeter, logic probe, continuity, test points, fault finding, Probe Detective
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -10,69 +11,216 @@ title: Testing — National 5 Electronics
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
-  <title>Testing — National 5 Electronics</title>
+  <title>Lesson 1 Testing — Timers and Comparators · National 5 Electronics</title>
   {% include site-head-icons.html %}
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
+  <link rel="stylesheet" href="/assets/css/reading.css">
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/electronics.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
+  <script src="/assets/js/electronics-theory.js?v=elt-20261017a" defer></script>
+  <script src="/assets/js/testing-bench.js?v=tb-20261019b" defer></script>
   <style>
     .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
     .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
-    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; min-height: 44px; }
     .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
     .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
     .notes li { margin: .3rem 0; }
+    .notes p { margin: .5rem 0 0; }
     .notes strong { color: var(--text); }
+    .notes a, .panel p a { color: var(--accent-2); font-weight: 900; }
+    .panel h3 { font-weight: 900; margin: 1.2rem 0 .3rem; }
+
+    .keywords { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin: .7rem 0; }
+    .keywords h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
+    .keywords dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; }
+    .keywords dt { font-weight: 900; color: var(--text); }
+    .keywords dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    /* words and picture together */
+    .dual { display: grid; gap: 1rem 1.4rem; align-items: start; margin: .9rem 0 0; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+    .dual > * { min-width: 0; }
+    .dual figure { margin: 0; }
+    .dual figcaption, .fig-cap { margin-top: .4rem; font-size: .9rem; font-weight: 800; line-height: 1.5; color: var(--muted); }
+    @media (max-width: 700px) { .dual { grid-template-columns: minmax(0,1fr); } }
+    .fig-card { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .5rem; }
+    .fig-card svg { display: block; width: 100%; height: auto; }
+    .sqa-fig { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: .4rem; }
+    .sqa-fig img { width: 100%; height: auto; display: block; }
+
+    /* drawn figures: ink follows the theme */
+    .fig { font-family: inherit; }
+    .fig .w { stroke: var(--text); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .fig .thin { stroke-width: 1.6; }
+    .fig .res { fill: var(--card); stroke: var(--text); stroke-width: 2.4; }
+    .fig .node { fill: var(--text); }
+    .fig .mtr { fill: var(--card); stroke: var(--accent-2); stroke-width: 2.6; }
+    .fig .box { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.2; }
+    .fig .hole { fill: var(--card); }
+    .fig .copper { fill: #c98a3a; }
+    .fig .chip { fill: #2b2f33; stroke: var(--text); stroke-width: 1.6; }
+    .fig .pin { stroke: var(--muted); stroke-width: 3; }
+    .fig .lead-o { stroke: var(--text); stroke-width: 7; stroke-linecap: round; fill: none; }
+    .fig .lead-r { stroke: #c62828; stroke-width: 4.5; stroke-linecap: round; fill: none; }
+    .fig .lead-k { stroke: #1d1d1d; stroke-width: 4.5; stroke-linecap: round; fill: none; }
+    .fig .tip { fill: var(--text); }
+    .fig .arrow { fill: var(--text); }
+    .fig text { fill: var(--text); font-weight: 800; font-size: 13px; }
+    .fig text.sm { font-size: 11.5px; }
+    .fig text.big { font-size: 16px; font-weight: 900; }
+    .fig text.red { fill: #c62828; }
+    .fig text.ink2 { fill: var(--accent-2); }
+    @media (prefers-color-scheme: dark) { .fig .lead-r { stroke: #ef5350; } .fig text.red { fill: #ff8a80; } }
+
+    /* the class multimeter (drawn by testing-bench.js) */
+    .tb-meter { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; font-family: inherit; }
+    .tb-meter .m-body { fill: var(--surface-2); stroke: var(--text); stroke-width: 5; }
+    .tb-meter .m-lcd { fill: #cfdcc8; stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-digits { fill: #18201a; font-family: "Courier New", Courier, monospace; font-size: 104px; font-weight: 700; }
+    .tb-meter .m-btn { fill: var(--card); stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-small { fill: var(--text); font-size: 26px; font-weight: 800; }
+    .tb-meter .m-ink { fill: var(--text); }
+    .tb-meter .m-hole { fill: var(--muted); opacity: .55; }
+    .tb-meter .m-range { fill: var(--text); font-size: 19px; font-weight: 800; }
+    .tb-meter .m-diode path { fill: var(--text); }
+    .tb-meter .m-diode line { stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-beep circle { fill: var(--text); }
+    .tb-meter .m-beep path { fill: none; stroke: var(--text); stroke-width: 3; }
+    .tb-meter .m-sector { fill: var(--card); stroke: var(--border-strong); stroke-width: 2; }
+    .tb-meter .m-group { fill: var(--accent-2); font-size: 28px; font-weight: 900; }
+    .tb-meter .m-knob { fill: var(--card); stroke: var(--text); stroke-width: 5; }
+    .tb-meter .m-pointer { transition: transform .35s ease; }
+    .tb-meter .m-bar { fill: #3a4044; stroke: var(--text); stroke-width: 3; }
+    .tb-meter .m-tip { stroke: #fff; stroke-width: 9; stroke-linecap: round; }
+    .tb-meter .m-sock { fill: var(--card); stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-label { fill: var(--text); font-size: 30px; font-weight: 900; }
+    .tb-meter .m-lead-o { fill: none; stroke: var(--text); stroke-width: 20; stroke-linecap: round; }
+    .tb-meter .m-lead { fill: none; stroke-width: 13; stroke-linecap: round; }
+    .tb-meter .m-black { stroke: #1d1d1d; }
+    .tb-meter .m-red { stroke: #c62828; }
+    .tb-meter .m-call { fill: var(--text); font-size: 30px; font-weight: 800; }
+    .tb-meter .m-red-l { fill: #c62828; }
+    .tb-meter .m-callline { stroke: var(--muted); stroke-width: 3; }
+    @media (prefers-color-scheme: dark) { .tb-meter .m-red { stroke: #ef5350; } .tb-meter .m-red-l { fill: #ff8a80; } }
+
+    /* the setting guide */
+    .mg-btns { margin-top: .4rem; }
+    .mg-card { margin-top: .8rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; }
+    .mg-card h4 { margin: 0 0 .35rem; font-size: 1.05rem; font-weight: 900; color: var(--text); }
+    .mg-card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .3rem .8rem; }
+    .mg-card dt { font-weight: 900; color: var(--text); }
+    .mg-card dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    .rules { border: 2px solid var(--accent); border-radius: 12px; background: var(--card); padding: .7rem .9rem; margin-top: 1rem; }
+    .rules h3 { margin: 0 0 .3rem; }
+    .rules ol { margin: 0; padding-left: 1.4rem; }
+    .rules li { margin: .3rem 0; font-weight: 800; color: var(--text); }
+
+    /* testing jobs: a figure per case */
+    .jobs { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(300px,100%), 1fr)); margin-top: .8rem; }
+    .job { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .6rem .75rem; display: grid; gap: .4rem; }
+    .job h3 { margin: 0; font-size: 1.05rem; }
+    .job-fig { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
+    .job-fig svg { width: 100%; height: auto; display: block; }
+    .job-fig svg text { font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif; font-weight: 800; fill: #0f2f28; }
+    .job dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .2rem .6rem; }
+    .job dt { font-weight: 900; color: var(--text); }
+    .job dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    /* logic probe heads */
+    .tb-probe { display: block; width: 100%; max-width: 240px; height: auto; font-family: inherit; }
+    .tb-probe .p-tip { stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
+    .tb-probe .p-body { fill: var(--surface-2); stroke: var(--text); stroke-width: 3; }
+    .tb-probe .p-led { fill: var(--card); stroke: var(--text); stroke-width: 2.5; }
+    .tb-probe .p-hi.on { fill: #e53935; }
+    .tb-probe .p-lo.on { fill: #2e9d4f; }
+    .tb-probe .p-sw { fill: var(--card); stroke: var(--text); stroke-width: 2.5; }
+    .tb-probe .p-lab { fill: var(--text); font-size: 17px; font-weight: 900; }
+    .tb-probe.is-flash .p-hi { animation: tbflash 1.2s steps(1) infinite; }
+    @keyframes tbflash { 50% { fill: var(--card); } }
+    .seen { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(240px,100%), 1fr)); margin-top: .8rem; }
+    .seen-card { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .6rem .75rem; }
+    .seen-card p { margin: .35rem 0 0; font-weight: 800; color: var(--muted); }
+    .seen-card p strong { color: var(--text); }
+
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    .dtable thead th { background: var(--surface-2); }
+    .tbl-wrap { overflow-x: auto; }
 
     .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
     .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #008063, #00604a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
-    .stem { margin: .15rem 0 0; font-weight: 900; color: var(--text); }
-
+    .stem { margin: .6rem 0 0; font-weight: 900; color: var(--text); }
+    .stem:first-of-type { margin-top: .15rem; }
     details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
     details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
     details.reveal > summary::-webkit-details-marker { display: none; }
     details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
     details.reveal[open] > summary::after { transform: rotate(180deg); }
     details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .reveal-body strong { color: var(--text); }
+    details.reveal .reveal-body ul { margin: .2rem 0 0; padding-left: 1.2rem; }
 
-    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
-    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: center; }
-    .dtable thead th { background: var(--surface-2); }
-    .dtable td.l { text-align: left; }
-
-    /* connection diagram */
-    .circuit { display: block; width: 100%; max-width: 320px; height: auto; margin: 0 auto; }
-    .circuit .wire { stroke: var(--text); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .circuit .res  { fill: var(--card); stroke: var(--text); stroke-width: 2.2; }
-    .circuit .node { fill: var(--text); }
-    .circuit .meter { fill: var(--card); stroke: var(--accent); stroke-width: 2.4; }
-    .circuit text  { fill: var(--text); font-family: inherit; font-weight: 800; font-size: 12px; }
-    .figure { margin: .8rem 0 .2rem; }
-    .figure figcaption { color: var(--muted); font-weight: 800; font-size: .85rem; text-align: center; margin-top: .25rem; }
-
-    /* checklist */
-    .chk-list { list-style: none; padding: 0; margin: .6rem 0 0; }
-    .chk-list li { display: flex; gap: .6rem; align-items: flex-start; padding: .55rem .7rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); margin-bottom: .45rem; font-weight: 800; color: var(--text); }
-    .chk-list li::before { content: "☐"; color: var(--accent-2); font-weight: 900; font-size: 1.1rem; line-height: 1.2; }
-
-    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note { border-left: 4px solid var(--warm); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
     .note strong { color: var(--text); }
+    .chk-list { margin: .5rem 0 0; padding-left: 1.4rem; }
+    .chk-list li { margin: .35rem 0; font-weight: 800; color: var(--text); }
 
-    /* writing frame (sentence starters) */
-    .frame { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent-2); border-radius: 12px; background: var(--card); padding: .7rem .85rem; margin-top: .8rem; }
-    .frame .frame-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .3rem; }
-    .frame p { margin: .25rem 0; font-weight: 800; color: var(--text); line-height: 1.75; }
-    .frame .blank { color: var(--accent-2); font-weight: 900; }
+    .cando { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin-top: 1rem; }
+    .cando h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #15803d; }
+    .cando ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25rem; }
+    .cando li { position: relative; padding-left: 1.6rem; font-weight: 800; color: var(--text); line-height: 1.4; }
+    .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
+    @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
 
-    /* buttons / quiz / rag */
-    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    .btn:hover { border-color: var(--border-strong); }
-    .btn.primary { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
-    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    /* booklet box */
+    .booklet-link { display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; padding: .6rem 1rem; margin-top: .6rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--accent-2); font-weight: 900; text-decoration: none; }
+    .booklet-link:hover, .booklet-link:focus-visible { border-color: var(--border-strong); text-decoration: underline; }
+    .booklet-link svg { width: 30px; height: 30px; flex: none; }
+
+    /* the test bench */
+    .sim [hidden] { display: none !important; }
+    .tb-mode { margin: .2rem 0 .7rem; }
+    .tb-board { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: 6px; }
+    .tb-board svg { display: block; width: 100%; height: auto; max-height: 52vh; margin: 0 auto; }
+    .tb-board .tb-hit { cursor: pointer; }
+    .tb-board .tb-ring { fill: none; stroke: var(--accent-2); stroke-width: 3; }
+    .tb-board .tb-hit.is-on .tb-ring { stroke: var(--warm); stroke-width: 6; }
+    .tb-board .tb-glow { fill: transparent; }
+    .tb-board .tb-glow.on.tb-red { fill: rgba(255, 45, 45, .62); }
+    .tb-board .tb-glow.on.tb-green { fill: rgba(40, 220, 95, .62); }
+    #bench .sim-controls .sim-seg-label { display: inline-flex; align-items: center; width: auto; margin-right: 4px; }
+    .tb-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+    body.reading main :is(.reveal-body, .backlink, .booklet-link, .tb-lcdset, .tb-where, .tb-leds, .tb-note, .tb-board, .rag-item .crit, .rag-summary, .score) { font-size: 1.125rem; }
+    #bench .sim-controls .sim-seg-label { font-size: 1.125rem; }
+    #bench .sim-q { line-height: 1.5; }
+    .tb-status { display: flex; flex-wrap: wrap; gap: .2rem 1.2rem; align-items: baseline; }
+    .tb-where { margin: 0; font-weight: 900; color: var(--text); }
+    .tb-leds { margin: 0; font-weight: 800; color: var(--muted); font-size: .95rem; }
+    .tb-lcdwrap { border: 2px solid var(--text); border-radius: 10px; background: var(--surface-2); padding: 8px 10px; }
+    .tb-lcd { background: #cfdcc8; color: #18201a; border-radius: 6px; padding: 4px 12px; font-family: "Courier New", Courier, monospace; font-size: 2.3rem; font-weight: 700; text-align: right; min-height: 1.4em; }
+    .tb-lcd.is-left { text-align: left; }
+    .tb-lcdset { margin-top: 4px; font-weight: 800; font-size: .9rem; color: var(--muted); }
+    .tb-lcdwrap.beeps .tb-lcdset::after { content: " · beep"; font-weight: 900; color: var(--text); }
+    .tb-probewrap { border: 1px solid var(--border); border-radius: 10px; background: var(--card); padding: 6px; }
+    .tb-probewrap .tb-probe { max-width: 100%; }
+    .tb-note { margin: 0; padding: .5rem .65rem; border-left: 4px solid var(--warm); background: var(--surface-2); border-radius: 0 8px 8px 0; font-weight: 800; font-size: .95rem; line-height: 1.45; color: var(--text); }
+    .pd { border-top: 1px solid var(--border); padding-top: .6rem; }
+    .pd-q { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .pd-opts { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr)); }
+    .pd-opts .sim-btn { text-align: left; min-height: 48px; }
+    .pd-opts .is-right { border-color: #15803d; box-shadow: inset 4px 0 0 #15803d; }
+    .pd-opts .is-wrong { border-color: var(--warm); box-shadow: inset 4px 0 0 var(--warm); }
+    .pd-fb p { margin: .6rem 0 0; font-weight: 800; color: var(--text); line-height: 1.5; }
+    .pd-fb .sim-btn, #pdNext { margin-top: .6rem; }
+    .pd-score { margin: .5rem 0 0; font-weight: 900; color: var(--text); }
+
+    /* quiz + RAG (behaviour: electronics-theory.js) */
     .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
     .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
     .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
@@ -80,10 +228,19 @@ title: Testing — National 5 Electronics
     .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
     .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
     .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt-fb { margin: .2rem 0 0; padding: .55rem .75rem; border-radius: 10px; border-left: 4px solid var(--border-accent); background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .opt-fb:empty { display: none; }
+    .opt-fb.is-right { border-left-color: #15803d; }
+    .opt-fb.is-wrong { border-left-color: var(--warm); }
     .opt.correct .mark-note { color: #15803d; }
     .opt.wrong .mark-note { color: var(--warm); }
     @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
     .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
     .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
     .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
     .rag-btns { display: inline-flex; gap: .35rem; }
@@ -94,19 +251,21 @@ title: Testing — National 5 Electronics
     .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
     .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
 
-    /* Fault Finder challenge */
-    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 14px; background: var(--surface-2); }
-    .widget h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 900; color: var(--text); }
-    .widget .hint { color: var(--muted); font-weight: 800; font-size: .88rem; margin: 0 0 .6rem; }
-    .challenge-tag { display: inline-block; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #9a3412; padding: 2px 9px; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
-    .ff-sym { font-weight: 900; color: var(--accent-2); }
-    .ff-note { font-weight: 900; white-space: normal; margin-top: .2rem; }
-    .q.ok .ff-note { color: #15803d; }
-    .q.no .ff-note { color: var(--warm); }
-    @media (prefers-color-scheme: dark) { .q.ok .ff-note { color: #5dd693; } }
+    /* picture glossary */
+    .gloss { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(300px,100%), 1fr)); margin-top: .7rem; }
+    .gloss-item { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: .7rem; align-items: center; border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .55rem .7rem; }
+    .gloss-item svg { width: 96px; height: auto; display: block; }
+    .gloss-term { margin: 0; font-weight: 900; color: var(--text); }
+    .gloss-def { margin: .15rem 0 0; font-weight: 800; color: var(--muted); }
 
+    .topic-link.soon { opacity: .75; cursor: default; }
+    .topic-link.soon .soon-tag { margin-left: auto; font-size: .85rem; font-weight: 900; color: var(--muted); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
     @media print {
-      .subnav-wrap, .backlink, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .backlink, .btnrow, #siteMenuButton, footer, .sim { display: none !important; }
       .panel, .practice { box-shadow: none; break-inside: avoid; }
       details.reveal > summary::after { content: ""; }
       body { background: #fff; }
@@ -114,230 +273,517 @@ title: Testing — National 5 Electronics
   </style>
 </head>
 
-<body>
+<body class="reading">
   {% include site-menu.html %}
 
   <header class="banner-wrap">
-    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics testing banner" class="banner" loading="eager">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics banner" class="banner" loading="eager">
     <div class="banner-tint"></div>
     <div class="banner-overlay-text">
-      <h1>Testing</h1>
-      <p>The test equipment and methods used to check a circuit works safely.</p>
+      <h1>Lesson 1 · Testing</h1>
+      <p>The multimeter and the logic probe: how to test a circuit and find a fault.</p>
     </div>
   </header>
 
-  <nav class="subnav-wrap" aria-label="On this page">
-    <div class="subnav">
-      <div class="subnav-links">
-        <a class="subnav-link" href="#c1">Multimeter</a>
-        <a class="subnav-link" href="#c2">Probe &amp; continuity</a>
-        <a class="subnav-link" href="#c3">Pre-power-up</a>
-        <a class="subnav-link" href="#c4">Functionality</a>
-        <a class="subnav-link" href="#c5">Videos</a>
-        <a class="subnav-link" href="#check">Check</a>
-      </div>
-      <a class="subnav-cta" href="/classes/electronics.html">Electronics hub →</a>
-    </div>
-  </nav>
-
   <main class="page-wrap" id="mainContent">
-    <h1 class="visually-hidden">Testing</h1>
-    <a class="backlink" href="/classes/electronics.html"><span aria-hidden="true">←</span> Back to Electronics hub</a>
-    <a class="backlink" href="/classes/electronics/glossary.html" style="margin-left:1rem;"><span aria-hidden="true">📖</span> Glossary</a>
-    <p class="lead">Testing is worth marks in the practical activity and runs right through construction.
-      You use test equipment carefully, work through a <strong>pre-power-up checklist</strong>, then test
-      that each stage — input, process and output — actually works.</p>
+    <h1 class="visually-hidden">Lesson 1: Testing</h1>
+    <a class="backlink" href="/classes/electronics/timers-and-comparators.html"><span aria-hidden="true">&larr;</span> Timers &amp; comparators</a>
 
-    <!-- C1 -->
-    <section class="panel" id="c1" aria-label="The multimeter">
-      <span class="concept-tag">Concept 1</span>
-      <h2>The multimeter</h2>
-      <div class="notes">
-        <p>A multimeter measures <strong>voltage (V)</strong>, <strong>resistance (R)</strong> and
-          <strong>current (I)</strong>. Choose the correct <strong>function</strong> and a <strong>range</strong>
-          just above the value you expect, so the reading is accurate and the meter is not overloaded.</p>
-        <ul>
-          <li><strong>Voltmeter — connect in parallel</strong> (across the component).</li>
-          <li><strong>Ammeter — connect in series</strong> (current flows through it).</li>
-          <li><strong>Resistance — measure with the power OFF</strong> and the component out of circuit.</li>
+    <div class="panel-pair">
+      <section class="panel" aria-labelledby="learn-title">
+        <h2 id="learn-title">In this lesson</h2>
+        <ul class="chk-list">
+          <li>Set the multimeter for each job.</li>
+          <li>Test a resistor, a switch, a track and a supply.</li>
+          <li>Read a logic probe.</li>
+          <li>Find a fault on a real board.</li>
         </ul>
+      </section>
+      <section class="panel" aria-labelledby="book-title">
+        <h2 id="book-title">Block 6 booklet</h2>
+        <p>Lesson 1 is the first lesson in the booklet. Your tasks and exam questions are there.</p>
+        <a class="booklet-link" href="/assets/electronics/block6/n5-electronics-block6-timers-and-comparators.pdf" target="_blank" rel="noopener" aria-label="Block 6 booklet, Timers and comparators, PDF, 35 pages. Opens in a new tab">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="10" y="6" width="28" height="36" rx="3" style="fill:none;stroke:currentColor;stroke-width:3"/><path d="M16 16h16M16 23h16M16 30h10" style="stroke:currentColor;stroke-width:3;stroke-linecap:round"/></svg>
+          Block 6 booklet (PDF) <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+    </div>
+
+    <!-- ================= CONCEPT 1 ================= -->
+    <section class="panel" id="meter" aria-labelledby="meter-title">
+      <span class="concept-tag">Concept 1</span>
+      <h2 id="meter-title">The multimeter</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Range</dt><dd>the biggest value a dial setting can show.</dd>
+          <dt>COM</dt><dd>the common socket. The black lead goes here.</dd>
+          <dt>Over range</dt><dd>the value is too big for the range. The display shows 1 on the left.</dd>
+        </dl>
       </div>
-      <figure class="figure">
-        <svg class="circuit" viewBox="0 0 320 130" role="img" aria-labelledby="conn-t">
-          <title id="conn-t">Voltmeter in parallel and ammeter in series with a resistor</title>
-          <line class="wire" x1="30" y1="30" x2="30" y2="100"/><text x="8" y="68">+V</text>
-          <line class="wire" x1="30" y1="30" x2="90" y2="30"/>
-          <!-- ammeter in series -->
-          <circle class="meter" cx="110" cy="30" r="16"/><text x="104" y="35">A</text>
-          <line class="wire" x1="126" y1="30" x2="170" y2="30"/>
-          <rect class="res" x="170" y="20" width="50" height="20"/><text x="178" y="15">R</text>
-          <line class="wire" x1="220" y1="30" x2="290" y2="30"/>
-          <line class="wire" x1="290" y1="30" x2="290" y2="100"/>
-          <line class="wire" x1="30" y1="100" x2="290" y2="100"/>
-          <!-- voltmeter in parallel across R -->
-          <line class="wire" x1="170" y1="30" x2="170" y2="70"/><line class="wire" x1="220" y1="30" x2="220" y2="70"/>
-          <line class="wire" x1="170" y1="70" x2="179" y2="70"/><line class="wire" x1="211" y1="70" x2="220" y2="70"/>
-          <circle class="meter" cx="195" cy="70" r="16"/><text x="189" y="75">V</text>
-          <circle class="node" cx="170" cy="30" r="3"/><circle class="node" cx="220" cy="30" r="3"/>
-        </svg>
-        <figcaption>Ammeter (A) in series; voltmeter (V) in parallel across the resistor.</figcaption>
-      </figure>
-      <h3 style="font-weight:900;margin:1.1rem 0 .3rem;">Connecting the probes &amp; choosing the range</h3>
-      <p class="notes" style="margin:0 0 .4rem;">The <strong>black</strong> probe always goes in the <strong>COM</strong> socket. Move the <strong>red</strong> probe between the <strong>VΩ</strong> socket and the <strong>mA/A</strong> socket depending on what you measure, then turn the dial to the function and a range just above the value you expect.</p>
-      <table class="dtable" aria-label="Multimeter function, probe sockets and range">
-        <thead><tr><th>Function</th><th>Black probe</th><th>Red probe</th><th>Dial / range</th></tr></thead>
-        <tbody>
-          <tr><td class="l"><strong>DC voltage</strong> (V⎓)</td><td>COM</td><td>VΩ</td><td class="l">DCV, one range above expected (e.g. 20 V for a 9 V supply). Connect <strong>in parallel</strong>.</td></tr>
-          <tr><td class="l"><strong>AC voltage</strong> (V~)</td><td>COM</td><td>VΩ</td><td class="l">ACV, range above the expected a.c. value. Connect <strong>in parallel</strong>.</td></tr>
-          <tr><td class="l"><strong>Current</strong> (A / mA)</td><td>COM</td><td><strong>mA/A</strong></td><td class="l">DCA, range above expected. Connect <strong>in series</strong> — move the red probe back afterwards.</td></tr>
-          <tr><td class="l"><strong>Resistance</strong> (Ω)</td><td>COM</td><td>VΩ</td><td class="l">Ω, start on a high range. <strong>Power OFF</strong>, component out of circuit.</td></tr>
-          <tr><td class="l"><strong>Continuity</strong> (🔊)</td><td>COM</td><td>VΩ</td><td class="l">Continuity setting. <strong>Power OFF</strong> — it beeps when the path is complete.</td></tr>
-        </tbody>
-      </table>
-      <div class="note"><strong>Common mistake:</strong> leaving the red probe in the <strong>mA/A</strong> socket and then measuring voltage — that puts a near-short across the supply and can blow the meter's fuse. Always move it back to <strong>VΩ</strong> after measuring current.</div>
+      <div class="dual">
+        <div>
+          <p>This is the class multimeter. One meter measures voltage, resistance and current. The <strong>dial</strong> chooses what it measures.</p>
+          <div class="tbl-wrap">
+            <table class="dtable" aria-label="Parts of the multimeter">
+              <thead><tr><th>Part</th><th>What it does</th></tr></thead>
+              <tbody>
+                <tr><td>display</td><td>Shows the reading. The unit comes from the range you chose.</td></tr>
+                <tr><td>dial</td><td>Chooses what you measure and the biggest value it can show.</td></tr>
+                <tr><td>COM socket</td><td>The <strong>black</strong> lead. Always.</td></tr>
+                <tr><td>V/Ω socket</td><td>The <strong>red</strong> lead for volts, ohms, continuity and diode check.</td></tr>
+                <tr><td>ON/OFF</td><td>On before you measure. Off when you finish.</td></tr>
+                <tr><td>20A and A</td><td>Only for measuring current.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <figure>
+          <div class="fig-card" data-meter="DCV 20" data-digits="5.02" data-label="The class multimeter: the display at the top, the dial in the middle, and four sockets at the bottom: 20A, A, COM and V/Ω. The black lead is in COM and the red lead is in V/Ω."></div>
+          <figcaption>The class multimeter, set to DCV 20. Black lead in COM, red lead in V/Ω.</figcaption>
+        </figure>
+      </div>
+
+      <h3>Every setting</h3>
+      <div class="dual" id="meterGuide">
+        <div>
+          <p>Tap a setting. The dial on the meter turns to it, and the red lead moves to the right socket.</p>
+          <div class="sim-seg mg-btns" role="group" aria-label="Choose a meter setting">
+            <button type="button" data-set="DCV 20" data-digits="5.02" data-say="Red lead in V/Ω. The display reads 5.02." aria-pressed="false">DCV<template><h4>DCV: voltage</h4><dl><dt>Measures</dt><dd>Voltage from a battery or power supply.</dd><dt>Red lead in</dt><dd>V/Ω</dd><dt>Connect</dt><dd>Across the part, circuit <strong>on</strong>. Black on 0 V, red on the point.</dd><dt>Example</dt><dd>Our 5 V board's supply on DCV 20 reads about <strong>5.02</strong>.</dd></dl></template></button>
+            <button type="button" data-set="OHM 20k" data-digits="4.70" data-say="Red lead in V/Ω. The display reads 4.70." aria-pressed="false">OHM<template><h4>OHM: resistance</h4><dl><dt>Measures</dt><dd>Resistance.</dd><dt>Red lead in</dt><dd>V/Ω</dd><dt>Connect</dt><dd>Across the part, circuit <strong>off</strong>. Start on a big range and turn down.</dd><dt>Example</dt><dd>A 4.7 kΩ resistor (yellow violet red) on the 20k range reads about <strong>4.70</strong>. The unit is kΩ.</dd></dl></template></button>
+            <button type="button" data-set="Continuity" data-digits="000" data-say="Red lead in V/Ω. The meter beeps and reads about 000." aria-pressed="false">Continuity<template><h4>Continuity: is there a connection?</h4><dl><dt>Measures</dt><dd>Whether two points are joined.</dd><dt>Red lead in</dt><dd>V/Ω</dd><dt>Connect</dt><dd>One probe on each end, circuit <strong>off</strong>. A beep means joined.</dd><dt>Example</dt><dd>A good solder joint beeps and reads close to <strong>000</strong>.</dd></dl></template></button>
+            <button type="button" data-set="Diode check" data-digits="600" data-say="Red lead in V/Ω. The display reads 600." aria-pressed="false">Diode check<template><h4>Diode check: which way it conducts</h4><dl><dt>Measures</dt><dd>Which way a diode or LED conducts.</dd><dt>Red lead in</dt><dd>V/Ω</dd><dt>Connect</dt><dd>Red on the anode, black on the cathode (the end with the band). A number means it conducts. <strong>1</strong> means it is the wrong way round.</dd><dt>Example</dt><dd>A 1N4001 diode reads about <strong>600</strong>. Swap the probes and it reads <strong>1</strong>.</dd></dl></template></button>
+            <button type="button" data-set="DCA 20m" data-digits="5.20" data-say="Red lead in the A socket. The display reads 5.20." aria-pressed="false">DCA<template><h4>DCA: current</h4><dl><dt>Measures</dt><dd>Current.</dd><dt>Red lead in</dt><dd><strong>A</strong> (up to 2 A)</dd><dt>Connect</dt><dd>In series: break the circuit and put the meter in the gap.</dd><dt>Example</dt><dd>5.2 mA through an LED on DCA 20m reads <strong>5.20</strong>. Move the red lead back to V/Ω after.</dd></dl></template></button>
+            <button type="button" data-set="ACV 750" data-digits="0" data-say="Not used in class." aria-pressed="false">ACV and ACA<template><h4>ACV and ACA: alternating</h4><dl><dt>Measures</dt><dd>Alternating voltage and current.</dd><dt>Use</dt><dd><strong>Not used in class.</strong> We never measure mains.</dd></dl></template></button>
+            <button type="button" data-set="hFE" data-digits="290" data-say="No leads. A transistor sits in the small socket." aria-pressed="false">hFE<template><h4>hFE: transistor gain</h4><dl><dt>Measures</dt><dd>How many times bigger the collector current is than the base current.</dd><dt>Leads</dt><dd>None. Push the transistor into the small socket, legs into E, B and C.</dd><dt>Example</dt><dd>A BC548 reads somewhere between 100 and 800, for example <strong>290</strong>.</dd></dl></template></button>
+          </div>
+          <div class="mg-card" aria-live="polite"></div>
+        </div>
+        <figure>
+          <div class="fig-card" data-meter="DCV 20" data-label="The class multimeter"></div>
+          <figcaption>The dial and the red lead follow the setting you tap.</figcaption>
+        </figure>
+      </div>
+
+      <div class="rules">
+        <h3>Five rules for every reading</h3>
+        <ol>
+          <li>The black lead always goes in <strong>COM</strong>.</li>
+          <li>Choose the range just above what you expect: <strong>20 V</strong> for a 5 V circuit.</li>
+          <li>A <strong>1</strong> on the left of the display means over range. Turn up one range.</li>
+          <li>A minus sign means the leads are swapped. The size is still right.</li>
+          <li>Never measure resistance with the power on.</li>
+        </ol>
+      </div>
+
+      <h3>Across or in series</h3>
+      <div class="dual">
+        <div class="notes">
+          <p>A <strong>voltmeter</strong> goes <strong>across</strong> a part. Its leads touch each end. Nothing is broken.</p>
+          <p>An <strong>ammeter</strong> goes <strong>in series</strong>. You break the circuit and put the meter in the gap, so the current flows through it.</p>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig" viewBox="0 0 360 180" role="img" aria-label="A battery, an ammeter and a resistor R in one loop. The ammeter is in series. A voltmeter is joined across the resistor.">
+              <path class="w" d="M40 30 H94 M126 30 H195 M245 30 H320 V150 H40 V100 M40 30 V80"/>
+              <line class="w" x1="24" y1="80" x2="56" y2="80"/><line class="w" x1="32" y1="92" x2="48" y2="92" style="stroke-width:5"/>
+              <path class="w" d="M40 92 V100"/>
+              <text x="62" y="84">+</text>
+              <circle class="mtr" cx="110" cy="30" r="16"/><text class="big" x="110" y="36" text-anchor="middle">A</text>
+              <rect class="res" x="195" y="21" width="50" height="18"/><text x="220" y="15" text-anchor="middle">R</text>
+              <path class="w" d="M180 30 V90 H204 M236 90 H260 V30"/>
+              <circle class="mtr" cx="220" cy="90" r="16"/><text class="big" x="220" y="96" text-anchor="middle">V</text>
+              <circle class="node" cx="180" cy="30" r="3.5"/><circle class="node" cx="260" cy="30" r="3.5"/>
+              <text x="110" y="64" text-anchor="middle">ammeter</text><text x="110" y="79" text-anchor="middle">in series</text>
+              <text x="220" y="124" text-anchor="middle">voltmeter across R</text>
+            </svg>
+          </div>
+          <figcaption>Ammeter (A) in series. Voltmeter (V) across the resistor.</figcaption>
+        </figure>
+      </div>
+
       <div class="practice">
         <span class="practice-tag">Practice 1</span>
-        <p class="stem">You expect about 6 V across a resistor and the meter has ranges 2 V, 20 V and 200 V. State the range you would choose and how you would connect the meter.</p>
+        <p class="stem">1. <strong>State</strong> the dial setting and the socket for the red lead to measure the current through a buzzer. You expect about 15 mA.</p>
         <details class="reveal"><summary>Answer</summary>
-          <div class="reveal-body">Choose the <strong>20 V</strong> range (the smallest range above 6 V). Connect the voltmeter <strong>in parallel</strong>, across the resistor.</div>
+          <div class="reveal-body"><strong>DCA 20m</strong> (the range just above 15 mA). Red lead in <strong>A</strong>. Break the circuit and put the meter <strong>in series</strong> with the buzzer.</div>
         </details>
+        <p class="stem">2. <strong>Explain</strong> this reading and <strong>state</strong> what to do. A 4.7 kΩ resistor shows <strong>1</strong> on the left of the display on the 2k range.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">The meter is <strong>over range</strong>: 4.7 kΩ is bigger than 2 kΩ. Turn up one range to <strong>20k</strong>. It should then read about 4.70.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul>
+          <li>name the parts of the multimeter.</li>
+          <li>choose the setting, range and socket for a job.</li>
+          <li>say whether a meter goes across a part or in series.</li>
+        </ul>
       </div>
     </section>
 
-    <!-- C2 -->
-    <section class="panel" id="c2" aria-label="Logic probe and continuity tester">
+    <!-- ================= CONCEPT 2 ================= -->
+    <section class="panel" id="jobs" aria-labelledby="jobs-title">
       <span class="concept-tag">Concept 2</span>
-      <h2>Logic probe &amp; continuity tester</h2>
-      <div class="notes">
-        <ul>
-          <li>A <strong>logic probe</strong> shows whether a point in a <em>powered</em> digital circuit is <strong>high (1)</strong> or <strong>low (0)</strong> — useful for checking gate inputs and outputs.</li>
-          <li><strong>Connect its power leads first:</strong> the <strong>red lead to V+</strong> (the positive supply) and the <strong>black lead to 0&nbsp;V</strong> (ground). The probe needs this to work.</li>
-          <li>Touch the probe tip on a <strong>test point</strong> in the circuit: a <strong>logic 1</strong> lights the <strong>"high" LED</strong>, a logic 0 lights the "low" LED.</li>
-          <li>A <strong>continuity tester</strong> beeps when there is a complete (low-resistance) path — useful for checking a track, a joint or a wire is connected and not broken. Use it <strong>with the power off</strong> to find breaks, short circuits and dry joints.</li>
-        </ul>
+      <h2 id="jobs-title">Testing jobs</h2>
+      <div class="dual">
+        <div class="notes">
+          <p>Switch the power <strong>off</strong> before you measure resistance. The meter sends its own small current through the part. With the power on, the circuit's current adds to it. The reading is wrong, and the meter can be damaged.</p>
+          <p>Put the meter <strong>across</strong> the part. For the most accurate reading, lift one leg of the part out of the circuit.</p>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig" viewBox="0 0 400 160" role="img" aria-label="A battery, an open switch and a resistor R in one loop. The switch is open, so the power is off. An ohmmeter is joined across R.">
+    <path class="w" d="M40 40 H92 M148 40 H200 M260 40 H340 V160 H40 V112 M40 40 V86"/>
+    <line class="w" x1="24" y1="86" x2="56" y2="86"/><line class="w" x1="32" y1="98" x2="48" y2="98" style="stroke-width:5"/><path class="w" d="M40 98 V112"/><text x="62" y="90">+</text>
+    <circle class="res" cx="96" cy="40" r="4"/><circle class="res" cx="144" cy="40" r="4"/><line class="w" x1="99" y1="38" x2="140" y2="16"/>
+    <text x="120" y="66" text-anchor="middle">switch open:</text><text x="120" y="81" text-anchor="middle" class="big">power OFF</text>
+    <rect class="res" x="200" y="31" width="60" height="18"/><text x="230" y="24" text-anchor="middle" class="big">R</text>
+    <path class="w" d="M185 40 V104 H214 M246 104 H275 V40"/>
+    <circle class="mtr" cx="230" cy="104" r="16"/><text class="big" x="230" y="110" text-anchor="middle">Ω</text>
+    <circle class="node" cx="185" cy="40" r="3.5"/><circle class="node" cx="275" cy="40" r="3.5"/>
+    <text x="230" y="140" text-anchor="middle">ohmmeter across R</text>
+  </svg>
+          </div>
+          <figcaption>Switch open, so the power is off. The ohmmeter goes across R.</figcaption>
+        </figure>
       </div>
-      <div class="note"><strong>Watch your wording:</strong> the black lead is <em>connected to ground (0&nbsp;V)</em> — it is not itself "the ground". Say a point is <strong>connected to 0&nbsp;V</strong> rather than that it "is ground".</div>
-      <div class="frame prog-cloze" data-prog-challenge="cloze-1" aria-label="How to say it — fill the gaps">
-        <span class="frame-tag">✍️ How to say it</span>
-        <p>The red lead goes to the
-          <select class="cl-sel" data-answer="positive supply" aria-label="gap 1"><option value="">choose…</option><option>positive supply</option><option>0 V (ground)</option></select>.</p>
-        <p>The black lead goes to
-          <select class="cl-sel" data-answer="0 V (ground)" aria-label="gap 2"><option value="">choose…</option><option>positive supply</option><option>0 V (ground)</option></select>.</p>
-        <p>When the tip is on a test point, a logic 1 lights the
-          <select class="cl-sel" data-answer="high" aria-label="gap 3"><option value="">choose…</option><option>high</option><option>low</option></select>
-          light.</p>
-        <div class="btnrow"><button class="btn primary cl-check" type="button">Check</button><button class="btn cl-reset" type="button">Reset</button></div>
-        <p class="fb-line" aria-live="polite"></p>
-        <details class="reveal"><summary>See a full answer</summary>
-          <div class="reveal-body">The red lead goes to <strong>V+</strong> (the positive supply). The black lead goes to <strong>0&nbsp;V</strong> (ground). When the tip is on a test point, a logic 1 lights the <strong>"high"</strong> light.</div>
-        </details>
+      <h3>Six testing jobs</h3>
+      <p>These are the six tests you will do most. The first four are done with the <strong>power off</strong>.</p>
+      <div class="jobs">
+        <article class="job" aria-labelledby="j1">
+          <h3 id="j1">A resistor's value</h3>
+          <div class="job-fig"><svg role="img" aria-label="The class meter on OHM 20k reads 10.0. The black probe is on one leg of a brown black orange resistor and the red probe on the other. The power is off." viewBox="0 0 260 160"><rect x="9" y="20" width="62" height="100" rx="8" style="fill:#000;opacity:.15"></rect><rect x="6" y="16" width="62" height="100" rx="8" style="fill:#f4d23c;stroke:#0f2f28;stroke-width:2"></rect><rect x="12" y="22" width="50" height="22" rx="3" style="fill:#cfdcc8;stroke:#0f2f28;stroke-width:1.4"></rect><text x="59" y="39" font-size="15" text-anchor="end" style="font-family:Courier New,monospace;font-weight:700;fill:#18201a">10.0</text><circle cx="37" cy="72" r="14" style="fill:#fff;stroke:#0f2f28;stroke-width:2"></circle><line x1="37" y1="72" x2="44.7" y2="64.3" style="stroke:#0f2f28;stroke-width:3;stroke-linecap:round"></line><circle cx="27" cy="104" r="4" style="fill:#0f2f28"></circle><circle cx="47" cy="104" r="4" style="fill:#0f2f28"></circle><defs><linearGradient id="rg0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e2bd"></stop><stop offset=".5" stop-color="#e3c48f"></stop><stop offset="1" stop-color="#b8935c"></stop></linearGradient></defs><path d="M92 62 H135 M205 62 H248" style="stroke:#9aa3a8;stroke-width:3"></path><rect x="135" y="51" width="70" height="22" rx="10" style="fill:url(#rg0);stroke:#0f2f28;stroke-width:1.6"></rect><rect x="145" y="51" width="6" height="22" style="fill:#6b3e1e"></rect><rect x="157" y="51" width="6" height="22" style="fill:#111"></rect><rect x="169" y="51" width="6" height="22" style="fill:#e8731a"></rect><rect x="189" y="51" width="6" height="22" style="fill:#c9a227"></rect><path d="M27 104 C27 146 88.16283168711122 146 88.16283168711122 116.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M27 104 C27 146 88.16283168711122 146 88.16283168711122 116.50217200558268" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><path d="M47 104 C47 148 251.8371683128888 148 251.8371683128888 116.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M47 104 C47 148 251.8371683128888 148 251.8371683128888 116.50217200558268" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><line x1="108" y1="62" x2="103.55373813676631" y2="74.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="102.18565756346364" y1="77.97477455336045" x2="88.16283168711122" y2="116.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="102.18565756346364" y1="77.97477455336045" x2="88.16283168711122" y2="116.50217200558268" style="stroke:#1d1d1d;stroke-width:9;stroke-linecap:round"></line><line x1="101.15959713348663" y1="80.79385241571816" x2="101.15959713348663" y2="80.79385241571816"></line><line x1="94.58174878798528" y1="78.39971141243848" x2="107.73744547898798" y2="83.18799341899785" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="97.91213131861214" y1="83.86858261221046" x2="87.65152701884207" y2="112.05936123578772" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><line x1="232" y1="62" x2="236.4462618632337" y2="74.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="237.81434243653638" y1="77.97477455336045" x2="251.8371683128888" y2="116.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="237.81434243653638" y1="77.97477455336045" x2="251.8371683128888" y2="116.50217200558268" style="stroke:#c62828;stroke-width:9;stroke-linecap:round"></line><line x1="238.8404028665134" y1="80.79385241571816" x2="238.8404028665134" y2="80.79385241571816"></line><line x1="232.26255452101202" y1="83.18799341899785" x2="245.41825121201475" y2="78.39971141243848" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="238.32909819824425" y1="85.23666318551314" x2="248.5897024980143" y2="113.4274418090904" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><text x="76" y="22" font-size="13">OHM 20k · power off</text></svg></div>
+          <dl><dt>Setting</dt><dd>OHM, the range just above the colour code value.</dd>
+            <dt>How</dt><dd>Power off. The resistor out of the circuit, or one leg lifted.</dd>
+            <dt>Good</dt><dd>Within its tolerance: a 10 kΩ ±5 % resistor reads 9.5 to 10.5 on the 20k range.</dd></dl>
+        </article>
+        <article class="job" aria-labelledby="j2">
+          <h3 id="j2">A slide switch</h3>
+          <div class="job-fig"><svg role="img" aria-label="The class meter on continuity reads 000 and beeps. A slide switch has three pins. The black probe is on the middle pin and the red probe on an outer pin." viewBox="0 0 260 160"><rect x="9" y="20" width="62" height="100" rx="8" style="fill:#000;opacity:.15"></rect><rect x="6" y="16" width="62" height="100" rx="8" style="fill:#f4d23c;stroke:#0f2f28;stroke-width:2"></rect><rect x="12" y="22" width="50" height="22" rx="3" style="fill:#cfdcc8;stroke:#0f2f28;stroke-width:1.4"></rect><text x="59" y="39" font-size="15" text-anchor="end" style="font-family:Courier New,monospace;font-weight:700;fill:#18201a">000</text><circle cx="37" cy="72" r="14" style="fill:#fff;stroke:#0f2f28;stroke-width:2"></circle><line x1="37" y1="72" x2="29.3" y2="64.3" style="stroke:#0f2f28;stroke-width:3;stroke-linecap:round"></line><g transform="translate(74 33)"><circle r="2.5" style="fill:#0f2f28"></circle><path d="M5 -5 A7 7 0 0 1 5 5 M9 -9 A13 13 0 0 1 9 9" style="fill:none;stroke:#0f2f28;stroke-width:1.8"></path></g><circle cx="27" cy="104" r="4" style="fill:#0f2f28"></circle><circle cx="47" cy="104" r="4" style="fill:#0f2f28"></circle><path d="M166 66 V98 M182 66 V98 M198 66 V98" style="stroke:#9aa3a8;stroke-width:3"></path><rect x="150" y="40" width="64" height="28" rx="3" style="fill:#b8bec4;stroke:#0f2f28;stroke-width:1.6"></rect><rect x="158" y="35" width="48" height="8" rx="1" style="fill:#2b2f33"></rect><rect x="162" y="24" width="18" height="17" rx="2" style="fill:#2b2f33;stroke:#0f2f28;stroke-width:1.2"></rect><rect x="152" y="46" width="60" height="4" style="fill:#fff;opacity:.4"></rect><path d="M178 14 H214 M178 14 l6 -4 M178 14 l6 4 M214 14 l-6 -4 M214 14 l-6 4" style="stroke:#0f2f28;stroke-width:2;fill:none;stroke-linecap:round"></path><path d="M27 104 C27 150 162.1628316871112 150 162.1628316871112 152.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M27 104 C27 150 162.1628316871112 150 162.1628316871112 152.50217200558268" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><path d="M47 104 C47 154 217.8371683128888 154 217.8371683128888 152.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M47 104 C47 154 217.8371683128888 154 217.8371683128888 152.50217200558268" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><line x1="182" y1="98" x2="177.5537381367663" y2="110.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="176.18565756346362" y1="113.97477455336045" x2="162.1628316871112" y2="152.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="176.18565756346362" y1="113.97477455336045" x2="162.1628316871112" y2="152.50217200558268" style="stroke:#1d1d1d;stroke-width:9;stroke-linecap:round"></line><line x1="175.1595971334866" y1="116.79385241571816" x2="175.1595971334866" y2="116.79385241571816"></line><line x1="168.58174878798525" y1="114.39971141243848" x2="181.73744547898798" y2="119.18799341899785" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="171.91213131861215" y1="119.86858261221046" x2="161.65152701884207" y2="148.05936123578772" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><line x1="198" y1="98" x2="202.4462618632337" y2="110.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="203.81434243653638" y1="113.97477455336045" x2="217.8371683128888" y2="152.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="203.81434243653638" y1="113.97477455336045" x2="217.8371683128888" y2="152.50217200558268" style="stroke:#c62828;stroke-width:9;stroke-linecap:round"></line><line x1="204.8404028665134" y1="116.79385241571816" x2="204.8404028665134" y2="116.79385241571816"></line><line x1="198.26255452101202" y1="119.18799341899785" x2="211.41825121201475" y2="114.39971141243848" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="204.32909819824425" y1="121.23666318551314" x2="214.5897024980143" y2="149.4274418090904" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><text x="86" y="22" font-size="13">continuity</text><text x="220" y="30" font-size="12">slide</text><text x="220" y="44" font-size="12">it</text><text x="150" y="112" font-size="11" text-anchor="end">middle pin</text></svg></div>
+          <dl><dt>Setting</dt><dd>Continuity.</dd>
+            <dt>How</dt><dd>Power off. One probe on the middle pin, the other on an outer pin. Slide the switch both ways. Then try the other outer pin.</dd>
+            <dt>Good</dt><dd>It beeps in one position and not the other, for each outer pin.</dd></dl>
+        </article>
+        <article class="job" aria-labelledby="j3">
+          <h3 id="j3">A track, link or joint</h3>
+          <div class="job-fig"><svg role="img" aria-label="The class meter on continuity reads 000 and beeps. Both probes are on solder joints on the same stripboard track." viewBox="0 0 260 160"><rect x="9" y="20" width="62" height="100" rx="8" style="fill:#000;opacity:.15"></rect><rect x="6" y="16" width="62" height="100" rx="8" style="fill:#f4d23c;stroke:#0f2f28;stroke-width:2"></rect><rect x="12" y="22" width="50" height="22" rx="3" style="fill:#cfdcc8;stroke:#0f2f28;stroke-width:1.4"></rect><text x="59" y="39" font-size="15" text-anchor="end" style="font-family:Courier New,monospace;font-weight:700;fill:#18201a">000</text><circle cx="37" cy="72" r="14" style="fill:#fff;stroke:#0f2f28;stroke-width:2"></circle><line x1="37" y1="72" x2="29.3" y2="64.3" style="stroke:#0f2f28;stroke-width:3;stroke-linecap:round"></line><g transform="translate(74 33)"><circle r="2.5" style="fill:#0f2f28"></circle><path d="M5 -5 A7 7 0 0 1 5 5 M9 -9 A13 13 0 0 1 9 9" style="fill:none;stroke:#0f2f28;stroke-width:1.8"></path></g><circle cx="27" cy="104" r="4" style="fill:#0f2f28"></circle><circle cx="47" cy="104" r="4" style="fill:#0f2f28"></circle><rect x="96" y="44" width="158" height="62" rx="3" style="fill:#f1e3c8;stroke:#0f2f28;stroke-width:1.2"></rect><rect x="96" y="50" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="50" width="158" height="4" style="fill:#fff;opacity:.3"></rect><rect x="96" y="69" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="69" width="158" height="4" style="fill:#fff;opacity:.3"></rect><rect x="96" y="88" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="88" width="158" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="140" cy="75" r="6" style="fill:#c9ccd0;stroke:#0f2f28;stroke-width:1.2"></circle><circle cx="220" cy="75" r="6" style="fill:#c9ccd0;stroke:#0f2f28;stroke-width:1.2"></circle><path d="M27 104 C27 150 120.16283168711122 150 120.16283168711122 129.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M27 104 C27 150 120.16283168711122 150 120.16283168711122 129.50217200558268" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><path d="M47 104 C47 154 239.8371683128888 154 239.8371683128888 129.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M47 104 C47 154 239.8371683128888 154 239.8371683128888 129.50217200558268" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><line x1="140" y1="75" x2="135.5537381367663" y2="87.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="134.18565756346362" y1="90.97477455336045" x2="120.16283168711122" y2="129.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="134.18565756346362" y1="90.97477455336045" x2="120.16283168711122" y2="129.50217200558268" style="stroke:#1d1d1d;stroke-width:9;stroke-linecap:round"></line><line x1="133.1595971334866" y1="93.79385241571816" x2="133.1595971334866" y2="93.79385241571816"></line><line x1="126.58174878798525" y1="91.39971141243848" x2="139.73744547898798" y2="96.18799341899785" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="129.91213131861215" y1="96.86858261221046" x2="119.65152701884207" y2="125.05936123578772" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><line x1="220" y1="75" x2="224.4462618632337" y2="87.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="225.81434243653638" y1="90.97477455336045" x2="239.8371683128888" y2="129.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="225.81434243653638" y1="90.97477455336045" x2="239.8371683128888" y2="129.50217200558268" style="stroke:#c62828;stroke-width:9;stroke-linecap:round"></line><line x1="226.8404028665134" y1="93.79385241571816" x2="226.8404028665134" y2="93.79385241571816"></line><line x1="220.26255452101202" y1="96.18799341899785" x2="233.41825121201475" y2="91.39971141243848" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="226.32909819824425" y1="98.23666318551314" x2="236.5897024980143" y2="126.4274418090904" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><text x="86" y="22" font-size="13">continuity · power off</text></svg></div>
+          <dl><dt>Setting</dt><dd>Continuity.</dd>
+            <dt>How</dt><dd>Power off. One probe on each end.</dd>
+            <dt>Good</dt><dd>A beep. No beep between two tracks next to each other.</dd></dl>
+        </article>
+        <article class="job" aria-labelledby="j4">
+          <h3 id="j4">No shorts across tracks</h3>
+          <div class="job-fig"><svg role="img" aria-label="The class meter on continuity reads 1, no beep. The probes are on two stripboard tracks side by side." viewBox="0 0 260 160"><rect x="9" y="20" width="62" height="100" rx="8" style="fill:#000;opacity:.15"></rect><rect x="6" y="16" width="62" height="100" rx="8" style="fill:#f4d23c;stroke:#0f2f28;stroke-width:2"></rect><rect x="12" y="22" width="50" height="22" rx="3" style="fill:#cfdcc8;stroke:#0f2f28;stroke-width:1.4"></rect><text x="16" y="39" font-size="15" style="font-family:Courier New,monospace;font-weight:700;fill:#18201a">1</text><circle cx="37" cy="72" r="14" style="fill:#fff;stroke:#0f2f28;stroke-width:2"></circle><line x1="37" y1="72" x2="29.3" y2="64.3" style="stroke:#0f2f28;stroke-width:3;stroke-linecap:round"></line><circle cx="27" cy="104" r="4" style="fill:#0f2f28"></circle><circle cx="47" cy="104" r="4" style="fill:#0f2f28"></circle><rect x="96" y="40" width="158" height="78" rx="3" style="fill:#f1e3c8;stroke:#0f2f28;stroke-width:1.2"></rect><rect x="96" y="46" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="46" width="158" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="104" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="118" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="132" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="160" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="174" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="188" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="202" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="216" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="52" r="2" style="fill:#f1e3c8"></circle><circle cx="244" cy="52" r="2" style="fill:#f1e3c8"></circle><rect x="96" y="64" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="64" width="158" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="104" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="118" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="132" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="160" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="174" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="188" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="202" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="216" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="70" r="2" style="fill:#f1e3c8"></circle><circle cx="244" cy="70" r="2" style="fill:#f1e3c8"></circle><rect x="96" y="82" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="82" width="158" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="104" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="118" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="132" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="160" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="174" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="188" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="202" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="216" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="88" r="2" style="fill:#f1e3c8"></circle><circle cx="244" cy="88" r="2" style="fill:#f1e3c8"></circle><rect x="96" y="100" width="158" height="12" style="fill:#c98a3a"></rect><rect x="96" y="100" width="158" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="104" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="118" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="132" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="160" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="174" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="188" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="202" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="216" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="244" cy="106" r="2" style="fill:#f1e3c8"></circle><circle cx="150" cy="70" r="6" style="fill:#c9ccd0;stroke:#0f2f28;stroke-width:1.2"></circle><circle cx="190" cy="88" r="6" style="fill:#c9ccd0;stroke:#0f2f28;stroke-width:1.2"></circle><path d="M27 104 C27 150 130.1628316871112 150 130.1628316871112 124.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M27 104 C27 150 130.1628316871112 150 130.1628316871112 124.50217200558268" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><path d="M47 104 C47 154 209.8371683128888 154 209.8371683128888 142.50217200558268" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M47 104 C47 154 209.8371683128888 154 209.8371683128888 142.50217200558268" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><line x1="150" y1="70" x2="145.5537381367663" y2="82.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="144.18565756346362" y1="85.97477455336045" x2="130.1628316871112" y2="124.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="144.18565756346362" y1="85.97477455336045" x2="130.1628316871112" y2="124.50217200558268" style="stroke:#1d1d1d;stroke-width:9;stroke-linecap:round"></line><line x1="143.1595971334866" y1="88.79385241571816" x2="143.1595971334866" y2="88.79385241571816"></line><line x1="136.58174878798525" y1="86.39971141243848" x2="149.73744547898798" y2="91.18799341899785" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="139.91213131861215" y1="91.86858261221046" x2="129.65152701884207" y2="120.05936123578772" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><line x1="190" y1="88" x2="194.4462618632337" y2="100.21600407021681" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="195.81434243653638" y1="103.97477455336045" x2="209.8371683128888" y2="142.50217200558268" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="195.81434243653638" y1="103.97477455336045" x2="209.8371683128888" y2="142.50217200558268" style="stroke:#c62828;stroke-width:9;stroke-linecap:round"></line><line x1="196.8404028665134" y1="106.79385241571816" x2="196.8404028665134" y2="106.79385241571816"></line><line x1="190.26255452101202" y1="109.18799341899785" x2="203.41825121201475" y2="104.39971141243848" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="196.32909819824425" y1="111.23666318551314" x2="206.5897024980143" y2="139.4274418090904" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><text x="86" y="22" font-size="13">continuity · no beep</text></svg></div>
+          <dl><dt>Setting</dt><dd>Continuity.</dd>
+            <dt>How</dt><dd>Power off. One probe on each of two tracks side by side.</dd>
+            <dt>Good</dt><dd>No beep. A beep means a solder bridge or a stray strand of wire.</dd></dl>
+        </article>
+        <article class="job" aria-labelledby="j5">
+          <h3 id="j5">The supply voltage</h3>
+          <div class="job-fig"><svg role="img" aria-label="A finished stripboard circuit seen from the copper side, with the parts on the other side showing as shadows. Flying leads join a power supply set to 5.0 V to the top and bottom strips. The class meter on DCV 20 reads 5.00, red probe on +5 V, black probe on 0 V." viewBox="0 0 300 200"><rect x="7" y="34" width="52.699999999999996" height="85" rx="6.8" style="fill:#000;opacity:.15"></rect><rect x="4" y="30" width="52.699999999999996" height="85" rx="6.8" style="fill:#f4d23c;stroke:#0f2f28;stroke-width:2"></rect><rect x="9.1" y="35.1" width="42.5" height="18.7" rx="3" style="fill:#cfdcc8;stroke:#0f2f28;stroke-width:1.4"></rect><text x="49.05" y="49.55" font-size="12.75" text-anchor="end" style="font-family:Courier New,monospace;font-weight:700;fill:#18201a">5.00</text><circle cx="30.349999999999998" cy="77.6" r="11.9" style="fill:#fff;stroke:#0f2f28;stroke-width:2"></circle><line x1="30.349999999999998" y1="77.6" x2="39.699999999999996" y2="78.535" style="stroke:#0f2f28;stroke-width:3;stroke-linecap:round"></line><circle cx="21.849999999999998" cy="104.8" r="3.4" style="fill:#0f2f28"></circle><circle cx="38.85" cy="104.8" r="3.4" style="fill:#0f2f28"></circle><rect x="92" y="38" width="140" height="120" rx="3" style="fill:#f1e3c8;stroke:#0f2f28;stroke-width:1.2"></rect><rect x="92" y="44" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="44" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="50" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="50" r="2" style="fill:#f1e3c8"></circle><rect x="92" y="60" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="60" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="66" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="66" r="2" style="fill:#f1e3c8"></circle><rect x="92" y="76" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="76" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="82" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="82" r="2" style="fill:#f1e3c8"></circle><rect x="92" y="92" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="92" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="98" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="98" r="2" style="fill:#f1e3c8"></circle><rect x="92" y="108" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="108" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="114" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="114" r="2" style="fill:#f1e3c8"></circle><rect x="92" y="124" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="124" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="130" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="130" r="2" style="fill:#f1e3c8"></circle><rect x="92" y="140" width="140" height="12" style="fill:#c98a3a"></rect><rect x="92" y="140" width="140" height="4" style="fill:#fff;opacity:.3"></rect><circle cx="98" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="110" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="122" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="134" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="146" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="158" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="170" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="182" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="194" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="206" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="218" cy="146" r="2" style="fill:#f1e3c8"></circle><circle cx="230" cy="146" r="2" style="fill:#f1e3c8"></circle><rect x="156" y="60" width="6" height="12" style="fill:#f1e3c8"></rect><rect x="156" y="76" width="6" height="12" style="fill:#f1e3c8"></rect><rect x="156" y="92" width="6" height="12" style="fill:#f1e3c8"></rect><rect x="156" y="108" width="6" height="12" style="fill:#f1e3c8"></rect><rect x="144" y="59" width="30" height="62" rx="2" style="fill:#000;opacity:.22"></rect><rect x="112" y="50" width="10" height="32" rx="4" style="fill:#000;opacity:.22"></rect><rect x="206" y="82" width="10" height="32" rx="4" style="fill:#000;opacity:.22"></rect><circle cx="190" cy="122" r="10" style="fill:#000;opacity:.22"></circle><circle cx="214" cy="138" r="8" style="fill:#000;opacity:.22"></circle><path d="M132 50 V98 M180 130 V146 M136 114 V146" style="stroke:#000;stroke-opacity:.28;stroke-width:3;fill:none;stroke-linecap:round"></path><circle cx="117" cy="50" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="117" cy="82" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="117" cy="50" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="211" cy="82" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="211" cy="114" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="132" cy="50" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="132" cy="98" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="180" cy="130" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="180" cy="146" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="136" cy="114" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="136" cy="146" r="2.6" style="fill:#d5d9dc;stroke:#0f2f28;stroke-width:.8"></circle><circle cx="104" cy="50" r="4.5" style="fill:#fff;stroke:#0f2f28;stroke-width:1.6"></circle><circle cx="104" cy="146" r="4.5" style="fill:#fff;stroke:#0f2f28;stroke-width:1.6"></circle><rect x="244" y="20" width="52" height="58" rx="4" style="fill:#dfe3e6;stroke:#0f2f28;stroke-width:1.6"></rect><rect x="250" y="26" width="40" height="16" rx="2" style="fill:#1f2a22"></rect><text x="286" y="38" font-size="11" text-anchor="end" style="fill:#7dffb0;font-family:Courier New,monospace;font-weight:700">5.0 V</text><circle cx="258" cy="64" r="5" style="fill:#c62828;stroke:#0f2f28;stroke-width:1.4"></circle><circle cx="282" cy="64" r="5" style="fill:#1d1d1d;stroke:#0f2f28;stroke-width:1.4"></circle><path d="M258 64 C258 96 246 50 226 50" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M258 64 C258 96 246 50 226 50" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><path d="M282 64 C294 120 256 146 226 146" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M282 64 C294 120 256 146 226 146" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><rect x="218" y="46" width="14" height="8" rx="2" style="fill:#9aa3a8;stroke:#0f2f28;stroke-width:1"></rect><rect x="218" y="142" width="14" height="8" rx="2" style="fill:#9aa3a8;stroke:#0f2f28;stroke-width:1"></rect><path d="M21.849999999999998 104.8 C21.849999999999998 170 45 186 56.489181431238485 179.2674333083607" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M21.849999999999998 104.8 C21.849999999999998 170 45 186 56.489181431238485 179.2674333083607" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><path d="M38.85 104.8 C72 112 82 40 59.56942229909927 12.718318638180719" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M38.85 104.8 C72 112 82 40 59.56942229909927 12.718318638180719" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><line x1="104" y1="146" x2="93.35102342424311" y2="153.4564936725636" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="90.07441524708715" y1="155.75079941796778" x2="56.489181431238485" y2="179.2674333083607" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="90.07441524708715" y1="155.75079941796778" x2="56.489181431238485" y2="179.2674333083607" style="stroke:#1d1d1d;stroke-width:9;stroke-linecap:round"></line><line x1="87.61695911422017" y1="157.47152872702094" x2="87.61695911422017" y2="157.47152872702094"></line><line x1="83.60192405976284" y1="151.737464416998" x2="91.6319941686775" y2="163.20559303704388" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="83.19319806436211" y1="158.12753038384713" x2="58.61863673569236" y2="175.3348234743785" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><line x1="104" y1="50" x2="94.04142223945328" y2="41.64376107407499" style="stroke:#9aa3a8;stroke-width:3;stroke-linecap:round"></line><line x1="90.97724446697737" y1="39.07261063532883" x2="59.56942229909927" y2="12.718318638180719" style="stroke:#0f2f28;stroke-width:12;stroke-linecap:round"></line><line x1="90.97724446697737" y1="39.07261063532883" x2="59.56942229909927" y2="12.718318638180719" style="stroke:#c62828;stroke-width:9;stroke-linecap:round"></line><line x1="88.67911113762044" y1="37.14424780626921" x2="88.67911113762044" y2="37.14424780626921"></line><line x1="93.17862440542622" y1="31.78193670443637" x2="84.17959786981466" y2="42.50655890810206" style="stroke:#0f2f28;stroke-width:4;stroke-linecap:round"></line><line x1="86.9005085845176" y1="33.0410084812851" x2="63.91917529094827" y2="13.757380190688922" style="stroke:#fff;stroke-opacity:.35;stroke-width:2;stroke-linecap:round"></line><text x="184" y="32" font-size="12">+5 V</text><text x="184" y="172" font-size="12">0 V</text><text x="270" y="14" font-size="12" text-anchor="middle">supply</text><text x="160" y="194" font-size="13" text-anchor="middle">DCV 20 · power on</text></svg></div>
+          <dl><dt>Setting</dt><dd>DCV 20.</dd>
+            <dt>How</dt><dd>Power <strong>on</strong>, flying leads from the supply. Black on 0 V, red on +V.</dd>
+            <dt>Good</dt><dd>Close to the set voltage, for example 5.0 V.</dd></dl>
+        </article>
+        <article class="job" aria-labelledby="j6">
+          <h3 id="j6">A logic level on a chip</h3>
+          <div class="job-fig"><svg role="img" aria-label="A logic probe with its red clip on +V and black clip on 0 V. The tip touches pin 3 of a 14-pin chip and the red Hi LED is on, so pin 3 is at logic 1." viewBox="0 0 260 160"><path d="M166 34 H176 M216 34 H226 M166 48 H176 M216 48 H226 M166 62 H176 M216 62 H226 M166 76 H176 M216 76 H226 M166 90 H176 M216 90 H226 M166 104 H176 M216 104 H226 M166 118 H176 M216 118 H226 " style="stroke:#9aa3a8;stroke-width:4"></path><rect x="176" y="24" width="40" height="104" rx="3" style="fill:#2b2f33;stroke:#0f2f28;stroke-width:1.6"></rect><path d="M188 24 A8 8 0 0 0 204 24" style="fill:none;stroke:#ccc;stroke-width:1.6"></path><circle cx="183" cy="34" r="2.5" style="fill:#ccc"></circle><text x="162" y="38" font-size="11" text-anchor="end">1</text><text x="162" y="122" font-size="11" text-anchor="end">7</text><text x="230" y="38" font-size="11">14</text><line x1="140" y1="62" x2="166" y2="62" style="stroke:#9aa3a8;stroke-width:3"></line><path d="M140 54 L132 48 H50 V76 H132 L140 70 Z" style="fill:#d9dde0;stroke:#0f2f28;stroke-width:2"></path><circle cx="116" cy="62" r="6.5" style="fill:#e53935;stroke:#0f2f28;stroke-width:1.5"></circle><circle cx="96" cy="62" r="6.5" style="fill:#fff;stroke:#0f2f28;stroke-width:1.5"></circle><text x="116" y="90" font-size="11" text-anchor="middle">Hi</text><text x="96" y="90" font-size="11" text-anchor="middle">Lo</text><path d="M50 62 C30 58 30 14 70 12" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M50 62 C30 58 30 14 70 12" style="fill:none;stroke:#c62828;stroke-width:4.5;stroke-linecap:round"></path><path d="M50 62 C30 60 20 140 46 140" style="fill:none;stroke:#0f2f28;stroke-width:7;stroke-linecap:round"></path><path d="M50 62 C30 60 20 140 46 140" style="fill:none;stroke:#1d1d1d;stroke-width:4.5;stroke-linecap:round"></path><text x="74" y="16" font-size="12" style="fill:#c62828">clip to +V</text><text x="50" y="145" font-size="12">clip to 0 V</text><text x="196" y="150" font-size="12" text-anchor="middle">pin 3 is logic 1</text></svg></div>
+          <dl><dt>Tool</dt><dd>The <strong>logic probe</strong> only, not the meter.</dd>
+            <dt>How</dt><dd>Power on. Red clip on +V, black clip on 0 V. Touch the tip on one pin.</dd>
+            <dt>Good</dt><dd>Red Hi LED: logic 1. Green Lo LED: logic 0. On a 7400 chip, pin 14 is always 1 and pin 7 is always 0.</dd></dl>
+        </article>
       </div>
+
       <div class="practice">
         <span class="practice-tag">Practice 2</span>
-        <p class="stem">(a) State where the red and black leads of a logic probe are connected. (b) When the probe tip is on a test point and the "high" LED lights, what is the logic state there?</p>
+        <p class="stem">1. <strong>Describe</strong> how to test a changeover switch with the multimeter.</p>
         <details class="reveal"><summary>Answer</summary>
-          <div class="reveal-body">(a) <strong>Red lead → V+</strong> (positive supply); <strong>black lead → 0&nbsp;V</strong> (ground). (b) The point is at <strong>logic 1 (high)</strong>.</div>
+          <div class="reveal-body">Power off. Set the dial to <strong>continuity</strong>. Put one probe on the <strong>middle pin</strong> and the other on each outer pin in turn, switching between them. It should beep to one outer pin, then to the other.</div>
+        </details>
+        <p class="stem">2. <strong>State</strong> what this tells you. Your meter beeps between the +V and 0 V test points with the power off.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">There is a <strong>short circuit</strong> across the supply, for example a solder bridge between two tracks. Do not switch on. Find and remove it first.</div>
+        </details>
+        <p class="stem">3. <strong>State</strong> what this tells you. Your meter beeps between two tracks side by side, with the power off.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">The two tracks are <strong>joined</strong> when they should not be: a solder bridge or a stray strand of wire. Remove it before you switch on.</div>
         </details>
       </div>
-      <div class="practice">
-        <span class="practice-tag">Practice 2b</span>
-        <p class="stem">A soldered track might be cracked. State which instrument you would use (and the power setting), and what result tells you the track is good.</p>
-        <details class="reveal"><summary>Answer</summary>
-          <div class="reveal-body">A <strong>continuity tester</strong> with the <strong>power off</strong>. If it <strong>beeps</strong> / reads near 0 Ω, the track is continuous; no beep means it is broken.</div>
-        </details>
-      </div>
-    </section>
-
-    <!-- C3 -->
-    <section class="panel" id="c3" aria-label="Pre-power-up checklist">
-      <span class="concept-tag">Concept 3</span>
-      <h2>Pre-power-up checklist</h2>
-      <div class="notes"><p>Before switching on, check the build against the design. This catches faults before they can damage components.</p></div>
-      <ul class="chk-list" aria-label="Pre-power-up checks">
-        <li>Supply voltage and polarity are correct (+ and 0 V the right way round).</li>
-        <li>Every component matches the parts list (correct resistor values / codes).</li>
-        <li>Polarised parts are the right way round — diodes, LEDs, electrolytic capacitors, transistors, ICs (pin 1).</li>
-        <li>No short circuits, missing links or unintended bridges between tracks.</li>
-        <li>All joints are clean and solid (no dry joints); tracks cut where the layout requires.</li>
-        <li>Continuity of key connections checked with the power off.</li>
-      </ul>
-      <div class="practice">
-        <span class="practice-tag">Practice 3</span>
-        <p class="stem">Give two checks you would make on a stripboard build <em>before</em> connecting the power.</p>
-        <details class="reveal"><summary>Answer</summary>
-          <div class="reveal-body">Any two, e.g.: supply polarity correct; resistor values match the list; polarised parts the right way round; track cuts made; no shorts/bridges; joints solid; continuity checked with power off.</div>
-        </details>
-      </div>
-    </section>
-
-    <!-- C4 -->
-    <section class="panel" id="c4" aria-label="Functionality testing">
-      <span class="concept-tag">Concept 4</span>
-      <h2>Functionality testing (input → process → output)</h2>
-      <div class="notes">
-        <p>Once powered, test the circuit <strong>stage by stage</strong> so you know exactly where any fault is:</p>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
         <ul>
-          <li><strong>Input</strong> — change the input (cover the LDR, warm the thermistor, press the switch) and check the input voltage changes as expected.</li>
-          <li><strong>Process</strong> — check the processing stage responds (e.g. the comparator output switches over, the transistor turns on).</li>
-          <li><strong>Output</strong> — check the output device works (lamp lights, buzzer sounds, motor turns, relay clicks).</li>
+          <li>test a resistor, a switch, a track and a joint.</li>
+          <li>check for a short before you switch on.</li>
+          <li>measure the supply and a logic level.</li>
         </ul>
       </div>
-      <div class="note"><strong>Why stage by stage?</strong> If the output is dead but the input and process voltages are correct, you have narrowed the fault down to the output stage — much faster than checking the whole board at once.</div>
-      <h3 style="font-weight:900;margin:1.1rem 0 .3rem;">Worked example — testing a light-sensing alarm</h3>
-      <p class="notes" style="margin:0 0 .4rem;"><strong>Equipment:</strong> a digital multimeter (probes in COM and VΩ), set to <strong>20 V DC</strong>, with the black probe clipped to the <strong>0&nbsp;V</strong> rail throughout.</p>
-      <table class="dtable" aria-label="What to do to test each stage">
-        <thead><tr><th>Stage</th><th>What to do</th><th>Expected result</th></tr></thead>
-        <tbody>
-          <tr><td class="l"><strong>Input</strong></td><td class="l">Red probe on the <strong>LDR divider output</strong>. Cover the LDR, then shine a light on it.</td><td class="l">Voltage swings clearly (e.g. ~1 V in light → ~4 V covered).</td></tr>
-          <tr><td class="l"><strong>Process</strong></td><td class="l">Red probe on the <strong>comparator output pin</strong>. Cover the LDR again.</td><td class="l">Output switches over — e.g. ~0 V → near the <strong>+ supply</strong> (about 8–9 V).</td></tr>
-          <tr><td class="l"><strong>Output</strong></td><td class="l">Red probe on the <strong>buzzer's + terminal</strong> with the LDR covered; also listen.</td><td class="l">About the supply voltage across the buzzer and it <strong>sounds</strong>.</td></tr>
-        </tbody>
-      </table>
-      <p class="notes" style="margin:.4rem 0 0;">If a stage's voltage is right but the next one is wrong, the fault is <strong>between them</strong> — check that joint, track or component before moving on.</p>
+    </section>
+
+    <!-- ================= CONCEPT 3 ================= -->
+    <section class="panel" id="probe" aria-labelledby="probe-title">
+      <span class="concept-tag">Concept 3</span>
+      <h2 id="probe-title">The logic probe</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Logic 1</dt><dd>high: close to the supply voltage.</dd>
+          <dt>Logic 0</dt><dd>low: close to 0 V.</dd>
+          <dt>Pulsing</dt><dd>the logic level keeps changing between 1 and 0.</dd>
+        </dl>
+      </div>
+      <div class="dual">
+        <div>
+          <p>A logic probe shows whether a point is at logic 1 or logic 0. It takes its power from the circuit you are testing.</p>
+          <div class="tbl-wrap">
+            <table class="dtable" aria-label="Parts of the logic probe">
+              <thead><tr><th>Part</th><th>What to do</th></tr></thead>
+              <tbody>
+                <tr><td>red wire</td><td>Clip to the <strong>+V</strong> rail of the circuit you are testing.</td></tr>
+                <tr><td>black wire</td><td>Clip to the <strong>0 V</strong> rail.</td></tr>
+                <tr><td>TTL / CMOS</td><td>Set to <strong>TTL</strong> for 74 series chips and our 555 circuits.</td></tr>
+                <tr><td>MEM / Pulse</td><td>Set to <strong>Pulse</strong> to catch a changing signal.</td></tr>
+                <tr><td>metal probe</td><td>Touch it on the point you are testing.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <figure>
+          <div class="sqa-fig"><img src="/assets/electronics/block6/sqa-2025-q7-logic-probe.png" width="1000" height="496" alt="A logic probe. From the left: the metal probe, a red LED marked Hi, a green LED marked Lo, a TTL/CMOS switch and a MEM/Pulse switch. A black wire and a red wire end in crocodile clips for the supply connections."></div>
+          <figcaption>The logic probe. National 5 Practical Electronics 2025, Q7. © Qualifications Scotland (SQA).</figcaption>
+        </figure>
+      </div>
+
+      <h3>What you see, and what it means</h3>
+      <div class="seen">
+        <div class="seen-card"><div data-probe-head="hi" data-label="Logic probe with the red Hi LED on"></div><p><strong>Red LED (Hi) on:</strong> the point is at logic 1 (high).</p></div>
+        <div class="seen-card"><div data-probe-head="lo" data-label="Logic probe with the green Lo LED on"></div><p><strong>Green LED (Lo) on:</strong> the point is at logic 0 (low).</p></div>
+        <div class="seen-card"><div data-probe-head="flash" data-label="Logic probe with the red Hi LED flashing"></div><p><strong>An LED flashing:</strong> the point is pulsing. The logic level keeps changing.</p></div>
+        <div class="seen-card"><div data-probe-head="none" data-label="Logic probe with neither LED on"></div><p><strong>Neither LED on:</strong> the point is not joined to anything, or the probe has no supply.</p></div>
+      </div>
+
+      <h3>Common mistakes with the logic probe</h3>
+      <div class="tbl-wrap">
+        <table class="dtable" aria-label="Common mistakes with the logic probe">
+          <thead><tr><th>Mistake</th><th>What you see</th><th>Do this</th></tr></thead>
+          <tbody>
+            <tr><td>Clips on a different supply, not the circuit you are testing</td><td>Readings that make no sense</td><td>Clip to the <strong>same</strong> circuit's +V and 0 V.</td></tr>
+            <tr><td>Red and black clips swapped</td><td>No LEDs at all</td><td>Red on +V, black on 0 V.</td></tr>
+            <tr><td>A clip on the insulation, not bare metal</td><td>No LEDs at all</td><td>Clip onto a test pin or bare wire.</td></tr>
+            <tr><td>MEM switched on</td><td>An LED stays lit after you move the probe</td><td>Switch to <strong>Pulse</strong>.</td></tr>
+            <tr><td>Touching the chip body, or two pins at once</td><td>Wrong or flickering readings; risk of a short</td><td>Touch <strong>one</strong> pin. Count from pin 1 at the notch.</td></tr>
+            <tr><td>Probing an input that is not connected</td><td>Neither LED, or a flicker</td><td>That is a fault in the circuit: the input needs a pull-up or pull-down.</td></tr>
+            <tr><td>Thinking a flashing LED is a fault</td><td>Flashing on a 555 astable output</td><td>Flashing is right there.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="practice">
+        <span class="practice-tag">Practice 3</span>
+        <p class="stem">1. <strong>State</strong> the logic level. The probe tip is on an input of a 7400 chip, and the green LED is on.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">Logic <strong>0</strong> (low).</div>
+        </details>
+        <p class="stem">2. <strong>Give</strong> two possible reasons. You clip on the probe and neither LED lights on any pin.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">Any two: the red and black clips are swapped; a clip is on insulation, not bare metal; the circuit's power is off; the clips are on a different supply.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul>
+          <li>connect a logic probe to the circuit you are testing.</li>
+          <li>say what each LED pattern means.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= SIMULATOR ================= -->
+    <section class="panel" id="test-bench" aria-labelledby="bench-title">
+      <h2 id="bench-title">Test bench</h2>
+      <div class="sim" id="bench">
+        <div class="sim-head">
+          <h3>The 555 astable practice board</h3>
+          <p class="sim-hint">Tap a test point with the meter or the probe. The black lead stays on T2, 0 V.</p>
+          <div class="sim-seg tb-mode" role="group" aria-label="Choose what to do">
+            <button type="button" data-mode="explore" aria-pressed="true">Explore</button>
+            <button type="button" data-mode="detective" aria-pressed="false">Probe Detective</button>
+          </div>
+        </div>
+
+        <div class="sim-predict" id="benchPredict">
+          <p class="sim-q"><b>Predict</b> what the logic probe shows on T3, the output of the 555 (pin 3).</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="hi" aria-pressed="false">Red LED on all the time<template data-feedback><p>Not this one. Pin 3 of an astable does not stay HIGH. It switches HIGH and LOW again and again, so the probe can't stay red.</p></template></button>
+            <button type="button" data-predict="lo" aria-pressed="false">Green LED on all the time<template data-feedback><p>Not this one. Green all the time means pin 3 is stuck LOW. A working astable keeps switching, so the probe changes too.</p></template></button>
+            <button type="button" data-predict="flash" aria-pressed="false">The LEDs flash<template data-feedback><p><strong>Right.</strong> An astable's output keeps switching between HIGH and LOW. The probe shows that as pulsing: red, then green, again and again.</p></template></button>
+            <button type="button" data-predict="none" aria-pressed="false">Neither LED<template data-feedback><p>Not this one. Neither LED means no supply to the probe, or a point joined to nothing. Pin 3 is driven by the 555, so the probe will show a level.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" id="benchTry" hidden><button class="sim-btn" type="button" id="benchTryBtn">Try it: probe on T3</button></p>
+        </div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="tb-board" id="benchBoard" data-board></div>
+            <div class="tb-row">
+              <div class="sim-seg" role="group" aria-label="Test points">
+                <button type="button" data-tp="T1" aria-pressed="false">T1 · +5 V</button>
+                <button type="button" data-tp="T2" aria-pressed="false">T2 · 0 V</button>
+                <button type="button" data-tp="T3" aria-pressed="false">T3 · pin 3</button>
+                <button type="button" data-tp="T4" aria-pressed="false">T4 · C1</button>
+              </div>
+              <button class="sim-btn" type="button" id="benchPlay" data-play-text="Play" data-pause-text="Pause">Play</button>
+            </div>
+            <div class="tb-status"><span class="tb-where" id="benchWhere">Tap a test point</span><span class="tb-leds" id="benchLeds"></span></div>
+            <div class="pd" id="pd" hidden>
+              <p class="pd-q" id="pdQ"></p>
+              <div class="pd-opts" id="pdOpts" role="group" aria-label="Choose the fault"></div>
+              <div class="pd-fb" id="pdFb" aria-live="polite"></div>
+              <button class="sim-btn" type="button" id="pdNext" hidden>Next board</button>
+              <p class="pd-score" id="pdScore" aria-live="polite"></p>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <div class="sim-seg" role="group" aria-label="Choose a tool">
+              <span class="sim-seg-label">Tool</span>
+              <button type="button" data-tool="meter" aria-pressed="true">Meter</button>
+              <button type="button" data-tool="probe" aria-pressed="false">Logic probe</button>
+            </div>
+            <div class="tb-lcdwrap"><div class="tb-lcd" id="benchLcd">0.00</div><div class="tb-lcdset" id="benchLcdSet"></div></div>
+            <div class="tb-probewrap" id="benchProbe" hidden></div>
+            <div id="benchMeterCtl">
+              <div class="sim-seg" role="group" aria-label="Dial">
+                <span class="sim-seg-label">Dial</span>
+                <button type="button" data-dial="DCV 2" aria-pressed="false">DCV 2</button>
+                <button type="button" data-dial="DCV 20" aria-pressed="true">DCV 20</button>
+                <button type="button" data-dial="DCV 200" aria-pressed="false">DCV 200</button>
+                <button type="button" data-dial="Continuity" aria-pressed="false">Continuity</button>
+              </div>
+              <div class="sim-seg" role="group" aria-label="Red lead socket" style="margin-top:10px">
+                <span class="sim-seg-label">Red lead in</span>
+                <button type="button" data-red="V/Ω" aria-pressed="true">V/Ω</button>
+                <button type="button" data-red="A" aria-pressed="false">A</button>
+              </div>
+            </div>
+            <div class="sim-seg" role="group" aria-label="Power">
+              <span class="sim-seg-label">Power</span>
+              <button type="button" data-power="on" aria-pressed="true">On</button>
+              <button type="button" data-power="off" aria-pressed="false">Off</button>
+            </div>
+            <p class="tb-note" id="benchNote" hidden></p>
+            <p class="visually-hidden" id="benchSay" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+      <p class="notes">In <strong>Probe Detective</strong>, each board has one hidden fault. Take readings, then choose the fault. Find 4 of 5 on your first try to earn the Probe Detective badge.</p>
+    </section>
+
+    <!-- ================= BEFORE POWER ================= -->
+    <section class="panel" id="before" aria-labelledby="before-title">
+      <span class="concept-tag">Concept 4</span>
+      <h2 id="before-title">Before you switch on</h2>
+      <div class="dual">
+        <div>
+          <p>Check the board against the layout first. This finds faults before they can damage a part.</p>
+          <ol class="chk-list">
+            <li>Every part matches the parts list. Check resistor colour codes.</li>
+            <li>LEDs, diodes, electrolytic capacitors and chips are the right way round.</li>
+            <li>Every track cut is made. No solder bridges.</li>
+            <li>No beep between +V and 0 V on continuity.</li>
+            <li>The supply is set to the right voltage, + to +V.</li>
+          </ol>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig" viewBox="0 0 440 200" role="img" aria-label="Three parts that must go the right way round. An LED: the long leg is +, and the flat edge on the rim marks the short − leg. An electrolytic capacitor: the stripe marks the − leg. An 8-pin chip standing upright: the notch is at the top and pin 1 is top left.">
+    <path d="M40 82 V44 A20 20 0 0 1 80 44 V82 Z" class="res"/>
+    <path class="res" d="M28 82 H81 V92 H28 Z"/>
+    <path class="w" d="M50 92 V170 M70 92 V150"/>
+    <text x="50" y="186" text-anchor="middle" class="sm">long leg +</text><text x="90" y="160" class="sm">short leg −</text>
+    <path class="w thin" d="M82 88 L96 104"/><text x="98" y="114" class="sm">flat edge −</text>
+    <circle class="res" cx="150" cy="40" r="18"/><path d="M162 26 V54" style="stroke:var(--card);stroke-width:8"/><path class="w" d="M162 27 V53"/>
+    <text x="150" y="74" text-anchor="middle" class="sm">from above:</text><text x="150" y="88" text-anchor="middle" class="sm">flat = −</text>
+    <rect class="res" x="208" y="28" width="44" height="60" rx="6"/><rect x="240" y="28" width="12" height="60" rx="3" style="fill:var(--text)"/>
+    <text x="246" y="62" text-anchor="middle" style="fill:var(--card);font-size:16px;font-weight:900">−</text>
+    <path class="w" d="M220 88 V150 M244 88 V136"/>
+    <text x="230" y="170" text-anchor="middle" class="sm">stripe = − leg</text>
+    <path class="pin" d="M320 48 H332 M320 76 H332 M320 104 H332 M320 132 H332 M372 48 H384 M372 76 H384 M372 104 H384 M372 132 H384"/>
+    <rect class="chip" x="332" y="34" width="40" height="112" rx="3"/><path d="M344 34 A8 8 0 0 0 360 34" style="fill:none;stroke:#ccc;stroke-width:1.6"/><circle cx="340" cy="48" r="3" style="fill:#ccc"/>
+    <text x="314" y="52" text-anchor="end" class="sm">1</text><text x="390" y="52" class="sm">8</text><text x="314" y="136" text-anchor="end" class="sm">4</text><text x="390" y="136" class="sm">5</text>
+    <text x="352" y="170" text-anchor="middle" class="sm">notch at the top,</text><text x="352" y="184" text-anchor="middle" class="sm">pin 1 top left</text>
+  </svg>
+          </div>
+          <figcaption>Three parts that must go the right way round.</figcaption>
+        </figure>
+      </div>
       <div class="practice">
         <span class="practice-tag">Practice 4</span>
-        <p class="stem">A light-sensing alarm does not sound when the LDR is covered. The input voltage changes correctly and the comparator output switches, but the buzzer is silent. State where the fault is.</p>
+        <p class="stem"><strong>Give</strong> two checks you would make on a stripboard <strong>before</strong> you connect the power.</p>
         <details class="reveal"><summary>Answer</summary>
-          <div class="reveal-body">In the <strong>output stage</strong> — the input and process are working, so the fault is the buzzer or its connections (e.g. buzzer faulty, wired wrong way round, or a broken joint).</div>
+          <div class="reveal-body">Any two: resistor values match the parts list; polarised parts the right way round; track cuts made; no solder bridges; no beep between +V and 0 V; supply set to the right voltage.</div>
         </details>
       </div>
     </section>
 
-    <!-- C5 -->
-    <section class="panel" id="c5" aria-label="Testing videos">
+    <!-- ================= STAGE BY STAGE ================= -->
+    <section class="panel" id="stages" aria-labelledby="stages-title">
       <span class="concept-tag">Concept 5</span>
-      <h2>Testing demonstration videos</h2>
-      <div class="notes"><p>Watch each demonstration of pre-power-up and functionality testing on real circuits.</p></div>
-      <div class="topic-list">
-        <a class="topic-link" href="/classes/electronics/mock-practical-activity-guide.html#videos">Testing videos — watch each test being done <span class="go" aria-hidden="true">→</span></a>
-      </div>
-    </section>
-
-    <!-- Challenge -->
-    <section class="panel" id="challenge" aria-label="Fault Finder challenge">
-      <span class="concept-tag">Interactive</span>
-      <h2>Fault Finder challenge</h2>
-      <p class="notes">A circuit isn't behaving. Read each <strong>symptom and test reading</strong>, then pick the
-        <strong>most likely fault</strong>. Score <strong>8 / 10</strong> to earn the 🔬 <strong>Fault Finder</strong>
-        badge.</p>
-      <div class="widget" aria-label="Fault diagnosis quiz">
-        <h3>Diagnose the fault <span class="challenge-tag">scored</span></h3>
-        <p class="hint">Match the evidence to the fault, then mark your answers.</p>
-        <div id="ff-quiz" aria-label="Fault diagnosis questions"></div>
-        <div class="btnrow">
-          <button class="btn primary" id="ff-mark" type="button">Mark answers</button>
-          <button class="btn" id="ff-new" type="button">New set</button>
+      <h2 id="stages-title">Test stage by stage</h2>
+      <div class="dual">
+        <div class="notes">
+          <p>With the power on, test the <strong>input</strong>, then the <strong>process</strong>, then the <strong>output</strong>.</p>
+          <p>If one stage is right but the next is wrong, the fault is <strong>between them</strong>. You only need to check that part of the board.</p>
         </div>
-        <div class="score" id="ff-score" aria-live="polite"></div>
-        <p style="margin-top:.6rem;"><a class="backlink" href="/classes/electronics.html#progressHub" style="margin:0;">View my progress <span aria-hidden="true">→</span></a></p>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig" viewBox="0 0 420 120" role="img" aria-label="A block diagram: input, then process, then output, with arrows between them. A test point after each block: test 1, test 2, test 3.">
+              <rect class="box" x="10" y="24" width="104" height="48" rx="8"/><text class="big" x="62" y="54" text-anchor="middle">Input</text>
+              <rect class="box" x="158" y="24" width="104" height="48" rx="8"/><text class="big" x="210" y="54" text-anchor="middle">Process</text>
+              <rect class="box" x="306" y="24" width="104" height="48" rx="8"/><text class="big" x="358" y="54" text-anchor="middle">Output</text>
+              <path class="w" d="M114 48 H150 M262 48 H298"/><polygon class="arrow" points="150,42 158,48 150,54"/><polygon class="arrow" points="298,42 306,48 298,54"/>
+              <circle class="mtr" cx="132" cy="48" r="5"/><circle class="mtr" cx="280" cy="48" r="5"/><circle class="mtr" cx="358" cy="84" r="5"/>
+              <path class="w thin" d="M358 72 V79"/>
+              <text x="132" y="104" text-anchor="middle" class="ink2">test 1</text><text x="280" y="104" text-anchor="middle" class="ink2">test 2</text><text x="358" y="108" text-anchor="middle" class="ink2">test 3</text>
+            </svg>
+          </div>
+          <figcaption>Test after each stage, in order.</figcaption>
+        </figure>
+      </div>
+      <h3>Worked example: a light-sensing alarm</h3>
+      <p>Meter on <strong>DCV 20</strong>. The black lead stays on 0 V the whole time.</p>
+      <div class="tbl-wrap">
+        <table class="dtable" aria-label="Testing each stage of a light-sensing alarm">
+          <thead><tr><th>Stage</th><th>What to do</th><th>A good result</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Input</strong></td><td>Red lead on the LDR divider output. Cover the LDR, then shine a light on it.</td><td>The voltage changes clearly, for example about 1 V in light and about 4 V covered.</td></tr>
+            <tr><td><strong>Process</strong></td><td>Red lead on the comparator output. Cover the LDR again.</td><td>The output switches, from about 0 V to close to the supply.</td></tr>
+            <tr><td><strong>Output</strong></td><td>Red lead on the buzzer's + terminal, LDR covered. Listen too.</td><td>Close to the supply voltage, and the buzzer sounds.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 5</span>
+        <p class="stem">The alarm is silent when the LDR is covered. The input voltage changes and the comparator output switches. <strong>State</strong> where the fault is.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">In the <strong>output stage</strong>. The input and process work, so check the buzzer and its joints: it may be the wrong way round, faulty, or on a dry joint.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul>
+          <li>check a board before you switch it on.</li>
+          <li>test input, process and output in order to find a fault.</li>
+        </ul>
       </div>
     </section>
 
-    <!-- Check -->
-    <section class="panel" id="check" aria-label="Check your understanding">
+    <!-- ===================== CHECK ===================== -->
+    <section class="panel" id="check" aria-labelledby="check-title">
       <span class="concept-tag">Check</span>
-      <h2>Check your understanding</h2>
-      <p>Answer the multiple-choice questions, then mark yourself with the RAG self-check.</p>
+      <h2 id="check-title">Check your understanding</h2>
+      <p>Pick an answer to see feedback on it. You can then try the others. Your score counts first tries only.</p>
       <div id="quiz" aria-label="Multiple choice questions"></div>
       <div class="btnrow">
         <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
@@ -345,236 +791,189 @@ title: Testing — National 5 Electronics
       </div>
       <div class="score" id="quiz-score" aria-live="polite"></div>
 
-      <h3 style="margin-top:1.2rem;font-weight:900;">RAG self-check</h3>
-      <p class="muted" style="font-weight:800;">Tap Red / Amber / Green for how confident you feel.</p>
+      <h3>Fill the gaps</h3>
+      <div class="prog-cloze" data-prog-challenge="cloze-1" aria-label="Fill the gaps: testing">
+        <p class="cl-text">Turn the dial to the range just
+          <select class="cl-sel" data-answer="above" aria-label="gap 1"><option value="">choose…</option><option>above</option><option>below</option></select>
+          what you expect. A 1 on the left of the display means
+          <select class="cl-sel" data-answer="over range" aria-label="gap 2"><option value="">choose…</option><option>over range</option><option>zero</option></select>.
+          Test continuity with the power
+          <select class="cl-sel" data-answer="off" aria-label="gap 3"><option value="">choose…</option><option>off</option><option>on</option></select>.
+          A logic probe takes its power from
+          <select class="cl-sel" data-answer="the circuit you test" aria-label="gap 4"><option value="">choose…</option><option>the circuit you test</option><option>its own battery</option></select>.</p>
+        <div class="btnrow"><button class="btn primary cl-check" type="button">Check</button><button class="btn cl-reset" type="button">Reset</button></div>
+        <p class="fb-line" aria-live="polite"></p>
+      </div>
+
+      <h3>RAG self-check</h3>
+      <p>Tap Red, Amber or Green for how sure you feel.</p>
       <div id="rag" aria-label="Red amber green self assessment"></div>
       <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
       <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
     </section>
+
+    <!-- ===================== BOOKLET ANSWERS ===================== -->
+    <section class="panel" id="answers" aria-labelledby="answers-title">
+      <h2 id="answers-title">Booklet answers: Lesson 1</h2>
+      <p>Try the task in your booklet first. Then tap to check.</p>
+      <details class="reveal"><summary>Task 1: Predict the reading</summary>
+        <div class="reveal-body">
+          <div class="tbl-wrap">
+            <table class="dtable" aria-label="Task 1 answers">
+              <thead><tr><th>Measuring</th><th>Dial</th><th>Red lead</th><th>Reading</th></tr></thead>
+              <tbody>
+                <tr><td>A 9 V battery</td><td>DCV 20</td><td>V/Ω</td><td>about 9</td></tr>
+                <tr><td>A 10 kΩ resistor, out of the circuit</td><td>OHM 20k</td><td>V/Ω</td><td>about 10.0 (9.5 to 10.5)</td></tr>
+                <tr><td>A 470 Ω resistor, out of the circuit</td><td>OHM 2k</td><td>V/Ω</td><td>about 0.470 (0.447 to 0.494)</td></tr>
+                <tr><td>A push-to-make switch, held pressed</td><td>continuity</td><td>V/Ω</td><td>a beep (about 0)</td></tr>
+                <tr><td>A red LED, red probe on the long leg</td><td>diode check</td><td>V/Ω</td><td>a number, about 1800</td></tr>
+                <tr><td>The same LED, probes swapped</td><td>diode check</td><td>V/Ω</td><td>1</td></tr>
+                <tr><td>The current through an LED (about 11 mA)</td><td>DCA 20m</td><td>A</td><td>about 11.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+      <details class="reveal"><summary>Task 2: Probe Detective</summary>
+        <div class="reveal-body"><ul>
+          <li><strong>(a)</strong> No supply reaching the board: the power supply is off, or the supply leads are not connected.</li>
+          <li><strong>(b)</strong> LED2 the wrong way round (or R4 open, or a dry joint). Check: diode check on LED2, or continuity across R4's joints.</li>
+          <li><strong>(c)</strong> Pin 2 and C1 held at 0 V: C1 shorted, or a solder bridge to 0 V. T4 should rise and fall between about 1.7 V and 3.3 V.</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Exam question 1 (2019 Q5)</summary>
+        <div class="reveal-body"><ul>
+          <li><strong>(a)</strong> Error 1: the meter is on the wrong range, a current range. It should be on DCV. Error 2: probe 1 is in the wrong socket. It should be in VΩmA, the middle socket.</li>
+          <li><strong>(b)</strong> Probe 1 to VΩmA, probe 2 to COM (1). Set to Ω (1). Start on the highest range and work down until the display reads 1, then go up one range (1).</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Exam question 2 (2026 Q5(b)(iii))</summary>
+        <div class="reveal-body">One probe at test point E (1). The other probe at test point F (1). Dial turned to the continuity (buzzer) symbol (1).</div>
+      </details>
+      <details class="reveal"><summary>Key words</summary>
+        <div class="reveal-body">COM · V/Ω · across · series · continuity · pulsing</div>
+      </details>
+    </section>
+
+    <!-- ===================== GLOSSARY ===================== -->
+    <section class="panel" id="glossary" aria-labelledby="gloss-title">
+      <h2 id="gloss-title">Picture glossary</h2>
+      <div class="gloss">
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A small multimeter with a display and a dial"><rect class="box" x="14" y="4" width="48" height="68" rx="7"/><rect x="20" y="10" width="36" height="14" rx="2" style="fill:#cfdcc8;stroke:var(--text);stroke-width:1.5"/><circle class="res" cx="38" cy="44" r="11"/><line class="w" x1="38" y1="44" x2="38" y2="35"/><circle class="node" cx="28" cy="64" r="3"/><circle class="node" cx="48" cy="64" r="3"/></svg>
+          <div><p class="gloss-term">Multimeter</p><p class="gloss-def">One meter that measures voltage, resistance and current. The dial chooses which.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A small logic probe with a red and a green LED"><line class="w" x1="2" y1="38" x2="16" y2="38"/><path class="box" d="M16 32 L24 26 H72 V50 H24 L16 44 Z"/><circle cx="36" cy="38" r="5" style="fill:#e53935;stroke:var(--text);stroke-width:1.5"/><circle cx="52" cy="38" r="5" style="fill:#2e9d4f;stroke:var(--text);stroke-width:1.5"/></svg>
+          <div><p class="gloss-term">Logic probe</p><p class="gloss-def">Shows whether a point is at logic 1 (red LED) or logic 0 (green LED).</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A test pin standing on a copper track, labelled T1"><rect class="copper" x="4" y="50" width="68" height="14" rx="3"/><path class="w" d="M38 57 V20" style="stroke-width:4"/><circle class="res" cx="38" cy="18" r="6"/><text x="48" y="22">T1</text></svg>
+          <div><p class="gloss-term">Test point</p><p class="gloss-def">A pin on the board where you put a probe to take a reading.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A dial pointer turned to the 20 mark"><path class="w thin" d="M12 52 A28 28 0 0 1 64 52"/><text x="10" y="70" class="sm">2</text><text x="32" y="18" class="sm">20</text><text x="56" y="70" class="sm">200</text><circle class="res" cx="38" cy="56" r="7"/><line class="w" x1="38" y1="56" x2="38" y2="26" style="stroke-width:3.5"/></svg>
+          <div><p class="gloss-term">Range</p><p class="gloss-def">The biggest value a dial setting can show. Choose the one just above what you expect.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="Two probes touching each end of a wire, with a beep symbol"><path class="w" d="M14 52 H62"/><path class="lead-o" d="M16 52 L8 22"/><path class="lead-k" d="M16 52 L8 22"/><path class="lead-o" d="M60 52 L68 22"/><path class="lead-r" d="M60 52 L68 22"/><path class="w thin" d="M32 24 A8 8 0 0 1 32 36 M38 18 A14 14 0 0 1 38 42"/><circle class="node" cx="28" cy="30" r="2.5"/></svg>
+          <div><p class="gloss-term">Continuity</p><p class="gloss-def">A complete path between two points. The meter beeps when it finds one.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A socket labelled COM with the black lead in it"><text x="38" y="16" text-anchor="middle" class="big">COM</text><circle class="res" cx="38" cy="38" r="12"/><circle class="node" cx="38" cy="38" r="5"/><path class="lead-o" d="M38 50 V72"/><path class="lead-k" d="M38 50 V72"/></svg>
+          <div><p class="gloss-term">COM</p><p class="gloss-def">The common socket on the meter. The black lead always goes here.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="topic-list" aria-label="Next lesson" style="margin-top:1.4rem;">
+      <span class="topic-link soon">Next: Lesson 2 · The comparator <span class="soon-tag">Coming soon</span></span>
+    </nav>
+
+    <p data-credit-note style="font-size:0.82rem;opacity:0.78;margin-top:1.2rem;">Sources &amp; credits: logic probe picture from National 5 Practical Electronics question paper 2025, Q7, © Qualifications Scotland (SQA). Booklet answers to 2019 Q5 and 2026 Q5(b)(iii) follow the marking instructions, © Qualifications Scotland (SQA). Text, drawings, simulator, practice board and booklet by R Stewart. R Stewart - October 2026.</p>
   </main>
 
   {% include site-footer.html %}
 
-  <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="false" aria-label="Reading help: make the text bigger and the page calmer">🔤 Reading help</button>
   <script>
-  (function(){
-    var KEY="el-reading-help", el=document.documentElement, btn=document.getElementById("readingToggle");
-    if(!btn) return;
-    function apply(on){ el.classList.toggle("reading-help", on); btn.setAttribute("aria-pressed", on?"true":"false"); }
-    var on=false; try{ on=localStorage.getItem(KEY)==="1"; }catch(e){}
-    apply(on);
-    btn.addEventListener("click", function(){ on=!on; apply(on); try{ localStorage.setItem(KEY, on?"1":"0"); }catch(e){} });
-  })();
-  </script>
-
-  <script>
-  (function(){
-    "use strict";
-    var KEY="el-tst-";
-    function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
-    function load(k,d){ try{ var x=localStorage.getItem(KEY+k); return x?JSON.parse(x):d; }catch(e){ return d; } }
-    function $(id){ return document.getElementById(id); }
-    function setT(id,v){ var e=$(id); if(e) e.textContent=v; }
-
-    /* Quiz */
-    (function(){
-      var QS=[
-        { q:"To measure the current through a resistor, an ammeter is connected", o:["in parallel with it","in series with it","across the supply","with the power off"], a:1 },
-        { q:"You expect about 6 V. The best meter range to pick from 2 V / 20 V / 200 V is", o:["2 V","20 V","200 V","any of them"], a:1 },
-        { q:"To check a track is not broken, with the power off, you use a", o:["voltmeter","logic probe","continuity tester","oscilloscope"], a:2 },
-        { q:"A logic probe is used to show whether a point is", o:["hot or cold","high or low (1 or 0)","series or parallel","AC or DC"], a:1 },
-        { q:"A logic probe's power leads are connected", o:["red to 0 V, black to V+","red to V+, black to 0 V","both to the output","both to V+"], a:1 },
-        { q:"A pre-power-up check is to confirm that", o:["the output works","polarised parts are the right way round","the design earns full marks","the battery is flat"], a:1 },
-        { q:"The output is dead but input and process voltages are correct. The fault is in the", o:["input stage","process stage","output stage","power supply"], a:2 }
-      ];
-      var box=$("quiz");
-      QS.forEach(function(item,qi){
-        var d=document.createElement("div"); d.className="q";
-        var html='<p class="qstem">'+(qi+1)+". "+item.q+'</p>';
-        item.o.forEach(function(opt,oi){ html+='<label class="opt" data-qi="'+qi+'" data-oi="'+oi+'"><input type="radio" name="q'+qi+'" value="'+oi+'">'+opt+'</label>'; });
-        d.innerHTML=html; box.appendChild(d);
-      });
-      function clearNotes(){ box.querySelectorAll(".mark-note").forEach(function(s){ s.parentNode.removeChild(s); }); }
-      function addNote(el, txt){ var s=document.createElement("span"); s.className="mark-note"; s.textContent=txt; el.appendChild(s); }
-      $("quiz-mark").addEventListener("click", function(){
-        if(!box.querySelector("input:checked")){ setT("quiz-score","Choose at least one answer first."); return; }
-        var score=0; clearNotes();
-        QS.forEach(function(item,qi){
-          var chosen=box.querySelector('input[name="q'+qi+'"]:checked');
-          box.querySelectorAll('.opt[data-qi="'+qi+'"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-          var right=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+item.a+'"]');
-          right.classList.add("correct"); addNote(right, "✓ correct answer");
-          if(chosen){ var oi=parseInt(chosen.value,10);
-            if(oi===item.a) score++;
-            else { var w=box.querySelector('.opt[data-qi="'+qi+'"][data-oi="'+oi+'"]'); w.classList.add("wrong"); addNote(w, "✗ your answer"); }
-          }
-        });
-        var best=Math.max(load("quizbest",0), score); save("quizbest",best);
-        setT("quiz-score","Score: "+score+" / "+QS.length+"   (best: "+best+")");
-      });
-      $("quiz-reset").addEventListener("click", function(){
-        box.querySelectorAll("input").forEach(function(i){ i.checked=false; });
-        box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("correct","wrong"); });
-        clearNotes(); setT("quiz-score","");
-      });
-      var best=load("quizbest",null); if(best!=null) setT("quiz-score","Best so far: "+best+" / "+QS.length);
-    })();
-
-    /* RAG */
-    (function(){
-      var CRIT=[
-        "Choose the right multimeter function and range.",
-        "Connect a voltmeter in parallel and an ammeter in series.",
-        "Connect and use a logic probe (red→V+, black→0 V) and a continuity tester.",
-        "Work through a pre-power-up checklist.",
-        "Test a circuit stage by stage (input, process, output).",
-        "Use test results to locate a fault."
-      ];
-      var box=$("rag"), state=load("rag",{});
-      function summary(){
-        var g=0,a=0,r=0; CRIT.forEach(function(_,i){ var s=state[i]; if(s==="G")g++; else if(s==="A")a++; else if(s==="R")r++; });
-        setT("rag-summary", g+" green · "+a+" amber · "+r+" red  (of "+CRIT.length+")");
-      }
-      CRIT.forEach(function(c,i){
-        var row=document.createElement("div"); row.className="rag-item";
-        var lab=document.createElement("span"); lab.className="crit"; lab.textContent=c; row.appendChild(lab);
-        var btns=document.createElement("span"); btns.className="rag-btns";
-        ["R","A","G"].forEach(function(k){
-          var b=document.createElement("button"); b.type="button"; b.dataset.on=k; b.textContent=k;
-          b.setAttribute("aria-label", c+" — "+(k==="R"?"not yet":k==="A"?"getting there":"confident"));
-          b.setAttribute("aria-pressed", state[i]===k);
-          b.addEventListener("click", function(){
-            state[i]=k; save("rag",state);
-            btns.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.on===k); });
-            summary();
-          });
-          btns.appendChild(b);
-        });
-        row.appendChild(btns); box.appendChild(row);
-      });
-      $("rag-reset").addEventListener("click", function(){
-        state={}; save("rag",state);
-        box.querySelectorAll(".rag-btns button").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
-        summary();
-      });
-      summary();
-    })();
-
-    /* Scrollspy */
-    (function(){
-      if(!("IntersectionObserver" in window)) return;
-      var links=document.querySelectorAll(".subnav-link"), map={};
-      [].forEach.call(links, function(l){ map[l.getAttribute("href").slice(1)]=l; });
-      var obs=new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if(!en.isIntersecting) return;
-          [].forEach.call(links, function(l){ l.classList.remove("is-active"); l.removeAttribute("aria-current"); });
-          var l=map[en.target.id]; if(l){ l.classList.add("is-active"); l.setAttribute("aria-current","true"); }
-        });
-      }, { rootMargin: "-25% 0px -65% 0px" });
-      Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if(s) obs.observe(s); });
-    })();
-
-    /* Print reveal */
-    (function(){
-      var opened=[];
-      window.addEventListener("beforeprint", function(){ opened=[]; document.querySelectorAll("details.reveal:not([open])").forEach(function(d){ d.setAttribute("open",""); opened.push(d); }); });
-      window.addEventListener("afterprint", function(){ opened.forEach(function(d){ d.removeAttribute("open"); }); opened=[]; });
-    })();
-  })();
-  </script>
-
-  <script>
-  /* Fault Finder — symptom -> likely fault (badge: tst-ff) */
-  (function(){
-    "use strict";
-    var box = document.getElementById("ff-quiz");
-    if(!box) return;
-    var BADGE = "tst-ff", NQ = 10;
-
-    /* pool of symptom -> fault items; correct answer first, distractors follow */
-    var POOL = [
-      { s: "An LED won't light. The voltage across it reads only ~0 V and it's the right way round elsewhere, but here the band/arrow points to the + rail.",
-        a: "The LED is fitted reversed (reverse-biased)", d: ["The battery is flat", "The resistor is too small", "A track is shorted"] },
-      { s: "A lamp glows far too dim. The series resistor is colour-coded yellow-violet-black (47 Ω) where the design needs 470 Ω.",
-        a: "Wrong resistor value fitted (47 Ω not 470 Ω)", d: ["The lamp is blown", "The supply is too high", "A wire is loose"] },
-      { s: "Nothing works at all. A multimeter across the supply rails reads 0 V even though the battery is good.",
-        a: "A break/loose connection in the supply wiring", d: ["The output device is faulty", "The resistor is open circuit", "The IC is the wrong type"] },
-      { s: "A 555 timer output never changes. Its reset pin reads 0 V instead of being tied high.",
-        a: "An IC pin is wired wrong (reset not held high)", d: ["The capacitor is too big", "The LED is reversed", "The supply is too low"] },
-      { s: "A transistor switch never turns on. The base voltage stays at 0 V even when the sensor changes.",
-        a: "A break between the divider and the base", d: ["The output device is reversed", "The supply is too high", "The resistor is too large to matter"] },
-      { s: "An electrolytic capacitor gets hot and the circuit misbehaves. The + lead is connected to 0 V.",
-        a: "The electrolytic capacitor is fitted the wrong way round", d: ["The capacitor value is too small", "The resistor is open circuit", "The battery is flat"] },
-      { s: "A motor doesn't run. Continuity test shows an open circuit through one of the connecting wires.",
-        a: "A broken (open-circuit) wire", d: ["The motor needs a bigger resistor", "The supply polarity is reversed", "The IC has failed"] },
-      { s: "Two adjacent stripboard tracks measure 0 Ω between them where they should be separate.",
-        a: "A solder bridge shorting the tracks", d: ["A track cut is missing a component", "The resistor is too small", "The LED is reversed"] },
-      { s: "The output switches at the wrong light level. The LDR and fixed resistor are in each other's positions.",
-        a: "The divider components are swapped (wrong arm)", d: ["The comparator IC is faulty", "The supply is too high", "The output is reversed"] },
-      { s: "A buzzer is silent. The voltage across it is full supply voltage but it still does nothing.",
-        a: "The buzzer is faulty or fitted the wrong way round", d: ["The series resistor is too large", "A track is shorted", "The battery is flat"] },
-      { s: "An LED is very bright then fails. There is no current-limiting resistor in series with it.",
-        a: "Missing series (current-limiting) resistor", d: ["The LED is reversed", "The supply is too low", "An IC pin is wrong"] },
-      { s: "A logic output is stuck high. The gate's input that should be low is left unconnected (floating).",
-        a: "A floating (unconnected) logic input", d: ["The output LED is reversed", "The resistor is too small", "The capacitor is too big"] }
-    ];
-
-    function shuffle(arr){
-      var a = arr.slice();
-      for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
-      return a;
-    }
-    var current = [];
-    function build(){
-      current = shuffle(POOL).slice(0, NQ);
-      box.innerHTML = "";
-      current.forEach(function(item, qi){
-        var opts = shuffle([item.a].concat(item.d.slice(0, 3)));
-        item._opts = opts; item._answer = opts.indexOf(item.a);
-        var d = document.createElement("div"); d.className = "q";
-        var html = '<p class="qstem">' + (qi+1) + '. <span class="ff-sym">Symptom:</span> ' + item.s + "</p>";
-        opts.forEach(function(opt, oi){
-          html += '<label class="opt" data-qi="' + qi + '" data-oi="' + oi + '">' +
-            '<input type="radio" name="ffq' + qi + '" value="' + oi + '">' + opt + "</label>";
-        });
-        html += '<p class="ff-note" id="ff-n' + qi + '"></p>';
-        d.innerHTML = html; box.appendChild(d);
-      });
-      document.getElementById("ff-score").textContent = "";
-    }
-
-    document.getElementById("ff-mark").addEventListener("click", function(){
-      if(box.querySelectorAll("input:checked").length < current.length){
-        document.getElementById("ff-score").textContent = "Diagnose every fault first."; return;
-      }
-      var score = 0;
-      current.forEach(function(item, qi){
-        box.querySelectorAll('.opt[data-qi="' + qi + '"]').forEach(function(l){ l.classList.remove("correct","wrong"); });
-        var right = box.querySelector('.opt[data-qi="' + qi + '"][data-oi="' + item._answer + '"]');
-        right.classList.add("correct");
-        var oi = parseInt(box.querySelector('input[name="ffq' + qi + '"]:checked').value, 10);
-        var card = box.children[qi], note = document.getElementById("ff-n" + qi);
-        var ok = oi === item._answer;
-        if(ok){ score++; note.textContent = "✓ correct"; }
-        else { box.querySelector('.opt[data-qi="' + qi + '"][data-oi="' + oi + '"]').classList.add("wrong");
-          note.textContent = "✗ likely fault: " + item.a; }
-        card.classList.toggle("ok", ok); card.classList.toggle("no", !ok);
-      });
-      var msg = "Score: " + score + " / " + current.length;
-      if(window.Progress){
-        var res = Progress.record(BADGE, score, current.length);
-        if(res.justUnlocked){
-          msg += " — 🔬 Fault Finder unlocked!";
-        } else if(res.unlocked){ msg += " — badge already earned."; }
-      }
-      document.getElementById("ff-score").textContent = msg;
-    });
-    document.getElementById("ff-new").addEventListener("click", build);
-
-    build();
-    if(window.Progress){ Progress.markSeen(BADGE); }
-  })();
+  window.EL_THEORY = {
+    key: "el-tst2-",
+    badge: "tst-ff",
+    qs: [
+      { q: "The black lead of the multimeter always goes in",
+        o: ["COM", "V/Ω", "A", "20A"], a: 0,
+        f: [
+          "Right. COM is the common socket. The black lead stays there for every reading.",
+          "V/Ω is where the red lead goes for volts, ohms, continuity and diode check. The black lead has its own socket.",
+          "The A socket is only for the red lead, when you measure current.",
+          "20A is only for the red lead, for big currents. The black lead never moves."
+        ] },
+      { q: "You measure the supply of a 5 V board. The best range is",
+        o: ["DCV 2", "DCV 20", "DCV 200", "DCV 1000"], a: 1,
+        f: [
+          "2 V is smaller than 5 V, so the meter shows 1 on the left: over range.",
+          "Right. 20 V is the range just above 5 V, so the reading is accurate.",
+          "This works, but shows fewer decimal places. Choose the range just above what you expect.",
+          "Far too big a range. You lose the decimal places. Pick the range just above 5 V."
+        ] },
+      { q: "The display shows 1 on the left. This means",
+        o: ["the reading is 1 V", "the battery is flat", "the value is over range", "the leads are swapped"], a: 2,
+        f: [
+          "A real reading of 1 sits on the right of the display. A lone 1 on the left is a warning.",
+          "A flat meter battery shows a battery symbol, not a 1. Think about the size of the value.",
+          "Right. The value is too big for the range. Turn up one range.",
+          "Swapped leads show a minus sign. The size of the reading is still right."
+        ] },
+      { q: "To measure a resistor's value, the circuit must be",
+        o: ["on", "off", "on or off", "joined to the ammeter"], a: 1,
+        f: [
+          "The meter sends its own small current through the resistor. With the power on, the reading is wrong and the meter can be damaged.",
+          "Right. Power off, and the resistor out of the circuit or one leg lifted.",
+          "It matters. A live circuit adds its own current, so the reading is wrong.",
+          "Resistance needs no ammeter. Set the dial to OHM with the red lead in V/Ω."
+        ] },
+      { q: "To measure the current through an LED, the meter goes",
+        o: ["across the LED", "in series with the LED", "across the supply", "across the resistor"], a: 1,
+        f: [
+          "Across a part is how a voltmeter connects. Current has to flow through the meter.",
+          "Right. Break the circuit and put the meter in the gap, red lead in A.",
+          "Never put an ammeter across the supply. It is almost a short circuit and can blow the meter's fuse.",
+          "Across the resistor gives a voltage, not a current. The meter must be in the path of the current."
+        ] },
+      { q: "You want to check that a track is not broken. You use",
+        o: ["DCV 20, power on", "continuity, power off", "the logic probe", "DCA 20m"], a: 1,
+        f: [
+          "A voltage reading does not tell you a track is joined end to end. Test the path itself.",
+          "Right. One probe on each end of the track, power off. A beep means it is joined.",
+          "A logic probe shows a logic level, not whether a track is joined.",
+          "Current needs the meter in series in a live circuit. Test the track with the power off."
+        ] },
+      { q: "The logic probe flashes on the output of a 555 astable. This means",
+        o: ["the output is pulsing, as it should", "the 555 is faulty", "the probe has no supply", "MEM is switched on"], a: 0,
+        f: [
+          "Right. An astable keeps switching HIGH and LOW, so the probe pulses. That is a working board.",
+          "An astable is meant to switch again and again. Flashing is what a working one does.",
+          "With no supply, neither LED lights. A flashing LED means the probe is powered.",
+          "MEM keeps an LED lit after you move the probe. It does not make it flash."
+        ] },
+      { q: "Neither LED on the logic probe lights. The most likely reason is",
+        o: ["the point is at logic 1", "the point is at logic 0", "the point is pulsing", "the probe has no supply"], a: 3,
+        f: [
+          "Logic 1 lights the red Hi LED.",
+          "Logic 0 lights the green Lo LED.",
+          "A pulsing point makes an LED flash.",
+          "Right. Check the clips: red on +V, black on 0 V, on bare metal, on the circuit you are testing."
+        ] }
+    ],
+    crit: [
+      "Choose the setting, range and socket on the multimeter.",
+      "Connect a meter across a part, or in series.",
+      "Test a resistor, a switch, a track or a joint with the power off.",
+      "Use a logic probe and say what each LED shows.",
+      "Check a board before I switch it on.",
+      "Use readings to find a fault, stage by stage."
+    ]
+  };
   </script>
 </body>
 </html>

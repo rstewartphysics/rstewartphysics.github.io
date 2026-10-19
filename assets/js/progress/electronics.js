@@ -72,9 +72,9 @@
     { id: "con-cc", name: "Solder Master", emoji: "🪛", section: "Construction",
       href: "/classes/electronics/construction.html",
       cond: "Read 8/10 resistor colour codes" },
-    { id: "tst-ff", name: "Fault Finder", emoji: "🔬", section: "Testing",
+    { id: "tst-ff", name: "Probe Detective", emoji: "🔬", section: "Testing",
       href: "/classes/electronics/testing.html",
-      cond: "Diagnose 8/10 faults" }
+      cond: "Find 4 of 5 hidden faults on the test bench" }
   ];
 
   var ALL_TOPIC_IDS = TOPIC.map(function (t) { return t.id; });
