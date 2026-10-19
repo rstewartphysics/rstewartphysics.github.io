@@ -258,6 +258,17 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   educational use. The National 5 Electronics topic mark (a DIL integrated circuit, line drawing) is drawn for
   this site by R Stewart, 2026.
 
+- **National 5 Electronics Block 6: Timers and Comparators** (added 19 October 2026) — the hub
+  (`classes/electronics/timers-and-comparators.html`), Lesson 1 Testing
+  (`classes/electronics/testing.html`, rebuilt) and the pupil booklet PDF
+  (`assets/electronics/block6/n5-electronics-block6-timers-and-comparators.pdf`). Text, drawings,
+  the test-bench simulator, the practice board and the booklet © R Stewart, 2026. The logic-probe
+  picture (`assets/electronics/block6/sqa-2025-q7-logic-probe.png`) is from the National 5 Practical
+  Electronics question paper 2025, Q7. The page's booklet answers to 2019 Q5 and 2026 Q5(b)(iii)
+  follow the marking instructions. The booklet reproduces past-paper questions and figures, each
+  credited on its Sources and credits page. All © Qualifications Scotland (SQA), reproduced for
+  educational use.
+
 - **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
   `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
   Each item is credited on the slide it appears on.
