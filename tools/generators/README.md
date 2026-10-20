@@ -10,6 +10,7 @@ worked out from where the script sits, so it runs from any folder.
 | Practice tests | `cd` into the test's folder, then `python3 build.py` / `build_b.py` (S3 Eng and AH Stellar: `build.py a` / `build.py b`; S3 Electricity 1 graphing: `build_graphing.py`) | `classes/{s3-physics/electricity1,s3-engineering,higher/practice-tests,adv/practice-tests}/…` |
 | Unit 1 question bank | `python3 tools/generators/mcq-bank/build_all.py` | `classes/n5-engineering/unit-1-question-bank.html` |
 | Block 6 build guides (Node) | `node tools/build-guides/build-guides.mjs` | `assets/guides/*.json`, read by `assets/js/build-guide.js` |
+| Test bench solver (Node) | `npm run bench` (tests, then writes; `-- --check` in CI, `-- --report f.md` for every reading's range) | `assets/js/test-bench-engine.js`, from `test-bench/` and the build guide's layouts |
 | Stripboard / breadboard pages | `python3 tools/generators/stripboard/page/build.py` | the four Builder / Planner pages in `classes/electronics/`, and `assets/js/stripboard.js` |
 
 **Re-run them all:** `python3 tools/generators/regen_all.py`. With `--check` it then fails if git
