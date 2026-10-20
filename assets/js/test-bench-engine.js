@@ -107,11 +107,11 @@
       }
     },
 
-    /* Radial electrolytic: ±20 % (Rapid stock), plus its leakage. */
+    /* Radial electrolytic: ±10 % (teacher, 20 Oct 2026, P1), plus its leakage. */
     ecap: {
       pins: ["+", "-"],
       draw: (value, u, id) => ({
-        C: value * span(u(id + ".tol"), 0.80, 1.20),
+        C: value * span(u(id + ".tol"), 0.90, 1.10),
         Rleak: span(u(id + ".leak"), 2e6, 20e6) * (100e-6 / value)
       })
     },
