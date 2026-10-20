@@ -71,6 +71,7 @@ scripts/sim-check.mjs                 — checks every simulator in a browser (`
 scripts/build-stripboard.mjs          — checks the stripboard bundle against its sources (`npm run stripboard -- --check`)
 assets/css/sims.css, js/widget-kit.js — the shared simulator component (see "Simulations")
 assets/js/stripboard.js               — generated stripboard engine + renderer (do not edit)
+assets/js/test-bench-engine.js        — generated test bench solver, from tools/generators/test-bench/ (`npm run bench`; do not edit)
 _data/search.yml, search-synonyms.yml — pages left out of search; pupils' words → site words
 .github/workflows/pages.yml           — builds, indexes and deploys the site (GitHub Actions)
 assets/css/engineering-science.css    — shared sheet for all Engineering Science pages
