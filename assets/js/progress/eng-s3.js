@@ -27,9 +27,9 @@
     { id: "eng-pneu-l1", name: "Pneumatics Lesson 1", emoji: "💨", section: "S3 Engineering", unlock: "page",
       href: "/classes/s3-engineering/pneumatics/practical-1.html",
       cond: "Reach the Look back step of the Lesson 1 practical" },
-    { id: "eng-pneu-l2", name: "Pneumatics Lesson 2", emoji: "📐", section: "S3 Engineering", unlock: "page",
-      href: "/classes/s3-engineering/pneumatics/practical-2.html",
-      cond: "Reach the Look back step of the Lesson 2 practical" }
+    { id: "eng-pneu-l2", name: "Port Patrol", emoji: "📐", section: "S3 Engineering",
+      href: "/classes/s3-engineering/pneumatics/lesson-2.html",
+      cond: "Score 4 out of 5 in Port Patrol on Pneumatics Lesson 2" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });

@@ -309,6 +309,23 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Taken from V3.2 of the simulator and numbered for the page.
   - Bus emergency door release — ZidaneHartono, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BPSWA_Leyland_Panther_PSUR1A-1R_(Howard_Porter)_1BPS988-Emergency_Door_Release.jpg). Resized.
 
+- **S3 Engineering Science *Pneumatics hub and Lesson 2, Reading the diagram*** (added 20 October
+  2026) — `classes/s3-engineering/pneumatics.html` and `classes/s3-engineering/pneumatics/lesson-2.html`,
+  with the Booklet 6A PDF. The gate circuit, bench card 2 and the air frames are drawn by R Stewart,
+  adapted from the Matrix CP2080 Pneumatics Essentials Worksheet 1 (© Matrix Technology Solutions
+  Limited); no Matrix images are copied. Kit drawings by R Stewart from the Matrix CP2080 kit. The
+  drawing board pictures are drawn by R Stewart from photos of the class boards. The Port Patrol
+  valve symbols are drawn by R Stewart.
+  - Simulator screenshots — NoPressureSim by Peter Strain (NoStrainSims), free and open to all.
+    The same V3.2 screenshots as the Lesson 2 practical.
+- **S3 Engineering Science *Lesson slides*** (added 20 October 2026) — `classes/s3-engineering/slides.html`
+  and the Booklet 6 deck PDFs L1 to L9, each with and without answers. Slides by R Stewart. Circuits
+  and checks adapted from the Matrix CP2080 Pneumatics Essentials worksheets (© Matrix Technology
+  Solutions Limited). Past-paper questions, figures and marking instructions © Qualifications
+  Scotland (SQA), each named on its deck's Credits slide (2021, 2022, 2024, 2025 and 2026 N5
+  Engineering Science papers).
+  - Train door open button (L8) — Oxyman, [CC BY 2.5](https://creativecommons.org/licenses/by/2.5), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:508301_door_open_button.jpg). Resized.
+
 - **Engineering Science *Pneumatic components*** (added 7 October 2026) — the pages
   `classes/engineering/pneumatic-components/`, an index and one page per component, shared by S3 and
   N5, and the 19 A3 posters they link. The symbols are drawn by R Stewart to ISO 1219, as used in N5
