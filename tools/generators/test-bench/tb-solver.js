@@ -70,6 +70,7 @@
   /* What a pupil can touch: "T3" a test point, "IC1.4" or "R2.1" a leg,
      "G19" the copper under a hole. */
   function keyOf(net, name) {
+    if (!name) return null;            // a lead not on the board yet
     if (/^T\d+$/.test(name)) return "tp:" + name;
     if (name.indexOf(".") > 0) return "pin:" + name;
     return net.seg(name);

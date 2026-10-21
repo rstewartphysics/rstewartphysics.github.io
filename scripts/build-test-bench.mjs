@@ -32,6 +32,24 @@ const SETS = +(arg("--sets") ?? (CHECK ? 300 : 1000));
 /* Scenario id -> the build guide circuit that holds its board. */
 const BOARDS = { "555-astable": circuits.astable };
 
+/* The circuit diagram is the build guide's own (circuits.mjs), drawn with the
+   site bundle's circuit kit. Test points are marked so the bench can light them,
+   and their positions kept, with the chip's pin ends, for the leads' markers. */
+const kit = vm.createContext({ console });
+vm.runInContext(readFileSync(join(ROOT, "assets/js/stripboard.js"), "utf8"), kit, { filename: "stripboard.js" });
+function diagramOf(c) {
+  const at = {};
+  const tp = (x, y, label) => {
+    at[label] = [x, y];
+    return `<g class="tb-dtp" data-tp="${label}"><circle class="sbd-tp" cx="${x}" cy="${y}" r="6"/>` +
+      `<text class="sbd-tpl" x="${x}" y="${y - 10}" text-anchor="middle">${label}</text></g>`;
+  };
+  const d = c.circuit(kit.SBD.circuit, tp);
+  const pins = {};
+  for (const [k, v] of Object.entries(d.pins || {})) pins["IC1." + k] = [v[0], v[1]];
+  return { w: d.w, h: d.h, svg: d.groups.join(""), at: Object.assign(pins, at) };
+}
+
 const layouts = {};
 for (const [id, c] of Object.entries(BOARDS)) {
   const L = c.layouts.strip, ref = L.reference;
@@ -43,7 +61,8 @@ for (const [id, c] of Object.entries(BOARDS)) {
       links: ref.links.map(l => ({ a: l.a, b: l.b, colour: l.colour })),
       testpoints: ref.testpoints.map(t => ({ id: t.id, at: t.at }))
     },
-    question: { id: c.id, board: L.board, components: c.components, target: c.target, dontcare: c.dontcare || [] }
+    question: { id: c.id, board: L.board, components: c.components, target: c.target, dontcare: c.dontcare || [] },
+    diagram: diagramOf(c)
   };
 }
 

@@ -77,13 +77,14 @@
 
   TB.SCENARIOS = TB.SCENARIOS || {};
   /* TB.scenario({ id, parts, supply, ground, supplyTP, faults, distractors,
-     readings, expect, keys, distinct }). The layout comes from TB.LAYOUTS[id],
-     written into the bundle from tools/build-guides/circuits.mjs. */
+     readings, expect, keys, distinct }). The layout and circuit diagram come
+     from TB.LAYOUTS[id], written into the bundle from tools/build-guides/circuits.mjs. */
   TB.scenario = function (def) {
     const L = (TB.LAYOUTS || {})[def.id];
     if (!L) throw new Error("test bench: no layout for " + def.id);
     def.layout = L.layout;
     def.question = L.question;
+    def.diagram = L.diagram;
     TB.SCENARIOS[def.id] = def;
     return def;
   };
