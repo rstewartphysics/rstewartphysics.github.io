@@ -202,6 +202,7 @@
              <span class="tbx-seg" role="group" aria-label="View"><button type="button" data-view="board" aria-pressed="true">Board</button><button type="button" data-view="circuit" aria-pressed="false">Circuit</button></span>
              <span class="tbx-tps" role="group" aria-label="Test points"></span>
              <label class="tbx-pick"><span class="visually-hidden">Another point</span><select data-act="pick"></select></label>
+             <button type="button" class="tbx-diag" data-job="diagnose" hidden>Diagnose</button>
            </div>
            <div class="tbx-board" id="${id}-board"></div>
            <div class="tbx-under">
@@ -209,6 +210,8 @@
              <div class="tbx-log"><div class="tbx-log-h"><b>Readings log</b><button type="button" data-act="clearlog">Clear</button></div>
                <div class="tbx-log-b" tabindex="0" aria-label="Readings log"><table><thead><tr><th>Point</th><th>Tool and setting</th><th>Reading</th><th><span class="visually-hidden">Technique</span></th></tr></thead><tbody></tbody></table></div></div>
            </div>
+           <div class="tbx-jobpanel" hidden></div>
+           <div class="tbx-pop" hidden></div>
          </div>
          <div class="tbx-right">
            <div class="tbx-inst">
@@ -229,13 +232,15 @@
          <div class="tbx-dial-in"><div class="tbx-dial-art"></div>
            <div class="tbx-dial-side"><div class="tbx-dial-now"></div><p>Tap a setting. The dial turns to it.</p><div class="tbx-dial-fb"></div><button type="button" data-act="closedial">Close</button></div></div>
        </div>
+       <div class="tbx-diagbox" hidden role="dialog" aria-modal="true" aria-label="Diagnose"></div>
        <p class="visually-hidden tbx-say" aria-live="polite"></p>`;
     const q = s => this.root.querySelector(s);
     this.el = {
       tech: q(".tbx-tech"), bar: q(".tbx-bar"), tps: q(".tbx-tps"), pick: q("select[data-act=pick]"), board: q(".tbx-board"),
       status: q(".tbx-status"), log: q(".tbx-log-b tbody"), logBox: q(".tbx-log-b"), meter: q(".tbx-meter"), probe: q(".tbx-probe"),
       beep: q(".tbx-beep"), cur: q(".tbx-cur"), dialrow: q(".tbx-dialrow"), proberow: q(".tbx-proberow"), leadrow: q(".tbx-leadrow"),
-      fb: q(".tbx-fb"), dial: q(".tbx-dial"), dialArt: q(".tbx-dial-art"), dialNow: q(".tbx-dial-now"), dialFb: q(".tbx-dial-fb"), say: q(".tbx-say")
+      fb: q(".tbx-fb"), dial: q(".tbx-dial"), dialArt: q(".tbx-dial-art"), dialNow: q(".tbx-dial-now"), dialFb: q(".tbx-dial-fb"), say: q(".tbx-say"),
+      job: q(".tbx-job"), under: q(".tbx-under"), jobpanel: q(".tbx-jobpanel"), pop: q(".tbx-pop"), diag: q(".tbx-diag"), diagbox: q(".tbx-diagbox")
     };
     this.el.tps.innerHTML = this.sc.layout.testpoints.map(t => `<button type="button" data-pt="${t.id}" aria-pressed="false">${t.id}</button>`).join("");
     this.el.probe.innerHTML = probeSVG();
@@ -244,6 +249,7 @@
       const t = e.target;
       if ((e.key === "Enter" || e.key === " ") && t instanceof SVGElement && t.getAttribute("role") === "button") { e.preventDefault(); this.onClick({ target: t }); }
       if (e.key === "Escape" && !this.el.dial.hidden) this.closeDial();
+      else if (e.key === "Escape" && !this.el.diagbox.hidden) this.jobAct("close");
     });
     this.el.pick.addEventListener("change", () => {
       const v = this.el.pick.value;
@@ -606,7 +612,7 @@
           if (t > .18 && t < .82) return { part: part.id };
         }
       }
-      if (st.tool === "look") {
+      if (st.tool === "look" || this.finding) {
         const Ls = this.F.layout.links;
         for (let i = 0; i < Ls.length; i++) if (segDist(x, y, G.cen(Ls[i].a), G.cen(Ls[i].b)) < P * .3) return { link: i + 1 };
       }
@@ -692,9 +698,10 @@
 
   /* --------------------------------------------------------- controls */
   Bench.prototype.onClick = function (e) {
-    const t = e.target.closest ? e.target.closest("[data-act],[data-view],[data-tool],[data-power],[data-pt],[data-next],[data-pmode],[data-pmem],[data-set],[data-sock],[data-tp]") : null;
+    const t = e.target.closest ? e.target.closest("[data-job],[data-act],[data-view],[data-tool],[data-power],[data-pt],[data-next],[data-pmode],[data-pmem],[data-set],[data-sock],[data-tp]") : null;
     if (!t || !this.root.contains(t)) return;
     const st = this.st, a = t.getAttribute.bind(t);
+    if (t.hasAttribute("data-job")) { if (!t.disabled) this.jobAct(a("data-job"), t); return; }
     if (t.hasAttribute("data-set")) { this.setDial(a("data-set"), "now"); this.closeDial(); return; }
     if (t.hasAttribute("data-sock")) { st.sock = a("data-sock"); this.instrumentChanged("now"); return; }
     if (t.hasAttribute("data-view")) { st.view = a("data-view"); this.drawBoard(); this.syncControls(); return; }
@@ -730,6 +737,7 @@
   Bench.prototype.setPower = function (on) {
     const st = this.st;
     if (st.power === on) return;
+    if (this.job && this.jobLocked()) { this.syncControls(); return; }
     st.power = on;
     this.b.power(on);
     this.syncControls();
@@ -787,6 +795,8 @@
   /* A tap on the board, a test-point button, the circuit or the point list. */
   Bench.prototype.act = function (t) {
     const st = this.st;
+    if (this.job && this.jobLocked()) return;
+    if (this.finding) { this.jobFind(t); return; }
     if (st.tool === "look") { this.look(t); return; }
     if (t.link) return;
     if (st.tool === "probe") {
@@ -891,6 +901,7 @@
     }
     if (key && !st.looked.has(key)) {
       st.looked.add(key);
+      this.pendingEv = { type: "look", key };
       this.mark("ok", "look:" + key, "Visual check: " + title + ".", title.replace(/:.*/, ""), "Look", short || "looked", true);
     }
     this.feedback("look", title, text);
@@ -915,6 +926,12 @@
     const tool = "Meter " + st.dial + (sock !== "V/Ω" ? ", red in " + sock : "");
     const say = (kind, code, text) => this.mark(kind, code, text, pts, tool, null, false, true);
     const onRail = (k, rail) => this.netOf(k) && this.netOf(k) === this.netOf(rail);
+    /* what this row can stand as evidence for, in Diagnose and the proving test */
+    this.pendingEv = null;
+    if (sock === "V/Ω" && g === "DCV" && st.dial !== "DCV D" && live && !rd.over && !rd.fuse && onRail(st.black, this.sc.ground) && !this.isLogicOut(st.red))
+      this.pendingEv = { type: "dcv", key: st.red };
+    if (sock === "V/Ω" && g === "OHM" && !live)
+      this.pendingEv = { type: "ohm", a: st.red, b: st.black, beep: !!rd.beep, over: !!rd.over, value: rd.value };
     if (sock !== "V/Ω" && g !== "DCA" && g !== "ACA") {
       if (live) return say("safety", "ainv", "The red lead is in <b>A</b>. Measuring voltage like this puts a short across the circuit and blows the meter's fuse. Tap the <b>V/Ω</b> socket to move it back.");
       return say("bad", "asock", "The red lead is in " + sock + ". Resistance, continuity and diode check use the <b>V/Ω</b> socket.");
@@ -934,7 +951,8 @@
         if (rd.beep) return say("ok", "short", "Beep: +5 V is joined to 0 V. That is a short across the supply. Do not switch on.");
         return say("ok", "short", "Right: power off, and " + (rng === "200" ? "no beep" : "a high reading") + " from +5 V to 0 V. There is no short across the supply.");
       }
-      if (rd.over && isFinite(rd.value) && rd.value < 20e6) return say("bad", "ohmlow", "1 on the left means over range. Turn the dial up one step.");
+      /* on continuity (OHM 200), 1 means "not joined", which is a result, not a range mistake */
+      if (rng !== "200" && rd.over && isFinite(rd.value) && rd.value < 20e6) return say("bad", "ohmlow", "1 on the left means over range. Turn the dial up one step.");
       if (rng !== "200" && isFinite(rd.value) && rd.value < FULL[rng] / 100) return say("bad", "ohmhigh", "This range is too high: the reading is nearly 0. Turn the dial down for more digits.");
       return say("ok", "ohm", rng === "200"
         ? "Right: power off, OHM 200. " + (rd.beep ? "A beep and a small reading: the two points are joined." : "No beep: the two points are not joined.")
@@ -962,11 +980,13 @@
   Bench.prototype.assessProbe = function () {
     const st = this.st;
     if (!st.tip) return;
+    this.pendingEv = null;
     const pts = this.label(st.tip), tool = "Probe " + st.pmode + (st.pmem ? ", MEM" : "");
     const say = (kind, code, text) => this.mark(kind, code, text, pts, tool, null, false, true);
     if (!st.power) return say("bad", "probeoff", "Switch on first. The probe takes its power from the board, so with the power off its lights stay dark.");
     if (st.pmode === "CMOS") return say("bad", "cmos", "Set the probe to <b>TTL</b> for the 555. On CMOS it needs 70 % of the supply (3.5 V) to show Hi, and the 555's HIGH is only about 3.6 V.");
     if (st.pmem) return say("bad", "mem", "Use <b>Pulse</b>, not MEM. MEM keeps the pulse light on after one pulse, so you cannot tell if it is still pulsing.");
+    if (!this.isAnalog(st.tip)) this.pendingEv = { type: "probe", key: st.tip };
     if (this.isAnalog(st.tip)) return say("bad", "analog", "T4 is not a logic signal. It rises and falls smoothly between about 1.7 V and 3.3 V. Measure it with the meter on DCV 20.");
     return say("ok", "probe", "Right: clips on this board's +5 V and 0 V, TTL, Pulse, and the tip on one point.");
   };
@@ -987,7 +1007,7 @@
      crosses once per mistake and point; safety errors every time. */
   Bench.prototype.mark = function (kind, code, text, pts, tool, reading, quiet, live) {
     const st = this.st, key = code + "|" + pts + "|" + (tool || "");
-    if (kind === "bad" && live && this.soft) { this.feedback("bad", "Check", text); return; }
+    if (kind === "bad" && live && this.soft) { this.pendingEv = null; this.feedback("bad", "Check", text); return; }
     const first = !st.seen.has(key);
     st.seen.add(key);
     if (kind === "safety") st.safety++;
@@ -999,7 +1019,7 @@
       (code === "ainv" || code === "aacross" ? '<button type="button" data-act="newfuse">Fit a new fuse</button>' : ""));
     if (pts) {
       if (st.live) st.live = null;
-      const row = { pt: pts, tool: tool || "", reading: reading || "", mark: kind === "ok" ? "✓" : "✗", kind };
+      const row = { pt: pts, tool: tool || "", reading: reading || "", mark: kind === "ok" ? "✓" : "✗", kind, ev: this.pendingEv };
       st.log.push(row);
       if (live) {
         st.live = { row, t0: performance.now(), min: Infinity, max: -Infinity, hi: false, lo: false, pulse: false };
@@ -1007,8 +1027,10 @@
       }
       this.renderLog();
     }
+    this.pendingEv = null;
     this.techLine();
     this.say(head + ". " + text.replace(/<[^>]+>/g, ""));
+    if (pts && this.job) this.jobRow(st.log[st.log.length - 1], kind);
   };
   Bench.prototype.feedback = function (kind, head, html) {
     const fb = this.el.fb;
@@ -1204,6 +1226,351 @@
     this.el.pick.innerHTML = o;
   };
 
+  /* ========================================================= the job flow
+     Job card → Predict → Test → Diagnose → Confirm and fix (§3.3, §11, §13).
+     The words live in test-bench-jobs.js. Predict is not scored (J2); Diagnose
+     scores the fault on the first try; evidence comes from the log only (J1);
+     Fix it unlocks after the proving test (J6), which is marked as usual (J7). */
+  const LEVEL = ["", "①", "②", "③"];
+  const STEPS = ["Job card", "Predict", "Test", "Diagnose", "Confirm and fix"];
+  function shuffle(a) {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  const fbOf = (f, r) => typeof f === "function" ? f(r) : f;
+
+  Bench.prototype.startJobs = function (set, ids, start) {
+    this.jobSet = set;
+    this.jobList = ids && ids.length ? set.jobs.filter(j => ids.indexOf(j.id) >= 0) : set.jobs;
+    this.score = { first: 0, ok: 0, bad: 0, safety: 0, done: 0 };
+    this.el.diag.hidden = false;
+    this.openJob(Math.min(start || 0, this.jobList.length - 1));
+  };
+  Bench.prototype.openJob = function (n) {
+    const d = this.jobList[n];
+    this.jobN = n;
+    this.job = null;
+    this.finding = false;
+    this.load(d.id, null);
+    this.job = { def: d, step: 0, q: 0, first: true, faultOk: false, evOk: false, tried: new Set(), sub: null, proved: false, fixed: false, counted: false };
+    this.el.pop.hidden = true;
+    this.el.diagbox.hidden = true;
+    this.jobHead();
+    this.jobCard();
+  };
+  Bench.prototype.jobHead = function () {
+    const d = this.job.def, o = this.opts;
+    this.el.job.classList.add("is-jobs");
+    this.el.job.innerHTML =
+      `<div class="tbx-job-t"><span class="tbx-jobno">Job ${this.jobN + 1} of ${this.jobList.length} · Level ${LEVEL[d.level] || ""}</span> ` +
+      `<span class="tbx-title">${esc(this.jobSet.title || o.title || "")}</span><span class="tbx-sub">${esc(this.jobSet.sub || o.sub || "")}</span></div>` +
+      `<ol class="tbx-steps" aria-label="Steps"></ol>` +
+      `<div class="tbx-should"></div><div class="tbx-tech" aria-live="polite"></div>`;
+    this.el.tech = this.el.job.querySelector(".tbx-tech");
+    this.el.steps = this.el.job.querySelector(".tbx-steps");
+    this.el.should = this.el.job.querySelector(".tbx-should");
+    this.jobLine(null);
+    this.techLine();
+  };
+  /* the job line under the title: what it should do and the complaint, or the step to do now */
+  Bench.prototype.jobLine = function (html) {
+    const d = this.job.def;
+    this.el.should.innerHTML = html || ((this.opts.should || "") + ` <b>Complaint:</b> “${esc(d.complaint)}”`);
+    const now = this.job.step;
+    this.el.steps.innerHTML = STEPS.map((s, i) =>
+      `<li class="${i < now ? "is-done" : i === now ? "is-now" : ""}"${i === now ? ' aria-current="step"' : ""}>${i < now ? "✓ " : ""}${i + 1} ${s}</li>`).join("");
+    this.el.diag.disabled = now < 2 || this.job.evOk;
+  };
+  Bench.prototype.jobLocked = function () {
+    if (this.job.step >= 2) return false;
+    if (this.job.step === 1) this.feedback(null, "Predict first", "Answer the two predict questions first. Then you can test.");
+    return true;
+  };
+
+  /* -- step 1: the job card */
+  Bench.prototype.jobCard = function () {
+    const d = this.job.def, set = this.jobSet;
+    this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-jc">
+      <div class="tbx-card-k">Step 1 · Job card</div>
+      <h2 id="${this.id}-jc">${esc(set.title)}</h2>
+      <p><b>What it should do:</b> ${esc(set.should)}</p>
+      <p><b>The complaint:</b> “${esc(d.complaint)}”</p>
+      <p><b>Your job:</b> predict, test, find the fault and give your evidence. Then prove it and fix it.</p>
+      <p class="tbx-card-s">Before you switch on: look at the board, and check for shorts with the power off.</p>
+      <button type="button" class="tbx-go" data-job="predict">Start: predict</button></div>`, true);
+  };
+  Bench.prototype.showPop = function (html, modal) {
+    const p = this.el.pop;
+    p.innerHTML = html;
+    p.hidden = false;
+    p.classList.toggle("is-modal", !!modal);
+    const b = p.querySelector("button");
+    if (b) b.focus({ preventScroll: true });
+  };
+
+  /* -- step 2: predict, two questions (R6), retry until right (J2) */
+  Bench.prototype.jobPredict = function () {
+    const j = this.job;
+    j.step = 1; j.q = 0;
+    this.el.pop.hidden = true;
+    this.st.view = "circuit";
+    this.drawBoard(); this.syncControls();
+    this.el.under.hidden = true;
+    this.el.jobpanel.hidden = false;
+    this.jobLine(null);
+    this.feedback(null, "Step 2 · Predict", "Use the circuit diagram. Answer both questions, then test.");
+    this.jobQuestion();
+  };
+  Bench.prototype.jobQuestion = function () {
+    const j = this.job, Q = j.def.predict[j.q];
+    j.order = shuffle(Q.opts.map((_, i) => i));
+    this.el.jobpanel.innerHTML =
+      `<div class="tbx-q"><span class="tbx-qn">Question ${j.q + 1} of ${j.def.predict.length}.</span> ${Q.q}</div>
+       <div class="tbx-opts" role="group" aria-label="Options">${j.order.map(i => `<button type="button" data-job="opt:${i}">${esc(Q.opts[i].t)}</button>`).join("")}</div>
+       <div class="tbx-qfb" aria-live="polite"></div>`;
+  };
+  Bench.prototype.jobOption = function (i, btn) {
+    const j = this.job, Q = j.def.predict[j.q], o = Q.opts[i], fb = this.el.jobpanel.querySelector(".tbx-qfb");
+    btn.classList.add(o.key ? "is-right" : "is-wrong");
+    fb.className = "tbx-qfb " + (o.key ? "is-ok" : "is-bad");
+    if (!o.key) { btn.disabled = true; fb.innerHTML = o.fb; return; }
+    this.el.jobpanel.querySelectorAll("[data-job^=opt]").forEach(b => { b.disabled = true; });
+    const last = j.q === j.def.predict.length - 1;
+    fb.innerHTML = o.fb + ` <button type="button" class="tbx-go" data-job="next">${last ? "Start testing" : "Next question"}</button>`;
+    fb.querySelector("button").focus({ preventScroll: true });
+  };
+
+  /* -- step 3: test */
+  Bench.prototype.jobTest = function () {
+    const j = this.job;
+    j.step = 2;
+    this.el.jobpanel.hidden = true;
+    this.el.under.hidden = false;
+    this.st.view = "board";
+    this.drawBoard(); this.syncControls();
+    this.jobLine(null);
+    this.feedback(null, "Step 3 · Test", "Take the readings you need. When you know the fault, tap <b>Diagnose</b>.");
+  };
+
+  /* -- step 4: diagnose, the fault (R4, R8) and the evidence (R5, J1) */
+  Bench.prototype.reading = function (src) {
+    const st = this.st, G = this.G;
+    if (src.complaint) return "";
+    if (src.look) return st.looked.has(src.look) ? "" : null;
+    const type = src.dcv ? "dcv" : "probe", k = src.dcv || src.probe, seg = G.segAt(this.holeOf(k));
+    for (let i = st.log.length - 1; i >= 0; i--) {
+      const r = st.log[i], e = r.ev;
+      if (e && e.type === type && !this.F.dry.has(e.key) && G.segAt(this.holeOf(e.key)) === seg && r.reading) return r.reading;
+    }
+    return null;
+  };
+  Bench.prototype.jobDiagnose = function () {
+    const j = this.job, d = j.def;
+    j.step = 3;
+    j.fOrder = shuffle(d.faults.map((_, i) => i));
+    j.eOrder = shuffle(d.evidence.items.map((_, i) => i));
+    this.diagFrom = document.activeElement;
+    this.jobLine(null);
+    const r = src => this.reading(src);
+    const evText = it => {
+      const v = r(it.src);
+      if (it.t.indexOf("{v}") >= 0) return esc(it.t.replace("{v}", v || "not taken yet"));
+      return esc(it.t) + (v === null ? " <i>(not taken yet)</i>" : "");
+    };
+    this.el.diagbox.innerHTML = `<div class="tbx-dg-in">
+      <div class="tbx-dg-h"><span class="tbx-card-k">Step 4 · Diagnose</span><button type="button" data-job="close">Close</button></div>
+      <div class="tbx-dg-cols">
+        <section class="tbx-dg-f"><h3>1. <b>Choose</b> the fault. Pick one.</h3>
+          <div class="tbx-dg-opts">${j.fOrder.map(i => `<button type="button" data-job="fault:${i}"${j.tried.has(i) ? " disabled" : ""}>${j.tried.has(i) ? "✗ " : ""}${esc(d.faults[i].t)}</button>`).join("")}</div>
+          <div class="tbx-dg-ffb" aria-live="polite"></div></section>
+        <section class="tbx-dg-e"><h3>2. <b>Tick</b> the readings that are your evidence. <span class="tbx-need">Tick the ${d.evidence.need} that apply.</span></h3>
+          <div class="tbx-dg-evs">${j.eOrder.map(i => `<label class="tbx-ev"><input type="checkbox" data-ev="${i}"><span class="tbx-ev-t">${evText(d.evidence.items[i])}</span><span class="tbx-ev-fb"></span></label>`).join("")}</div></section>
+      </div>
+      <div class="tbx-dg-foot" aria-live="polite"><div class="tbx-dg-sum"></div>
+        <button type="button" data-job="check">Check my evidence</button>
+        <button type="button" class="tbx-go" data-job="confirm" disabled>Next: confirm and fix</button></div></div>`;
+    this.el.diagbox.hidden = false;
+    this.diagState();
+    const f = this.el.diagbox.querySelector(j.faultOk ? "input" : "[data-job^=fault]:not([disabled])");
+    if (f) f.focus({ preventScroll: true });
+  };
+  Bench.prototype.diagState = function () {
+    const j = this.job, box = this.el.diagbox;
+    box.querySelector(".tbx-dg-e").classList.toggle("is-off", !j.faultOk);
+    box.querySelectorAll("input[data-ev]").forEach(x => { x.disabled = !j.faultOk; });
+    box.querySelector("[data-job=check]").disabled = !j.faultOk;
+    if (!j.faultOk) box.querySelector(".tbx-dg-sum").textContent = "Choose the fault first. Then tick your evidence.";
+  };
+  Bench.prototype.jobFault = function (i) {
+    const j = this.job, f = j.def.faults[i], box = this.el.diagbox, fb = box.querySelector(".tbx-dg-ffb");
+    if (j.faultOk) return;
+    const btn = box.querySelector(`[data-job="fault:${i}"]`);
+    fb.innerHTML = fbOf(f.fb, src => this.reading(src));
+    fb.className = "tbx-dg-ffb " + (f.key ? "is-ok" : "is-bad");
+    if (f.key) {
+      j.faultOk = true;
+      btn.classList.add("is-right");
+      box.querySelectorAll("[data-job^=fault]").forEach(b => { b.disabled = true; });
+      this.diagState();
+      box.querySelector(".tbx-dg-sum").textContent = "Now tick your evidence, then check it.";
+      return;
+    }
+    j.first = false;
+    j.tried.add(i);
+    btn.disabled = true;
+    btn.classList.add("is-wrong");
+    box.querySelector(".tbx-dg-sum").innerHTML = `<b>Go back and test more.</b> <button type="button" class="tbx-go" data-job="close">Back to Test</button>`;
+  };
+  Bench.prototype.jobCheck = function () {
+    const j = this.job, E = j.def.evidence, box = this.el.diagbox;
+    let k = 0, w = 0, nt = 0;
+    box.querySelectorAll("label.tbx-ev").forEach(lab => {
+      const x = lab.querySelector("input"), it = E.items[+x.getAttribute("data-ev")];
+      const taken = this.reading(it.src) !== null, on = x.checked;
+      let ok, text;
+      if (on && !taken) { ok = false; nt++; text = "✗ This is not in your log yet. Take the reading, then tick it."; }
+      else if (on) { ok = !!it.key; text = it.yes; if (it.key) k++; else w++; }
+      else { ok = !it.key; text = it.key && !taken ? "Not in your log yet. " + it.no : it.no; }
+      lab.classList.toggle("is-ok", ok); lab.classList.toggle("is-bad", !ok);
+      lab.querySelector(".tbx-ev-fb").textContent = text;
+    });
+    const sum = box.querySelector(".tbx-dg-sum");
+    if (k === E.need && !w && !nt) {
+      j.evOk = true;
+      sum.innerHTML = "<b>Right fault, good evidence.</b>";
+      box.querySelectorAll("input[data-ev]").forEach(x => { x.disabled = true; });
+      box.querySelector("[data-job=check]").disabled = true;
+      const go = box.querySelector("[data-job=confirm]");
+      go.disabled = false; go.focus({ preventScroll: true });
+    } else {
+      sum.innerHTML = "<b>Right fault. Check your evidence:</b> " + k + " of the " + E.need + " key readings" +
+        (w ? ", and " + w + (w === 1 ? " that does" : " that do") + " not point to the fault" : "") +
+        (nt ? ", and " + nt + " not in your log yet" : "") + ". Change your ticks and check again.";
+    }
+  };
+  Bench.prototype.closeDiag = function () {
+    this.el.diagbox.hidden = true;
+    if (this.job.step === 3) this.job.step = 2;
+    this.jobLine(null);
+    if (this.diagFrom && this.diagFrom.focus && this.root.contains(this.diagFrom)) this.diagFrom.focus({ preventScroll: true });
+  };
+
+  /* -- step 5: confirm and fix (R7, J5–J7) */
+  Bench.prototype.jobConfirm = function () {
+    const j = this.job, c = j.def.confirm;
+    this.el.diagbox.hidden = true;
+    j.step = 4; j.sub = "find";
+    this.finding = true;
+    this.jobLine(c.find.prompt);
+    this.feedback(null, "Step 5 · Confirm and fix", c.find.prompt);
+  };
+  Bench.prototype.jobFind = function (t) {
+    const j = this.job, f = j.def.confirm.find, F = this.F;
+    let hit = false;
+    if (f.link) {
+      const same = l => l && f.link.indexOf(l.a) >= 0 && f.link.indexOf(l.b) >= 0;
+      if (t.link) hit = same(F.layout.links[t.link - 1]);
+      else if (t.pt && this.st.side === "copper") hit = f.link.indexOf(this.holeOf(t.pt)) >= 0;
+    }
+    if (f.hole && t.pt) hit = this.holeOf(t.pt) === f.hole;
+    if (!hit) {
+      const close = f.close && t.part === f.close.part;
+      this.feedback("bad", "Find it", esc(close ? f.close.text : f.other));
+      return;
+    }
+    this.finding = false;
+    j.sub = "prove";
+    const p = j.def.confirm.prove;
+    this.jobLine(p.prompt);
+    this.feedback("ok", "✓ Found it", esc(f.right.replace(/^Found it\. /, "")) + `<p class="tbx-block">${p.prompt}</p>`);
+  };
+  Bench.prototype.jobRow = function (row, kind) {
+    const j = this.job;
+    if (!j || j.sub !== "prove" || j.proved) return;
+    const e = row.ev, p = j.def.confirm.prove;
+    if (!e || e.type !== "ohm" || kind !== "ok") return;
+    const G = this.G, seg = k => G.segAt(this.holeOf(k));
+    const fits = (s, k, other) => s.key ? k === s.key
+      : s.seg ? seg(k) === seg(s.seg) && !this.F.dry.has(k)
+      : s.net ? this.netOf(k) === this.netOf(s.net) && seg(k) !== seg(other) : false;
+    const ok = (fits(p.a, e.a, e.b) && fits(p.b, e.b, e.a)) || (fits(p.a, e.b, e.a) && fits(p.b, e.a, e.b));
+    if (!ok) { this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block">${esc(p.where)}</p>`); return; }
+    const beep = isFinite(e.value) && e.value < TB.meter.BEEP_BELOW;
+    if ((p.expect === "beep") !== beep) return;
+    j.proved = true;
+    j.sub = "fix";
+    this.jobLine(`<b>Fix it:</b> the proof is done. <button type="button" class="tbx-go" data-job="fix">Fix it</button>`);
+    this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block"><b>${esc(p.right)}</b></p>`);
+  };
+  Bench.prototype.swapBoard = function (fault) {
+    const st = this.st;
+    st.live = null;                       // the last row belongs to the board it was taken on
+    this.b = TB.bench(this.sc.id, { fault, seed: this.seed });
+    this.F = this.b.fault;
+    this.geometry();
+    this.b.power(st.power);
+    if (st.tool === "probe") this.b.probe({ tip: st.tip, mode: st.pmode }); else this.meterSet();
+    this.ledSeen = {};
+    this.drawBoard(); this.fillPick(); this.drawMeter();
+  };
+  Bench.prototype.jobFix = function () {
+    const j = this.job, c = j.def.confirm, sc = this.sc, seed = this.seed;
+    this.swapBoard("good");
+    j.fixed = true; j.sub = "done"; j.step = 5;
+    const v = k => {
+      const b = TB.bench(sc.id, { fault: "good", seed });
+      b.power(true); b.run(0.5);
+      b.meter("DCV 20", { red: k, black: sc.ground, socket: "V" });
+      return b.read(0).text + " V";
+    };
+    const text = c.fixed(v);
+    this.jobLine(esc(text));
+    this.feedback("ok", "✓ Fixed", esc(text.replace(/^✓ Fixed\. /, "")));
+    const st = this.st, last = this.jobN === this.jobList.length - 1;
+    this.showPop(`<div class="tbx-card is-done" role="status">
+      <h2>Job ${this.jobN + 1} done</h2>
+      <p>Confirm: ✓ ${esc(c.found)}.</p>
+      <p>Diagnosis: ${j.first ? "✓ first try" : "✗ not first try"}.</p>
+      <p>Technique: ${st.ok} ✓, ${st.bad} ✗.${st.safety ? " Safety errors: " + st.safety + "." : ""}</p>
+      <button type="button" class="tbx-go" data-job="${last ? "finish" : "nextjob"}">${last ? "Finish" : "Next job"}</button></div>`, false);
+  };
+  Bench.prototype.jobCount = function () {
+    const j = this.job, st = this.st, s = this.score;
+    if (j.counted) return;
+    j.counted = true;
+    s.done++; s.ok += st.ok; s.bad += st.bad; s.safety += st.safety;
+    if (j.first) s.first++;
+  };
+  Bench.prototype.jobFinish = function () {
+    this.jobCount();
+    const s = this.score;
+    this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-sd">
+      <h2 id="${this.id}-sd">Set done</h2>
+      <p>Faults found first try: ${s.first} of ${s.done}.</p>
+      <p>Technique: ${s.ok} ✓, ${s.bad} ✗.</p>
+      <p>Safety errors: ${s.safety}.</p>
+      <button type="button" class="tbx-go" data-job="again">Start again</button></div>`, true);
+  };
+  Bench.prototype.jobAct = function (a, btn) {
+    const j = this.job;
+    if (!j) return;
+    if (a.indexOf("opt:") === 0) return this.jobOption(+a.slice(4), btn);
+    if (a.indexOf("fault:") === 0) return this.jobFault(+a.slice(6));
+    switch (a) {
+      case "predict": return this.jobPredict();
+      case "next": if (j.q < j.def.predict.length - 1) { j.q++; this.jobQuestion(); } else this.jobTest(); return;
+      case "diagnose": if (j.step >= 2 && !j.evOk) this.jobDiagnose(); return;
+      case "close": return this.closeDiag();
+      case "check": return this.jobCheck();
+      case "confirm": return this.jobConfirm();
+      case "fix": if (j.proved && !j.fixed) this.jobFix(); return;
+      case "nextjob": this.jobCount(); this.openJob(this.jobN + 1); return;
+      case "finish": return this.jobFinish();
+      case "again": return this.startJobs(this.jobSet, this.jobList.map(x => x.id), 0);
+    }
+  };
+
   /* ------------------------------------------------------- boot */
   window.TestBench = { mount: (root, opts) => new Bench(root, opts), meterSVG, Bench };
   function boot() {
@@ -1219,6 +1586,8 @@
           seed: q.get("seed"), title: el.getAttribute("data-title"), sub: el.getAttribute("data-sub"),
           should: el.getAttribute("data-should")
         });
+        const jobs = el.getAttribute("data-jobs"), set = window.TBJobs && window.TBJobs[el.getAttribute("data-test-bench")];
+        if (jobs && set && !q.get("board")) el.tbx.startJobs(set, jobs.split(/[\s,]+/), (parseInt(q.get("job"), 10) || 1) - 1);
       } catch (e) {
         el.textContent = "The test bench could not start: " + e.message;
         if (window.console) console.error(e);
