@@ -1,0 +1,201 @@
+/* ============================================================================
+   test-bench.css — the test bench screen (assets/js/test-bench.js)
+   Shared by Practise Testing and Learn to Test. Reads the Electronics tokens
+   (--card, --text, --muted, --border, --accent-2 …). One screen at 1180 × 760.
+   The meter stays yellow in both appearances (BENCH-PLAN R3); the board's own
+   colours come from the stripboard engine's --sbd-* tokens.
+   ============================================================================ */
+.tbx{
+  --tb-ok:#15803d; --tb-ok-bg:#effaf3; --tb-bad:#b91c1c; --tb-bad-bg:#fdf0ef;
+  position:relative; display:grid; grid-template-rows:auto minmax(0,1fr); gap:8px;
+  height:clamp(600px, calc(100dvh - 120px), 900px); font-size:18px; line-height:1.5; color:var(--text);
+}
+@media (prefers-color-scheme: dark){
+  .tbx{ --tb-ok:#3ddc9a; --tb-ok-bg:rgba(61,220,154,.14); --tb-bad:#ff8a7a; --tb-bad-bg:rgba(255,138,122,.13); }
+  .tbx-board{
+    --sbd-track:#2a3a34; --sbd-hole:#0d1815; --sbd-holeline:#47574f;
+    --sbd-lab:#8fa39a; --sbd-body:#17231e; --sbd-ink:#dcece5;
+    --sbd-icfill:#1c2b25; --sbd-cut:#ff8a7a; --sbd-tp:#6fc0f0;
+    --sbd-page:#0b1512; --sbd-hl:#f0b429; --sbd-hl2:#6fc0f0; --sbd-cur:#3ddc9a; --sbd-lhalo:#b9c9c1;
+  }
+}
+.tbx [hidden]{ display:none !important; }
+.tbx button{
+  font:800 16px/1.2 "Trebuchet MS","Segoe UI",system-ui,sans-serif; min-height:48px; padding:6px 12px;
+  border:1px solid var(--border-strong); border-radius:10px; background:var(--card); color:var(--text);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; cursor:pointer;
+}
+.tbx button[aria-pressed="true"]{ background:var(--accent-2); color:var(--card); border-color:var(--accent-2); }
+.tbx button:disabled{ opacity:.45; cursor:default; }
+.tbx button:focus-visible, .tbx select:focus-visible, .tbx [tabindex]:focus-visible{ outline:3px solid var(--accent); outline-offset:2px; }
+.tbx-seg{ display:inline-flex; }
+.tbx-seg button{ border-radius:0; margin-left:-1px; }
+.tbx-seg button:first-child{ border-radius:10px 0 0 10px; margin-left:0; }
+.tbx-seg button:last-child{ border-radius:0 10px 10px 0; }
+
+/* ---- job line */
+.tbx-job{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center;
+  background:var(--card); border:1px solid var(--border); border-radius:12px; padding:6px 12px; }
+.tbx-title{ font-weight:900; font-size:19px; }
+.tbx-sub{ font-weight:800; color:var(--muted); font-size:18px; margin-left:8px; }
+.tbx-should{ font-size:18px; }
+.tbx-tech{ font-size:18px; line-height:1.4; font-weight:900; text-align:right; }
+.tbx-tech .ok, .tbx td.ok{ color:var(--tb-ok); }
+.tbx-tech .bad, .tbx td.bad{ color:var(--tb-bad); }
+.tbx-sc{ display:block; color:var(--tb-bad); }
+
+/* ---- main grid: board left, meter right */
+.tbx-main{ display:grid; grid-template-columns:minmax(0,1fr) 352px; gap:10px; min-height:0; }
+.tbx-left{ display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:6px; min-height:0; }
+.tbx-bar{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.tbx-tps{ display:inline-flex; gap:4px; }
+.tbx-tps button{ min-width:52px; padding:6px 8px; }
+.tbx-pick select{ min-height:48px; max-width:200px; font:800 16px "Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  border:1px solid var(--border-strong); border-radius:10px; background:var(--card); color:var(--text); padding:0 8px; }
+.tbx-board{ position:relative; min-height:0; overflow:hidden; display:flex; align-items:center; justify-content:center;
+  background:var(--sbd-page,#fff); border:1px solid var(--border); border-radius:12px; }
+.tbx-board.is-copper{ background:#d8c8a2; }
+.tbx-board svg{ width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+.tbx-board .tbx-circ{ touch-action:manipulation; }
+.tbx-under{ display:grid; grid-template-columns:200px minmax(0,1fr); gap:8px; height:148px; }
+.tbx-status{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:6px 10px;
+  font-size:18px; line-height:1.5; display:flex; flex-direction:column; gap:0; overflow:hidden; }
+.tbx-led b{ font-weight:900; }
+.tbx-off{ color:var(--muted); font-weight:800; }
+.tbx-log{ background:var(--card); border:1px solid var(--border); border-radius:10px; display:grid; grid-template-rows:auto minmax(0,1fr); min-height:0; overflow:hidden; }
+.tbx-log-h{ display:flex; justify-content:space-between; align-items:center; padding:0 2px 0 10px; font-size:18px; }
+.tbx-log-h button{ min-height:44px; padding:4px 12px; }
+.tbx-log-b{ overflow:auto; padding:0 10px 4px; }
+.tbx-log table{ width:100%; border-collapse:collapse; font-size:18px; line-height:1.5; table-layout:fixed; }
+.tbx-log th:nth-child(1){ width:27%; } .tbx-log th:nth-child(2){ width:30%; } .tbx-log th:nth-child(4){ width:34px; }
+.tbx-log th{ position:sticky; top:0; background:var(--card); text-align:left; font-size:18px; line-height:1.5; color:var(--muted); padding:0 6px; box-shadow:0 1px 0 var(--border); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tbx-log td{ padding:1px 6px; vertical-align:top; }
+.tbx-log td:first-child{ font-weight:900; }
+.tbx-log td:last-child{ font-weight:900; text-align:center; }
+.tbx-none{ color:var(--muted); }
+
+/* ---- right column */
+.tbx-right{ display:grid; grid-template-rows:minmax(0,1fr) auto auto auto auto; gap:6px; min-height:0; }
+.tbx-inst{ position:relative; min-height:0; display:flex; align-items:center; justify-content:center;
+  background:var(--card); border:1px solid var(--border); border-radius:12px; padding:4px; overflow:hidden; }
+.tbx-meter, .tbx-probe{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+.tbx-meter svg{ height:100%; width:auto; max-width:100%; display:block; }
+.tbx-probe svg{ width:100%; height:auto; display:block; }
+.tbx-beep{ position:absolute; top:10px; left:50%; transform:translateX(-50%); background:#111; color:#ffd84d;
+  font-weight:900; font-size:22px; letter-spacing:.04em; padding:2px 14px; border-radius:8px; }
+.tbx-dialrow{ display:flex; gap:6px; }
+.tbx-dialrow > button:first-child, .tbx-dialrow > button:last-child{ min-width:56px; font-size:18px; }
+.tbx-cur{ flex:1; }
+.tbx-leadrow, .tbx-row, .tbx-proberow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.tbx-lbl{ font-weight:900; font-size:16px; }
+.tbx-pw{ margin-left:auto; }
+.tbx-row button{ padding:6px 9px; }
+.tbx-leadrow .tbx-seg button{ padding:6px 9px; }
+.tbx-fb{ border-left:5px solid var(--border-strong); background:var(--surface-2); border-radius:8px; padding:6px 10px;
+  font-size:18px; line-height:1.5; height:140px; overflow:auto; }
+.tbx-fb.is-ok{ border-color:var(--tb-ok); background:var(--tb-ok-bg); }
+.tbx-fb.is-bad{ border-color:var(--tb-bad); background:var(--tb-bad-bg); }
+.tbx-fb.is-look{ border-color:var(--accent-2); }
+.tbx-fb-h{ font-weight:900; }
+.tbx-fb.is-ok .tbx-fb-h{ color:var(--tb-ok); }
+.tbx-fb.is-bad .tbx-fb-h{ color:var(--tb-bad); }
+.tbx-block{ margin:.35rem 0; }
+
+/* ---- the class meter (booklet geometry; yellow in both appearances) */
+.tbx .cm-body{ fill:#f2c230; stroke:#111; stroke-width:8; }
+.tbx .cm-lcd{ fill:#cfdcc8; stroke:#111; stroke-width:8; }
+.tbx .cm-seg{ fill:#111; }
+.tbx .cm-btn{ fill:#fff; stroke:#111; stroke-width:8; }
+.tbx .cm-t{ fill:#111; text-anchor:middle; font-family:"Trebuchet MS",sans-serif; }
+.tbx .cm-ink{ fill:#111; }
+.tbx .cm-line{ stroke:#111; stroke-width:3; fill:none; }
+.tbx .cm-sec{ fill:none; stroke:#111; stroke-width:3; }
+.tbx .cm-knob{ fill:#fff; stroke:#111; stroke-width:10; }
+.tbx .cm-sock{ fill:#fff; stroke:#111; stroke-width:8; }
+.tbx .cm-tap, .tbx .cm-hit{ fill:transparent; cursor:pointer; outline:none; }
+.tbx .cm-tap:focus-visible{ fill:rgba(8,115,94,.14); stroke:#08735e; stroke-width:10; }
+.tbx .cm-hit.cm-on{ fill:rgba(8,115,94,.18); stroke:#08735e; stroke-width:7; }
+.tbx .cm-hit:focus-visible{ stroke:#c2410c; stroke-width:7; }
+
+/* ---- the logic probe */
+.tbx .pr-tip{ stroke:#9aa0a6; stroke-width:5; stroke-linecap:round; }
+.tbx .pr-body{ fill:#2f3437; stroke:#111; stroke-width:2; }
+.tbx .pr-led{ fill:#4b5157; stroke:#111; stroke-width:2; }
+.tbx .pr-hi.on{ fill:#ff3030; } .tbx .pr-lo.on{ fill:#22c55e; } .tbx .pr-pulse.on{ fill:#ffb000; }
+.tbx .is-dead .pr-led{ fill:#4b5157; }
+.tbx .pr-lab{ fill:var(--text); font:900 15px "Trebuchet MS",sans-serif; }
+.tbx .pr-sw{ fill:#15181a; stroke:#111; } .tbx .pr-knob{ fill:#d9dde0; }
+.tbx .pr-note{ fill:var(--muted); font:800 13px "Trebuchet MS",sans-serif; }
+
+/* ---- the bench layer on the board */
+.tbx .tbx-print{ font:700 11px "Trebuchet MS",sans-serif; fill:var(--sbd-ink,#13201c); }
+.tbx .tbx-band-w{ stroke:#fff; }
+.tbx .tbx-glow{ pointer-events:none; }
+.tbx .tbx-ring{ fill:none; stroke-width:3; }
+.tbx .tbx-ring.is-red{ stroke:#c62828; } .tbx .tbx-ring.is-black{ stroke:var(--sbd-ink,#222); } .tbx .tbx-ring.is-tip{ stroke:#c2410c; }
+.tbx .tbx-cab-o{ fill:none; stroke:#111; stroke-width:8; stroke-linecap:round; }
+.tbx .tbx-cab{ fill:none; stroke-width:5; stroke-linecap:round; }
+.tbx .tbx-cab.is-red{ stroke:#d32f2f; } .tbx .tbx-cab.is-black{ stroke:#3a3a3a; } .tbx .tbx-cab.is-probe{ stroke:#5a6066; }
+.tbx .tbx-needle{ stroke:#c9ced2; stroke-width:3; stroke-linecap:round; }
+.tbx .tbx-ntip{ fill:#eee; stroke:#555; stroke-width:1; }
+.tbx .tbx-clip{ stroke:#111; stroke-width:1.2; } .tbx .tbx-clip.is-red{ fill:#c62828; } .tbx .tbx-clip.is-black{ fill:#2a2a2a; }
+.tbx .tbx-jaw{ stroke:#9aa0a6; stroke-width:2.5; stroke-linecap:round; }
+.tbx .tbx-pen{ fill:#2f3437; stroke:#111; stroke-width:1.5; }
+.tbx .tbx-look{ fill:none; stroke:#e86a00; stroke-width:3; stroke-dasharray:7 5; }
+.tbx .tbx-dring{ fill:none; stroke-width:3.5; }
+.tbx .tbx-dring.is-red{ stroke:#c62828; } .tbx .tbx-dring.is-black{ stroke:var(--text); } .tbx .tbx-dring.is-tip{ stroke:#c2410c; }
+.tbx .tb-dtp{ cursor:pointer; }
+.tbx .tbx-lp-bg{ fill:var(--sbd-page,#fff); }
+.tbx .is-copper .tbx-lp-bg{ fill:#d8c8a2; }
+.tbx .tbx-lp-rim{ fill:none; stroke:#13201c; }
+.tbx .tbx-lp-x{ fill:none; stroke:#c2410c; }
+.tbx .tbx-lp-t{ font-family:"Trebuchet MS",sans-serif; font-weight:900; fill:#13201c; paint-order:stroke; stroke:#fff; stroke-width:4px; }
+
+/* ---- the copper side: a physical object, so the same in both appearances */
+.tbx .tbx-sub{ fill:#d8c8a2; }
+.tbx .tbx-cu{ fill:#c87533; } .tbx .tbx-cuhi{ fill:#e09a5c; }
+.tbx .tbx-hole{ fill:#3b2a17; }
+.tbx .tbx-drill{ fill:#d8c8a2; stroke:#7a5a2a; stroke-width:1.5; }
+.tbx .tbx-shadow{ fill:rgba(40,30,20,.16); }
+.tbx .tbx-shadow-l{ stroke:rgba(40,30,20,.16); stroke-linecap:round; fill:none; }
+.tbx .tbx-dry{ fill:#77746b; stroke:#3a3a36; stroke-width:1; } .tbx .tbx-dry-ring{ fill:none; stroke:#262622; stroke-width:2.2; }
+.tbx .tbx-crack{ fill:none; stroke:#2a2a26; stroke-width:1.6; }
+.tbx .tbx-shine{ fill:#fff; opacity:.9; } .tbx .tbx-lead-end{ fill:#555; }
+.tbx .tbx-bridge{ fill:#b9bec4; stroke:#7d838a; }
+.tbx .tbx-cl{ font:700 11px "Trebuchet MS",sans-serif; fill:#5a4626; }
+.tbx .tbx-shlab{ font:800 12px "Trebuchet MS",sans-serif; fill:rgba(60,45,25,.8); }
+.tbx .tbx-ctitle{ font:900 15px "Trebuchet MS",sans-serif; fill:#4a3818; }
+
+/* ---- the big dial */
+.tbx-dial{ position:fixed; inset:0; z-index:300; background:rgba(19,32,28,.55); display:flex; align-items:center; justify-content:center; }
+.tbx-dial-in{ display:flex; gap:16px; align-items:center; background:var(--card); border:2px solid var(--text); border-radius:16px; padding:12px 16px; max-width:96vw; }
+.tbx-dial-art{ width:min(720px, 88dvh, 66vw); aspect-ratio:1; }
+.tbx-dial-art svg{ width:100%; height:100%; display:block; }
+.tbx-dial-side{ width:250px; font-size:18px; line-height:1.5; }
+.tbx-dial-now{ font-weight:900; font-size:18px; }
+.tbx-dial-side button{ width:100%; margin-top:8px; }
+.tbx-dial-fb .tbx-fb-h{ color:var(--tb-bad); }
+.tbx-dial-fb button{ display:none; }
+
+/* ---- narrower screens: board on top, controls under it */
+@media (max-width:900px){
+  .tbx{ height:auto; }
+  .tbx-main{ grid-template-columns:1fr; }
+  .tbx-left{ grid-template-rows:auto auto auto; }
+  .tbx-board{ aspect-ratio:1.4; }
+  .tbx-right{ grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); grid-template-rows:auto; }
+  .tbx-inst{ grid-row:span 4; height:min(420px, 70vw); }
+  .tbx-fb{ grid-column:1 / -1; }
+  .tbx-dial-in{ flex-direction:column; }
+  .tbx-dial-art{ width:min(720px, 92vw, 70dvh); }
+}
+@media (max-width:520px){
+  .tbx-under{ grid-template-columns:1fr; height:auto; }
+  .tbx-log-b{ max-height:200px; }
+  .tbx-log th{ white-space:normal; }
+  .tbx-right{ grid-template-columns:1fr; }
+  .tbx-inst{ grid-row:auto; height:360px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .tbx *{ transition:none !important; animation:none !important; }
+}
