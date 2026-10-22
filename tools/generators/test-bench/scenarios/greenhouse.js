@@ -34,6 +34,17 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Greenhouse irrigation", sub: "74HC08 AND gate board",
+      should: "<b>Should:</b> the pump runs only when SD, TK and EN are all on.",
+      probe: "CMOS",
+      notLogic: { T5: "T5 is Q1's base. It sits at about 0.7 V when Q1 is on, which is not a logic level. Measure it with the meter on DCV 20." },
+      inputs: {
+        SD: { name: "SD soil dry", words: { off: "Off", on: "On" } },
+        TK: { name: "TK tank not empty", words: { off: "Off", on: "On" } },
+        EN: { name: "EN system on", words: { off: "Off", on: "On" } }
+      }
+    },
     inputs: {
       SD: { states: { off: "1", on: "2" }, start: "off" },
       TK: { states: { off: "1", on: "2" }, start: "off" },

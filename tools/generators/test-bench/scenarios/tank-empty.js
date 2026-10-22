@@ -25,6 +25,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Tank empty warning", sub: "74HC04 NOT gate board",
+      should: "<b>Should:</b> LED1 lights when SW1 is off (the tank is empty), and goes off when SW1 is on.",
+      probe: "CMOS", inputs: { SW1: { name: "SW1 float switch", words: { off: "Off", on: "On" } } }
+    },
     inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
 
     faults: {

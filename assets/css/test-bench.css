@@ -46,12 +46,19 @@
 
 /* ---- main grid: board left, meter right */
 .tbx-main{ display:grid; grid-template-columns:minmax(0,1fr) 352px; gap:10px; min-height:0; }
-.tbx-left{ display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:6px; min-height:0; }
+.tbx-left{ display:grid; grid-template-rows:auto auto minmax(0,1fr) auto; gap:6px; min-height:0; }
+.tbx-left.no-ins{ grid-template-rows:auto minmax(0,1fr) auto; }
 .tbx-bar{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
 .tbx-tps{ display:inline-flex; gap:4px; }
 .tbx-tps button{ min-width:52px; padding:6px 8px; }
 .tbx-pick select{ min-height:48px; max-width:200px; font:800 16px "Trebuchet MS","Segoe UI",system-ui,sans-serif;
   border:1px solid var(--border-strong); border-radius:10px; background:var(--card); color:var(--text); padding:0 8px; }
+/* power, the slide switches, the LDR's lamp or cap, and sound (§16 3.2b) */
+.tbx-ctl{ display:flex; gap:6px 14px; align-items:center; flex-wrap:wrap; }
+.tbx-in{ display:inline-flex; gap:6px; align-items:center; }
+.tbx-ctl .tbx-seg button{ padding:6px 11px; }
+.tbx-log-btns{ display:inline-flex; gap:6px; }
+.tbx-pw{ margin-left:auto; }
 .tbx-board{ position:relative; min-height:0; overflow:hidden; display:flex; align-items:center; justify-content:center;
   background:var(--sbd-page,#fff); border:1px solid var(--border); border-radius:12px; }
 .tbx-board.is-copper{ background:#d8c8a2; }
@@ -71,6 +78,7 @@
 .tbx-log th{ position:sticky; top:0; background:var(--card); text-align:left; font-size:18px; line-height:1.5; color:var(--muted); padding:0 6px; box-shadow:0 1px 0 var(--border); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tbx-log td{ padding:1px 6px; vertical-align:top; }
 .tbx-log td:first-child{ font-weight:900; }
+.tbx-log tr.tbx-setrow td{ font-weight:800; color:var(--muted); text-align:left; padding-top:3px; }
 .tbx-log td:last-child{ font-weight:900; text-align:center; }
 .tbx-none{ color:var(--muted); }
 
@@ -88,7 +96,6 @@
 .tbx-cur{ flex:1; }
 .tbx-leadrow, .tbx-row, .tbx-proberow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
 .tbx-lbl{ font-weight:900; font-size:16px; }
-.tbx-pw{ margin-left:auto; }
 .tbx-row button{ padding:6px 9px; }
 .tbx-leadrow .tbx-seg button{ padding:6px 9px; }
 .tbx-fb{ border-left:5px solid var(--border-strong); background:var(--surface-2); border-radius:8px; padding:6px 10px;
@@ -239,7 +246,7 @@
 @media (max-width:900px){
   .tbx{ height:auto; }
   .tbx-main{ grid-template-columns:1fr; }
-  .tbx-left{ grid-template-rows:auto auto auto; }
+  .tbx-left{ grid-template-rows:auto auto auto auto; } .tbx-left.no-ins{ grid-template-rows:auto auto auto; }
   .tbx-board{ aspect-ratio:1.4; }
   .tbx-right{ grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); grid-template-rows:auto; }
   .tbx-inst{ grid-row:span 4; height:min(420px, 70vw); }
@@ -260,3 +267,27 @@
 @media (prefers-reduced-motion: reduce){
   .tbx *{ transition:none !important; animation:none !important; }
 }
+
+/* ---- the bench layer's moving parts (§16): switch knobs, the LDR, lifted ends, the pump */
+.tbx-slot{ fill:#3b3f44; }
+.tbx-knob{ fill:#f4f5f6; stroke:#2b2f33; stroke-width:1.2; }
+.tbx-cap circle{ fill:#141414; stroke:#000; stroke-width:1; }
+.tbx-cap .tbx-cap-hi{ fill:#5a5a5a; stroke:none; }
+@media (prefers-color-scheme: dark){ .tbx-cap circle{ stroke:#8fa39a; } }
+.tbx-lamp{ fill:rgba(255,214,51,.42); stroke:#e0a800; stroke-width:1.5; stroke-dasharray:4 3; }
+.tbx-gap{ fill:none; stroke:#c2410c; stroke-width:2; stroke-dasharray:3 2; }
+.tbx-liftleg{ fill:none; stroke:#9aa1a8; stroke-width:2.6; stroke-linecap:round; }
+.tbx-liftleg.is-link{ stroke:#6b7280; stroke-width:3.4; }
+.tbx-liftend{ fill:#c9ced3; stroke:#2b2f33; stroke-width:1.2; }
+.tbx-unsold{ fill:#b87333; stroke:#7a4a1f; stroke-width:1; }
+.tbx-below{ fill:var(--sbd-page,#fff); }
+.tbx-fly{ fill:none; stroke-width:3; stroke-linecap:round; }
+.tbx-fly.is-red{ stroke:#d41c1c; } .tbx-fly.is-black{ stroke:#222; }
+.tbx-pump-b{ fill:#2f6aa8; stroke:#173a5e; stroke-width:1.5; }
+.tbx-pump-t{ fill:#fff; font:900 19px "Trebuchet MS","Segoe UI",system-ui,sans-serif; }
+.tbx-pump-cap{ fill:var(--muted); font:800 21px "Trebuchet MS","Segoe UI",system-ui,sans-serif; }
+.tbx-drop{ fill:#3fa9f5; opacity:0; }
+.tbx-pump.is-on .tbx-drop{ opacity:1; animation:tbx-drip .6s linear infinite; }
+.tbx-pump.is-on .tbx-drop.d1{ animation-delay:.2s; } .tbx-pump.is-on .tbx-drop.d2{ animation-delay:.4s; }
+@keyframes tbx-drip{ from{ transform:translateY(-4px); opacity:1; } to{ transform:translateY(6px); opacity:.2; } }
+@media (prefers-reduced-motion: reduce){ .tbx-pump.is-on .tbx-drop{ animation:none; opacity:1; } }

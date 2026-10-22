@@ -173,6 +173,7 @@
   }
   const COLOUR_WORD = ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"];
   const BAND = ["#111", "#7b3f00", "#d41c1c", "#f07c00", "#f5d000", "#1f9d3a", "#1c5fd4", "#7a2fc4", "#888", "#fff"];
+  const PIN_WORD = { npn: { c: "collector", b: "base", e: "emitter" }, spdt: { c: "middle pin", "1": "pin 1", "2": "pin 2" } };
   const LED_GLOW = { red: "rgba(255,40,40,.78)", green: "rgba(40,230,90,.72)", yellow: "rgba(255,210,0,.75)" };
 
   /* ========================================================= the bench */
@@ -181,13 +182,21 @@
     this.id = "tbx" + (++UID);
     this.sc = TB.SCENARIOS[opts.scenario];
     if (!this.sc) throw new Error("test bench: no scenario " + opts.scenario);
-    this.opts = opts;
+    /* the scenario's own words, unless the page gives them (Phase 3.2) */
+    const bb = this.sc.bench || {};
+    this.opts = Object.assign({}, opts, { title: opts.title || bb.title, sub: opts.sub || bb.sub, should: opts.should || bb.should });
+    try { this.sound = localStorage.getItem("tbx-sound-v1") !== "off"; } catch (e) { this.sound = true; }
     this.build();
     this.load(opts.fault || "good", opts.seed);
   }
 
   Bench.prototype.build = function () {
-    const id = this.id, o = this.opts;
+    const id = this.id, o = this.opts, ins = this.sc.inputs || {}, words = (this.sc.bench || {}).inputs || {};
+    const inGroups = Object.keys(ins).map(k => {
+      const w = words[k] || {}, nm = w.name || k;
+      return `<span class="tbx-in"><span class="tbx-lbl" aria-hidden="true">${esc(k)}</span><span class="tbx-seg" role="group" aria-label="${esc(nm)}">` +
+        Object.keys(ins[k].states).map(s => `<button type="button" data-input="${esc(k)}" data-state="${esc(s)}" aria-pressed="false">${esc((w.words || {})[s] || s)}</button>`).join("") + `</span></span>`;
+    }).join("");
     this.root.classList.add("tbx");
     this.root.innerHTML =
       `<div class="tbx-job">
@@ -196,7 +205,7 @@
          <div class="tbx-tech" aria-live="polite"></div>
        </div>
        <div class="tbx-main">
-         <div class="tbx-left">
+         <div class="tbx-left${inGroups ? "" : " no-ins"}">
            <div class="tbx-bar" role="toolbar" aria-label="Board controls">
              <button type="button" data-act="flip" aria-pressed="false">Flip board</button>
              <span class="tbx-seg" role="group" aria-label="View"><button type="button" data-view="board" aria-pressed="true">Board</button><button type="button" data-view="circuit" aria-pressed="false">Circuit</button></span>
@@ -204,10 +213,11 @@
              <label class="tbx-pick"><span class="visually-hidden">Another point</span><select data-act="pick"></select></label>
              <button type="button" class="tbx-diag" data-job="diagnose" hidden>Diagnose</button>
            </div>
+           <div class="tbx-ctl" role="toolbar" aria-label="Switches"${inGroups ? "" : " hidden"}>${inGroups}</div>
            <div class="tbx-board" id="${id}-board"></div>
            <div class="tbx-under">
              <div class="tbx-status" aria-live="polite"></div>
-             <div class="tbx-log"><div class="tbx-log-h"><b>Readings log</b><button type="button" data-act="clearlog">Clear</button></div>
+             <div class="tbx-log"><div class="tbx-log-h"><b>Readings log</b><span class="tbx-log-btns"><button type="button" data-act="sound" aria-pressed="true">Sound</button><button type="button" data-act="clearlog">Clear</button></span></div>
                <div class="tbx-log-b" tabindex="0" aria-label="Readings log"><table><thead><tr><th>Point</th><th>Tool and setting</th><th>Reading</th><th><span class="visually-hidden">Technique</span></th></tr></thead><tbody></tbody></table></div></div>
            </div>
            <div class="tbx-jobpanel" hidden></div>
@@ -223,8 +233,8 @@
            <div class="tbx-proberow" hidden><span class="tbx-seg" role="group" aria-label="Logic family"><button type="button" data-pmode="TTL" aria-pressed="true">TTL</button><button type="button" data-pmode="CMOS" aria-pressed="false">CMOS</button></span>
              <span class="tbx-seg" role="group" aria-label="Pulse or memory"><button type="button" data-pmem="0" aria-pressed="true">Pulse</button><button type="button" data-pmem="1" aria-pressed="false">MEM</button></span></div>
            <div class="tbx-leadrow"><span class="tbx-lbl">Next tap:</span><span class="tbx-seg" role="group" aria-label="Which lead the next tap places"><button type="button" data-next="red" aria-pressed="true">Red lead</button><button type="button" data-next="black" aria-pressed="false">Black lead</button></span><button type="button" data-act="swap">Swap</button></div>
-           <div class="tbx-row"><span class="tbx-seg" role="group" aria-label="Tool"><button type="button" data-tool="meter" aria-pressed="true">Meter</button><button type="button" data-tool="probe" aria-pressed="false">Probe</button><button type="button" data-tool="look" aria-pressed="false">Look</button></span>
-             <span class="tbx-lbl tbx-pw">Power</span><span class="tbx-seg" role="group" aria-label="Power"><button type="button" data-power="on" aria-pressed="false">On</button><button type="button" data-power="off" aria-pressed="true">Off</button></span></div>
+           <div class="tbx-row"><span class="tbx-seg" role="group" aria-label="Tool"><button type="button" data-tool="meter" aria-pressed="true">Meter</button><button type="button" data-tool="probe" aria-pressed="false">Probe</button><button type="button" data-tool="look" aria-pressed="false">Look</button><button type="button" data-tool="lift" aria-pressed="false">Lift</button></span>
+             <button type="button" class="tbx-pw" data-power="toggle" aria-pressed="false">Power</button></div>
            <div class="tbx-fb" aria-live="polite"></div>
          </div>
        </div>
@@ -271,9 +281,11 @@
       red: null, black: sc.ground, next: "red", power: false,
       pmode: "TTL", pmem: false, tip: null, memLit: false,
       fuse: false, everOn: false, shortChecked: false, looked: new Set(), lookAt: null,
-      ok: 0, bad: 0, safety: 0, seen: new Set(), log: [], live: null, last: null
+      ok: 0, bad: 0, safety: 0, seen: new Set(), log: [], live: null, last: null,
+      inputs: {}, lifted: []
     };
-    this.ledSeen = {};
+    for (const [k, inp] of Object.entries(sc.inputs || {})) this.st.inputs[k] = inp.start;
+    this.ledSeen = {}; this.loadSeen = {};
     this.geometry();
     this.b.power(false);
     this.meterSet();
@@ -285,6 +297,20 @@
     this.renderLog();
     this.techLine();
     if (!this.clock) this.startClock();
+  };
+
+  /* Lifting a leg or a link end makes the board again (the solver takes lifted
+     ends when a bench is made), with the same parts, switches and power. */
+  Bench.prototype.remake = function () {
+    const st = this.st;
+    this.b = TB.bench(this.sc.id, { fault: this.fault, seed: this.seed, lift: st.lifted.slice() });
+    this.F = this.b.fault;
+    for (const [k, v] of Object.entries(st.inputs)) this.b.set(k, v);
+    this.b.power(st.power);
+    if (st.tool === "probe") this.b.probe({ tip: st.tip, mode: st.pmode }); else this.meterSet();
+    this.geometry();
+    this.drawBoard();
+    this.fillPick();
   };
 
   /* Where everything is, in the engine's board coordinates. */
@@ -318,25 +344,53 @@
     const segOf = S.nodesOf(board, cuts);
     const dsu = makeDSU();
     const segAt = ref => { const k = segOf.get(S.hid(S.parseRef(ref))); return k === undefined ? null : "s" + k; };
-    for (const l of L.links) { const a = segAt(l.a), b = segAt(l.b); if (a && b) dsu.join(a, b); }
+    const lifted = new Set(this.st ? this.st.lifted : []);
+    for (const l of L.links) {
+      if (lifted.has("link@" + l.a) || lifted.has("link@" + l.b)) continue;
+      const a = segAt(l.a), b = segAt(l.b); if (a && b) dsu.join(a, b);
+    }
     /* the crop: every hole in use, plus room for the leads to come in from the right */
     let maxc = 0, maxr = 0;
     const use = ref => { const h = S.parseRef(ref); maxc = Math.max(maxc, h.c); maxr = Math.max(maxr, h.r); };
     Object.values(pins).forEach(q => use(q.hole)); L.links.forEach(l => { use(l.a); use(l.b); }); L.testpoints.forEach(t => use(t.at));
-    const far = R.centreOf(maxr, maxc, L.board);
-    this.vb = { x: 0, y: 0, w: Math.ceil(far.x + 1.6 * P), h: Math.ceil(far.y + 1.0 * P) };
-    this.G = { board, cen, parts, pins, tps, covered, segAt, net: ref => { const s = segAt(ref); return s ? dsu.find(s) : null; }, maxc, maxr };
+    /* cut between rows, never through one; the whole board when the pump hangs below it */
+    const far = R.centreOf(maxr, maxc, L.board), edge = R.centreOf(board.rows - 1, 1, L.board).y + .75 * P;
+    const pump = Object.keys(sc.parts).find(k => sc.parts[k].model === "pump" && parts[k]);
+    const cut = Math.min(far.y + 1.5 * P, edge);
+    this.vb = { x: 0, y: 0, w: Math.ceil(far.x + 1.6 * P), h: Math.ceil(pump ? cut + 3.2 * P : cut) };
+    this.G = { board, cen, parts, pins, tps, covered, segAt, net: ref => { const s = segAt(ref); return s ? dsu.find(s) : null; }, maxc, maxr, edge: cut, pump };
   };
 
   /* A point is "T1", "IC1.4", "R2.1" or a hole "G19". */
   Bench.prototype.holeOf = function (k) {
     const G = this.G;
-    return G.tps[k] ? G.tps[k].hole : G.pins[k] ? G.pins[k].hole : k;
+    return G.tps[k] ? G.tps[k].hole : G.pins[k] ? G.pins[k].hole : isLinkEnd(k) ? k.slice(5) : k;
   };
-  Bench.prototype.netOf = function (k) { return k ? this.G.net(this.holeOf(k)) : null; };
+  const isLinkEnd = k => typeof k === "string" && k.indexOf("link@") === 0;
+  /* A link end ("link@D20") is on the wire, so it is on the net of the link's
+     other end. A lifted leg is on nothing but its own part. */
+  Bench.prototype.netOf = function (k) {
+    if (!k) return null;
+    if (isLinkEnd(k)) {
+      const ref = k.slice(5), l = this.F.layout.links.find(x => x.a === ref || x.b === ref);
+      return l ? this.G.net(l.a === ref ? l.b : l.a) : null;
+    }
+    if (this.st.lifted.indexOf(k) >= 0) return "lift:" + k;
+    return this.G.net(this.holeOf(k));
+  };
+  /* the strip a point sits on, for the probe-only and not-logic rules */
+  Bench.prototype.stripOf = function (k) {
+    if (!k || isLinkEnd(k) || this.st.lifted.indexOf(k) >= 0) return null;
+    return this.G.segAt(this.holeOf(k));
+  };
   Bench.prototype.posOf = function (k) {
-    const c = this.G.cen(this.holeOf(k));
+    const c = this.st.lifted.indexOf(k) >= 0 && this.st.side === "comp" ? this.liftPos(k) : this.G.cen(this.holeOf(k));
     return this.st.side === "copper" ? { x: this.mirror(c.x), y: c.y } : c;
+  };
+  /* where a lifted end is drawn: out of its hole, up and to the right */
+  Bench.prototype.liftPos = function (k) {
+    const c = this.G.cen(this.holeOf(k));
+    return { x: c.x + .8 * P, y: c.y - .45 * P };
   };
   Bench.prototype.mirror = function (x) { return this.vb.x * 2 + this.vb.w - x; };
   Bench.prototype.legWord = function (part, pin) {
@@ -348,14 +402,19 @@
   };
   Bench.prototype.label = function (k) {
     if (!k) return "";
-    const G = this.G;
+    const G = this.G, up = this.st.lifted.indexOf(k) >= 0 ? " (lifted)" : "";
     if (G.tps[k]) return k;
+    if (isLinkEnd(k)) {
+      const ref = k.slice(5), i = this.F.layout.links.findIndex(x => x.a === ref || x.b === ref);
+      return "Link " + (i + 1) + " end at " + ref + up;
+    }
     const pin = G.pins[k];
     if (pin) {
       const pid = k.slice(0, k.lastIndexOf(".")), part = G.parts[pid];
       if (part.kind === "terminal") return (part.comp.name || pid).replace(/ supply$/, "") + " terminal";
       if (part.kind === "dil") return pid + " pin " + pin.pin;
-      return pid + ", " + this.legWord(part, pin);
+      if (part.pins.length !== 2) return pid + " " + ((PIN_WORD[part.model] || {})[pin.pin] || "pin " + pin.pin) + up;
+      return pid + ", " + this.legWord(part, pin) + up;
     }
     return "hole " + k;
   };
@@ -370,7 +429,7 @@
       svg = `<svg class="tbx-svg" viewBox="${vb.x} ${vb.y} ${vb.w} ${vb.h}" role="img" aria-label="${esc(this.boardAlt())}">` +
         `<defs><clipPath id="${id}-lp"><circle class="tbx-lpc" cx="0" cy="0" r="1"/></clipPath>` +
         `<radialGradient id="${id}-sol" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="#f4f6f8"/><stop offset="1" stop-color="#8d939a"/></radialGradient></defs>` +
-        `<g id="${id}-art">${art}</g><g class="tbx-glows"></g><g class="tbx-leads"></g><g class="tbx-loupe" hidden></g></svg>`;
+        `<g id="${id}-art">${art}<g class="tbx-dyn">${st.side === "copper" ? "" : this.dynArt()}</g></g><g class="tbx-glows"></g><g class="tbx-leads"></g><g class="tbx-loupe" hidden></g></svg>`;
     }
     this.el.board.innerHTML = svg;
     this.svg = this.el.board.querySelector("svg");
@@ -474,8 +533,10 @@
     /* a joint at every leg, link end and test pin */
     let j = "";
     for (const [ref, what] of joints) {
-      const c = G.cen(ref), dry = F.dry.has(what) || F.dry.has(what.replace(/^link@/, "link@"));
-      if (dry) {
+      const c = G.cen(ref), dry = F.dry.has(what);
+      if (this.st.lifted.indexOf(what) >= 0) {
+        j += `<circle class="tbx-unsold" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .3)}"/><circle class="tbx-hole" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .11)}"/>`;
+      } else if (dry) {
         j += `<circle class="tbx-dry" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .36)}"/>` +
              `<circle class="tbx-dry-ring" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .2)}"/>` +
              `<path class="tbx-crack" d="M${n1(c.x - P * .28)} ${n1(c.y - P * .3)} L${n1(c.x - P * .08)} ${n1(c.y - P * .06)} L${n1(c.x - P * .2)} ${n1(c.y + P * .1)} L${n1(c.x + P * .04)} ${n1(c.y + P * .34)}"/>` +
@@ -503,7 +564,8 @@
       const ps = part.pins, x = ps.reduce((a, q) => a + q.x, 0) / ps.length, y = ps.reduce((a, q) => a + q.y, 0) / ps.length;
       w += `<text class="tbx-shlab" x="${n1(mx(x) + (part.kind === "dil" ? 0 : P * .55))}" y="${n1(y + 4)}" text-anchor="${part.kind === "dil" ? "middle" : "start"}">${esc(part.id)}</text>`;
     }
-    w += `<text class="tbx-ctitle" x="${n1(vb.x + 8)}" y="${n1(vb.h - 8)}">Copper side: turned over, left to right</text>`;
+    /* above the column numbers, clear of row I and the leads (§16 3.2d) */
+    w += `<text class="tbx-ctitle" x="${n1(vb.x + 8)}" y="${n1(Math.max(14, G.cen("A1").y - 1.25 * P))}">Copper side: turned over, left to right</text>`;
     return s + w;
   };
 
@@ -511,6 +573,57 @@
     const d = this.sc.diagram;
     return `<svg class="tbx-svg tbx-circ" viewBox="-8 -8 ${d.w + 16} ${d.h + 16}" role="img" aria-label="Circuit diagram of the board, with test points ${this.sc.layout.testpoints.map(t => t.id).join(", ")}. Tap a test point.">` +
       d.svg + `<g class="tbx-leads"></g></svg>`;
+  };
+
+  /* What changes on the component side as the pupil works: each slide
+     switch's knob, the lamp or black cap on the LDR, lifted ends, the pump. */
+  Bench.prototype.dynArt = function () {
+    const G = this.G, st = this.st, ins = this.sc.inputs || {};
+    let s = "";
+    for (const [k, inp] of Object.entries(ins)) {
+      const part = G.parts[k];
+      if (!part) continue;
+      if (part.model === "spdt") {
+        const pc = part.pins.find(q => q.pin === "c"), pe = part.pins.find(q => q.pin === inp.states[st.inputs[k]]);
+        const horiz = Math.abs(part.pins[0].x - part.pins[2].x) > Math.abs(part.pins[0].y - part.pins[2].y);
+        const kx = pc.x + (pe.x - pc.x) * .5, ky = pc.y + (pe.y - pc.y) * .5;
+        const sw = horiz ? P * 2.1 : P * .5, sh = horiz ? P * .5 : P * 2.1, nw = horiz ? P * .95 : P * .8, nh = horiz ? P * .8 : P * .95;
+        s += `<g class="tbx-sw" data-sw="${esc(k)}">` +
+          `<rect class="tbx-slot" x="${n1(pc.x - sw / 2)}" y="${n1(pc.y - sh / 2)}" width="${n1(sw)}" height="${n1(sh)}" rx="2"/>` +
+          `<rect class="tbx-knob" x="${n1(kx - nw / 2)}" y="${n1(ky - nh / 2)}" width="${n1(nw)}" height="${n1(nh)}" rx="2.5"/></g>`;
+      } else if (part.model === "ldr") {
+        const [a, b] = part.pins, x = (a.x + b.x) / 2, y = (a.y + b.y) / 2;
+        s += st.inputs[k] === "covered"
+          ? `<g class="tbx-cap"><circle cx="${n1(x)}" cy="${n1(y)}" r="${n1(P * .95)}"/><circle class="tbx-cap-hi" cx="${n1(x - P * .3)}" cy="${n1(y - P * .3)}" r="${n1(P * .22)}"/></g>`
+          : `<circle class="tbx-lamp" cx="${n1(x)}" cy="${n1(y)}" r="${n1(P * 1.5)}"/>`;
+      }
+    }
+    for (const k of st.lifted) {
+      const h = G.cen(this.holeOf(k)), e = this.liftPos(k);
+      s += `<circle class="tbx-gap" cx="${n1(h.x)}" cy="${n1(h.y)}" r="${n1(P * .34)}"/>` +
+        `<path class="tbx-liftleg${isLinkEnd(k) ? " is-link" : ""}" d="M${n1(h.x)} ${n1(h.y)} Q ${n1(h.x)} ${n1(e.y)} ${n1(e.x)} ${n1(e.y)}"/>` +
+        `<circle class="tbx-liftend" cx="${n1(e.x)}" cy="${n1(e.y)}" r="${n1(P * .2)}"/>`;
+    }
+    if (G.pump) s += this.pumpArt();
+    return s;
+  };
+  /* The pump, off the board on flying leads from its 2-way block (K2). */
+  Bench.prototype.pumpArt = function () {
+    const G = this.G, part = G.parts[G.pump], p1 = part.pins.find(q => q.pin === "1"), p2 = part.pins.find(q => q.pin === "2");
+    const cx = (p1.x + p2.x) / 2 + P * 1.6, cy = G.edge + 1.75 * P, w = P * 3.4, h = P * 1.5, vb = this.vb;
+    const wire = (p, x, cls) => `<path class="tbx-fly ${cls}" d="M${n1(p.x)} ${n1(p.y)} C ${n1(p.x + P * 1.2)} ${n1(p.y + P)} ${n1(x)} ${n1(cy - h * 1.4)} ${n1(x)} ${n1(cy - h / 2)}"/>`;
+    return `<rect class="tbx-below" x="${vb.x}" y="${n1(G.edge)}" width="${vb.w}" height="${n1(vb.h - G.edge + 2)}"/>` +
+      `<g class="tbx-pump" data-pump="${esc(G.pump)}">` +
+      wire(p1, cx - P * .6, "is-black") + wire(p2, cx + P * .6, "is-red") +
+      `<rect class="tbx-pump-b" x="${n1(cx - w / 2)}" y="${n1(cy - h / 2)}" width="${n1(w)}" height="${n1(h)}" rx="${n1(P * .5)}"/>` +
+      `<rect class="tbx-pump-b" x="${n1(cx + w / 2 - 1)}" y="${n1(cy - P * .2)}" width="${n1(P * .9)}" height="${n1(P * .4)}" rx="2"/>` +
+      `<text class="tbx-pump-t" x="${n1(cx)}" y="${n1(cy + 7)}" text-anchor="middle">PUMP</text>` +
+      [0, 1, 2].map(i => `<circle class="tbx-drop d${i}" cx="${n1(cx + w / 2 + P * .95)}" cy="${n1(cy + P * (.5 + .55 * i))}" r="${n1(P * .17)}"/>`).join("") +
+      `<text class="tbx-pump-cap" x="${n1(cx + w / 2 + P * 1.6)}" y="${n1(cy + 7)}">off the board</text></g>`;
+  };
+  Bench.prototype.drawDyn = function () {
+    const g = this.svg && this.svg.querySelector(".tbx-dyn");
+    if (g && this.st.side === "comp") g.innerHTML = this.dynArt();
   };
 
   Bench.prototype.drawGlows = function () {
@@ -538,7 +651,7 @@
       return `<path class="tbx-cab-o" d="${d}"/><path class="tbx-cab ${cls}" d="${d}"/>`;
     };
     const needle = p => `<line class="tbx-needle" x1="${n1(p.x + 9)}" y1="${n1(p.y + 16)}" x2="${n1(p.x)}" y2="${n1(p.y)}"/><circle class="tbx-ntip" cx="${n1(p.x)}" cy="${n1(p.y)}" r="2.6"/>`;
-    const clip = (p, cls) => `<g transform="translate(${n1(p.x)} ${n1(p.y)}) rotate(-35)"><rect class="tbx-clip ${cls}" x="-3" y="-5" width="30" height="12" rx="3"/><path class="tbx-jaw" d="M-6 -3 l9 -4 M-6 5 l9 4"/></g>`;
+    const clip = (p, cls) => `<g transform="translate(${n1(p.x)} ${n1(p.y)}) rotate(40)"><rect class="tbx-clip ${cls}" x="-3" y="-5" width="30" height="12" rx="3"/><path class="tbx-jaw" d="M-6 -3 l9 -4 M-6 5 l9 4"/></g>`;
     const ring = (k, cls) => { const p = this.posOf(k); return `<circle class="tbx-ring ${cls}" cx="${n1(p.x)}" cy="${n1(p.y)}" r="${n1(P * .62)}"/>`; };
     let s = "";
     if (st.tool === "meter") {
@@ -602,6 +715,17 @@
     if (st.side === "copper") x = this.mirror(x);
     let best = null, bd = Infinity;
     const consider = (k, p, kind, bias) => { const d = Math.hypot(p.x - x, p.y - y) - (bias || 0); if (d < bd) { bd = d; best = { pt: k, kind }; } };
+    if (st.side === "comp") {
+      /* a slide switch's body, off the line of its pins: slide it */
+      for (const k of Object.keys(this.sc.inputs || {})) {
+        const part = G.parts[k];
+        if (!part || part.model !== "spdt") continue;
+        const [a, , b] = part.pins, horiz = Math.abs(a.x - b.x) > Math.abs(a.y - b.y);
+        const along = horiz ? x : y, off = horiz ? y - a.y : x - a.x, lo = Math.min(horiz ? a.x : a.y, horiz ? b.x : b.y), hi = Math.max(horiz ? a.x : a.y, horiz ? b.x : b.y);
+        if (along > lo - P * .6 && along < hi + P * .6 && Math.abs(off) > P * .26 && Math.abs(off) < P * .8) return { part: k };
+      }
+      for (const k of st.lifted) consider(k, this.liftPos(k), "lift", P * .2);
+    }
     for (const t of Object.values(G.tps)) consider(t.key, t, "tp", P * .15);
     if (st.side === "comp") for (const q of Object.values(G.pins)) consider(q.key, q, "pin", P * .1);
     const near = best && bd <= rad ? best : null;
@@ -703,7 +827,7 @@
 
   /* --------------------------------------------------------- controls */
   Bench.prototype.onClick = function (e) {
-    const t = e.target.closest ? e.target.closest("[data-job],[data-act],[data-view],[data-tool],[data-power],[data-pt],[data-next],[data-pmode],[data-pmem],[data-set],[data-sock],[data-tp]") : null;
+    const t = e.target.closest ? e.target.closest("[data-job],[data-act],[data-view],[data-tool],[data-power],[data-pt],[data-next],[data-pmode],[data-pmem],[data-set],[data-sock],[data-tp],[data-input]") : null;
     if (!t || !this.root.contains(t)) return;
     const st = this.st, a = t.getAttribute.bind(t);
     if (t.hasAttribute("data-job")) { if (!t.disabled) this.jobAct(a("data-job"), t); return; }
@@ -711,12 +835,13 @@
     if (t.hasAttribute("data-sock")) { st.sock = a("data-sock"); this.instrumentChanged("now"); return; }
     if (t.hasAttribute("data-view")) { st.view = a("data-view"); this.drawBoard(); this.syncControls(); return; }
     if (t.hasAttribute("data-tool")) { this.setTool(a("data-tool")); return; }
-    if (t.hasAttribute("data-power")) { this.setPower(a("data-power") === "on"); return; }
+    if (t.hasAttribute("data-power")) { this.setPower(!st.power); return; }
     if (t.hasAttribute("data-pt")) { this.act({ pt: a("data-pt"), kind: "tp" }); return; }
     if (t.hasAttribute("data-tp") && st.view === "circuit") { this.act({ pt: a("data-tp"), kind: "tp" }); return; }
     if (t.hasAttribute("data-next")) { st.next = a("data-next"); this.syncControls(); return; }
     if (t.hasAttribute("data-pmode")) { st.pmode = a("data-pmode"); this.probeChanged(); return; }
     if (t.hasAttribute("data-pmem")) { st.pmem = a("data-pmem") === "1"; st.memLit = false; this.probeChanged(); return; }
+    if (t.hasAttribute("data-input")) { this.setInput(a("data-input"), a("data-state")); return; }
     switch (a("data-act")) {
       case "flip": st.side = st.side === "comp" ? "copper" : "comp"; if (st.view !== "board") st.view = "board"; this.drawBoard(); this.syncControls(); break;
       case "dial-": this.stepDial(-1); break;
@@ -724,6 +849,11 @@
       case "bigdial": this.openDial(); break;
       case "closedial": this.closeDial(); break;
       case "swap": { const r = st.red; st.red = st.black; st.black = r; this.instrumentChanged("tap"); break; }
+      case "sound":
+        this.sound = !this.sound;
+        try { localStorage.setItem("tbx-sound-v1", this.sound ? "on" : "off"); } catch (e) { /* kept for this visit only */ }
+        if (!this.sound) { this.tone(false); this.buzz(false); }
+        this.syncControls(); break;
       case "clearlog": st.log = []; st.live = null; this.renderLog(); break;
       case "newfuse": st.fuse = false; this.b.meter(null); this.meterSet(); this.feedback("ok", "New fuse fitted", "The meter works again. Check the red lead is in V/Ω before you measure a voltage."); this.drawMeter(); break;
     }
@@ -736,6 +866,7 @@
     if (tool === "probe") { this.b.meter(null); this.b.probe({ tip: st.tip, mode: st.pmode }); }
     else { this.b.probe(null); this.meterSet(); }
     if (tool === "look") this.feedback(null, "Look", "Tap a part, a link or a joint to look at it closely. Flip the board to see the joints and track cuts.");
+    if (tool === "lift") this.feedback(null, "Lift a leg", "The soldering iron. Power off, then tap the end of a leg, or one end of a link wire, to lift it out of its hole. Tap it again to solder it back.");
     this.syncControls(); this.drawLeads(); this.fillPick();
     if (tool === "probe" && st.tip) this.measured("setting");
   };
@@ -792,7 +923,7 @@
   };
   Bench.prototype.meterSet = function () {
     const st = this.st;
-    if (st.tool !== "meter" && st.tool !== "look") return;
+    if (st.tool === "probe") return;
     const sock = st.sock === "V/Ω" ? "V" : st.sock;
     this.b.meter(st.dial, { red: st.red || undefined, black: st.black || undefined, socket: sock });
   };
@@ -803,7 +934,9 @@
     if (this.job && this.jobLocked()) return;
     if (this.finding) { this.jobFind(t); return; }
     if (st.tool === "look") { this.look(t); return; }
+    if (st.tool === "lift") { this.liftAt(t); return; }
     if (t.link) return;
+    if (t.part && (this.sc.inputs || {})[t.part]) { this.toggleInput(t.part); return; }
     if (st.tool === "probe") {
       if (t.part) { this.feedback("bad", "One pin at a time", "The probe tip goes on one point: a pin, a leg or a test point. Tap a point, not the body of " + t.part + "."); return; }
       st.tip = t.pt; st.memLit = false;
@@ -820,6 +953,59 @@
       st.next = this.isTwoPoint() && st.next === "red" ? "black" : "red";
     }
     this.instrumentChanged("tap");
+  };
+
+  /* ------------------------------------------------------- inputs: switches, the LDR */
+  Bench.prototype.toggleInput = function (k) {
+    const ss = Object.keys(this.sc.inputs[k].states);
+    this.setInput(k, ss[(ss.indexOf(this.st.inputs[k]) + 1) % ss.length]);
+  };
+  Bench.prototype.setInput = function (k, v) {
+    const st = this.st;
+    if (this.job && this.jobLocked()) return;
+    if (st.inputs[k] === v) return;
+    st.inputs[k] = v;
+    st.live = null;
+    this.b.set(k, v);
+    this.drawDyn();
+    this.syncControls();
+    this.say(this.inputName(k) + ": " + this.inputWord(k, v) + ".");
+    if ((st.tool === "meter" && st.red && st.black) || (st.tool === "probe" && st.tip)) this.measured("setting");
+  };
+  Bench.prototype.inputName = function (k) { return (((this.sc.bench || {}).inputs || {})[k] || {}).name || k; };
+  Bench.prototype.inputWord = function (k, v) { return ((((this.sc.bench || {}).inputs || {})[k] || {}).words || {})[v] || v; };
+  /* "SD off, TK on, EN on": the inputs when a reading was taken */
+  Bench.prototype.inputsText = function () {
+    return Object.keys(this.st.inputs).map(k => k + " " + this.inputWord(k, this.st.inputs[k]).toLowerCase()).join(", ");
+  };
+
+  /* ------------------------------------------------------- lift a leg (the soldering iron) */
+  Bench.prototype.liftAt = function (t) {
+    const st = this.st, G = this.G;
+    if (t.part || t.link) { this.feedback(null, "Lift a leg", "Tap the end of one leg, or one end of a link wire, not the body."); return; }
+    let k = t.pt;
+    if (t.kind === "hole") k = this.jointAt(k) || k;
+    const pin = G.pins[k];
+    if (G.tps[k]) { this.feedback("bad", "Test pin", "Test pins stay soldered. Lift a part's leg or a link end."); return; }
+    if (!pin && !isLinkEnd(k)) { this.feedback(null, "Nothing to lift", "There is no leg here. Tap the end of a leg, or one end of a link wire."); return; }
+    if (pin) {
+      const part = G.parts[k.slice(0, k.lastIndexOf("."))];
+      if (part.kind === "dil") { this.feedback("bad", "Chip legs stay in", "A chip's legs are not lifted: they bend and snap. Test the pin itself, or lift the leg or link that joins it."); return; }
+      if (part.kind === "terminal") { this.feedback("bad", "Terminal block", "The terminal block stays soldered. Lift a leg or a link end instead."); return; }
+    }
+    const back = st.lifted.indexOf(k) >= 0, name = this.label(k).replace(/ \(lifted\)$/, "");
+    if (st.power) {
+      this.mark("safety", "iron", "The power is on. Never solder on a live board: switch off, then " + (back ? "solder it back." : "lift it."), name, "Soldering iron", back ? "not soldered back" : "not lifted");
+      return;
+    }
+    if (back) st.lifted.splice(st.lifted.indexOf(k), 1); else st.lifted.push(k);
+    this.remake();
+    st.log.push({ pt: name, tool: "Soldering iron", reading: back ? "soldered back" : "lifted", mark: "", kind: "note", ev: { type: back ? "refit" : "lift", key: k }, set: Object.assign({}, st.inputs), sets: this.inputsText() });
+    this.renderLog();
+    if (back) this.feedback("ok", name + " soldered back", "The board is joined up again.");
+    else this.feedback("ok", name + " lifted", "It is out of its hole, so there is a gap. To measure the current through it: dial on <b>DCA</b>, red lead in <b>A</b>, one lead on the lifted end and one on the hole's strip, then power on. Tap it again to solder it back.");
+    this.say(name + (back ? " soldered back." : " lifted."));
+    if (this.job) this.jobRow(st.log[st.log.length - 1], "note");
   };
 
   /* ------------------------------------------------------- the big dial */
@@ -866,10 +1052,34 @@
         short = (F.printed[t.part] || "") + ", stripe at the " + this.legWord(part, m).replace(" leg", "");
         text = "Printed on the side: <b>" + esc(F.printed[t.part] || "") + " 25 V</b>. The stripe (the − leg) is at the <b>" + this.legWord(part, m).replace(" leg", "") + "</b>, in hole " + m.hole + ".";
       } else if (part.kind === "dil") {
-        const p1 = ps.find(q => q.pin === "1");
+        const p1 = ps.find(q => q.pin === "1"), print = F.printed[t.part] || "NE" + (part.comp.part || "");
         title = t.part + ": a chip";
-        short = "NE" + (part.comp.part || "") + ", notch at the top";
-        text = "Printed on top: <b>NE" + esc(part.comp.part || "") + "</b>. The notch is at the top. Pin 1 is in hole " + p1.hole + ".";
+        short = print + ", notch at the top";
+        text = "Printed on top: <b>" + esc(print) + "</b>. The notch is at the top. Pin 1 is in hole " + p1.hole + ".";
+      } else if (model === "spdt") {
+        const v = st.inputs[t.part], pin = (this.sc.inputs[t.part] || { states: {} }).states[v];
+        title = t.part + ": a slide switch";
+        short = "slid " + this.inputWord(t.part, v).toLowerCase();
+        text = "Slid to <b>" + esc(this.inputWord(t.part, v).toLowerCase()) + "</b>, towards pin " + pin + ". The middle pin joins the pin the slider is next to. Pins in holes " +
+          ["1", "c", "2"].map(n => ps.find(q => q.pin === n).hole).join(", ") + " (pin 1, middle, pin 2).";
+      } else if (model === "npn") {
+        const at = n => ps.find(q => q.pin === n).hole;
+        title = t.part + ": a BC548 transistor";
+        short = "metal can, tab at " + at("e");
+        text = "Metal can. The tab on the rim is next to the <b>emitter</b>, in hole " + at("e") + ". Base in " + at("b") + ", collector in " + at("c") + ".";
+      } else if (model === "buzzer") {
+        const plus = ps.find(q => q.pin === "+");
+        title = t.part + ": a buzzer";
+        short = "+ at the " + this.legWord(part, plus).replace(" leg", "");
+        text = "Marked <b>+</b> on top, over the longer leg, at the <b>" + this.legWord(part, plus).replace(" leg", "") + "</b>, in hole " + plus.hole + ". The + leg goes to +5 V.";
+      } else if (model === "ldr") {
+        title = t.part + ": a light-dependent resistor";
+        short = st.inputs[t.part] === "covered" ? "black cap on" : "under the lamp";
+        text = "In holes " + ps.map(q => q.hole).join(" and ") + ". It can go either way round. " + (st.inputs[t.part] === "covered" ? "The black cap is on it: it is dark." : "The lamp is shining on it.");
+      } else if (model === "pump") {
+        title = "The pump's terminal block";
+        short = "pump on flying leads";
+        text = "The pump sits off the board. Its two leads are screwed into this block, in holes " + ps.map(q => q.hole).join(" and ") + ".";
       } else {
         title = part.comp.name || t.part;
         text = "In hole " + ps.map(q => q.hole).join(" and ") + ".";
@@ -933,7 +1143,7 @@
     const onRail = (k, rail) => this.netOf(k) && this.netOf(k) === this.netOf(rail);
     /* what this row can stand as evidence for, in Diagnose and the proving test */
     this.pendingEv = null;
-    if (sock === "V/Ω" && g === "DCV" && st.dial !== "DCV D" && live && !rd.over && !rd.fuse && onRail(st.black, this.sc.ground) && !this.isLogicOut(st.red))
+    if (sock === "V/Ω" && g === "DCV" && st.dial !== "DCV D" && live && !rd.over && !rd.fuse && onRail(st.black, this.sc.ground) && !this.isProbeOnly(st.red))
       this.pendingEv = { type: "dcv", key: st.red };
     if (sock === "V/Ω" && g === "OHM" && !live)
       this.pendingEv = { type: "ohm", a: st.red, b: st.black, beep: !!rd.beep, over: !!rd.over, value: rd.value };
@@ -941,10 +1151,7 @@
       if (live) return say("safety", "ainv", "The red lead is in <b>A</b>. Measuring voltage like this puts a short across the circuit and blows the meter's fuse. Tap the <b>V/Ω</b> socket to move it back.");
       return say("bad", "asock", "The red lead is in " + sock + ". Resistance, continuity and diode check use the <b>V/Ω</b> socket.");
     }
-    if (g === "DCA" || g === "ACA") {
-      if (sock !== "V/Ω" && live) return say("safety", "aacross", "The meter is across two points, not in series. In A mode that is a short. Current is measured with the circuit broken and the meter in the gap.");
-      return say("bad", "dca", g + " measures current, with the meter in series and the red lead in A. To measure a voltage, turn the dial to <b>DCV</b>.");
-    }
+    if (g === "DCA" || g === "ACA") return this.assessAmps(rd, g, rng, sock, live, say);
     if (g === "ACV" || g === "hFE") return say("bad", "ac", "This board runs on DC. Turn the dial to <b>DCV</b>.");
     if (g === "OHM") {
       if (live) return say("safety", rng === "200" ? "conton" : "ohmon", rng === "200"
@@ -961,7 +1168,7 @@
       if (rng !== "200" && isFinite(rd.value) && rd.value < FULL[rng] / 100) return say("bad", "ohmhigh", "This range is too high: the reading is nearly 0. Turn the dial down for more digits.");
       return say("ok", "ohm", rng === "200"
         ? "Right: power off, OHM 200. " + (rd.beep ? "A beep and a small reading: the two points are joined." : "No beep: the two points are not joined.")
-        : "Right: power off, red lead in V/Ω, and a range that shows the value.");
+        : "Right: power off, red lead in V/Ω, and a range that shows the value." + this.inCircuitNote(across, rd));
     }
     if (st.dial === "DCV D") {
       if (live) return say("bad", "dion", "Diode check is done with the power off. The meter pushes its own small current through the diode.");
@@ -975,7 +1182,7 @@
     }
     if (g === "DCV") {
       if (!live) return say("bad", "voff", "The power is off, so there is no voltage to measure. Switch on first.");
-      if (this.isLogicOut(st.red)) return say("bad", "logicmeter", "Logic levels on a chip are tested with the <b>logic probe</b>, not the meter. Choose Probe, then touch the pin.");
+      if (this.isProbeOnly(st.red)) return say("bad", "logicmeter", "Logic levels on a chip are tested with the <b>logic probe</b>, not the meter. Choose Probe, then touch the pin.");
       if (!onRail(st.black, this.sc.ground) && !across) return say("bad", "black0", "Put the black lead on 0 V (T2). The voltages on the job card are measured from 0 V.");
       if (rd.over) return say("bad", "over", "1 on the left means over range. Turn up to <b>DCV 20</b>.");
       if (rng === "200" || rng === "1000") return say("bad", "bigrange", "This works, but DCV " + rng + " shows fewer decimal places. DCV 20 is the range just above 5 V.");
@@ -988,17 +1195,69 @@
     this.pendingEv = null;
     const pts = this.label(st.tip), tool = "Probe " + st.pmode + (st.pmem ? ", MEM" : "");
     const say = (kind, code, text) => this.mark(kind, code, text, pts, tool, null, false, true);
+    const fam = this.probeFamily(), why = this.notLogic(st.tip);
+    if (!fam) return say("bad", "nochip", "This board has no logic chip. Use the meter on <b>DCV 20</b>.");
     if (!st.power) return say("bad", "probeoff", "Switch on first. The probe takes its power from the board, so with the power off its lights stay dark.");
-    if (st.pmode === "CMOS") return say("bad", "cmos", "Set the probe to <b>TTL</b> for the 555. On CMOS it needs 70 % of the supply (3.5 V) to show Hi, and the 555's HIGH is only about 3.6 V.");
+    if (st.pmode !== fam) return say("bad", "family", fam === "TTL"
+      ? "Set the probe to <b>TTL</b> for the 555. On CMOS it needs 70 % of the supply (3.5 V) to show Hi, and the 555's HIGH is only about 3.6 V."
+      : "Set the probe to <b>CMOS</b> for 74HC chips. They are CMOS chips: their inputs switch at about half the supply.");
     if (st.pmem) return say("bad", "mem", "Use <b>Pulse</b>, not MEM. MEM keeps the pulse light on after one pulse, so you cannot tell if it is still pulsing.");
-    if (!this.isAnalog(st.tip)) this.pendingEv = { type: "probe", key: st.tip };
-    if (this.isAnalog(st.tip)) return say("bad", "analog", "T4 is not a logic signal. It rises and falls smoothly between about 1.7 V and 3.3 V. Measure it with the meter on DCV 20.");
-    return say("ok", "probe", "Right: clips on this board's +5 V and 0 V, TTL, Pulse, and the tip on one point.");
+    if (why) return say("bad", "analog", why);
+    this.pendingEv = { type: "probe", key: st.tip };
+    return say("ok", "probe", "Right: clips on this board's +5 V and 0 V, " + fam + ", Pulse, and the tip on one point.");
   };
-  /* The 555's output strip (T3, pin 3) is a logic level: probe only (Block 6
-     round 2). The timing strip (T4, pins 2 and 6) is not a logic signal. */
-  Bench.prototype.isLogicOut = function (k) { return this.G.segAt(this.holeOf(k)) === this.G.segAt(this.holeOf("IC1.3")); };
-  Bench.prototype.isAnalog = function (k) { return this.G.segAt(this.holeOf(k)) === this.G.segAt(this.holeOf("IC1.2")); };
+  /* From the scenario (§16, Q1, Q2): the probe's setting for this board's
+     chip (none: no logic chip), the strips that are probe only (the 555's
+     pin 3), and the strips that are not logic signals, each with its reason. */
+  Bench.prototype.probeFamily = function () { const b = this.sc.bench; return b ? b.probe : "TTL"; };
+  Bench.prototype.isProbeOnly = function (k) {
+    const s = this.stripOf(k);
+    return !!s && ((this.sc.bench || {}).probeOnly || []).some(q => this.stripOf(q) === s);
+  };
+  Bench.prototype.notLogic = function (k) {
+    const s = this.stripOf(k), nl = (this.sc.bench || {}).notLogic || {};
+    if (!s) return null;
+    for (const q of Object.keys(nl)) if (this.stripOf(q) === s) return nl[q];
+    return null;
+  };
+
+  /* ------------------------------------------------------- current (§16 3.2c) */
+  const AFULL = { "20µ": 19.99e-6, "200µ": 199.9e-6, "2m": 1.999e-3, "20m": 19.99e-3, "200m": .1999, "2": 1.999, "20": 19.99 };
+  /* The lifted end the leads sit either side of, or null: one lead on the
+     strip under the hole, the other on what was soldered into it. */
+  Bench.prototype.inGap = function (a, b) {
+    const na = this.netOf(a), nb = this.netOf(b);
+    for (const k of this.st.lifted) {
+      const under = this.G.net(this.holeOf(k)), lifted = this.netOf(k);
+      if ((na === under && nb === lifted) || (na === lifted && nb === under)) return k;
+    }
+    return null;
+  };
+  Bench.prototype.assessAmps = function (rd, g, rng, sock, live, say) {
+    const st = this.st, gap = this.inGap(st.red, st.black);
+    if (sock === "V/Ω") return say("bad", "avsock", "To measure current, the red lead goes in the <b>A</b> socket. Tap the A socket.");
+    if (rd.fuse) return say("safety", "aacross", "The meter was across two joined points, not in series. In A mode that is a short, and the fuse has blown. Current is measured with the circuit broken and the meter in the gap.");
+    if (!gap) return say("bad", "apar", "The meter is across two points, so it is in parallel, not in series. In A mode it shorts out what it is across. Lift a leg or a link end first, then put the leads either side of the gap.");
+    if (rng === "20" && sock === "A") return say("bad", "a20", "The 20 A range uses the <b>20A</b> socket. For small currents, use a mA range with the red lead in A.");
+    if (sock === "20A") return say("bad", "a20sock", "The red lead is in 20A. For a mA range it goes in <b>A</b>.");
+    if (!live) return say("bad", "aoff", "The meter is in the gap. Switch on: current only flows with the power on.");
+    if (g === "ACA") return say("bad", "aca", "This board runs on DC. Turn the dial to <b>DCA</b>.");
+    if (rd.over) return say("bad", "aover", "1 on the left means over range. Turn the dial up one step.");
+    if (isFinite(rd.value) && Math.abs(rd.value) < AFULL[rng] / 100 && rng !== "20µ") return say("bad", "ahigh", "This range is too high: the reading is nearly 0. Turn the dial down for more digits.");
+    this.pendingEv = { type: "amps", key: gap, value: rd.value };
+    return say("ok", "amps", "Right: power on, red lead in A, and the meter in the gap, in series." +
+      (rd.value < 0 ? " The minus sign means the current goes in at the black lead. Swap the leads for a plus reading." : ""));
+  };
+  /* Q4: resistance in the circuit. Only a note, and only when the parts
+     around it change the reading by more than 5 %. */
+  Bench.prototype.inCircuitNote = function (across, rd) {
+    if (!across || !isFinite(rd.value)) return "";
+    const part = this.G.parts[across.part], bp = this.b.parts[across.part];
+    if (!bp || part.pins.some(q => this.st.lifted.indexOf(q.key) >= 0)) return "";
+    const R = part.model === "res" ? bp.R : part.model === "ldr" ? bp[this.st.inputs[across.part] || "light"] : null;
+    if (!R || Math.abs(rd.value - R) / R <= .05) return "";
+    return " <b>Note:</b> other parts are joined across " + across.part + ", so this is not " + across.part + " on its own. Lift one leg for a true reading.";
+  };
   Bench.prototype.acrossPart = function (a, b) {
     for (const part of Object.values(this.G.parts)) {
       if (part.pins.length !== 2) continue;
@@ -1024,7 +1283,7 @@
       (code === "ainv" || code === "aacross" ? '<button type="button" data-act="newfuse">Fit a new fuse</button>' : ""));
     if (pts) {
       if (st.live) st.live = null;
-      const row = { pt: pts, tool: tool || "", reading: reading || "", mark: kind === "ok" ? "✓" : "✗", kind, ev: this.pendingEv };
+      const row = { pt: pts, tool: tool || "", reading: reading || "", mark: kind === "ok" ? "✓" : "✗", kind, ev: this.pendingEv, set: Object.assign({}, st.inputs), sets: this.inputsText() };
       st.log.push(row);
       if (live) {
         st.live = { row, t0: performance.now(), min: Infinity, max: -Infinity, hi: false, lo: false, pulse: false };
@@ -1053,8 +1312,9 @@
   /* ------------------------------------------------------- the log */
   Bench.prototype.renderLog = function () {
     const rows = this.st.log;
-    this.el.log.innerHTML = rows.length ? rows.map(r =>
-      `<tr><td>${esc(r.pt)}</td><td>${esc(r.tool)}</td><td>${esc(r.reading || "…")}</td><td class="${r.kind === "ok" ? "ok" : "bad"}">${r.mark}</td></tr>`).join("")
+    this.el.log.innerHTML = rows.length ? rows.map((r, i) =>
+      (r.sets && r.sets !== (rows[i - 1] || {}).sets ? `<tr class="tbx-setrow"><td colspan="4">With ${esc(r.sets)}</td></tr>` : "") +
+      `<tr><td>${esc(r.pt)}</td><td>${esc(r.tool)}</td><td>${esc(r.reading || "…")}</td><td class="${r.kind === "ok" ? "ok" : r.kind === "note" ? "" : "bad"}">${r.mark}</td></tr>`).join("")
       : `<tr><td colspan="4" class="tbx-none">No readings yet.</td></tr>`;
     this.el.logBox.scrollTop = this.el.logBox.scrollHeight;
   };
@@ -1109,7 +1369,7 @@
     const st = this.st;
     if (st.tool !== "meter") return;
     let rd = this.b.read(0);
-    st.blocked = !!(st.red && st.black && this.isVoltSetting() && this.isLogicOut(st.red) && st.power);
+    st.blocked = !!(st.red && st.black && this.isVoltSetting() && this.isProbeOnly(st.red) && st.power);
     let text = "";
     if (rd) {
       if (rd.fuse && !st.fuse) st.fuse = true;
@@ -1133,6 +1393,7 @@
   };
   Bench.prototype.tone = function (on) {
     if (!this.ac) return;
+    if (!this.sound) on = false;
     if (on && !this.osc) {
       try {
         const o = this.ac.createOscillator(), g = this.ac.createGain();
@@ -1140,6 +1401,19 @@
         this.osc = o; this.gain = g;
       } catch (e) { this.osc = null; }
     } else if (!on && this.osc) { try { this.osc.stop(); } catch (e) { /* already stopped */ } this.osc = null; }
+  };
+
+  /* the buzzer: a quiet tone (Q3), on the same Sound button as the beep */
+  Bench.prototype.buzz = function (on) {
+    if (!this.ac) return;
+    if (!this.sound) on = false;
+    if (on && !this.bz) {
+      try {
+        const o = this.ac.createOscillator(), g = this.ac.createGain();
+        o.frequency.value = 2300; g.gain.value = 0.02; o.connect(g); g.connect(this.ac.destination); o.start();
+        this.bz = o;
+      } catch (e) { this.bz = null; }
+    } else if (!on && this.bz) { try { this.bz.stop(); } catch (e) { /* already stopped */ } this.bz = null; }
   };
 
   /* ------------------------------------------------------- the clock */
@@ -1171,6 +1445,25 @@
       if (el) el.setAttribute("opacity", L.look === "on" ? "1" : L.look === "faint" ? ".3" : "0");
       lines.push(`<span class="tbx-led"><b>${esc(id)} ${esc(L.colour)}:</b> ${flashing ? "flashing" : L.look}</span>`);
     }
+    /* the buzzer and the pump: on, off, or on and off by itself (a floating input) */
+    let buzz = false;
+    for (const [id, L] of Object.entries(this.b.loads())) {
+      const seen = this.loadSeen[id] = this.loadSeen[id] || { on: null, changes: [] };
+      if (seen.on !== null && seen.on !== L.on) seen.changes.push(now);
+      seen.on = L.on;
+      seen.changes = seen.changes.filter(t => now - t < 2600);
+      const chat = seen.changes.length >= 2;
+      if (L.kind === "buzzer") {
+        buzz = buzz || L.on;
+        lines.push(`<span class="tbx-led"><b>${esc(id)}:</b> ${chat ? "sounding on and off" : L.on ? "sounding" : "silent"}</span>`);
+      } else {
+        const el = this.svg && this.svg.querySelector('[data-pump="' + id + '"]');
+        if (el) el.classList.toggle("is-on", L.on);
+        lines.push(`<span class="tbx-led"><b>Pump:</b> ${chat ? "starting and stopping" : L.on ? "running" : "stopped"}</span>`);
+      }
+    }
+    this.buzz(buzz && this.st.power);
+    if (this.st.lifted.length) lines.push(`<span class="tbx-led"><b>Lifted:</b> ${esc(this.st.lifted.map(k => this.label(k).replace(/ \(lifted\)$/, "")).join("; "))}</span>`);
     const html = lines.join("") + (this.st.power ? "" : '<span class="tbx-off">Power off</span>');
     if (html !== this.statusHTML) { this.el.status.innerHTML = html; this.statusHTML = html; }
   };
@@ -1192,11 +1485,13 @@
     const press = (sel, on) => r.querySelectorAll(sel).forEach(b => b.setAttribute("aria-pressed", on(b) ? "true" : "false"));
     press("[data-view]", b => b.getAttribute("data-view") === st.view);
     press("[data-tool]", b => b.getAttribute("data-tool") === st.tool);
-    press("[data-power]", b => (b.getAttribute("data-power") === "on") === st.power);
+    press("[data-power]", () => st.power);
     press("[data-next]", b => b.getAttribute("data-next") === st.next);
     press("[data-pmode]", b => b.getAttribute("data-pmode") === st.pmode);
     press("[data-pmem]", b => (b.getAttribute("data-pmem") === "1") === st.pmem);
     press("[data-act=flip]", () => st.side === "copper");
+    press("[data-input]", b => st.inputs[b.getAttribute("data-input")] === b.getAttribute("data-state"));
+    press("[data-act=sound]", () => this.sound);
     const meter = st.tool !== "probe";
     this.el.meter.hidden = !meter;
     this.el.probe.hidden = meter;
@@ -1227,6 +1522,8 @@
       this.F.layout.links.forEach((l, i) => { o += `<option value='${esc(JSON.stringify({ link: i + 1 }))}'>Link ${i + 1} (${esc(l.colour)})</option>`; });
     } else {
       for (const k of Object.keys(G.pins)) o += `<option value='${esc(JSON.stringify({ pt: k, kind: "pin" }))}'>${esc(this.label(k))}</option>`;
+      const ends = st.tool === "lift" ? this.F.layout.links.reduce((a, l) => a.concat(["link@" + l.a, "link@" + l.b]), []) : st.lifted.filter(isLinkEnd);
+      for (const k of ends) o += `<option value='${esc(JSON.stringify({ pt: k, kind: "lift" }))}'>${esc(this.label(k))}</option>`;
     }
     this.el.pick.innerHTML = o;
   };
@@ -1586,13 +1883,14 @@
       if (el.tbx) return;
       const q = new URLSearchParams(location.search);
       try {
+        /* ?scenario=greenhouse&fault=s3: any board, no jobs, for testing (§16) */
+        const free = q.get("scenario"), attr = n => free ? null : el.getAttribute(n);
         el.tbx = new Bench(el, {
-          scenario: el.getAttribute("data-test-bench"), fault: q.get("board") || el.getAttribute("data-fault") || "good",
-          seed: q.get("seed"), title: el.getAttribute("data-title"), sub: el.getAttribute("data-sub"),
-          should: el.getAttribute("data-should")
+          scenario: free || el.getAttribute("data-test-bench"), fault: q.get("fault") || q.get("board") || attr("data-fault") || "good",
+          seed: q.get("seed"), title: attr("data-title"), sub: attr("data-sub"), should: attr("data-should")
         });
         const jobs = el.getAttribute("data-jobs"), set = window.TBJobs && window.TBJobs[el.getAttribute("data-test-bench")];
-        if (jobs && set && !q.get("board")) el.tbx.startJobs(set, jobs.split(/[\s,]+/), (parseInt(q.get("job"), 10) || 1) - 1);
+        if (jobs && set && !q.get("board") && !q.get("scenario")) el.tbx.startJobs(set, jobs.split(/[\s,]+/), (parseInt(q.get("job"), 10) || 1) - 1);
       } catch (e) {
         el.textContent = "The test bench could not start: " + e.message;
         if (window.console) console.error(e);

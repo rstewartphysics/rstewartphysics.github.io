@@ -35,6 +35,13 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    /* What the bench screen says and allows (Phase 3.2, BENCH-PLAN §16). */
+    bench: {
+      title: "The flasher", sub: "555 astable practice board",
+      should: "<b>Should:</b> LED1 and LED2 take turns, about 0.7 s each.",
+      probe: "TTL", probeOnly: ["IC1.3"],
+      notLogic: { "IC1.2": "T4 is not a logic signal. It rises and falls smoothly between about 1.7 V and 3.3 V. Measure it with the meter on DCV 20." }
+    },
 
     faults: {
       s7:      { plan: "S7", name: "The pin 4 link is on the 0 V strip", edits: [{ link: "A8", to: "B8" }] },

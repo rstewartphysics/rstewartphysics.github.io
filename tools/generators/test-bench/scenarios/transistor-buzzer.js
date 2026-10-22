@@ -28,6 +28,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Buzzer alarm", sub: "Transistor switch board",
+      should: "<b>Should:</b> slide SW1 on and the buzzer sounds. Slide it off and it stops.",
+      probe: null, inputs: { SW1: { name: "SW1", words: { off: "Off", on: "On" } } }
+    },
     inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
 
     faults: {

@@ -27,6 +27,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Dark-activated light", sub: "Transistor and LDR board",
+      should: "<b>Should:</b> with the black cap on the LDR, LED1 lights. Under the lamp, LED1 is off.",
+      probe: null, inputs: { LDR: { name: "LDR", words: { light: "Lamp", covered: "Black cap" } } }
+    },
     inputs: { LDR: { states: { light: "light", covered: "covered" }, start: "light" } },
 
     faults: {
