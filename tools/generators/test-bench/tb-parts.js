@@ -166,7 +166,7 @@
       }
     },
 
-    /* NORP12 LDR on flying leads (teacher, 22 Oct 2026, M5): under the lamp
+    /* NORP12 LDR on the board (teacher, 22 Oct 2026, M5): under the lamp
        300-600 Ω; under its black cap 100 kΩ-1 MΩ. */
     ldr: {
       pins: ["1", "2"],

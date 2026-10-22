@@ -1,12 +1,10 @@
 // S2 · Dark-activated light (BENCH-PLAN §4). A bench board only.
 //
-// +5 V on tracks B and C (red link), 0 V on G and H (black link): two tracks
-// each, so the 10 kΩ (three tracks long) and the LDR's 2-way block (two
-// tracks) can each sit on either side of the base track E. Built right, R1 runs
-// B to E and the LDR's block E to G. The fault board is the same board with
-// the two swapped: the block C to E, R1 E to H.
-// Q1's collector (D) takes the LED's current: +5 V on B, LED1 up to A, R2 down
-// from A to D. The emitter (F) is linked to 0 V.
+// The LDR is on the board (teacher, 22 Oct 2026), as long as R1, so the fault
+// board is the same board with the two trading places.
+// +5 V on track B, 0 V on H. R1 runs B to E (the base), the LDR E to H. Q1's
+// collector (D) takes the LED's current: +5 V on B, LED1 up to A, R2 down from
+// A to D. The emitter (F) is linked to 0 V.
 
 const L = (a, b, colour) => ({ a, b, colour });
 
@@ -17,7 +15,7 @@ export const board = {
     { id: "+5V", footprint: "term-1", name: "+5 V supply", pos: true },
     { id: "0V", footprint: "term-1", name: "0 V supply", neg: true },
     { id: "R1", footprint: "res-4", name: "R1 (10 kΩ)" },
-    { id: "LDR", footprint: "term-2", name: "LDR (NORP12), off the board" },
+    { id: "LDR", footprint: "ldr-4", name: "LDR (NORP12)" },
     { id: "Q1", footprint: "npn-can", name: "Q1 BC548 (metal can)" },
     { id: "R2", footprint: "res-4", name: "R2 (270 Ω)" },
     { id: "LED1", footprint: "led-2", name: "LED1 red", colour: "red" }
@@ -34,16 +32,16 @@ export const board = {
       cuts: [],
       placements: [
         { id: "+5V", footprint: "term-1", at: "B2" },
-        { id: "0V", footprint: "term-1", at: "G2" },
-        { id: "R1", footprint: "res-4", at: "B6", rot: 90 },
-        { id: "LDR", footprint: "term-2", at: "E8", rot: 90 },
-        { id: "Q1", footprint: "npn-can", at: "D12" },          // c D12, b E13, e F12
-        { id: "LED1", footprint: "led-2", at: "A16", rot: 270 },
-        { id: "R2", footprint: "res-4", at: "A18", rot: 90 }
+        { id: "0V", footprint: "term-1", at: "H2" },
+        { id: "R1", footprint: "res-4", at: "B6", rot: 90 },      // B6 to E6
+        { id: "LDR", footprint: "ldr-4", at: "E8", rot: 90 },     // E8 to H8
+        { id: "Q1", footprint: "npn-can", at: "D12" },            // c D12, b E13, e F12
+        { id: "LED1", footprint: "led-2", at: "A16", rot: 270 },  // cathode A16, anode B16
+        { id: "R2", footprint: "res-4", at: "A18", rot: 90 }      // A18 to D18
       ],
-      links: [L("B4", "C4", "red"), L("G4", "H4", "black"), L("F15", "G15", "black")],
+      links: [L("F15", "H15", "black")],
       testpoints: [
-        { id: "T1", at: "C23" }, { id: "T2", at: "H23" },
+        { id: "T1", at: "B23" }, { id: "T2", at: "H23" },
         { id: "T3", at: "E24" }, { id: "T4", at: "D21" }
       ]
     } }

@@ -1,7 +1,7 @@
 /* ============================================================================
    Scenario board: S2 · Dark-activated light (BENCH-PLAN §4) · level 3
    ----------------------------------------------------------------------------
-   5 V. R1 10 kΩ from +5 V to the base; the LDR (NORP12, off the board) from
+   5 V. R1 10 kΩ from +5 V to the base; the LDR (NORP12, on the board) from
    the base to 0 V; LED1 and R2 270 Ω from +5 V to Q1's collector. T3 the
    base, T4 the collector. Input: the lamp on the LDR, or its black cap on
    (teacher, 22 Oct 2026, M5). Layout: boards/dark-light.mjs.
@@ -9,7 +9,7 @@
    Fault S2: the LDR and R1 are swapped. The light comes on in the light and
    goes off when covered: the opposite of the good board.
    Distractors: LED1 turned round (never on), Q1's collector dry (T3 changes,
-   T4 never drops), the LDR's lead loose (LED always on).
+   T4 never drops), a dry joint on the LDR (LED always on).
    ============================================================================ */
 (function (root) {
   "use strict";
@@ -31,12 +31,12 @@
 
     faults: {
       s2: { plan: "S2", name: "The LDR and R1 are swapped", edits: [
-        { place: "LDR", at: "C6", rot: 90 }, { place: "R1", at: "E8", rot: 90 }] }
+        { place: "LDR", at: "B6", rot: 90 }, { place: "R1", at: "E8", rot: 90 }] }
     },
     distractors: {
       ledrev:  { name: "LED1 is the wrong way round", edits: [{ turn: "LED1" }] },
       q1dead:  { name: "Q1's collector has a dry joint", edits: [{ dry: "Q1.c" }] },
-      ldropen: { name: "The LDR's lead is loose in its block", edits: [{ dry: "LDR.1" }] }
+      ldropen: { name: "The LDR has a dry joint", edits: [{ dry: "LDR.1" }] }
     },
 
     readings: {
