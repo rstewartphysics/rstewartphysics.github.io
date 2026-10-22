@@ -28,6 +28,15 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Guard and start", sub: "74HC08 AND gate board",
+      should: "<b>Should:</b> LED1 lights only when A and B are both on.",
+      probe: "CMOS",
+      inputs: {
+        A: { name: "A guard closed", words: { off: "Off", on: "On" } },
+        B: { name: "B start pressed", words: { off: "Off", on: "On" } }
+      }
+    },
     inputs: {
       A: { states: { off: "1", on: "2" }, start: "off" },
       B: { states: { off: "1", on: "2" }, start: "off" }

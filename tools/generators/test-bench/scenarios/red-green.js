@@ -26,6 +26,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Red or green", sub: "Slide switch board",
+      should: "<b>Should:</b> slide SW1 to red and LED1 (red) lights. Slide it to green and LED2 (green) lights.",
+      probe: null, inputs: { SW1: { name: "SW1", words: { red: "Red", green: "Green" } } }
+    },
     inputs: { SW1: { states: { red: "1", green: "2" }, start: "red" } },
 
     faults: {

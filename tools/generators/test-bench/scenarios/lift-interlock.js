@@ -30,6 +30,16 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Lift door interlock", sub: "74HC08 AND gate board",
+      should: "<b>Should:</b> LED1 (motor on) lights only when A, B and C are all on.",
+      probe: "CMOS",
+      inputs: {
+        A: { name: "A door closed", words: { off: "Off", on: "On" } },
+        B: { name: "B floor selected", words: { off: "Off", on: "On" } },
+        C: { name: "C not overloaded", words: { off: "Off", on: "On" } }
+      }
+    },
     inputs: {
       A: { states: { off: "1", on: "2" }, start: "off" },
       B: { states: { off: "1", on: "2" }, start: "off" },

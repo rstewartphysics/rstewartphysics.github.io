@@ -1049,6 +1049,13 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    /* What the bench screen says and allows (Phase 3.2, BENCH-PLAN §16). */
+    bench: {
+      title: "The flasher", sub: "555 astable practice board",
+      should: "<b>Should:</b> LED1 and LED2 take turns, about 0.7 s each.",
+      probe: "TTL", probeOnly: ["IC1.3"],
+      notLogic: { "IC1.2": "T4 is not a logic signal. It rises and falls smoothly between about 1.7 V and 3.3 V. Measure it with the meter on DCV 20." }
+    },
 
     faults: {
       s7:      { plan: "S7", name: "The pin 4 link is on the 0 V strip", edits: [{ link: "A8", to: "B8" }] },
@@ -1146,6 +1153,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Dark-activated light", sub: "Transistor and LDR board",
+      should: "<b>Should:</b> with the black cap on the LDR, LED1 lights. Under the lamp, LED1 is off.",
+      probe: null, inputs: { LDR: { name: "LDR", words: { light: "Lamp", covered: "Black cap" } } }
+    },
     inputs: { LDR: { states: { light: "light", covered: "covered" }, start: "light" } },
 
     faults: {
@@ -1226,6 +1238,17 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Greenhouse irrigation", sub: "74HC08 AND gate board",
+      should: "<b>Should:</b> the pump runs only when SD, TK and EN are all on.",
+      probe: "CMOS",
+      notLogic: { T5: "T5 is Q1's base. It sits at about 0.7 V when Q1 is on, which is not a logic level. Measure it with the meter on DCV 20." },
+      inputs: {
+        SD: { name: "SD soil dry", words: { off: "Off", on: "On" } },
+        TK: { name: "TK tank not empty", words: { off: "Off", on: "On" } },
+        EN: { name: "EN system on", words: { off: "Off", on: "On" } }
+      }
+    },
     inputs: {
       SD: { states: { off: "1", on: "2" }, start: "off" },
       TK: { states: { off: "1", on: "2" }, start: "off" },
@@ -1308,6 +1331,15 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Guard and start", sub: "74HC08 AND gate board",
+      should: "<b>Should:</b> LED1 lights only when A and B are both on.",
+      probe: "CMOS",
+      inputs: {
+        A: { name: "A guard closed", words: { off: "Off", on: "On" } },
+        B: { name: "B start pressed", words: { off: "Off", on: "On" } }
+      }
+    },
     inputs: {
       A: { states: { off: "1", on: "2" }, start: "off" },
       B: { states: { off: "1", on: "2" }, start: "off" }
@@ -1392,6 +1424,16 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Lift door interlock", sub: "74HC08 AND gate board",
+      should: "<b>Should:</b> LED1 (motor on) lights only when A, B and C are all on.",
+      probe: "CMOS",
+      inputs: {
+        A: { name: "A door closed", words: { off: "Off", on: "On" } },
+        B: { name: "B floor selected", words: { off: "Off", on: "On" } },
+        C: { name: "C not overloaded", words: { off: "Off", on: "On" } }
+      }
+    },
     inputs: {
       A: { states: { off: "1", on: "2" }, start: "off" },
       B: { states: { off: "1", on: "2" }, start: "off" },
@@ -1468,6 +1510,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Red or green", sub: "Slide switch board",
+      should: "<b>Should:</b> slide SW1 to red and LED1 (red) lights. Slide it to green and LED2 (green) lights.",
+      probe: null, inputs: { SW1: { name: "SW1", words: { red: "Red", green: "Green" } } }
+    },
     inputs: { SW1: { states: { red: "1", green: "2" }, start: "red" } },
 
     faults: {
@@ -1541,6 +1588,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Switch and LED", sub: "Slide switch board",
+      should: "<b>Should:</b> slide SW1 on and LED1 lights.",
+      probe: null, inputs: { SW1: { name: "SW1", words: { off: "Off", on: "On" } } }
+    },
     inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
 
     faults: {
@@ -1615,6 +1667,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Tank empty warning", sub: "74HC04 NOT gate board",
+      should: "<b>Should:</b> LED1 lights when SW1 is off (the tank is empty), and goes off when SW1 is on.",
+      probe: "CMOS", inputs: { SW1: { name: "SW1 float switch", words: { off: "Off", on: "On" } } }
+    },
     inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
 
     faults: {
@@ -1690,6 +1747,11 @@
     },
     supply: { pos: "+5V.1", neg: "0V.1" },
     supplyTP: "T1", ground: "T2",
+    bench: {
+      title: "Buzzer alarm", sub: "Transistor switch board",
+      should: "<b>Should:</b> slide SW1 on and the buzzer sounds. Slide it off and it stops.",
+      probe: null, inputs: { SW1: { name: "SW1", words: { off: "Off", on: "On" } } }
+    },
     inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
 
     faults: {
