@@ -88,6 +88,30 @@
     green: { vf: [2.00, 2.20] }
   };
 
+  /* Pin roles from the data sheets (the engine's GATES table, sbd-engine.js). */
+  const QUAD = [[["1", "2"], "3"], [["4", "5"], "6"], [["9", "10"], "8"], [["12", "13"], "11"]];
+  const HEX = [[["1"], "2"], [["3"], "4"], [["5"], "6"], [["9"], "8"], [["11"], "10"], [["13"], "12"]];
+  const LOGIC = { and: v => v.every(Boolean), nand: v => !v.every(Boolean), not: v => !v[0] };
+  const CHIP_PRINT = { hc08: "74HC08", hc00: "74HC00", hc04: "74HC04" };
+  function hc(kind) {
+    const gates = (kind === "not" ? HEX : QUAD).map(([ins, out]) => ({ ins, out }));
+    return {
+      pins: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"],
+      build: "hc", kind, gates, logic: LOGIC[kind],
+      draw(value, u, id) {
+        const pick = {};
+        for (const g of gates) for (const p of g.ins) pick[p] = {
+          f1: span(u(id + ".f1." + p), 0.6, 1.3), f2: span(u(id + ".f2." + p), 2.0, 3.1),
+          p1: span(u(id + ".p1." + p), 0, 6.283), p2: span(u(id + ".p2." + p), 0, 6.283)
+        };
+        return { kth: span(u(id + ".kth"), 0.45, 0.55), roh: span(u(id + ".roh"), 35, 60),
+                 rol: span(u(id + ".rol"), 25, 45), rpick: 5e6, pick };
+      }
+    };
+  }
+  /* What a floating input picks up at time t (s). */
+  const pickup = (pk, t) => 2.8 + 1.5 * (0.6 * Math.sin(6.283 * pk.f1 * t + pk.p1) + 0.4 * Math.sin(6.283 * pk.f2 * t + pk.p2));
+
   const PARTS = {
     res: {
       pins: ["1", "2"],
@@ -115,6 +139,63 @@
         Rleak: span(u(id + ".leak"), 2e6, 20e6) * (100e-6 / value)
       })
     },
+
+    /* A slide switch (SPDT): the middle pin joins one outer pin or the other,
+       through a few tens of milliohms of contact. */
+    spdt: {
+      pins: ["1", "c", "2"],
+      draw: (value, u, id) => ({ rc: span(u(id + ".rc"), 0.01, 0.05) })
+    },
+
+    /* BC548 (Ebers–Moll), plan §2.1: β 110-450, VBE 0.62-0.72 V at 2 mA, and
+       a few ohms in the collector so VCE(sat) is 0.05-0.20 V at buzzer currents. */
+    npn: {
+      pins: ["c", "b", "e"],
+      draw(value, u, id) {
+        const nvt = 0.0259, vbe = span(u(id + ".vbe"), 0.62, 0.72);
+        return { nvt, is: 2e-3 / Math.exp(vbe / nvt), vbe2: vbe, bf: span(u(id + ".bf"), 110, 450),
+                 br: span(u(id + ".br"), 2, 8), rc: span(u(id + ".rc"), 1.5, 5) };
+      }
+    },
+
+    /* An active 5 V piezo buzzer (teacher, 21 Oct 2026, K1): it has its own
+       oscillator inside, so it is not a resistor. A soft knee near 1.4-1.9 V,
+       20-30 mA at 5 V, silent below about 3 V. Reversed, only a leak flows. */
+    buzzer: {
+      pins: ["+", "-"],
+      draw(value, u, id) {
+        const nvt = 0.2, vk = span(u(id + ".vk"), 1.4, 1.9), i5 = span(u(id + ".i5"), 0.020, 0.030);
+        const is = 1e-3 / Math.expm1(vk / nvt), vd5 = nvt * Math.log(i5 / is + 1);
+        return { nvt, is, rs: (5 - vd5) / i5, i5, vsound: span(u(id + ".vs"), 2.8, 3.2),
+                 rleak: span(u(id + ".leak"), 150e3, 400e3) };
+      }
+    },
+
+    /* NORP12 LDR on the board (teacher, 22 Oct 2026, M5): under the lamp
+       300-600 Ω; under its black cap 100 kΩ-1 MΩ. */
+    ldr: {
+      pins: ["1", "2"],
+      draw: (value, u, id) => ({
+        light: span(u(id + ".light"), 300, 600),
+        covered: Math.exp(span(u(id + ".dark"), Math.log(100e3), Math.log(1e6)))
+      })
+    },
+
+    /* The 5 V pump, off the board (K2): a small DC motor, 60-100 mA running.
+       It turns once 30 mA flows. */
+    pump: {
+      pins: ["1", "2"],
+      draw: (value, u, id) => ({ R: span(u(id + ".r"), 50, 80), run: 0.03 })
+    },
+
+    /* 74HC chips. Outputs switch to pin 14 or pin 7 through tens of ohms; an
+       input switches at about half the supply and draws nothing. An input
+       joined to nothing picks up the board around it (plan §2: "drifts"), shown
+       here as a source of 1.3-4.3 V that wanders, behind 5 MΩ: a 10 kΩ pull-
+       down holds it under 0.01 V; a meter on it reads 1-3 V and wanders; the
+       gate behind it switches on its own. Unpowered, the chip is dead
+       (teacher, 22 Oct 2026, M2). */
+    hc08: hc("and"), hc00: hc("nand"), hc04: hc("not"),
 
     /* The bench supply: "5 V" is 4.95-5.08 V and sags 0.01-0.03 V on load. */
     supply: {
@@ -211,7 +292,7 @@
     return 0;   // ACV / ACA on a DC circuit; hFE with nothing in its socket
   }
 
-  TB.parts = { draws, stream, span, PARTS, LED_COLOURS, COLOURS, bandsOf, valueOfBands, ohmsText, faradsText };
+  TB.parts = { draws, stream, span, PARTS, LED_COLOURS, COLOURS, CHIP_PRINT, pickup, bandsOf, valueOfBands, ohmsText, faradsText };
   TB.meter = {
     DIAL, FMT, element: meterElement, display, value: meterValue,
     BEEP_BELOW: 50,              // continuity: OHM 200 beeps below 50 Ω
@@ -222,8 +303,10 @@
 
   /* The logic probe, powered from its clips (plan §2): Hi above 2.0 V, Lo below
      0.8 V on TTL; 70 % / 30 % of its supply on CMOS. Dead below 4 V. The pulse
-     LED stays lit 0.1 s after any change. */
-  TB.probe = { DRAW: 500, TIP: 1e6, MIN_SUPPLY: 4.0, PULSE: 0.1,
+     LED stays lit 0.1 s after any change. Its tip sits at 35 % of its supply
+     through 1 MΩ, between the Lo and Hi levels in either mode, so a point
+     joined to nothing lights neither LED, as a real probe does. */
+  TB.probe = { DRAW: 500, TIP: 1e6, BIAS: 0.35, MIN_SUPPLY: 4.0, PULSE: 0.1,
     TTL: [0.8, 2.0], CMOS: [0.3, 0.7] };
 
   /* An LED's look from its current. Below 20 µA it is too dim to see; up to
@@ -306,6 +389,7 @@
   function keyOf(net, name) {
     if (!name) return null;            // a lead not on the board yet
     if (/^T\d+$/.test(name)) return "tp:" + name;
+    if (name.indexOf("link@") === 0) return "end:" + name.slice(5);   // a lifted link's free end
     if (name.indexOf(".") > 0) return "pin:" + name;
     return net.seg(name);
   }
@@ -346,6 +430,36 @@
       addI(I, k, a, id - gd * vd);
     }, current: x => iv(V(x, a) - V(x, k))[0] };
   }
+  /* exp(v / nvt) and its slope, carried on in a straight line past `vmax` so
+     a wild Newton step cannot overflow. */
+  function expLim(nvt, vmax) {
+    const em = Math.exp(vmax / nvt);
+    return v => v > vmax ? [em * (1 + (v - vmax) / nvt), em / nvt] : [Math.exp(v / nvt), Math.exp(v / nvt) / nvt];
+  }
+  /* An NPN transistor (Ebers–Moll, transport form) between nodes c, b, e. */
+  function npn(c, b, e, P) {
+    const F = expLim(P.nvt, P.nvt * Math.log(1 / P.is));
+    const parts = x => {
+      const vbe = V(x, b) - V(x, e), vbc = V(x, b) - V(x, c);
+      const [fe, de] = F(vbe), [fc, dc] = F(vbc);
+      return { vbe, vbc, fe, de, fc, dc };
+    };
+    return { stamp(G, I, x, cc) {
+      const n = cc.n, s = parts(x), is = P.is;
+      // the two junctions, as diodes b->e and b->c
+      const ibe = is / P.bf * (s.fe - 1), gbe = is / P.bf * s.de + 1e-12;
+      const ibc = is / P.br * (s.fc - 1), gbc = is / P.br * s.dc + 1e-12;
+      addG(G, n, b, e, gbe); addI(I, e, b, ibe - gbe * s.vbe);
+      addG(G, n, b, c, gbc); addI(I, c, b, ibc - gbc * s.vbc);
+      // the transport current, c to e inside the transistor
+      const it = is * (s.fe - s.fc), gf = is * s.de, gr = is * s.dc;
+      const put = (r, k, g) => { if (r >= 0 && k >= 0) G[r * n + k] += g; };
+      put(c, b, gf - gr); put(c, e, -gf); put(c, c, gr);
+      put(e, b, -(gf - gr)); put(e, e, gf); put(e, c, -gr);
+      addI(I, e, c, it - gf * s.vbe + gr * s.vbc);
+    }, ic(x) { const s = parts(x); return P.is * (s.fe - s.fc) - P.is / P.br * (s.fc - 1); } };
+  }
+
   /* Over a step h a capacitor is a conductance plus a source set by its last
      voltage v (and current i). Trapezoidal steps for accuracy; backward Euler
      for the instant re-solve after a switch, which also resets i cleanly (a
@@ -402,6 +516,80 @@
       C.add(resistor(pin("a"), mid, P.rs));
       C.add(d);
       C.leds.push({ id, colour: P.colour, el: d });
+    },
+
+    /* The position is an input: st.pos is the outer pin the middle pin joins.
+       Stuck: the contacts stay at one pin whatever the slider says. Open: they
+       never meet. */
+    spdt(C, pin, P, shorted, id) {
+      const st = C.inputs[id] = { pos: null }, stuck = C.F.stuck[id], open = C.F.opened.has(id);
+      for (const k of ["1", "2"])
+        C.add(resistor(pin("c"), pin(k), P.rc, () => !open && (shorted || (stuck || st.pos) === k)));
+    },
+
+    npn(C, pin, P) {
+      const ci = C.inner();
+      C.add(resistor(pin("c"), ci, P.rc));
+      C.add(npn(ci, pin("b"), pin("e"), P));
+    },
+
+    buzzer(C, pin, P, shorted, id) {
+      const a = pin("+"), k = pin("-");
+      if (shorted) { C.add(resistor(a, k, 0.05)); return; }
+      const mid = C.inner();
+      C.add(resistor(a, mid, P.rs));
+      C.add(diode(mid, k, P));
+      C.add(resistor(a, k, P.rleak));
+      C.loads.push({ id, kind: "buzzer", look: x => {
+        const v = V(x, a) - V(x, k);
+        return { on: v >= P.vsound, volts: v, current: (v - (V(x, mid) - V(x, k))) / P.rs + v / P.rleak };
+      } });
+    },
+
+    /* Light on it or its cap on: an input, like a switch. */
+    ldr(C, pin, P, shorted, id) {
+      const st = C.inputs[id] = { pos: null };
+      C.add(resistor(pin("1"), pin("2"), P.light, () => st.pos === "light"));
+      C.add(resistor(pin("1"), pin("2"), P.covered, () => st.pos === "covered"));
+    },
+
+    pump(C, pin, P, shorted, id) {
+      const a = pin("1"), k = pin("2");
+      C.add(resistor(a, k, shorted ? 0.05 : P.R));
+      C.loads.push({ id, kind: "pump", look: x => {
+        const i = (V(x, a) - V(x, k)) / P.R;
+        return { on: Math.abs(i) >= P.run, current: i, volts: V(x, a) - V(x, k) };
+      } });
+    },
+
+    hc(C, pin, P, shorted, id, M) {
+      const p = {}; for (const k of M.pins) p[k] = pin(k);
+      const st = { powered: false, q: M.gates.map(() => null) };
+      const rel = (x, k) => V(x, p[k]) - V(x, p["7"]);
+      M.gates.forEach((g, i) => {
+        C.add(resistor(p["14"], p[g.out], P.roh, () => st.q[i] === true));
+        C.add(resistor(p[g.out], p["7"], P.rol, () => st.q[i] === false));
+        for (const k of g.ins) {
+          const a = p[k], pk = P.pick[k];
+          if (a < 0) continue;
+          C.add({ stamp(G, I, x, c) {
+            addG(G, c.n, a, -1, 1 / P.rpick);
+            addI(I, a, -1, TB.parts.pickup(pk, C.time) / P.rpick);
+          } });
+        }
+      });
+      C.devices.push({
+        state: st,
+        event: () => null,
+        commit(x) {
+          const vcc = rel(x, "14"), was = st.q.join();
+          // it wakes at 2 V and stays awake down to 1.2 V, so a chip fed through
+          // an ohmmeter settles instead of flicking on and off every step
+          st.powered = vcc >= (st.powered ? 1.2 : 2);
+          st.q = M.gates.map(g => st.powered ? M.logic(g.ins.map(k => rel(x, k) > P.kth * vcc)) : null);
+          return st.q.join() !== was;
+        }
+      });
     },
 
     ecap(C, pin, P, shorted) {
@@ -465,7 +653,8 @@
     this.ground = net.dsu.find(groundKey);
     this.index = new Map();
     this.n = 0;
-    this.els = []; this.caps = []; this.leds = []; this.devices = [];
+    this.els = []; this.caps = []; this.leds = []; this.loads = []; this.devices = []; this.inputs = {};
+    this.time = 0;
     this.x = new Float64Array(0);
   }
   Circuit.prototype.node = function (key) {
@@ -498,24 +687,39 @@
     return x;   // the last iterate: close enough for a reading
   };
 
-  /* bench(scenarioId, { fault, seed }) — one board, powered off, at t = 0. */
+  /* bench(scenarioId, { fault, seed, lift }) — one board, powered off, at t = 0.
+     lift: legs ("R1.1") and link ends ("link@H19") the pupil has lifted off the
+     copper, to measure a part on its own or put the meter in series. */
   function bench(id, opts) {
     opts = opts || {};
     const sc = TB.SCENARIOS[id];
     if (!sc) throw new Error("test bench: no scenario " + id);
     const F = TB.faults.apply(sc, opts.fault || "good");
+    for (const k of opts.lift || []) F.dry.add(k);
     const net = connect(F.layout, F);
     const C = new Circuit(net, "pin:" + sc.supply.neg);
+    C.F = F;
     const d = TB.parts.draws(opts.seed == null ? "mid" : opts.seed);
     const touch = TB.parts.stream(d.seed + "|" + (opts.fault || "good"));
     const parts = {};
 
     for (const [pid, spec] of Object.entries(sc.parts)) {
-      const model = TB.parts.PARTS[spec.model];
+      const name = F.models[pid] || spec.model, model = TB.parts.PARTS[name];
       const P = model.draw(F.values[pid], d.u, pid, spec);
-      parts[pid] = Object.assign({ model: spec.model, value: F.values[pid] }, P);
-      BUILD[spec.model](C, k => C.node("pin:" + pid + "." + k), P, F.shorted.has(pid), pid);
+      parts[pid] = Object.assign({ model: name, value: F.values[pid] }, P);
+      BUILD[model.build || name](C, k => C.node("pin:" + pid + "." + k), P, F.shorted.has(pid), pid, model);
     }
+    const inputs = sc.inputs || {};
+    for (const [id, inp] of Object.entries(inputs)) C.inputs[id].pos = inp.states[inp.start];
+    /* set("SW1", "on"): a switch slid, an LDR covered. */
+    function set(id, s) {
+      const inp = inputs[id];
+      if (!inp || !(s in inp.states)) throw new Error("test bench: no input " + id + " " + s);
+      C.inputs[id].pos = inp.states[s];
+      settle();
+    }
+    const now = id => { const inp = inputs[id], p = C.inputs[id].pos; return Object.keys(inp.states).find(k => inp.states[k] === p); };
+
     const psu = TB.parts.PARTS.supply.draw(5, d.u, "PSU");
     const state = { on: false, t: 0, h: 1e-4 };
     C.add(thevenin(C.node("pin:" + sc.supply.pos), -1, psu.V, psu.Rint, () => state.on));
@@ -537,7 +741,7 @@
       return out;
     }
 
-    const step = (h, tr) => C.solve(h, instruments(), tr);
+    const step = (h, tr) => { C.time = state.t + (isFinite(h) ? h : 0); return C.solve(h, instruments(), tr); };
     function commit(x, h, tr) {
       C.x = x;
       for (const cap of C.caps) cap.commit(x, { h, tr });
@@ -632,11 +836,12 @@
       const red = where(o.red || sc.supplyTP), black = where(o.black || sc.ground), tip = where(o.tip);
       const mode = o.mode || "TTL", P = TB.probe;
       const pr = {
-        draw: resistor(red, black, P.DRAW), tip: tip === null ? resistor(black, black, 1) : resistor(tip, black, P.TIP),
+        draw: resistor(red, black, P.DRAW), tip: tip === null ? resistor(black, black, 1) : thevenin(tip, black, 0, P.TIP),
         level: null, last: -Infinity, live: false, hi: false, lo: false,
         sample(x, t) {
           const vs = V(x, red) - V(x, black), vt = tip === null ? NaN : V(x, tip) - V(x, black);
           pr.live = vs >= P.MIN_SUPPLY;
+          if (tip !== null) pr.tip.v = pr.live ? P.BIAS * vs : 0;
           const [lo, hi] = mode === "CMOS" ? [P.CMOS[0] * vs, P.CMOS[1] * vs] : P.TTL;
           const lv = !pr.live || isNaN(vt) ? null : vt >= hi ? "hi" : vt <= lo ? "lo" : null;
           if (pr.level !== null && lv !== null && lv !== pr.level) pr.last = t;
@@ -663,6 +868,13 @@
       return out;
     }
 
+    /* The buzzer and the pump: sounding or running, and their current. */
+    function loads() {
+      const out = {};
+      for (const L of C.loads) out[L.id] = Object.assign({ kind: L.kind }, C.x.length ? L.look(C.x) : { on: false, current: 0, volts: 0 });
+      return out;
+    }
+
     /* For the tests: hang 10 MΩ voltmeters on many points at once (each to 0 V)
        and read the raw node voltages. */
     function voltmeters(names) {
@@ -674,8 +886,8 @@
     return {
       scenario: sc, fault: F, parts, psu, seed: d.seed,
       get t() { return state.t; }, get on() { return state.on; },
-      power, run: advance, meter: useMeter, read: readMeter, probe: useProbe, probeRead: readProbe,
-      leds, voltmeters, volts, pinHole: net.pinHole,
+      power, run: advance, set, input: now, meter: useMeter, read: readMeter, probe: useProbe, probeRead: readProbe,
+      leds, loads, voltmeters, volts, pinHole: net.pinHole,
       latch: () => C.devices.map(dv => Object.assign({}, dv.state))
     };
   }
@@ -701,6 +913,10 @@
      { short: "C1" }               a part shorted inside
      { bridge: ["F3", "G3"] }      a solder bridge between two holes' strips
      { uncut: "F14" }              a track cut that was never made
+     { chip: "IC1", to: "hc00" }   the wrong chip fitted (same pins, wrong gates)
+     { stuck: "SW1", at: "2" }     a slide switch stuck at one pin
+     { open: "SW1" }               a switch whose contacts never meet
+     { place: "R1", at: "E8", rot: 90 }  a part fitted somewhere else
    ============================================================================ */
 (function (root) {
   "use strict";
@@ -725,7 +941,18 @@
     },
     short(F, e) { F.shorted.add(e.short); },
     bridge(F, e) { F.bridges.push(e.bridge.slice()); },
-    uncut(F, e) { F.layout.cuts = F.layout.cuts.filter(c => c !== e.uncut); }
+    uncut(F, e) { F.layout.cuts = F.layout.cuts.filter(c => c !== e.uncut); },
+    chip(F, e) {
+      if (!TB.parts.PARTS[e.to]) throw new Error("fault edit: no chip " + e.to);
+      F.models[e.chip] = e.to;
+    },
+    stuck(F, e) { F.stuck[e.stuck] = e.at; },
+    open(F, e) { F.opened.add(e.open); },
+    place(F, e) {
+      const p = F.layout.placements.find(k => k.id === e.place);
+      if (!p) throw new Error("fault edit: no part " + e.place);
+      p.at = e.at; p.rot = e.rot || 0;
+    }
   };
   const kindOf = e => Object.keys(EDIT).find(k => k in e);
 
@@ -733,7 +960,8 @@
      dry joints, bridges and shorted parts, and what each resistor's bands and
      each capacitor's print now say (for drawing). */
   function apply(sc, id) {
-    const F = { id, layout: clone(sc.layout), values: {}, dry: new Set(), bridges: [], shorted: new Set(), edits: [] };
+    const F = { id, layout: clone(sc.layout), values: {}, models: {}, dry: new Set(), bridges: [], shorted: new Set(),
+                stuck: {}, opened: new Set(), edits: [] };
     for (const [pid, p] of Object.entries(sc.parts)) F.values[pid] = p.value;
     if (id && id !== "good") {
       const f = sc.faults[id] || (sc.distractors || {})[id];
@@ -749,6 +977,8 @@
     for (const [pid, p] of Object.entries(sc.parts)) {
       if (p.model === "res") F.bands[pid] = TB.parts.bandsOf(F.values[pid]);
       if (p.model === "ecap") F.printed[pid] = TB.parts.faradsText(F.values[pid]);
+      const chip = TB.parts.CHIP_PRINT[F.models[pid] || p.model];
+      if (chip) F.printed[pid] = chip;
     }
     return F;
   }
@@ -779,8 +1009,8 @@
   TB.faults = { apply, wiringCheck, EDIT };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
-/* ---- layouts (from tools/build-guides/circuits.mjs) ---- */
-(function (root) { (root.TB = root.TB || {}).LAYOUTS = {"555-astable":{"layout":{"board":"34-0411","cuts":["F14","G14","H14","I14"],"placements":[{"id":"+5V","footprint":"term-1","at":"A2","rot":0},{"id":"0V","footprint":"term-1","at":"B2","rot":0},{"id":"IC1","footprint":"dip-8","at":"F12","rot":0},{"id":"R1","footprint":"res-7","at":"A20","rot":90},{"id":"R2","footprint":"res-4","at":"G19","rot":90},{"id":"C1","footprint":"ecap-2","at":"U6","rot":90},{"id":"R4","footprint":"res-4","at":"K11","rot":90},{"id":"LED2","footprint":"led-2","at":"N13","rot":90},{"id":"R3","footprint":"res-4","at":"O11","rot":90},{"id":"LED1","footprint":"led-2","at":"R13","rot":90}],"links":[{"a":"B1","b":"V1","colour":"black"},{"a":"A8","b":"I8","colour":"red"},{"a":"A16","b":"F16","colour":"red"},{"a":"F10","b":"V10","colour":"black"},{"a":"G9","b":"U9","colour":"yellow"},{"a":"H17","b":"U17","colour":"yellow"},{"a":"H18","b":"J18","colour":"yellow"},{"a":"I7","b":"K7","colour":"red"},{"a":"S15","b":"V15","colour":"black"},{"a":"H6","b":"O6","colour":"blue"}],"testpoints":[{"id":"T1","at":"A30"},{"id":"T2","at":"V30"},{"id":"T3","at":"H5"},{"id":"T4","at":"G3"}]},"question":{"id":"555-astable","board":"34-0411","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"IC1","footprint":"dip-8","part":"555","name":"IC1 — 555 timer"},{"id":"R1","footprint":"res-4","name":"R1 (1 kΩ)"},{"id":"R2","footprint":"res-4","name":"R2 (10 kΩ)"},{"id":"C1","footprint":"ecap-2","name":"C1 (100 µF)"},{"id":"R3","footprint":"res-4","name":"R3 (270 Ω)"},{"id":"R4","footprint":"res-4","name":"R4 (270 Ω)"},{"id":"LED1","footprint":"led-2","name":"LED1 red","colour":"red"},{"id":"LED2","footprint":"led-2","name":"LED2 green","colour":"green"}],"target":[["+5V.1","IC1.8","IC1.4","R1.1","R4.1"],["0V.1","IC1.1","C1.-","LED1.k"],["R1.2","R2.1","IC1.7"],["R2.2","IC1.6","IC1.2","C1.+"],["IC1.3","R3.1","LED2.k"],["R3.2","LED1.a"],["R4.2","LED2.a"]],"dontcare":["IC1.5"]},"diagram":{"w":440,"h":324,"svg":"<rect class=\"sbd-part\" x=\"185\" y=\"105\" width=\"70\" height=\"110\" rx=\"2\"/><text class=\"sbd-cnet\" x=\"191\" y=\"122.2\" text-anchor=\"start\">7</text><text class=\"sbd-cnet\" x=\"191\" y=\"177.2\" text-anchor=\"start\">6</text><text class=\"sbd-cnet\" x=\"191\" y=\"203.6\" text-anchor=\"start\">2</text><text class=\"sbd-cnet\" x=\"249\" y=\"164\" text-anchor=\"end\">3</text><text class=\"sbd-cnet\" x=\"209.5\" y=\"118\" text-anchor=\"middle\">4</text><text class=\"sbd-cnet\" x=\"239.6\" y=\"118\" text-anchor=\"middle\">8</text><text class=\"sbd-cnet\" x=\"209.5\" y=\"210\" text-anchor=\"middle\">1</text><text class=\"sbd-cnet\" x=\"239.6\" y=\"210\" text-anchor=\"middle\">5</text><text class=\"sbd-clab\" x=\"220\" y=\"164\" text-anchor=\"middle\">555</text><polyline class=\"sbd-pos\" points=\"26,24 420,24\"/><text class=\"sbd-poslab\" x=\"26\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"26,300 420,300\"/><text class=\"sbd-clab\" x=\"26\" y=\"318\" text-anchor=\"start\">0 V</text><polyline class=\"sbd-pos\" points=\"239.6,105 239.6,24\"/><circle class=\"sbd-node\" cx=\"239.6\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"209.5,105 209.5,24\"/><circle class=\"sbd-node\" cx=\"209.5\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"209.5,215 209.5,300\"/><circle class=\"sbd-node\" cx=\"209.5\" cy=\"300\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"110,24 110,40\"/><polyline class=\"sbd-wire\" points=\"110,40 110,96\"/><rect class=\"sbd-part\" x=\"102\" y=\"46\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"96\" y=\"65\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"96\" y=\"80\" text-anchor=\"end\">1 kΩ</text><polyline class=\"sbd-wire\" points=\"110,96 110,118.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"118.2\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,118.2 185,118.2\"/><polyline class=\"sbd-wire\" points=\"110,119 110,173\"/><rect class=\"sbd-part\" x=\"102\" y=\"124\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"96\" y=\"143\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"96\" y=\"158\" text-anchor=\"end\">10 kΩ</text><circle class=\"sbd-node\" cx=\"110\" cy=\"173.2\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,173.2 185,173.2\"/><polyline class=\"sbd-wire\" points=\"110,173.2 110,212\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"199.6\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,199.6 185,199.6\"/><polyline class=\"sbd-wire\" points=\"110,212 110,236\"/><polyline class=\"sbd-wire\" points=\"110,244 110,268\"/><line class=\"sbd-wire\" x1=\"99\" y1=\"236\" x2=\"121\" y2=\"236\"/><line class=\"sbd-wire\" x1=\"99\" y1=\"244\" x2=\"121\" y2=\"244\"/><text class=\"sbd-clab\" x=\"94\" y=\"232\" text-anchor=\"end\">+</text><text class=\"sbd-clab\" x=\"127\" y=\"237\" text-anchor=\"start\">C1</text><text class=\"sbd-clab\" x=\"127\" y=\"252\" text-anchor=\"start\">100 µF</text><polyline class=\"sbd-wire\" points=\"110,268 110,300\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"300\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"255,160 330,160\"/><circle class=\"sbd-node\" cx=\"330\" cy=\"160\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"330\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"330,24 330,36\"/><polyline class=\"sbd-wire\" points=\"330,36 330,84\"/><rect class=\"sbd-part\" x=\"322\" y=\"38\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"316\" y=\"57\" text-anchor=\"end\">R4</text><text class=\"sbd-clab\" x=\"316\" y=\"72\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"330,84 330,96\"/><polyline class=\"sbd-wire\" points=\"330,96 330,128\"/><polygon class=\"sbd-part\" points=\"317,99 343,99 330,125\"/><line class=\"sbd-wire\" x1=\"317\" y1=\"125\" x2=\"343\" y2=\"125\"/><polyline class=\"sbd-wire\" points=\"347,107 354.88,99.12\"/><polygon class=\"sbd-node\" points=\"357,97 348.13,100.39 353.61,105.87\"/><polyline class=\"sbd-wire\" points=\"347,118 354.88,110.12\"/><polygon class=\"sbd-node\" points=\"357,108 348.13,111.39 353.61,116.87\"/><text class=\"sbd-clab\" x=\"367\" y=\"116\" text-anchor=\"start\">LED2 green</text><polyline class=\"sbd-wire\" points=\"330,128 330,176\"/><polyline class=\"sbd-wire\" points=\"330,176 330,224\"/><rect class=\"sbd-part\" x=\"322\" y=\"178\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"316\" y=\"197\" text-anchor=\"end\">R3</text><text class=\"sbd-clab\" x=\"316\" y=\"212\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"330,224 330,236\"/><polyline class=\"sbd-wire\" points=\"330,236 330,268\"/><polygon class=\"sbd-part\" points=\"317,239 343,239 330,265\"/><line class=\"sbd-wire\" x1=\"317\" y1=\"265\" x2=\"343\" y2=\"265\"/><polyline class=\"sbd-wire\" points=\"347,247 354.88,239.12\"/><polygon class=\"sbd-node\" points=\"357,237 348.13,240.39 353.61,245.87\"/><polyline class=\"sbd-wire\" points=\"347,258 354.88,250.12\"/><polygon class=\"sbd-node\" points=\"357,248 348.13,251.39 353.61,256.87\"/><text class=\"sbd-clab\" x=\"367\" y=\"256\" text-anchor=\"start\">LED1 red</text><polyline class=\"sbd-wire\" points=\"330,268 330,300\"/><circle class=\"sbd-node\" cx=\"330\" cy=\"300\" r=\"3.2\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"395\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"395\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"395\" cy=\"300\" r=\"6\"/><text class=\"sbd-tpl\" x=\"395\" y=\"290\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"290\" cy=\"160\" r=\"6\"/><text class=\"sbd-tpl\" x=\"290\" y=\"150\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"150\" cy=\"199.6\" r=\"6\"/><text class=\"sbd-tpl\" x=\"150\" y=\"189.6\" text-anchor=\"middle\">T4</text></g>","at":{"IC1.1":[209.5,215],"IC1.2":[185,199.6],"IC1.3":[255,160],"IC1.4":[209.5,105],"IC1.5":[239.6,215],"IC1.6":[185,173.2],"IC1.7":[185,118.2],"IC1.8":[239.6,105],"T1":[395,24],"T2":[395,300],"T3":[290,160],"T4":[150,199.6]}}}}; })(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- layouts (from tools/build-guides/circuits.mjs and boards/) ---- */
+(function (root) { (root.TB = root.TB || {}).LAYOUTS = {"555-astable":{"layout":{"board":"34-0411","cuts":["F14","G14","H14","I14"],"placements":[{"id":"+5V","footprint":"term-1","at":"A2","rot":0},{"id":"0V","footprint":"term-1","at":"B2","rot":0},{"id":"IC1","footprint":"dip-8","at":"F12","rot":0},{"id":"R1","footprint":"res-7","at":"A20","rot":90},{"id":"R2","footprint":"res-4","at":"G19","rot":90},{"id":"C1","footprint":"ecap-2","at":"U6","rot":90},{"id":"R4","footprint":"res-4","at":"K11","rot":90},{"id":"LED2","footprint":"led-2","at":"N13","rot":90},{"id":"R3","footprint":"res-4","at":"O11","rot":90},{"id":"LED1","footprint":"led-2","at":"R13","rot":90}],"links":[{"a":"B1","b":"V1","colour":"black"},{"a":"A8","b":"I8","colour":"red"},{"a":"A16","b":"F16","colour":"red"},{"a":"F10","b":"V10","colour":"black"},{"a":"G9","b":"U9","colour":"yellow"},{"a":"H17","b":"U17","colour":"yellow"},{"a":"H18","b":"J18","colour":"yellow"},{"a":"I7","b":"K7","colour":"red"},{"a":"S15","b":"V15","colour":"black"},{"a":"H6","b":"O6","colour":"blue"}],"testpoints":[{"id":"T1","at":"A30"},{"id":"T2","at":"V30"},{"id":"T3","at":"H5"},{"id":"T4","at":"G3"}]},"question":{"id":"555-astable","board":"34-0411","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"IC1","footprint":"dip-8","part":"555","name":"IC1 — 555 timer"},{"id":"R1","footprint":"res-4","name":"R1 (1 kΩ)"},{"id":"R2","footprint":"res-4","name":"R2 (10 kΩ)"},{"id":"C1","footprint":"ecap-2","name":"C1 (100 µF)"},{"id":"R3","footprint":"res-4","name":"R3 (270 Ω)"},{"id":"R4","footprint":"res-4","name":"R4 (270 Ω)"},{"id":"LED1","footprint":"led-2","name":"LED1 red","colour":"red"},{"id":"LED2","footprint":"led-2","name":"LED2 green","colour":"green"}],"target":[["+5V.1","IC1.8","IC1.4","R1.1","R4.1"],["0V.1","IC1.1","C1.-","LED1.k"],["R1.2","R2.1","IC1.7"],["R2.2","IC1.6","IC1.2","C1.+"],["IC1.3","R3.1","LED2.k"],["R3.2","LED1.a"],["R4.2","LED2.a"]],"dontcare":["IC1.5"]},"diagram":{"w":440,"h":324,"svg":"<rect class=\"sbd-part\" x=\"185\" y=\"105\" width=\"70\" height=\"110\" rx=\"2\"/><text class=\"sbd-cnet\" x=\"191\" y=\"122.2\" text-anchor=\"start\">7</text><text class=\"sbd-cnet\" x=\"191\" y=\"177.2\" text-anchor=\"start\">6</text><text class=\"sbd-cnet\" x=\"191\" y=\"203.6\" text-anchor=\"start\">2</text><text class=\"sbd-cnet\" x=\"249\" y=\"164\" text-anchor=\"end\">3</text><text class=\"sbd-cnet\" x=\"209.5\" y=\"118\" text-anchor=\"middle\">4</text><text class=\"sbd-cnet\" x=\"239.6\" y=\"118\" text-anchor=\"middle\">8</text><text class=\"sbd-cnet\" x=\"209.5\" y=\"210\" text-anchor=\"middle\">1</text><text class=\"sbd-cnet\" x=\"239.6\" y=\"210\" text-anchor=\"middle\">5</text><text class=\"sbd-clab\" x=\"220\" y=\"164\" text-anchor=\"middle\">555</text><polyline class=\"sbd-pos\" points=\"26,24 420,24\"/><text class=\"sbd-poslab\" x=\"26\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"26,300 420,300\"/><text class=\"sbd-clab\" x=\"26\" y=\"318\" text-anchor=\"start\">0 V</text><polyline class=\"sbd-pos\" points=\"239.6,105 239.6,24\"/><circle class=\"sbd-node\" cx=\"239.6\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"209.5,105 209.5,24\"/><circle class=\"sbd-node\" cx=\"209.5\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"209.5,215 209.5,300\"/><circle class=\"sbd-node\" cx=\"209.5\" cy=\"300\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"110,24 110,40\"/><polyline class=\"sbd-wire\" points=\"110,40 110,96\"/><rect class=\"sbd-part\" x=\"102\" y=\"46\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"96\" y=\"65\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"96\" y=\"80\" text-anchor=\"end\">1 kΩ</text><polyline class=\"sbd-wire\" points=\"110,96 110,118.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"118.2\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,118.2 185,118.2\"/><polyline class=\"sbd-wire\" points=\"110,119 110,173\"/><rect class=\"sbd-part\" x=\"102\" y=\"124\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"96\" y=\"143\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"96\" y=\"158\" text-anchor=\"end\">10 kΩ</text><circle class=\"sbd-node\" cx=\"110\" cy=\"173.2\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,173.2 185,173.2\"/><polyline class=\"sbd-wire\" points=\"110,173.2 110,212\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"199.6\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,199.6 185,199.6\"/><polyline class=\"sbd-wire\" points=\"110,212 110,236\"/><polyline class=\"sbd-wire\" points=\"110,244 110,268\"/><line class=\"sbd-wire\" x1=\"99\" y1=\"236\" x2=\"121\" y2=\"236\"/><line class=\"sbd-wire\" x1=\"99\" y1=\"244\" x2=\"121\" y2=\"244\"/><text class=\"sbd-clab\" x=\"94\" y=\"232\" text-anchor=\"end\">+</text><text class=\"sbd-clab\" x=\"127\" y=\"237\" text-anchor=\"start\">C1</text><text class=\"sbd-clab\" x=\"127\" y=\"252\" text-anchor=\"start\">100 µF</text><polyline class=\"sbd-wire\" points=\"110,268 110,300\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"300\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"255,160 330,160\"/><circle class=\"sbd-node\" cx=\"330\" cy=\"160\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"330\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"330,24 330,36\"/><polyline class=\"sbd-wire\" points=\"330,36 330,84\"/><rect class=\"sbd-part\" x=\"322\" y=\"38\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"316\" y=\"57\" text-anchor=\"end\">R4</text><text class=\"sbd-clab\" x=\"316\" y=\"72\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"330,84 330,96\"/><polyline class=\"sbd-wire\" points=\"330,96 330,128\"/><polygon class=\"sbd-part\" points=\"317,99 343,99 330,125\"/><line class=\"sbd-wire\" x1=\"317\" y1=\"125\" x2=\"343\" y2=\"125\"/><polyline class=\"sbd-wire\" points=\"347,107 354.88,99.12\"/><polygon class=\"sbd-node\" points=\"357,97 348.13,100.39 353.61,105.87\"/><polyline class=\"sbd-wire\" points=\"347,118 354.88,110.12\"/><polygon class=\"sbd-node\" points=\"357,108 348.13,111.39 353.61,116.87\"/><text class=\"sbd-clab\" x=\"367\" y=\"116\" text-anchor=\"start\">LED2 green</text><polyline class=\"sbd-wire\" points=\"330,128 330,176\"/><polyline class=\"sbd-wire\" points=\"330,176 330,224\"/><rect class=\"sbd-part\" x=\"322\" y=\"178\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"316\" y=\"197\" text-anchor=\"end\">R3</text><text class=\"sbd-clab\" x=\"316\" y=\"212\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"330,224 330,236\"/><polyline class=\"sbd-wire\" points=\"330,236 330,268\"/><polygon class=\"sbd-part\" points=\"317,239 343,239 330,265\"/><line class=\"sbd-wire\" x1=\"317\" y1=\"265\" x2=\"343\" y2=\"265\"/><polyline class=\"sbd-wire\" points=\"347,247 354.88,239.12\"/><polygon class=\"sbd-node\" points=\"357,237 348.13,240.39 353.61,245.87\"/><polyline class=\"sbd-wire\" points=\"347,258 354.88,250.12\"/><polygon class=\"sbd-node\" points=\"357,248 348.13,251.39 353.61,256.87\"/><text class=\"sbd-clab\" x=\"367\" y=\"256\" text-anchor=\"start\">LED1 red</text><polyline class=\"sbd-wire\" points=\"330,268 330,300\"/><circle class=\"sbd-node\" cx=\"330\" cy=\"300\" r=\"3.2\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"395\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"395\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"395\" cy=\"300\" r=\"6\"/><text class=\"sbd-tpl\" x=\"395\" y=\"290\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"290\" cy=\"160\" r=\"6\"/><text class=\"sbd-tpl\" x=\"290\" y=\"150\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"150\" cy=\"199.6\" r=\"6\"/><text class=\"sbd-tpl\" x=\"150\" y=\"189.6\" text-anchor=\"middle\">T4</text></g>","at":{"IC1.1":[209.5,215],"IC1.2":[185,199.6],"IC1.3":[255,160],"IC1.4":[209.5,105],"IC1.5":[239.6,215],"IC1.6":[185,173.2],"IC1.7":[185,118.2],"IC1.8":[239.6,105],"T1":[395,24],"T2":[395,300],"T3":[290,160],"T4":[150,199.6]}}},"dark-light":{"layout":{"board":"34-0410","cuts":[],"placements":[{"id":"+5V","footprint":"term-1","at":"B2","rot":0},{"id":"0V","footprint":"term-1","at":"H2","rot":0},{"id":"R1","footprint":"res-4","at":"B6","rot":90},{"id":"LDR","footprint":"ldr-4","at":"E8","rot":90},{"id":"Q1","footprint":"npn-can","at":"D12","rot":0},{"id":"LED1","footprint":"led-2","at":"A16","rot":270},{"id":"R2","footprint":"res-4","at":"A18","rot":90}],"links":[{"a":"F15","b":"H15","colour":"black"}],"testpoints":[{"id":"T1","at":"B23"},{"id":"T2","at":"H23"},{"id":"T3","at":"E24"},{"id":"T4","at":"D21"}]},"question":{"id":"dark-light","board":"34-0410","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"R1","footprint":"res-4","name":"R1 (10 kΩ)"},{"id":"LDR","footprint":"ldr-4","name":"LDR (NORP12)"},{"id":"Q1","footprint":"npn-can","name":"Q1 BC548 (metal can)"},{"id":"R2","footprint":"res-4","name":"R2 (270 Ω)"},{"id":"LED1","footprint":"led-2","name":"LED1 red","colour":"red"}],"target":[["+5V.1","R1.1","LED1.a"],["R1.2","LDR.1","Q1.b"],["0V.1","LDR.2","Q1.e"],["Q1.c","R2.2"],["LED1.k","R2.1"]],"dontcare":[]},"diagram":{"w":300,"h":304,"svg":"<polyline class=\"sbd-pos\" points=\"26,24 280,24\"/><text class=\"sbd-poslab\" x=\"26\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"26,280 280,280\"/><text class=\"sbd-clab\" x=\"26\" y=\"298\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"90\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"90,24 90,72\"/><polyline class=\"sbd-wire\" points=\"90,72 90,128\"/><rect class=\"sbd-part\" x=\"82\" y=\"78\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"76\" y=\"97\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"76\" y=\"112\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"90,128 90,206\"/><circle class=\"sbd-node\" cx=\"90\" cy=\"190\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"90,190 166,190\"/><polyline class=\"sbd-wire\" points=\"90,206 90,262\"/><rect class=\"sbd-part\" x=\"82\" y=\"212\" width=\"16\" height=\"44\" rx=\"2\"/><polyline class=\"sbd-wire\" points=\"50,216 59.88,225.88\"/><polygon class=\"sbd-node\" points=\"62,228 58.61,219.13 53.13,224.61\"/><polyline class=\"sbd-wire\" points=\"50,229 59.88,238.88\"/><polygon class=\"sbd-node\" points=\"62,241 58.61,232.13 53.13,237.61\"/><text class=\"sbd-clab\" x=\"104\" y=\"230\" text-anchor=\"start\">LDR</text><polyline class=\"sbd-wire\" points=\"90,262 90,280\"/><circle class=\"sbd-node\" cx=\"90\" cy=\"280\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"210,24 210,44\"/><polyline class=\"sbd-wire\" points=\"210,44 210,80\"/><polygon class=\"sbd-part\" points=\"197,49 223,49 210,75\"/><line class=\"sbd-wire\" x1=\"197\" y1=\"75\" x2=\"223\" y2=\"75\"/><polyline class=\"sbd-wire\" points=\"227,57 234.88,49.12\"/><polygon class=\"sbd-node\" points=\"237,47 228.13,50.39 233.61,55.87\"/><polyline class=\"sbd-wire\" points=\"227,68 234.88,60.12\"/><polygon class=\"sbd-node\" points=\"237,58 228.13,61.39 233.61,66.87\"/><text class=\"sbd-clab\" x=\"247\" y=\"66\" text-anchor=\"start\">LED1 red</text><polyline class=\"sbd-wire\" points=\"210,80 210,96\"/><polyline class=\"sbd-wire\" points=\"210,96 210,144\"/><rect class=\"sbd-part\" x=\"202\" y=\"98\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"196\" y=\"117\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"196\" y=\"132\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"210,144 210,158\"/><circle class=\"sbd-part\" cx=\"200\" cy=\"190\" r=\"20\"/><polyline class=\"sbd-wire\" points=\"193,179 193,201\"/><polyline class=\"sbd-wire\" points=\"166,190 193,190\"/><polyline class=\"sbd-wire\" points=\"193,184 210,175 210,158\"/><polyline class=\"sbd-wire\" points=\"193,196 210,205 210,222\"/><polygon class=\"sbd-node\" points=\"202.5,199 209,198.5 206,205\"/><text class=\"sbd-clab\" x=\"226\" y=\"186\" text-anchor=\"start\">Q1 BC548</text><polyline class=\"sbd-wire\" points=\"210,222 210,280\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"280\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"132\" cy=\"190\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"132,190 132,166\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"151\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"210,151 262,151\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"256\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"256\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"256\" cy=\"280\" r=\"6\"/><text class=\"sbd-tpl\" x=\"256\" y=\"270\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"132\" cy=\"166\" r=\"6\"/><text class=\"sbd-tpl\" x=\"132\" y=\"156\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"262\" cy=\"151\" r=\"6\"/><text class=\"sbd-tpl\" x=\"262\" y=\"141\" text-anchor=\"middle\">T4</text></g>","at":{"T1":[256,24],"T2":[256,280],"T3":[132,166],"T4":[262,151]}}},"greenhouse":{"layout":{"board":"34-0411","cuts":["A4","A8","F11","G11","H11","I11","J11","K11","L11","P8"],"placements":[{"id":"+5V","footprint":"term-1","at":"B36","rot":0},{"id":"0V","footprint":"term-1","at":"M2","rot":0},{"id":"EN","footprint":"spdt-3","at":"A2","rot":270},{"id":"R4","footprint":"res-4","at":"A3","rot":90},{"id":"SD","footprint":"spdt-3","at":"A6","rot":270},{"id":"R2","footprint":"res-4","at":"A7","rot":90},{"id":"TK","footprint":"spdt-3","at":"A10","rot":270},{"id":"R3","footprint":"res-4","at":"A11","rot":90},{"id":"IC1","footprint":"dip-14","at":"F10","rot":0},{"id":"R1","footprint":"res-5","at":"K3","rot":90},{"id":"Q1","footprint":"npn-can","at":"N6","rot":0},{"id":"PUMP","footprint":"term-2","at":"N10","rot":90}],"links":[{"a":"A1","b":"J1","colour":"blue"},{"a":"A5","b":"F5","colour":"yellow"},{"a":"A9","b":"G9","colour":"green"},{"a":"D20","b":"M20","colour":"black"},{"a":"B19","b":"F19","colour":"red"},{"a":"B21","b":"P21","colour":"red"},{"a":"P4","b":"M4","colour":"black"},{"a":"H8","b":"I8","colour":"orange"},{"a":"L9","b":"M9","colour":"black"},{"a":"G14","b":"M14","colour":"black"},{"a":"H15","b":"M15","colour":"black"},{"a":"J16","b":"M16","colour":"black"},{"a":"K17","b":"M17","colour":"black"}],"testpoints":[{"id":"T1","at":"B34"},{"id":"T2","at":"M23"},{"id":"T3","at":"H5"},{"id":"T4","at":"K6"},{"id":"T5","at":"O13"}]},"question":{"id":"greenhouse","board":"34-0411","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"SD","footprint":"spdt-3","name":"SD slide switch: soil dry"},{"id":"TK","footprint":"spdt-3","name":"TK slide switch: tank not empty"},{"id":"EN","footprint":"spdt-3","name":"EN slide switch: system on"},{"id":"IC1","footprint":"dip-14","part":"7408","name":"IC1 74HC08 quad 2-input AND"},{"id":"R1","footprint":"res-5","name":"R1 (1 kΩ)"},{"id":"R2","footprint":"res-4","name":"R2 (10 kΩ) pull-down on SD"},{"id":"R3","footprint":"res-4","name":"R3 (10 kΩ) pull-down on TK"},{"id":"R4","footprint":"res-4","name":"R4 (10 kΩ) pull-down on EN"},{"id":"Q1","footprint":"npn-can","name":"Q1 BC548 (metal can)"},{"id":"PUMP","footprint":"term-2","name":"PUMP, off the board"}],"target":[["+5V.1","IC1.14","SD.c","TK.c","EN.c","PUMP.2"],["0V.1","IC1.7","Q1.e","R2.2","R3.2","R4.2"],["SD.2","R2.1","IC1.1"],["TK.2","R3.1","IC1.2"],["IC1.3","IC1.4"],["EN.2","R4.1","IC1.5"],["IC1.6","R1.1"],["R1.2","Q1.b"],["Q1.c","PUMP.1"]],"dontcare":["SD.1","TK.1","EN.1","IC1.8","IC1.9","IC1.10","IC1.11","IC1.12","IC1.13"]},"diagram":{"w":560,"h":360,"svg":"<polyline class=\"sbd-pos\" points=\"20,24 542,24\"/><text class=\"sbd-poslab\" x=\"20\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"20,336 542,336\"/><text class=\"sbd-clab\" x=\"20\" y=\"354\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"40\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"40,24 40,42\"/><polyline class=\"sbd-wire\" points=\"40,42 40,49\"/><polyline class=\"sbd-wire\" points=\"40,71 40,78\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"40,71 53,51\"/><text class=\"sbd-clab\" x=\"60\" y=\"64\" text-anchor=\"start\">SD</text><polyline class=\"sbd-wire\" points=\"40,78 40,150 228,150\"/><circle class=\"sbd-node\" cx=\"70\" cy=\"150\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"70,150 70,264\"/><polyline class=\"sbd-wire\" points=\"70,264 70,320\"/><rect class=\"sbd-part\" x=\"62\" y=\"270\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"56\" y=\"289\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"56\" y=\"304\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"70,320 70,336\"/><circle class=\"sbd-node\" cx=\"70\" cy=\"336\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"110,24 110,42\"/><polyline class=\"sbd-wire\" points=\"110,42 110,49\"/><polyline class=\"sbd-wire\" points=\"110,71 110,78\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,71 123,51\"/><text class=\"sbd-clab\" x=\"130\" y=\"64\" text-anchor=\"start\">TK</text><polyline class=\"sbd-wire\" points=\"110,78 110,172 228,172\"/><circle class=\"sbd-node\" cx=\"140\" cy=\"172\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"140,172 140,264\"/><polyline class=\"sbd-wire\" points=\"140,264 140,320\"/><rect class=\"sbd-part\" x=\"132\" y=\"270\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"126\" y=\"289\" text-anchor=\"end\">R3</text><text class=\"sbd-clab\" x=\"126\" y=\"304\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"140,320 140,336\"/><circle class=\"sbd-node\" cx=\"140\" cy=\"336\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"180\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"180,24 180,42\"/><polyline class=\"sbd-wire\" points=\"180,42 180,49\"/><polyline class=\"sbd-wire\" points=\"180,71 180,78\"/><circle class=\"sbd-node\" cx=\"180\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"180\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"180,71 193,51\"/><text class=\"sbd-clab\" x=\"200\" y=\"64\" text-anchor=\"start\">EN</text><polyline class=\"sbd-wire\" points=\"180,78 180,226 318,226\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"226\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"210,226 210,264\"/><polyline class=\"sbd-wire\" points=\"210,264 210,320\"/><rect class=\"sbd-part\" x=\"202\" y=\"270\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"196\" y=\"289\" text-anchor=\"end\">R4</text><text class=\"sbd-clab\" x=\"196\" y=\"304\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"210,320 210,336\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"336\" r=\"3.2\"/><path class=\"sbd-part\" d=\"M 244 139 H 262 A 22 22 0 0 1 262 183 H 244 Z\"/><polyline class=\"sbd-wire\" points=\"228,150 244,150\"/><polyline class=\"sbd-wire\" points=\"228,172 244,172\"/><polyline class=\"sbd-wire\" points=\"284,161 300,161\"/><text class=\"sbd-cnet\" x=\"241\" y=\"146\" text-anchor=\"end\">1</text><text class=\"sbd-cnet\" x=\"241\" y=\"183\" text-anchor=\"end\">2</text><text class=\"sbd-cnet\" x=\"287\" y=\"156\" text-anchor=\"start\">3</text><path class=\"sbd-part\" d=\"M 334 193 H 352 A 22 22 0 0 1 352 237 H 334 Z\"/><polyline class=\"sbd-wire\" points=\"318,204 334,204\"/><polyline class=\"sbd-wire\" points=\"318,226 334,226\"/><polyline class=\"sbd-wire\" points=\"374,215 390,215\"/><text class=\"sbd-cnet\" x=\"331\" y=\"200\" text-anchor=\"end\">4</text><text class=\"sbd-cnet\" x=\"331\" y=\"237\" text-anchor=\"end\">5</text><text class=\"sbd-cnet\" x=\"377\" y=\"210\" text-anchor=\"start\">6</text><text class=\"sbd-clab\" x=\"250\" y=\"126\" text-anchor=\"middle\">IC1 74HC08</text><polyline class=\"sbd-wire\" points=\"300,161 312,161 312,204 318,204\"/><polyline class=\"sbd-wire\" points=\"390,215 394,215\"/><polyline class=\"sbd-wire\" points=\"394,215 450,215\"/><rect class=\"sbd-part\" x=\"400\" y=\"207\" width=\"44\" height=\"16\" rx=\"2\"/><text class=\"sbd-clab\" x=\"422\" y=\"200\" text-anchor=\"middle\">R1</text><text class=\"sbd-clab\" x=\"422\" y=\"237\" text-anchor=\"middle\">1 kΩ</text><polyline class=\"sbd-wire\" points=\"450,215 456,215\"/><circle class=\"sbd-part\" cx=\"490\" cy=\"215\" r=\"20\"/><polyline class=\"sbd-wire\" points=\"483,204 483,226\"/><polyline class=\"sbd-wire\" points=\"456,215 483,215\"/><polyline class=\"sbd-wire\" points=\"483,209 500,200 500,183\"/><polyline class=\"sbd-wire\" points=\"483,221 500,230 500,247\"/><polygon class=\"sbd-node\" points=\"492.5,224 499,223.5 496,230\"/><text class=\"sbd-clab\" x=\"516\" y=\"211\" text-anchor=\"start\">Q1</text><circle class=\"sbd-node\" cx=\"500\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"500,24 500,76\"/><polyline class=\"sbd-wire\" points=\"500,76 500,89\"/><polyline class=\"sbd-wire\" points=\"500,119 500,132\"/><circle class=\"sbd-part\" cx=\"500\" cy=\"104\" r=\"15\"/><text class=\"sbd-clab\" x=\"500\" y=\"108\" text-anchor=\"middle\">M</text><text class=\"sbd-clab\" x=\"479\" y=\"108\" text-anchor=\"end\">PUMP</text><polyline class=\"sbd-wire\" points=\"500,132 500,183\"/><polyline class=\"sbd-wire\" points=\"500,247 500,336\"/><circle class=\"sbd-node\" cx=\"500\" cy=\"336\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"306\" cy=\"161\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"306,161 306,134\"/><circle class=\"sbd-node\" cx=\"394\" cy=\"215\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"394,215 394,186\"/><circle class=\"sbd-node\" cx=\"453\" cy=\"215\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"453,215 453,186\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"526\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"526\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"526\" cy=\"336\" r=\"6\"/><text class=\"sbd-tpl\" x=\"526\" y=\"326\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"306\" cy=\"134\" r=\"6\"/><text class=\"sbd-tpl\" x=\"306\" y=\"124\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"394\" cy=\"186\" r=\"6\"/><text class=\"sbd-tpl\" x=\"394\" y=\"176\" text-anchor=\"middle\">T4</text></g><g class=\"tb-dtp\" data-tp=\"T5\"><circle class=\"sbd-tp\" cx=\"453\" cy=\"186\" r=\"6\"/><text class=\"sbd-tpl\" x=\"453\" y=\"176\" text-anchor=\"middle\">T5</text></g>","at":{"T1":[526,24],"T2":[526,336],"T3":[306,134],"T4":[394,186],"T5":[453,186]}}},"guard-start":{"layout":{"board":"34-0411","cuts":["A4","F11","G11","H11","I11","J11","K11","L11"],"placements":[{"id":"+5V","footprint":"term-1","at":"B36","rot":0},{"id":"0V","footprint":"term-1","at":"M2","rot":0},{"id":"A","footprint":"spdt-3","at":"A2","rot":270},{"id":"R2","footprint":"res-4","at":"A3","rot":90},{"id":"B","footprint":"spdt-3","at":"A6","rot":270},{"id":"R3","footprint":"res-4","at":"A7","rot":90},{"id":"IC1","footprint":"dip-14","at":"F10","rot":0},{"id":"R1","footprint":"res-4","at":"N5","rot":90},{"id":"LED1","footprint":"led-2","at":"Q7","rot":90}],"links":[{"a":"A1","b":"F1","colour":"yellow"},{"a":"A5","b":"G5","colour":"green"},{"a":"D20","b":"M20","colour":"black"},{"a":"B19","b":"F19","colour":"red"},{"a":"L9","b":"M9","colour":"black"},{"a":"I6","b":"M6","colour":"black"},{"a":"J7","b":"M7","colour":"black"},{"a":"G14","b":"M14","colour":"black"},{"a":"H15","b":"M15","colour":"black"},{"a":"J16","b":"M16","colour":"black"},{"a":"K17","b":"M17","colour":"black"},{"a":"H3","b":"N3","colour":"orange"},{"a":"R4","b":"M4","colour":"black"}],"testpoints":[{"id":"T1","at":"B34"},{"id":"T2","at":"M23"},{"id":"T3","at":"N9"}]},"question":{"id":"guard-start","board":"34-0411","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"A","footprint":"spdt-3","name":"A slide switch: guard closed"},{"id":"B","footprint":"spdt-3","name":"B slide switch: start pressed"},{"id":"IC1","footprint":"dip-14","part":"7408","name":"IC1 74HC08 quad 2-input AND"},{"id":"R1","footprint":"res-4","name":"R1 (270 Ω)"},{"id":"R2","footprint":"res-4","name":"R2 (10 kΩ) pull-down on A"},{"id":"R3","footprint":"res-4","name":"R3 (10 kΩ) pull-down on B"},{"id":"LED1","footprint":"led-2","name":"LED1 red: run","colour":"red"}],"target":[["+5V.1","IC1.14","A.c","B.c"],["0V.1","IC1.7","LED1.k","R2.2","R3.2"],["A.2","R2.1","IC1.1"],["B.2","R3.1","IC1.2"],["IC1.3","R1.1"],["R1.2","LED1.a"]],"dontcare":["A.1","B.1","IC1.4","IC1.5","IC1.6","IC1.8","IC1.9","IC1.10","IC1.11","IC1.12","IC1.13"]},"diagram":{"w":356,"h":340,"svg":"<polyline class=\"sbd-pos\" points=\"20,24 340,24\"/><text class=\"sbd-poslab\" x=\"20\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"20,316 340,316\"/><text class=\"sbd-clab\" x=\"20\" y=\"334\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"40\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"40,24 40,42\"/><polyline class=\"sbd-wire\" points=\"40,42 40,49\"/><polyline class=\"sbd-wire\" points=\"40,71 40,78\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"40,71 53,51\"/><text class=\"sbd-clab\" x=\"60\" y=\"64\" text-anchor=\"start\">A</text><polyline class=\"sbd-wire\" points=\"40,78 40,150 184,150\"/><circle class=\"sbd-node\" cx=\"76\" cy=\"150\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"76,150 76,244\"/><polyline class=\"sbd-wire\" points=\"76,244 76,300\"/><rect class=\"sbd-part\" x=\"68\" y=\"250\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"62\" y=\"269\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"62\" y=\"284\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"76,300 76,316\"/><circle class=\"sbd-node\" cx=\"76\" cy=\"316\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"110,24 110,42\"/><polyline class=\"sbd-wire\" points=\"110,42 110,49\"/><polyline class=\"sbd-wire\" points=\"110,71 110,78\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,71 123,51\"/><text class=\"sbd-clab\" x=\"130\" y=\"64\" text-anchor=\"start\">B</text><polyline class=\"sbd-wire\" points=\"110,78 110,172 184,172\"/><circle class=\"sbd-node\" cx=\"146\" cy=\"172\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"146,172 146,244\"/><polyline class=\"sbd-wire\" points=\"146,244 146,300\"/><rect class=\"sbd-part\" x=\"138\" y=\"250\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"132\" y=\"269\" text-anchor=\"end\">R3</text><text class=\"sbd-clab\" x=\"132\" y=\"284\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"146,300 146,316\"/><circle class=\"sbd-node\" cx=\"146\" cy=\"316\" r=\"3.2\"/><path class=\"sbd-part\" d=\"M 200 139 H 218 A 22 22 0 0 1 218 183 H 200 Z\"/><polyline class=\"sbd-wire\" points=\"184,150 200,150\"/><polyline class=\"sbd-wire\" points=\"184,172 200,172\"/><polyline class=\"sbd-wire\" points=\"240,161 256,161\"/><text class=\"sbd-cnet\" x=\"197\" y=\"146\" text-anchor=\"end\">1</text><text class=\"sbd-cnet\" x=\"197\" y=\"183\" text-anchor=\"end\">2</text><text class=\"sbd-cnet\" x=\"243\" y=\"156\" text-anchor=\"start\">3</text><text class=\"sbd-clab\" x=\"214\" y=\"130\" text-anchor=\"middle\">IC1a 74HC08</text><polyline class=\"sbd-wire\" points=\"256,161 290,161 290,186\"/><polyline class=\"sbd-wire\" points=\"290,186 290,242\"/><rect class=\"sbd-part\" x=\"282\" y=\"192\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"276\" y=\"211\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"276\" y=\"226\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"290,242 290,256\"/><polyline class=\"sbd-wire\" points=\"290,256 290,288\"/><polygon class=\"sbd-part\" points=\"277,259 303,259 290,285\"/><line class=\"sbd-wire\" x1=\"277\" y1=\"285\" x2=\"303\" y2=\"285\"/><polyline class=\"sbd-wire\" points=\"307,267 314.88,259.12\"/><polygon class=\"sbd-node\" points=\"317,257 308.13,260.39 313.61,265.87\"/><polyline class=\"sbd-wire\" points=\"307,278 314.88,270.12\"/><polygon class=\"sbd-node\" points=\"317,268 308.13,271.39 313.61,276.87\"/><text class=\"sbd-clab\" x=\"269\" y=\"276\" text-anchor=\"end\">LED1</text><polyline class=\"sbd-wire\" points=\"290,288 290,316\"/><circle class=\"sbd-node\" cx=\"290\" cy=\"316\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"272\" cy=\"161\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"272,161 272,134\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"326\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"326\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"326\" cy=\"316\" r=\"6\"/><text class=\"sbd-tpl\" x=\"326\" y=\"306\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"272\" cy=\"134\" r=\"6\"/><text class=\"sbd-tpl\" x=\"272\" y=\"124\" text-anchor=\"middle\">T3</text></g>","at":{"T1":[326,24],"T2":[326,316],"T3":[272,134]}}},"lift-interlock":{"layout":{"board":"34-0411","cuts":["A4","A8","F11","G11","H11","I11","J11","K11","L11"],"placements":[{"id":"+5V","footprint":"term-1","at":"B36","rot":0},{"id":"0V","footprint":"term-1","at":"M2","rot":0},{"id":"A","footprint":"spdt-3","at":"A2","rot":270},{"id":"R4","footprint":"res-4","at":"A3","rot":90},{"id":"B","footprint":"spdt-3","at":"A6","rot":270},{"id":"R2","footprint":"res-4","at":"A7","rot":90},{"id":"C","footprint":"spdt-3","at":"A10","rot":270},{"id":"R3","footprint":"res-4","at":"A11","rot":90},{"id":"IC1","footprint":"dip-14","at":"F10","rot":0},{"id":"R1","footprint":"res-4","at":"K3","rot":90},{"id":"LED1","footprint":"led-2","at":"N5","rot":90}],"links":[{"a":"A1","b":"J1","colour":"blue"},{"a":"A5","b":"F5","colour":"yellow"},{"a":"A9","b":"G9","colour":"green"},{"a":"D20","b":"M20","colour":"black"},{"a":"B19","b":"F19","colour":"red"},{"a":"H8","b":"I8","colour":"orange"},{"a":"L9","b":"M9","colour":"black"},{"a":"G14","b":"M14","colour":"black"},{"a":"H15","b":"M15","colour":"black"},{"a":"J16","b":"M16","colour":"black"},{"a":"K17","b":"M17","colour":"black"},{"a":"O4","b":"M4","colour":"black"}],"testpoints":[{"id":"T1","at":"B34"},{"id":"T2","at":"M23"},{"id":"T3","at":"H5"},{"id":"T4","at":"K6"}]},"question":{"id":"lift-interlock","board":"34-0411","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"A","footprint":"spdt-3","name":"A slide switch: door closed"},{"id":"B","footprint":"spdt-3","name":"B slide switch: floor selected"},{"id":"C","footprint":"spdt-3","name":"C slide switch: not overloaded"},{"id":"IC1","footprint":"dip-14","part":"7408","name":"IC1 74HC08 quad 2-input AND"},{"id":"R1","footprint":"res-4","name":"R1 (270 Ω)"},{"id":"R2","footprint":"res-4","name":"R2 (10 kΩ) pull-down on B"},{"id":"R3","footprint":"res-4","name":"R3 (10 kΩ) pull-down on C"},{"id":"R4","footprint":"res-4","name":"R4 (10 kΩ) pull-down on A"},{"id":"LED1","footprint":"led-2","name":"LED1 green: motor enable","colour":"green"}],"target":[["+5V.1","IC1.14","A.c","B.c","C.c"],["0V.1","IC1.7","LED1.k","R2.2","R3.2","R4.2"],["B.2","R2.1","IC1.1"],["C.2","R3.1","IC1.2"],["IC1.3","IC1.4"],["A.2","R4.1","IC1.5"],["IC1.6","R1.1"],["R1.2","LED1.a"]],"dontcare":["A.1","B.1","C.1","IC1.8","IC1.9","IC1.10","IC1.11","IC1.12","IC1.13"]},"diagram":{"w":470,"h":360,"svg":"<polyline class=\"sbd-pos\" points=\"20,24 454,24\"/><text class=\"sbd-poslab\" x=\"20\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"20,336 454,336\"/><text class=\"sbd-clab\" x=\"20\" y=\"354\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"40\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"40,24 40,42\"/><polyline class=\"sbd-wire\" points=\"40,42 40,49\"/><polyline class=\"sbd-wire\" points=\"40,71 40,78\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"40,71 53,51\"/><text class=\"sbd-clab\" x=\"60\" y=\"64\" text-anchor=\"start\">B</text><polyline class=\"sbd-wire\" points=\"40,78 40,150 228,150\"/><circle class=\"sbd-node\" cx=\"70\" cy=\"150\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"70,150 70,264\"/><polyline class=\"sbd-wire\" points=\"70,264 70,320\"/><rect class=\"sbd-part\" x=\"62\" y=\"270\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"56\" y=\"289\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"56\" y=\"304\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"70,320 70,336\"/><circle class=\"sbd-node\" cx=\"70\" cy=\"336\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"110,24 110,42\"/><polyline class=\"sbd-wire\" points=\"110,42 110,49\"/><polyline class=\"sbd-wire\" points=\"110,71 110,78\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"110\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"110,71 123,51\"/><text class=\"sbd-clab\" x=\"130\" y=\"64\" text-anchor=\"start\">C</text><polyline class=\"sbd-wire\" points=\"110,78 110,172 228,172\"/><circle class=\"sbd-node\" cx=\"140\" cy=\"172\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"140,172 140,264\"/><polyline class=\"sbd-wire\" points=\"140,264 140,320\"/><rect class=\"sbd-part\" x=\"132\" y=\"270\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"126\" y=\"289\" text-anchor=\"end\">R3</text><text class=\"sbd-clab\" x=\"126\" y=\"304\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"140,320 140,336\"/><circle class=\"sbd-node\" cx=\"140\" cy=\"336\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"180\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"180,24 180,42\"/><polyline class=\"sbd-wire\" points=\"180,42 180,49\"/><polyline class=\"sbd-wire\" points=\"180,71 180,78\"/><circle class=\"sbd-node\" cx=\"180\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"180\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"180,71 193,51\"/><text class=\"sbd-clab\" x=\"200\" y=\"64\" text-anchor=\"start\">A</text><polyline class=\"sbd-wire\" points=\"180,78 180,226 318,226\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"226\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"210,226 210,264\"/><polyline class=\"sbd-wire\" points=\"210,264 210,320\"/><rect class=\"sbd-part\" x=\"202\" y=\"270\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"196\" y=\"289\" text-anchor=\"end\">R4</text><text class=\"sbd-clab\" x=\"196\" y=\"304\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"210,320 210,336\"/><circle class=\"sbd-node\" cx=\"210\" cy=\"336\" r=\"3.2\"/><path class=\"sbd-part\" d=\"M 244 139 H 262 A 22 22 0 0 1 262 183 H 244 Z\"/><polyline class=\"sbd-wire\" points=\"228,150 244,150\"/><polyline class=\"sbd-wire\" points=\"228,172 244,172\"/><polyline class=\"sbd-wire\" points=\"284,161 300,161\"/><text class=\"sbd-cnet\" x=\"241\" y=\"146\" text-anchor=\"end\">1</text><text class=\"sbd-cnet\" x=\"241\" y=\"183\" text-anchor=\"end\">2</text><text class=\"sbd-cnet\" x=\"287\" y=\"156\" text-anchor=\"start\">3</text><path class=\"sbd-part\" d=\"M 334 193 H 352 A 22 22 0 0 1 352 237 H 334 Z\"/><polyline class=\"sbd-wire\" points=\"318,204 334,204\"/><polyline class=\"sbd-wire\" points=\"318,226 334,226\"/><polyline class=\"sbd-wire\" points=\"374,215 390,215\"/><text class=\"sbd-cnet\" x=\"331\" y=\"200\" text-anchor=\"end\">4</text><text class=\"sbd-cnet\" x=\"331\" y=\"237\" text-anchor=\"end\">5</text><text class=\"sbd-cnet\" x=\"377\" y=\"210\" text-anchor=\"start\">6</text><text class=\"sbd-clab\" x=\"250\" y=\"126\" text-anchor=\"middle\">IC1 74HC08</text><polyline class=\"sbd-wire\" points=\"300,161 312,161 312,204 318,204\"/><polyline class=\"sbd-wire\" points=\"390,215 410,215 410,236\"/><polyline class=\"sbd-wire\" points=\"410,236 410,288\"/><rect class=\"sbd-part\" x=\"402\" y=\"240\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"396\" y=\"259\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"396\" y=\"274\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"410,288 410,294\"/><polyline class=\"sbd-wire\" points=\"410,294 410,322\"/><polygon class=\"sbd-part\" points=\"397,295 423,295 410,321\"/><line class=\"sbd-wire\" x1=\"397\" y1=\"321\" x2=\"423\" y2=\"321\"/><polyline class=\"sbd-wire\" points=\"427,303 434.88,295.12\"/><polygon class=\"sbd-node\" points=\"437,293 428.13,296.39 433.61,301.87\"/><polyline class=\"sbd-wire\" points=\"427,314 434.88,306.12\"/><polygon class=\"sbd-node\" points=\"437,304 428.13,307.39 433.61,312.87\"/><text class=\"sbd-clab\" x=\"389\" y=\"312\" text-anchor=\"end\">LED1</text><polyline class=\"sbd-wire\" points=\"410,322 410,336\"/><circle class=\"sbd-node\" cx=\"410\" cy=\"336\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"306\" cy=\"161\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"306,161 306,134\"/><circle class=\"sbd-node\" cx=\"400\" cy=\"215\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"400,215 400,182\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"440\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"440\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"440\" cy=\"336\" r=\"6\"/><text class=\"sbd-tpl\" x=\"440\" y=\"326\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"306\" cy=\"134\" r=\"6\"/><text class=\"sbd-tpl\" x=\"306\" y=\"124\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"400\" cy=\"182\" r=\"6\"/><text class=\"sbd-tpl\" x=\"400\" y=\"172\" text-anchor=\"middle\">T4</text></g>","at":{"T1":[440,24],"T2":[440,336],"T3":[306,134],"T4":[400,182]}}},"red-green":{"layout":{"board":"34-0410","cuts":[],"placements":[{"id":"+5V","footprint":"term-1","at":"A2","rot":0},{"id":"0V","footprint":"term-1","at":"I2","rot":0},{"id":"SW1","footprint":"spdt-3","at":"B4","rot":90},{"id":"R1","footprint":"res-4","at":"B10","rot":90},{"id":"LED1","footprint":"led-2","at":"E12","rot":90},{"id":"R2","footprint":"res-4","at":"D16","rot":90},{"id":"LED2","footprint":"led-2","at":"G18","rot":90}],"links":[{"a":"A6","b":"C6","colour":"red"},{"a":"F14","b":"I14","colour":"black"},{"a":"H20","b":"I20","colour":"black"}],"testpoints":[{"id":"T1","at":"A23"},{"id":"T2","at":"I23"},{"id":"T3","at":"C22"},{"id":"T4","at":"B19"},{"id":"T5","at":"D24"}]},"question":{"id":"red-green","board":"34-0410","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"SW1","footprint":"spdt-3","name":"SW1 slide switch"},{"id":"R1","footprint":"res-4","name":"R1 (270 Ω)"},{"id":"LED1","footprint":"led-2","name":"LED1 red","colour":"red"},{"id":"R2","footprint":"res-4","name":"R2 (270 Ω)"},{"id":"LED2","footprint":"led-2","name":"LED2 green","colour":"green"}],"target":[["+5V.1","SW1.c"],["SW1.1","R1.1"],["R1.2","LED1.a"],["SW1.2","R2.1"],["R2.2","LED2.a"],["0V.1","LED1.k","LED2.k"]],"dontcare":[]},"diagram":{"w":360,"h":294,"svg":"<polyline class=\"sbd-pos\" points=\"20,24 340,24\"/><text class=\"sbd-poslab\" x=\"20\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"20,270 340,270\"/><text class=\"sbd-clab\" x=\"20\" y=\"288\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"52\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"52,24 52,84 74,84\"/><polyline class=\"sbd-wire\" points=\"74,84 89,84\"/><circle class=\"sbd-node\" cx=\"89\" cy=\"84\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"111,71 126,71\"/><circle class=\"sbd-node\" cx=\"111\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"111,97 126,97\"/><circle class=\"sbd-node\" cx=\"111\" cy=\"97\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"89,84 109,73\"/><text class=\"sbd-clab\" x=\"100\" y=\"113\" text-anchor=\"middle\">SW1</text><polyline class=\"sbd-wire\" points=\"126,71 252,71 252,112\"/><polyline class=\"sbd-wire\" points=\"252,112 252,168\"/><rect class=\"sbd-part\" x=\"244\" y=\"118\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"238\" y=\"137\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"238\" y=\"152\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"252,168 252,196\"/><polyline class=\"sbd-wire\" points=\"252,196 252,232\"/><polygon class=\"sbd-part\" points=\"239,201 265,201 252,227\"/><line class=\"sbd-wire\" x1=\"239\" y1=\"227\" x2=\"265\" y2=\"227\"/><polyline class=\"sbd-wire\" points=\"269,209 276.88,201.12\"/><polygon class=\"sbd-node\" points=\"279,199 270.13,202.39 275.61,207.87\"/><polyline class=\"sbd-wire\" points=\"269,220 276.88,212.12\"/><polygon class=\"sbd-node\" points=\"279,210 270.13,213.39 275.61,218.87\"/><text class=\"sbd-clab\" x=\"289\" y=\"218\" text-anchor=\"start\">LED1 red</text><polyline class=\"sbd-wire\" points=\"252,232 252,270\"/><circle class=\"sbd-node\" cx=\"252\" cy=\"270\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"126,97 172,97 172,128\"/><polyline class=\"sbd-wire\" points=\"172,128 172,184\"/><rect class=\"sbd-part\" x=\"164\" y=\"134\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"158\" y=\"153\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"158\" y=\"168\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"172,184 172,204\"/><polyline class=\"sbd-wire\" points=\"172,204 172,240\"/><polygon class=\"sbd-part\" points=\"159,209 185,209 172,235\"/><line class=\"sbd-wire\" x1=\"159\" y1=\"235\" x2=\"185\" y2=\"235\"/><polyline class=\"sbd-wire\" points=\"189,217 196.88,209.12\"/><polygon class=\"sbd-node\" points=\"199,207 190.13,210.39 195.61,215.87\"/><polyline class=\"sbd-wire\" points=\"189,228 196.88,220.12\"/><polygon class=\"sbd-node\" points=\"199,218 190.13,221.39 195.61,226.87\"/><text class=\"sbd-clab\" x=\"151\" y=\"226\" text-anchor=\"end\">LED2 green</text><polyline class=\"sbd-wire\" points=\"172,240 172,270\"/><circle class=\"sbd-node\" cx=\"172\" cy=\"270\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"52\" cy=\"52\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"52,52 24,52\"/><circle class=\"sbd-node\" cx=\"252\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"252,71 286,71 286,52\"/><circle class=\"sbd-node\" cx=\"172\" cy=\"112\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"172,112 204,112\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"326\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"326\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"326\" cy=\"270\" r=\"6\"/><text class=\"sbd-tpl\" x=\"326\" y=\"260\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"24\" cy=\"52\" r=\"6\"/><text class=\"sbd-tpl\" x=\"24\" y=\"42\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"286\" cy=\"52\" r=\"6\"/><text class=\"sbd-tpl\" x=\"286\" y=\"42\" text-anchor=\"middle\">T4</text></g><g class=\"tb-dtp\" data-tp=\"T5\"><circle class=\"sbd-tp\" cx=\"204\" cy=\"112\" r=\"6\"/><text class=\"sbd-tpl\" x=\"204\" y=\"102\" text-anchor=\"middle\">T5</text></g>","at":{"T1":[326,24],"T2":[326,270],"T3":[24,52],"T4":[286,52],"T5":[204,112]}}},"slide-led":{"layout":{"board":"34-0410","cuts":[],"placements":[{"id":"+5V","footprint":"term-1","at":"A2","rot":0},{"id":"0V","footprint":"term-1","at":"I2","rot":0},{"id":"SW1","footprint":"spdt-3","at":"B6","rot":90},{"id":"R1","footprint":"res-4","at":"D12","rot":90},{"id":"LED1","footprint":"led-2","at":"G16","rot":90}],"links":[{"a":"A8","b":"C8","colour":"red"},{"a":"H19","b":"I19","colour":"black"}],"testpoints":[{"id":"T1","at":"A23"},{"id":"T2","at":"I23"},{"id":"T3","at":"D22"},{"id":"T4","at":"G21"}]},"question":{"id":"slide-led","board":"34-0410","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"SW1","footprint":"spdt-3","name":"SW1 slide switch"},{"id":"R1","footprint":"res-4","name":"R1 (270 Ω)"},{"id":"LED1","footprint":"led-2","name":"LED1 red","colour":"red"}],"target":[["+5V.1","SW1.c"],["SW1.2","R1.1"],["R1.2","LED1.a"],["0V.1","LED1.k"]],"dontcare":["SW1.1"]},"diagram":{"w":300,"h":300,"svg":"<polyline class=\"sbd-pos\" points=\"26,24 280,24\"/><text class=\"sbd-poslab\" x=\"26\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"26,276 280,276\"/><text class=\"sbd-clab\" x=\"26\" y=\"294\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"120\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"120,24 120,42\"/><polyline class=\"sbd-wire\" points=\"120,42 120,59\"/><polyline class=\"sbd-wire\" points=\"120,81 120,98\"/><circle class=\"sbd-node\" cx=\"120\" cy=\"59\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"120\" cy=\"81\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"120,81 133,61\"/><text class=\"sbd-clab\" x=\"140\" y=\"74\" text-anchor=\"start\">SW1</text><polyline class=\"sbd-wire\" points=\"120,98 120,122\"/><circle class=\"sbd-node\" cx=\"120\" cy=\"110\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"120,110 176,110\"/><polyline class=\"sbd-wire\" points=\"120,122 120,178\"/><rect class=\"sbd-part\" x=\"112\" y=\"128\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"106\" y=\"147\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"106\" y=\"162\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"120,178 120,206\"/><circle class=\"sbd-node\" cx=\"120\" cy=\"192\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"120,192 176,192\"/><polyline class=\"sbd-wire\" points=\"120,206 120,238\"/><polygon class=\"sbd-part\" points=\"107,209 133,209 120,235\"/><line class=\"sbd-wire\" x1=\"107\" y1=\"235\" x2=\"133\" y2=\"235\"/><polyline class=\"sbd-wire\" points=\"137,217 144.88,209.12\"/><polygon class=\"sbd-node\" points=\"147,207 138.13,210.39 143.61,215.87\"/><polyline class=\"sbd-wire\" points=\"137,228 144.88,220.12\"/><polygon class=\"sbd-node\" points=\"147,218 138.13,221.39 143.61,226.87\"/><text class=\"sbd-clab\" x=\"157\" y=\"226\" text-anchor=\"start\">LED1 red</text><polyline class=\"sbd-wire\" points=\"120,238 120,276\"/><circle class=\"sbd-node\" cx=\"120\" cy=\"276\" r=\"3.2\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"240\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"240\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"240\" cy=\"276\" r=\"6\"/><text class=\"sbd-tpl\" x=\"240\" y=\"266\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"176\" cy=\"110\" r=\"6\"/><text class=\"sbd-tpl\" x=\"176\" y=\"100\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"176\" cy=\"192\" r=\"6\"/><text class=\"sbd-tpl\" x=\"176\" y=\"182\" text-anchor=\"middle\">T4</text></g>","at":{"T1":[240,24],"T2":[240,276],"T3":[176,110],"T4":[176,192]}}},"tank-empty":{"layout":{"board":"34-0411","cuts":["F11","G11","H11","I11","J11","K11","L11"],"placements":[{"id":"+5V","footprint":"term-1","at":"B36","rot":0},{"id":"0V","footprint":"term-1","at":"M2","rot":0},{"id":"SW1","footprint":"spdt-3","at":"A2","rot":270},{"id":"R2","footprint":"res-4","at":"A3","rot":90},{"id":"IC1","footprint":"dip-14","at":"F10","rot":0},{"id":"R1","footprint":"res-4","at":"N5","rot":90},{"id":"LED1","footprint":"led-2","at":"Q7","rot":90}],"links":[{"a":"A1","b":"F1","colour":"yellow"},{"a":"D20","b":"M20","colour":"black"},{"a":"B19","b":"F19","colour":"red"},{"a":"H7","b":"M7","colour":"black"},{"a":"J8","b":"M8","colour":"black"},{"a":"L9","b":"M9","colour":"black"},{"a":"G14","b":"M14","colour":"black"},{"a":"I15","b":"M15","colour":"black"},{"a":"K16","b":"M16","colour":"black"},{"a":"G3","b":"N3","colour":"orange"},{"a":"R4","b":"M4","colour":"black"}],"testpoints":[{"id":"T1","at":"B34"},{"id":"T2","at":"M23"},{"id":"T3","at":"F7"},{"id":"T4","at":"N9"}]},"question":{"id":"tank-empty","board":"34-0411","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"SW1","footprint":"spdt-3","name":"SW1 slide switch: float switch"},{"id":"IC1","footprint":"dip-14","part":"7404","name":"IC1 74HC04 hex inverter"},{"id":"R1","footprint":"res-4","name":"R1 (270 Ω)"},{"id":"R2","footprint":"res-4","name":"R2 (10 kΩ) pull-down on IN"},{"id":"LED1","footprint":"led-2","name":"LED1 red: tank empty","colour":"red"}],"target":[["+5V.1","IC1.14","SW1.c"],["0V.1","IC1.7","LED1.k","R2.2"],["SW1.2","R2.1","IC1.1"],["IC1.2","R1.1"],["R1.2","LED1.a"]],"dontcare":["SW1.1","IC1.3","IC1.4","IC1.5","IC1.6","IC1.8","IC1.9","IC1.10","IC1.11","IC1.12","IC1.13"]},"diagram":{"w":320,"h":324,"svg":"<polyline class=\"sbd-pos\" points=\"20,24 302,24\"/><text class=\"sbd-poslab\" x=\"20\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"20,300 302,300\"/><text class=\"sbd-clab\" x=\"20\" y=\"318\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"40\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"40,24 40,42\"/><polyline class=\"sbd-wire\" points=\"40,42 40,49\"/><polyline class=\"sbd-wire\" points=\"40,71 40,78\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"49\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"40\" cy=\"71\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"40,71 53,51\"/><text class=\"sbd-clab\" x=\"60\" y=\"64\" text-anchor=\"start\">SW1</text><polyline class=\"sbd-wire\" points=\"40,78 40,150 132,150\"/><circle class=\"sbd-node\" cx=\"76\" cy=\"150\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"76,150 76,228\"/><polyline class=\"sbd-wire\" points=\"76,228 76,284\"/><rect class=\"sbd-part\" x=\"68\" y=\"234\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"62\" y=\"253\" text-anchor=\"end\">R2</text><text class=\"sbd-clab\" x=\"62\" y=\"268\" text-anchor=\"end\">10 kΩ</text><polyline class=\"sbd-wire\" points=\"76,284 76,300\"/><circle class=\"sbd-node\" cx=\"76\" cy=\"300\" r=\"3.2\"/><polygon class=\"sbd-part\" points=\"146,133 146,167 180,150\"/><circle class=\"sbd-part\" cx=\"184\" cy=\"150\" r=\"4\"/><polyline class=\"sbd-wire\" points=\"132,150 146,150\"/><polyline class=\"sbd-wire\" points=\"188,150 202,150\"/><text class=\"sbd-cnet\" x=\"143\" y=\"145\" text-anchor=\"end\">1</text><text class=\"sbd-cnet\" x=\"191\" y=\"145\" text-anchor=\"start\">2</text><text class=\"sbd-clab\" x=\"162\" y=\"120\" text-anchor=\"middle\">IC1a 74HC04</text><polyline class=\"sbd-wire\" points=\"202,150 250,150 250,176\"/><polyline class=\"sbd-wire\" points=\"250,176 250,232\"/><rect class=\"sbd-part\" x=\"242\" y=\"182\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"236\" y=\"201\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"236\" y=\"216\" text-anchor=\"end\">270 Ω</text><polyline class=\"sbd-wire\" points=\"250,232 250,244\"/><polyline class=\"sbd-wire\" points=\"250,244 250,276\"/><polygon class=\"sbd-part\" points=\"237,247 263,247 250,273\"/><line class=\"sbd-wire\" x1=\"237\" y1=\"273\" x2=\"263\" y2=\"273\"/><polyline class=\"sbd-wire\" points=\"267,255 274.88,247.12\"/><polygon class=\"sbd-node\" points=\"277,245 268.13,248.39 273.61,253.87\"/><polyline class=\"sbd-wire\" points=\"267,266 274.88,258.12\"/><polygon class=\"sbd-node\" points=\"277,256 268.13,259.39 273.61,264.87\"/><text class=\"sbd-clab\" x=\"229\" y=\"264\" text-anchor=\"end\">LED1</text><polyline class=\"sbd-wire\" points=\"250,276 250,300\"/><circle class=\"sbd-node\" cx=\"250\" cy=\"300\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"104\" cy=\"150\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"104,150 104,124\"/><circle class=\"sbd-node\" cx=\"214\" cy=\"150\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"214,150 214,124\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"282\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"282\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"282\" cy=\"300\" r=\"6\"/><text class=\"sbd-tpl\" x=\"282\" y=\"290\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"104\" cy=\"124\" r=\"6\"/><text class=\"sbd-tpl\" x=\"104\" y=\"114\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"214\" cy=\"124\" r=\"6\"/><text class=\"sbd-tpl\" x=\"214\" y=\"114\" text-anchor=\"middle\">T4</text></g>","at":{"T1":[282,24],"T2":[282,300],"T3":[104,124],"T4":[214,124]}}},"transistor-buzzer":{"layout":{"board":"34-0410","cuts":["D10"],"placements":[{"id":"+5V","footprint":"term-1","at":"A2","rot":0},{"id":"0V","footprint":"term-1","at":"I2","rot":0},{"id":"SW1","footprint":"spdt-3","at":"B4","rot":90},{"id":"R1","footprint":"res-4","at":"D8","rot":90},{"id":"Q1","footprint":"npn-can","at":"F12","rot":0},{"id":"BUZ1","footprint":"buzzer-2","at":"A16","rot":90}],"links":[{"a":"A6","b":"C6","colour":"red"},{"a":"D20","b":"F20","colour":"green"},{"a":"H15","b":"I15","colour":"black"}],"testpoints":[{"id":"T1","at":"A23"},{"id":"T2","at":"I23"},{"id":"T3","at":"G22"},{"id":"T4","at":"F18"}]},"question":{"id":"transistor-buzzer","board":"34-0410","components":[{"id":"+5V","footprint":"term-1","name":"+5 V supply","pos":true},{"id":"0V","footprint":"term-1","name":"0 V supply","neg":true},{"id":"SW1","footprint":"spdt-3","name":"SW1 slide switch"},{"id":"R1","footprint":"res-4","name":"R1 (1 kΩ)"},{"id":"Q1","footprint":"npn-can","name":"Q1 BC548 (metal can)"},{"id":"BUZ1","footprint":"buzzer-2","name":"BUZ1 buzzer"}],"target":[["+5V.1","SW1.c","BUZ1.+"],["SW1.2","R1.1"],["R1.2","Q1.b"],["Q1.c","BUZ1.-"],["0V.1","Q1.e"]],"dontcare":["SW1.1"]},"diagram":{"w":300,"h":286,"svg":"<polyline class=\"sbd-pos\" points=\"26,24 280,24\"/><text class=\"sbd-poslab\" x=\"26\" y=\"15\" text-anchor=\"start\">+5 V</text><polyline class=\"sbd-wire\" points=\"26,262 280,262\"/><text class=\"sbd-clab\" x=\"26\" y=\"280\" text-anchor=\"start\">0 V</text><circle class=\"sbd-node\" cx=\"86\" cy=\"24\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"174\" cy=\"24\" r=\"3.2\"/><polyline class=\"sbd-pos\" points=\"86,24 86,52\"/><polyline class=\"sbd-wire\" points=\"86,52 86,59\"/><polyline class=\"sbd-wire\" points=\"86,81 86,88\"/><circle class=\"sbd-node\" cx=\"86\" cy=\"59\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"86\" cy=\"81\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"86,81 99,61\"/><text class=\"sbd-clab\" x=\"106\" y=\"74\" text-anchor=\"start\">SW1</text><polyline class=\"sbd-wire\" points=\"86,88 86,116\"/><polyline class=\"sbd-wire\" points=\"86,116 86,172\"/><rect class=\"sbd-part\" x=\"78\" y=\"122\" width=\"16\" height=\"44\" rx=\"2\"/><text class=\"sbd-clab\" x=\"72\" y=\"141\" text-anchor=\"end\">R1</text><text class=\"sbd-clab\" x=\"72\" y=\"156\" text-anchor=\"end\">1 kΩ</text><polyline class=\"sbd-wire\" points=\"86,172 86,222 130,222 130,176\"/><polyline class=\"sbd-pos\" points=\"174,24 174,62\"/><polyline class=\"sbd-wire\" points=\"174,56 174,77\"/><polyline class=\"sbd-wire\" points=\"174,95 174,104\"/><path class=\"sbd-part\" d=\"M 159 77 A 15 15 0 0 0 189 77 Z\"/><polyline class=\"sbd-wire\" points=\"174,77 174,95\"/><text class=\"sbd-clab\" x=\"195\" y=\"84\" text-anchor=\"start\">BUZ1</text><polyline class=\"sbd-wire\" points=\"174,95 174,144\"/><circle class=\"sbd-part\" cx=\"164\" cy=\"176\" r=\"20\"/><polyline class=\"sbd-wire\" points=\"157,165 157,187\"/><polyline class=\"sbd-wire\" points=\"130,176 157,176\"/><polyline class=\"sbd-wire\" points=\"157,170 174,161 174,144\"/><polyline class=\"sbd-wire\" points=\"157,182 174,191 174,208\"/><polygon class=\"sbd-node\" points=\"166.5,185 173,184.5 170,191\"/><text class=\"sbd-clab\" x=\"190\" y=\"172\" text-anchor=\"start\">Q1 BC548</text><polyline class=\"sbd-wire\" points=\"174,208 174,262\"/><circle class=\"sbd-node\" cx=\"174\" cy=\"262\" r=\"3.2\"/><circle class=\"sbd-node\" cx=\"130\" cy=\"200\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"130,200 108,200 108,186\"/><circle class=\"sbd-node\" cx=\"174\" cy=\"124\" r=\"3.2\"/><polyline class=\"sbd-wire\" points=\"174,124 236,124\"/><g class=\"tb-dtp\" data-tp=\"T1\"><circle class=\"sbd-tp\" cx=\"250\" cy=\"24\" r=\"6\"/><text class=\"sbd-tpl\" x=\"250\" y=\"14\" text-anchor=\"middle\">T1</text></g><g class=\"tb-dtp\" data-tp=\"T2\"><circle class=\"sbd-tp\" cx=\"250\" cy=\"262\" r=\"6\"/><text class=\"sbd-tpl\" x=\"250\" y=\"252\" text-anchor=\"middle\">T2</text></g><g class=\"tb-dtp\" data-tp=\"T3\"><circle class=\"sbd-tp\" cx=\"108\" cy=\"186\" r=\"6\"/><text class=\"sbd-tpl\" x=\"108\" y=\"176\" text-anchor=\"middle\">T3</text></g><g class=\"tb-dtp\" data-tp=\"T4\"><circle class=\"sbd-tp\" cx=\"236\" cy=\"124\" r=\"6\"/><text class=\"sbd-tpl\" x=\"236\" y=\"114\" text-anchor=\"middle\">T4</text></g>","at":{"T1":[250,24],"T2":[250,262],"T3":[108,186],"T4":[236,124]}}}}; })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- scenarios/555-astable.js ---- */
 /* ============================================================================
    Scenario board: the Block 6 555 astable practice board (BENCH-PLAN §4, S7–S8)
@@ -883,6 +1113,624 @@
     },
     /* The plan's S8 table: pin 7 tells these three apart. */
     distinct: [{ cases: ["s8", "r1open", "c1short"], reading: "pin7" }]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/dark-light.js ---- */
+/* ============================================================================
+   Scenario board: S2 · Dark-activated light (BENCH-PLAN §4) · level 3
+   ----------------------------------------------------------------------------
+   5 V. R1 10 kΩ from +5 V to the base; the LDR (NORP12, on the board) from
+   the base to 0 V; LED1 and R2 270 Ω from +5 V to Q1's collector. T3 the
+   base, T4 the collector. Input: the lamp on the LDR, or its black cap on
+   (teacher, 22 Oct 2026, M5). Layout: boards/dark-light.mjs.
+
+   Fault S2: the LDR and R1 are swapped. The light comes on in the light and
+   goes off when covered: the opposite of the good board.
+   Distractors: LED1 turned round (never on), Q1's collector dry (T3 changes,
+   T4 never drops), a dry joint on the LDR (LED always on).
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const LIGHT = { LDR: "light" }, DARK = { LDR: "covered" };
+
+  TB.scenario({
+    id: "dark-light",
+    parts: {
+      R1:   { model: "res", value: 10e3 },
+      LDR:  { model: "ldr", value: 0 },
+      Q1:   { model: "npn", value: 0 },
+      R2:   { model: "res", value: 270 },
+      LED1: { model: "led", value: 0, colour: "red" }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: { LDR: { states: { light: "light", covered: "covered" }, start: "light" } },
+
+    faults: {
+      s2: { plan: "S2", name: "The LDR and R1 are swapped", edits: [
+        { place: "LDR", at: "B6", rot: 90 }, { place: "R1", at: "E8", rot: 90 }] }
+    },
+    distractors: {
+      ledrev:  { name: "LED1 is the wrong way round", edits: [{ turn: "LED1" }] },
+      q1dead:  { name: "Q1's collector has a dry joint", edits: [{ dry: "Q1.c" }] },
+      ldropen: { name: "The LDR has a dry joint", edits: [{ dry: "LDR.1" }] }
+    },
+
+    readings: {
+      T1:     { dcv: "T1", set: LIGHT },
+      T3l:    { dcv: "T3", set: LIGHT }, T4l: { dcv: "T4", set: LIGHT }, LED1l: { led: "LED1", set: LIGHT },
+      T3d:    { dcv: "T3", set: DARK }, T4d: { dcv: "T4", set: DARK }, LED1d: { led: "LED1", set: DARK },
+      LDRl:   { off: "OHM 2k", red: "LDR.1", black: "LDR.2", lift: ["LDR.1"], set: LIGHT },
+      LDRd:   { off: "OHM 2M", red: "LDR.1", black: "LDR.2", lift: ["LDR.1"], set: DARK }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], T3l: [0.10, 0.35], T4l: [3.3, 3.9], LED1l: "off",
+        T3d: [0.62, 0.82], T4d: [0.03, 0.15], LED1d: "on", LDRl: [295, 605], LDRd: [99e3, 1.01e6]
+      },
+      s2:      { T3l: [0.65, 0.88], T4l: [0, 0.10], LED1l: "on", T3d: [0.02, 0.50], T4d: [3.3, 3.9], LED1d: "off" },
+      ledrev:  { LED1l: "off", LED1d: "off" },
+      q1dead:  { T3d: [0.55, 0.80], T4d: [3.3, 3.9], LED1d: "off" },
+      ldropen: { T3l: [0.62, 0.82], LED1l: "on", LED1d: "on" }
+    },
+    keys: {
+      s2: ["T3l", "T4l", "LED1l", "T4d", "LED1d"],
+      ledrev: ["LED1d"], q1dead: ["T4d", "LED1d"], ldropen: ["T3l", "LED1l"]
+    },
+    /* Light and covered tell the swap from the rest: on in the light and off
+       covered is the swap alone. */
+    distinct: [
+      { cases: ["s2", "ldropen"], reading: "LED1d" },
+      { cases: ["s2", "ledrev"], reading: "LED1l" },
+      { cases: ["s2", "q1dead"], reading: "LED1l" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/greenhouse.js ---- */
+/* ============================================================================
+   Scenario board: S3 · Greenhouse irrigation (BENCH-PLAN §4) · level 3
+   ----------------------------------------------------------------------------
+   5 V. Slide switches SD (soil dry), TK (tank not empty) and EN (system on),
+   each with a 10 kΩ pull-down. SD AND TK in gate a of IC1 (74HC08), its
+   output AND EN in gate b, then R1 1 kΩ to Q1 (BC548), which runs the pump
+   (off the board). T3 gate a's output, T4 gate b's, T5 the base.
+   Layout: boards/greenhouse.mjs.
+
+   Fault S3: R2, SD's pull-down, has a dry joint. With SD off its input floats:
+   neither 1 nor 0. With TK and EN on, the pump chatters on and off by itself.
+   Distractors: SD stuck on (pump runs steadily), Q1's collector dry (T4 high,
+   pump never runs), a 74HC00 fitted.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const S = (sd, tk, en) => ({ SD: sd ? "on" : "off", TK: tk ? "on" : "off", EN: en ? "on" : "off" });
+  const KEY = S(0, 1, 1);
+
+  TB.scenario({
+    id: "greenhouse",
+    parts: {
+      SD:   { model: "spdt", value: 0 },
+      TK:   { model: "spdt", value: 0 },
+      EN:   { model: "spdt", value: 0 },
+      IC1:  { model: "hc08", value: 0 },
+      R1:   { model: "res", value: 1e3 },
+      R2:   { model: "res", value: 10e3 },
+      R3:   { model: "res", value: 10e3 },
+      R4:   { model: "res", value: 10e3 },
+      Q1:   { model: "npn", value: 0 },
+      PUMP: { model: "pump", value: 0 }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: {
+      SD: { states: { off: "1", on: "2" }, start: "off" },
+      TK: { states: { off: "1", on: "2" }, start: "off" },
+      EN: { states: { off: "1", on: "2" }, start: "off" }
+    },
+
+    faults: {
+      s3: { plan: "S3", name: "R2, the pull-down on SD, has a dry joint", edits: [{ dry: "R2.1" }] }
+    },
+    distractors: {
+      sdstuck:   { name: "SD is stuck on", edits: [{ stuck: "SD", at: "2" }] },
+      q1dead:    { name: "Q1's collector has a dry joint", edits: [{ dry: "Q1.c" }] },
+      wrongchip: { name: "A 74HC00 is fitted, not a 74HC08", edits: [{ chip: "IC1", to: "hc00" }] }
+    },
+
+    readings: {
+      T1:     { dcv: "T1", set: KEY },
+      /* SDv alone: a meter on a floating input loads it, and can stop the
+         pump chattering, as on a real board. */
+      SDpin:  { probe: "IC1.1", set: KEY }, SDv: { dcv: "IC1.1", set: KEY, alone: true },
+      T3:     { probe: "T3", set: KEY }, T4: { probe: "T4", set: KEY },
+      T5:     { dcv: "T5", set: KEY }, PUMP: { load: "PUMP", set: KEY },
+      T4all:  { probe: "T4", set: S(1, 1, 1) }, T5all: { dcv: "T5", set: S(1, 1, 1) },
+      PUMPall: { load: "PUMP", set: S(1, 1, 1) },
+      PUMPen0: { load: "PUMP", set: S(1, 1, 0) },
+      R2joint: { off: "OHM 200", red: "R2.1", black: "A5" }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], SDv: [0, 0.015], T5: [0, 0.02], PUMP: "off", SDpin: "lo", T3: "lo", T4: "lo",
+        T4all: "hi", T5all: [0.65, 0.88], PUMPall: "on", PUMPen0: "off", R2joint: [0.2, 1.5]
+      },
+      s3:        { SDv: { min: [0.5, 1.7], max: [2.3, 3.3] }, SDpin: "flicker", T4: "flashes", PUMP: "chatters", R2joint: "over" },
+      sdstuck:   { SDpin: "hi", T4: "hi", PUMP: "on" },
+      q1dead:    { T4all: "hi", PUMPall: "off" },
+      wrongchip: { T3: "hi", PUMP: "off", PUMPen0: "on" }
+    },
+    keys: {
+      s3: ["SDv", "SDpin", "T4", "PUMP", "R2joint"],
+      sdstuck: ["SDpin", "PUMP"], q1dead: ["PUMPall"], wrongchip: ["T3", "PUMPen0"]
+    },
+    /* The pump chattering is the fault alone: stuck runs it steadily, the
+       wrong chip and a dead Q1 leave it off. */
+    distinct: [
+      { cases: ["s3", "sdstuck"], reading: "PUMP" },
+      { cases: ["s3", "wrongchip"], reading: "PUMP" },
+      { cases: ["s3", "sdstuck"], reading: "SDpin" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/guard-start.js ---- */
+/* ============================================================================
+   Scenario board: S4 · Guard and start button (BENCH-PLAN §4) · level 2
+   ----------------------------------------------------------------------------
+   5 V. Slide switches A (guard closed) and B (start pressed), each with a
+   10 kΩ pull-down, into one gate of IC1 (74HC08); pin 3 drives R1 270 Ω and
+   LED1. T3 the output. Layout: boards/guard-start.mjs.
+
+   Fault S4: a 74HC00 (NAND) is fitted. Same pins, so the wiring is right, but
+   the output is the wrong way up: on for 00, 01 and 10, off for 11.
+   Distractors: LED1 turned round (never lights), A's pull-down dry (A floats
+   when off), pin 14 dry (the chip is dead).
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const S = (a, b) => ({ A: a ? "on" : "off", B: b ? "on" : "off" });
+
+  TB.scenario({
+    id: "guard-start",
+    parts: {
+      A:    { model: "spdt", value: 0 },
+      B:    { model: "spdt", value: 0 },
+      IC1:  { model: "hc08", value: 0 },
+      R1:   { model: "res", value: 270 },
+      R2:   { model: "res", value: 10e3 },
+      R3:   { model: "res", value: 10e3 },
+      LED1: { model: "led", value: 0, colour: "red" }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: {
+      A: { states: { off: "1", on: "2" }, start: "off" },
+      B: { states: { off: "1", on: "2" }, start: "off" }
+    },
+
+    faults: {
+      s4: { plan: "S4", name: "A 74HC00 (NAND) is fitted, not a 74HC08", edits: [{ chip: "IC1", to: "hc00" }] }
+    },
+    distractors: {
+      ledrev:  { name: "LED1 is the wrong way round", edits: [{ turn: "LED1" }] },
+      pdopen:  { name: "R2, A's pull-down, has a dry joint", edits: [{ dry: "R2.1" }] },
+      nopower: { name: "IC1 pin 14 has a dry joint", edits: [{ dry: "IC1.14" }] }
+    },
+
+    readings: {
+      T1:    { dcv: "T1", set: S(1, 1) },
+      Q00:   { probe: "T3", set: S(0, 0) }, Q01: { probe: "T3", set: S(0, 1) },
+      Q10:   { probe: "T3", set: S(1, 0) }, Q11: { probe: "T3", set: S(1, 1) },
+      LED00: { led: "LED1", set: S(0, 0) }, LED01: { led: "LED1", set: S(0, 1) },
+      LED10: { led: "LED1", set: S(1, 0) }, LED11: { led: "LED1", set: S(1, 1) },
+      T3v11: { dcv: "T3", set: S(1, 1) },
+      pinA0: { probe: "IC1.1", set: S(0, 0) }, pinA1: { probe: "IC1.1", set: S(1, 1) },
+      pinB1: { probe: "IC1.2", set: S(1, 1) }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], Q00: "lo", Q01: "lo", Q10: "lo", Q11: "hi",
+        LED00: "off", LED01: "off", LED10: "off", LED11: "on", T3v11: [4.2, 4.85],
+        pinA0: "lo", pinA1: "hi", pinB1: "hi"
+      },
+      s4: {
+        Q00: "hi", Q01: "hi", Q10: "hi", Q11: "lo", LED00: "on", LED01: "on", LED10: "on", LED11: "off",
+        T3v11: [0, 0.05], pinA0: "lo", pinA1: "hi", pinB1: "hi"
+      },
+      ledrev:  { Q11: "hi", LED11: "off", T3v11: [4.85, 5.10] },
+      pdopen:  { pinA0: "flicker", Q11: "hi" },
+      nopower: { Q00: "none", Q11: "none", LED11: "off" }
+    },
+    keys: {
+      s4: ["Q00", "Q11", "LED00", "LED11", "T3v11"],
+      ledrev: ["LED11"], pdopen: ["pinA0"], nopower: ["Q11", "LED11"]
+    },
+    /* The truth table's first row tells the wrong chip from every distractor. */
+    distinct: [
+      { cases: ["s4", "ledrev"], reading: "Q00" },
+      { cases: ["s4", "pdopen"], reading: "Q00" },
+      { cases: ["s4", "nopower"], reading: "Q00" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/lift-interlock.js ---- */
+/* ============================================================================
+   Scenario board: S6 · Lift door interlock (BENCH-PLAN §4) · level 3 (safety)
+   ----------------------------------------------------------------------------
+   5 V. Slide switches A (door closed), B (floor selected) and C (not
+   overloaded), each with a 10 kΩ pull-down. B AND C in gate a of IC1
+   (74HC08), its output AND A in gate b, which drives R1 270 Ω and LED1 (motor
+   enable). T3 gate a's output, T4 gate b's. Layout: boards/lift-interlock.mjs.
+
+   Fault S6: a solder bridge between the B and C strips. With B on, C is on
+   too, so the lift runs while overloaded (A on, B on, C off). That is a safety
+   fault. Distractors: C stuck on, a 74HC00 fitted, pin 1's cut missing.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const S = (a, b, c) => ({ A: a ? "on" : "off", B: b ? "on" : "off", C: c ? "on" : "off" });
+
+  TB.scenario({
+    id: "lift-interlock",
+    parts: {
+      A:    { model: "spdt", value: 0 },
+      B:    { model: "spdt", value: 0 },
+      C:    { model: "spdt", value: 0 },
+      IC1:  { model: "hc08", value: 0 },
+      R1:   { model: "res", value: 270 },
+      R2:   { model: "res", value: 10e3 },
+      R3:   { model: "res", value: 10e3 },
+      R4:   { model: "res", value: 10e3 },
+      LED1: { model: "led", value: 0, colour: "green" }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: {
+      A: { states: { off: "1", on: "2" }, start: "off" },
+      B: { states: { off: "1", on: "2" }, start: "off" },
+      C: { states: { off: "1", on: "2" }, start: "off" }
+    },
+
+    faults: {
+      s6: { plan: "S6", name: "A solder bridge joins the B and C strips", edits: [{ bridge: ["F8", "G8"] }] }
+    },
+    distractors: {
+      cstuck:    { name: "C is stuck on", edits: [{ stuck: "C", at: "2" }] },
+      wrongchip: { name: "A 74HC00 is fitted, not a 74HC08", edits: [{ chip: "IC1", to: "hc00" }] },
+      nocut:     { name: "The track under pin 1 is not cut", edits: [{ uncut: "F11" }] }
+    },
+
+    readings: {
+      T1:     { dcv: "T1", set: S(1, 1, 0) },
+      Cpin:   { probe: "IC1.2", set: S(1, 1, 0) }, T3: { probe: "T3", set: S(1, 1, 0) },
+      OUT:    { probe: "T4", set: S(1, 1, 0) }, LED: { led: "LED1", set: S(1, 1, 0) },
+      Cpin0:  { probe: "IC1.2", set: S(1, 0, 0) }, OUT0: { probe: "T4", set: S(1, 0, 0) },
+      Bpin0:  { probe: "IC1.1", set: S(1, 0, 0) },
+      OUTall: { probe: "T4", set: S(1, 1, 1) }, LEDall: { led: "LED1", set: S(1, 1, 1) },
+      BC:     { off: "OHM 200", red: "IC1.1", black: "IC1.2" }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], Cpin: "lo", T3: "lo", OUT: "lo", LED: "off", Cpin0: "lo", OUT0: "lo",
+        Bpin0: "lo", OUTall: "hi", LEDall: "on", BC: "over"
+      },
+      s6:        { Cpin: "hi", T3: "hi", OUT: "hi", LED: "on", Cpin0: "lo", OUT0: "lo", BC: [0.2, 1.5] },
+      cstuck:    { Cpin: "hi", OUT: "hi", Cpin0: "hi", BC: "over" },
+      wrongchip: { T3: "hi", OUT: "lo" },
+      nocut:     { Bpin0: "hi", OUT: "lo" }
+    },
+    keys: {
+      s6: ["Cpin", "OUT", "LED", "BC"],
+      cstuck: ["Cpin0"], wrongchip: ["T3"], nocut: ["Bpin0"]
+    },
+    /* With B off the bridge leaves C low; a stuck C stays high. */
+    distinct: [
+      { cases: ["s6", "cstuck"], reading: "Cpin0" },
+      { cases: ["s6", "wrongchip"], reading: "OUT" },
+      { cases: ["s6", "nocut"], reading: "OUT" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/red-green.js ---- */
+/* ============================================================================
+   Scenario board: S10 · Slide switch picks red or green (BENCH-PLAN §4) · level 2
+   ----------------------------------------------------------------------------
+   5 V. SW1's middle pin on +5 V; pin 1 feeds R1 270 Ω and LED1 red, pin 2
+   R2 270 Ω and LED2 green. T3 the middle pin, T4 the red branch, T5 the green.
+   Layout: boards/red-green.mjs.
+
+   Fault S10 (teacher, 22 Oct 2026, M1): the +5 V link goes to the red pin's
+   strip, not the middle pin's. Red is on whichever way the switch is slid;
+   slid to green, the middle pin has no supply: T3 0 V, green off.
+   Distractors: LED2 turned round, the switch broken inside, no supply.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const RED = { SW1: "red" }, GREEN = { SW1: "green" };
+
+  TB.scenario({
+    id: "red-green",
+    parts: {
+      SW1:  { model: "spdt", value: 0 },
+      R1:   { model: "res", value: 270 },
+      LED1: { model: "led", value: 0, colour: "red" },
+      R2:   { model: "res", value: 270 },
+      LED2: { model: "led", value: 0, colour: "green" }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: { SW1: { states: { red: "1", green: "2" }, start: "red" } },
+
+    faults: {
+      s10: { plan: "S10", name: "The +5 V link goes to the red pin's strip", edits: [{ link: "C6", to: "B6" }] }
+    },
+    distractors: {
+      led2rev:  { name: "LED2 is the wrong way round", edits: [{ turn: "LED2" }] },
+      swbroken: { name: "SW1 is broken inside", edits: [{ open: "SW1" }] },
+      nosupply: { name: "No supply reaches the board", edits: [{ dry: "+5V.1" }] }
+    },
+
+    readings: {
+      T1:    { dcv: "T1", set: RED },
+      T3r:   { dcv: "T3", set: RED }, T4r: { dcv: "T4", set: RED }, T5r: { dcv: "T5", set: RED },
+      LED1r: { led: "LED1", set: RED }, LED2r: { led: "LED2", set: RED },
+      T3g:   { dcv: "T3", set: GREEN }, T4g: { dcv: "T4", set: GREEN }, T5g: { dcv: "T5", set: GREEN },
+      LED1g: { led: "LED1", set: GREEN }, LED2g: { led: "LED2", set: GREEN },
+      cont1: { off: "OHM 200", red: "SW1.c", black: "SW1.1", set: RED },
+      cont2: { off: "OHM 200", red: "SW1.c", black: "SW1.2", set: GREEN }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], T3r: [4.85, 5.10], T4r: [4.85, 5.10], T5r: [0, 0.05], LED1r: "on", LED2r: "off",
+        T3g: [4.85, 5.10], T4g: [0, 0.05], T5g: [4.85, 5.10], LED1g: "off", LED2g: "on",
+        cont1: [0.2, 1.5], cont2: [0.2, 1.5]
+      },
+      s10:      { T3r: [4.85, 5.10], LED1r: "on", T3g: [0, 0.05], T4g: [4.85, 5.10], LED1g: "on", LED2g: "off" },
+      led2rev:  { T3g: [4.85, 5.10], T5g: [4.85, 5.10], LED1g: "off", LED2g: "off" },
+      swbroken: { T3r: [4.85, 5.10], T4r: [0, 0.05], LED1r: "off", cont1: "over", cont2: "over" },
+      nosupply: { T1: [0, 0.05], LED1r: "off" }
+    },
+    keys: {
+      s10: ["T3g", "T4g", "LED1g", "LED2g"],
+      led2rev: ["LED2g"], swbroken: ["T4r", "LED1r", "cont1"], nosupply: ["T1"]
+    },
+    /* M1: red stays on when slid to green, which green reversed cannot do;
+       T3 on the green side is 0 V, which a broken switch cannot do. */
+    distinct: [
+      { cases: ["s10", "led2rev"], reading: "LED1g" },
+      { cases: ["s10", "swbroken"], reading: "T3g" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/slide-led.js ---- */
+/* ============================================================================
+   Scenario board: S9 · Slide switch and LED (BENCH-PLAN §4) · level 1
+   ----------------------------------------------------------------------------
+   5 V. SW1 slide switch (middle pin on +5 V, pin 2 the "on" side), R1 270 Ω,
+   LED1 red. T1 +5 V, T2 0 V, T3 after the switch, T4 the R1–LED join.
+   Layout: boards/slide-led.mjs.
+
+   Fault S9: LED1 is the wrong way round. No current, so the LED takes the whole
+   supply: T4 reads 5 V, not 1.9 V. Distractors: R1 open (T4 0 V), the switch
+   not making contact (T3 0 V), no supply.
+
+   The current reading lifts the black link at H19 and puts the meter (DCA 20m,
+   red lead in A) between the LED's strip and 0 V (§4 "Current in S1 and S9").
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const ON = { SW1: "on" };
+
+  TB.scenario({
+    id: "slide-led",
+    parts: {
+      SW1:  { model: "spdt", value: 0 },
+      R1:   { model: "res", value: 270 },
+      LED1: { model: "led", value: 0, colour: "red" }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
+
+    faults: {
+      s9: { plan: "S9", name: "LED1 is the wrong way round", edits: [{ turn: "LED1" }] }
+    },
+    distractors: {
+      r1open:   { name: "R1 has a dry joint", edits: [{ dry: "R1.1" }] },
+      swdead:   { name: "SW1 does not make contact", edits: [{ dry: "SW1.c" }] },
+      nosupply: { name: "No supply reaches the board", edits: [{ dry: "+5V.1" }] }
+    },
+
+    /* set: the inputs while the reading is taken. amps: power on, the meter in
+       series where a link is lifted. */
+    readings: {
+      T1:    { dcv: "T1", set: ON },
+      T3:    { dcv: "T3", set: ON },
+      T4:    { dcv: "T4", set: ON },
+      LED1:  { led: "LED1", set: ON },
+      T3off: { dcv: "T3" },
+      LED1off: { led: "LED1" },
+      mA:    { amps: "DCA 20m", red: "H21", black: "T2", lift: ["link@H19"], set: ON },
+      LED1diode: { off: "DCV D", red: "T4", black: "T2" }
+    },
+
+    expect: {
+      good: {
+        T1: [4.90, 5.10], T3: [4.85, 5.10], T4: [1.80, 2.12], LED1: "on",
+        T3off: [0, 0.05], LED1off: "off", mA: [0.0095, 0.0130], LED1diode: [1.55, 1.95]
+      },
+      s9:       { T3: [4.85, 5.10], T4: [4.85, 5.10], LED1: "off", mA: [0, 0.00005], LED1diode: "over" },
+      r1open:   { T3: [4.85, 5.10], T4: [0, 0.05], LED1: "off", mA: [0, 0.00005] },
+      swdead:   { T1: [4.90, 5.10], T3: [0, 0.05], T4: [0, 0.05], LED1: "off" },
+      nosupply: { T1: [0, 0.05], T3: [0, 0.05], LED1: "off" }
+    },
+    keys: {
+      s9: ["T4", "LED1", "mA", "LED1diode"],
+      r1open: ["T4", "LED1"], swdead: ["T3"], nosupply: ["T1"]
+    },
+    /* The plan's S9 table: T3 and T4 tell the fault from both distractors. */
+    distinct: [
+      { cases: ["s9", "r1open"], reading: "T4" },
+      { cases: ["s9", "swdead"], reading: "T3" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/tank-empty.js ---- */
+/* ============================================================================
+   Scenario board: S5 · Tank empty warning (BENCH-PLAN §4) · level 2
+   ----------------------------------------------------------------------------
+   5 V. SW1 (standing in for the float switch) with a 10 kΩ pull-down into
+   IC1 (74HC04) pin 1; pin 2 drives R1 270 Ω and LED1. T3 pin 1, T4 pin 2.
+   Layout: boards/tank-empty.mjs.
+
+   Fault S5: the track is not cut under the chip on pin 1's strip, so pin 1 is
+   joined to pin 14 (+5 V). Pin 1 is high whatever the switch does; the LED
+   never lights. Distractors: LED1 turned round, SW1 stuck on, a 74HC08 fitted.
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const OFF = { SW1: "off" }, ON = { SW1: "on" };
+
+  TB.scenario({
+    id: "tank-empty",
+    parts: {
+      SW1:  { model: "spdt", value: 0 },
+      IC1:  { model: "hc04", value: 0 },
+      R1:   { model: "res", value: 270 },
+      R2:   { model: "res", value: 10e3 },
+      LED1: { model: "led", value: 0, colour: "red" }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
+
+    faults: {
+      s5: { plan: "S5", name: "The track under the chip is not cut on pin 1's strip", edits: [{ uncut: "F11" }] }
+    },
+    distractors: {
+      ledrev:    { name: "LED1 is the wrong way round", edits: [{ turn: "LED1" }] },
+      stuck:     { name: "SW1 is stuck on", edits: [{ stuck: "SW1", at: "2" }] },
+      wrongchip: { name: "A 74HC08 is fitted, not a 74HC04", edits: [{ chip: "IC1", to: "hc08" }] }
+    },
+
+    readings: {
+      T1:     { dcv: "T1", set: OFF },
+      P1off:  { probe: "T3", set: OFF }, P2off: { probe: "T4", set: OFF }, LEDoff: { led: "LED1", set: OFF },
+      T3off:  { dcv: "T3", set: OFF }, T4off: { dcv: "T4", set: OFF },
+      P1on:   { probe: "T3", set: ON }, P2on: { probe: "T4", set: ON }, LEDon: { led: "LED1", set: ON },
+      cut:    { off: "OHM 200", red: "IC1.1", black: "IC1.14", set: OFF },
+      swc2:   { off: "OHM 200", red: "SW1.c", black: "SW1.2", set: OFF },
+      swc1:   { off: "OHM 200", red: "SW1.c", black: "SW1.1", set: OFF }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], LEDoff: "on", T3off: [0, 0.015], T4off: [4.2, 4.85], P1off: "lo", P2off: "hi",
+        P1on: "hi", P2on: "lo", LEDon: "off", cut: "over", swc2: "over", swc1: [0.2, 1.5]
+      },
+      s5:        { LEDoff: "off", T3off: [4.85, 5.10], T4off: [0, 0.05], P1off: "hi", P2off: "lo", cut: [0.2, 1.5], swc1: [0.2, 1.5] },
+      ledrev:    { LEDoff: "off", T4off: [4.85, 5.10] },
+      stuck:     { P1off: "hi", LEDoff: "off", swc1: "over" },
+      wrongchip: { P2off: "none", LEDoff: "off" }
+    },
+    keys: {
+      s5: ["LEDoff", "T3off", "P1off", "cut"],
+      ledrev: ["LEDoff"], stuck: ["P1off", "swc1"], wrongchip: ["P2off"]
+    },
+    /* Stuck on and the missing cut both put +5 V on pin 1, and both beep from
+       the middle pin to pin 2. Middle pin to pin 1, slid off, tells them apart. */
+    distinct: [
+      { cases: ["s5", "stuck"], reading: "swc1" },
+      { cases: ["s5", "ledrev"], reading: "T3off" },
+      { cases: ["s5", "wrongchip"], reading: "P2off" }
+    ]
+  });
+
+})(typeof globalThis !== "undefined" ? globalThis : this);
+/* ---- scenarios/transistor-buzzer.js ---- */
+/* ============================================================================
+   Scenario board: S1 · Buzzer switched by a transistor (BENCH-PLAN §4) · level 2
+   ----------------------------------------------------------------------------
+   5 V. SW1 slide switch -> R1 1 kΩ -> Q1 (BC548) base; BUZ1 (active piezo)
+   from +5 V to the collector. T3 the base, T4 the collector.
+   Layout: boards/transistor-buzzer.mjs.
+
+   Fault S1: R1 is 1 MΩ, not 1 kΩ. The base takes microamps, so Q1 hardly
+   conducts: T3 still reads about 0.6 V, but T4 stays high and the buzzer is
+   silent. Distractors: the switch not making contact (T3 0 V), the buzzer
+   turned round (T4 0 V, silent), Q1's collector dry (T4 = supply).
+
+   The current reading lifts the green link's end at D20 and puts the meter
+   (DCA 200m) between the buzzer's strip and the collector (§4, S9 proof).
+   ============================================================================ */
+(function (root) {
+  "use strict";
+  const TB = root.TB;
+  const ON = { SW1: "on" };
+
+  TB.scenario({
+    id: "transistor-buzzer",
+    parts: {
+      SW1:  { model: "spdt", value: 0 },
+      R1:   { model: "res", value: 1e3 },
+      Q1:   { model: "npn", value: 0 },
+      BUZ1: { model: "buzzer", value: 0 }
+    },
+    supply: { pos: "+5V.1", neg: "0V.1" },
+    supplyTP: "T1", ground: "T2",
+    inputs: { SW1: { states: { off: "1", on: "2" }, start: "off" } },
+
+    faults: {
+      s1: { plan: "S1", name: "R1 is 1 MΩ, not 1 kΩ", edits: [{ value: "R1", to: 1e6 }] }
+    },
+    distractors: {
+      swdead: { name: "SW1 does not make contact", edits: [{ dry: "SW1.c" }] },
+      buzrev: { name: "BUZ1 is the wrong way round", edits: [{ turn: "BUZ1" }] },
+      q1open: { name: "Q1's collector has a dry joint", edits: [{ dry: "Q1.c" }] }
+    },
+
+    readings: {
+      T1:   { dcv: "T1", set: ON },
+      T3:   { dcv: "T3", set: ON },
+      T4:   { dcv: "T4", set: ON },
+      BUZ1: { load: "BUZ1", set: ON },
+      T4off: { dcv: "T4" },
+      BUZ1off: { load: "BUZ1" },
+      mA:   { amps: "DCA 200m", red: "D22", black: "T4", lift: ["link@D20"], set: ON },
+      R1ohm: { off: "OHM 2M", red: "R1.1", black: "R1.2", lift: ["R1.1"] }
+    },
+    expect: {
+      good: {
+        T1: [4.85, 5.10], T3: [0.65, 0.85], T4: [0.03, 0.20], BUZ1: "on",
+        T4off: [4.75, 5.05], BUZ1off: "off", mA: [0.0180, 0.0300], R1ohm: [940, 1060]
+      },
+      s1:     { T3: [0.55, 0.75], T4: [2.6, 3.9], BUZ1: "off", mA: [0.0004, 0.0022], R1ohm: [940e3, 1060e3] },
+      swdead: { T3: [0, 0.05], T4: [4.75, 5.05], BUZ1: "off" },
+      buzrev: { T4: [0, 0.05], BUZ1: "off", mA: [0, 0.00005] },
+      q1open: { T3: [0.60, 0.85], T4: [4.75, 5.05], BUZ1: "off" }
+    },
+    keys: {
+      s1: ["T4", "BUZ1", "mA", "R1ohm"],
+      swdead: ["T3"], buzrev: ["T4", "BUZ1"], q1open: ["T4", "BUZ1"]
+    },
+    /* The plan's S1 table: T3 looks normal on the fault board; T4 tells it
+       from each distractor. */
+    distinct: [
+      { cases: ["s1", "swdead"], reading: "T3" },
+      { cases: ["s1", "buzrev", "q1open"], reading: "T4" }
+    ]
   });
 
 })(typeof globalThis !== "undefined" ? globalThis : this);

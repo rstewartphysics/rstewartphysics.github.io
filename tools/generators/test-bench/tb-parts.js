@@ -83,6 +83,30 @@
     green: { vf: [2.00, 2.20] }
   };
 
+  /* Pin roles from the data sheets (the engine's GATES table, sbd-engine.js). */
+  const QUAD = [[["1", "2"], "3"], [["4", "5"], "6"], [["9", "10"], "8"], [["12", "13"], "11"]];
+  const HEX = [[["1"], "2"], [["3"], "4"], [["5"], "6"], [["9"], "8"], [["11"], "10"], [["13"], "12"]];
+  const LOGIC = { and: v => v.every(Boolean), nand: v => !v.every(Boolean), not: v => !v[0] };
+  const CHIP_PRINT = { hc08: "74HC08", hc00: "74HC00", hc04: "74HC04" };
+  function hc(kind) {
+    const gates = (kind === "not" ? HEX : QUAD).map(([ins, out]) => ({ ins, out }));
+    return {
+      pins: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"],
+      build: "hc", kind, gates, logic: LOGIC[kind],
+      draw(value, u, id) {
+        const pick = {};
+        for (const g of gates) for (const p of g.ins) pick[p] = {
+          f1: span(u(id + ".f1." + p), 0.6, 1.3), f2: span(u(id + ".f2." + p), 2.0, 3.1),
+          p1: span(u(id + ".p1." + p), 0, 6.283), p2: span(u(id + ".p2." + p), 0, 6.283)
+        };
+        return { kth: span(u(id + ".kth"), 0.45, 0.55), roh: span(u(id + ".roh"), 35, 60),
+                 rol: span(u(id + ".rol"), 25, 45), rpick: 5e6, pick };
+      }
+    };
+  }
+  /* What a floating input picks up at time t (s). */
+  const pickup = (pk, t) => 2.8 + 1.5 * (0.6 * Math.sin(6.283 * pk.f1 * t + pk.p1) + 0.4 * Math.sin(6.283 * pk.f2 * t + pk.p2));
+
   const PARTS = {
     res: {
       pins: ["1", "2"],
@@ -110,6 +134,63 @@
         Rleak: span(u(id + ".leak"), 2e6, 20e6) * (100e-6 / value)
       })
     },
+
+    /* A slide switch (SPDT): the middle pin joins one outer pin or the other,
+       through a few tens of milliohms of contact. */
+    spdt: {
+      pins: ["1", "c", "2"],
+      draw: (value, u, id) => ({ rc: span(u(id + ".rc"), 0.01, 0.05) })
+    },
+
+    /* BC548 (Ebers–Moll), plan §2.1: β 110-450, VBE 0.62-0.72 V at 2 mA, and
+       a few ohms in the collector so VCE(sat) is 0.05-0.20 V at buzzer currents. */
+    npn: {
+      pins: ["c", "b", "e"],
+      draw(value, u, id) {
+        const nvt = 0.0259, vbe = span(u(id + ".vbe"), 0.62, 0.72);
+        return { nvt, is: 2e-3 / Math.exp(vbe / nvt), vbe2: vbe, bf: span(u(id + ".bf"), 110, 450),
+                 br: span(u(id + ".br"), 2, 8), rc: span(u(id + ".rc"), 1.5, 5) };
+      }
+    },
+
+    /* An active 5 V piezo buzzer (teacher, 21 Oct 2026, K1): it has its own
+       oscillator inside, so it is not a resistor. A soft knee near 1.4-1.9 V,
+       20-30 mA at 5 V, silent below about 3 V. Reversed, only a leak flows. */
+    buzzer: {
+      pins: ["+", "-"],
+      draw(value, u, id) {
+        const nvt = 0.2, vk = span(u(id + ".vk"), 1.4, 1.9), i5 = span(u(id + ".i5"), 0.020, 0.030);
+        const is = 1e-3 / Math.expm1(vk / nvt), vd5 = nvt * Math.log(i5 / is + 1);
+        return { nvt, is, rs: (5 - vd5) / i5, i5, vsound: span(u(id + ".vs"), 2.8, 3.2),
+                 rleak: span(u(id + ".leak"), 150e3, 400e3) };
+      }
+    },
+
+    /* NORP12 LDR on the board (teacher, 22 Oct 2026, M5): under the lamp
+       300-600 Ω; under its black cap 100 kΩ-1 MΩ. */
+    ldr: {
+      pins: ["1", "2"],
+      draw: (value, u, id) => ({
+        light: span(u(id + ".light"), 300, 600),
+        covered: Math.exp(span(u(id + ".dark"), Math.log(100e3), Math.log(1e6)))
+      })
+    },
+
+    /* The 5 V pump, off the board (K2): a small DC motor, 60-100 mA running.
+       It turns once 30 mA flows. */
+    pump: {
+      pins: ["1", "2"],
+      draw: (value, u, id) => ({ R: span(u(id + ".r"), 50, 80), run: 0.03 })
+    },
+
+    /* 74HC chips. Outputs switch to pin 14 or pin 7 through tens of ohms; an
+       input switches at about half the supply and draws nothing. An input
+       joined to nothing picks up the board around it (plan §2: "drifts"), shown
+       here as a source of 1.3-4.3 V that wanders, behind 5 MΩ: a 10 kΩ pull-
+       down holds it under 0.01 V; a meter on it reads 1-3 V and wanders; the
+       gate behind it switches on its own. Unpowered, the chip is dead
+       (teacher, 22 Oct 2026, M2). */
+    hc08: hc("and"), hc00: hc("nand"), hc04: hc("not"),
 
     /* The bench supply: "5 V" is 4.95-5.08 V and sags 0.01-0.03 V on load. */
     supply: {
@@ -206,7 +287,7 @@
     return 0;   // ACV / ACA on a DC circuit; hFE with nothing in its socket
   }
 
-  TB.parts = { draws, stream, span, PARTS, LED_COLOURS, COLOURS, bandsOf, valueOfBands, ohmsText, faradsText };
+  TB.parts = { draws, stream, span, PARTS, LED_COLOURS, COLOURS, CHIP_PRINT, pickup, bandsOf, valueOfBands, ohmsText, faradsText };
   TB.meter = {
     DIAL, FMT, element: meterElement, display, value: meterValue,
     BEEP_BELOW: 50,              // continuity: OHM 200 beeps below 50 Ω
@@ -217,8 +298,10 @@
 
   /* The logic probe, powered from its clips (plan §2): Hi above 2.0 V, Lo below
      0.8 V on TTL; 70 % / 30 % of its supply on CMOS. Dead below 4 V. The pulse
-     LED stays lit 0.1 s after any change. */
-  TB.probe = { DRAW: 500, TIP: 1e6, MIN_SUPPLY: 4.0, PULSE: 0.1,
+     LED stays lit 0.1 s after any change. Its tip sits at 35 % of its supply
+     through 1 MΩ, between the Lo and Hi levels in either mode, so a point
+     joined to nothing lights neither LED, as a real probe does. */
+  TB.probe = { DRAW: 500, TIP: 1e6, BIAS: 0.35, MIN_SUPPLY: 4.0, PULSE: 0.1,
     TTL: [0.8, 2.0], CMOS: [0.3, 0.7] };
 
   /* An LED's look from its current. Below 20 µA it is too dim to see; up to

@@ -1,9 +1,9 @@
 // Writes assets/js/test-bench-engine.js: the test bench's solver, part models,
 // faults and scenario boards (BENCH-PLAN §1, R10), so the bench pages load one file.
 //
-// Sources: tools/generators/test-bench/. Each scenario's stripboard layout is
-// taken from tools/build-guides/circuits.mjs, the same layout the build guide
-// draws, so there is one board, never a copy. The bundle needs
+// Sources: tools/generators/test-bench/. A scenario's stripboard layout is
+// taken from tools/build-guides/circuits.mjs when a build guide draws that board
+// (one board, never a copy), or else from tools/generators/test-bench/boards/. The bundle needs
 // assets/js/stripboard.js (window.SBD) loaded first.
 //
 // Before writing, the tests in tb-tests.js run on the bundle exactly as it will
@@ -15,7 +15,7 @@
 //   npm run bench -- --report f.md also write every reading's range to f.md
 
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 import vm from "node:vm";
 import * as circuits from "../tools/build-guides/circuits.mjs";
@@ -29,8 +29,12 @@ const CHECK = args.includes("--check");
 const arg = k => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : null; };
 const SETS = +(arg("--sets") ?? (CHECK ? 300 : 1000));
 
-/* Scenario id -> the build guide circuit that holds its board. */
+/* Scenario id -> the circuit that holds its board: a build guide's, or a bench board's. */
 const BOARDS = { "555-astable": circuits.astable };
+for (const f of readdirSync(join(SRC, "boards")).filter(f => f.endsWith(".mjs")).sort()) {
+  const { board } = await import(pathToFileURL(join(SRC, "boards", f)).href);
+  BOARDS[board.id] = board;
+}
 
 /* The circuit diagram is the build guide's own (circuits.mjs), drawn with the
    site bundle's circuit kit. Test points are marked so the bench can light them,
@@ -56,7 +60,7 @@ for (const [id, c] of Object.entries(BOARDS)) {
   layouts[id] = {
     layout: {
       board: L.board,
-      cuts: ref.cuts.map(x => x[0]),
+      cuts: ref.cuts.map(x => typeof x === "string" ? x : x[0]),
       placements: ref.placements.map(p => ({ id: p.id, footprint: p.footprint, at: p.at, rot: p.rot || 0 })),
       links: ref.links.map(l => ({ a: l.a, b: l.b, colour: l.colour })),
       testpoints: ref.testpoints.map(t => ({ id: t.id, at: t.at }))
@@ -70,7 +74,7 @@ const MODULES = ["tb-parts.js", "tb-solver.js", "tb-faults.js"];
 const scenarios = readdirSync(join(SRC, "scenarios")).filter(f => f.endsWith(".js")).sort();
 const body = [];
 for (const n of MODULES) body.push(`/* ---- ${n} ---- */\n${readFileSync(join(SRC, n), "utf8").trimEnd()}\n`);
-body.push(`/* ---- layouts (from tools/build-guides/circuits.mjs) ---- */\n` +
+body.push(`/* ---- layouts (from tools/build-guides/circuits.mjs and boards/) ---- */\n` +
   `(function (root) { (root.TB = root.TB || {}).LAYOUTS = ${JSON.stringify(layouts)}; })(typeof globalThis !== "undefined" ? globalThis : this);\n`);
 for (const n of scenarios) body.push(`/* ---- scenarios/${n} ---- */\n${readFileSync(join(SRC, "scenarios", n), "utf8").trimEnd()}\n`);
 

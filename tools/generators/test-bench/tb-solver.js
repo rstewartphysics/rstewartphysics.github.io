@@ -72,6 +72,7 @@
   function keyOf(net, name) {
     if (!name) return null;            // a lead not on the board yet
     if (/^T\d+$/.test(name)) return "tp:" + name;
+    if (name.indexOf("link@") === 0) return "end:" + name.slice(5);   // a lifted link's free end
     if (name.indexOf(".") > 0) return "pin:" + name;
     return net.seg(name);
   }
@@ -112,6 +113,36 @@
       addI(I, k, a, id - gd * vd);
     }, current: x => iv(V(x, a) - V(x, k))[0] };
   }
+  /* exp(v / nvt) and its slope, carried on in a straight line past `vmax` so
+     a wild Newton step cannot overflow. */
+  function expLim(nvt, vmax) {
+    const em = Math.exp(vmax / nvt);
+    return v => v > vmax ? [em * (1 + (v - vmax) / nvt), em / nvt] : [Math.exp(v / nvt), Math.exp(v / nvt) / nvt];
+  }
+  /* An NPN transistor (Ebers–Moll, transport form) between nodes c, b, e. */
+  function npn(c, b, e, P) {
+    const F = expLim(P.nvt, P.nvt * Math.log(1 / P.is));
+    const parts = x => {
+      const vbe = V(x, b) - V(x, e), vbc = V(x, b) - V(x, c);
+      const [fe, de] = F(vbe), [fc, dc] = F(vbc);
+      return { vbe, vbc, fe, de, fc, dc };
+    };
+    return { stamp(G, I, x, cc) {
+      const n = cc.n, s = parts(x), is = P.is;
+      // the two junctions, as diodes b->e and b->c
+      const ibe = is / P.bf * (s.fe - 1), gbe = is / P.bf * s.de + 1e-12;
+      const ibc = is / P.br * (s.fc - 1), gbc = is / P.br * s.dc + 1e-12;
+      addG(G, n, b, e, gbe); addI(I, e, b, ibe - gbe * s.vbe);
+      addG(G, n, b, c, gbc); addI(I, c, b, ibc - gbc * s.vbc);
+      // the transport current, c to e inside the transistor
+      const it = is * (s.fe - s.fc), gf = is * s.de, gr = is * s.dc;
+      const put = (r, k, g) => { if (r >= 0 && k >= 0) G[r * n + k] += g; };
+      put(c, b, gf - gr); put(c, e, -gf); put(c, c, gr);
+      put(e, b, -(gf - gr)); put(e, e, gf); put(e, c, -gr);
+      addI(I, e, c, it - gf * s.vbe + gr * s.vbc);
+    }, ic(x) { const s = parts(x); return P.is * (s.fe - s.fc) - P.is / P.br * (s.fc - 1); } };
+  }
+
   /* Over a step h a capacitor is a conductance plus a source set by its last
      voltage v (and current i). Trapezoidal steps for accuracy; backward Euler
      for the instant re-solve after a switch, which also resets i cleanly (a
@@ -168,6 +199,80 @@
       C.add(resistor(pin("a"), mid, P.rs));
       C.add(d);
       C.leds.push({ id, colour: P.colour, el: d });
+    },
+
+    /* The position is an input: st.pos is the outer pin the middle pin joins.
+       Stuck: the contacts stay at one pin whatever the slider says. Open: they
+       never meet. */
+    spdt(C, pin, P, shorted, id) {
+      const st = C.inputs[id] = { pos: null }, stuck = C.F.stuck[id], open = C.F.opened.has(id);
+      for (const k of ["1", "2"])
+        C.add(resistor(pin("c"), pin(k), P.rc, () => !open && (shorted || (stuck || st.pos) === k)));
+    },
+
+    npn(C, pin, P) {
+      const ci = C.inner();
+      C.add(resistor(pin("c"), ci, P.rc));
+      C.add(npn(ci, pin("b"), pin("e"), P));
+    },
+
+    buzzer(C, pin, P, shorted, id) {
+      const a = pin("+"), k = pin("-");
+      if (shorted) { C.add(resistor(a, k, 0.05)); return; }
+      const mid = C.inner();
+      C.add(resistor(a, mid, P.rs));
+      C.add(diode(mid, k, P));
+      C.add(resistor(a, k, P.rleak));
+      C.loads.push({ id, kind: "buzzer", look: x => {
+        const v = V(x, a) - V(x, k);
+        return { on: v >= P.vsound, volts: v, current: (v - (V(x, mid) - V(x, k))) / P.rs + v / P.rleak };
+      } });
+    },
+
+    /* Light on it or its cap on: an input, like a switch. */
+    ldr(C, pin, P, shorted, id) {
+      const st = C.inputs[id] = { pos: null };
+      C.add(resistor(pin("1"), pin("2"), P.light, () => st.pos === "light"));
+      C.add(resistor(pin("1"), pin("2"), P.covered, () => st.pos === "covered"));
+    },
+
+    pump(C, pin, P, shorted, id) {
+      const a = pin("1"), k = pin("2");
+      C.add(resistor(a, k, shorted ? 0.05 : P.R));
+      C.loads.push({ id, kind: "pump", look: x => {
+        const i = (V(x, a) - V(x, k)) / P.R;
+        return { on: Math.abs(i) >= P.run, current: i, volts: V(x, a) - V(x, k) };
+      } });
+    },
+
+    hc(C, pin, P, shorted, id, M) {
+      const p = {}; for (const k of M.pins) p[k] = pin(k);
+      const st = { powered: false, q: M.gates.map(() => null) };
+      const rel = (x, k) => V(x, p[k]) - V(x, p["7"]);
+      M.gates.forEach((g, i) => {
+        C.add(resistor(p["14"], p[g.out], P.roh, () => st.q[i] === true));
+        C.add(resistor(p[g.out], p["7"], P.rol, () => st.q[i] === false));
+        for (const k of g.ins) {
+          const a = p[k], pk = P.pick[k];
+          if (a < 0) continue;
+          C.add({ stamp(G, I, x, c) {
+            addG(G, c.n, a, -1, 1 / P.rpick);
+            addI(I, a, -1, TB.parts.pickup(pk, C.time) / P.rpick);
+          } });
+        }
+      });
+      C.devices.push({
+        state: st,
+        event: () => null,
+        commit(x) {
+          const vcc = rel(x, "14"), was = st.q.join();
+          // it wakes at 2 V and stays awake down to 1.2 V, so a chip fed through
+          // an ohmmeter settles instead of flicking on and off every step
+          st.powered = vcc >= (st.powered ? 1.2 : 2);
+          st.q = M.gates.map(g => st.powered ? M.logic(g.ins.map(k => rel(x, k) > P.kth * vcc)) : null);
+          return st.q.join() !== was;
+        }
+      });
     },
 
     ecap(C, pin, P, shorted) {
@@ -231,7 +336,8 @@
     this.ground = net.dsu.find(groundKey);
     this.index = new Map();
     this.n = 0;
-    this.els = []; this.caps = []; this.leds = []; this.devices = [];
+    this.els = []; this.caps = []; this.leds = []; this.loads = []; this.devices = []; this.inputs = {};
+    this.time = 0;
     this.x = new Float64Array(0);
   }
   Circuit.prototype.node = function (key) {
@@ -264,24 +370,39 @@
     return x;   // the last iterate: close enough for a reading
   };
 
-  /* bench(scenarioId, { fault, seed }) — one board, powered off, at t = 0. */
+  /* bench(scenarioId, { fault, seed, lift }) — one board, powered off, at t = 0.
+     lift: legs ("R1.1") and link ends ("link@H19") the pupil has lifted off the
+     copper, to measure a part on its own or put the meter in series. */
   function bench(id, opts) {
     opts = opts || {};
     const sc = TB.SCENARIOS[id];
     if (!sc) throw new Error("test bench: no scenario " + id);
     const F = TB.faults.apply(sc, opts.fault || "good");
+    for (const k of opts.lift || []) F.dry.add(k);
     const net = connect(F.layout, F);
     const C = new Circuit(net, "pin:" + sc.supply.neg);
+    C.F = F;
     const d = TB.parts.draws(opts.seed == null ? "mid" : opts.seed);
     const touch = TB.parts.stream(d.seed + "|" + (opts.fault || "good"));
     const parts = {};
 
     for (const [pid, spec] of Object.entries(sc.parts)) {
-      const model = TB.parts.PARTS[spec.model];
+      const name = F.models[pid] || spec.model, model = TB.parts.PARTS[name];
       const P = model.draw(F.values[pid], d.u, pid, spec);
-      parts[pid] = Object.assign({ model: spec.model, value: F.values[pid] }, P);
-      BUILD[spec.model](C, k => C.node("pin:" + pid + "." + k), P, F.shorted.has(pid), pid);
+      parts[pid] = Object.assign({ model: name, value: F.values[pid] }, P);
+      BUILD[model.build || name](C, k => C.node("pin:" + pid + "." + k), P, F.shorted.has(pid), pid, model);
     }
+    const inputs = sc.inputs || {};
+    for (const [id, inp] of Object.entries(inputs)) C.inputs[id].pos = inp.states[inp.start];
+    /* set("SW1", "on"): a switch slid, an LDR covered. */
+    function set(id, s) {
+      const inp = inputs[id];
+      if (!inp || !(s in inp.states)) throw new Error("test bench: no input " + id + " " + s);
+      C.inputs[id].pos = inp.states[s];
+      settle();
+    }
+    const now = id => { const inp = inputs[id], p = C.inputs[id].pos; return Object.keys(inp.states).find(k => inp.states[k] === p); };
+
     const psu = TB.parts.PARTS.supply.draw(5, d.u, "PSU");
     const state = { on: false, t: 0, h: 1e-4 };
     C.add(thevenin(C.node("pin:" + sc.supply.pos), -1, psu.V, psu.Rint, () => state.on));
@@ -303,7 +424,7 @@
       return out;
     }
 
-    const step = (h, tr) => C.solve(h, instruments(), tr);
+    const step = (h, tr) => { C.time = state.t + (isFinite(h) ? h : 0); return C.solve(h, instruments(), tr); };
     function commit(x, h, tr) {
       C.x = x;
       for (const cap of C.caps) cap.commit(x, { h, tr });
@@ -398,11 +519,12 @@
       const red = where(o.red || sc.supplyTP), black = where(o.black || sc.ground), tip = where(o.tip);
       const mode = o.mode || "TTL", P = TB.probe;
       const pr = {
-        draw: resistor(red, black, P.DRAW), tip: tip === null ? resistor(black, black, 1) : resistor(tip, black, P.TIP),
+        draw: resistor(red, black, P.DRAW), tip: tip === null ? resistor(black, black, 1) : thevenin(tip, black, 0, P.TIP),
         level: null, last: -Infinity, live: false, hi: false, lo: false,
         sample(x, t) {
           const vs = V(x, red) - V(x, black), vt = tip === null ? NaN : V(x, tip) - V(x, black);
           pr.live = vs >= P.MIN_SUPPLY;
+          if (tip !== null) pr.tip.v = pr.live ? P.BIAS * vs : 0;
           const [lo, hi] = mode === "CMOS" ? [P.CMOS[0] * vs, P.CMOS[1] * vs] : P.TTL;
           const lv = !pr.live || isNaN(vt) ? null : vt >= hi ? "hi" : vt <= lo ? "lo" : null;
           if (pr.level !== null && lv !== null && lv !== pr.level) pr.last = t;
@@ -429,6 +551,13 @@
       return out;
     }
 
+    /* The buzzer and the pump: sounding or running, and their current. */
+    function loads() {
+      const out = {};
+      for (const L of C.loads) out[L.id] = Object.assign({ kind: L.kind }, C.x.length ? L.look(C.x) : { on: false, current: 0, volts: 0 });
+      return out;
+    }
+
     /* For the tests: hang 10 MΩ voltmeters on many points at once (each to 0 V)
        and read the raw node voltages. */
     function voltmeters(names) {
@@ -440,8 +569,8 @@
     return {
       scenario: sc, fault: F, parts, psu, seed: d.seed,
       get t() { return state.t; }, get on() { return state.on; },
-      power, run: advance, meter: useMeter, read: readMeter, probe: useProbe, probeRead: readProbe,
-      leds, voltmeters, volts, pinHole: net.pinHole,
+      power, run: advance, set, input: now, meter: useMeter, read: readMeter, probe: useProbe, probeRead: readProbe,
+      leds, loads, voltmeters, volts, pinHole: net.pinHole,
       latch: () => C.devices.map(dv => Object.assign({}, dv.state))
     };
   }

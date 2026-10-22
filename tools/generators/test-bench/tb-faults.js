@@ -14,6 +14,10 @@
      { short: "C1" }               a part shorted inside
      { bridge: ["F3", "G3"] }      a solder bridge between two holes' strips
      { uncut: "F14" }              a track cut that was never made
+     { chip: "IC1", to: "hc00" }   the wrong chip fitted (same pins, wrong gates)
+     { stuck: "SW1", at: "2" }     a slide switch stuck at one pin
+     { open: "SW1" }               a switch whose contacts never meet
+     { place: "R1", at: "E8", rot: 90 }  a part fitted somewhere else
    ============================================================================ */
 (function (root) {
   "use strict";
@@ -38,7 +42,18 @@
     },
     short(F, e) { F.shorted.add(e.short); },
     bridge(F, e) { F.bridges.push(e.bridge.slice()); },
-    uncut(F, e) { F.layout.cuts = F.layout.cuts.filter(c => c !== e.uncut); }
+    uncut(F, e) { F.layout.cuts = F.layout.cuts.filter(c => c !== e.uncut); },
+    chip(F, e) {
+      if (!TB.parts.PARTS[e.to]) throw new Error("fault edit: no chip " + e.to);
+      F.models[e.chip] = e.to;
+    },
+    stuck(F, e) { F.stuck[e.stuck] = e.at; },
+    open(F, e) { F.opened.add(e.open); },
+    place(F, e) {
+      const p = F.layout.placements.find(k => k.id === e.place);
+      if (!p) throw new Error("fault edit: no part " + e.place);
+      p.at = e.at; p.rot = e.rot || 0;
+    }
   };
   const kindOf = e => Object.keys(EDIT).find(k => k in e);
 
@@ -46,7 +61,8 @@
      dry joints, bridges and shorted parts, and what each resistor's bands and
      each capacitor's print now say (for drawing). */
   function apply(sc, id) {
-    const F = { id, layout: clone(sc.layout), values: {}, dry: new Set(), bridges: [], shorted: new Set(), edits: [] };
+    const F = { id, layout: clone(sc.layout), values: {}, models: {}, dry: new Set(), bridges: [], shorted: new Set(),
+                stuck: {}, opened: new Set(), edits: [] };
     for (const [pid, p] of Object.entries(sc.parts)) F.values[pid] = p.value;
     if (id && id !== "good") {
       const f = sc.faults[id] || (sc.distractors || {})[id];
@@ -62,6 +78,8 @@
     for (const [pid, p] of Object.entries(sc.parts)) {
       if (p.model === "res") F.bands[pid] = TB.parts.bandsOf(F.values[pid]);
       if (p.model === "ecap") F.printed[pid] = TB.parts.faradsText(F.values[pid]);
+      const chip = TB.parts.CHIP_PRINT[F.models[pid] || p.model];
+      if (chip) F.printed[pid] = chip;
     }
     return F;
   }
