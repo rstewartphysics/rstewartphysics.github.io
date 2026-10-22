@@ -345,7 +345,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - A glass lift on the outside of a building — © David Anstiss, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/2020666). Resized to fit.
   - A drop tower ride — Stefan Scheer, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Hangover%E2%80%93The_Tower-2.jpg). Resized to fit.
   - Two skydivers in free fall, and a free-fall formation — Rstpch, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons ([pair](https://commons.wikimedia.org/wiki/File:Two_Skydivers_in_Linked_Freefall_Formation.jpg), [formation](https://commons.wikimedia.org/wiki/File:Group_of_Skydivers_in_Freefall_Formation_at_Sunset.jpg)). Resized to fit.
-  - A tower crane in Glasgow — © Richard Sutcliffe, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via [Geograph](https://www.geograph.org.uk/photo/7419831). Resized to fit.
+  - *Energy & Power* updated 22 October 2026 (cut to 23 slides): also Higher Physics 2015 Section 1
+    Q6; 2024 Paper 1 Q5; 2026 Paper 2 Q4; Higher Physics specimen question paper (S857) Paper 2 Q2;
+    course specification v4.1 (September 2026), p.7. © Qualifications Scotland (SQA), reproduced for
+    educational use. The tower crane photo is no longer used.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
