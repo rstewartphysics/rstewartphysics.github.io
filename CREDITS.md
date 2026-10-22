@@ -269,6 +269,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   credited on its Sources and credits page. All © Qualifications Scotland (SQA), reproduced for
   educational use.
 
+- **Higher Physics calculation checklist** (added 22 October 2026) —
+  `classes/higher/calculation-checklist.html`. Text, the "typical answers that lose marks" and the
+  sign diagram © R Stewart, 2026. The question stems, the throw figure
+  (`assets/higher/sqa-2024-p2-q1-throw.png`, Paper 2 Q1) and the full-mark answers are from the 2024
+  Higher Physics Paper 2 question paper and marking instructions; the marking rules are from
+  *Physics: general marking principles*; the reported mistakes are from the 2023 and 2024 Higher
+  Physics course reports. All © Qualifications Scotland (SQA), reproduced for educational use.
+
 - **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
   `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
   Each item is credited on the slide it appears on.
