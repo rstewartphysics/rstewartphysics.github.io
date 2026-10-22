@@ -38,7 +38,9 @@ SHEETS = [("N5EngSci_B4b_Practical1_Lamp_and_Traffic_Lights.pdf", "practical-1-l
           ("N5EngSci_B4b_Practical2_Darkness_Alarm_and_Find_and_Fix.pdf",
            "practical-2-darkness-alarm-and-find-and-fix.pdf", "Practical 2 — Darkness Alarm and Find and Fix"),
           ("N5EngSci_B4b_Practical3_Test_Amend_Retest.pdf", "practical-3-test-amend-retest.pdf",
-           "Practical 3 — Test, Amend, Re-test")]
+           "Practical 3 — Test, Amend, Re-test"),
+          ("N5EngSci_B4b_Practical4_Server_Room_Fan.pdf", "practical-4-server-room-fan.pdf",
+           "Practical 4 — The Server-Room Fan", 3)]       # (source, site name, title[, pages: 2])
 SIM_FILE = ("L4_crossing_FAULTY.json", "L4_crossing_FAULTY.json")
 
 
@@ -58,6 +60,6 @@ def copy_all(site):
     with Image.open(os.path.join(B4B, "assets", "sim_l2.png")) as im:
         im.thumbnail((1100, 1100))
         im.save(os.path.join(root, "figures", "sim_l2.png"), optimize=True)
-    for src, dst, _ in SHEETS:
+    for src, dst, *_ in SHEETS:
         shutil.copyfile(os.path.join(ONEDRIVE, src), os.path.join(root, "practicals", dst))
     shutil.copyfile(os.path.join(B4B, "sim_files", SIM_FILE[0]), os.path.join(root, "sim", SIM_FILE[1]))
