@@ -410,6 +410,18 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Simulator screenshots — NoSyntaxSim V2 by Peter Strain (NoStrainSims), free and open to all.
   - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
   - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
+- **National 5 Engineering Science *Assignment Practice* and *Practical 4 — The Server-Room Fan*** (added 22
+  October 2026) — the lesson slide deck
+  `assets/engineering-science/national-5/04b-programmable-control/slides/L5-assignment-practice.pdf`, its
+  `-answers.pdf` twin, and the practical sheet `.../practicals/practical-4-server-room-fan.pdf`. Each item is
+  credited on the deck's Credits slide. The circuit diagrams, flowcharts, sub-system diagrams and the
+  hard-copy page are drawn by R Stewart; the arcade and server-room contexts are invented.
+  - The marks and marking points of the N5 Engineering Science Assignment marking instructions 2024 and
+    2025, Task 2, and the column headings of the 2026 Assignment worksheets, are summarised. No brief text
+    or figures are reproduced. © Qualifications Scotland (SQA), reproduced for educational use.
+  - The course specification v2.0, p.5, is quoted. © Qualifications Scotland (SQA), reproduced for
+    educational use.
+  - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
 
 ## Corrections
 

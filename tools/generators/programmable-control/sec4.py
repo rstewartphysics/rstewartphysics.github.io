@@ -114,9 +114,9 @@ def _match():
 def _downloads():
     sheets = "".join(
         f'<a class="reslink" href="{WEB}/practicals/{dst}" target="_blank" rel="noopener" '
-        f'aria-label="{escape(name)}. PDF, 2 pages. Opens in a new tab"><svg class="res-ic" viewBox="0 0 48 48" '
+        f'aria-label="{escape(name)}. PDF, {pages[0] if pages else 2} pages. Opens in a new tab"><svg class="res-ic" viewBox="0 0 48 48" '
         f'aria-hidden="true" focusable="false"><use href="#ic-paper"/></svg>{escape(name)}</a>'
-        for _, dst, name in SHEETS)
+        for _, dst, name, *pages in SHEETS)
     sim = (f'<a class="reslink" href="{WEB}/sim/{SIM_FILE[1]}" download aria-label="The faulty crossing, '
            f'a NoSyntaxSim file. Downloads to your device"><svg class="res-ic" viewBox="0 0 48 48" '
            f'aria-hidden="true" focusable="false"><use href="#ic-flow"/></svg>The faulty crossing (NoSyntaxSim file)</a>')
