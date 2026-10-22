@@ -73,7 +73,8 @@
       });
       const all = Object.assign({}, sc.faults, sc.distractors || {});
       for (const [id, f] of Object.entries(all)) {
-        const F = TB.faults.apply(sc, id), rewired = f.edits.some(e => "link" in e || "turn" in e || "bridge" in e || "uncut" in e);
+        /* A solder bridge is not part of a layout, so the engine cannot see one. */
+        const F = TB.faults.apply(sc, id), rewired = f.edits.some(e => ["link", "turn", "uncut", "place"].some(k => k in e));
         const ok = TB.faults.wiringCheck(sc, F).ok;
         t(`${sc.id}/${id}: engine check ${rewired ? "fails (rewired)" : "passes (same wiring)"}`, () => ok === !rewired || `check ok = ${ok}`);
       }
@@ -171,55 +172,81 @@
 
   /* -------------------------------------------- taking one board's readings */
 
+  /* Readings taken with the same inputs share one powered board, except a
+     probe reading or one marked `alone`, which gets its own (the instrument
+     loads what it touches); a reading with power off, or with a link lifted
+     for the ammeter, too. */
   function measure(sc, c, seed) {
     const fault = c === "good" ? null : c, R = sc.readings, out = {};
     const f = (sc.faults[c] || (sc.distractors || {})[c] || {});
     const slow = f.slow || 1;
-    const on = Object.entries(R).filter(([, r]) => !r.off);
-    const b = TB.bench(sc.id, { fault, seed });
-    const dcv = on.filter(([, r]) => r.dcv), pr = on.find(([, r]) => r.probe || r.high);
-    b.voltmeters(dcv.map(([, r]) => r.dcv));
-    if (pr) b.probe({ tip: pr[1].probe || pr[1].high });
-    b.power(true);
-    b.run(2 * slow);
-    const span = {}, led = {}, highs = [];
-    let seenHi = false, seenLo = false, live = true, level = null, since = null, total = 0;
-    b.run(4 * slow, (tt, h) => {
-      total += h;
-      for (const [k, r] of dcv) {
-        const v = b.volts(r.dcv) - b.volts(sc.ground);
-        const s = span[k] = span[k] || { lo: Infinity, hi: -Infinity };
-        if (v < s.lo) s.lo = v; if (v > s.hi) s.hi = v;
-      }
-      for (const [id, L] of Object.entries(b.leds())) {
-        const s = led[id] = led[id] || { on: 0, max: 0 };
-        if (L.look === "on") s.on += h;
-        s.max = Math.max(s.max, L.current);
-      }
-      const p = b.probeRead();
-      if (p) {
-        live = live && p.live;
-        seenHi = seenHi || p.hi; seenLo = seenLo || p.lo;
-        const lv = p.hi ? "hi" : p.lo ? "lo" : level;
-        if (lv !== level) {
-          if (level === "hi" && since !== null) highs.push(tt - since);
-          if (lv === "hi") since = level === null ? null : tt;   // a HIGH already running when the window opened is not timed
-          level = lv;
-        }
-      }
-    });
-    for (const [k, r] of on) {
-      if (r.dcv) out[k] = { lo: +span[k].lo.toFixed(4), hi: +span[k].hi.toFixed(4) };
-      if (r.led) {
-        const s = led[r.led], fr = s.on / total;
-        out[k] = fr >= 0.95 ? "on" : fr > 0.05 ? "flashes" : s.max >= TB.ledLook.OFF_BELOW ? "faint" : "off";
-      }
-      if (r.probe) out[k] = !live ? "dead" : seenHi && seenLo ? "flashes" : seenHi ? "hi" : seenLo ? "lo" : "none";
-      if (r.high) out[k] = highs.length ? +(highs.reduce((a, v) => a + v, 0) / highs.length).toFixed(4) : null;
+    const setUp = (r, o) => {
+      const b = TB.bench(sc.id, Object.assign({ fault, seed }, o));
+      for (const [id, st] of Object.entries(r.set || {})) b.set(id, st);
+      return b;
+    };
+    const groups = new Map();
+    for (const [k, r] of Object.entries(R)) {
+      if (r.off || r.amps) continue;
+      const g = JSON.stringify(r.set || {}) + (r.probe || r.high || r.alone ? "|" + k : "");
+      if (!groups.has(g)) groups.set(g, []);
+      groups.get(g).push([k, r]);
     }
-    for (const [k, r] of Object.entries(R).filter(([, r]) => r.off)) {
-      const m = TB.bench(sc.id, { fault, seed });
-      m.meter(r.off, { red: r.red, black: r.black });
+    for (const on of groups.values()) powered(setUp(on[0][1]), on);
+
+    function powered(b, on) {
+      const dcv = on.filter(([, r]) => r.dcv), pr = on.find(([, r]) => r.probe || r.high);
+      b.voltmeters(dcv.map(([, r]) => r.dcv));
+      if (pr) b.probe({ tip: pr[1].probe || pr[1].high });
+      b.power(true);
+      b.run(2 * slow);
+      const span = {}, led = {}, load = {}, highs = [];
+      let seenHi = false, seenLo = false, seenNone = false, live = true, level = null, since = null, total = 0;
+      b.run(4 * slow, (tt, h) => {
+        total += h;
+        for (const [k, r] of dcv) {
+          const v = b.volts(r.dcv) - b.volts(sc.ground);
+          const s = span[k] = span[k] || { lo: Infinity, hi: -Infinity };
+          if (v < s.lo) s.lo = v; if (v > s.hi) s.hi = v;
+        }
+        for (const [id, L] of Object.entries(b.leds())) {
+          const s = led[id] = led[id] || { on: 0, max: 0 };
+          if (L.look === "on") s.on += h;
+          s.max = Math.max(s.max, L.current);
+        }
+        for (const [id, L] of Object.entries(b.loads())) {
+          const s = load[id] = load[id] || { on: 0 };
+          if (L.on) s.on += h;
+        }
+        const p = b.probeRead();
+        if (p) {
+          live = live && p.live;
+          seenHi = seenHi || p.hi; seenLo = seenLo || p.lo; seenNone = seenNone || (!p.hi && !p.lo);
+          const lv = p.hi ? "hi" : p.lo ? "lo" : level;
+          if (lv !== level) {
+            if (level === "hi" && since !== null) highs.push(tt - since);
+            if (lv === "hi") since = level === null ? null : tt;   // a HIGH already running when the window opened is not timed
+            level = lv;
+          }
+        }
+      });
+      for (const [k, r] of on) {
+        if (r.dcv) out[k] = { lo: +span[k].lo.toFixed(4), hi: +span[k].hi.toFixed(4) };
+        if (r.led) {
+          const s = led[r.led], fr = s.on / total;
+          out[k] = fr >= 0.95 ? "on" : fr > 0.05 ? "flashes" : s.max >= TB.ledLook.OFF_BELOW ? "faint" : "off";
+        }
+        if (r.load) { const fr = load[r.load].on / total; out[k] = fr >= 0.95 ? "on" : fr > 0.05 ? "chatters" : "off"; }
+        /* "flicker": a level that comes and goes with neither LED between. */
+        if (r.probe) out[k] = !live ? "dead" : seenHi && seenLo ? "flashes" : (seenHi || seenLo) && seenNone ? "flicker"
+          : seenHi ? "hi" : seenLo ? "lo" : "none";
+        if (r.high) out[k] = highs.length ? +(highs.reduce((a, v) => a + v, 0) / highs.length).toFixed(4) : null;
+      }
+    }
+    for (const [k, r] of Object.entries(R).filter(([, r]) => r.off || r.amps)) {
+      const m = setUp(r, { lift: r.lift });
+      if (r.amps) m.power(true);
+      m.meter(r.off || r.amps, { red: r.red, black: r.black, socket: r.amps ? "A" : "V" });
       m.run(2);
       const rd = m.read();
       out[k] = rd.over ? "over" : +rd.value.toPrecision(5);

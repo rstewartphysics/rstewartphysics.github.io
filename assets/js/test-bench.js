@@ -394,7 +394,12 @@
   Bench.prototype.componentArt = function () {
     const F = this.F, L = F.layout, G = this.G;
     const attempt = { cuts: L.cuts, placements: L.placements, links: L.links.map((l, i) => Object.assign({ num: i + 1 }, l)), testpoints: L.testpoints };
-    let svg = R.renderBoard({ board: L.board, question: this.sc.question, attempt });
+    /* a chip's print is the engine's own label: the wrong chip fitted (S4) is
+       printed as what it is */
+    const chips = Object.keys(F.printed || {}).filter(pid => /^74HC/.test(F.printed[pid]));
+    const question = chips.length ? Object.assign({}, this.sc.question, { components: this.sc.question.components.map(c =>
+      chips.includes(c.id) ? Object.assign({}, c, { part: "74" + F.printed[c.id].slice(4) }) : c) }) : this.sc.question;
+    let svg = R.renderBoard({ board: L.board, question, attempt });
     svg = svg.replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "").replace(/<title>[\s\S]*?<\/title>/, "");
     /* colour bands: three digits and the gold tolerance band, along each resistor */
     let s = "";
@@ -409,7 +414,7 @@
       });
     }
     for (const [pid, txt] of Object.entries(F.printed || {})) {
-      const part = G.parts[pid]; if (!part) continue;
+      const part = G.parts[pid]; if (!part || chips.includes(pid)) continue;
       const [p, q] = part.pins;
       s += `<text class="tbx-print" x="${n1((p.x + q.x) / 2 + P * .78)}" y="${n1((p.y + q.y) / 2 + 4)}">${esc(txt)}</text>`;
     }
