@@ -357,6 +357,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Q6; 2024 Paper 1 Q5; 2026 Paper 2 Q4; Higher Physics specimen question paper (S857) Paper 2 Q2;
     course specification v4.1 (September 2026), p.7. © Qualifications Scotland (SQA), reproduced for
     educational use. The tower crane photo is no longer used.
+- **Higher Physics *Collisions, explosions & impulse*** (added 23 October 2026) — the lesson slide deck
+  `classes/higher/slides/h-odu3-momentum-impulse.pdf` and its `-answers.pdf` twin. Each item is credited on
+  the deck's Credits slide. The trolley, collision, graph and demo drawings are drawn by R Stewart; no photos.
+  - Figures and questions: Higher Physics 2018 Section 2 Q3(c); 2019 Paper 1 Q6; 2020 Paper 1 Q7 and Paper 2 Q3(c); 2023 Paper 1 Q3 and Paper 2 Q3; 2024 Paper 1 Q6 and Paper 2 Q1(b)(ii); 2025 Paper 1 Q6 and Q7 and Paper 2 Q2; 2026 Paper 1 Q4 and Q6. The Higher Physics course specification v4.1 (September 2026), pp.7–8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
