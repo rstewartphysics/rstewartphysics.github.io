@@ -180,15 +180,25 @@
   function Bench(root, opts) {
     this.root = root;
     this.id = "tbx" + (++UID);
-    this.sc = TB.SCENARIOS[opts.scenario];
-    if (!this.sc) throw new Error("test bench: no scenario " + opts.scenario);
-    /* the scenario's own words, unless the page gives them (Phase 3.2) */
-    const bb = this.sc.bench || {};
-    this.opts = Object.assign({}, opts, { title: opts.title || bb.title, sub: opts.sub || bb.sub, should: opts.should || bb.should });
+    this.useScenario(opts.scenario, opts);
     try { this.sound = localStorage.getItem("tbx-sound-v1") !== "off"; } catch (e) { this.sound = true; }
     this.build();
+    this.bind();
     this.load(opts.fault || "good", opts.seed);
   }
+  Bench.prototype.useScenario = function (id, opts) {
+    this.sc = TB.SCENARIOS[id];
+    if (!this.sc) throw new Error("test bench: no scenario " + id);
+    /* the scenario's own words, unless the page gives them (Phase 3.2) */
+    const bb = this.sc.bench || {};
+    opts = opts || {};
+    this.opts = Object.assign({}, opts, { scenario: id, title: opts.title || bb.title, sub: opts.sub || bb.sub, should: opts.should || bb.should });
+  };
+  /* A job on another board (3.3): the bench is built again for it. */
+  Bench.prototype.switchScenario = function (id) {
+    this.useScenario(id);
+    this.build();
+  };
 
   Bench.prototype.build = function () {
     const id = this.id, o = this.opts, ins = this.sc.inputs || {}, words = (this.sc.bench || {}).inputs || {};
@@ -254,17 +264,19 @@
     };
     this.el.tps.innerHTML = this.sc.layout.testpoints.map(t => `<button type="button" data-pt="${t.id}" aria-pressed="false">${t.id}</button>`).join("");
     this.el.probe.innerHTML = probeSVG();
+    this.el.pick.addEventListener("change", () => {
+      const v = this.el.pick.value;
+      this.el.pick.value = "";
+      if (v) this.act(JSON.parse(v));
+    });
+  };
+  Bench.prototype.bind = function () {
     this.root.addEventListener("click", e => this.onClick(e));
     this.root.addEventListener("keydown", e => {
       const t = e.target;
       if ((e.key === "Enter" || e.key === " ") && t instanceof SVGElement && t.getAttribute("role") === "button") { e.preventDefault(); this.onClick({ target: t }); }
       if (e.key === "Escape" && !this.el.dial.hidden) this.closeDial();
       else if (e.key === "Escape" && !this.el.diagbox.hidden) this.jobAct("close");
-    });
-    this.el.pick.addEventListener("change", () => {
-      const v = this.el.pick.value;
-      this.el.pick.value = "";
-      if (v) this.act(JSON.parse(v));
     });
     this.root.addEventListener("pointerdown", () => this.unlockAudio(), { once: true });
   };
@@ -1108,6 +1120,15 @@
       const r = S.parseRef(ref);
       const cutNear = F.layout.cuts.filter(c => { const h = S.parseRef(c); return h.r === r.r && Math.abs(h.c - r.c) <= 1; });
       if (cutNear.length) text += " Track cut at " + cutNear.join(", ") + ": the copper is drilled away, so the strip is split there.";
+      /* what a fault took away or added: a cut never made (S5), a bridge (S6) */
+      const cutNow = new Set(F.layout.cuts);
+      const missing = this.sc.layout.cuts.filter(c => { const h = S.parseRef(c); return !cutNow.has(c) && h.r === r.r && Math.abs(h.c - r.c) <= 1; });
+      if (missing.length) text += " <b>No track cut here.</b> The strip runs on, unbroken, under the chip.";
+      const br = (F.bridges || []).find(b => b.indexOf(ref) >= 0);
+      if (br) {
+        text += " <b>A solder bridge joins row " + S.rowLetter(S.parseRef(br[0]).r) + " and row " + S.rowLetter(S.parseRef(br[1]).r) + ".</b>";
+        short = "solder bridge";
+      }
     } else {
       const ref = this.holeOf(t.pt);
       title = this.label(t.pt);
@@ -1120,6 +1141,7 @@
       this.mark("ok", "look:" + key, "Visual check: " + title + ".", title.replace(/:.*/, ""), "Look", short || "looked", true);
     }
     this.feedback("look", title, text);
+    if (key && this.job) this.jobLook(key);
   };
 
   /* ------------------------------------------------------- marking (§3.5) */
@@ -1147,6 +1169,8 @@
       this.pendingEv = { type: "dcv", key: st.red };
     if (sock === "V/Ω" && g === "OHM" && !live)
       this.pendingEv = { type: "ohm", a: st.red, b: st.black, beep: !!rd.beep, over: !!rd.over, value: rd.value };
+    if (sock === "V/Ω" && st.dial === "DCV D" && !live)
+      this.pendingEv = { type: "diode", a: st.red, b: st.black, over: !!rd.over, value: rd.value };
     if (sock !== "V/Ω" && g !== "DCA" && g !== "ACA") {
       if (live) return say("safety", "ainv", "The red lead is in <b>A</b>. Measuring voltage like this puts a short across the circuit and blows the meter's fuse. Tap the <b>V/Ω</b> socket to move it back.");
       return say("bad", "asock", "The red lead is in " + sock + ". Resistance, continuity and diode check use the <b>V/Ω</b> socket.");
@@ -1542,18 +1566,24 @@
   }
   const fbOf = (f, r) => typeof f === "function" ? f(r) : f;
 
-  Bench.prototype.startJobs = function (set, ids, start) {
-    this.jobSet = set;
-    this.jobList = ids && ids.length ? set.jobs.filter(j => ids.indexOf(j.id) >= 0) : set.jobs;
+  /* sets: TBJobs, one job set per scenario. ids: the jobs in page order, which
+     may run across several boards (3.3: "Job n of 10", J3). */
+  Bench.prototype.startJobs = function (sets, ids, start) {
+    this.jobSets = sets;
+    const all = [];
+    for (const [sc, set] of Object.entries(sets)) for (const d of set.jobs) all.push({ def: d, set, sc });
+    this.jobList = ids && ids.length ? ids.map(id => all.find(e => e.def.id === id)).filter(Boolean) : all;
     this.score = { first: 0, ok: 0, bad: 0, safety: 0, done: 0 };
-    this.el.diag.hidden = false;
     this.openJob(Math.min(start || 0, this.jobList.length - 1));
   };
   Bench.prototype.openJob = function (n) {
-    const d = this.jobList[n];
+    const e = this.jobList[n], d = e.def;
     this.jobN = n;
     this.job = null;
     this.finding = false;
+    this.jobSet = e.set;
+    if (e.sc !== this.sc.id) this.switchScenario(e.sc);
+    this.el.diag.hidden = false;
     this.load(d.id, null);
     this.job = { def: d, step: 0, q: 0, first: true, faultOk: false, evOk: false, tried: new Set(), sub: null, proved: false, fixed: false, counted: false };
     this.el.pop.hidden = true;
@@ -1599,7 +1629,7 @@
       <p><b>What it should do:</b> ${esc(set.should)}</p>
       <p><b>The complaint:</b> “${esc(d.complaint)}”</p>
       <p><b>Your job:</b> predict, test, find the fault and give your evidence. Then prove it and fix it.</p>
-      <p class="tbx-card-s">Before you switch on: look at the board, and check for shorts with the power off.</p>
+      <p class="tbx-card-s">Before you switch on: look at the board, and check for shorts with the power off.${set.card ? " " + esc(set.card) : ""}</p>
       <button type="button" class="tbx-go" data-job="predict">Start: predict</button></div>`, true);
   };
   Bench.prototype.showPop = function (html, modal) {
@@ -1659,11 +1689,17 @@
   Bench.prototype.reading = function (src) {
     const st = this.st, G = this.G;
     if (src.complaint) return "";
-    if (src.look) return st.looked.has(src.look) ? "" : null;
+    if (src.look) return [].concat(src.look).some(k => st.looked.has(k)) ? "" : null;
+    /* src.set: the reading counts only if it was taken with these switches (3.3) */
+    const setOk = r => !src.set || Object.entries(src.set).every(([k, v]) => (r.set || {})[k] === v);
+    if (src.amps) {
+      for (let i = st.log.length - 1; i >= 0; i--) { const r = st.log[i]; if (r.ev && r.ev.type === "amps" && r.reading && setOk(r)) return r.reading; }
+      return null;
+    }
     const type = src.dcv ? "dcv" : "probe", k = src.dcv || src.probe, seg = G.segAt(this.holeOf(k));
     for (let i = st.log.length - 1; i >= 0; i--) {
       const r = st.log[i], e = r.ev;
-      if (e && e.type === type && !this.F.dry.has(e.key) && G.segAt(this.holeOf(e.key)) === seg && r.reading) return r.reading;
+      if (e && e.type === type && !this.F.dry.has(e.key) && G.segAt(this.holeOf(e.key)) === seg && r.reading && setOk(r)) return r.reading;
     }
     return null;
   };
@@ -1775,7 +1811,8 @@
       if (t.link) hit = same(F.layout.links[t.link - 1]);
       else if (t.pt && this.st.side === "copper") hit = f.link.indexOf(this.holeOf(t.pt)) >= 0;
     }
-    if (f.hole && t.pt) hit = this.holeOf(t.pt) === f.hole;
+    if (f.hole && t.pt) hit = [].concat(f.hole).indexOf(this.holeOf(t.pt)) >= 0;
+    if (f.part && t.part) hit = [].concat(f.part).indexOf(t.part) >= 0;
     if (!hit) {
       const close = f.close && t.part === f.close.part;
       this.feedback("bad", "Find it", esc(close ? f.close.text : f.other));
@@ -1790,26 +1827,51 @@
   Bench.prototype.jobRow = function (row, kind) {
     const j = this.job;
     if (!j || j.sub !== "prove" || j.proved) return;
+    /* p.type: "ohm" (continuity or resistance, the default) or "diode"; a Look
+       proof goes through jobLook. p.expect: "beep", "open", "over" or [lo, hi]. */
     const e = row.ev, p = j.def.confirm.prove;
-    if (!e || e.type !== "ohm" || kind !== "ok") return;
+    if (!e || e.type !== (p.type || "ohm") || kind !== "ok") return;
+    const say = t => this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block">${esc(t)}</p>`);
     const G = this.G, seg = k => G.segAt(this.holeOf(k));
-    const fits = (s, k, other) => s.key ? k === s.key
+    const fits = (s, k, other) => s.key ? k === s.key || this.holeOf(k) === this.holeOf(s.key)
+      : s.part ? k.indexOf(s.part + ".") === 0
       : s.seg ? seg(k) === seg(s.seg) && !this.F.dry.has(k)
       : s.net ? this.netOf(k) === this.netOf(s.net) && seg(k) !== seg(other) : false;
-    const ok = (fits(p.a, e.a, e.b) && fits(p.b, e.b, e.a)) || (fits(p.a, e.b, e.a) && fits(p.b, e.a, e.b));
-    if (!ok) { this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block">${esc(p.where)}</p>`); return; }
     const beep = isFinite(e.value) && e.value < TB.meter.BEEP_BELOW;
-    if ((p.expect === "beep") !== beep) return;
+    const met = x => x === "beep" ? beep : x === "open" ? !beep : x === "over" ? e.over
+      : Array.isArray(x) ? !e.over && isFinite(e.value) && e.value >= x[0] && e.value <= x[1] : false;
+    /* p.ways: a diode check proves it either way round, red lead first (S9) */
+    if (p.ways) {
+      const way = p.ways.find(w => fits(w.red, e.a, e.b) && fits(w.black, e.b, e.a));
+      if (!way) return say(p.where);
+      if (met(way.expect)) this.jobProved(way.right);
+      else if (p.miss) say(p.miss);
+      return;
+    }
+    const ok = (fits(p.a, e.a, e.b) && fits(p.b, e.b, e.a)) || (fits(p.a, e.b, e.a) && fits(p.b, e.a, e.b));
+    if (!ok) return say(p.where);
+    if (p.set && Object.entries(p.set).some(([k, v]) => (row.set || {})[k] !== v)) return say(p.setMsg);
+    if (!met(p.expect)) { if (p.miss) say(p.miss); return; }
+    this.jobProved();
+  };
+  Bench.prototype.jobLook = function (key) {
+    const j = this.job, p = j && j.def.confirm.prove;
+    if (!j || j.sub !== "prove" || j.proved || p.type !== "look") return;
+    if ([].concat(p.look).indexOf(key) >= 0) this.jobProved();
+  };
+  Bench.prototype.jobProved = function (right) {
+    const j = this.job, p = j.def.confirm.prove;
     j.proved = true;
     j.sub = "fix";
     this.jobLine(`<b>Fix it:</b> the proof is done. <button type="button" class="tbx-go" data-job="fix">Fix it</button>`);
-    this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block"><b>${esc(p.right)}</b></p>`);
+    this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block"><b>${esc(right || p.right)}</b></p>`);
   };
   Bench.prototype.swapBoard = function (fault) {
     const st = this.st;
     st.live = null;                       // the last row belongs to the board it was taken on
     this.b = TB.bench(this.sc.id, { fault, seed: this.seed });
     this.F = this.b.fault;
+    for (const [k, v] of Object.entries(st.inputs)) this.b.set(k, v);
     this.geometry();
     this.b.power(st.power);
     if (st.tool === "probe") this.b.probe({ tip: st.tip, mode: st.pmode }); else this.meterSet();
@@ -1820,8 +1882,9 @@
     const j = this.job, c = j.def.confirm, sc = this.sc, seed = this.seed;
     this.swapBoard("good");
     j.fixed = true; j.sub = "done"; j.step = 5;
-    const v = k => {
+    const v = (k, set) => {
       const b = TB.bench(sc.id, { fault: "good", seed });
+      for (const [id, s] of Object.entries(set || {})) b.set(id, s);
       b.power(true); b.run(0.5);
       b.meter("DCV 20", { red: k, black: sc.ground, socket: "V" });
       return b.read(0).text + " V";
@@ -1869,7 +1932,7 @@
       case "fix": if (j.proved && !j.fixed) this.jobFix(); return;
       case "nextjob": this.jobCount(); this.openJob(this.jobN + 1); return;
       case "finish": return this.jobFinish();
-      case "again": return this.startJobs(this.jobSet, this.jobList.map(x => x.id), 0);
+      case "again": return this.startJobs(this.jobSets, this.jobList.map(x => x.def.id), 0);
     }
   };
 
@@ -1889,8 +1952,8 @@
           scenario: free || el.getAttribute("data-test-bench"), fault: q.get("fault") || q.get("board") || attr("data-fault") || "good",
           seed: q.get("seed"), title: attr("data-title"), sub: attr("data-sub"), should: attr("data-should")
         });
-        const jobs = el.getAttribute("data-jobs"), set = window.TBJobs && window.TBJobs[el.getAttribute("data-test-bench")];
-        if (jobs && set && !q.get("board") && !q.get("scenario")) el.tbx.startJobs(set, jobs.split(/[\s,]+/), (parseInt(q.get("job"), 10) || 1) - 1);
+        const jobs = el.getAttribute("data-jobs");
+        if (jobs && window.TBJobs && !q.get("board") && !q.get("scenario")) el.tbx.startJobs(window.TBJobs, jobs.split(/[\s,]+/), (parseInt(q.get("job"), 10) || 1) - 1);
       } catch (e) {
         el.textContent = "The test bench could not start: " + e.message;
         if (window.console) console.error(e);
