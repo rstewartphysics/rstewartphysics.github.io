@@ -1533,15 +1533,16 @@
       T3g:   { dcv: "T3", set: GREEN }, T4g: { dcv: "T4", set: GREEN }, T5g: { dcv: "T5", set: GREEN },
       LED1g: { led: "LED1", set: GREEN }, LED2g: { led: "LED2", set: GREEN },
       cont1: { off: "OHM 200", red: "SW1.c", black: "SW1.1", set: RED },
-      cont2: { off: "OHM 200", red: "SW1.c", black: "SW1.2", set: GREEN }
+      cont2: { off: "OHM 200", red: "SW1.c", black: "SW1.2", set: GREEN },
+      T1mid: { off: "OHM 200", red: "T1", black: "SW1.c", set: GREEN }
     },
     expect: {
       good: {
         T1: [4.85, 5.10], T3r: [4.85, 5.10], T4r: [4.85, 5.10], T5r: [0, 0.05], LED1r: "on", LED2r: "off",
         T3g: [4.85, 5.10], T4g: [0, 0.05], T5g: [4.85, 5.10], LED1g: "off", LED2g: "on",
-        cont1: [0.2, 1.5], cont2: [0.2, 1.5]
+        cont1: [0.2, 1.5], cont2: [0.2, 1.5], T1mid: [0.2, 1.5]
       },
-      s10:      { T3r: [4.85, 5.10], LED1r: "on", T3g: [0, 0.05], T4g: [4.85, 5.10], LED1g: "on", LED2g: "off" },
+      s10:      { T3r: [4.85, 5.10], LED1r: "on", T3g: [0, 0.05], T4g: [4.85, 5.10], LED1g: "on", LED2g: "off", T1mid: "over" },
       led2rev:  { T3g: [4.85, 5.10], T5g: [4.85, 5.10], LED1g: "off", LED2g: "off" },
       swbroken: { T3r: [4.85, 5.10], T4r: [0, 0.05], LED1r: "off", cont1: "over", cont2: "over" },
       nosupply: { T1: [0, 0.05], LED1r: "off" }
