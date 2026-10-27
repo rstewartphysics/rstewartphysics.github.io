@@ -172,7 +172,6 @@
     return { find, join: (a, b) => { a = find(a); b = find(b); if (a !== b) p.set(a, b); } };
   }
   const COLOUR_WORD = ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"];
-  const BAND = ["#111", "#7b3f00", "#d41c1c", "#f07c00", "#f5d000", "#1f9d3a", "#1c5fd4", "#7a2fc4", "#888", "#fff"];
   const PIN_WORD = { npn: { c: "collector", b: "base", e: "emitter" }, spdt: { c: "middle pin", "1": "pin 1", "2": "pin 2" } };
   const LED_GLOW = { red: "rgba(255,40,40,.78)", green: "rgba(40,230,90,.72)", yellow: "rgba(255,210,0,.75)" };
 
@@ -440,7 +439,7 @@
       const art = st.side === "copper" ? this.copperArt() : this.componentArt();
       svg = `<svg class="tbx-svg" viewBox="${vb.x} ${vb.y} ${vb.w} ${vb.h}" role="img" aria-label="${esc(this.boardAlt())}">` +
         `<defs><clipPath id="${id}-lp"><circle class="tbx-lpc" cx="0" cy="0" r="1"/></clipPath>` +
-        `<radialGradient id="${id}-sol" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="#f4f6f8"/><stop offset="1" stop-color="#8d939a"/></radialGradient></defs>` +
+        `</defs>` +
         `<g id="${id}-art">${art}<g class="tbx-dyn">${st.side === "copper" ? "" : this.dynArt()}</g></g><g class="tbx-glows"></g><g class="tbx-leads"></g><g class="tbx-loupe" hidden></g></svg>`;
     }
     this.el.board.innerHTML = svg;
@@ -470,26 +469,14 @@
     const chips = Object.keys(F.printed || {}).filter(pid => /^74HC/.test(F.printed[pid]));
     const question = chips.length ? Object.assign({}, this.sc.question, { components: this.sc.question.components.map(c =>
       chips.includes(c.id) ? Object.assign({}, c, { part: "74" + F.printed[c.id].slice(4) }) : c) }) : this.sc.question;
-    let svg = R.renderBoard({ board: L.board, question, attempt });
-    svg = svg.replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "").replace(/<title>[\s\S]*?<\/title>/, "");
-    /* colour bands: three digits and the gold tolerance band, along each resistor */
-    let s = "";
-    for (const [pid, v] of Object.entries(F.bands || {})) {
-      const part = G.parts[pid]; if (!part) continue;
-      const [p, q] = part.pins, L2 = Math.hypot(q.x - p.x, q.y - p.y), ux = (q.x - p.x) / L2, uy = (q.y - p.y) / L2;
-      const ins = Math.min(P * .62, L2 * .26), len = L2 - 2 * ins, bw = Math.max(2.2, len * .075);
-      [[.16, BAND[v[0]]], [.31, BAND[v[1]]], [.46, BAND[v[2]]], [.80, "#c9a227"]].forEach(([f, col]) => {
-        const c = ins + len * f;
-        s += `<line x1="${n1(p.x + ux * (c - bw / 2))}" y1="${n1(p.y + uy * (c - bw / 2))}" x2="${n1(p.x + ux * (c + bw / 2))}" y2="${n1(p.y + uy * (c + bw / 2))}" ` +
-             `stroke="${col}" stroke-width="${n1(P * .68)}"${col === "#fff" ? ' class="tbx-band-w"' : ""}/>`;
-      });
-    }
-    for (const [pid, txt] of Object.entries(F.printed || {})) {
-      const part = G.parts[pid]; if (!part || chips.includes(pid)) continue;
-      const [p, q] = part.pins;
-      s += `<text class="tbx-print" x="${n1((p.x + q.x) / 2 + P * .78)}" y="${n1((p.y + q.y) / 2 + 4)}">${esc(txt)}</text>`;
-    }
-    return svg + s;
+    /* the engine draws the whole picture: B3 shading, the colour bands (three
+       digits and the gold tolerance), the printed values and the slide
+       switches' slots.  The knob itself is drawn in dynArt, so it can move. */
+    const print = {}, knobs = {};
+    for (const [pid, txt] of Object.entries(F.printed || {})) if (!chips.includes(pid)) print[pid] = txt;
+    for (const part of Object.values(G.parts)) if (part.model === "spdt") knobs[part.id] = "none";
+    const svg = R.renderBoard({ board: L.board, question, attempt, art: { shade: true, bands: F.bands || {}, print, knobs } });
+    return svg.replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "").replace(/<title>[\s\S]*?<\/title>/, "");
   };
 
   /* The copper side: the board turned over left to right, so column 1 is on
@@ -498,68 +485,22 @@
   Bench.prototype.copperArt = function () {
     const F = this.F, L = F.layout, G = this.G, vb = this.vb, id = this.id;
     const rows = G.board.rows, cols = Math.min(G.board.cols, G.maxc + 1);
-    const cutSet = new Set(L.cuts), mx = x => this.mirror(x);
+    const mx = x => this.mirror(x);
     const joints = new Map();
     Object.values(G.pins).forEach(q => joints.set(q.hole, q.key));
-    L.links.forEach((l, i) => { joints.set(l.a, "link@" + l.a); joints.set(l.b, "link@" + l.b); });
+    L.links.forEach(l => { joints.set(l.a, "link@" + l.a); joints.set(l.b, "link@" + l.b); });
     L.testpoints.forEach(t => joints.set(t.at, t.id));
-    let s = `<rect x="${vb.x}" y="${vb.y}" width="${vb.w}" height="${vb.h}" class="tbx-sub"/>`;
-    let g = "";
-    for (let r = 0; r < rows; r++) {
-      const y = G.cen(S.ref({ r, c: 1 })).y;
-      if (y > vb.h) break;
-      let c0 = 1;
-      for (let c = 1; c <= cols + 1; c++) {
-        const isCut = c <= cols && cutSet.has(S.ref({ r, c }));
-        if (isCut || c === cols + 1) {
-          if (c - 1 >= c0) {
-            const xa = G.cen(S.ref({ r, c: c0 })).x - P * .5 + (c0 === 1 ? 0 : P * .32), xb = G.cen(S.ref({ r, c: c - 1 })).x + P * .5 - (isCut ? P * .32 : 0);
-            g += `<rect class="tbx-cu" x="${n1(xa)}" y="${n1(y - P * .40)}" width="${n1(xb - xa)}" height="${n1(P * .80)}" rx="2"/>` +
-                 `<rect class="tbx-cuhi" x="${n1(xa)}" y="${n1(y - P * .40)}" width="${n1(xb - xa)}" height="${n1(P * .12)}"/>`;
-          }
-          c0 = c + 1;
-        }
-      }
-      for (let c = 1; c <= cols; c++) {
-        const ref = S.ref({ r, c }), x = G.cen(ref).x;
-        if (cutSet.has(ref)) { g += `<circle class="tbx-drill" cx="${n1(x)}" cy="${n1(y)}" r="${n1(P * .30)}"/>`; continue; }
-        if (!joints.has(ref)) g += `<circle class="tbx-hole" cx="${n1(x)}" cy="${n1(y)}" r="${n1(P * .11)}"/>`;
-      }
-    }
-    for (const br of F.bridges || []) {
-      const a = G.cen(br[0]), b = G.cen(br[1]);
-      g += `<ellipse class="tbx-bridge" cx="${n1((a.x + b.x) / 2)}" cy="${n1((a.y + b.y) / 2)}" rx="${n1(Math.abs(a.x - b.x) / 2 + P * .4)}" ry="${n1(Math.abs(a.y - b.y) / 2 + P * .4)}"/>`;
-    }
-    /* the parts as shadows, seen through the board */
-    let sh = "";
+    const shadows = [];
     for (const part of Object.values(G.parts)) {
-      const ps = part.pins;
-      if (part.kind === "dil") {
-        const xs = ps.map(q => q.x), ys = ps.map(q => q.y);
-        sh += `<rect class="tbx-shadow" x="${n1(Math.min(...xs) - P * .2)}" y="${n1(Math.min(...ys) - P * .55)}" width="${n1(Math.max(...xs) - Math.min(...xs) + P * .4)}" height="${n1(Math.max(...ys) - Math.min(...ys) + P * 1.1)}" rx="4"/>`;
-      } else if (ps.length === 2) {
-        sh += `<line class="tbx-shadow-l" x1="${n1(ps[0].x)}" y1="${n1(ps[0].y)}" x2="${n1(ps[1].x)}" y2="${n1(ps[1].y)}" stroke-width="${n1(P * .55)}"/>`;
-      }
+      if (part.kind === "dil") shadows.push({ dil: part.pins });
+      else if (part.pins.length === 2) shadows.push({ line: part.pins, w: P * .55 });
     }
-    for (const l of L.links) { const a = G.cen(l.a), b = G.cen(l.b); sh += `<line class="tbx-shadow-l" x1="${n1(a.x)}" y1="${n1(a.y)}" x2="${n1(b.x)}" y2="${n1(b.y)}" stroke-width="${n1(P * .16)}"/>`; }
-    /* a joint at every leg, link end and test pin */
-    let j = "";
-    for (const [ref, what] of joints) {
-      const c = G.cen(ref), dry = F.dry.has(what);
-      if (this.st.lifted.indexOf(what) >= 0) {
-        j += `<circle class="tbx-unsold" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .3)}"/><circle class="tbx-hole" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .11)}"/>`;
-      } else if (dry) {
-        j += `<circle class="tbx-dry" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .36)}"/>` +
-             `<circle class="tbx-dry-ring" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .2)}"/>` +
-             `<path class="tbx-crack" d="M${n1(c.x - P * .28)} ${n1(c.y - P * .3)} L${n1(c.x - P * .08)} ${n1(c.y - P * .06)} L${n1(c.x - P * .2)} ${n1(c.y + P * .1)} L${n1(c.x + P * .04)} ${n1(c.y + P * .34)}"/>` +
-             `<circle class="tbx-lead-end" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .09)}"/>`;
-      } else {
-        j += `<circle cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .36)}" fill="url(#${id}-sol)"/>` +
-             `<circle class="tbx-shine" cx="${n1(c.x - P * .1)}" cy="${n1(c.y - P * .1)}" r="${n1(P * .09)}"/>` +
-             `<circle class="tbx-lead-end" cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(P * .09)}"/>`;
-      }
-    }
-    s += `<g transform="matrix(-1 0 0 1 ${vb.x * 2 + vb.w} 0)">${g}${sh}${j}</g>`;
+    for (const l of L.links) shadows.push({ line: [G.cen(l.a), G.cen(l.b)], w: P * .16 });
+    let s = R.copperSide({
+      rows, cols, vb, cen: G.cen, ref: (r, c) => S.ref({ r, c }), cuts: L.cuts, bridges: F.bridges || [], shadows,
+      joints: [...joints].map(([ref, what]) => ({ ref, what,
+        state: this.st.lifted.indexOf(what) >= 0 ? "lifted" : F.dry.has(what) ? "dry" : "ok" }))
+    });
     /* words, the right way round */
     let w = "";
     for (let r = 0; r < rows; r++) {
@@ -623,10 +564,9 @@
   Bench.prototype.pumpArt = function () {
     const G = this.G, part = G.parts[G.pump], p1 = part.pins.find(q => q.pin === "1"), p2 = part.pins.find(q => q.pin === "2");
     const cx = (p1.x + p2.x) / 2 + P * 1.6, cy = G.edge + 1.75 * P, w = P * 3.4, h = P * 1.5, vb = this.vb;
-    const wire = (p, x, cls) => `<path class="tbx-fly ${cls}" d="M${n1(p.x)} ${n1(p.y)} C ${n1(p.x + P * 1.2)} ${n1(p.y + P)} ${n1(x)} ${n1(cy - h * 1.4)} ${n1(x)} ${n1(cy - h / 2)}"/>`;
     return `<rect class="tbx-below" x="${vb.x}" y="${n1(G.edge)}" width="${vb.w}" height="${n1(vb.h - G.edge + 2)}"/>` +
       `<g class="tbx-pump" data-pump="${esc(G.pump)}">` +
-      wire(p1, cx - P * .6, "is-black") + wire(p2, cx + P * .6, "is-red") +
+      R.flyingLeads([{ from: p1, to: { x: cx - P * .6, y: cy - h / 2 }, colour: "#2b2b2b", sag: P * .5 }, { from: p2, to: { x: cx + P * .6, y: cy - h / 2 }, colour: "#c0392b", sag: P * .5 }]) +
       `<rect class="tbx-pump-b" x="${n1(cx - w / 2)}" y="${n1(cy - h / 2)}" width="${n1(w)}" height="${n1(h)}" rx="${n1(P * .5)}"/>` +
       `<rect class="tbx-pump-b" x="${n1(cx + w / 2 - 1)}" y="${n1(cy - P * .2)}" width="${n1(P * .9)}" height="${n1(P * .4)}" rx="2"/>` +
       `<text class="tbx-pump-t" x="${n1(cx)}" y="${n1(cy + 7)}" text-anchor="middle">PUMP</text>` +
