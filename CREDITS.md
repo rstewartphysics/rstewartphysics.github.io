@@ -357,6 +357,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Q6; 2024 Paper 1 Q5; 2026 Paper 2 Q4; Higher Physics specimen question paper (S857) Paper 2 Q2;
     course specification v4.1 (September 2026), p.7. © Qualifications Scotland (SQA), reproduced for
     educational use. The tower crane photo is no longer used.
+- **National 5 Electronics Block 6 Lesson 1 *Testing with a Multimeter and a Logic Probe*** (added
+  27 October 2026) — the lesson slide deck `classes/electronics/slides/b6-l1-testing-multimeter-logic-probe.pdf`
+  and its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The screenshots and
+  figures are from this site's Practise Testing and Lesson 1 Testing pages; the multimeter drawing and the
+  555 practice board are from the Block 6 booklet; all by R Stewart, 2026. No photos.
+  - Figures and questions: National 5 Practical Electronics 2024 Q4(a) and Q7; 2025 Q1(a), Q4(a), Q6(a),
+    Q6(b) and Q7 (the logic-probe figure); 2026 Q1(c) and Q2; 2018 Q5; specimen question paper Q1(b), Q2(b)
+    and Q4(a); the 2018 and 2024 marking instructions. The course specification v2.1, p.9, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
 - **Higher Physics *Collisions, explosions & impulse*** (added 23 October 2026) — the lesson slide deck
   `classes/higher/slides/h-odu3-momentum-impulse.pdf` and its `-answers.pdf` twin. Each item is credited on
   the deck's Credits slide. The trolley, collision, graph and demo drawings are drawn by R Stewart; no photos.
