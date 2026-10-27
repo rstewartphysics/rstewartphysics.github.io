@@ -131,6 +131,14 @@ CSS = r"""
 JS_COLLAPSE = open(os.path.join(HERE, "js_common.js")).read()
 
 
+PAST_PAPERS_LINK = ('<a class="reslink" href="/assets/engineering-science/national-5/04b-programmable-control/'
+                    'past-papers/programmable-control-past-papers.pdf" target="_blank" rel="noopener" '
+                    'aria-label="Programmable control past paper questions with SQA marking instructions. PDF. '
+                    'Opens in a new tab"><svg class="res-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false">'
+                    '<use href="#ic-paper"/></svg>Past paper questions and answers '
+                    '<span class="res-meta">PDF · 2014–2026 + specimen</span></a>')
+
+
 def shell(sections, data_booklet_link):
     navs = [n for m in sections for n in getattr(m, "NAVS", [(m.ID, m.NAV)])]
     subnav = "".join(f'\n        <a class="subnav-link" href="#{i}">{n}</a>' for i, n in navs)
@@ -196,6 +204,7 @@ title: Programmable Control — National 5 Engineering Science
         <div class="btnrow">
           <a class="reslink" href="/classes/n5-engineering/slides.html#b4b"><svg class="res-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-slides"/></svg>Booklet 4b slides</a>
           {data_booklet_link}
+          {PAST_PAPERS_LINK}
         </div>
       </section>
     </div>

@@ -447,6 +447,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     educational use.
   - An Arduino Uno board — JrawX, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arduino_Uno_board.jpg). Resized to fit.
 
+- **National 5 Engineering Science *Programmable Control — past paper questions and marking instructions*** (added 27
+  October 2026) — `assets/engineering-science/national-5/04b-programmable-control/past-papers/programmable-control-past-papers.pdf`.
+  Every item is credited on the booklet's Sources and credits page. The cover mark is drawn by R Stewart.
+  - Questions and marking instructions reproduced exactly from the N5 Engineering Science question papers:
+    2014 Q7, Q13; 2015 Q5, Q15(a)(b); 2016 Q2, Q12(c); 2017 Q9; 2018 Q10(a), Q12(b); 2019 Q10(d), Q15; 2021 Q7, Q13(b); 2022 Q9, Q14(c); 2023 Q8(a), Q9(c)(d); 2024 Q11(b); 2025 Q2, Q8(c), Q9; 2026 Q12(a), Q13(e); specimen paper Q13(a), Q14(d). © Qualifications Scotland (SQA), reproduced for educational use.
+  - The 2014 to 2019 pages are scans of the SQA papers taken from Mr McDonald's "Past Paper Finder" (2024), shared freely by its author.
+  - Photographs carried across from the papers' acknowledgements of copyright: 2026 Q12 Sergio
+    Photone/shutterstock.com; specimen Q13 Christian Delbert/shutterstock.com; specimen Q14 Keith
+    Publicover/shutterstock.com and rawcaptured photography/shutterstock.com.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
