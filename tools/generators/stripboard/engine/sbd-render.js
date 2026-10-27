@@ -596,6 +596,23 @@
       const x = cx - (spanH ? P * 1.6 : h), y = cy - (spanH ? h : P * 1.6);
       const w = spanH ? P * 3.2 : h * 2, ht = spanH ? h * 2 : P * 3.2;
       const kn = P * 0.34;
+      if (p.art && p.art.shade) {
+        /* B3: a dark slot along the body with the slider knob in it, over the
+           pin `art.knob` names (the throw), ribbed so it reads as a thumb grip */
+        const kp = p.art.knob && cells.pins.find(z => z.pin === p.art.knob);
+        const kx = kp ? X(kp.hole.c) : cx, ky = kp ? Y(kp.hole.r) : cy;
+        const sl = P * 0.2;
+        let g = `<rect class="sbd-body" x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(ht)}" rx="${n(P * 0.12)}"/>` +
+          (spanH ? `<rect x="${n(x + P * 0.35)}" y="${n(cy - sl / 2)}" width="${n(w - P * 0.7)}" height="${n(sl)}" rx="${n(sl / 2)}" style="fill:#14181a"/>`
+                 : `<rect x="${n(cx - sl / 2)}" y="${n(y + P * 0.35)}" width="${n(sl)}" height="${n(ht - P * 0.7)}" rx="${n(sl / 2)}" style="fill:#14181a"/>`);
+        const kw = spanH ? P * 0.9 : P * 0.55, kh = spanH ? P * 0.55 : P * 0.9;
+        if (p.art.knob !== "none") g += `<rect x="${n(kx - kw / 2)}" y="${n(ky - kh / 2)}" width="${n(kw)}" height="${n(kh)}" rx="2" style="fill:#2b3033;stroke:#0d0f10;stroke-width:1"/>`;
+        for (const d of p.art.knob === "none" ? [] : [-0.2, 0, 0.2])
+          g += spanH
+            ? `<line x1="${n(kx + d * P)}" y1="${n(ky - kh / 2 + 3)}" x2="${n(kx + d * P)}" y2="${n(ky + kh / 2 - 3)}" style="stroke:#7d868b;stroke-width:1.2"/>`
+            : `<line x1="${n(kx - kw / 2 + 3)}" y1="${n(ky + d * P)}" x2="${n(kx + kw / 2 - 3)}" y2="${n(ky + d * P)}" style="stroke:#7d868b;stroke-width:1.2"/>`;
+        return g;
+      }
       return `<rect class="sbd-body" x="${n(x)}" y="${n(y)}" width="${n(w)}" ` +
              `height="${n(ht)}" rx="${n(P * 0.12)}"/>` +
              `<rect class="sbd-mark" x="${n(cx - (spanH ? kn : kn * 0.6))}" ` +
@@ -788,7 +805,8 @@
                                              pos: comp.pos, colour: comp.colour,
                                              cuts: a.cuts,
                                              art: o.art ? { shade: o.art.shade,
-                                               bands: (o.art.bands || {})[p.id] } : null });
+                                               bands: (o.art.bands || {})[p.id],
+                                               knob: (o.art.knobs || {})[p.id] } : null });
 
       const drawn =  fp.kind === "dil" ? drawDil(withLabel, fp, cells)
                    : fp.kind === "terminal" ? drawTerminal(withLabel, fp, cells)
@@ -798,6 +816,13 @@
                    : drawAxial(withLabel, fp, cells);
       layers.body += paintBody(o.art && o.art.shade ? shadeBodies(drawn) : drawn, withLabel, fp);
       if (o.art && o.art.shade && !layers.defs.includes("sbd-b3")) layers.defs += GLOSS;
+      /* the value printed beside a part (a capacitor's 100n, a swapped chip's
+         marking) — what the bench used to write over the engine's picture */
+      if (o.art && o.art.print && o.art.print[p.id]) {
+        const xs = cells.pins.map(z => X(z.hole.c)), ys = cells.pins.map(z => Y(z.hole.r));
+        layers.id += `<text class="sbd-id" x="${n((Math.min(...xs) + Math.max(...xs)) / 2 + P * 0.78)}" ` +
+          `y="${n((Math.min(...ys) + Math.max(...ys)) / 2 + 4)}" style="font-size:11px">${esc(o.art.print[p.id])}</text>`;
+      }
 
       for (const z of cells.pins)
         layers.pin += `<circle class="sbd-pin" cx="${n(X(z.hole.c))}" cy="${n(Y(z.hole.r))}" r="${n(P * 0.13)}"/>`;
@@ -1089,7 +1114,109 @@
     return { r, c };
   }
 
-  root.SBD.render = { renderBoard, renderPart, spanOf, inlineClasses, STYLE, CLASSES,
+  /* ---- the copper side (bench 3b) -----------------------------------------
+     The board turned over left to right: strips, cut drill-holes, bare holes,
+     a solder joint under every leg, solder bridges, and the parts as shadows
+     seen through the board.  It is a physical object, so every colour is
+     fixed (inline style), the same in both appearances, and nothing here
+     needs the page's CSS.  Geometry is the caller's, so the bench can crop the
+     board to the part that is used:
+       o.cen(ref) -> {x, y}   o.ref(r, c) -> "A1"   o.rows, o.cols
+       o.vb {x, y, w, h}      o.cuts [ref]          o.bridges [[ref, ref]]
+       o.joints [{ref, state: "ok" | "dry" | "lifted", what}]
+       o.shadows [{ dil: [{x,y}] } | { line: [{x,y},{x,y}], w } ]
+     Returns the SVG for inside an <svg>: a mirrored group.  Words are the
+     caller's, written the right way round. */
+  const CU = { sub: "#d8c8a2", cu: "#c87533", hi: "#e09a5c", hole: "#3b2a17",
+               shadow: "rgba(40,30,20,.16)", bridge: "#b9bec4", bridgeEdge: "#7d838a" };
+  function copperSide(o) {
+    const cut = new Set(o.cuts || []), vb = o.vb;
+    const jset = new Set((o.joints || []).map(j => j.ref));
+    let g = "";
+    for (let r = 0; r < o.rows; r++) {
+      const y = o.cen(o.ref(r, 1)).y;
+      if (y > vb.h) break;
+      let c0 = 1;
+      for (let c = 1; c <= o.cols + 1; c++) {
+        const isCut = c <= o.cols && cut.has(o.ref(r, c));
+        if (!isCut && c !== o.cols + 1) continue;
+        if (c - 1 >= c0) {
+          const xa = o.cen(o.ref(r, c0)).x - P * 0.5 + (c0 === 1 ? 0 : P * 0.32);
+          const xb = o.cen(o.ref(r, c - 1)).x + P * 0.5 - (isCut ? P * 0.32 : 0);
+          g += `<rect x="${n(xa)}" y="${n(y - P * 0.4)}" width="${n(xb - xa)}" height="${n(P * 0.8)}" rx="2" style="fill:${CU.cu}"/>` +
+               `<rect x="${n(xa)}" y="${n(y - P * 0.4)}" width="${n(xb - xa)}" height="${n(P * 0.12)}" style="fill:${CU.hi}"/>`;
+        }
+        c0 = c + 1;
+      }
+      for (let c = 1; c <= o.cols; c++) {
+        const ref = o.ref(r, c), x = o.cen(ref).x;
+        if (cut.has(ref))
+          g += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(P * 0.3)}" style="fill:${CU.sub};stroke:#7a5a2a;stroke-width:1.5"/>`;
+        else if (!jset.has(ref))
+          g += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(P * 0.11)}" style="fill:${CU.hole}"/>`;
+      }
+    }
+    for (const [a, b] of o.bridges || []) {
+      const pa = o.cen(a), pb = o.cen(b);
+      g += `<ellipse cx="${n((pa.x + pb.x) / 2)}" cy="${n((pa.y + pb.y) / 2)}" rx="${n(Math.abs(pa.x - pb.x) / 2 + P * 0.4)}" ` +
+           `ry="${n(Math.abs(pa.y - pb.y) / 2 + P * 0.4)}" style="fill:${CU.bridge};stroke:${CU.bridgeEdge}"/>`;
+    }
+    let sh = "";
+    for (const z of o.shadows || []) {
+      if (z.dil) {
+        const xs = z.dil.map(q => q.x), ys = z.dil.map(q => q.y);
+        sh += `<rect x="${n(Math.min(...xs) - P * 0.2)}" y="${n(Math.min(...ys) - P * 0.55)}" ` +
+              `width="${n(Math.max(...xs) - Math.min(...xs) + P * 0.4)}" height="${n(Math.max(...ys) - Math.min(...ys) + P * 1.1)}" ` +
+              `rx="4" style="fill:${CU.shadow}"/>`;
+      } else {
+        const [p, q] = z.line;
+        sh += `<line x1="${n(p.x)}" y1="${n(p.y)}" x2="${n(q.x)}" y2="${n(q.y)}" stroke-width="${n(z.w)}" ` +
+              `style="stroke:${CU.shadow};stroke-linecap:round;fill:none"/>`;
+      }
+    }
+    let j = "";
+    for (const q of o.joints || []) {
+      const c = o.cen(q.ref), dot = `<circle cx="${n(c.x)}" cy="${n(c.y)}" r="${n(P * 0.09)}" style="fill:#555"/>`;
+      if (q.state === "lifted")
+        j += `<circle cx="${n(c.x)}" cy="${n(c.y)}" r="${n(P * 0.3)}" style="fill:${CU.sub};stroke:#7a5a2a;stroke-width:1.5"/>` +
+             `<circle cx="${n(c.x)}" cy="${n(c.y)}" r="${n(P * 0.11)}" style="fill:${CU.hole}"/>`;
+      else if (q.state === "dry")
+        j += `<circle cx="${n(c.x)}" cy="${n(c.y)}" r="${n(P * 0.36)}" style="fill:#77746b;stroke:#3a3a36"/>` +
+             `<circle cx="${n(c.x)}" cy="${n(c.y)}" r="${n(P * 0.2)}" style="fill:none;stroke:#262622;stroke-width:2.2"/>` +
+             `<path d="M${n(c.x - P * 0.28)} ${n(c.y - P * 0.3)} L${n(c.x - P * 0.08)} ${n(c.y - P * 0.06)} L${n(c.x - P * 0.2)} ${n(c.y + P * 0.1)} L${n(c.x + P * 0.04)} ${n(c.y + P * 0.34)}" ` +
+             `style="fill:none;stroke:#2a2a26;stroke-width:1.6"/>` + dot;
+      else
+        j += `<circle cx="${n(c.x)}" cy="${n(c.y)}" r="${n(P * 0.36)}" style="fill:url(#sbd-sol)"/>` +
+             `<circle cx="${n(c.x - P * 0.1)}" cy="${n(c.y - P * 0.1)}" r="${n(P * 0.09)}" style="fill:#fff;opacity:.9"/>` + dot;
+    }
+    return `<defs><radialGradient id="sbd-sol" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="#f4f6f8"/>` +
+           `<stop offset="1" stop-color="#8d939a"/></radialGradient></defs>` +
+           `<rect x="${vb.x}" y="${vb.y}" width="${vb.w}" height="${vb.h}" style="fill:${CU.sub}"/>` +
+           `<g transform="matrix(-1 0 0 1 ${vb.x * 2 + vb.w} 0)">${g}${sh}${j}</g>`;
+  }
+
+  /* Flying leads: an off-board part (the pump, an LDR on its wires) joined to
+     the board by curved insulated wire, so it reads as hanging off the board
+     and not as a track.  `from` is the board end, `to` the part's end; the
+     curve bows by `sag` (default a quarter of the span), downwards.  Colours
+     are the wire's own and fixed. */
+  function flyingLeads(leads) {
+    let g = "";
+    for (const l of leads) {
+      const dx = l.to.x - l.from.x, dy = l.to.y - l.from.y, len = Math.hypot(dx, dy) || 1;
+      const sag = l.sag != null ? l.sag : len * 0.25;
+      const c1 = { x: l.from.x + dx * 0.25, y: l.from.y + dy * 0.25 + sag };
+      const c2 = { x: l.from.x + dx * 0.75, y: l.from.y + dy * 0.75 + sag };
+      const d = `M ${n(l.from.x)} ${n(l.from.y)} C ${n(c1.x)} ${n(c1.y)} ${n(c2.x)} ${n(c2.y)} ${n(l.to.x)} ${n(l.to.y)}`;
+      g += `<path d="${d}" style="fill:none;stroke:#1a1a1a;stroke-width:${n(P * 0.2)};stroke-linecap:round"/>` +
+           `<path d="${d}" style="fill:none;stroke:${l.colour || "#c0392b"};stroke-width:${n(P * 0.13)};stroke-linecap:round"/>` +
+           `<path d="${d}" style="fill:none;stroke:#fff;stroke-opacity:.35;stroke-width:${n(P * 0.04)};stroke-linecap:round" transform="translate(0 -1.2)"/>` +
+           `<circle cx="${n(l.from.x)}" cy="${n(l.from.y)}" r="${n(P * 0.1)}" style="fill:#555"/>`;
+    }
+    return g;
+  }
+
+  root.SBD.render = { renderBoard, renderPart, copperSide, flyingLeads, spanOf, inlineClasses, STYLE, CLASSES,
                       P, PAD_L, PAD_T, sizeOf, holeAt,
                       centreOf: (r, c, boardId) => {
                         if (boardId) useBoard(BOARDS[boardId]);
