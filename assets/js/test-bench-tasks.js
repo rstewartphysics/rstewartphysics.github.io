@@ -12,7 +12,8 @@
    turn: the readings the pupil takes. red / black: where the leads go (any
      point on the same net counts). predict and compare as in the jobs: every
      option has its own feedback; a feedback entry may be a function of the
-     pupil's readings, v.led, v.r1 ("1.93 V").
+     pupil's readings, v.led, v.r1 ("1.93 V"). fault: the same judgement on a
+   reading from a board with a fault (T11).
    ============================================================================ */
 (function (root) {
   "use strict";
@@ -37,7 +38,7 @@
     id: "l3", test: "DC voltage", scenario: "slide-led",
     title: "DC voltage", sub: "Switch and LED board",
     card: "Measure voltages with the meter. First, watch the bench measure the supply at T1. " +
-      "Then measure across LED1 and across R1 yourself. Predict each one first, then compare your real reading.",
+      "Then measure across LED1 and across R1 yourself. Predict each one first, then compare your real reading, and one from a board with a fault.",
     pre: "This board has been looked at and checked for shorts, so you can switch it on.",
     /* how the meter was left: after a current reading (L7) */
     meter: { dial: "DCA 20m", sock: "A" },
@@ -70,6 +71,13 @@
           { t: () => "No: a working LED reads exactly 2.00 V", fb: "<b>Not quite.</b> 2 V is the textbook value. Real LEDs differ a little, and the meter shows hundredths of a volt, so you will almost never see exactly 2.00 V." },
           { t: () => "No: it should read 5 V, like the supply", fb: "<b>Not quite.</b> 5 V across an LED means no current flows: it is the wrong way round or not joined. A lit LED takes about 2 V." },
           { t: v => "No: " + v.led + " is too far from 2 V", fb: v => "<b>Not quite.</b> " + v.led + " is within the normal range for a red LED, about 1.8 to 2.1 V. A fault shows a big difference, like 0 V or 5 V." }
+        ] },
+        /* T11: a reading from a board with a fault (S9, LED1 reversed) */
+        fault: { q: "<b>Another board:</b> SW1 is on, but LED1 is off. LED1 reads <b>4.98 V</b>. <b>Is</b> that normal?", opts: [
+          { t: "No: LED1 takes the whole supply, so no current flows", key: true, fb: "<b>Right.</b> A lit LED takes about 2 V. 4.98 V means LED1 takes the whole supply and no current flows. LED1 is the wrong way round, or not joined." },
+          { t: "Yes: 4.98 V is close to 5 V", fb: "<b>Not quite.</b> Close to 5 V is normal for the supply, not for an LED. A lit red LED reads about 1.8 to 2.1 V." },
+          { t: "Yes: LED1 has the full supply, so it is fine", fb: "<b>Not quite.</b> LED1 is off. The whole supply across it, with no light, means no current flows through it." },
+          { t: "No: it should read exactly 2.00 V", fb: v => "<b>Not quite.</b> Your own LED1 read " + v.led + ", so a working LED is not exactly 2.00 V. The fault is the big difference: 4.98 V, not about 2 V." }
         ] }
       },
       {
@@ -87,8 +95,15 @@
         compare: { q: v => "<b>Compare:</b> R1 reads <b>" + v.r1 + "</b>. You predicted about 3 V. <b>Is</b> R1's voltage normal?", opts: [
           { t: v => "Yes: " + v.r1 + " is close to 3 V", key: true, fb: v => "<b>Right.</b> The supply and the LED are real parts, so R1's share moves a little too: about 2.8 to 3.2 V is normal. " + v.led + " + " + v.r1 + " = " + sum(v) + ", the supply." },
           { t: () => "No: 5 V − 2 V is exactly 3.00 V", fb: "<b>Not quite.</b> 3 V comes from textbook values. Your supply and your LED are real parts, so R1's share is close to 3 V, not exactly 3.00 V." },
-          { t: () => "No: LED1 and R1 should add up to exactly 5.00 V", fb: v => "<b>Not quite.</b> They add up to the real supply, not to 5.00 V: " + v.led + " + " + v.r1 + " = " + sum(v) + ". A real supply is about 4.9 to 5.1 V." },
+          { t: () => "No: LED1 and R1 should add up to exactly 5.00 V", fb: v => "<b>Not quite.</b> They add up to the real supply, not to 5.00 V: " + v.led + " + " + v.r1 + " = " + sum(v) + ". A real supply is about 4.95 to 5.08 V, and a little less while the board takes current." },
           { t: () => "No: R1 should take the whole 5 V", fb: "<b>Not quite.</b> R1 takes the whole supply only if LED1 is shorted, and then LED1 is off. A lit LED takes about 2 V; R1 takes the rest." }
+        ] },
+        /* T11: a reading from a board with a fault (no current: LED1 reversed) */
+        fault: { q: "<b>Another board:</b> SW1 is on, but LED1 is off. R1 reads <b>0.00 V</b>. <b>Is</b> that normal?", opts: [
+          { t: "No: no current flows through R1", key: true, fb: "<b>Right.</b> With current through it, R1 takes about 3 V. 0.00 V means no current flows: the circuit is broken somewhere, for example LED1 the wrong way round." },
+          { t: "Yes: a resistor does not use up voltage", fb: v => "<b>Not quite.</b> Current through a resistor always gives a voltage across it. On your board, R1 read " + v.r1 + "." },
+          { t: "No: R1 must be shorted", fb: "<b>Not quite.</b> A shorted R1 would also read about 0 V, but then LED1 would be lit. LED1 is off, so no current flows at all." },
+          { t: "No: R1 should read 5 V", fb: v => "<b>Not quite.</b> R1 takes the whole 5 V only when LED1 is shorted. On a working board R1 takes about 3 V: yours read " + v.r1 + "." }
         ] }
       }
     ]

@@ -2137,10 +2137,11 @@
     btn.classList.add(o.key ? "is-right" : "is-wrong");
     fb.className = "tbx-qfb " + (o.key ? "is-ok" : "is-bad");
     fb.innerHTML = tval(o.fb, t.v);
-    if (!o.key) { btn.disabled = true; if (t.q.kind === "compare") t.firstQ = false; return; }
+    if (!o.key) { btn.disabled = true; if (t.q.kind !== "predict") t.firstQ = false; return; }
     this.el.jobpanel.querySelectorAll("[data-job^=topt]").forEach(b => { b.disabled = true; });
-    const last = t.m === t.def.turn.length - 1;
-    const [act, word] = t.q.kind === "predict" ? ["measure", "Start measuring"] : last ? ["finish", "Finish"] : ["tnext", "Next: " + t.def.turn[t.m + 1].name];
+    const m = t.def.turn[t.m], last = t.m === t.def.turn.length - 1;
+    const [act, word] = t.q.kind === "predict" ? ["measure", "Start measuring"] : t.q.kind === "compare" && m.fault ? ["fault", "Next: another board"]
+      : last ? ["finish", "Finish"] : ["tnext", "Next: " + t.def.turn[t.m + 1].name];
     fb.insertAdjacentHTML("beforeend", ` <button type="button" class="tbx-go" data-job="${act}">${esc(word)}</button>`);
     fb.querySelector("button").focus({ preventScroll: true });
   };
@@ -2205,7 +2206,7 @@
     t.result = { safe, first };
     this.taskLine(); this.techLine();
     this.el.jobpanel.hidden = true; this.el.under.hidden = false;
-    this.feedback(safe ? "ok" : "bad", safe ? "✓ Task done" : "✗ Not passed", safe ? "Every step right." : "There was a safety error. Try again.");
+    this.feedback(safe ? "ok" : "bad", safe ? "✓ Task done" : "✗ Not passed", safe ? (first ? "Every step right first time." : "All readings taken and judged.") : "There was a safety error. Try again.");
     this.taskDoneCard();
   };
   Bench.prototype.taskDoneCard = function () {
@@ -2242,6 +2243,10 @@
       case "turn": return this.taskTurn();
       case "measure": return this.taskMeasure();
       case "compare": if (t.phase === "read") this.taskCompare(); return;
+      case "fault":
+        /* T11: the same judgement on a reading from a board with a fault */
+        this.feedback(null, "Another board", "A reading from a board with a fault. Is it normal?");
+        return this.taskQ(t.def.turn[t.m].fault, "fault");
       case "tnext": t.m++; return this.taskPredict();
       case "finish": return this.taskFinish();
       case "again": return this.taskTurn();
