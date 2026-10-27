@@ -380,7 +380,46 @@
     }
     s += `<rect class="sbd-body" x="${n(bx1)}" y="${n(by1)}" width="${n(bx2 - bx1)}" ` +
          `height="${n(by2 - by1)}" rx="${n(P * 0.16)}"/>`;
+    if (p.art) s += artResistor(p.art, horiz, bx1, by1, bx2, by2);
     return s;
+  }
+
+  /* B3 art for a plain axial part (a resistor): the colour bands the bench used
+     to draw itself, and the shading is shadeBodies() below, for every part.  Only when the caller asks (`art` on renderBoard), so the
+     four pages keep their flat look.  Fixed colours, as the body colours are:
+     the part is the same in a dark room. */
+  const BAND_COLOURS = ["#111", "#7b3f00", "#d41c1c", "#f07c00", "#f5d000", "#1f9d3a",
+                        "#1c5fd4", "#7a2fc4", "#888", "#fff"];
+  function artResistor(art, horiz, bx1, by1, bx2, by2) {
+    const w = bx2 - bx1, h = by2 - by1, r = P * 0.16;
+    let g = "";
+    if (art.bands) {
+      const len = horiz ? w : h, bw = Math.max(2.2, len * 0.075);
+      [[0.16, BAND_COLOURS[art.bands[0]]], [0.31, BAND_COLOURS[art.bands[1]]],
+       [0.46, BAND_COLOURS[art.bands[2]]], [0.80, "#c9a227"]].forEach(([f, col]) => {
+        const c = len * f - bw / 2;
+        g += horiz
+          ? `<rect x="${n(bx1 + c)}" y="${n(by1)}" width="${n(bw)}" height="${n(h)}" style="fill:${col}"/>`
+          : `<rect x="${n(bx1)}" y="${n(by1 + c)}" width="${n(w)}" height="${n(bw)}" style="fill:${col}"/>`;
+      });
+    }
+    return g;
+  }
+
+  /* B3 shading for any drawn part: a copy of each body shape on top, filled
+     with one light-to-dark gradient, so a cylinder, a disc and a can all read
+     as rounded.  The copy has its own class, so paintBody() leaves it alone,
+     and it ignores pointer events. */
+  const GLOSS = '<linearGradient id="sbd-b3" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#fff" stop-opacity=".55"/>' +
+    '<stop offset=".35" stop-color="#fff" stop-opacity=".05"/>' +
+    '<stop offset=".7" stop-color="#000" stop-opacity=".08"/>' +
+    '<stop offset="1" stop-color="#000" stop-opacity=".38"/></linearGradient>';
+  function shadeBodies(svg) {
+    let top = "";
+    svg.replace(/<(rect|circle|path) class="sbd-body"([^>]*?)\/>/g,
+      (m, tag, rest) => { top += `<${tag} class="sbd-gloss"${rest} style="fill:url(#sbd-b3);pointer-events:none"/>`; return m; });
+    return svg + top;
   }
 
   function drawDil(p, fp, cells) {
@@ -747,15 +786,18 @@
       const cells = cellsOf(fp, parseRef(p.at), p.rot || 0);
       const withLabel = Object.assign({}, p, { label: comp.name || p.id, part: comp.part,
                                              pos: comp.pos, colour: comp.colour,
-                                             cuts: a.cuts });
+                                             cuts: a.cuts,
+                                             art: o.art ? { shade: o.art.shade,
+                                               bands: (o.art.bands || {})[p.id] } : null });
 
-      layers.body += paintBody(
-                     fp.kind === "dil" ? drawDil(withLabel, fp, cells)
+      const drawn =  fp.kind === "dil" ? drawDil(withLabel, fp, cells)
                    : fp.kind === "terminal" ? drawTerminal(withLabel, fp, cells)
                    : fp.kind === "can" ? drawCan(withLabel, fp, cells)
                    : fp.kind === "button" ? drawButton(withLabel, fp, cells)
                    : (fp.kind === "to92" || fp.kind === "inline3") ? drawTo92(withLabel, fp, cells)
-                   : drawAxial(withLabel, fp, cells), withLabel, fp);
+                   : drawAxial(withLabel, fp, cells);
+      layers.body += paintBody(o.art && o.art.shade ? shadeBodies(drawn) : drawn, withLabel, fp);
+      if (o.art && o.art.shade && !layers.defs.includes("sbd-b3")) layers.defs += GLOSS;
 
       for (const z of cells.pins)
         layers.pin += `<circle class="sbd-pin" cx="${n(X(z.hole.c))}" cy="${n(Y(z.hole.r))}" r="${n(P * 0.13)}"/>`;
