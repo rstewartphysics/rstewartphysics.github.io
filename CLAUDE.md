@@ -21,7 +21,7 @@ start of a Mac session, and when asked about open work. `tools/` is excluded fro
 
 A cloud session (Claude Code on the web) sees only this repo. The Mac terminal also reaches the
 page generators, the deck kit, the SQA source papers and figures, the learning-standard audit
-scripts, real Safari and the teacher's OneDrive. Pick the place before starting.
+scripts and the teacher's OneDrive. Pick the place before starting.
 
 | Job | Where | Why |
 |---|---|---|
@@ -32,7 +32,7 @@ scripts, real Safari and the teacher's OneDrive. Pick the place before starting.
 | Anything needing SQA figures, past papers or MIs | Mac | The source papers and figure library are not in the repo |
 | Decks, booklets, tests, posters, then publishing their PDFs | Mac | The deck kit, OneDrive and LibreOffice are on the Mac |
 | New topic pages and rebuilds (dual coding, dyslexia audit) | Mac | Needs the image library and the audit scripts |
-| Real Safari, iPad and Yenka checks | Mac | Cloud has headless Chrome only |
+| Yenka checks | Mac | Yenka runs on the Mac only |
 | Anything touching pupil data | Mac only | Pupil data never leaves the Mac |
 | Physics and wording judgement | The teacher | List what to check; don't guess |
 
@@ -453,7 +453,7 @@ axes or animation loops. Link `sims.css` after the subject sheet, and load `widg
   pages add `.sim { --sim-accent-ink: var(--eng-ink-accent); }` so accent text stays AA.
 - **Adopted (13 Oct 2026): every simulator on the site** — 21 across Electronics (555, theory),
   Higher (electricity, relativity), N5 Engineering and S3 Physics. No page carries `bindPair`.
-- **Still check by eye**, as for every page: real iPad Safari, and the physics by the teacher.
+- **Still check by eye**, as for every page: a headless Chrome look, and the physics by the teacher.
 
 ---
 
@@ -674,9 +674,10 @@ is **one card carrying two named pills**:
   tab order; no `a a` in the card.
 - Both PDFs' real page counts (`fitz`) equal to each other, to the card's `.deck-meta` and to both
   `aria-label`s.
-- Both breakpoints and both appearances, Chrome and real Safari. **Use Safari for the narrow
-  width**: headless Chrome on macOS will not render below ~450 px — it lays out wider and crops the
-  screenshot, which looks exactly like horizontal overflow.
+- Both breakpoints and both appearances, in headless Chrome. **For the narrow width, set the
+  viewport with the CDP device-metrics override** (or Playwright's `viewport`): `--window-size`
+  alone will not render below ~450 px — it lays out wider and crops the screenshot, which looks
+  exactly like horizontal overflow.
 
 **Adopted so far:** S3 Physics (Space L2–L10) and Higher (ODU 1), 24 September 2026. Every other
 already-published deck gets its pair, and this card, on its next touch.
@@ -812,8 +813,8 @@ page is brought up to it on its next touch**, the same way as rule 31's trim.
   collapsing at the mobile breakpoint). Later pages reuse it rather than inventing another.
 - **Accessible.** The SVG has `role="img"` and a `<title>`/`aria-label` naming what it shows.
   Photos have real `alt` text. The figure never carries meaning by colour alone.
-- **Check it.** Both breakpoints and both appearances, in headless Chrome **and** real Safari
-  (global `CLAUDE.md` §2). Look at every figure at the size it renders: no label clipped or
+- **Check it.** Both breakpoints and both appearances, in headless Chrome (global `CLAUDE.md`
+  §2; no Safari checks since 28 Oct 2026). Look at every figure at the size it renders: no label clipped or
   sitting on a line.
 - **Companion materials.** A page that links a practical sheet or deck points at it and never
   reveals what the sheet asks pupils to predict. Worked examples on the page don't reuse a
@@ -852,7 +853,7 @@ existing pages on their next touch**, alongside the dual-coding pass.
   Components arrive in Phase 4; don't invent one-off versions before then.
 - **Real text (D18–D19)**: no pictures of text; every figure has `alt`.
 - **Practice tests (D21)**: work with browser read-aloud, no timer that can't be switched off.
-- **Check it** as for dual coding: Chrome and Safari, both widths, both appearances.
+- **Check it** as for dual coding: headless Chrome, both widths, both appearances.
 
 ---
 
