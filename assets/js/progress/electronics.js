@@ -72,9 +72,14 @@
     { id: "con-cc", name: "Solder Master", emoji: "🪛", section: "Construction",
       href: "/classes/electronics/construction.html",
       cond: "Read 8/10 resistor colour codes" },
+    /* Learn to Test (Block 6 bench, Phase 4): a task passes on any try with
+       no safety error, so thr 1 means all nine passed. */
+    { id: "tst-lt", name: "Bench Tester", emoji: "🧰", section: "Testing", thr: 1,
+      href: "/classes/electronics/learn-to-test.html",
+      cond: "Pass all nine Learn to Test tasks with no safety errors" },
     { id: "tst-ff", name: "Probe Detective", emoji: "🔬", section: "Testing",
-      href: "/classes/electronics/testing.html",
-      cond: "Find 4 of 5 hidden faults on the test bench" },
+      href: "/classes/electronics/practise-testing.html",
+      cond: "Find 8 of 10 faults first try in Practise Testing, with no safety errors" },
     { id: "cmp-th", name: "Threshold Hunter", emoji: "🌡️", section: "Comparators",
       href: "/classes/electronics/op-amp-comparator.html",
       cond: "Set VR1 for 4 of 5 target temperatures on your first try" }

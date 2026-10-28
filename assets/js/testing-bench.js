@@ -246,7 +246,7 @@
     if (st.dial === "Continuity") {
       if (st.power) { return { d: "1", note: "Switch the power off first. Never test continuity or resistance with the power on." }; }
       if (!tp) { return { d: "1", note: "Touch the red lead on a test point. The black lead is on T2 (0 V)." }; }
-      if (tp === "T2") { return { d: "000", beep: true, note: "Beep: both leads are on the same point, T2." }; }
+      if (tp === "T2") { return { d: "0.4", beep: true, note: "Beep: both leads are on the same point, T2." }; }
       return { d: "1", note: "No beep: " + tp + " is not joined straight to 0 V. That is right for this board." };
     }
     if (st.red === "A") {
