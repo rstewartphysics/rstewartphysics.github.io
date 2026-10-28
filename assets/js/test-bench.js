@@ -607,11 +607,16 @@
     const ring = (k, cls) => { const p = this.posOf(k); return `<circle class="tbx-ring ${cls}" cx="${n1(p.x)}" cy="${n1(p.y)}" r="${n1(P * .62)}"/>`; };
     let s = "";
     if (st.tool === "meter") {
-      if (st.black) {
-        const p = this.posOf(st.black), clipped = st.black === this.sc.ground && this.isVoltSetting();
-        s += ring(st.black, "is-black") + cable(p, vb.h * .66, "is-black") + (clipped ? clip(p, "is-black") : needle(p));
+      /* Show me: a lead on its way to a point (flyTo) */
+      const fl = this.flyLead, flying = lead => !!fl && fl.lead === lead;
+      if (st.black || flying("black")) {
+        const p = flying("black") ? fl.p : this.posOf(st.black), clipped = !flying("black") && st.black === this.sc.ground && this.isVoltSetting();
+        s += (flying("black") ? "" : ring(st.black, "is-black")) + cable(p, vb.h * .66, "is-black") + (clipped ? clip(p, "is-black") : needle(p));
       }
-      if (st.red) { const p = this.posOf(st.red); s += ring(st.red, "is-red") + cable(p, vb.h * .58, "is-red") + needle(p); }
+      if (st.red || flying("red")) {
+        const p = flying("red") ? fl.p : this.posOf(st.red);
+        s += (flying("red") ? "" : ring(st.red, "is-red")) + cable(p, vb.h * .58, "is-red") + needle(p);
+      }
     } else if (st.tool === "probe") {
       const a = this.posOf(this.sc.supplyTP), b = this.posOf(this.sc.ground);
       s += cable(a, vb.h * .10, "is-red") + clip(a, "is-red") + cable(b, vb.h * .90, "is-black") + clip(b, "is-black");
@@ -782,7 +787,9 @@
     const t = e.target.closest ? e.target.closest("[data-job],[data-act],[data-view],[data-tool],[data-power],[data-pt],[data-next],[data-pmode],[data-pmem],[data-set],[data-sock],[data-tp],[data-input]") : null;
     if (!t || !this.root.contains(t)) return;
     const st = this.st, a = t.getAttribute.bind(t);
-    if (t.hasAttribute("data-job")) { if (!t.disabled) this.jobAct(a("data-job"), t); return; }
+    if (t.hasAttribute("data-job")) { if (!t.disabled) (this.task ? this.taskAct : this.jobAct).call(this, a("data-job"), t); return; }
+    /* Learn to Test: the bench is the bench's own during Show me and the questions */
+    if (this.task && !t.hasAttribute("data-view") && !/^(sound|clearlog|closedial|flip)$/.test(a("data-act") || "") && this.taskLocked()) return;
     if (t.hasAttribute("data-set")) { this.setDial(a("data-set"), "now"); this.closeDial(); return; }
     if (t.hasAttribute("data-sock")) { st.sock = a("data-sock"); this.instrumentChanged("now"); return; }
     if (t.hasAttribute("data-view")) { st.view = a("data-view"); this.drawBoard(); this.syncControls(); return; }
@@ -815,6 +822,7 @@
     const st = this.st;
     st.tool = tool;
     st.lookAt = null;
+    st.live = null;                       // the open log row belongs to the tool that took it
     if (tool === "probe") { this.b.meter(null); this.b.probe({ tip: st.tip, mode: st.pmode }); }
     else { this.b.probe(null); this.meterSet(); }
     if (tool === "look") this.feedback(null, "Look", "Tap a part, a link or a joint to look at it closely. Flip the board to see the joints and track cuts.");
@@ -825,18 +833,20 @@
   Bench.prototype.setPower = function (on) {
     const st = this.st;
     if (st.power === on) return;
-    if (this.job && this.jobLocked()) { this.syncControls(); return; }
+    if (this.locked()) { this.syncControls(); return; }
     st.power = on;
     this.b.power(on);
     this.syncControls();
     if (on && !st.everOn) {
       st.everOn = true;
-      if (!st.shortChecked) this.mark("safety", "noshort", "You switched on before checking for shorts. A short across the supply can damage the supply and the board. Power off first, then test for continuity from +5 V to 0 V.", "Power on", "", "before a short check");
+      if (st.prechecked) { /* a Learn to Test board: looked at and short-checked already */ }
+      else if (!st.shortChecked) this.mark("safety", "noshort", "You switched on before checking for shorts. A short across the supply can damage the supply and the board. Power off first, then test for continuity from +5 V to 0 V.", "Power on", "", "before a short check");
       else if (!st.looked.size) this.mark("bad", "nolook", "Before switching on, look at the board. Check the parts match the layout.", "Power on", "", "before looking at the board");
       else this.mark("ok", "prepower", "Right: you looked at the board and checked for shorts before switching on.", "Power on", "", "after the checks");
     }
     if ((st.tool === "meter" && st.red && st.black) || (st.tool === "probe" && st.tip)) this.measured("power");
     else if (!on) this.feedback(null, "Power is off", "Resistance, continuity and diode checks are done with the power off.");
+    if (this.task) this.taskPower(on);
   };
   Bench.prototype.isVoltSetting = function () { const g = this.st.dial.split(" ")[0]; return (g === "DCV" || g === "ACV") && this.st.dial !== "DCV D"; };
   Bench.prototype.isTwoPoint = function () { const g = this.st.dial.split(" ")[0]; return g === "OHM" || this.st.dial === "DCV D"; };
@@ -883,7 +893,7 @@
   /* A tap on the board, a test-point button, the circuit or the point list. */
   Bench.prototype.act = function (t) {
     const st = this.st;
-    if (this.job && this.jobLocked()) return;
+    if (this.locked()) return;
     if (this.finding) { this.jobFind(t); return; }
     if (st.tool === "look") { this.look(t); return; }
     if (st.tool === "lift") { this.liftAt(t); return; }
@@ -914,7 +924,7 @@
   };
   Bench.prototype.setInput = function (k, v) {
     const st = this.st;
-    if (this.job && this.jobLocked()) return;
+    if (this.locked()) return;
     if (st.inputs[k] === v) return;
     st.inputs[k] = v;
     st.live = null;
@@ -1082,6 +1092,7 @@
     }
     this.feedback("look", title, text);
     if (key && this.job) this.jobLook(key);
+    if (key && this.task) this.taskLook(key);
   };
 
   /* ------------------------------------------------------- marking (§3.5) */
@@ -1139,18 +1150,26 @@
       const led = across && this.G.parts[across.part].model === "led" ? across : null;
       if (led) {
         const redPin = this.G.pins[led.redPin];
+        if (redPin.pin === "k" && this.taskWants(st.red, st.black)) return say("ok", "diode", "Right: diode check with the power off, red lead on the cathode. 1 means it blocks this way, as a good diode should.");
         if (redPin.pin === "k") return say("bad", "direv", "The red lead is on the cathode (the flat side). A diode blocks this way, so 1 is what it shows. Swap the leads before you call it faulty.");
         return say("ok", "diode", "Right: power off, red lead on the anode. A number (about 1.6 to 1.9 V for an LED) means it conducts. 1 means it blocks.");
       }
       return say("ok", "diode", "Right: diode check with the power off. Red on the anode: a number means it conducts, 1 means it blocks.");
     }
     if (g === "DCV") {
+      /* a lead on its way across a part: said, not marked */
+      if (this.netOf(st.red) && this.netOf(st.red) === this.netOf(st.black)) {
+        this.pendingEv = null;
+        return this.feedback(null, "Both leads on one strip", "The copper joins the two leads, so the meter reads 0 V. Move one lead to the other side of the part.");
+      }
       if (!live) return say("bad", "voff", "The power is off, so there is no voltage to measure. Switch on first.");
       if (this.isProbeOnly(st.red)) return say("bad", "logicmeter", "Logic levels on a chip are tested with the <b>logic probe</b>, not the meter. Choose Probe, then touch the pin.");
-      if (!onRail(st.black, this.sc.ground) && !across) return say("bad", "black0", "Put the black lead on 0 V (T2). The voltages on the job card are measured from 0 V.");
+      /* across a part from any points on its two nets (T3 and T4 are across R1) */
+      const side = across ? null : onRail(st.black, this.sc.ground) ? null : this.acrossNets(st.red, st.black);
+      if (!onRail(st.black, this.sc.ground) && !across && !side) return say("bad", "black0", "Put the black lead on 0 V (T2). The voltages on the job card are measured from 0 V.");
       if (rd.over) return say("bad", "over", "1 on the left means over range. Turn up to <b>DCV 20</b>.");
       if (rng === "200" || rng === "1000") return say("bad", "bigrange", "This works, but DCV " + rng + " shows fewer decimal places. DCV 20 is the range just above 5 V.");
-      return say("ok", "dcv", "Right: DCV " + rng + ", red lead in V/Ω, black " + (across ? "on the other leg" : "on 0 V") + ".");
+      return say("ok", "dcv", "Right: DCV " + rng + ", red lead in V/Ω, black " + (across ? "on the other leg" : side ? "on the other side of " + side : "on 0 V") + ".");
     }
   };
   Bench.prototype.assessProbe = function () {
@@ -1230,6 +1249,17 @@
     }
     return null;
   };
+  /* the two-legged part whose two nets the leads are on, or null */
+  Bench.prototype.acrossNets = function (a, b) {
+    const na = this.netOf(a), nb = this.netOf(b);
+    if (!na || !nb || na === nb) return null;
+    for (const part of Object.values(this.G.parts)) {
+      if (part.pins.length !== 2 || part.kind === "terminal") continue;
+      const n0 = this.netOf(part.pins[0].key), n1 = this.netOf(part.pins[1].key);
+      if ((n0 === na && n1 === nb) || (n0 === nb && n1 === na)) return part.id;
+    }
+    return null;
+  };
 
   /* kind: ok | bad | safety. Ticks count once per kind of test and point;
      crosses once per mistake and point; safety errors every time. */
@@ -1243,7 +1273,7 @@
     else if (first && kind === "bad") st.bad++;
     const head = kind === "ok" ? "✓ Right" : kind === "safety" ? "✗ Safety error" : "✗ Not quite";
     if (!quiet) this.feedback(kind, head, text.replace(/^Right: /, ""));
-    if (kind === "safety") this.el.fb.insertAdjacentHTML("beforeend", '<p class="tbx-block"><b>This run can no longer earn the badge.</b></p>' +
+    if (kind === "safety") this.el.fb.insertAdjacentHTML("beforeend", '<p class="tbx-block"><b>' + (this.task ? "This try can no longer pass the task." : "This run can no longer earn the badge.") + '</b></p>' +
       (code === "ainv" || code === "aacross" ? '<button type="button" data-act="newfuse">Fit a new fuse</button>' : ""));
     if (pts) {
       if (st.live) st.live = null;
@@ -1259,6 +1289,7 @@
     this.techLine();
     this.say(head + ". " + text.replace(/<[^>]+>/g, ""));
     if (pts && this.job) this.jobRow(st.log[st.log.length - 1], kind);
+    if (pts && live && this.task) this.taskRow(kind);
   };
   Bench.prototype.feedback = function (kind, head, html) {
     const fb = this.el.fb;
@@ -1267,9 +1298,12 @@
     fb.dataset.text = html;
   };
   Bench.prototype.techLine = function () {
-    const st = this.st;
-    this.el.tech.innerHTML = `<span class="tbx-tc">Technique <b class="ok">✓ ${st.ok}</b> <b class="bad">✗ ${st.bad}</b></span>` +
-      (st.safety ? `<span class="tbx-sc">Safety errors: ${st.safety}</span>` : "");
+    const st = this.st, t = this.task;
+    /* Show me's readings are the bench's own, so they are not counted */
+    if (t && t.stage !== "turn" && t.stage !== "done") { this.el.tech.innerHTML = ""; return; }
+    const n = t && t.carry ? this.taskTally() : st;
+    this.el.tech.innerHTML = `<span class="tbx-tc">Technique <b class="ok">✓ ${n.ok}</b> <b class="bad">✗ ${n.bad + (t ? t.cross : 0)}</b></span>` +
+      (n.safety ? `<span class="tbx-sc">Safety errors: ${n.safety}</span>` : "");
   };
   Bench.prototype.say = function (t) { this.el.say.textContent = t; };
 
@@ -1876,6 +1910,569 @@
     }
   };
 
+  /* ========================================================= Learn to Test
+     Show me → Your turn (§10, §18). The words live in test-bench-tasks.js.
+     Show me runs on the task's fixed seed (T7) and waits for Next at each
+     step (T5); Your turn is the pupil's own seed. Each item of Your turn is
+     questions before (predict), readings, then questions after (compare,
+     another board). A reading at its points is marked step by step. The score
+     is each task's first try (T1: the badge comes in Phase 4), on this device. */
+  const TASK_KEY = "tbx-lt-v1";
+  const tval = (f, v) => typeof f === "function" ? f(v) : f;
+  const ON_KINDS = { dcv: 1, amps: 1, probe: 1 };
+  Bench.prototype.locked = function () {
+    return !!((this.job && this.jobLocked()) || (this.task && this.taskLocked()));
+  };
+  Bench.prototype.startTasks = function (tasks, id) {
+    this.tasks = tasks;
+    try { this.taskDone = JSON.parse(localStorage.getItem(TASK_KEY) || "{}") || {}; } catch (e) { this.taskDone = {}; }
+    const live = tasks.order.filter(o => !o.soon && tasks[o.id]);
+    this.openTask((live.find(o => o.id === id) || live[0]).id);
+  };
+  Bench.prototype.taskStop = function () {
+    clearTimeout(this.showT); cancelAnimationFrame(this.flyRaf);
+    this.flyLead = null; this.auto = false;
+    if (this.task) this.task.busy = false;
+  };
+  /* a board for the task: its scenario, a fresh good board, the task's start */
+  Bench.prototype.taskBoard = function (scenario, seed) {
+    const t = this.task;
+    if (t && t.stage === "turn") ["ok", "bad", "safety"].forEach(k => { t.carry[k] += this.st[k]; });
+    if (scenario !== this.sc.id) this.switchScenario(scenario);
+    this.load("good", seed);
+    this.taskReset();
+    if (t) this.taskHead();
+  };
+  Bench.prototype.openTask = function (id) {
+    const d = this.tasks[id];
+    this.taskStop();
+    this.task = null;
+    if ((d.showScenario || d.scenario) !== this.sc.id) this.switchScenario(d.showScenario || d.scenario);
+    this.load("good", d.seed);
+    this.task = { def: d, n: this.tasks.order.findIndex(o => o.id === id), stage: "card", step: -1, m: 0, phase: null, v: {}, cross: 0, firstQ: true, pills: {} };
+    this.taskReset();
+    this.taskHead();
+    this.el.under.hidden = false; this.el.jobpanel.hidden = true;
+    this.feedback(null, "Learn to Test", esc(d.pre));
+    this.taskCard();
+  };
+  /* the board as the task finds it: power off, the meter and probe as they were left */
+  Bench.prototype.taskReset = function () {
+    const st = this.st, s = this.task.def.start || {};
+    st.prechecked = s.prechecked !== false;
+    if (s.looked) st.looked.add("task:pre");
+    st.red = null; st.black = null; st.next = "red";
+    if (s.dial) st.dial = s.dial;
+    if (s.sock) st.sock = s.sock;
+    if (s.pmode) st.pmode = s.pmode;
+    if (s.pmem !== undefined) st.pmem = s.pmem;
+    this.meterSet(); this.drawMeter(); this.drawLeads(); this.syncControls();
+  };
+  Bench.prototype.taskHead = function () {
+    const t = this.task, d = t.def;
+    this.el.job.classList.add("is-jobs");
+    this.el.job.innerHTML =
+      `<div class="tbx-job-t"><span class="tbx-jobno">Task ${t.n + 1} of ${this.tasks.order.length}</span> ` +
+      `<span class="tbx-title">${esc(d.title)}</span><span class="tbx-sub">${esc(d.sub)}</span></div>` +
+      `<ol class="tbx-steps" aria-label="Steps"></ol><button type="button" class="tbx-all" data-job="list">All tasks</button>` +
+      `<div class="tbx-should"></div><div class="tbx-tech" aria-live="polite"></div>`;
+    this.el.tech = this.el.job.querySelector(".tbx-tech");
+    this.el.steps = this.el.job.querySelector(".tbx-steps");
+    this.el.should = this.el.job.querySelector(".tbx-should");
+    this.taskLine();
+    this.techLine();
+  };
+
+  /* -- an item's readings, each with the item's settings unless it has its own */
+  const READ_KEYS = ["kind", "set", "setMsg", "where", "lift", "unlift", "dial", "polar", "revMsg", "liftMsg", "unliftMsg", "dialMsg"];
+  Bench.prototype.taskReads = function (m) {
+    if (m.kind === "look") return [];
+    return (m.reads || [{ id: m.id, name: m.name }]).map(r => {
+      const o = Object.assign({}, r);
+      READ_KEYS.forEach(k => { if (o[k] === undefined && m[k] !== undefined) o[k] = m[k]; });
+      if (!o.kind) o.kind = "dcv";
+      if (o.polar === undefined) o.polar = o.kind !== "ohm" && o.kind !== "cont";
+      if (!o.red && !o.tip && o.kind !== "power") { o.red = m.red; o.black = m.black; o.tip = m.tip; }
+      return o;
+    });
+  };
+  const beforeQs = m => m.before || (m.predict ? [m.predict] : []);
+  const afterQs = m => m.after || [m.compare && Object.assign({ label: "Compare" }, m.compare), m.fault && Object.assign({ label: "Another board" }, m.fault)].filter(Boolean);
+  /* the marked steps for one reading */
+  Bench.prototype.taskChecks = function (r) {
+    if (!r || r.kind === "power") return [];
+    const c = r.kind === "probe" ? [["dial", "TTL / CMOS"], ["sock", "Pulse"], ["tip", "Probe tip"]]
+      : [["dial", "Dial"], ["sock", "Red lead socket"]].concat(r.polar ? [["black", "Black lead"], ["red", "Red lead"]] : [["leads", "Leads"]]);
+    c.push(["power", "Power"]);
+    if (r.lift) c.push(["lift", "Leg lifted"]);
+    if (r.unlift) c.push(["unlift", "Soldered back"]);
+    return c.concat(Object.keys(r.set || {}).map(k => ["in:" + k, this.inputName(k)]));
+  };
+  const pill = (p, w) => `<span role="listitem" class="tbx-ck${p === true ? " is-ok" : p === false ? " is-bad" : ""}">${p === true ? "✓ " : p === false ? "✗ " : ""}${esc(w)}</span>`;
+  Bench.prototype.taskLine = function () {
+    const t = this.task, d = t.def;
+    const names = d.turn.length < 3 ? d.turn.map(m => "Your turn: " + m.name) : d.turn.map(m => m.name);
+    names.unshift("Show me");
+    const now = t.stage === "card" || t.stage === "show" ? 0 : t.stage === "done" ? names.length : 1 + t.m;
+    this.el.steps.innerHTML = names.map((s, i) =>
+      `<li class="${i < now ? "is-done" : i === now ? "is-now" : ""}"${i === now ? ' aria-current="step"' : ""}>${i < now ? "✓ " : ""}${i + 1} ${esc(s)}</li>`).join("");
+    let html = "";
+    if (t.stage === "card" || t.stage === "show") html = d.showLine;
+    else if (t.stage === "done") html = "<b>Task done.</b>";
+    else {
+      const m = d.turn[t.m];
+      html = m.ask;
+      if (t.phase && t.phase !== "before") {
+        if (m.kind === "look") html += ` <span class="tbx-checks" role="list" aria-label="Checks">` + m.checks.map(c => pill(t.looks[c.id] ? true : undefined, c.name)).join("") + `</span>`;
+        else {
+          if ((t.reads || []).length > 1) html += ` <span class="tbx-checks tbx-rds" role="list" aria-label="Readings">` + t.reads.map(r => pill(t.rows[r.id] ? true : undefined, r.name)).join("") + `</span>`;
+          const ch = this.taskChecks(t.focus);
+          if (ch.length) html += ` <span class="tbx-checks" role="list" aria-label="Steps, marked when you take the reading">` + ch.map(([k, w]) => pill(t.pills[k], w)).join("") + `</span>`;
+        }
+      }
+    }
+    this.el.should.innerHTML = html;
+  };
+  Bench.prototype.taskLocked = function () {
+    const t = this.task;
+    if (this.auto) return false;
+    if (t.stage === "turn" && (t.phase === "measure" || t.phase === "read")) return false;
+    if (t.stage === "show") this.feedback(null, "Show me", "Watch first. Tap <b>Next step</b>, or <b>Skip to Your turn</b>.");
+    else if (t.phase === "before") this.feedback(null, "Predict first", "Answer the question first. Then you can test.");
+    else if (t.phase === "after") this.feedback(null, "Question first", "Answer the question first.");
+    return true;
+  };
+
+  /* -- the task card */
+  Bench.prototype.taskCard = function () {
+    const t = this.task, d = t.def;
+    this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-tc">
+      <div class="tbx-card-k">Task ${t.n + 1} · ${esc(d.test)}</div>
+      <h2 id="${this.id}-tc">${esc(d.title)}</h2>
+      <p>${esc(d.card)}</p>
+      <p class="tbx-card-s">${esc(d.pre)}</p>
+      <button type="button" class="tbx-go" data-job="show">Start: Show me</button></div>`, true);
+  };
+
+  /* -- Show me: the bench does the test once, a sentence for each step */
+  Bench.prototype.taskShow = function () {
+    const t = this.task, d = t.def;
+    this.taskStop();
+    this.el.pop.hidden = true;
+    if (t.stage !== "card") { t.stage = "show"; this.taskBoard(d.showScenario || d.scenario, d.seed); }
+    t.stage = "show"; t.step = -1; t.pills = {};
+    this.st.view = "board"; this.st.side = "comp"; this.drawBoard(); this.syncControls();
+    this.el.under.hidden = true; this.el.jobpanel.hidden = false;
+    this.taskLine(); this.techLine();
+    this.feedback(null, "Show me", "Watch each step. The bench does the test once.");
+    this.taskShowNext();
+  };
+  Bench.prototype.taskShowNext = function () {
+    const t = this.task, s = t.def.show[t.step + 1];
+    if (t.busy || !s) return;
+    t.step++;
+    t.busy = true;
+    this.taskHL(null);
+    this.taskShowPanel();
+    const ops = [].concat(s.do || []);
+    const run = i => i >= ops.length ? (t.busy = false, this.taskShowPanel(), this.taskHL(s.hl)) : this.taskDo(ops[i], () => run(i + 1));
+    run(0);
+  };
+  Bench.prototype.taskShowPanel = function () {
+    const t = this.task, S = t.def.show, s = S[t.step], last = t.step === S.length - 1;
+    const text = s.say.replace(/\{v\}/g, t.busy ? "…" : this.taskReading());
+    this.el.jobpanel.innerHTML =
+      `<div class="tbx-q"><span class="tbx-qn">Show me · step ${t.step + 1} of ${S.length}.</span> ${text}</div>
+       <div class="tbx-opts">${last ? `<button type="button" class="tbx-go" data-job="turn">Your turn</button>`
+         : `<button type="button" class="tbx-go" data-job="shownext"${t.busy ? " disabled" : ""}>Next step</button>`}
+         <button type="button" data-job="show">Replay</button>${last ? "" : `<button type="button" data-job="turn">Skip to Your turn</button>`}</div>`;
+    if (!t.busy) {
+      this.say(text.replace(/<[^>]+>/g, ""));
+      const go = this.el.jobpanel.querySelector(".tbx-go");
+      if (go && t.step > 0) go.focus({ preventScroll: true });
+    }
+  };
+  /* what the meter or the probe shows now, in words */
+  Bench.prototype.taskReading = function () {
+    const st = this.st;
+    if (st.tool === "probe") {
+      const p = this.b.probeRead() || {};
+      return !p.live ? "no lights" : p.hi ? "Hi (red)" : p.lo ? "Lo (green)" : "no lights";
+    }
+    const rd = this.b.read(0);
+    if (!rd || rd.fuse) return "…";
+    if (rd.over || rd.open) return "1";
+    return rd.text + " " + unitOf(st.dial) + (rd.beep ? ", beep" : "");
+  };
+  /* one Show me action, then done(); the dial turns a step at a time and a lead
+     travels to its point, unless motion is reduced */
+  Bench.prototype.taskDo = function (op, done) {
+    const st = this.st, fast = reduced();
+    this.auto = true;
+    const end = () => { this.auto = false; done(); };
+    if (!op) return end();
+    if (op.dial) {
+      const D = TB.meter.DIAL, n = D.length, fwd = (D.indexOf(op.dial) - D.indexOf(st.dial) + n) % n, dir = fwd <= n / 2 ? 1 : -1;
+      const tick = () => {
+        if (fast) st.dial = op.dial;
+        if (st.dial === op.dial) { this.instrumentChanged("now"); return end(); }
+        st.dial = D[(D.indexOf(st.dial) + dir + n) % n];
+        this.meterSet(); this.drawMeter();
+        this.showT = setTimeout(tick, 110);
+      };
+      return tick();
+    }
+    if (op.sock) { st.sock = op.sock; this.instrumentChanged("now"); return end(); }
+    if (op.power !== undefined) { this.setPower(op.power); return end(); }
+    if (op.input) { for (const [k, v] of Object.entries(op.input)) this.setInput(k, v); return end(); }
+    if (op.tool) { this.setTool(op.tool); return end(); }
+    if (op.pmode) { st.pmode = op.pmode; this.probeChanged(); return end(); }
+    if (op.pmem !== undefined) { st.pmem = op.pmem; st.memLit = false; this.probeChanged(); return end(); }
+    if (op.tip) { st.tip = op.tip; st.memLit = false; this.b.probe({ tip: st.tip, mode: st.pmode }); this.drawLeads(); this.measured("tap"); return end(); }
+    if (op.lift) { this.liftAt({ pt: op.lift, kind: "pin" }); return end(); }
+    if (op.flip) { st.side = st.side === "comp" ? "copper" : "comp"; st.view = "board"; this.drawBoard(); this.syncControls(); return end(); }
+    if (op.look) { this.look(op.look); return end(); }
+    if (op.lead) {
+      st.next = op.lead; this.syncControls();
+      return this.flyTo(op.lead, op.at, () => { st[op.lead] = op.at; this.instrumentChanged("tap"); end(); });
+    }
+    end();
+  };
+  Bench.prototype.flyTo = function (lead, k, done) {
+    if (reduced() || this.st.view !== "board" || this.st.side !== "comp") return done();
+    const vb = this.vb, to = this.posOf(k), from = { x: vb.x + vb.w - 6, y: vb.h * (lead === "red" ? .58 : .66) };
+    const t0 = performance.now(), dur = 700;
+    const frame = now => {
+      const f = Math.min(1, (now - t0) / dur), e = f < .5 ? 2 * f * f : 1 - Math.pow(2 - 2 * f, 2) / 2;
+      this.flyLead = { lead, p: { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e } };
+      this.drawLeads();
+      if (f < 1) this.flyRaf = requestAnimationFrame(frame);
+      else { this.flyLead = null; done(); }
+    };
+    this.flyRaf = requestAnimationFrame(frame);
+  };
+  /* ring what the step is about; "q:<selector>" for anything else */
+  Bench.prototype.taskHL = function (hl) {
+    this.root.querySelectorAll(".is-hl").forEach(e => e.classList.remove("is-hl"));
+    const q = s => this.root.querySelector(s);
+    (hl || "").split(" ").filter(Boolean).forEach(h => {
+      const el = h === "meter" ? q(".tbx-inst") : h === "dial" ? q(".tbx-dialrow") : h === "sock" ? q('.tbx-meter [data-sock="V/Ω"]') : h === "sockA" ? q('.tbx-meter [data-sock="A"]')
+        : h === "next" ? q(".tbx-leadrow .tbx-seg") : h === "power" ? q("[data-power]") : h === "probe" ? q(".tbx-proberow") : h.indexOf("tool:") === 0 ? q(`[data-tool="${h.slice(5)}"]`)
+        : h.indexOf("tp:") === 0 ? q(`.tbx-tps [data-pt="${h.slice(3)}"]`) : h.indexOf("in:") === 0 ? q(`[data-input="${h.slice(3)}"][aria-pressed="true"]`)
+        : h.indexOf("q:") === 0 ? q(h.slice(2)) : null;
+      if (el) el.classList.add("is-hl");
+    });
+  };
+
+  /* -- Your turn: for each item, questions before, readings, questions after */
+  Bench.prototype.taskTurn = function () {
+    const t = this.task, d = t.def;
+    this.taskStop();
+    this.taskHL(null);
+    this.el.pop.hidden = true;
+    Object.assign(t, { stage: "turn", m: 0, v: {}, cross: 0, firstQ: true, carry: { ok: 0, bad: 0, safety: 0 }, seed: String(Date.now() % 1e9) });
+    this.taskBoard(d.turn[0].scenario || d.scenario, t.seed);
+    t.carry = { ok: 0, bad: 0, safety: 0 };
+    this.taskItem();
+  };
+  Bench.prototype.taskItem = function () {
+    const t = this.task, d = t.def, m = d.turn[t.m], sc = m.scenario || d.scenario;
+    if (sc !== this.sc.id) this.taskBoard(sc, t.seed);
+    Object.assign(t, { reads: this.taskReads(m), rows: {}, looks: {}, lookJoints: new Set(), reported: new Set(), pills: {}, caught: null });
+    t.focus = t.reads[0];
+    const qs = beforeQs(m);
+    if (qs.length) this.taskQs(qs, "before"); else this.taskMeasure();
+  };
+  Bench.prototype.taskQs = function (list, stage) {
+    const t = this.task, m = t.def.turn[t.m];
+    Object.assign(t, { phase: stage, qList: list, qi: 0 });
+    if (stage === "before" && !m.boardView) { this.st.view = "circuit"; this.drawBoard(); this.syncControls(); }
+    this.el.under.hidden = true; this.el.jobpanel.hidden = false;
+    this.taskLine(); this.techLine();
+    this.taskQ();
+  };
+  Bench.prototype.taskQ = function () {
+    const t = this.task, Q = t.qList[t.qi];
+    t.q = { Q, order: shuffle(Q.opts.map((_, i) => i)) };
+    const head = t.phase === "before" ? ["Predict first", "Use the circuit diagram. Then you can test."]
+      : Q.label === "Another board" ? ["Another board", "A reading from a board with a fault. Is it normal?"] : [Q.label || "Question", "Look at your reading on the meter and in the log."];
+    this.feedback(null, head[0], head[1]);
+    this.el.jobpanel.innerHTML =
+      `<div class="tbx-q">${tval(Q.q, t.v)}</div>
+       <div class="tbx-opts" role="group" aria-label="Options">${t.q.order.map(i => `<button type="button" data-job="topt:${i}">${esc(tval(Q.opts[i].t, t.v))}</button>`).join("")}</div>
+       <div class="tbx-qfb" aria-live="polite"></div>`;
+  };
+  Bench.prototype.taskNextWord = function () {
+    const t = this.task, d = t.def;
+    return t.m === d.turn.length - 1 ? ["finish", "Finish"] : ["tnext", "Next: " + d.turn[t.m + 1].name];
+  };
+  Bench.prototype.taskOption = function (i, btn) {
+    const t = this.task, o = t.q.Q.opts[i], fb = this.el.jobpanel.querySelector(".tbx-qfb");
+    btn.classList.add(o.key ? "is-right" : "is-wrong");
+    fb.className = "tbx-qfb " + (o.key ? "is-ok" : "is-bad");
+    fb.innerHTML = tval(o.fb, t.v);
+    if (!o.key) { btn.disabled = true; if (t.phase === "after") t.firstQ = false; return; }
+    this.el.jobpanel.querySelectorAll("[data-job^=topt]").forEach(b => { b.disabled = true; });
+    const more = t.qi < t.qList.length - 1, nq = more && t.qList[t.qi + 1];
+    const [act, word] = more ? ["qnext", "Next: " + (nq.label === "Another board" ? "another board" : (nq.label || "question").toLowerCase())]
+      : t.phase === "before" ? ["measure", "Start testing"] : this.taskNextWord();
+    fb.insertAdjacentHTML("beforeend", ` <button type="button" class="tbx-go" data-job="${act}">${esc(word)}</button>`);
+    fb.querySelector("button").focus({ preventScroll: true });
+  };
+  Bench.prototype.taskMeasure = function () {
+    const t = this.task, m = t.def.turn[t.m];
+    t.phase = "measure";
+    this.st.view = "board"; this.drawBoard(); this.syncControls();
+    this.taskPanel();
+    this.taskLine();
+    this.feedback(null, "Your turn", m.hint || "");
+  };
+  /* an item's own panel (a parts list, a pin-out, the truth table) takes the log's place */
+  Bench.prototype.taskPanel = function () {
+    const t = this.task, m = t.def.turn[t.m];
+    const html = m.panel ? tval(m.panel, this.taskPanelData()) : "";
+    this.el.jobpanel.hidden = !html; this.el.under.hidden = !!html;
+    if (html) this.el.jobpanel.innerHTML = `<div class="tbx-tpanel">${html}</div>`;
+  };
+  Bench.prototype.taskPanelData = function () {
+    const t = this.task, out = {};
+    for (const r of t.reads) if (t.rows[r.id]) out[r.id] = t.v[r.id] || t.rows[r.id].reading || "…";
+    return out;
+  };
+  /* the net a target names: a point, or { under: k }, the strip under a lifted end */
+  Bench.prototype.taskNet = function (spec) {
+    return spec && spec.under ? this.G.net(this.holeOf(spec.under)) : this.netOf(spec);
+  };
+  Bench.prototype.taskLifted = function (spec) {
+    const L = this.st.lifted;
+    return spec.indexOf(".") > 0 || isLinkEnd(spec) ? L.indexOf(spec) >= 0 : L.some(k => k.indexOf(spec + ".") === 0);
+  };
+  /* A reading was taken (from mark). At one of the item's readings, every step
+     is marked; the first one wrong is said, unless the bench has said it already. */
+  Bench.prototype.taskRow = function (kind) {
+    const t = this.task, st = this.st;
+    if (t.stage !== "turn") return;
+    /* a reading again after this one is done: keep what comes next on screen */
+    if (t.phase === "read" && t.caught) { if (kind === "ok") this.taskCaught(...t.caught); return; }
+    if (t.phase !== "measure") return;
+    const m = t.def.turn[t.m], probe = st.tool === "probe";
+    if (st.tool !== "meter" && !probe) return;
+    /* which of the item's readings this is: by its points, then by the switches */
+    const match = r => {
+      if ((r.kind === "probe") !== probe || r.kind === "power") return null;
+      if (probe) return this.taskNet(r.tip) === this.netOf(st.tip) ? "fwd" : null;
+      const nr = this.netOf(st.red), nb = this.netOf(st.black), na = this.taskNet(r.red), nk = this.taskNet(r.black);
+      return nr === na && nb === nk ? "fwd" : nr === nk && nb === na ? "rev" : null;
+    };
+    const setOk = r => Object.entries(r.set || {}).every(([k, v]) => st.inputs[k] === v);
+    const hits = t.reads.filter(r => match(r));
+    if (!hits.length) {
+      if (kind === "ok" && m.where) this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block">${m.where}</p>`);
+      return;
+    }
+    const pend = hits.filter(r => !t.rows[r.id]);
+    const r = pend.find(setOk) || pend[0] || hits.find(setOk) || hits[0], way = match(r);
+    if (t.rows[r.id]) { if (kind === "ok" && t.caught) this.taskCaught(...t.caught); return; }
+    t.focus = r;
+    /* stage by stage (L9): an earlier stage first */
+    if (m.ordered && t.reads.some(x => !t.rows[x.id] && (x.stage || 0) < (r.stage || 0))) {
+      if (kind === "ok" && !this.soft) t.cross++;
+      this.taskLine(); this.techLine();
+      if (kind === "ok") this.feedback("bad", "✗ Not in order", m.orderMsg);
+      return;
+    }
+    const [g, rng] = st.dial.split(" "), rd = probe ? {} : this.b.read(0) || {}, P = {}, why = [];
+    const val = isFinite(rd.value) ? Math.abs(rd.value) : NaN;
+    if (probe) {
+      const fam = this.probeFamily();
+      P.dial = st.pmode === fam;
+      if (!P.dial) why.push("Probe: set <b>" + fam + "</b> for this chip.");
+      P.sock = !st.pmem;
+      if (!P.sock) why.push("Probe: use <b>Pulse</b>, not MEM.");
+      P.tip = true;
+    } else {
+      const dialList = r.dial && [].concat(r.dial);
+      P.dial = r.kind === "dcv" ? g === "DCV" && rng !== "D" && rng !== "200" && rng !== "1000" && !rd.over
+        : r.kind === "cont" ? st.dial === "OHM 200"
+        : r.kind === "diode" ? st.dial === "DCV D"
+        : r.kind === "ohm" ? (dialList ? dialList.indexOf(st.dial) >= 0 : g === "OHM" && rng !== "200" && !rd.over && !(val < FULL[rng] / 100))
+        : r.kind === "amps" ? (dialList ? dialList.indexOf(st.dial) >= 0 : g === "DCA" && rng !== "20" && !rd.over) : false;
+      if (!P.dial) why.push(r.dialMsg || (r.kind === "dcv" ? (g !== "DCV" || rng === "D" ? "Dial: a voltage is measured on <b>DCV</b>." : rd.over ? "Dial: 1 on the left means over range. Turn up to <b>DCV 20</b>."
+          : "Dial: DCV " + rng + " shows fewer decimal places. <b>DCV 20</b> is the range just above 5 V.")
+        : r.kind === "cont" ? "Dial: continuity is <b>OHM 200</b>, the setting that beeps."
+        : r.kind === "diode" ? "Dial: the diode check is the <b>diode symbol</b>, next to DCV 200m."
+        : r.kind === "amps" ? (g !== "DCA" ? "Dial: current is measured on <b>DCA</b>." : "Dial: use <b>" + dialList[0] + "</b>, the range just above the current.")
+        : "Dial: use <b>" + (dialList ? dialList[0] : "the lowest OHM range that shows a value") + "</b>."));
+      P.sock = st.sock === (r.kind === "amps" ? "A" : "V/Ω");
+      if (!P.sock) why.push(r.kind === "amps" ? "Red lead socket: for a current, the red lead goes in <b>A</b>." : "Red lead socket: for this test, the red lead goes in <b>V/Ω</b>.");
+      if (r.polar) { P.black = P.red = way === "fwd"; if (way === "rev") why.push(r.revMsg || "Leads: they are the wrong way round, so the reading has a minus sign. Tap <b>Swap</b>."); }
+      else P.leads = true;
+    }
+    P.power = ON_KINDS[r.kind] ? st.power : !st.power;
+    if (!P.power) why.push(ON_KINDS[r.kind] ? "Power: switch on." : "Power: switch off. This test is done with the power off.");
+    if (r.lift) { P.lift = this.taskLifted(r.lift); if (!P.lift) why.push(r.liftMsg || "Lift a leg first, with the power off."); }
+    if (r.unlift) { P.unlift = !this.taskLifted(r.unlift); if (!P.unlift) why.push(r.unliftMsg || "Solder the lifted leg back first."); }
+    for (const [k, v] of Object.entries(r.set || {})) {
+      P["in:" + k] = st.inputs[k] === v;
+      if (!P["in:" + k]) why.push(r.setMsg || (this.inputName(k) + ": set it to " + this.inputWord(k, v) + " for this reading."));
+    }
+    t.pills = P;
+    const ok = Object.values(P).every(Boolean);
+    if (!ok && kind === "ok" && !this.soft) t.cross++;
+    this.taskLine(); this.techLine();
+    /* the marked steps show the bench's ticks, so the box keeps to the one thing to do */
+    if (!ok) { if (kind === "ok") this.feedback("bad", "✗ Not quite", why[0]); return; }
+    if (kind !== "ok") return;
+    t.rows[r.id] = st.log[st.log.length - 1];
+    if (!probe) t.v[r.id] = rd.over || rd.open ? "1" : rd.text + " " + unitOf(st.dial) + (rd.beep ? ", beep" : "");
+    this.taskLine();
+    this.taskCaught(probe ? r.name + ": reading taken. Watch the probe's lights." : esc(r.name) + " reads <b>" + esc(t.v[r.id]) + "</b>.");
+  };
+  /* one reading or check done: the next, or what comes after the item */
+  Bench.prototype.taskCaught = function (said, head) {
+    const t = this.task, m = t.def.turn[t.m];
+    t.caught = [said, head];
+    /* a probe's reading settles in the log a moment after the tap */
+    if (m.panel) { this.taskPanel(); clearTimeout(this.panelT); this.panelT = setTimeout(() => { if (this.task === t && (t.phase === "measure" || t.phase === "read")) this.taskPanel(); }, 1500); }
+    const left = m.kind === "look" ? m.checks.filter(c => !t.looks[c.id]) : t.reads.filter(r => !t.rows[r.id]);
+    head = head || "✓ Every step right";
+    if (left.length) { this.feedback("ok", head, said + " Next: " + esc(left[0].name) + "."); return; }
+    t.phase = "read";
+    const aq = afterQs(m), [act, word] = aq.length ? ["after", aq[0].label || "Next"] : this.taskNextWord();
+    this.feedback("ok", head, said + ` <button type="button" class="tbx-go" data-job="${act}">${esc(word)}</button>`);
+  };
+  Bench.prototype.taskAfter = function () {
+    const t = this.task, m = t.def.turn[t.m];
+    for (const r of t.reads) if (r.kind === "probe" && t.rows[r.id]) t.v[r.id] = t.rows[r.id].reading || "no lights";
+    this.taskQs(afterQs(m), "after");
+  };
+  /* the task asks for this reading the "wrong" way round on purpose (L6) */
+  Bench.prototype.taskWants = function (a, b) {
+    const t = this.task;
+    if (!t || t.stage !== "turn" || t.phase !== "measure") return false;
+    return t.reads.some(r => r.kind === "diode" && !t.rows[r.id] && this.taskNet(r.red) === this.netOf(a) && this.taskNet(r.black) === this.netOf(b));
+  };
+  /* L2: switching on is the last step, after every short check */
+  Bench.prototype.taskPower = function (on) {
+    const t = this.task;
+    if (!on || !t || t.stage !== "turn" || t.phase !== "measure") return;
+    const m = t.def.turn[t.m], r = t.reads.find(x => x.kind === "power");
+    if (!t.def.turn.some(x => (x.reads || []).some(y => y.kind === "power") || x.kind === "power")) return;
+    if (!r) {
+      t.cross++; this.techLine();
+      this.feedback("bad", "✗ Not yet", t.def.powerMsg);
+      return;
+    }
+    t.rows[r.id] = { reading: "on" };
+    this.taskLine();
+    this.taskCaught("Power on, after every short check.");
+  };
+  /* L1: Look, then Matches or Report a problem (T19) */
+  Bench.prototype.taskLook = function (key) {
+    const t = this.task;
+    if (!t || t.stage !== "turn" || t.phase !== "measure" || t.def.turn[t.m].kind !== "look") return;
+    t.lookKey = key;
+    this.el.fb.insertAdjacentHTML("beforeend", `<div class="tbx-opts"><button type="button" class="tbx-go" data-job="lkok">Matches</button><button type="button" data-job="lkrep">Report a problem</button></div>`);
+  };
+  Bench.prototype.taskCheckOf = function (key) {
+    const t = this.task, m = t.def.turn[t.m], F = this.F;
+    const cop = key.indexOf("copper:") === 0 ? key.slice(7) : null, h = cop && S.parseRef(cop);
+    for (const c of m.checks) {
+      if (t.looks[c.id]) continue;
+      if (c.keys && c.keys.indexOf(key) >= 0) return c;
+      if (c.cut && cop && F.layout.cuts.some(x => { const q = S.parseRef(x); return q.r === h.r && Math.abs(q.c - h.c) <= 1; })) return c;
+      if (c.joints && cop) { const j = this.jointAt(cop); if (j && !F.dry.has(j) && !t.lookJoints.has(cop)) return c; }
+    }
+    return null;
+  };
+  Bench.prototype.taskLookAnswer = function (ok) {
+    const t = this.task, key = t.lookKey;
+    if (!key) return;
+    const c = this.taskCheckOf(key);
+    t.lookKey = null;
+    if (!ok) {
+      if (!t.reported.has(key)) { t.reported.add(key); t.cross++; this.techLine(); }
+      this.feedback("bad", "✗ This is fine: check again", c ? c.ok : "Compare it with the parts list and the circuit again. This board is good.");
+      return;
+    }
+    if (!c) { this.feedback(null, "Matches", "Right: that one is fine. It is not on the checklist."); return; }
+    if (c.joints) { t.lookJoints.add(key.slice(7)); if (t.lookJoints.size < c.joints) { this.feedback("ok", "✓ Matches", c.ok + " " + t.lookJoints.size + " of " + c.joints + " joints."); return; } }
+    t.looks[c.id] = true;
+    this.taskLine();
+    this.taskCaught("<b>" + esc(c.name) + ":</b> " + c.ok, "✓ Matches");
+  };
+  Bench.prototype.taskFinish = function () {
+    const t = this.task, st = this.st, d = t.def;
+    t.stage = "done"; t.phase = null;
+    const tot = this.taskTally(), safe = !tot.safety, first = safe && !tot.bad && !t.cross && t.firstQ;
+    const rec = Object.assign({ tries: 0, first: false, passed: false }, this.taskDone[d.id]);
+    if (!rec.tries) rec.first = first;
+    rec.tries++;
+    rec.passed = rec.passed || safe;
+    this.taskDone[d.id] = rec;
+    try { localStorage.setItem(TASK_KEY, JSON.stringify(this.taskDone)); } catch (e) { /* kept for this visit only */ }
+    t.result = { safe, first };
+    this.taskLine(); this.techLine();
+    this.el.jobpanel.hidden = true; this.el.under.hidden = false;
+    this.feedback(safe ? "ok" : "bad", safe ? "✓ Task done" : "✗ Not passed", safe ? (first ? "Every step right first time." : "All the tests done and judged.") : "There was a safety error. Try again.");
+    this.taskDoneCard();
+  };
+  /* the run's ticks, crosses and safety errors, over every board it used */
+  Bench.prototype.taskTally = function () {
+    const t = this.task, st = this.st, c = t.carry || { ok: 0, bad: 0, safety: 0 };
+    return { ok: c.ok + st.ok, bad: c.bad + st.bad, safety: c.safety + st.safety };
+  };
+  Bench.prototype.taskDoneCard = function () {
+    const t = this.task, d = t.def, { safe, first } = t.result, rec = this.taskDone[d.id], tot = this.taskTally();
+    const lines = Object.keys(t.v).length ? `<p>${d.turn.map(m => this.taskReads(m).filter(r => t.v[r.id]).map(r => esc(r.name) + ": " + esc(t.v[r.id])).join(" · ")).filter(Boolean).join(" · ")}</p>` : "";
+    this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-td">
+      <h2 id="${this.id}-td">Task ${t.n + 1} ${safe ? "done" : "not passed"}</h2>
+      ${lines}
+      <p>Technique: ${tot.ok} ✓, ${tot.bad + t.cross} ✗.${tot.safety ? " Safety errors: " + tot.safety + "." : ""}</p>
+      <p>${!safe ? "✗ A safety error means this try cannot pass." : first ? "✓ Every step right " + (rec.tries > 1 ? "this time." : "first time.") : "✓ Passed. Some steps took more than one go."}</p>
+      <p class="tbx-card-s">${rec.tries > 1 ? "Your score counts your first try at this task: " + (rec.first ? "right first time." : "not right first time.") : ""}</p>
+      <div class="tbx-opts"><button type="button" class="tbx-go" data-job="again">Try again</button><button type="button" data-job="show">Watch Show me again</button><button type="button" data-job="list">All tasks</button></div></div>`, true);
+  };
+  /* all nine tasks, open from the start (T6) */
+  Bench.prototype.taskList = function () {
+    const O = this.tasks.order, done = this.taskDone;
+    const firsts = O.filter(o => (done[o.id] || {}).first).length;
+    this.taskStop();
+    this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-tl">
+      <h2 id="${this.id}-tl">Learn to Test</h2>
+      <p>One task for each type of test. Right first time: <b>${firsts} of ${O.length}</b>.</p>
+      <ol class="tbx-tl">${O.map((o, i) => { const r = done[o.id] || {}, live = !o.soon && this.tasks[o.id];
+        return `<li>${live ? `<button type="button" data-job="task:${o.id}">${i + 1} ${esc(o.test)}</button>` : `<span class="tbx-tl-soon">${i + 1} ${esc(o.test)}: coming soon</span>`}` +
+          `<span class="tbx-tl-r">${r.first ? "✓ right first time" : r.passed ? "✓ passed" : ""}</span></li>`; }).join("")}</ol>
+      <button type="button" data-job="closelist">Close</button></div>`, true);
+  };
+  Bench.prototype.taskAct = function (a, btn) {
+    const t = this.task;
+    if (!t) return;
+    if (a.indexOf("topt:") === 0) return this.taskOption(+a.slice(5), btn);
+    if (a.indexOf("task:") === 0) return this.openTask(a.slice(5));
+    switch (a) {
+      case "show": return this.taskShow();
+      case "shownext": return this.taskShowNext();
+      case "turn": return this.taskTurn();
+      case "measure": return this.taskMeasure();
+      case "after": if (t.phase === "read") this.taskAfter(); return;
+      case "qnext": t.qi++; return this.taskQ();
+      case "tnext": if (t.phase === "read" || t.phase === "after") { t.m++; this.taskItem(); } return;
+      case "finish": return this.taskFinish();
+      case "again": return this.taskTurn();
+      case "list": return this.taskList();
+      case "lkok": return this.taskLookAnswer(true);
+      case "lkrep": return this.taskLookAnswer(false);
+      case "closelist":
+        this.el.pop.hidden = true;
+        if (t.stage === "card") this.taskCard();
+        else if (t.stage === "done") this.taskDoneCard();
+        else if (t.stage === "show") { t.step = Math.max(-1, t.step - 1); this.taskShowNext(); }
+        return;
+    }
+  };
+
   /* ------------------------------------------------------- boot */
   window.TestBench = { mount: (root, opts) => new Bench(root, opts), meterSVG, Bench };
   function boot() {
@@ -1894,6 +2491,8 @@
         });
         const jobs = el.getAttribute("data-jobs");
         if (jobs && window.TBJobs && !q.get("board") && !q.get("scenario")) el.tbx.startJobs(window.TBJobs, jobs.split(/[\s,]+/), (parseInt(q.get("job"), 10) || 1) - 1);
+        /* Learn to Test: ?task=l3 opens one task */
+        if (el.hasAttribute("data-tasks") && window.TBTasks && !free) el.tbx.startTasks(window.TBTasks, q.get("task") || el.getAttribute("data-task"));
       } catch (e) {
         el.textContent = "The test bench could not start: " + e.message;
         if (window.console) console.error(e);
