@@ -277,6 +277,9 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     drawings are Lesson 1's. The page's booklet answers to National 5 Practical Electronics 2025 Q7
     and Q11 follow the marking instructions, © Qualifications Scotland (SQA), reproduced for
     educational use. No photos.
+  - Learn to Test (`classes/electronics/learn-to-test.html`) and Practise Testing
+    (`classes/electronics/practise-testing.html`), added 28 October 2026: text, drawings, the test bench,
+    its boards and its solver © R Stewart, 2026. No photos.
 
 - **Higher Physics calculation checklist** (added 22 October 2026) —
   `classes/higher/calculation-checklist.html`. Text, the "typical answers that lose marks" and the
