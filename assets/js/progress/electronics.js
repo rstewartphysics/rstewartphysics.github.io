@@ -82,7 +82,10 @@
       cond: "Find 8 of 10 faults first try in Practise Testing, with no safety errors" },
     { id: "cmp-th", name: "Threshold Hunter", emoji: "🌡️", section: "Comparators",
       href: "/classes/electronics/op-amp-comparator.html",
-      cond: "Set VR1 for 4 of 5 target temperatures on your first try" }
+      cond: "Set VR1 for 4 of 5 target temperatures on your first try" },
+    { id: "mono-ps", name: "Pulse Setter", emoji: "⏱️", section: "555 timers",
+      href: "/classes/electronics/555-monostable.html",
+      cond: "Pick stock R2 and C1 for 4 of 5 target pulse times on your first try" }
   ];
 
   var ALL_TOPIC_IDS = TOPIC.map(function (t) { return t.id; });
