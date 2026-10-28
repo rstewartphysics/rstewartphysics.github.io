@@ -74,7 +74,10 @@
       cond: "Read 8/10 resistor colour codes" },
     { id: "tst-ff", name: "Probe Detective", emoji: "🔬", section: "Testing",
       href: "/classes/electronics/testing.html",
-      cond: "Find 4 of 5 hidden faults on the test bench" }
+      cond: "Find 4 of 5 hidden faults on the test bench" },
+    { id: "cmp-th", name: "Threshold Hunter", emoji: "🌡️", section: "Comparators",
+      href: "/classes/electronics/op-amp-comparator.html",
+      cond: "Set VR1 for 4 of 5 target temperatures on your first try" }
   ];
 
   var ALL_TOPIC_IDS = TOPIC.map(function (t) { return t.id; });
