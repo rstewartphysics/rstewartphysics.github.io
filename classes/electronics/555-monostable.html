@@ -1,0 +1,1167 @@
+---
+layout: none
+title: Lesson 3 The 555 monostable — Timers and Comparators · National 5 Electronics
+search_keywords: 555 timer, monostable, pulse, trigger, breadboard, pulse time, 1.1RC, Yenka, logic probe, multimeter, Pulse Setter
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#e8fbf5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#06140f" media="(prefers-color-scheme: dark)" />
+  <title>Lesson 3 The 555 monostable — Timers and Comparators · National 5 Electronics</title>
+  {% include site-head-icons.html %}
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/electronics.css?v=el-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
+  <link rel="stylesheet" href="/assets/css/build-guide.css?v=bg-20261018a">
+  <link rel="stylesheet" href="/assets/css/reading.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/electronics.js?v=pe-20261028a" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
+  <script src="/assets/js/electronics-theory.js?v=elt-20261017a" defer></script>
+  <script src="/assets/js/testing-bench.js?v=tb-20261019b" defer></script>
+  <script src="/assets/js/build-guide.js?v=bg-20261028a" defer></script>
+  <script src="/assets/js/monostable-bench.js?v=mb-20261028a" defer></script>
+  <style>
+    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; min-height: 44px; }
+    .notes { color: var(--muted); font-weight: 800; line-height: 1.6; }
+    .notes ul, .notes ol { padding-left: 1.3rem; margin: .4rem 0 0; }
+    .notes li { margin: .3rem 0; }
+    .notes p { margin: .5rem 0 0; }
+    .notes p:first-child { margin-top: 0; }
+    .notes strong { color: var(--text); }
+    .notes a { color: var(--accent-2); font-weight: 900; }
+    .panel h3 { font-weight: 900; margin: 1.2rem 0 .3rem; }
+
+    .keywords { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin: .7rem 0; }
+    .keywords h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
+    .keywords dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; }
+    .keywords dt { font-weight: 900; color: var(--text); }
+    .keywords dd { margin: 0; font-weight: 800; color: var(--muted); }
+
+    /* words and picture together */
+    .dual { display: grid; gap: 1rem 1.4rem; align-items: start; margin: .9rem 0 0; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+    .dual.fig-wide { grid-template-columns: minmax(0,2fr) minmax(0,3fr); }
+    .dual > * { min-width: 0; }
+    .dual figure { margin: 0; }
+    .dual figcaption, .fig-cap { margin-top: .4rem; font-size: .9rem; font-weight: 800; line-height: 1.5; color: var(--muted); }
+    @media (max-width: 700px) { .dual, .dual.fig-wide { grid-template-columns: minmax(0,1fr); } }
+    .fig-card { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .5rem; }
+    .fig-card svg { display: block; width: 100%; height: auto; }
+    .fig-card svg.fig-sm { max-width: 280px; margin: 0 auto; }
+    .fig-card svg.fig-md { max-width: 420px; margin: 0 auto; }
+
+    /* drawn figures: ink follows the theme */
+    .fig { font-family: inherit; }
+    .fig .w { stroke: var(--text); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .fig .thin { stroke-width: 1.8; }
+    .fig .plate { stroke-width: 4; stroke-linecap: butt; }
+    .fig .res, .fig .ic { fill: var(--card); stroke: var(--text); stroke-width: 2.4; stroke-linejoin: round; }
+    .fig .node, .fig .cnt { fill: var(--text); }
+    .fig .term { fill: var(--card); stroke: var(--text); stroke-width: 2; }
+    .fig .mtr { fill: var(--card); stroke: var(--accent-2); stroke-width: 2.6; }
+    .fig .box { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.2; }
+    .fig .led { fill: var(--card); stroke: var(--text); stroke-width: 2.4; stroke-linejoin: round; }
+    .fig .arrow { fill: var(--text); }
+    .fig .chip { fill: #2b2f33; stroke: var(--text); stroke-width: 1.6; }
+    .fig .pin { stroke: var(--muted); stroke-width: 3; }
+    .fig .pinbox { fill: var(--surface-2); stroke: var(--text); stroke-width: 1.6; }
+    .fig .dash { stroke-dasharray: 6 5; }
+    .fig .acc { stroke: var(--accent-2); }
+    .fig text { fill: var(--text); font-weight: 800; font-size: 14px; }
+    .fig text.sm { font-size: 12px; }
+    .fig text.big { font-size: 17px; font-weight: 900; }
+    .fig text.ink2 { fill: var(--accent-2); }
+    .fig .li { fill: #fff; stroke: var(--text); stroke-width: 2.2; }
+    .fig .li.on { fill: #e53935; }
+    .fig .li-in { fill: none; stroke: var(--text); stroke-width: 1.4; }
+    .fig .glow { fill: transparent; }
+    .fig .glow.on { fill: rgba(255, 45, 45, .55); }
+    @media (max-width: 600px) {
+      :is(.fig-card, .sim-fig):has(> svg.circ) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      svg.circ { min-width: 560px; }
+    }
+    .circ text { font-size: 17px; }
+    .circ text.sm { font-size: 14px; }
+    .circ text.big { font-size: 22px; }
+    #monoCircuit .live { display: none; }
+    #monoTest .sim-only { display: none; }
+    .circ [data-tp] .term { transition: fill .2s ease; }
+    .circ .is-tp .term { fill: var(--accent); stroke: var(--accent-2); stroke-width: 4; }
+    .circ .is-tp text { fill: var(--accent-2); font-weight: 900; }
+
+    /* formula */
+    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: .8rem; }
+    .eq-name { font-weight: 900; color: var(--accent-2); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.55rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; }
+    .eq-formula var, .calc var { font-style: italic; font-family: inherit; }
+    .eq-desc { font-size: .95rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .example { margin-top: 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .75rem .9rem; }
+    .ex-type { display: block; font-size: 1.125rem; font-weight: 900; color: var(--accent-2); margin-bottom: .3rem; }
+    .ex-q { display: block; font-weight: 900; color: var(--text); margin-bottom: .6rem; }
+    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .32rem .6rem; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.2rem; }
+    .calc-row { display: contents; }
+    .calc .lhs { text-align: right; white-space: nowrap; }
+    .calc .note-cell { font-family: var(--font-stack, "Trebuchet MS", sans-serif); font-weight: 800; font-size: .9rem; color: var(--accent-2); align-self: center; }
+    .calc .note-cell:not(:empty)::before { content: "← "; }
+    @media (max-width: 600px) {
+      .calc { grid-template-columns: auto auto auto; }
+      .calc .note-cell { grid-column: 1 / -1; }
+      .calc .note-cell:empty { display: none; }
+      .calc .note-cell:not(:empty)::before { content: "↳ "; }
+    }
+
+    .dtable { width: 100%; border-collapse: collapse; margin-top: .6rem; font-weight: 800; color: var(--text); }
+    .dtable th, .dtable td { border: 1px solid var(--border); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    .dtable thead th { background: var(--surface-2); }
+    .tbl-wrap { overflow-x: auto; }
+
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #008063, #00604a); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
+    .stem { margin: .6rem 0 0; font-weight: 900; color: var(--text); }
+    .stem:first-of-type { margin-top: .15rem; }
+    .practice ul.data { margin: .3rem 0 0; padding-left: 1.3rem; font-weight: 800; color: var(--text); }
+    details.reveal { margin-top: .5rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
+    details.reveal > summary::-webkit-details-marker { display: none; }
+    details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; transition: transform .18s ease; }
+    details.reveal[open] > summary::after { transform: rotate(180deg); }
+    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--muted); font-weight: 800; line-height: 1.55; }
+    details.reveal .reveal-body strong { color: var(--text); }
+    details.reveal .reveal-body ul { margin: .2rem 0 0; padding-left: 1.2rem; }
+    details.reveal .reveal-body p { margin: .3rem 0 0; }
+    details.reveal .reveal-body p:first-child { margin-top: 0; }
+
+    .note { border-left: 4px solid var(--warm); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--muted); }
+    .note strong { color: var(--text); }
+    .chk-list { margin: .5rem 0 0; padding-left: 1.4rem; }
+    .chk-list li { margin: .35rem 0; font-weight: 800; color: var(--text); }
+
+    .cando { border: 1px solid var(--border-accent); border-radius: 12px; background: var(--surface-2); padding: .65rem .85rem; margin-top: 1rem; }
+    .cando h3 { margin: 0 0 .35rem; font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #15803d; }
+    .cando ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25rem; }
+    .cando li { position: relative; padding-left: 1.6rem; font-weight: 800; color: var(--text); line-height: 1.4; }
+    .cando li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #15803d; font-weight: 900; }
+    @media (prefers-color-scheme: dark) { .cando h3, .cando li::before { color: #5dd693; } }
+
+    .booklet-link { display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; padding: .6rem 1rem; margin-top: .6rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--accent-2); font-weight: 900; text-decoration: none; }
+    .booklet-link:hover, .booklet-link:focus-visible { border-color: var(--border-strong); text-decoration: underline; }
+    .booklet-link svg { width: 30px; height: 30px; flex: none; }
+
+    /* the monostable bench */
+    .sim [hidden] { display: none !important; }
+    .mb-mode { margin: .2rem 0 .7rem; }
+    #monoBench .sim-stage { grid-template-columns: minmax(0,1fr) 360px; }
+    @media (max-width: 820px) { #monoBench .sim-stage { grid-template-columns: minmax(0,1fr); } }
+    #monoBench .sim-readouts { grid-template-columns: repeat(auto-fit, minmax(min(118px,100%), 1fr)); }
+    #monoBench .sim-out .v.is-hi { color: #c62828; }
+    @media (prefers-color-scheme: dark) { #monoBench .sim-out .v.is-hi { color: #ff8a80; } }
+    .mb-hold { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .6rem; }
+    .mb-hold .sim-btn { min-height: 52px; padding: .6rem 1.1rem; font-size: 1.05rem; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+    .mb-hold .sim-btn:active { background: var(--surface-2); }
+    .mb-hold p { margin: 0; font-weight: 800; color: var(--muted); }
+    .mb-presets { margin-top: .2rem; }
+    .ps { border-top: 1px solid var(--border); padding-top: .6rem; display: grid; gap: .5rem; }
+    .ps-q { margin: 0; font-weight: 900; color: var(--text); line-height: 1.45; }
+    .ps-pick { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .ps-pick label { display: grid; gap: .2rem; font-weight: 900; color: var(--text); }
+    .ps-pick select { min-height: 44px; font: inherit; font-weight: 800; border-radius: 8px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); padding: .3rem .4rem; }
+    .ps-fb p { margin: 0; font-weight: 800; color: var(--text); line-height: 1.5; }
+    .ps-fb .is-right { border-left: 4px solid #15803d; padding-left: .5rem; }
+    .ps-fb .is-wrong { border-left: 4px solid var(--warm); padding-left: .5rem; }
+    .ps-score { margin: 0; font-weight: 900; color: var(--text); }
+    #monoBench .sim-q { line-height: 1.5; }
+
+    /* test your board: the Lesson 1 meter and probe drawings */
+    #monoTest .sim-stage { grid-template-columns: minmax(0,1fr) 340px; }
+    @media (max-width: 820px) { #monoTest .sim-stage { grid-template-columns: minmax(0,1fr); } }
+    .mt-tools { display: grid; gap: .55rem; }
+    .mt-tools .sim-seg-label { margin-top: .1rem; }
+    .mt-show { display: grid; gap: .5rem; margin-top: .2rem; }
+    .mt-meter .tb-meter { max-width: 200px; margin: 0; }
+    .mt-probe .tb-probe { max-width: 220px; }
+    .mt-read { margin: 0; font-weight: 800; color: var(--text); line-height: 1.5; }
+    .mt-phase { margin: .2rem 0 0; font-weight: 900; color: var(--accent-2); }
+    .tb-meter { display: block; width: 100%; height: auto; margin: 0 auto; font-family: inherit; }
+    .tb-meter .m-body { fill: var(--surface-2); stroke: var(--text); stroke-width: 5; }
+    .tb-meter .m-lcd { fill: #cfdcc8; stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-digits { fill: #18201a; font-family: "Courier New", Courier, monospace; font-size: 104px; font-weight: 700; }
+    .tb-meter .m-btn { fill: var(--card); stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-small { fill: var(--text); font-size: 26px; font-weight: 800; }
+    .tb-meter .m-ink { fill: var(--text); }
+    .tb-meter .m-hole { fill: var(--muted); opacity: .55; }
+    .tb-meter .m-range { fill: var(--text); font-size: 19px; font-weight: 800; }
+    .tb-meter .m-diode path { fill: var(--text); }
+    .tb-meter .m-diode line { stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-beep circle { fill: var(--text); }
+    .tb-meter .m-beep path { fill: none; stroke: var(--text); stroke-width: 3; }
+    .tb-meter .m-sector { fill: var(--card); stroke: var(--border-strong); stroke-width: 2; }
+    .tb-meter .m-group { fill: var(--accent-2); font-size: 28px; font-weight: 900; }
+    .tb-meter .m-knob { fill: var(--card); stroke: var(--text); stroke-width: 5; }
+    .tb-meter .m-bar { fill: #3a4044; stroke: var(--text); stroke-width: 3; }
+    .tb-meter .m-tip { stroke: #fff; stroke-width: 9; stroke-linecap: round; }
+    .tb-meter .m-sock { fill: var(--card); stroke: var(--text); stroke-width: 4; }
+    .tb-meter .m-label { fill: var(--text); font-size: 30px; font-weight: 900; }
+    .tb-meter .m-lead-o { fill: none; stroke: var(--text); stroke-width: 20; stroke-linecap: round; }
+    .tb-meter .m-lead { fill: none; stroke-width: 13; stroke-linecap: round; }
+    .tb-meter .m-black { stroke: #1d1d1d; }
+    .tb-meter .m-red { stroke: #c62828; }
+    .tb-meter .m-call { fill: var(--text); font-size: 30px; font-weight: 800; }
+    .tb-meter .m-red-l { fill: #c62828; }
+    .tb-meter .m-callline { stroke: var(--muted); stroke-width: 3; }
+    @media (prefers-color-scheme: dark) { .tb-meter .m-red { stroke: #ef5350; } .tb-meter .m-red-l { fill: #ff8a80; } }
+    .tb-probe { display: block; width: 100%; height: auto; font-family: inherit; }
+    .tb-probe .p-tip { stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
+    .tb-probe .p-body { fill: var(--surface-2); stroke: var(--text); stroke-width: 3; }
+    .tb-probe .p-led { fill: var(--card); stroke: var(--text); stroke-width: 2.5; }
+    .tb-probe .p-hi.on { fill: #e53935; }
+    .tb-probe .p-lo.on { fill: #2e9d4f; }
+    .tb-probe .p-sw { fill: var(--card); stroke: var(--text); stroke-width: 2.5; }
+    .tb-probe .p-lab { fill: var(--text); font-size: 17px; font-weight: 900; }
+
+    body.reading main :is(.reveal-body, .backlink, .booklet-link, .ps-q, .ps-fb p, .mt-read, .rag-item .crit, .rag-summary, .score, .ex-q, .eq-name, .eq-desc, .calc .note-cell) { font-size: 1.125rem; }
+    body.reading :is(#monoBench, #monoTest) :is(.sim-name, .sim-out .k, .sim-out .v) { font-size: 1.125rem; line-height: 1.5; }
+
+    /* quiz + RAG (behaviour: electronics-theory.js) */
+    .q { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .q p.qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .opt { display: block; padding: .65rem .6rem; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: .4rem; font-weight: 800; color: var(--text); cursor: pointer; }
+    .opt input { margin-right: .5rem; }
+    .opt.correct { border-color: #15803d; background: rgba(21,128,61,.12); }
+    .opt.wrong { border-color: var(--warm); background: rgba(194,65,12,.12); }
+    .opt .mark-note { font-weight: 900; white-space: nowrap; margin-left: .4rem; }
+    .opt-fb { margin: .2rem 0 0; padding: .55rem .75rem; border-radius: 10px; border-left: 4px solid var(--border-accent); background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .opt-fb:empty { display: none; }
+    .opt-fb.is-right { border-left-color: #15803d; }
+    .opt-fb.is-wrong { border-left-color: var(--warm); }
+    .opt.correct .mark-note { color: #15803d; }
+    .opt.wrong .mark-note { color: var(--warm); }
+    @media (prefers-color-scheme: dark) { .opt.correct .mark-note { color: #5dd693; } .opt.correct { border-color: #5dd693; } }
+    .score { font-weight: 900; margin-top: .6rem; color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .55rem .95rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn.primary { background: linear-gradient(135deg, #008063, #00604a); color: #fff; border-color: transparent; }
+    .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+    .rag-item .crit { flex: 1; min-width: 200px; font-weight: 800; color: var(--text); }
+    .rag-btns { display: inline-flex; gap: .35rem; }
+    .rag-btns button { min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; }
+    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
+    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
+    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
+
+    /* picture glossary */
+    .gloss { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(300px,100%), 1fr)); margin-top: .7rem; }
+    .gloss-item { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: .7rem; align-items: center; border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: .55rem .7rem; }
+    .gloss-item svg { width: 96px; height: auto; display: block; }
+    .gloss-term { margin: 0; font-weight: 900; color: var(--text); }
+    .gloss-def { margin: .15rem 0 0; font-weight: 800; color: var(--muted); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+    @media print {
+      .backlink, .btnrow, #siteMenuButton, footer, .sim, .build-guide { display: none !important; }
+      .panel, .practice { box-shadow: none; break-inside: avoid; }
+      details.reveal > summary::after { content: ""; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+
+<body class="reading">
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/electronics-banner.jpeg" alt="National 5 Electronics banner" class="banner" loading="eager">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Lesson 3 · The 555 monostable</h1>
+      <p>One press, one timed pulse: build a 555 timer on breadboard and test it.</p>
+    </div>
+  </header>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Lesson 3: The 555 monostable</h1>
+    <a class="backlink" href="/classes/electronics/timers-and-comparators.html"><span aria-hidden="true">&larr;</span> Timers &amp; comparators</a>
+
+    <div class="panel-pair">
+      <section class="panel" aria-labelledby="learn-title">
+        <h2 id="learn-title">In this lesson</h2>
+        <ul class="chk-list">
+          <li>Say what a monostable does.</li>
+          <li>Name the 555 pins in the circuit.</li>
+          <li>Describe how the pulse starts and ends.</li>
+          <li>Calculate the pulse time.</li>
+          <li>Simulate it in Yenka.</li>
+          <li>Build it on breadboard and test it.</li>
+        </ul>
+      </section>
+      <section class="panel" aria-labelledby="book-title">
+        <h2 id="book-title">Block 6 booklet</h2>
+        <p>Lesson 3 is the third lesson in the booklet. Tasks 1 to 6 and your exam questions are there.</p>
+        <a class="booklet-link" href="/assets/electronics/block6/n5-electronics-block6-timers-and-comparators.pdf" target="_blank" rel="noopener" aria-label="Block 6 booklet, Timers and comparators, PDF, 35 pages. Opens in a new tab">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="10" y="6" width="28" height="36" rx="3" style="fill:none;stroke:currentColor;stroke-width:3"/><path d="M16 16h16M16 23h16M16 30h10" style="stroke:currentColor;stroke-width:3;stroke-linecap:round"/></svg>
+          Block 6 booklet (PDF) <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+    </div>
+
+    <!-- ================= CONCEPT 1 ================= -->
+    <section class="panel" id="what" aria-labelledby="what-title">
+      <span class="concept-tag">Concept 1</span>
+      <h2 id="what-title">What a monostable does</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Monostable</dt><dd>a circuit with one stable state. A trigger gives one pulse, then it goes back.</dd>
+          <dt>Trigger</dt><dd>the signal that starts the pulse.</dd>
+          <dt>Pulse</dt><dd>the time the output stays high.</dd>
+        </dl>
+      </div>
+      <div class="dual">
+        <div class="notes">
+          <p>A <strong>monostable</strong> waits with its output <strong>low</strong>. That is its one stable state.</p>
+          <ul>
+            <li>Slide the switch to 0 V and back. This is the <strong>trigger</strong>.</li>
+            <li>The output goes <strong>high</strong>. LED1 comes on.</li>
+            <li>After a set time, the output goes <strong>low</strong> again by itself.</li>
+          </ul>
+          <p>One trigger gives one <strong>pulse</strong>. The pulse time is set by two parts, R2 and C1. It does not depend on how long you press.</p>
+          <p>You meet monostables in a stair light that stays on for two minutes. A hand dryer that runs for a set time uses one too.</p>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig fig-md" viewBox="0 0 380 230" role="img" aria-label="A timing diagram. Top trace: pin 2, the trigger, is high, dips low for a moment when SW1 is slid to 0 V, then goes high again. Bottom trace: pin 3, the output, goes high at the same moment and stays high for the pulse time T, then goes low by itself.">
+              <text x="20" y="28">pin 2, trigger</text>
+              <path class="w" d="M20 50 H110 V90 H134 V50 H360"/>
+              <text class="sm" x="140" y="86">SW1 slid to 0 V</text>
+              <path class="w thin dash" d="M110 92 V150"/>
+              <text x="20" y="128">pin 3, output</text>
+              <path class="w acc" d="M20 200 H110 V150 H300 V200 H360" style="stroke-width:3"/>
+              <path class="w thin" d="M116 176 H294"/>
+              <polygon class="arrow" points="112,176 122,171 122,181"/><polygon class="arrow" points="298,176 288,171 288,181"/>
+              <text class="ink2" x="205" y="170" text-anchor="middle">pulse time T</text>
+              <text class="sm" x="360" y="222" text-anchor="end">time →</text>
+            </svg>
+          </div>
+          <figcaption>A short trigger on pin 2 gives one long pulse on pin 3.</figcaption>
+        </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 1</span>
+        <p class="stem">A monostable gives a 10 s pulse. SW1 is slid to 0 V and back within 1 s.</p>
+        <p class="stem"><strong>State</strong> how long LED1 stays on. <strong>Give</strong> a reason.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body"><strong>10 s.</strong> R2 and C1 set the pulse time. A short trigger only starts the pulse.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>say what a monostable does.</li><li>say what starts the pulse and what sets its length.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 2 ================= -->
+    <section class="panel" id="pins" aria-labelledby="pins-title">
+      <span class="concept-tag">Concept 2</span>
+      <h2 id="pins-title">The 555 timer's pins</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>555</dt><dd>an 8-pin timer chip.</dd>
+          <dt>Reset</dt><dd>pin 4. It must go to +5 V, or the chip will not run.</dd>
+          <dt>Threshold</dt><dd>pin 6. It ends the pulse when C1 is ⅔ full.</dd>
+          <dt>Discharge</dt><dd>pin 7. It empties C1 when the pulse ends.</dd>
+        </dl>
+      </div>
+      <div class="dual">
+        <div class="notes">
+          <p>Hold the chip with the <strong>notch at the top</strong>. Pin 1 is top left. The pins count down the left side, then up the right side.</p>
+          <ul>
+            <li><strong>Pins 8 and 1</strong> power the chip: +5 V and 0 V.</li>
+            <li><strong>Pin 4</strong>, reset, goes to +5 V too.</li>
+            <li><strong>Pin 2</strong>, trigger: low starts the pulse.</li>
+            <li><strong>Pin 3</strong>, output: high during the pulse. It drives LED1.</li>
+            <li><strong>Pins 6 and 7</strong> are joined. R2 and C1 connect here.</li>
+            <li><strong>Pin 5</strong> is not used.</li>
+          </ul>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig fig-md" viewBox="0 0 420 220" role="img" aria-label="The 555 seen from above, notch at the top. Left side, top to bottom: pin 1, 0 V; pin 2, trigger; pin 3, output; pin 4, reset. Right side, bottom to top: pin 5, control, not used; pin 6, threshold; pin 7, discharge; pin 8, +V.">
+              <rect class="pinbox" x="134" y="44" width="16" height="12"/><rect class="pinbox" x="134" y="84" width="16" height="12"/><rect class="pinbox" x="134" y="124" width="16" height="12"/><rect class="pinbox" x="134" y="164" width="16" height="12"/>
+              <rect class="pinbox" x="250" y="44" width="16" height="12"/><rect class="pinbox" x="250" y="84" width="16" height="12"/><rect class="pinbox" x="250" y="124" width="16" height="12"/><rect class="pinbox" x="250" y="164" width="16" height="12"/>
+              <rect class="ic" x="150" y="20" width="100" height="180" rx="4"/>
+              <path class="w thin" d="M188 20 A12 12 0 0 0 212 20"/>
+              <circle class="node" cx="164" cy="34" r="3.5"/>
+              <text class="big" x="200" y="116" text-anchor="middle">555</text>
+              <text x="162" y="55">1</text><text x="162" y="95">2</text><text x="162" y="135">3</text><text x="162" y="175">4</text>
+              <text x="238" y="55" text-anchor="end">8</text><text x="238" y="95" text-anchor="end">7</text><text x="238" y="135" text-anchor="end">6</text><text x="238" y="175" text-anchor="end">5</text>
+              <text x="126" y="55" text-anchor="end">0 V</text><text class="ink2" x="126" y="95" text-anchor="end">trigger</text><text class="ink2" x="126" y="135" text-anchor="end">output</text><text x="126" y="175" text-anchor="end">reset</text>
+              <text x="274" y="55">+V</text><text x="274" y="95">discharge</text><text x="274" y="135">threshold</text><text x="274" y="175">control (not used)</text>
+            </svg>
+          </div>
+          <figcaption>The 555 from above. Notch at the top, pin 1 top left.</figcaption>
+        </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 2</span>
+        <p class="stem"><strong>State</strong> the pin number for each job.</p>
+        <ul class="data"><li>(a) starts the pulse</li><li>(b) drives LED1</li><li>(c) must go to +5 V, as well as pin 8</li></ul>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">(a) <strong>Pin 2</strong>, trigger. (b) <strong>Pin 3</strong>, output. (c) <strong>Pin 4</strong>, reset.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>find pin 1 on a 555.</li><li>name the job of each pin in the monostable.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 3: THE CIRCUIT ================= -->
+    <section class="panel" id="circuit" aria-labelledby="circuit-title">
+      <span class="concept-tag">Concept 3</span>
+      <h2 id="circuit-title">Read the circuit diagram</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Changeover switch</dt><dd>a slide switch with three pins. The middle pin joins one side or the other.</dd>
+          <dt>Pull-up resistor</dt><dd>holds a pin high until something pulls it low. Here, R1 on pin 2.</dd>
+          <dt>Electrolytic capacitor</dt><dd>C1. It has a + leg, so it must go the right way round.</dd>
+        </dl>
+      </div>
+      <div class="dual fig-wide">
+        <div class="notes">
+          <p>This is the circuit in your booklet.</p>
+          <ul>
+            <li><strong>SW1</strong> joins pin 2 to +5 V, or to 0 V when you slide it.</li>
+            <li><strong>R1</strong> holds pin 2 high while SW1 is moving and touches neither side.</li>
+            <li><strong>R2</strong> and <strong>C1</strong> set the pulse time. They join at pins 6 and 7.</li>
+            <li><strong>R3</strong> protects LED1 by limiting the current.</li>
+          </ul>
+          <p>Test points <strong>T1</strong> to <strong>T4</strong> are where you put the meter and the probe.</p>
+        </div>
+        <figure id="monoCircuit">
+          <div class="fig-card">
+            <svg class="fig circ" viewBox="0 0 660 360" role="img" aria-label="The monostable circuit on 5 V. SW1, a changeover switch, joins pin 2 to +5 V or to 0 V. R1, 10 k, from +5 V to pin 2. R2, 100 k, from +5 V to pins 7 and 6. C1, 100 microfarads, from pins 7 and 6 to 0 V, + at the top. Pins 4 and 8 go to +5 V, pin 1 to 0 V, pin 5 is not connected. Pin 3, the output, goes through R3, 270 ohms, to LED1 and 0 V. T1 is +5 V, T2 is 0 V, T3 is pin 2 and T4 is pin 3.">
+              <path class="w" d="M57 24 H599 M57 330 H599"/>
+              <circle class="term" cx="52" cy="24" r="5"/><circle class="term" cx="52" cy="330" r="5"/>
+              <text x="42" y="30" text-anchor="end">+5 V</text><text x="42" y="336" text-anchor="end">0 V</text>
+              <g data-tp="T1"><circle class="term" cx="604" cy="24" r="5"/><text x="614" y="30">T1</text></g>
+              <g data-tp="T2"><circle class="term" cx="604" cy="330" r="5"/><text x="614" y="336">T2</text></g>
+              <path class="w" d="M96 24 V200 M96 258 V330 M132 229 H330"/>
+              <circle class="cnt" cx="96" cy="200" r="4"/><circle class="cnt" cx="96" cy="258" r="4"/><circle class="cnt" cx="132" cy="229" r="4"/>
+              <line class="w" data-live="lever" x1="132" y1="229" x2="99" y2="203"/>
+              <text x="84" y="234" text-anchor="end">SW1</text>
+              <path class="w" d="M184 24 V66 M184 126 V229"/>
+              <rect class="res" x="175" y="66" width="18" height="60"/>
+              <text x="202" y="92">R1</text><text x="202" y="110">10 k</text>
+              <path class="w" d="M262 24 V40 M262 98 V270 M262 282 V330 M262 132 H330 M262 190 H330"/>
+              <rect class="res" x="253" y="40" width="18" height="58"/>
+              <path class="w plate" d="M244 270 H280 M244 282 H280"/>
+              <text x="240" y="266" text-anchor="end">+</text>
+              <text x="280" y="64">R2</text><text x="280" y="82" data-live="r2v">100 k</text>
+              <text x="288" y="298">C1</text><text x="288" y="316" data-live="c1v">100 µF</text>
+              <path class="w" d="M358 24 V110 M402 24 V110 M358 251 V330"/>
+              <rect class="ic" x="330" y="110" width="100" height="141" rx="3"/>
+              <text class="sm" x="338" y="137">7</text><text class="sm" x="338" y="195">6</text><text class="sm" x="338" y="234">2</text>
+              <text class="sm" x="358" y="127" text-anchor="middle">4</text><text class="sm" x="402" y="127" text-anchor="middle">8</text>
+              <text class="sm" x="358" y="246" text-anchor="middle">1</text><text class="sm" x="402" y="246" text-anchor="middle">5</text>
+              <text class="sm" x="424" y="185" text-anchor="end">3</text>
+              <text class="big" x="376" y="188" text-anchor="middle">555</text>
+              <text x="380" y="100" text-anchor="middle">IC1</text>
+              <path class="w" d="M430 180 H516 V212 M516 260 V272 M516 290 V330"/>
+              <rect class="res" x="507" y="212" width="18" height="48"/>
+              <text x="534" y="232">R3</text><text x="534" y="250">270</text>
+              <circle class="glow live" cx="516" cy="281" r="17" data-live="glow"/>
+              <polygon class="led" points="504,272 528,272 516,290"/><path class="w" d="M502 290 H530"/>
+              <path class="w thin" d="M534 276 L546 269 M538 286 L550 279"/><polygon class="arrow" points="550,267 545.1,274.5 541.1,267.5"/><polygon class="arrow" points="554,277 549.1,284.5 545.1,277.5"/>
+              <text x="560" y="300">LED1</text>
+              <g data-tp="T3"><path class="w thin" d="M300 229 V246"/><circle class="term" cx="300" cy="251" r="5"/><text x="310" y="272">T3</text></g>
+              <g data-tp="T4"><path class="w thin" d="M474 180 V160"/><circle class="term" cx="474" cy="155" r="5"/><text x="484" y="152">T4</text></g>
+              <g class="nodes"><circle class="node" cx="96" cy="24" r="4"/><circle class="node" cx="96" cy="330" r="4"/><circle class="node" cx="184" cy="24" r="4"/><circle class="node" cx="184" cy="229" r="4"/><circle class="node" cx="262" cy="24" r="4"/><circle class="node" cx="262" cy="132" r="4"/><circle class="node" cx="262" cy="190" r="4"/><circle class="node" cx="262" cy="330" r="4"/><circle class="node" cx="300" cy="229" r="4"/><circle class="node" cx="358" cy="24" r="4"/><circle class="node" cx="402" cy="24" r="4"/><circle class="node" cx="358" cy="330" r="4"/><circle class="node" cx="474" cy="180" r="4"/><circle class="node" cx="516" cy="330" r="4"/></g>
+              <text class="ink2 sm live" x="222" y="221" text-anchor="middle" data-live="p2">5 V</text>
+              <text class="ink2 sm live sim-only" x="238" y="300" text-anchor="end" data-live="vc">0 V</text>
+              <text class="ink2 sm live" x="452" y="204" text-anchor="middle" data-live="p3">low</text>
+            </svg>
+          </div>
+          <figcaption>The booklet circuit, with test points T1 to T4. Where the pin 2 wire crosses C1's wire there is no dot, so they are not joined.</figcaption>
+        </figure>
+      </div>
+      <div class="tbl-wrap">
+        <table class="dtable" aria-label="What each test point measures">
+          <thead><tr><th>Test point</th><th>What it measures</th><th>Waiting</th><th>During the pulse</th></tr></thead>
+          <tbody>
+            <tr><td><strong>T1</strong></td><td>the +5 V supply</td><td>5 V</td><td>5 V</td></tr>
+            <tr><td><strong>T2</strong></td><td>0 V</td><td>0 V</td><td>0 V</td></tr>
+            <tr><td><strong>T3</strong></td><td>pin 2, the trigger</td><td>5 V</td><td>0 V while SW1 is at 0 V</td></tr>
+            <tr><td><strong>T4</strong></td><td>pin 3, the output</td><td>about 0 V</td><td>3.5 V to 5 V</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 3</span>
+        <p class="stem"><strong>State</strong> the job of R3.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">R3 <strong>limits the current</strong> through LED1, so LED1 is not damaged.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>say what each part of the circuit does.</li><li>say what each test point measures.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 4: HOW IT WORKS ================= -->
+    <section class="panel" id="how" aria-labelledby="how-title">
+      <span class="concept-tag">Concept 4</span>
+      <h2 id="how-title">How the pulse starts and ends</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Charge</dt><dd>C1 fills up through R2. The voltage across it rises.</dd>
+          <dt>⅔ of the supply</dt><dd>3.3 V on a 5 V supply. When C1 reaches it, the pulse ends.</dd>
+          <dt>Describe</dt><dd>give the steps in order. Each step is worth one mark.</dd>
+        </dl>
+      </div>
+      <div class="dual">
+        <div class="notes">
+          <p>Follow the chain from the switch to LED1:</p>
+          <ol>
+            <li>SW1 is slid to 0 V, so pin 2 goes <strong>low</strong>.</li>
+            <li>Pin 3 goes <strong>high</strong>. LED1 comes <strong>on</strong>.</li>
+            <li>C1 <strong>charges</strong> through R2. The voltage across C1 rises.</li>
+            <li>When C1 reaches <strong>⅔ of the supply</strong>, pin 3 goes <strong>low</strong>. LED1 goes off.</li>
+            <li>Pin 7 empties C1, ready for the next trigger.</li>
+          </ol>
+          <p>A <strong>bigger R2</strong> or a <strong>bigger C1</strong> makes C1 fill more slowly. The pulse is <strong>longer</strong>.</p>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig fig-md" viewBox="0 0 380 270" role="img" aria-label="Graph of voltage against time for one pulse. The pin 3 output, dashed, is at 5 V from the trigger until time T, then drops to 0 V. The voltage across C1 rises in a curve from 0 V. When it reaches two thirds of 5 V, 3.3 V, at time T, it drops to 0 V.">
+              <path class="w thin dash" d="M60 100 H360"/>
+              <path class="w acc dash" d="M60 40 H260 V219 H360"/>
+              <path class="w" d="M60.0 220.0 L65.0 215.1 L70.0 210.4 L75.0 205.8 L80.0 201.3 L85.0 196.9 L90.0 192.7 L95.0 188.5 L100.0 184.5 L105.0 180.6 L110.0 176.8 L115.0 173.1 L120.0 169.5 L125.0 166.0 L130.0 162.5 L135.0 159.2 L140.0 156.0 L145.0 152.8 L150.0 149.8 L155.0 146.8 L160.0 143.9 L165.0 141.1 L170.0 138.4 L175.0 135.7 L180.0 133.1 L185.0 130.6 L190.0 128.1 L195.0 125.7 L200.0 123.4 L205.0 121.2 L210.0 119.0 L215.0 116.8 L220.0 114.7 L225.0 112.7 L230.0 110.7 L235.0 108.8 L240.0 107.0 L245.0 105.2 L250.0 103.4 L255.0 101.7 L260.0 100.0 L260 220 H360" style="stroke-width:3"/>
+              <path class="w thin" d="M60 28 V220 H362"/>
+              <text class="sm" x="52" y="224" text-anchor="end">0</text><text class="sm" x="52" y="104" text-anchor="end">3.3</text><text class="sm" x="52" y="44" text-anchor="end">5</text>
+              <text class="sm" x="356" y="94" text-anchor="end">⅔ of 5 V</text>
+              <text class="ink2" x="120" y="32">pin 3 output</text>
+              <text x="196" y="146">C1</text>
+              <path class="w thin" d="M260 220 V226"/><text x="260" y="240" text-anchor="middle">T</text>
+              <text class="sm" x="210" y="262" text-anchor="middle">time (s)</text>
+              <text class="sm" x="0" y="0" text-anchor="middle" transform="translate(16 130) rotate(-90)">voltage (V)</text>
+            </svg>
+          </div>
+          <figcaption>C1 charges until it reaches ⅔ of the supply. Then the pulse ends.</figcaption>
+        </figure>
+      </div>
+      <h3>Another way to trigger it</h3>
+      <div class="dual">
+        <div class="notes">
+          <p>Exam papers often use a <strong>push-to-make switch</strong> from pin 2 to 0 V. R1 holds pin 2 high. Pressing the switch pulls pin 2 low and starts the pulse.</p>
+          <p>The rest of the circuit stays the same.</p>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig fig-sm" viewBox="0 0 260 250" role="img" aria-label="The push-to-make version of the trigger. R1, 10 k, from +5 V down to a point joined to pin 2. A push-to-make switch SW1 from that point down to 0 V.">
+              <path class="w" d="M40 20 H230 M40 230 H230 M110 20 V45 M110 105 V150 M110 190 V230 M110 128 H196"/>
+              <text class="sm" x="36" y="25" text-anchor="end">+5 V</text><text class="sm" x="36" y="235" text-anchor="end">0 V</text>
+              <rect class="res" x="101" y="45" width="18" height="60"/>
+              <circle class="cnt" cx="110" cy="150" r="4"/><circle class="cnt" cx="110" cy="190" r="4"/>
+              <path class="w" d="M126 144 V196 M126 170 H148 M148 160 V180"/>
+              <circle class="node" cx="110" cy="20" r="3.5"/><circle class="node" cx="110" cy="230" r="3.5"/><circle class="node" cx="110" cy="128" r="3.5"/>
+              <text x="92" y="72" text-anchor="end">R1</text><text x="92" y="90" text-anchor="end">10 k</text>
+              <text x="200" y="133">to pin 2</text>
+              <text x="158" y="176">SW1</text><text class="sm" x="158" y="194">push to make</text>
+            </svg>
+          </div>
+          <figcaption>The push-to-make version of the trigger.</figcaption>
+        </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 4</span>
+        <p class="stem"><strong>Describe</strong> what happens after SW1 is slid to 0 V and back. (3)</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body"><ul>
+            <li>Pin 2 goes low, so pin 3 goes high and LED1 comes on (1).</li>
+            <li>C1 charges through R2 (1).</li>
+            <li>When C1 reaches ⅔ of the supply, pin 3 goes low and LED1 goes off (1).</li>
+          </ul></div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>describe how the pulse starts and ends, one step for each mark.</li><li>say how R2 and C1 change the pulse.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 5: PULSE TIME ================= -->
+    <section class="panel" id="time" aria-labelledby="time-title">
+      <span class="concept-tag">Concept 5</span>
+      <h2 id="time-title">Calculate the pulse time</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>kΩ to Ω</dt><dd>multiply by 1000. 100 kΩ = 100 000 Ω.</dd>
+          <dt>µF to F</dt><dd>divide by 1 000 000. 100 µF = 0.000 1 F.</dd>
+        </dl>
+      </div>
+      <div class="eq-card">
+        <div class="eq-name">Pulse time of a 555 monostable</div>
+        <div class="eq-formula"><var>T</var> = 1.1 <var>R</var> <var>C</var></div>
+        <div class="eq-desc"><var>T</var> = pulse time (s) · <var>R</var> = resistance of R2 (Ω) · <var>C</var> = capacitance of C1 (F)</div>
+      </div>
+      <div class="example">
+        <span class="ex-type">Worked example 1</span>
+        <span class="ex-q">Our board has R2 = 100 kΩ and C1 = 100 µF. <strong>Calculate</strong> the pulse time.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">1.1 <var>R</var> <var>C</var></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">1.1 × 100 000 × 0.000 1</span><span class="note-cell">Ω and F</span></div>
+          <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">11 s</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+      <div class="example">
+        <span class="ex-type">Worked example 2</span>
+        <span class="ex-q">C1 = 10 µF. A pulse of 1.1 s is needed. <strong>Calculate</strong> the value of R2.</span>
+        <div class="calc">
+          <div class="calc-row"><span class="lhs"><var>T</var></span><span class="eq">=</span><span class="rhs">1.1 <var>R</var> <var>C</var></span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs">1.1</span><span class="eq">=</span><span class="rhs">1.1 × <var>R</var> × 0.000 01</span><span class="note-cell">10 µF in F</span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">1.1 ÷ (1.1 × 0.000 01)</span><span class="note-cell"></span></div>
+          <div class="calc-row"><span class="lhs"><var>R</var></span><span class="eq">=</span><span class="rhs">100 000 Ω = 100 kΩ</span><span class="note-cell"></span></div>
+        </div>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 5</span>
+        <p class="stem">A monostable has:</p>
+        <ul class="data"><li>R2 = 68 kΩ</li><li>C1 = 47 µF</li></ul>
+        <p class="stem">(a) <strong>Calculate</strong> the pulse time.</p>
+        <p class="stem">(b) <strong>State</strong> the new pulse time if C1 is changed to 470 µF.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">
+            <p><strong>(a)</strong> <var>T</var> = 1.1 × 68 000 × 0.000 047 = <strong>3.5 s</strong></p>
+            <p><strong>(b)</strong> C1 is 10 times bigger, so the pulse is 10 times longer: <strong>35 s</strong>.</p>
+          </div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>calculate the pulse time from R2 and C1.</li><li>change kΩ to Ω and µF to F.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= SIMULATOR ================= -->
+    <section class="panel" id="simulator" aria-labelledby="bench-title">
+      <h2 id="bench-title">Monostable bench</h2>
+      <div class="sim" id="monoBench">
+        <div class="sim-head">
+          <h3>The booklet circuit, live</h3>
+          <p class="sim-hint">Hold the button to slide SW1 to 0 V. Watch LED1, C1 and the graph.</p>
+          <div class="sim-seg mb-mode" role="group" aria-label="Choose what to do">
+            <button type="button" data-mode="explore" aria-pressed="true">Explore</button>
+            <button type="button" data-mode="setter" aria-pressed="false">Pulse Setter</button>
+          </div>
+        </div>
+
+        <div class="sim-predict" id="monoPredict">
+          <p class="sim-q"><b>Predict</b> what happens to the pulse if R2 is changed from 100&nbsp;kΩ to 200&nbsp;kΩ.</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="shorter" aria-pressed="false">It is half as long<template data-feedback><p>Not this one. A bigger R2 lets less current into C1, so C1 fills <strong>more slowly</strong>. It takes longer to reach ⅔ of the supply.</p></template></button>
+            <button type="button" data-predict="longer" aria-pressed="false">It is twice as long<template data-feedback><p><strong>Right.</strong> <var>T</var> = 1.1 <var>R</var> <var>C</var>. Double R2 and the pulse time doubles, from 11 s to 22 s.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">No change<template data-feedback><p>Not this one. R2 is one of the two parts that set the pulse time. C1 charges through it.</p></template></button>
+            <button type="button" data-predict="bright" aria-pressed="false">LED1 is dimmer<template data-feedback><p>Not this one. R3 sets the LED current, not R2. R2 changes how long LED1 stays on.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+          <p class="sim-try" id="mbTry" hidden><button class="sim-btn" type="button" id="mbTryBtn">Try it: set R2 to 200 kΩ</button></p>
+        </div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig" data-circuit><figcaption>LED1 glows while pin 3 is high.</figcaption></figure>
+            <div class="mb-hold">
+              <button class="sim-btn" type="button" id="mbHold">Hold: SW1 to 0 V</button>
+              <p>Let go to slide it back.</p>
+            </div>
+            <p class="note" id="mbHeldNote" hidden>C1 is past ⅔, but pin 2 is still low. The pulse cannot end until you let go.</p>
+            <div class="sim-readouts">
+              <div class="sim-out is-key mb-explore"><span class="k">Pulse time, 1.1 <var>R</var> <var>C</var></span><span class="v" id="mbT">–</span></div>
+              <div class="sim-out"><span class="k">LED1 on for</span><span class="v" id="mbOn">–</span></div>
+              <div class="sim-out"><span class="k">Voltage across C1</span><span class="v" id="mbVc">–</span></div>
+              <div class="sim-out"><span class="k">Pin 3 (T4)</span><span class="v" id="mbOut">–</span></div>
+              <div class="sim-out"><span class="k">Shown at</span><span class="v" id="mbSpeed">–</span></div>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field mb-explore"><span class="sim-name">R2 (kΩ)</span>
+              <span class="sim-row"><input type="range" data-sim="r" data-scale="log" data-min="1" data-max="1000" data-step="1" min="0" max="1000" value="667" aria-label="R2 in kilohms"><input class="sim-num" type="number" data-sim="r" min="1" max="1000" step="1" value="100" aria-label="R2 in kilohms, typed"></span></label>
+            <label class="sim-field mb-explore"><span class="sim-name">C1 (µF)</span>
+              <span class="sim-row"><input type="range" data-sim="c" data-scale="log" data-min="1" data-max="1000" data-step="0.1" min="0" max="1000" value="667" aria-label="C1 in microfarads"><input class="sim-num" type="number" data-sim="c" min="1" max="1000" step="0.1" value="100" aria-label="C1 in microfarads, typed"></span></label>
+            <div class="sim-seg mb-presets mb-explore" role="group" aria-label="Presets">
+              <span class="sim-seg-label">Presets</span>
+              <button type="button" data-r="100" data-c="100">Our board</button>
+              <button type="button" data-r="10" data-c="100">Short pulse</button>
+              <button type="button" data-r="1000" data-c="100">Long pulse</button>
+            </div>
+            <div class="ps" id="ps" hidden>
+              <p class="ps-q" id="psQ"></p>
+              <div class="ps-pick">
+                <label>R2 <select id="psR" aria-label="R2, a stock value"></select></label>
+                <label>C1 <select id="psC" aria-label="C1, a stock value"></select></label>
+              </div>
+              <button class="sim-btn" type="button" id="psCheck">Check</button>
+              <div class="ps-fb" id="psFb" aria-live="polite"></div>
+              <button class="sim-btn" type="button" id="psNext" hidden>Next target</button>
+              <p class="ps-score" id="psScore" aria-live="polite"></p>
+            </div>
+            <figure class="sim-fig mb-explore"><svg class="sim-graph" id="monoGraph"></svg><figcaption>Solid: C1. Dashed: pin 3. The pulse ends where C1 meets ⅔ of 5 V.</figcaption></figure>
+            <p class="visually-hidden" id="mbSay" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+      <p class="notes" id="psRules" hidden>In <strong>Pulse Setter</strong>, pick R2 and C1 from the stock values to make the target pulse, within 10 %. Work it out with <var>T</var> = 1.1 <var>R</var> <var>C</var>. You can hold the button and time a test pulse first. Get 4 of 5 on your first try to earn the Pulse Setter badge.</p>
+    </section>
+
+    <!-- ================= CONCEPT 6: YENKA ================= -->
+    <section class="panel" id="yenka" aria-labelledby="yenka-title">
+      <span class="concept-tag">Concept 6</span>
+      <h2 id="yenka-title">Simulate it in Yenka</h2>
+      <div class="keywords" aria-label="Key words for this concept">
+        <h3>Key words</h3>
+        <dl>
+          <dt>Voltmeter</dt><dd>measures the voltage across C1. Connect it from C1's + leg to 0 V.</dd>
+          <dt>Logic indicator</dt><dd>shows the logic level. In Yenka, <strong>red = high</strong> and <strong>white = low</strong>.</dd>
+        </dl>
+      </div>
+      <div class="dual fig-wide">
+        <div class="notes">
+          <p>This is booklet Task 1. Build the circuit in Yenka first, then add:</p>
+          <ul>
+            <li>a <strong>voltmeter</strong> across C1</li>
+            <li>a <strong>logic indicator</strong> on pin 3</li>
+          </ul>
+          <p>Slide SW1 to 0 V and straight back. Time how long the logic indicator stays red. Watch the voltmeter climb while it is red.</p>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig circ" viewBox="0 0 660 360" role="img" aria-label="The monostable set up in Yenka. A voltmeter from the + leg of C1 to 0 V. A logic indicator on pin 3. Here the indicator is red: the output is high.">
+              <path class="w" d="M57 24 H599 M57 330 H599"/>
+              <circle class="term" cx="52" cy="24" r="5"/><circle class="term" cx="52" cy="330" r="5"/>
+              <text x="42" y="30" text-anchor="end">+5 V</text><text x="42" y="336" text-anchor="end">0 V</text>
+              <path class="w" d="M96 24 V200 M96 258 V330 M132 229 H330 M132 229 L99 203"/>
+              <circle class="cnt" cx="96" cy="200" r="4"/><circle class="cnt" cx="96" cy="258" r="4"/><circle class="cnt" cx="132" cy="229" r="4"/>
+              <text x="84" y="234" text-anchor="end">SW1</text>
+              <path class="w" d="M184 24 V66 M184 126 V229"/><rect class="res" x="175" y="66" width="18" height="60"/>
+              <text x="202" y="92">R1</text>
+              <path class="w" d="M262 24 V40 M262 98 V270 M262 282 V330 M262 132 H330 M262 190 H330 M262 246 H222 V276 M222 304 V330"/>
+              <rect class="res" x="253" y="40" width="18" height="58"/>
+              <path class="w plate" d="M244 270 H280 M244 282 H280"/>
+              <text x="286" y="266">+</text>
+              <text x="280" y="64">R2</text><text x="288" y="298">C1</text>
+              <circle class="mtr" cx="222" cy="290" r="14"/><text class="big" x="222" y="297" text-anchor="middle">V</text>
+              <path class="w" d="M358 24 V110 M402 24 V110 M358 251 V330"/>
+              <rect class="ic" x="330" y="110" width="100" height="141" rx="3"/>
+              <text class="sm" x="338" y="137">7</text><text class="sm" x="338" y="195">6</text><text class="sm" x="338" y="234">2</text>
+              <text class="sm" x="358" y="127" text-anchor="middle">4</text><text class="sm" x="402" y="127" text-anchor="middle">8</text>
+              <text class="sm" x="358" y="246" text-anchor="middle">1</text><text class="sm" x="402" y="246" text-anchor="middle">5</text>
+              <text class="sm" x="424" y="185" text-anchor="end">3</text>
+              <text class="big" x="376" y="188" text-anchor="middle">555</text>
+              <path class="w" d="M430 180 H516 V212 M516 260 V272 M516 290 V330 M474 180 V166"/>
+              <circle class="li on" cx="474" cy="154" r="12"/><circle class="li-in" cx="474" cy="154" r="5"/>
+              <text class="sm" x="492" y="159">logic indicator</text>
+              <rect class="res" x="507" y="212" width="18" height="48"/><text x="534" y="232">R3</text>
+              <polygon class="led" points="504,272 528,272 516,290"/><path class="w" d="M502 290 H530"/>
+              <path class="w thin" d="M534 276 L546 269 M538 286 L550 279"/><polygon class="arrow" points="550,267 545.1,274.5 541.1,267.5"/><polygon class="arrow" points="554,277 549.1,284.5 545.1,277.5"/>
+              <text x="560" y="300">LED1</text>
+              <g class="nodes"><circle class="node" cx="96" cy="24" r="4"/><circle class="node" cx="96" cy="330" r="4"/><circle class="node" cx="184" cy="24" r="4"/><circle class="node" cx="184" cy="229" r="4"/><circle class="node" cx="262" cy="24" r="4"/><circle class="node" cx="262" cy="132" r="4"/><circle class="node" cx="262" cy="190" r="4"/><circle class="node" cx="262" cy="246" r="4"/><circle class="node" cx="262" cy="330" r="4"/><circle class="node" cx="222" cy="330" r="4"/><circle class="node" cx="358" cy="24" r="4"/><circle class="node" cx="402" cy="24" r="4"/><circle class="node" cx="358" cy="330" r="4"/><circle class="node" cx="474" cy="180" r="4"/><circle class="node" cx="516" cy="330" r="4"/></g>
+            </svg>
+          </div>
+          <figcaption>The Yenka set-up: a voltmeter across C1 and a logic indicator on pin 3.</figcaption>
+        </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 6</span>
+        <p class="stem">In Yenka, the logic indicator is red. The voltmeter across C1 reads 1.2 V.</p>
+        <p class="stem"><strong>State</strong> whether the pulse has ended. <strong>Give</strong> a reason.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body"><strong>No.</strong> C1 has not reached ⅔ of the supply (3.3 V) yet, so pin 3 is still high.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>add a voltmeter and a logic indicator to a Yenka circuit.</li><li>time a pulse in Yenka.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 7: BUILD ================= -->
+    <section class="panel" id="build" aria-labelledby="build-title">
+      <span class="concept-tag">Concept 7</span>
+      <h2 id="build-title">Build it on breadboard</h2>
+      <p>This is booklet Tasks 2 to 4. The worked guide takes you from the diagram to the breadboard, <strong>one net at a time</strong>. A net is a set of legs that are joined. Then find the mistake on three faulty boards.</p>
+      <div class="build-guide" data-guide="555-monostable" data-prog-badge="mono-ps"></div>
+
+      <h3>Pre-power-up check</h3>
+      <div class="dual">
+        <div class="notes">
+          <p>Do this <strong>before</strong> you connect the supply. Tick each one in booklet Task 4.</p>
+          <ol>
+            <li>No beep between T1 and T2 on continuity: no short across the supply.</li>
+            <li>IC1 straddles the centre gap, notch and pin 1 on the left.</li>
+            <li>C1 the right way round: + leg to pins 6 and 7, − leg to 0 V.</li>
+            <li>LED1 the right way round: long leg to R3, short leg to 0 V.</li>
+            <li>Every wire matches the wiring schedule.</li>
+            <li>The supply is set to 5 V before it is connected.</li>
+          </ol>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig" viewBox="0 0 440 200" role="img" aria-label="Three parts that must go the right way round. An LED: the long leg is +, and the flat edge on the rim marks the short − leg. An electrolytic capacitor: the stripe marks the − leg. An 8-pin chip standing upright: the notch is at the top and pin 1 is top left.">
+              <path d="M40 82 V44 A20 20 0 0 1 80 44 V82 Z" class="res"/>
+              <path class="res" d="M28 82 H81 V92 H28 Z"/>
+              <path class="w" d="M50 92 V170 M70 92 V150"/>
+              <text x="50" y="186" text-anchor="middle" class="sm">long leg +</text><text x="90" y="160" class="sm">short leg −</text>
+              <path class="w thin" d="M82 88 L96 104"/><text x="98" y="114" class="sm">flat edge −</text>
+              <circle class="res" cx="150" cy="40" r="18"/><path d="M162 26 V54" style="stroke:var(--card);stroke-width:8"/><path class="w" d="M162 27 V53"/>
+              <text x="150" y="74" text-anchor="middle" class="sm">from above:</text><text x="150" y="88" text-anchor="middle" class="sm">flat = −</text>
+              <rect class="res" x="208" y="28" width="44" height="60" rx="6"/><rect x="240" y="28" width="12" height="60" rx="3" style="fill:var(--text)"/>
+              <text x="246" y="62" text-anchor="middle" style="fill:var(--card);font-size:16px;font-weight:900">−</text>
+              <path class="w" d="M220 88 V150 M244 88 V136"/>
+              <text x="230" y="170" text-anchor="middle" class="sm">stripe = − leg</text>
+              <path class="pin" d="M320 48 H332 M320 76 H332 M320 104 H332 M320 132 H332 M372 48 H384 M372 76 H384 M372 104 H384 M372 132 H384"/>
+              <rect class="chip" x="332" y="34" width="40" height="112" rx="3"/><path d="M344 34 A8 8 0 0 0 360 34" style="fill:none;stroke:#ccc;stroke-width:1.6"/><circle cx="340" cy="48" r="3" style="fill:#ccc"/>
+              <text x="314" y="52" text-anchor="end" class="sm">1</text><text x="390" y="52" class="sm">8</text><text x="314" y="136" text-anchor="end" class="sm">4</text><text x="390" y="136" class="sm">5</text>
+              <text x="352" y="170" text-anchor="middle" class="sm">notch at the top,</text><text x="352" y="184" text-anchor="middle" class="sm">pin 1 top left</text>
+            </svg>
+          </div>
+          <figcaption>Three parts that must go the right way round.</figcaption>
+        </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 7</span>
+        <p class="stem"><strong>Give</strong> two checks you would make on C1 before you connect the power.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">Any two: the value is 100 µF; the + leg goes to pins 6 and 7; the − leg (the stripe) goes to 0 V; its legs are in the right columns.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>plan the monostable on breadboard, one net at a time.</li><li>do a pre-power-up check.</li></ul>
+      </div>
+    </section>
+
+    <!-- ================= CONCEPT 8: TEST ================= -->
+    <section class="panel" id="test" aria-labelledby="test-title">
+      <span class="concept-tag">Concept 8</span>
+      <h2 id="test-title">Test your board</h2>
+      <p>This is booklet Tasks 5 and 6. Pick a tool, a moment and a test point. See what your board should read.</p>
+      <div class="sim" id="monoTest">
+        <div class="sim-head">
+          <h3>Meter and probe on the monostable</h3>
+          <p class="sim-hint">The meter is on DCV 20 with the black probe on T2. The probe is clipped to +5 V and 0 V.</p>
+        </div>
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig" data-circuit><figcaption>The test point you pick is shown in green.</figcaption></figure>
+          </div>
+          <div class="sim-controls mt-tools">
+            <div class="sim-seg" role="group" aria-label="Tool">
+              <span class="sim-seg-label">Tool</span>
+              <button type="button" data-tool="meter" aria-pressed="true">Multimeter</button>
+              <button type="button" data-tool="probe" aria-pressed="false">Logic probe</button>
+            </div>
+            <div class="sim-seg" role="group" aria-label="When">
+              <span class="sim-seg-label">When</span>
+              <button type="button" data-phase="wait" aria-pressed="true">Waiting</button>
+              <button type="button" data-phase="held" aria-pressed="false">SW1 at 0 V</button>
+              <button type="button" data-phase="pulse" aria-pressed="false">Pulse running</button>
+            </div>
+            <div class="sim-seg" role="group" aria-label="Test point">
+              <span class="sim-seg-label">Test point</span>
+              <button type="button" data-tp="T1" aria-pressed="false">T1</button>
+              <button type="button" data-tp="T2" aria-pressed="false">T2</button>
+              <button type="button" data-tp="T3" aria-pressed="false">T3</button>
+              <button type="button" data-tp="T4" aria-pressed="true">T4</button>
+            </div>
+            <p class="mt-phase" id="mtPhase">Waiting</p>
+            <div class="mt-show">
+              <div>
+                <div class="mt-meter" data-meter="DCV 20" data-digits="0.08" data-label="The class multimeter on DCV 20"></div>
+                <div class="mt-probe" data-probe-head="lo" data-label="Logic probe" hidden></div>
+              </div>
+              <p class="mt-read" id="mtRead" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h3>Fault from readings</h3>
+      <div class="dual">
+        <div class="notes">
+          <p>Compare each reading with the one you expect. The first one that is wrong tells you where to look.</p>
+          <ul>
+            <li><strong>T1 not 5 V:</strong> look at the supply leads.</li>
+            <li><strong>T3 never goes to 0 V:</strong> look at SW1 and its wires to pin 2 and 0 V.</li>
+            <li><strong>T4 goes high but LED1 stays off:</strong> look at R3 and LED1.</li>
+            <li><strong>T4 never goes high:</strong> look at pins 4 and 8, and at IC1 itself.</li>
+          </ul>
+        </div>
+        <figure>
+          <div class="fig-card">
+            <svg class="fig fig-md" viewBox="0 0 380 230" role="img" aria-label="A flow chart for fault finding. Is T1 5 V? If no, check the supply. If yes: does T3 go to 0 V when SW1 is slid? If no, check SW1. If yes: does T4 go high? If no, check pins 4 and 8 and IC1. If yes, check R3 and LED1.">
+              <rect class="box" x="10" y="8" width="200" height="38" rx="8"/><text x="110" y="32" text-anchor="middle">T1 = 5 V?</text>
+              <rect class="box" x="10" y="78" width="200" height="38" rx="8"/><text x="110" y="102" text-anchor="middle">T3 goes to 0 V?</text>
+              <rect class="box" x="10" y="148" width="200" height="38" rx="8"/><text x="110" y="172" text-anchor="middle">T4 goes high?</text>
+              <path class="w" d="M110 46 V70 M110 116 V140 M110 186 V200 M210 27 H240 M210 97 H240 M210 167 H240"/>
+              <polygon class="arrow" points="104,69 116,69 110,78"/><polygon class="arrow" points="104,139 116,139 110,148"/>
+              <text class="sm" x="116" y="62">yes</text><text class="sm" x="116" y="132">yes</text><text class="sm" x="116" y="198">yes</text>
+              <text class="sm" x="218" y="20">no</text><text class="sm" x="218" y="90">no</text><text class="sm" x="218" y="160">no</text>
+              <text class="ink2" x="246" y="32">check supply</text><text class="ink2" x="246" y="102">check SW1</text><text class="ink2" x="246" y="164">check pins 4, 8</text><text class="ink2" x="246" y="180">and IC1</text>
+              <text class="ink2" x="110" y="222" text-anchor="middle">check R3 and LED1</text>
+            </svg>
+          </div>
+          <figcaption>Test in order, from the supply to the output.</figcaption>
+        </figure>
+      </div>
+      <div class="practice">
+        <span class="practice-tag">Practice 8</span>
+        <p class="stem">LED1 never lights. T1 reads 5.0 V. T3 goes to 0 V when SW1 is slid. T4 reads 3.6 V for 11 s.</p>
+        <p class="stem"><strong>Suggest</strong> the fault.</p>
+        <details class="reveal"><summary>Answer</summary>
+          <div class="reveal-body">The 555 is working: pin 3 goes high. The fault is after pin 3. <strong>LED1 is the wrong way round</strong>, or R3 or LED1 is not joined.</div>
+        </details>
+      </div>
+      <div class="cando" aria-label="What you can now do">
+        <h3>You can now…</h3>
+        <ul><li>say what the meter and the probe should show at each test point.</li><li>find a fault from the readings.</li></ul>
+      </div>
+    </section>
+
+    <!-- ===================== CHECK ===================== -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <span class="concept-tag">Check</span>
+      <h2 id="check-title">Check your understanding</h2>
+      <p>Pick an answer to see feedback on it. You can then try the others. Your score counts first tries only.</p>
+      <div id="quiz" aria-label="Multiple choice questions"></div>
+      <div class="btnrow">
+        <button class="btn primary" id="quiz-mark" type="button">Mark answers</button>
+        <button class="btn" id="quiz-reset" type="button">Reset</button>
+      </div>
+      <div class="score" id="quiz-score" aria-live="polite"></div>
+
+      <h3>Fill the gaps</h3>
+      <div class="prog-cloze" data-prog-challenge="cloze-1" aria-label="Fill the gaps: the monostable">
+        <p class="cl-text">The pulse starts when pin 2 goes
+          <select class="cl-sel" data-answer="low" aria-label="gap 1"><option value="">choose…</option><option>low</option><option>high</option></select>.
+          C1 charges through
+          <select class="cl-sel" data-answer="R2" aria-label="gap 2"><option value="">choose…</option><option>R2</option><option>R3</option></select>.
+          The pulse ends when C1 reaches
+          <select class="cl-sel" data-answer="⅔" aria-label="gap 3"><option value="">choose…</option><option>⅔</option><option>⅓</option></select>
+          of the supply. A bigger C1 gives a
+          <select class="cl-sel" data-answer="longer" aria-label="gap 4"><option value="">choose…</option><option>longer</option><option>shorter</option></select>
+          pulse.</p>
+        <div class="btnrow"><button class="btn primary cl-check" type="button">Check</button><button class="btn cl-reset" type="button">Reset</button></div>
+        <p class="fb-line" aria-live="polite"></p>
+      </div>
+
+      <h3>RAG self-check</h3>
+      <p>Tap Red, Amber or Green for how sure you feel.</p>
+      <div id="rag" aria-label="Red amber green self assessment"></div>
+      <div class="btnrow"><button class="btn" id="rag-reset" type="button">Clear RAG</button></div>
+      <div class="rag-summary" id="rag-summary" aria-live="polite"></div>
+    </section>
+
+    <!-- ===================== BOOKLET ANSWERS ===================== -->
+    <section class="panel" id="answers" aria-labelledby="answers-title">
+      <h2 id="answers-title">Booklet answers: Lesson 3</h2>
+      <p>Try the task in your booklet first. Then tap to check.</p>
+      <details class="reveal"><summary>Task 1: Yenka</summary>
+        <div class="reveal-body"><ul>
+          <li><strong>R2 = 100 kΩ:</strong> pulse about <strong>11 s</strong>. C1 reads about <strong>3.3 V</strong> (⅔ of 5 V) when it ends.</li>
+          <li><strong>R2 = 47 kΩ:</strong> pulse about <strong>5.2 s</strong>. C1 still reads about <strong>3.3 V</strong> when it ends.</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Task 2: Plan it</summary>
+        <div class="reveal-body">Check your plan against Part 2 of the worked guide above. Every net needs its own column or rail, and IC1 straddles the centre gap.</div>
+      </details>
+      <details class="reveal"><summary>Task 5: Test it</summary>
+        <div class="reveal-body"><strong>Why your average might not be exactly 11 s:</strong> capacitor tolerance (often ±20 %), resistor tolerance, or your reaction time.</div>
+      </details>
+      <details class="reveal"><summary>Task 6: Fault from readings</summary>
+        <div class="reveal-body"><ul>
+          <li><strong>(a)</strong> Pin 2 never goes low. SW1 is wired wrongly or not joined to pin 2, or its 0 V pin is not connected.</li>
+          <li><strong>(b)</strong> Any two: SW1 left at 0 V. A wire or a leg joins pin 2's column to 0 V. SW1 is one column out, so its 0 V pin sits in pin 2's column.</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Exam question 1 (2025 Q11)</summary>
+        <div class="reveal-body"><ul>
+          <li>Rails labelled, with nodes (1).</li>
+          <li>Pins 4 and 8 to +6 V, pin 1 to 0 V (1).</li>
+          <li>SW1 and R1 in series between the rails (1).</li>
+          <li>R2 and C1 in series, C1 the right way round (1).</li>
+          <li>Pins 6, 7 and 2 joined, pin 5 not connected, <var>V</var><sub>output</sub> from pin 3 with a node (1).</li>
+          <li>Symbols and labels (1).</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Exam question 2 (2025 Q7)</summary>
+        <div class="reveal-body"><ul>
+          <li><strong>(a)(i)</strong> Red wire to the +V supply, black wire to 0 V.</li>
+          <li><strong>(a)(ii)</strong> Place the probe tip on the point (1). The red LED lights (1).</li>
+          <li><strong>(b)(i)</strong> T3 and T4.</li>
+          <li><strong>(b)(ii)</strong> Pin 7 is connected to 0 V (ground).</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Exam question 3: three errors</summary>
+        <div class="reveal-body"><ul>
+          <li>C1 is the wrong way round.</li>
+          <li>The LED is the wrong way round.</li>
+          <li>Pin 4 (reset) is connected to 0 V. It must go to +5 V.</li>
+        </ul></div>
+      </details>
+      <details class="reveal"><summary>Key words</summary>
+        <div class="reveal-body">1. monostable · 2. trigger · 3. low · 4. length · 5. longer · 6. pre-power-up</div>
+      </details>
+    </section>
+
+    <!-- ===================== GLOSSARY ===================== -->
+    <section class="panel" id="glossary" aria-labelledby="gloss-title">
+      <h2 id="gloss-title">Picture glossary</h2>
+      <div class="gloss">
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A single high pulse on a low line"><path class="w" d="M4 56 H22 V22 H54 V56 H72"/></svg>
+          <div><p class="gloss-term">Monostable</p><p class="gloss-def">One trigger gives one pulse of a set length.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A high line with a short dip down to low"><path class="w" d="M4 22 H30 V56 H42 V22 H72"/></svg>
+          <div><p class="gloss-term">Trigger</p><p class="gloss-def">Pin 2 going low. It starts the pulse.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A square chip marked 555 with a notch at the top"><rect class="ic" x="18" y="8" width="40" height="60" rx="3"/><path class="w thin" d="M32 8 A6 6 0 0 0 44 8"/><text class="sm" x="38" y="44" text-anchor="middle">555</text></svg>
+          <div><p class="gloss-term">555 timer</p><p class="gloss-def">An 8-pin timer chip. Notch at the top, pin 1 top left.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="Capacitor symbol: two flat plates with a plus sign by the top plate"><path class="w" d="M38 4 V32 M38 44 V72"/><path class="w plate" d="M20 32 H56 M20 44 H56"/><text x="14" y="28">+</text></svg>
+          <div><p class="gloss-term">Electrolytic capacitor</p><p class="gloss-def">C1. Its + leg must go to the higher voltage.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A resistor from the top rail down to a point joined to a pin"><path class="w" d="M6 6 H70 M30 6 V20 M30 50 V62 H70"/><rect class="res" x="23" y="20" width="14" height="30"/><circle class="node" cx="30" cy="62" r="3"/></svg>
+          <div><p class="gloss-term">Pull-up resistor</p><p class="gloss-def">Holds a pin high until something pulls it low.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A changeover switch: a lever from the middle contact to one of two outer contacts"><path class="w" d="M14 4 V20 M14 56 V72 M48 38 H72 M48 38 L17 22"/><circle class="cnt" cx="14" cy="20" r="3.5"/><circle class="cnt" cx="14" cy="56" r="3.5"/><circle class="cnt" cx="48" cy="38" r="3.5"/></svg>
+          <div><p class="gloss-term">Changeover switch</p><p class="gloss-def">Three pins. The middle pin joins one side or the other.</p></div>
+        </div>
+        <div class="gloss-item">
+          <svg class="fig" viewBox="0 0 76 76" role="img" aria-label="A curve rising to a dashed line at two thirds of the height"><path class="w thin dash" d="M6 30 H70"/><path class="w" d="M8 68 C 20 46, 34 36, 56 30"/><path class="w thin" d="M6 68 H70"/></svg>
+          <div><p class="gloss-term">⅔ of the supply</p><p class="gloss-def">3.3 V on 5 V. The pulse ends when C1 reaches it.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="topic-list" aria-label="Next lesson" style="margin-top:1.4rem;">
+      <a class="topic-link" href="/classes/electronics/555-astable.html">Next: Lesson 4 · The 555 astable <span class="go" aria-hidden="true">→</span></a>
+    </nav>
+
+    <p data-credit-note style="font-size:0.82rem;opacity:0.78;margin-top:1.2rem;">Sources &amp; credits: booklet answers to 2025 Q7 and Q11 follow the National 5 Practical Electronics marking instructions, © Qualifications Scotland (SQA). Text, drawings, simulator, build guide and booklet by R Stewart. R Stewart - October 2026.</p>
+  </main>
+
+  {% include site-footer.html %}
+
+  <script>
+  window.EL_THEORY = {
+    key: "el-mono3-",
+    badge: "mono-ps",
+    qs: [
+      { q: "A monostable gives",
+        o: ["one pulse each time it is triggered", "a steady stream of pulses", "an output that copies the switch", "a pulse only while the switch is held"], a: 0,
+        f: [
+          "Right. One trigger, one pulse of a set length. Then it goes back to its stable state, output low.",
+          "That is an astable, Lesson 4. A monostable gives one pulse and then waits.",
+          "The output does not copy the switch. A short trigger gives a long pulse.",
+          "The pulse length is set by R2 and C1, not by how long you hold the switch."
+        ] },
+      { q: "The pulse starts when pin 2",
+        o: ["goes high", "goes low", "reaches ⅔ of the supply", "is joined to pin 6"], a: 1,
+        f: [
+          "Pin 2 is held high while the circuit waits. Something has to change it.",
+          "Right. Sliding SW1 to 0 V pulls pin 2 low. This triggers the pulse.",
+          "⅔ of the supply is on pin 6, and it ends the pulse.",
+          "In a monostable, pin 2 is joined to the switch, not to pin 6."
+        ] },
+      { q: "The pulse ends when the voltage across C1 reaches",
+        o: ["0 V", "⅓ of the supply", "⅔ of the supply", "the full supply"], a: 2,
+        f: [
+          "C1 starts at 0 V. It has to charge up before the pulse ends.",
+          "⅓ matters on pin 2, the trigger. C1 has to climb higher.",
+          "Right. At ⅔ of 5 V, about 3.3 V, pin 6 ends the pulse and pin 7 empties C1.",
+          "C1 never gets that far. The pulse ends at a lower voltage."
+        ] },
+      { q: "R2 = 22 kΩ and C1 = 100 µF. The pulse time is about",
+        o: ["2.2 s", "2.4 s", "0.002 4 s", "2400 s"], a: 1,
+        f: [
+          "That is R × C. Remember the 1.1.",
+          "Right. T = 1.1 × 22 000 × 0.000 1 = 2.4 s.",
+          "Change 22 kΩ to 22 000 Ω first.",
+          "Change 100 µF to 0.000 1 F. Divide by 1 000 000."
+        ] },
+      { q: "Pin 4, reset, must be connected to",
+        o: ["0 V", "pin 2", "nothing", "+5 V"], a: 3,
+        f: [
+          "Reset on 0 V holds the chip off. That is one of the booklet's three errors.",
+          "Pin 2 is the trigger. Reset is a different job.",
+          "Left unconnected, reset can pick up noise and stop the chip.",
+          "Right. Reset goes to +5 V so the chip can run."
+        ] },
+      { q: "To make the pulse twice as long, you could",
+        o: ["double R2", "halve C1", "double R3", "double the supply voltage"], a: 0,
+        f: [
+          "Right. T = 1.1 R C. Double R and T doubles.",
+          "A smaller C1 fills faster. The pulse would be half as long.",
+          "R3 is the LED's resistor. It does not change the timing.",
+          "C1 still ends at ⅔ of the supply, whatever the supply is. T does not change."
+        ] },
+      { q: "The job of R3 is to",
+        o: ["set the pulse time", "limit the current through LED1", "hold pin 2 high", "empty C1"], a: 1,
+        f: [
+          "R2 and C1 set the pulse time.",
+          "Right. R3 protects LED1 by limiting the current.",
+          "R1 is the pull-up on pin 2.",
+          "Pin 7 empties C1 at the end of the pulse."
+        ] },
+      { q: "A logic probe is on pin 3 during the pulse. It shows",
+        o: ["the green Lo LED", "a flashing LED", "the red Hi LED", "no LED"], a: 2,
+        f: [
+          "Green means low. During the pulse, pin 3 is high.",
+          "Flashing means pulsing, like an astable. A monostable gives one steady pulse.",
+          "Right. Pin 3 is high for the whole pulse, so the red Hi LED stays on.",
+          "Clipped to the supply, the probe always shows high or low."
+        ] },
+      { q: "In a pre-power-up check, C1 must have",
+        o: ["its + leg on 0 V", "its + leg to pins 6 and 7, − leg to 0 V", "either leg anywhere", "both legs in one column"], a: 1,
+        f: [
+          "That is the wrong way round. It is one of the booklet's errors.",
+          "Right. The + leg goes to the higher voltage, pins 6 and 7. The stripe, −, goes to 0 V.",
+          "An electrolytic capacitor has a + leg. It must go the right way round.",
+          "Both legs in one column shorts C1 out, so it does nothing."
+        ] }
+    ],
+    crit: [
+      "Say what a monostable does.",
+      "Name the 555 pins in the circuit and their jobs.",
+      "Describe how the pulse starts and ends.",
+      "Calculate the pulse time from R2 and C1.",
+      "Simulate a monostable in Yenka and time its pulse.",
+      "Plan a monostable on the Breadboard Builder.",
+      "Check parts and complete a pre-power-up check.",
+      "Test with a meter and a logic probe, and find a fault."
+    ]
+  };
+  </script>
+</body>
+</html>

@@ -268,6 +268,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   follow the marking instructions. The booklet reproduces past-paper questions and figures, each
   credited on its Sources and credits page. All © Qualifications Scotland (SQA), reproduced for
   educational use.
+  - Lesson 2 *The comparator* (`classes/electronics/op-amp-comparator.html`, added 28 October 2026):
+    text, drawings and the comparator bench © R Stewart, 2026. The page's booklet answers to National 5
+    Practical Electronics 2019 Q7 follow the marking instructions, © Qualifications Scotland (SQA),
+    reproduced for educational use. No photos.
+  - Lesson 3 *The 555 monostable* (`classes/electronics/555-monostable.html`, added 28 October 2026):
+    text, drawings, the monostable bench and the build guide © R Stewart, 2026; the meter and probe
+    drawings are Lesson 1's. The page's booklet answers to National 5 Practical Electronics 2025 Q7
+    and Q11 follow the marking instructions, © Qualifications Scotland (SQA), reproduced for
+    educational use. No photos.
 
 - **Higher Physics calculation checklist** (added 22 October 2026) —
   `classes/higher/calculation-checklist.html`. Text, the "typical answers that lose marks" and the
