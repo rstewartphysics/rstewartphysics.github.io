@@ -1883,12 +1883,21 @@
   };
   Bench.prototype.jobFinish = function () {
     this.jobCount();
-    const s = this.score;
+    const s = this.score, n = this.jobList.length, need = Math.ceil(.8 * n);
+    /* Probe Detective (§10): 8 of 10 first try, and any safety error in the run blocks it */
+    let badge = "";
+    if (window.Progress && Progress.record) {
+      const res = Progress.record("tst-ff", s.safety ? 0 : s.first, n) || {};
+      badge = res.justUnlocked ? "✓ You have earned the Probe Detective badge."
+        : res.unlocked ? "You already have the Probe Detective badge."
+        : s.safety ? "A safety error means this run cannot earn the Probe Detective badge."
+        : `Find ${need} of ${n} faults first try, with no safety errors, to earn the Probe Detective badge.`;
+    }
     this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-sd">
       <h2 id="${this.id}-sd">Set done</h2>
       <p>Faults found first try: ${s.first} of ${s.done}.</p>
       <p>Technique: ${s.ok} ✓, ${s.bad} ✗.</p>
-      <p>Safety errors: ${s.safety}.</p>
+      <p>Safety errors: ${s.safety}.</p>${badge ? `\n      <p>${badge}</p>` : ""}
       <button type="button" class="tbx-go" data-job="again">Start again</button></div>`, true);
   };
   Bench.prototype.jobAct = function (a, btn) {
@@ -2411,6 +2420,8 @@
     rec.passed = rec.passed || safe;
     this.taskDone[d.id] = rec;
     try { localStorage.setItem(TASK_KEY, JSON.stringify(this.taskDone)); } catch (e) { /* kept for this visit only */ }
+    /* Bench Tester: every task passed (a safe try), counted over the nine on this device */
+    if (window.Progress && Progress.record) Progress.record("tst-lt", this.tasks.order.filter(o => (this.taskDone[o.id] || {}).passed).length, this.tasks.order.length);
     t.result = { safe, first };
     this.taskLine(); this.techLine();
     this.el.jobpanel.hidden = true; this.el.under.hidden = false;
@@ -2441,6 +2452,7 @@
     this.showPop(`<div class="tbx-card is-modal" role="dialog" aria-modal="true" aria-labelledby="${this.id}-tl">
       <h2 id="${this.id}-tl">Learn to Test</h2>
       <p>One task for each type of test. Right first time: <b>${firsts} of ${O.length}</b>.</p>
+      <p>Pass all ${O.length}, with no safety errors, to earn the Bench Tester badge.</p>
       <ol class="tbx-tl">${O.map((o, i) => { const r = done[o.id] || {}, live = !o.soon && this.tasks[o.id];
         return `<li>${live ? `<button type="button" data-job="task:${o.id}">${i + 1} ${esc(o.test)}</button>` : `<span class="tbx-tl-soon">${i + 1} ${esc(o.test)}: coming soon</span>`}` +
           `<span class="tbx-tl-r">${r.first ? "✓ right first time" : r.passed ? "✓ passed" : ""}</span></li>`; }).join("")}</ol>
