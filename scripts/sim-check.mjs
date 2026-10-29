@@ -81,7 +81,14 @@ for (const url of pages) {
     const page = await ctx.newPage();
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    page.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+    // Embedded YouTube frames log their own errors (e.g. "Permissions policy violation:
+    // compute-pressure"), intermittently; they are not the page's script.
+    page.on("console", (m) => {
+      if (m.type() !== "error" || /Failed to load resource|Permissions policy violation/.test(m.text())) return;
+      const src = m.location().url;
+      if (src && !src.startsWith(BASE)) return;
+      errors.push(m.text());
+    });
     await page.goto(BASE + url, { waitUntil: "load" });
     await page.waitForTimeout(400);
     // a simulator may live in a lesson panel that starts closed; open it, as a pupil would
