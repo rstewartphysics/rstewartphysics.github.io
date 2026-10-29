@@ -243,7 +243,7 @@
              <span class="tbx-seg" role="group" aria-label="Pulse or memory"><button type="button" data-pmem="0" aria-pressed="true">Pulse</button><button type="button" data-pmem="1" aria-pressed="false">MEM</button></span></div>
            <div class="tbx-leadrow"><span class="tbx-lbl">Next tap:</span><span class="tbx-seg" role="group" aria-label="Which lead the next tap places"><button type="button" data-next="red" aria-pressed="true">Red lead</button><button type="button" data-next="black" aria-pressed="false">Black lead</button></span><button type="button" data-act="swap">Swap</button></div>
            <div class="tbx-row"><span class="tbx-seg" role="group" aria-label="Tool"><button type="button" data-tool="meter" aria-pressed="true">Meter</button><button type="button" data-tool="probe" aria-pressed="false">Probe</button><button type="button" data-tool="look" aria-pressed="false">Look</button><button type="button" data-tool="lift" aria-pressed="false">Lift</button></span>
-             <button type="button" class="tbx-pw" data-power="toggle" aria-pressed="false">Power</button></div>
+             <button type="button" class="tbx-pw" data-power="toggle" aria-pressed="false"><svg class="tbx-pw-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v8M7.1 6.4a7.5 7.5 0 1 0 9.8 0"/></svg>Power <span class="tbx-pw-s" aria-hidden="true">off</span></button></div>
            <div class="tbx-fb" aria-live="polite"></div>
          </div>
        </div>
@@ -258,7 +258,7 @@
       tech: q(".tbx-tech"), bar: q(".tbx-bar"), tps: q(".tbx-tps"), pick: q("select[data-act=pick]"), board: q(".tbx-board"),
       status: q(".tbx-status"), log: q(".tbx-log-b tbody"), logBox: q(".tbx-log-b"), meter: q(".tbx-meter"), probe: q(".tbx-probe"),
       beep: q(".tbx-beep"), cur: q(".tbx-cur"), dialrow: q(".tbx-dialrow"), proberow: q(".tbx-proberow"), leadrow: q(".tbx-leadrow"),
-      fb: q(".tbx-fb"), dial: q(".tbx-dial"), dialArt: q(".tbx-dial-art"), dialNow: q(".tbx-dial-now"), dialFb: q(".tbx-dial-fb"), say: q(".tbx-say"),
+      fb: q(".tbx-fb"), pw: q(".tbx-pw"), dial: q(".tbx-dial"), dialArt: q(".tbx-dial-art"), dialNow: q(".tbx-dial-now"), dialFb: q(".tbx-dial-fb"), say: q(".tbx-say"),
       job: q(".tbx-job"), under: q(".tbx-under"), jobpanel: q(".tbx-jobpanel"), pop: q(".tbx-pop"), diag: q(".tbx-diag"), diagbox: q(".tbx-diagbox")
     };
     this.el.tps.innerHTML = this.sc.layout.testpoints.map(t => `<button type="button" data-pt="${t.id}" aria-pressed="false">${t.id}</button>`).join("");
@@ -673,13 +673,14 @@
     let best = null, bd = Infinity;
     const consider = (k, p, kind, bias) => { const d = Math.hypot(p.x - x, p.y - y) - (bias || 0); if (d < bd) { bd = d; best = { pt: k, kind }; } };
     if (st.side === "comp") {
-      /* a slide switch's body, off the line of its pins: slide it */
+      /* anywhere on a slide switch's body, its knob and pins included: slide it.
+         The body covers the pins, so a lead reaches one through a hole on its strip. */
       for (const k of Object.keys(this.sc.inputs || {})) {
         const part = G.parts[k];
-        if (!part || part.model !== "spdt") continue;
+        if (!this.isSlide(k)) continue;
         const [a, , b] = part.pins, horiz = Math.abs(a.x - b.x) > Math.abs(a.y - b.y);
         const along = horiz ? x : y, off = horiz ? y - a.y : x - a.x, lo = Math.min(horiz ? a.x : a.y, horiz ? b.x : b.y), hi = Math.max(horiz ? a.x : a.y, horiz ? b.x : b.y);
-        if (along > lo - P * .6 && along < hi + P * .6 && Math.abs(off) > P * .26 && Math.abs(off) < P * .8) return { part: k };
+        if (along > lo - P * .6 && along < hi + P * .6 && Math.abs(off) < P * .7) return { part: k };
       }
       for (const k of st.lifted) consider(k, this.liftPos(k), "lift", P * .2);
     }
@@ -710,6 +711,15 @@
     if (Math.hypot(p.x - x, p.y - y) > rad) return null;
     if (st.side === "comp" && G.covered.has(ref)) return null;
     return { pt: ref, kind: "hole" };
+  };
+  Bench.prototype.isSlide = function (k) {
+    const part = this.G.parts[k];
+    return !!(part && part.model === "spdt" && (this.sc.inputs || {})[k]);
+  };
+  /* a slide switch's pin, reached on the board through its strip */
+  Bench.prototype.underSlide = function (k) {
+    const i = String(k).lastIndexOf(".");
+    return i > 0 && this.isSlide(k.slice(0, i));
   };
   function segDist(x, y, a, b) { const t = Math.max(0, Math.min(1, proj(x, y, a, b))); return Math.hypot(a.x + (b.x - a.x) * t - x, a.y + (b.y - a.y) * t - y); }
   function proj(x, y, a, b) { const dx = b.x - a.x, dy = b.y - a.y; return ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1); }
@@ -746,7 +756,12 @@
     this.hideLoupe();
     if (!q) return;
     const t = this.targetAt(q.x, q.y, q.scale);
-    if (t) this.act(t);
+    if (t) { this.act(t); return; }
+    if (this.locked()) return;
+    const tool = this.st.tool;
+    this.refuse("Nothing there", tool === "look" ? "Tap a part, a link or a joint to look at it."
+      : tool === "lift" ? "Tap the end of a leg, or one end of a link wire."
+      : "Tap a test pin, a leg or a hole.");
   };
   Bench.prototype.showLoupe = function (e) {
     const q = this.svgPoint(e), g = this.svg.querySelector(".tbx-loupe");
@@ -787,9 +802,10 @@
     const t = e.target.closest ? e.target.closest("[data-job],[data-act],[data-view],[data-tool],[data-power],[data-pt],[data-next],[data-pmode],[data-pmem],[data-set],[data-sock],[data-tp],[data-input]") : null;
     if (!t || !this.root.contains(t)) return;
     const st = this.st, a = t.getAttribute.bind(t);
-    if (t.hasAttribute("data-job")) { if (!t.disabled) (this.task ? this.taskAct : this.jobAct).call(this, a("data-job"), t); return; }
+    if (t.hasAttribute("data-job")) { if (!t.disabled) { this.refuse(null); (this.task ? this.taskAct : this.jobAct).call(this, a("data-job"), t); } return; }
     /* Learn to Test: the bench is the bench's own during Show me and the questions */
     if (this.task && !t.hasAttribute("data-view") && !/^(sound|clearlog|closedial|flip)$/.test(a("data-act") || "") && this.taskLocked()) return;
+    this.refuse(null);
     if (t.hasAttribute("data-set")) { this.setDial(a("data-set"), "now"); this.closeDial(); return; }
     if (t.hasAttribute("data-sock")) { st.sock = a("data-sock"); this.instrumentChanged("now"); return; }
     if (t.hasAttribute("data-view")) { st.view = a("data-view"); this.drawBoard(); this.syncControls(); return; }
@@ -807,7 +823,10 @@
       case "dial+": this.stepDial(1); break;
       case "bigdial": this.openDial(); break;
       case "closedial": this.closeDial(); break;
-      case "swap": { const r = st.red; st.red = st.black; st.black = r; this.instrumentChanged("tap"); break; }
+      case "swap": {
+        if (!(st.red && st.black)) { this.refuse("Swap", "Put both leads on first. Then Swap changes them over."); break; }
+        const r = st.red; st.red = st.black; st.black = r; this.instrumentChanged("tap"); break;
+      }
       case "sound":
         this.sound = !this.sound;
         try { localStorage.setItem("tbx-sound-v1", this.sound ? "on" : "off"); } catch (e) { /* kept for this visit only */ }
@@ -834,6 +853,7 @@
     const st = this.st;
     if (st.power === on) return;
     if (this.locked()) { this.syncControls(); return; }
+    this.el.pw.classList.remove("is-call");
     st.power = on;
     this.b.power(on);
     this.syncControls();
@@ -894,13 +914,20 @@
   Bench.prototype.act = function (t) {
     const st = this.st;
     if (this.locked()) return;
+    this.refuse(null);
     if (this.finding) { this.jobFind(t); return; }
     if (st.tool === "look") { this.look(t); return; }
     if (st.tool === "lift") { this.liftAt(t); return; }
-    if (t.link) return;
-    if (t.part && (this.sc.inputs || {})[t.part]) { this.toggleInput(t.part); return; }
+    if (t.link) { this.refuse("Tap a point", "A link is a wire. Put the lead on a test pin, a leg or a hole."); return; }
+    if (t.part && (this.sc.inputs || {})[t.part]) {
+      const k = t.part, ss = Object.keys(this.sc.inputs[k].states), v = ss[(ss.indexOf(st.inputs[k]) + 1) % ss.length];
+      this.feedback(null, this.inputName(k) + ": " + this.inputWord(k, v), this.isSlide(k)
+        ? "A tap on " + k + " slides it. To put a lead on one of its pins, tap a hole on that pin's strip, next to " + k + "." : "");
+      this.toggleInput(k);
+      return;
+    }
     if (st.tool === "probe") {
-      if (t.part) { this.feedback("bad", "One pin at a time", "The probe tip goes on one point: a pin, a leg or a test point. Tap a point, not the body of " + t.part + "."); return; }
+      if (t.part) { this.refuse("One pin at a time", "The probe tip goes on one point: a pin, a leg or a test point. Tap a point, not the body of " + t.part + "."); return; }
       st.tip = t.pt; st.memLit = false;
       this.b.probe({ tip: st.tip, mode: st.pmode });
       this.drawLeads(); this.measured("tap");
@@ -908,7 +935,7 @@
     }
     if (t.part) {
       const ps = this.G.parts[t.part].pins;
-      if (ps.length !== 2) { this.feedback("bad", "Tap a pin", "Put the leads on two pins of " + t.part + ", one at a time."); return; }
+      if (ps.length !== 2) { this.refuse("Tap a pin", "Put the leads on two pins of " + t.part + ", one at a time."); return; }
       st.red = ps[0].key; st.black = ps[1].key; st.next = "red";
     } else {
       st[st.next] = t.pt;
@@ -944,16 +971,16 @@
   /* ------------------------------------------------------- lift a leg (the soldering iron) */
   Bench.prototype.liftAt = function (t) {
     const st = this.st, G = this.G;
-    if (t.part || t.link) { this.feedback(null, "Lift a leg", "Tap the end of one leg, or one end of a link wire, not the body."); return; }
+    if (t.part || t.link) { this.refuse("Lift a leg", "Tap the end of one leg, or one end of a link wire, not the body."); return; }
     let k = t.pt;
     if (t.kind === "hole") k = this.jointAt(k) || k;
     const pin = G.pins[k];
-    if (G.tps[k]) { this.feedback("bad", "Test pin", "Test pins stay soldered. Lift a part's leg or a link end."); return; }
-    if (!pin && !isLinkEnd(k)) { this.feedback(null, "Nothing to lift", "There is no leg here. Tap the end of a leg, or one end of a link wire."); return; }
+    if (G.tps[k]) { this.refuse("Test pin", "Test pins stay soldered. Lift a part's leg or a link end."); return; }
+    if (!pin && !isLinkEnd(k)) { this.refuse("Nothing to lift", "There is no leg here. Tap the end of a leg, or one end of a link wire."); return; }
     if (pin) {
       const part = G.parts[k.slice(0, k.lastIndexOf("."))];
-      if (part.kind === "dil") { this.feedback("bad", "Chip legs stay in", "A chip's legs are not lifted: they bend and snap. Test the pin itself, or lift the leg or link that joins it."); return; }
-      if (part.kind === "terminal") { this.feedback("bad", "Terminal block", "The terminal block stays soldered. Lift a leg or a link end instead."); return; }
+      if (part.kind === "dil") { this.refuse("Chip legs stay in", "A chip's legs are not lifted: they bend and snap. Test the pin itself, or lift the leg or link that joins it."); return; }
+      if (part.kind === "terminal") { this.refuse("Terminal block", "The terminal block stays soldered. Lift a leg or a link end instead."); return; }
     }
     const back = st.lifted.indexOf(k) >= 0, name = this.label(k).replace(/ \(lifted\)$/, "");
     if (st.power) {
@@ -1293,9 +1320,38 @@
   };
   Bench.prototype.feedback = function (kind, head, html) {
     const fb = this.el.fb;
-    fb.className = "tbx-fb" + (kind === "ok" ? " is-ok" : kind === "bad" ? " is-bad" : kind === "safety" ? " is-bad is-safety" : kind === "look" ? " is-look" : "");
+    if (kind !== "nope") this.fbPrev = null;
+    fb.className = "tbx-fb" + (kind === "ok" ? " is-ok" : kind === "bad" ? " is-bad" : kind === "safety" ? " is-bad is-safety" : kind === "look" ? " is-look" : kind === "nope" ? " is-nope" : "");
     fb.innerHTML = `<div class="tbx-fb-h">${esc(head)}</div><div>${html}</div>`;
     fb.dataset.text = html;
+    /* words that send the pupil to the power switch ring it */
+    this.el.pw.classList.toggle("is-call", /\bswitch (on|off)\b|power: switch/i.test(html) && !this.auto);
+  };
+  /* A refused tap always answers on screen, never only through say(): a line in
+     the walk-through (the job line under the steps) and the same in the box under
+     the tools, each saying why and what to do next. Shown again on every refused
+     tap, so a second tap is seen to answer too. refuse(null) clears the line. */
+  Bench.prototype.refuse = function (head, html) {
+    const job = this.el.job, fb = this.el.fb;
+    let n = job.querySelector(".tbx-nope");
+    if (!head) {
+      if (n) n.hidden = true;
+      job.classList.remove("has-nope");
+      /* the box goes back to what it said before the refusal */
+      if (this.fbPrev && fb.classList.contains("is-nope")) { fb.className = this.fbPrev.cls; fb.innerHTML = this.fbPrev.html; fb.dataset.text = this.fbPrev.text; }
+      this.fbPrev = null;
+      return;
+    }
+    if (!fb.classList.contains("is-nope")) this.fbPrev = { cls: fb.className.replace(/ ?is-new/, ""), html: fb.innerHTML, text: fb.dataset.text || "" };
+    if (!n) { n = document.createElement("div"); n.className = "tbx-nope"; n.setAttribute("role", "status"); }
+    const should = job.querySelector(".tbx-should");
+    if (n.parentNode !== job) { if (should) job.insertBefore(n, should); else job.appendChild(n); }
+    n.innerHTML = `<b>${esc(head)}:</b> ${html.replace(/^([A-Z])(?=[a-z ])/, c => c.toLowerCase())}`;
+    n.hidden = false;
+    job.classList.add("has-nope");
+    this.feedback("nope", head, html);
+    [n, this.el.fb].forEach(e => { e.classList.remove("is-new"); void e.offsetWidth; e.classList.add("is-new"); });
+    this.say(head + ". " + html.replace(/<[^>]+>/g, ""));
   };
   Bench.prototype.techLine = function () {
     const st = this.st, t = this.task;
@@ -1484,6 +1540,7 @@
     press("[data-view]", b => b.getAttribute("data-view") === st.view);
     press("[data-tool]", b => b.getAttribute("data-tool") === st.tool);
     press("[data-power]", () => st.power);
+    this.el.pw.querySelector(".tbx-pw-s").textContent = st.power ? "on" : "off";
     press("[data-next]", b => b.getAttribute("data-next") === st.next);
     press("[data-pmode]", b => b.getAttribute("data-pmode") === st.pmode);
     press("[data-pmem]", b => (b.getAttribute("data-pmem") === "1") === st.pmem);
@@ -1496,7 +1553,7 @@
     this.el.dialrow.hidden = !meter;
     this.el.leadrow.hidden = st.tool !== "meter";
     this.el.proberow.hidden = meter;
-    this.el.leadrow.querySelector("[data-act=swap]").disabled = !(st.red && st.black);
+    this.el.leadrow.querySelector("[data-act=swap]").setAttribute("aria-disabled", st.red && st.black ? "false" : "true");
     const svg = this.el.probe.querySelector("svg");
     if (svg) {
       svg.querySelector(".pr-t1").textContent = st.pmode;
@@ -1586,11 +1643,13 @@
     const now = this.job.step;
     this.el.steps.innerHTML = STEPS.map((s, i) =>
       `<li class="${i < now ? "is-done" : i === now ? "is-now" : ""}"${i === now ? ' aria-current="step"' : ""}>${i < now ? "✓ " : ""}${i + 1} ${s}</li>`).join("");
-    this.el.diag.disabled = now < 2 || this.job.evOk;
+    this.el.diag.setAttribute("aria-disabled", now < 2 || this.job.evOk ? "true" : "false");
+    this.refuse(null);
   };
   Bench.prototype.jobLocked = function () {
     if (this.job.step >= 2) return false;
-    if (this.job.step === 1) this.feedback(null, "Predict first", "Answer the two predict questions first. Then you can test.");
+    if (this.job.step === 1) this.refuse("Predict first", "Answer the two questions under the board. Then you can test.");
+    else this.refuse("Read the job card first", "Then tap <b>Start: predict</b>.");
     return true;
   };
 
@@ -1807,7 +1866,8 @@
     if (!e || e.type !== (p.type || "ohm") || kind !== "ok") return;
     const say = t => this.el.fb.insertAdjacentHTML("beforeend", `<p class="tbx-block">${esc(t)}</p>`);
     const G = this.G, seg = k => G.segAt(this.holeOf(k));
-    const fits = (s, k, other) => s.key ? k === s.key || this.holeOf(k) === this.holeOf(s.key)
+    /* a slide switch's pin is under its body, so a hole on the pin's strip counts */
+    const fits = (s, k, other) => s.key ? k === s.key || this.holeOf(k) === this.holeOf(s.key) || (this.underSlide(s.key) && seg(k) === seg(s.key))
       : s.part ? k.indexOf(s.part + ".") === 0
       : s.seg ? seg(k) === seg(s.seg) && !this.F.dry.has(k)
       : s.net ? this.netOf(k) === this.netOf(s.net) && seg(k) !== seg(other) : false;
@@ -1908,7 +1968,10 @@
     switch (a) {
       case "predict": return this.jobPredict();
       case "next": if (j.q < j.def.predict.length - 1) { j.q++; this.jobQuestion(); } else this.jobTest(); return;
-      case "diagnose": if (j.step >= 2 && !j.evOk) this.jobDiagnose(); return;
+      case "diagnose":
+        if (j.evOk) return this.refuse("Diagnosed", "You have the fault and your evidence. Now confirm and fix it.");
+        if (j.step < 2) return j.step === 1 ? this.refuse("Test first", "Answer the two questions under the board, then take your readings. Then diagnose.") : this.jobLocked();
+        return this.jobDiagnose();
       case "close": return this.closeDiag();
       case "check": return this.jobCheck();
       case "confirm": return this.jobConfirm();
@@ -2020,6 +2083,7 @@
   const pill = (p, w) => `<span role="listitem" class="tbx-ck${p === true ? " is-ok" : p === false ? " is-bad" : ""}">${p === true ? "✓ " : p === false ? "✗ " : ""}${esc(w)}</span>`;
   Bench.prototype.taskLine = function () {
     const t = this.task, d = t.def;
+    this.refuse(null);
     const names = d.turn.length < 3 ? d.turn.map(m => "Your turn: " + m.name) : d.turn.map(m => m.name);
     names.unshift("Show me");
     const now = t.stage === "card" || t.stage === "show" ? 0 : t.stage === "done" ? names.length : 1 + t.m;
@@ -2046,9 +2110,11 @@
     const t = this.task;
     if (this.auto) return false;
     if (t.stage === "turn" && (t.phase === "measure" || t.phase === "read")) return false;
-    if (t.stage === "show") this.feedback(null, "Show me", "Watch first. Tap <b>Next step</b>, or <b>Skip to Your turn</b>.");
-    else if (t.phase === "before") this.feedback(null, "Predict first", "Answer the question first. Then you can test.");
-    else if (t.phase === "after") this.feedback(null, "Question first", "Answer the question first.");
+    if (t.stage === "card") this.refuse("Read the task card first", "Then tap <b>Start: Show me</b>.");
+    else if (t.stage === "show") this.refuse("Watch first", "The bench does Show me. Tap <b>Next step</b>, or <b>Skip to Your turn</b>.");
+    else if (t.stage === "done") this.refuse("Task done", "Tap <b>Try again</b>, <b>Watch Show me again</b> or <b>All tasks</b>.");
+    else if (t.phase === "before") this.refuse("Predict first", "Choose an answer to the question under the board. Then you can test.");
+    else if (t.phase === "after") this.refuse("Question first", "Choose an answer to the question under the board. Then you can go on.");
     return true;
   };
 
