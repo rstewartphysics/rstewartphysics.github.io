@@ -483,6 +483,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Photone/shutterstock.com; specimen Q13 Christian Delbert/shutterstock.com; specimen Q14 Keith
     Publicover/shutterstock.com and rawcaptured photography/shutterstock.com.
 
+- **Higher Physics *Momentum and Impulse — past paper questions and marking instructions*** (added 29
+  October 2026) — `classes/higher/past-papers/momentum-and-impulse-past-papers.pdf`.
+  Every item is credited on the booklet's Sources and credits page. The cover mark is drawn by R Stewart.
+  - Questions and marking instructions reproduced exactly from the Higher Physics question papers:
+    2012 Revised Higher Q23(b)(c), Q24; 2013 Revised Higher Q6, Q22(a)(b)(c)(d); 2014 Revised Higher Q3, Q22; 2015 Section 2 Q2; 2016 Section 1 Q4 and Section 2 Q3; 2017 Section 2 Q2; 2018 Section 2 Q3(a)(b)(c); 2019 Paper 1 Q6 and Paper 2 Q1(b); 2020 Paper 1 Q7 and Paper 2 Q3; 2022 Paper 2 Q3(a)(b)(c); 2023 Paper 1 Q3 and Paper 2 Q3; 2024 Paper 1 Q6 and Paper 2 Q1(b)(ii), Q4(b)(ii); 2025 Paper 1 Q6, Q7 and Paper 2 Q2(a)(b)(c); 2026 Paper 1 Q4, Q5, Q6; specimen paper Paper 1 Q5 and Paper 2 Q2(a). © Qualifications Scotland (SQA), reproduced for educational use.
+  - The 2015 to 2022 pages are taken from "Higher Physics Past Papers (September 2026 Update)", the past paper finder made by Mr Davie and updated by Mr White, shared freely by its authors.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
