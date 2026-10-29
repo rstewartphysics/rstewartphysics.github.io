@@ -56,19 +56,19 @@ def make_inline(overrides):
 # `files` swaps in the bb-*.js bank for that one variant (15 Sep 2026).
 VARIANTS = [
     {"file": "stripboard-builder.html",
-     "title": "Learn to Plan a Stripboard Schematic",
+     "title": "Stripboard Builder — learn to plan",
      "modes": ["choose", "trace", "convert", "fault", "reverse", "points"],
      "boards": ["34-0410", "34-0411"],
      "id": "learn", "challenge": "sbd-learn", "reading": True},
     {"file": "stripboard-planner.html",
-     "title": "Plan your own Stripboard Schematic",
+     "title": "Stripboard Planner — plan your own",
      "modes": ["free"],
      "boards": ["34-0410", "34-0411"],
      # `features` = Undo/Redo, Renumber and the save/open/picture/print row,
      # which were tried on a beta page (25 Sep 2026: promoted, page removed).
      "id": "plan", "challenge": "sbd-plan", "features": True, "reading": True},
     {"file": "breadboard-planner.html",
-     "title": "Plan your own Breadboard Circuit",
+     "title": "Breadboard Planner — plan your own",
      "modes": ["free"],
      "boards": ["bb-400", "bb-830"],
      # tools and reading layout as the stripboard planner (OPEN-JOBS job 4, 17 Oct 2026)
@@ -76,7 +76,7 @@ VARIANTS = [
     # Fourth page: the Learn suite's breadboard sibling.  Same modes as the
     # stripboard Learn page, same engine, a different question bank.
     {"file": "breadboard-builder.html",
-     "title": "Learn to Plan a Breadboard Schematic",
+     "title": "Breadboard Builder — learn to plan",
      "modes": ["choose", "trace", "convert", "fault", "reverse", "points"],
      "boards": ["bb-400", "bb-830"],
      "id": "bread-learn", "challenge": "sbd-bread-learn", "reading": True,
