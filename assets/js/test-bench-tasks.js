@@ -359,8 +359,8 @@
           { id: "g2", name: "Middle to pin 2", red: "SW1.c", black: "SW1.2" }
         ],
         ask: "<b>Slide</b> SW1 to Green. <b>Check</b> the middle pin to pin 1, then to pin 2.",
-        hint: "Power off, meter on continuity. Slide SW1 to Green first.",
-        where: "Check SW1's middle pin to pin 1, then to pin 2.",
+        hint: "Power off, meter on continuity. Slide SW1 to Green first. To touch one of SW1's pins, tap a hole on its strip.",
+        where: "Check SW1's middle pin to pin 1, then to pin 2. A tap on SW1 slides it, so tap a hole on each pin's strip, next to SW1.",
         predict: { q: "<b>Predict:</b> slid to Green, <b>which</b> pin is the middle pin joined to?", opts: [
           { t: "Pin 2", key: true, fb: "<b>Right.</b> A slide switch joins the middle pin to the pin the slider is next to. Slid to Green, that is pin 2." },
           { t: "Pin 1", fb: "<b>Not quite.</b> Pin 1 was joined when SW1 was slid to Red. Slide it the other way and the middle pin moves across." },

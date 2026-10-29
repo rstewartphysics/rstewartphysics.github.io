@@ -26,7 +26,7 @@
   touch-action:manipulation; -webkit-tap-highlight-color:transparent; cursor:pointer;
 }
 .tbx button[aria-pressed="true"]{ background:var(--accent-2); color:var(--card); border-color:var(--accent-2); }
-.tbx button:disabled{ opacity:.45; cursor:default; }
+.tbx button:disabled, .tbx button[aria-disabled="true"]{ opacity:.45; cursor:default; }
 .tbx button:focus-visible, .tbx select:focus-visible, .tbx [tabindex]:focus-visible{ outline:3px solid var(--accent); outline-offset:2px; }
 .tbx-seg{ display:inline-flex; }
 .tbx-seg button{ border-radius:0; margin-left:-1px; }
@@ -58,7 +58,17 @@
 .tbx-in{ display:inline-flex; gap:6px; align-items:center; }
 .tbx-ctl .tbx-seg button{ padding:6px 11px; }
 .tbx-log-btns{ display:inline-flex; gap:6px; }
-.tbx-pw{ margin-left:auto; }
+/* power: one toggle beside the tools (BENCH-PLAN §16, r1), drawn so it is found at a glance:
+   the power mark, and its state in words, red while off, green while on */
+.tbx .tbx-pw{ margin-left:auto; flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:4px;
+  padding:6px; white-space:nowrap; border:2px solid var(--tb-bad); }
+.tbx-pw-ic{ width:20px; height:20px; flex:none; fill:none; stroke:var(--tb-bad); stroke-width:2.6; stroke-linecap:round; }
+.tbx-pw-s{ font-weight:900; color:var(--tb-bad); }
+.tbx .tbx-pw[aria-pressed="true"]{ background:var(--tb-ok); border-color:var(--tb-ok); color:var(--tb-on-ink); }
+.tbx-pw[aria-pressed="true"] .tbx-pw-ic{ stroke:currentColor; }
+.tbx-pw[aria-pressed="true"] .tbx-pw-s{ color:inherit; }
+.tbx .tbx-pw.is-call{ outline:4px solid var(--tb-go); outline-offset:3px; animation:tbx-call 1s ease-in-out 2; }
+@keyframes tbx-call{ 50%{ outline-offset:7px; } }
 .tbx-board{ position:relative; min-height:0; overflow:hidden; display:flex; align-items:center; justify-content:center;
   background:var(--sbd-page,#fff); border:1px solid var(--border); border-radius:12px; }
 .tbx-board.is-copper{ background:#d8c8a2; }
@@ -96,7 +106,7 @@
 .tbx-cur{ flex:1; }
 .tbx-leadrow, .tbx-row, .tbx-proberow{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
 .tbx-lbl{ font-weight:900; font-size:16px; }
-.tbx-row button{ padding:6px 9px; }
+.tbx-row button{ padding:6px 8px; }
 .tbx-leadrow .tbx-seg button{ padding:6px 9px; }
 .tbx-fb{ border-left:5px solid var(--border-strong); background:var(--surface-2); border-radius:8px; padding:6px 10px;
   font-size:18px; line-height:1.5; height:140px; overflow:auto; }
@@ -107,10 +117,18 @@
 .tbx-fb.is-ok .tbx-fb-h{ color:var(--tb-ok); }
 .tbx-fb.is-bad .tbx-fb-h{ color:var(--tb-bad); }
 .tbx-block{ margin:.35rem 0; }
+/* a refused tap: why, and what to do next, in the job line and in the box (never only spoken) */
+.tbx-nope{ margin:0; flex:1 1 560px; min-width:0; max-width:none; font-size:18px; line-height:1.5; padding:1px 10px;
+  border-left:5px solid var(--tb-go); border-radius:6px; background:var(--tb-nope-bg); }
+.tbx-job.has-nope .tbx-should{ display:none; }
+.tbx-fb.is-nope{ border-color:var(--tb-go); background:var(--tb-nope-bg); }
+.tbx-fb.is-nope .tbx-fb-h{ color:var(--tb-go-text); }
+.tbx-nope.is-new, .tbx-fb.is-new{ animation:tbx-nudge .4s ease-out; }
+@keyframes tbx-nudge{ 20%{ transform:translateX(-5px); } 45%{ transform:translateX(4px); } 70%{ transform:translateX(-2px); } }
 
 /* ---- the job flow (Practise Testing): header steps, predict panel, cards, diagnose */
-.tbx{ --tb-go:#c2410c; --tb-go-ink:#fff; }
-@media (prefers-color-scheme: dark){ .tbx{ --tb-go:#ff9d6e; --tb-go-ink:#1a0d05; } }
+.tbx{ --tb-go:#c2410c; --tb-go-ink:#fff; --tb-go-text:#9a3412; --tb-nope-bg:#fff1e8; --tb-on-ink:#fff; }
+@media (prefers-color-scheme: dark){ .tbx{ --tb-go:#ff9d6e; --tb-go-ink:#1a0d05; --tb-go-text:#ffb48f; --tb-nope-bg:rgba(255,157,110,.15); --tb-on-ink:#04140d; } }
 .tbx .tbx-diag, .tbx .tbx-go{ background:var(--tb-go); color:var(--tb-go-ink); border-color:var(--tb-go); }
 .tbx-diag{ margin-left:auto; }
 .tbx-job.is-jobs{ display:flex; flex-wrap:wrap; align-items:center; column-gap:12px; row-gap:2px; }
