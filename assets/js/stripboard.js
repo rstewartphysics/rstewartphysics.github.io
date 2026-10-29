@@ -3147,23 +3147,19 @@
   }
 
 
-  /* An electrolytic capacitor: one straight plate and one curved plate, with
-     the + on the straight one (BS/IEC).  Vertical only for now — that is the
-     only orientation the bank's questions need, and a horizontal-only symbol
-     dropped into a vertical run is a fault this project has already made
-     twice (the sounder and the motor). */
+  /* An electrolytic capacitor: two flat plates with a + beside the positive
+     one, as the Block 6 booklet, the build guides and the lesson pages draw it
+     (one symbol site-wide, PLAN job 9, 29 Oct 2026).  The "+" is what makes it
+     polarised.  Vertical only for now — that is the only orientation the
+     bank's questions need, and a horizontal-only symbol dropped into a
+     vertical run is a fault this project has already made twice (the sounder
+     and the motor). */
   function ecap(x, y, o) {
     o = o || {};
-    const half = (o.span || 56) / 2, w = 22, gap = 5;
-    let s = wire([[x, y - half], [x, y - gap]]) + wire([[x, y + gap], [x, y + half]]) +
-      `<line class="sbd-wire" x1="${n(x - w / 2)}" y1="${n(y - gap)}" ` +
-      `x2="${n(x + w / 2)}" y2="${n(y - gap)}"/>` +
-      // the curved plate is the negative one
-      `<path class="sbd-wire" d="M ${n(x - w / 2)} ${n(y + gap + 3)} ` +
-      `Q ${n(x)} ${n(y + gap - 4)} ${n(x + w / 2)} ${n(y + gap + 3)}"/>` +
-      text(x - w / 2 - 5, y - gap - 4, "+", { anchor: "end" });
-    if (o.label) s += text(x + w / 2 + 6, y - 3, o.label, { anchor: "start" });
-    if (o.value) s += text(x + w / 2 + 6, y + 12, o.value, { anchor: "start" });
+    let s = cap(x, y, { dir: "v", span: o.span || 56 }) +
+      text(x - 16, y - 8, "+", { anchor: "end" });
+    if (o.label) s += text(x + 17, y - 3, o.label, { anchor: "start" });
+    if (o.value) s += text(x + 17, y + 12, o.value, { anchor: "start" });
     return s;
   }
 
@@ -3176,8 +3172,8 @@
      a rectangle with a line through it.
      --------------------------------------------------------------------- */
 
-  /* A non-polarised capacitor: two STRAIGHT plates.  The curved plate is what
-     makes ecap() polarised, so it must not appear here. */
+  /* A non-polarised capacitor: two straight plates and no "+".  The "+" is
+     what makes ecap() polarised, so it must not appear here. */
   function cap(x, y, o) {
     o = o || {};
     const vert = o.dir === "v", half = (o.span || 56) / 2, w = 22, gap = 4;

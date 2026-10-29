@@ -1095,7 +1095,7 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
      page/build.py writes both from engine/*.js — the same files the test
      harness runs.  Never edit them here; edit the source and rebuild.
      ========================================================================== -->
-<script src="/assets/js/stripboard.js?v=sbd-7709759b"></script>
+<script src="/assets/js/stripboard.js?v=sbd-e76f1bf7"></script>
 <script>
 /* ---- bb-questions.js ---- */
 /* ============================================================================
@@ -1407,7 +1407,298 @@ title: Learn to Plan a Breadboard Schematic · National 5 Electronics
     ]
   };
 
-  root.QUESTIONS = [ledResistor, liftInterlock, transistorBuzzer];
+  /* ------------------------------------------------------------------------
+     Block 6 Lesson 4 — the 555 astable (added 29 Oct 2026).  The booklet's
+     and the Lesson 4 page's circuit: R1 1 kΩ, R2 10 kΩ, C1 100 µF on 5 V, a
+     red LED from pin 3 down to 0 V and a green LED from +5 V down to pin 3,
+     so they take turns.  The layout is the build guide's breadboard (tools/build-guides/circuits.mjs), which passes SBD.check.
+     Pin 3 never holds one level, so there is a test point to plan but no
+     reading to predict (expect: null).
+     ------------------------------------------------------------------------ */
+  const astable555 = {
+    id: "astable-555",
+    title: "Flashing shop sign",
+    board: "bb-400",
+    scaffold: "blank",
+    scenario: [
+      "A shop sign has a red light and a green light that flash in turn, over and over, " +
+      "with nobody pressing anything.",
+      "IC1 is a 555 wired as an <strong>astable</strong>. R1, R2 and C1 set how fast it " +
+      "flashes."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
+      { id: "IC1",  footprint: "dip-8-bb",  part: "555", name: "IC1 — 555 timer" },
+      { id: "R1",   footprint: "res-4",   name: "R1 (1 kΩ) — timing" },
+      { id: "R2",   footprint: "res-4",  name: "R2 (10 kΩ) — timing" },
+      { id: "C1",   footprint: "ecap-2", name: "C1 (100 µF) — timing" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (270 Ω)" },
+      { id: "R4",   footprint: "res-4",  name: "R4 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — red", colour: "red" },
+      { id: "LED2", footprint: "led-2",  name: "LED2 — green", colour: "green" }
+    ],
+    target: [
+      ["+5V.1", "IC1.8", "IC1.4", "R1.1", "R4.2"],
+      ["0V.1", "IC1.1", "C1.-", "LED1.k"],
+      ["R1.2", "R2.2", "IC1.7"],
+      ["R2.1", "IC1.6", "IC1.2", "C1.+"],
+      ["IC1.3", "R3.1", "LED2.k"],
+      ["R3.2", "LED1.a"],
+      ["R4.1", "LED2.a"]
+    ],
+    // pin 5 (Control Voltage) is left open, which is ordinary practice
+    dontcare: ["IC1.5"],
+    tpRequired: ["IC1.3"],
+    expect: null,
+    stages: [
+      { name: "The chip and its timing parts",
+        parts: ["+5V", "0V", "IC1", "R1", "R2", "C1"],
+        hint: "Push the 555 across the centre gap, notch to the left, pin 1 bottom left. Link pin 8 and pin 4 to +5 V and pin 1 to 0 V. R1 from the + rail to pin 7's column. R2 from pin 7's column to a spare column, which the yellow links join to pins 6 and 2. C1's long (+) leg goes in that column too." },
+      { name: "The output sub-system",
+        parts: ["R3", "R4", "LED1", "LED2"],
+        hint: "R3 from pin 3's column to the red LED, which goes to 0 V. R4 drops from the + rail to the green LED; the blue link brings its short leg back to pin 3. Then the test point on pin 3." }
+    ],
+    reference: {
+      cuts: [],
+      placements: [
+        { id: "+5V", footprint: "term-1", at: "A2" },
+        { id: "0V", footprint: "term-1", at: "B2" },
+        { id: "IC1", footprint: "dip-8-bb", at: "G10", rot: 0 },
+        { id: "R1", footprint: "res-4", at: "A11", rot: 90 },
+        { id: "R2", footprint: "res-4", at: "E8", rot: 0 },
+        { id: "C1", footprint: "ecap-2", at: "K8", rot: 0 },
+        { id: "R3", footprint: "res-4", at: "J12", rot: 0 },
+        { id: "LED1", footprint: "led-2", at: "I15", rot: 0 },
+        { id: "R4", footprint: "res-4", at: "J22", rot: 90 },
+        { id: "LED2", footprint: "led-2", at: "H21", rot: 180 }
+      ],
+      links: [
+        { a: "A30", b: "M30", colour: "red", num: 1 },
+        { a: "B29", b: "N29", colour: "black", num: 2 },
+        { a: "A10", b: "C10", colour: "red", num: 3 },
+        { a: "L13", b: "M13", colour: "red", num: 4 },
+        { a: "L10", b: "N10", colour: "black", num: 5 },
+        { a: "G8", b: "H8", colour: "yellow", num: 6 },
+        { a: "F8", b: "F12", colour: "yellow", num: 7 },
+        { a: "I8", b: "I11", colour: "yellow", num: 8 },
+        { a: "L9", b: "N9", colour: "black", num: 9 },
+        { a: "L16", b: "N16", colour: "black", num: 10 },
+        { a: "K12", b: "K21", colour: "blue", num: 11 }
+      ],
+      testpoints: [{ id: "TP1", at: "L12" }]
+    },
+    circuit: (C, o) => {
+      // drawn as the booklet and the Lesson 4 page draw it
+      const TOP = 24, BOT = 300, XT = 110, XO = 330;
+      const ic = C.icBlock(220, 160, { w: 70, h: 110, name: "555",
+        left:   [{ num: "7", at: 0.12 }, { num: "6", at: 0.62 }, { num: "2", at: 0.86 }],
+        top:    [{ num: "4", at: 0.35 }, { num: "8", at: 0.78 }],
+        right:  [{ num: "3", at: 0.5 }],
+        bottom: [{ num: "1", at: 0.35 }, { num: "5", at: 0.78 }] });
+      const P = ic.at;
+      const b =
+        C.rail(RAIL_L, 360, TOP, { pos: true }) + C.rail(RAIL_L, 360, BOT) +
+        ic.svg +
+        C.wire([P["8"], [P["8"][0], TOP]], "sbd-pos") + C.node(P["8"][0], TOP) +
+        C.wire([P["4"], [P["4"][0], TOP]], "sbd-pos") + C.node(P["4"][0], TOP) +
+        C.wire([P["1"], [P["1"][0], BOT]]) + C.node(P["1"][0], BOT) +
+
+        // the timing chain: R1, then R2 down to pins 6 and 2, then C1 to 0 V
+        C.node(XT, TOP) + C.wire([[XT, TOP], [XT, 40]], "sbd-pos") +
+        C.res(XT, 68, { dir: "v", span: 56, label: "R1", value: "1 kΩ", labelLeft: true }) +
+        C.wire([[XT, 96], [XT, P["7"][1]]]) + C.node(XT, P["7"][1]) + C.wire([[XT, P["7"][1]], P["7"]]) +
+        C.res(XT, 146, { dir: "v", span: 54, label: "R2", value: "10 kΩ", labelLeft: true }) +
+        C.node(XT, P["6"][1]) + C.wire([[XT, P["6"][1]], P["6"]]) +
+        C.wire([[XT, P["6"][1]], [XT, 212]]) + C.node(XT, P["2"][1]) + C.wire([[XT, P["2"][1]], P["2"]]) +
+        C.ecap(XT, 240, { span: 56, label: "C1", value: "100 µF" }) +
+        C.wire([[XT, 268], [XT, BOT]]) + C.node(XT, BOT) +
+
+        // pin 3 sinks the green LED and sources the red one
+        C.wire([P["3"], [XO, P["3"][1]]]) + C.node(XO, P["3"][1]) +
+        C.node(XO, TOP) + C.wire([[XO, TOP], [XO, 36]], "sbd-pos") +
+        C.res(XO, 60, { dir: "v", span: 48, label: "R4", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 84], [XO, 96]]) + C.led(XO, 112, { dir: "d", span: 32, label: "LED2" }) +
+        C.wire([[XO, 128], [XO, 176]]) +
+        C.res(XO, 200, { dir: "v", span: 48, label: "R3", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 224], [XO, 236]]) + C.led(XO, 252, { dir: "d", span: 32, label: "LED1" }) +
+        C.wire([[XO, 268], [XO, BOT]]) + C.node(XO, BOT) +
+
+        nn(C, o, 70, TOP, 1) + nn(C, o, 160, BOT, 2) +
+        nn(C, o, 150, P["7"][1], 3) + nn(C, o, 150, P["6"][1], 4) +
+        nn(C, o, 290, P["3"][1], 5) + nn(C, o, XO, 230, 6) + nn(C, o, XO, 90, 7);
+      return { w: 380, h: 324, body: b };
+    },
+    why: [
+      "An <strong>astable</strong> has no stable state. The output on <strong>pin 3</strong> " +
+      "keeps switching between high and low by itself — that is what makes the lights flash.",
+      "<strong>Pins 2 and 6 are joined, and C1's + leg is on them too.</strong> C1 charges " +
+      "through R1 and R2, then empties through R2 into <strong>pin 7</strong>. Miss that " +
+      "join and nothing flashes.",
+      "<strong>R1 is in the mark only.</strong> C1 charges through R1 + R2 but empties " +
+      "through R2 alone, so pin 3 stays high a little longer than it stays low.",
+      "<strong>Two LEDs, one output.</strong> The red LED goes from pin 3 down to 0 V, so it " +
+      "is on when pin 3 is high. The green LED comes from +5 V down to pin 3, so it is on " +
+      "when pin 3 is low. They take turns.",
+      "<strong>Reset (pin 4) is tied to +5 V</strong> and pin 5 is left open, which is " +
+      "normal. The 555 is drawn as a box with pin numbers — page 3 of the data sheet turns " +
+      "each number into a job.",
+      "Pin 3 never sits still, so its test point has no single reading to predict. A logic " +
+      "probe there flashes red and green in time with the LEDs."
+    ]
+  };
+
+  /* ------------------------------------------------------------------------
+     Block 6 Lesson 3 — the 555 monostable (added 29 Oct 2026).  The booklet's
+     and the Lesson 3 page's circuit: R2 100 kΩ, C1 100 µF (about 11 s), R1
+     10 kΩ pull-up and SW1 slide switch on pin 2, pin 3 → R3 270 Ω → LED1.
+     The layout is the build guide's breadboard (tools/build-guides/circuits.mjs), which passes SBD.check.  The Stairwell question keeps its own push-button 555.
+     ------------------------------------------------------------------------ */
+  const monostable555 = {
+    id: "monostable-555",
+    title: "Quiz answer timer",
+    board: "bb-400",
+    scaffold: "blank",
+    scenario: [
+      "In a quiz, a player slides a switch and a light comes on for about 11 seconds — " +
+      "their time to answer. Then it goes off by itself.",
+      "IC1 is a 555 wired as a <strong>monostable</strong>. R2 and C1 set how long the " +
+      "light stays on; R1 and the slide switch SW1 start it."
+    ],
+    components: [
+      { id: "+5V",  footprint: "term-1", name: "+5 V supply", pos: true },
+      { id: "0V",   footprint: "term-1", name: "0 V supply", neg: true },
+      { id: "SW1",  footprint: "spdt-3", name: "SW1 — slide switch" },
+      { id: "IC1",  footprint: "dip-8-bb",  part: "555", name: "IC1 — 555 timer" },
+      { id: "R1",   footprint: "res-4",   name: "R1 (10 kΩ) — pull-up" },
+      { id: "R2",   footprint: "res-4",   name: "R2 (100 kΩ) — timing" },
+      { id: "C1",   footprint: "ecap-2", name: "C1 (100 µF) — timing" },
+      { id: "R3",   footprint: "res-4",  name: "R3 (270 Ω)" },
+      { id: "LED1", footprint: "led-2",  name: "LED1 — the answer light", colour: "red" }
+    ],
+    target: [
+      ["+5V.1", "IC1.8", "IC1.4", "R1.2", "R2.1", "SW1.1"],
+      ["0V.1", "IC1.1", "C1.-", "LED1.k", "SW1.2"],
+      ["SW1.c", "R1.1", "IC1.2"],
+      ["R2.2", "IC1.7", "IC1.6", "C1.+"],
+      ["IC1.3", "R3.1"],
+      ["R3.2", "LED1.a"]
+    ],
+    dontcare: ["IC1.5"],
+    tpRequired: ["IC1.2", "IC1.3"],
+    expect: {
+      inputs: [["SW1", "at 0 V"]],
+      note: "the switch has just been slid to 0 V, so Trigger is low and the timed " +
+            "pulse has started",
+      levels: { "IC1.2": 0, "IC1.3": 1 }
+    },
+    stages: [
+      { name: "The chip and its timing parts",
+        parts: ["+5V", "0V", "IC1", "R2", "C1"],
+        hint: "555 across the centre gap, notch left. Link pin 8 and pin 4 to +5 V, pin 1 to 0 V. R2 from the + rail to pin 7's column. A short yellow link joins pin 7 to pin 6. C1's + leg goes in pin 6's column, its − leg in the 0 V rail." },
+      { name: "The trigger",
+        parts: ["SW1", "R1"],
+        hint: "A link carries pin 2 to a spare column. SW1 sits along a row with its middle pin in that column and its outer pins in columns linked to +5 V and 0 V. R1 runs from pin 2's column to a column linked to +5 V." },
+      { name: "The output sub-system",
+        parts: ["R3", "LED1"],
+        hint: "R3 from pin 3's column to the LED; the LED's short leg goes to a column linked to 0 V. Then the test points on pin 2 and pin 3, and what each reads with the switch at 0 V." }
+    ],
+    reference: {
+      cuts: [],
+      placements: [
+        { id: "+5V", footprint: "term-1", at: "A2" },
+        { id: "0V", footprint: "term-1", at: "B2" },
+        { id: "IC1", footprint: "dip-8-bb", at: "G10", rot: 0 },
+        { id: "R2", footprint: "res-4", at: "A11", rot: 90 },
+        { id: "C1", footprint: "ecap-2", at: "B12", rot: 270 },
+        { id: "R1", footprint: "res-4", at: "K11", rot: 0 },
+        { id: "SW1", footprint: "spdt-3", at: "J6", rot: 0 },
+        { id: "R3", footprint: "res-4", at: "I12", rot: 0 },
+        { id: "LED1", footprint: "led-2", at: "H15", rot: 0 }
+      ],
+      links: [
+        { a: "A30", b: "M30", colour: "red", num: 1 },
+        { a: "B29", b: "N29", colour: "black", num: 2 },
+        { a: "A10", b: "C10", colour: "red", num: 3 },
+        { a: "L13", b: "M13", colour: "red", num: 4 },
+        { a: "L10", b: "N10", colour: "black", num: 5 },
+        { a: "F11", b: "F12", colour: "yellow", num: 6 },
+        { a: "L14", b: "M14", colour: "red", num: 7 },
+        { a: "L6", b: "M6", colour: "red", num: 8 },
+        { a: "I7", b: "I11", colour: "green", num: 9 },
+        { a: "L8", b: "N8", colour: "black", num: 10 },
+        { a: "L16", b: "N16", colour: "black", num: 11 }
+      ],
+      testpoints: [{ id: "TP1", at: "J11", predict: 0 }, { id: "TP2", at: "L12", predict: 1 }]
+    },
+    circuit: (C, o) => {
+      // drawn as the booklet and the Lesson 3 page draw it
+      const TOP = 24, BOT = 300, XS = 76, XT = 160, XO = 360;
+      const ic = C.icBlock(260, 160, { w: 70, h: 110, name: "555",
+        left:   [{ num: "7", at: 0.12 }, { num: "6", at: 0.62 }, { num: "2", at: 0.86 }],
+        top:    [{ num: "4", at: 0.35 }, { num: "8", at: 0.78 }],
+        right:  [{ num: "3", at: 0.5 }],
+        bottom: [{ num: "1", at: 0.35 }, { num: "5", at: 0.78 }] });
+      const P = ic.at;
+      const b =
+        C.rail(RAIL_L, 400, TOP, { pos: true }) + C.rail(RAIL_L, 400, BOT) +
+        ic.svg +
+        C.wire([P["8"], [P["8"][0], TOP]], "sbd-pos") + C.node(P["8"][0], TOP) +
+        C.wire([P["4"], [P["4"][0], TOP]], "sbd-pos") + C.node(P["4"][0], TOP) +
+        C.wire([P["1"], [P["1"][0], BOT]]) + C.node(P["1"][0], BOT) +
+
+        // the timing chain: R2 into pin 7, pin 6 tied to it, C1 to 0 V
+        C.node(XT, TOP) + C.wire([[XT, TOP], [XT, 40]], "sbd-pos") +
+        C.res(XT, 68, { dir: "v", span: 56, label: "R2", value: "100 kΩ" }) +
+        C.wire([[XT, 96], [XT, 222]]) +
+        C.node(XT, P["7"][1]) + C.wire([[XT, P["7"][1]], P["7"]]) +
+        C.node(XT, P["6"][1]) + C.wire([[XT, P["6"][1]], P["6"]]) +
+        C.ecap(XT, 250, { span: 56, label: "C1", value: "100 µF" }) +
+        C.wire([[XT, 278], [XT, BOT]]) + C.node(XT, BOT) +
+
+        /* the trigger: R1 holds pin 2 high, SW1 takes it to 0 V.  Its wire
+           crosses the timing column with no junction dot — the dot is the only
+           thing that means a join. */
+        C.node(XS, TOP) + C.wire([[XS, TOP], [XS, 40]], "sbd-pos") +
+        C.res(XS, 68, { dir: "v", span: 56, label: "R1", value: "10 kΩ", labelLeft: true }) +
+        C.wire([[XS, 96], [XS, 250], [XS + 15, 250]]) + C.node(XS, P["2"][1]) +
+        C.wire([[XS, P["2"][1]], P["2"]]) +
+        C.spdt(XS + 26, 250, {}) + C.text(XS + 20, 284, "SW1") +
+        C.wire([[XS + 52, 237], [XS + 52, TOP]], "sbd-pos") + C.node(XS + 52, TOP) +
+        C.wire([[XS + 52, 263], [XS + 52, BOT]]) + C.node(XS + 52, BOT) +
+
+        // the output drives the light
+        C.wire([P["3"], [XO, P["3"][1]], [XO, 190]]) +
+        C.res(XO, 214, { dir: "v", span: 48, label: "R3", value: "270 Ω", labelLeft: true }) +
+        C.wire([[XO, 238], [XO, 250]]) + C.led(XO, 266, { dir: "d", span: 32, label: "LED1" }) +
+        C.wire([[XO, 282], [XO, BOT]]) + C.node(XO, BOT) +
+
+        nn(C, o, 102, TOP, 1) + nn(C, o, 200, BOT, 2) +
+        nn(C, o, 200, P["2"][1], 3) + nn(C, o, 200, P["7"][1], 4) +
+        nn(C, o, 330, P["3"][1], 5) + nn(C, o, XO, 244, 6);
+      return { w: 420, h: 324, body: b };
+    },
+    why: [
+      "A <strong>monostable</strong> has one stable state. Pulling <strong>Trigger " +
+      "(pin 2)</strong> low starts one output pulse. The pulse ends by itself once C1 has " +
+      "charged through R2 to two thirds of the supply.",
+      "<strong>Threshold (pin 6), Discharge (pin 7) and C1's + leg are one net.</strong> " +
+      "That join is what makes it a timer: T = 1.1 × R2 × C1 = 1.1 × 100 kΩ × 100 µF, " +
+      "about 11 s.",
+      "<strong>R1 is a pull-up.</strong> It keeps pin 2 high while the switch is between " +
+      "its two positions, so the timer does not start by itself.",
+      "<strong>Slide SW1 back straight away.</strong> While pin 2 is held low, the output " +
+      "stays high however long the timing is.",
+      "<strong>Reset (pin 4) is tied to +5 V</strong> and pin 5 is left open, which is " +
+      "normal.",
+      "With SW1 at 0 V, <strong>the test point on pin 2 reads logic 0</strong> and " +
+      "<strong>the one on pin 3 reads logic 1</strong>: the pulse has started. A 1 on pin 2 " +
+      "puts the fault in the switch wiring, not the chip."
+    ]
+  };
+
+  root.QUESTIONS = [ledResistor, liftInterlock, transistorBuzzer, astable555,
+                    monostable555];
 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 /* ---- bb-trace-questions.js ---- */

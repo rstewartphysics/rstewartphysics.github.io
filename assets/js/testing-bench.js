@@ -15,7 +15,7 @@
    ============================================================ */
 (function () {
   "use strict";
-  var ENGINE = "/assets/js/stripboard.js?v=sbd-20261013a";
+  var ENGINE = "/assets/js/stripboard.js?v=sbd-e76f1bf7";
   var GUIDE = "/assets/guides/555-astable.json";
   var BADGE = "tst-ff";
   function $(id) { return document.getElementById(id); }

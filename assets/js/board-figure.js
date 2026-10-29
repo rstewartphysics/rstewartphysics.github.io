@@ -2,8 +2,8 @@
    board-figure.js — a stripboard layout drawn by the site's own engine.
 
      <figure class="board-fig">
-       <div data-board="/assets/boards/555-astable.json" data-crop="A1:V24"
-            data-label="The 555 astable on stripboard: …"></div>
+       <div data-board="/assets/boards/<layout>.json" data-crop="A1:V24"
+            data-label="The circuit on stripboard: …"></div>
        <figcaption>…</figcaption>
      </figure>
 
@@ -20,7 +20,7 @@
   var els = [].slice.call(document.querySelectorAll("[data-board]"));
   if (!els.length) { return; }
 
-  var ENGINE = "/assets/js/stripboard.js?v=sbd-20261013a";
+  var ENGINE = "/assets/js/stripboard.js?v=sbd-e76f1bf7";
   var loading = null;
   function engine() {
     if (window.SBD && window.SBD.render) { return Promise.resolve(window.SBD); }

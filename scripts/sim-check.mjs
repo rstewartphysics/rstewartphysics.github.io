@@ -14,6 +14,7 @@
 //   - every graph has numbered ticks and labelled axes
 //   - with reduced motion asked for, nothing moves until the pupil presses play
 //   - every drawn stripboard ([data-board]) matches its own netlist
+//   - every build guide ([data-guide]) loads its data and draws
 // It prints every simulator it found (page, id, title, stage height at 1180 × 760), so the list
 // of simulators on the site never has to be kept by hand. A page with a slider outside a `.sim`
 // fails: every simulator on the site is on the kit (all migrated 13 October 2026).
@@ -44,7 +45,7 @@ const pages = [], legacy = [];
 for (const file of htmlFiles(SITE)) {
   const html = readFileSync(file, "utf8");
   const url = "/" + file.slice(SITE.length + 1).replace(/\\/g, "/");
-  if (/class="sim[ "]/.test(html) || /data-board="/.test(html)) pages.push(url);
+  if (/class="sim[ "]/.test(html) || /data-board="/.test(html) || /data-guide="/.test(html)) pages.push(url);
   else if (/<input[^>]*type="range"/.test(html)) legacy.push(url);
 }
 
@@ -148,6 +149,16 @@ for (const url of pages) {
         const ok = await el.getAttribute("data-board-ok");
         const src = await el.getAttribute("data-board");
         if (ok !== "yes") found.push(`board ${src} ${ok === "no" ? "does not match its netlist" : "did not draw"}`);
+      }
+    }
+
+    // a build guide must load its JSON and the engine, and draw (build-guide.js marks it ready)
+    if (view.wide && view.colorScheme === "light") {
+      for (const el of await page.$$(".build-guide[data-guide]")) {
+        await el.scrollIntoViewIfNeeded();
+        await page.waitForFunction((e) => e.hasAttribute("data-guide-ready") || e.querySelector(".bg-fb.bad"), el, { timeout: 10000 }).catch(() => {});
+        const id = await el.getAttribute("data-guide");
+        if (!(await el.evaluate((e) => e.hasAttribute("data-guide-ready")))) found.push(`build guide ${id} did not load`);
       }
     }
 
