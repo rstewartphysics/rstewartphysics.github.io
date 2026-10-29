@@ -120,10 +120,10 @@ table (2.1, 0.99, 1.2, 1.5 s) agrees with the page's mark/space relationships.
 
 ## 7. Still to do (PLAN order of work)
 
-- [ ] Lesson pages host the guides: L2 comparator, L3 monostable, L4 astable (with A1–A3, A9).
-- [ ] A `[data-guide]` check in `scripts/sim-check.mjs`; badges (`/add-progress`) (job 8).
-- [ ] The two 555 circuits into the Planner/Builder question banks (job 8).
-- [ ] `assets/boards/555-astable.json` to the 5 V layout here, or retire it for the guide (L4).
-- [ ] One capacitor symbol site-wide: `ecap()` in the engine to the guides' `pcap` (job 9).
+- [x] Lesson pages host the guides: L3 monostable (#236) and L4 astable (#240). The comparator guide is on no lesson page; `preview/guide-demo.html` is where it is tested.
+- [x] A `[data-guide]` check in `scripts/sim-check.mjs` (29 Oct); badges on every Block 6 tile (#235, #238) (job 8).
+- [x] The two 555 circuits into the question banks (job 8, 29 Oct): `astable-555` and `monostable-555` in `questions.js` and `bb-questions.js`, on the two Learn pages. The two Planner pages are free build and have no bank.
+- [x] `assets/boards/555-astable.json` retired (29 Oct): nothing loaded it; the guide's JSON is the astable layout.
+- [x] One capacitor symbol site-wide: `ecap()` in the engine now draws the guides' flat plates + "+" (job 9, 29 Oct, teacher OK).
 - [ ] Physics and wording of every step and fault (teacher), and a real iPad.
-- [ ] Remove `preview/` once the lesson pages exist (job 10).
+- [x] `preview/` is KEPT as the guide test page (teacher, 29 Oct): `test-guides.mjs` drives all three guides there, and it is the comparator guide's only test.

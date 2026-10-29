@@ -133,6 +133,9 @@ these. **Delete this file, and its pointer in `CLAUDE.md`, once every box is tic
      switch at about 25 °C). 555 LED currents are about 8 mA (red) and 10 mA (green), safe.
    - [ ] Every simulator on a real iPad in Safari (teacher).
 6. **Block 6 (555 timers and op-amp comparator): audit and finish** (cloud session, 15 Oct 2026).
+   - [x] **Done 29 Oct 2026** (Mac): booklet, bench, four lesson pages, L1–L4 decks, badges, guide
+     sim check, the two 555 circuits in the Learn banks, one capacitor symbol. Detail in
+     `tools/build-guides/README.md` §7. Left for the teacher: physics/wording of every guide step and a real iPad.
    Read **`tools/build-guides/README.md`** first: the audit of `555-astable.html`, every decision
    made with the teacher, the lesson plan (hub + comparator → monostable → astable), the three
    circuits and their checked layouts, and a working prototype of the chip-first,

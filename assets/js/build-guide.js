@@ -19,7 +19,7 @@
   var roots = [].slice.call(document.querySelectorAll(".build-guide[data-guide]"));
   if (!roots.length) { return; }
 
-  var ENGINE = "/assets/js/stripboard.js?v=sbd-7709759b";
+  var ENGINE = "/assets/js/stripboard.js?v=sbd-e76f1bf7";
   var DATA = "/assets/guides/";
   var STORE = "build-guide-v1";
   var STEP = "#d97706", STEP_INK = "#9a4d05", TRACE = "#1d6fa5";
