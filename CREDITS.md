@@ -383,6 +383,18 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Q6(b) and Q7 (the logic-probe figure); 2026 Q1(c) and Q2; 2018 Q5; specimen question paper Q1(b), Q2(b)
     and Q4(a); the 2018 and 2024 marking instructions. The course specification v2.1, p.9, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use.
+- **National 5 Electronics Block 6 Lesson 4 *The 555 Astable*** (added 29 October 2026) — the
+  lesson slide deck `classes/electronics/slides/b6-l4-555-astable.pdf` and its `-answers.pdf` twin.
+  Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
+  Lesson 4 The 555 Astable page and its stripboard guide; the parts on the What to Collect slide are drawn
+  by this site's board engine; the circuit drawings, the 555 symbol, the graphs, the oscilloscope trace,
+  the catalogues and the booklet pages are from the Block 6 booklet and deck; all by R Stewart, 2026.
+  No photos.
+  - Figures and questions: National 5 Practical Electronics 2024 Q8 (the oscilloscope); 2018 Q8 (via
+    J Keegan's past-paper compilation, Nov 2025 update); 2025 Q1(b)(ii) and Q3(a)(i); 2026 Q1(c) and
+    Q3(a)(ii); the 2018 and 2024 marking instructions. The N5 Electronics course specification v3.1,
+    pp.5–7, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
 - **National 5 Electronics Block 6 Lesson 3 *The 555 Monostable*** (added 29 October 2026) — the
   lesson slide deck `classes/electronics/slides/b6-l3-555-monostable.pdf` and its `-answers.pdf` twin.
   Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
