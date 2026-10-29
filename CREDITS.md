@@ -383,6 +383,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Q6(b) and Q7 (the logic-probe figure); 2026 Q1(c) and Q2; 2018 Q5; specimen question paper Q1(b), Q2(b)
     and Q4(a); the 2018 and 2024 marking instructions. The course specification v2.1, p.9, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use.
+- **National 5 Electronics Block 6 Lesson 3 *The 555 Monostable*** (added 29 October 2026) — the
+  lesson slide deck `classes/electronics/slides/b6-l3-555-monostable.pdf` and its `-answers.pdf` twin.
+  Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
+  Lesson 3 The 555 Monostable page and its build guide; the parts on the What to Collect slide are drawn by
+  this site's board engine; the circuit drawings, the 555 symbol, the graph and the booklet pages are from
+  the Block 6 booklet and deck; all by R Stewart, 2026. No photos.
+  - Figures and questions: National 5 Practical Electronics 2024 Q1(b)(iii), Q2, Q6 and Q11 (the stripboard
+    plan); 2025 Q3(b)(i); 2026 Q1(b)(i), Q3(a)(i) and Q6; the 2024 and 2026 marking instructions. The N5
+    Electronics course specification v3.1, pp.6–7, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
 - **National 5 Electronics Block 6 Lesson 2 *The Op-amp Comparator*** (added 28 October 2026) — the
   lesson slide deck `classes/electronics/slides/b6-l2-op-amp-comparator.pdf` and its `-answers.pdf` twin.
   Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
