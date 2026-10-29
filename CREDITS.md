@@ -277,6 +277,11 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     drawings are Lesson 1's. The page's booklet answers to National 5 Practical Electronics 2025 Q7
     and Q11 follow the marking instructions, © Qualifications Scotland (SQA), reproduced for
     educational use. No photos.
+  - Lesson 4 *The 555 astable* (`classes/electronics/555-astable.html`, rebuilt 28 October 2026):
+    text, drawings, the astable bench and the build guide © R Stewart, 2026; the meter and probe
+    drawings are Lesson 1's. The page's booklet answers to National 5 Practical Electronics 2024 Q5(b),
+    the specimen question paper Q6(c) and 2018 Q9 follow the marking instructions, © Qualifications
+    Scotland (SQA), reproduced for educational use. No photos.
   - Learn to Test (`classes/electronics/learn-to-test.html`) and Practise Testing
     (`classes/electronics/practise-testing.html`), added 28 October 2026: text, drawings, the test bench,
     its boards and its solver © R Stewart, 2026. No photos.
