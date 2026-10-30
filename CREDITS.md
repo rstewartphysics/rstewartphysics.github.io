@@ -343,13 +343,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   valve symbols are drawn by R Stewart.
   - Simulator screenshots — NoPressureSim by Peter Strain (NoStrainSims), free and open to all.
     The same V3.2 screenshots as the Lesson 2 practical.
-- **S3 Engineering Science *Lesson slides*** (added 20 October 2026) — `classes/s3-engineering/slides.html`
-  and the Booklet 6 deck PDFs L1 to L9, each with and without answers. Slides by R Stewart. Circuits
-  and checks adapted from the Matrix CP2080 Pneumatics Essentials worksheets (© Matrix Technology
-  Solutions Limited). Past-paper questions, figures and marking instructions © Qualifications
-  Scotland (SQA), each named on its deck's Credits slide (2021, 2022, 2024, 2025 and 2026 N5
-  Engineering Science papers).
-  - Train door open button (L8) — Oxyman, [CC BY 2.5](https://creativecommons.org/licenses/by/2.5), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:508301_door_open_button.jpg). Resized.
+- **S3 Engineering Science *Lesson slides and Booklet 6*** (added 20 October 2026; replaced 29 October
+  2026 by the slim scheme) — `classes/s3-engineering/slides.html`, the Booklet 6 deck PDFs L1 to L10
+  and the Booklet 6 PDF, each with and without answers. Slides, booklet and drawings by R Stewart.
+  Circuits and checks adapted from the Matrix CP2080 Pneumatics Essentials worksheets (© Matrix
+  Technology Solutions Limited). Past-paper questions and figures © Qualifications Scotland (SQA),
+  reproduced for educational use: N5 Engineering Science 2021 Q12(c); 2022 Q15(b), Q15(c); 2024 Q3(a); 2025 Q8(a), Q8(d); and
+  2026 Q14(b), each named on its deck's Credits slide and on the booklet's last page.
 
 - **Engineering Science *Pneumatic components*** (added 7 October 2026) — the pages
   `classes/engineering/pneumatic-components/`, an index and one page per component, shared by S3 and
