@@ -902,6 +902,11 @@ need retrofitting):**
   `.marks` pill and its own `details.reveal` answer. `#answers` holds **booklet answer keys only**.
 - **Past-paper references are visible text, never a `title=` tooltip** — there is no hover on an
   iPad. Use `.exam-ref` under the section's `.keypoint`, with each reference in its own `<b>`.
+- **Past-paper references come from the SQA question bank** (the private `Qualifications-and-code`
+  repo, through the Mac's `past-paper-evidence` skill; not the site's own question-bank page).
+  Take the year, question and marks from its rows, using `Current = yes` items only. The bank's CSVs and
+  crops are never committed or published here. Only the reference text goes on a page, and any SQA
+  crop is credited at the point of use (`data-credit-note`) with the row's `Credit` text (30 Oct 2026).
 - **Data-booklet notation leads**: `g = 9.8 ms⁻²`, `c = 4180 J kg⁻¹K⁻¹`, glossed once with the
   familiar form. The booklet gives efficiency as a **ratio only** — say where the `× 100` is lost.
 - **Accent orange is a background, not small text.** `--eng-ink-accent` (light `#9a5410`, dark
