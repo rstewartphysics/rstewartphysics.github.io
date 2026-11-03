@@ -29,6 +29,8 @@ description: Scaffold a new HTML/CSS page for mrstewartphysics.co.uk (a class hu
    The badge id must exist in that subject's config (add one there if the page is a new tracked topic).
    **Never** hand-roll progress JS and **never** a per-page progress key. If a subject has no config yet
    (e.g. Higher Engineering Science), stand one up first via `/add-progress` mode C.
+6a. **Past-paper items:** for a topic page, add the `.exam-ref` lines and the per-section crop with the
+   Mac's `web-exam-items` skill (shared checklist "Past-paper items").
 7. **Run the pre-commit checklist** (shared checklist + guide §11 for Higher).
 8. **Report** what you built, where, and the validation results. Commit/push only if asked.
 

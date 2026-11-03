@@ -9,6 +9,8 @@ description: Improve or refine an existing HTML/CSS page on mrstewartphysics.co.
    references it lists. For a Higher topic page, also read `higher-topic-page-guide.md`.
 2. **Audit** the page against: the subject's correct theme/palette, the standard head block,
    the component patterns in CLAUDE.md, every a11y requirement, and the platform guardrails.
+   For a topic page, include the past-paper items rule (shared checklist): missing `.exam-ref`
+   lines or crop are added with the Mac's `web-exam-items` skill.
    Note what's already fine vs what diverges — don't rewrite working code for its own sake.
 3. **Apply fixes** that match the surrounding code's idiom, naming, and comment density.
    Preserve the page's existing palette and `localStorage` prefix unless asked to change them.
