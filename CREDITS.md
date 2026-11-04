@@ -512,6 +512,18 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     2012 Revised Higher Q23(b)(c), Q24; 2013 Revised Higher Q6, Q22(a)(b)(c)(d); 2014 Revised Higher Q3, Q22; 2015 Section 2 Q2; 2016 Section 1 Q4 and Section 2 Q3; 2017 Section 2 Q2; 2018 Section 2 Q3(a)(b)(c); 2019 Paper 1 Q6 and Paper 2 Q1(b); 2020 Paper 1 Q7 and Paper 2 Q3; 2022 Paper 2 Q3(a)(b)(c); 2023 Paper 1 Q3 and Paper 2 Q3; 2024 Paper 1 Q6 and Paper 2 Q1(b)(ii), Q4(b)(ii); 2025 Paper 1 Q6, Q7 and Paper 2 Q2(a)(b)(c); 2026 Paper 1 Q4, Q5, Q6; specimen paper Paper 1 Q5 and Paper 2 Q2(a). © Qualifications Scotland (SQA), reproduced for educational use.
   - The 2015 to 2022 pages are taken from "Higher Physics Past Papers (September 2026 Update)", the past paper finder made by Mr Davie and updated by Mr White, shared freely by its authors.
 
+- **National 5 Engineering Science *Logic and Digital Control*, Lessons 1–3** (added 4 November
+  2026) — the lesson slide decks in `assets/engineering-science/national-5/04a-logic-and-digital-control/slides/`
+  (`L1-digital-signals-and-logic-states`, `L2-and-or-and-not-gates`, `L3-truth-tables-for-combinations`),
+  each with its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The gate symbols,
+  logic diagrams, circuits and the logic board (drawn from the UKESF / University of Southampton Logic
+  and Arithmetic kit teacher guide) are drawn by R Stewart.
+  - Figures and questions: N5 Engineering Science 2024 Section 1 Q1 and 2025 Section 2 Q11(c), with
+    their marking instructions. The N5 Engineering Science course specification v2.0, p.5, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
+  - A dimmer switch — Paolomarco, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Dimmer_Light_Switch.jpg). Resized to fit.
+  - A washing machine — Fanti Salms, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Front_Load_Washing_Machine.jpg). Resized to fit.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
