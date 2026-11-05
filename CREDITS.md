@@ -429,6 +429,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - A packing-line conveyor — SimónK, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:American_boxes.jpg). Resized and cropped to fit.
   - Automatic bus doors — Leif Jørgensen, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Interior_of_autonomous_bus_in_Nordhavn_04.jpg). Resized and cropped to fit.
   - A smart light bulb — Danielrosehill, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zigbee_E27_Bulb.jpg). Resized and cropped to fit.
+- **National 5 Engineering Science *Logic & Digital Control* topic page** (added 4 November 2026) —
+  `classes/n5-engineering/logic-and-programmable-control.html`. The text, gate symbols, logic diagrams,
+  truth tables and switch circuits are by R Stewart (drawn with the deck kit, or cut from the Booklet 4a
+  lesson decks). The logic board drawing is by R Stewart, drawn from the UKESF / University of Southampton
+  Logic and Arithmetic kit.
+  - Questions and marking instructions: National 5 Engineering Science 2021 Section 2 Q8(e); 2019 Section 1
+    Q6; 2019 Section 2 Q9(d). Past paper references 2018 to 2026. © Qualifications Scotland (SQA),
+    reproduced for educational use.
+  - A dimmer switch — Paolomarco, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Dimmer_Light_Switch.jpg). Resized.
 
 - **National 5 Engineering Science *Microcontrollers*** (added 8 October 2026) — the lesson slide
   deck `assets/engineering-science/national-5/04b-programmable-control/slides/L1-microcontrollers.pdf`

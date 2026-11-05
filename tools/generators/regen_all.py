@@ -21,6 +21,7 @@ PT = os.path.join(GEN, "practice-tests")
 # (folder, script, args) — the table in README.md
 RUNS = [
     ("programmable-control", "build_page.py", []),
+    ("logic-and-digital-control", "build_page.py", []),
     ("mcq-bank", "build_all.py", []),
     ("stripboard/page", "build.py", []),
     ("practice-tests/n5-physics/electricity1", "build.py", []),

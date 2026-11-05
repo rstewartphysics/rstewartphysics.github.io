@@ -7,6 +7,7 @@ worked out from where the script sits, so it runs from any folder.
 | Generator | Run | Writes |
 |---|---|---|
 | Programmable Control | `python3 tools/generators/programmable-control/build_page.py` | `classes/n5-engineering/programmable-control.html` |
+| Logic & Digital Control | `python3 tools/generators/logic-and-digital-control/build_page.py` | `classes/n5-engineering/logic-and-programmable-control.html` |
 | Practice tests | `cd` into the test's folder, then `python3 build.py` / `build_b.py` (S3 Eng and AH Stellar: `build.py a` / `build.py b`; S3 Electricity 1 graphing: `build_graphing.py`) | `classes/{s3-physics/electricity1,s3-engineering,higher/practice-tests,adv/practice-tests}/…` |
 | Unit 1 question bank | `python3 tools/generators/mcq-bank/build_all.py` | `classes/n5-engineering/unit-1-question-bank.html` |
 | Block 6 build guides (Node) | `node tools/build-guides/build-guides.mjs` | `assets/guides/*.json`, read by `assets/js/build-guide.js` |
@@ -32,6 +33,8 @@ The repo is public, so some inputs stay on the Mac. Without them every page stil
 - **Programmable Control.** `--recut` cuts the figures again from the lesson decks into
   `figures/` (commit the result). `--copy-assets` copies the photos, practical sheets (OneDrive)
   and sim file into `assets/`.
+- **Logic & Digital Control.** `--redraw` draws the logic diagrams again from the 4a deck artwork
+  (`~/claude-work/n5-engineering/b4a/_build/art.py`) into `figures/` (commit the result).
 - **Practice tests.** The past-paper blacklists live in `~/claude-work/practice-tests/`. When
   they are there, the Higher and AH builds check every quantity against them; when they are not
   (CI), the build prints "blacklist: not on this machine" and carries on. Planning notes for
