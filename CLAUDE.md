@@ -735,6 +735,23 @@ to each page's footer text colour automatically.
 
 ---
 
+## Past-paper items — the SQA question bank (site standard, 3 November 2026)
+
+Every topic page, all courses, uses the private SQA question bank (`Qualifications-and-code`, Mac only)
+through the Mac's **`web-exam-items`** skill. Pages already built get the `.exam-ref` lines in one batch
+per course; crops are added on each page's next touch.
+
+- **`.exam-ref` under each section's `.keypoint`:** the current exam items for that key area, newest
+  first, each in its own `<b>`, at most 8, then "asked in N of M exam years" (counted from the bank,
+  left out under 3 years). Visible text, never a `title=`.
+- **One credited SQA crop per section at most**, in the `.practice` block after the page's own
+  questions: the most-asked current item, one page, 2–4 marks, its MI crop in a `details.reveal`.
+  Not an item in a current prelim or test selection. Files `assets/<course>/sqa-<year>-<paper>-q<n>-<name>.png`,
+  real `alt` text, a `data-credit-note` with the bank row's `Credit` wording, and `CREDITS.md`,
+  `classes/credits.html` and `copyright-provenance-checklist.csv` in the same commit.
+- **Never committed here:** the bank CSVs, box coordinates, or question text pulled from the papers.
+- N5 Physics is not in the bank yet; its pages wait.
+
 ## Credits & copyright
 
 Global rules `~/.claude/CLAUDE.md` §6; this is the site-side mechanism. Nothing published goes out
@@ -902,7 +919,7 @@ need retrofitting):**
   `.marks` pill and its own `details.reveal` answer. `#answers` holds **booklet answer keys only**.
 - **Past-paper references are visible text, never a `title=` tooltip** — there is no hover on an
   iPad. Use `.exam-ref` under the section's `.keypoint`, with each reference in its own `<b>`.
-- **Past-paper references come from the SQA question bank** (the private `Qualifications-and-code`
+- **Past-paper references come from the SQA question bank** (site-wide rule: "Past-paper items — the SQA question bank"; the private `Qualifications-and-code`
   repo, through the Mac's `past-paper-evidence` skill; not the site's own question-bank page).
   Take the year, question and marks from its rows, using `Current = yes` items only. The bank's CSVs and
   crops are never committed or published here. Only the reference text goes on a page, and any SQA

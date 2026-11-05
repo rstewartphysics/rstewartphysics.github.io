@@ -36,6 +36,12 @@ and the two `theme-color` metas to match.
   via two-tap confirm — **never** `alert()`/`confirm()`. Exploratory widget state stays in its own
   per-page prefix, separate from the progress key. (Full rules: `progress-system-rollout-plan.md` §5.)
 
+## Past-paper items (topic pages, Mac)
+Every topic page carries `.exam-ref` lines and at most one credited SQA crop per section from the
+SQA question bank — CLAUDE.md "Past-paper items — the SQA question bank"; procedure in the Mac's
+`web-exam-items` skill. A cloud session leaves a note for the Mac rather than typing references
+from memory.
+
 ## Pre-commit validation (run before reporting done)
 - Tags balanced: `<section> <div> <details> <svg> <figure> <script> <style>` open == close.
 - JS `{} () []` balanced; every element ID referenced by JS exists in the HTML.
