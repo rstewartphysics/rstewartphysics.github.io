@@ -351,6 +351,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   reproduced for educational use: N5 Engineering Science 2021 Q12(c); 2022 Q15(b), Q15(c); 2024 Q3(a); 2025 Q8(a), Q8(d); and
   2026 Q14(b), each named on its deck's Credits slide and on the booklet's last page.
 
+- **N5 Engineering Science *Pneumatics Review Questions*** (added 6 November 2026) — eight PDFs,
+  `assets/engineering-science/national-5/06-pneumatics/review-questions/pn1-review-questions.pdf` to
+  `pn8-…`, one per Booklet 6 lesson, linked from `classes/n5-engineering/pneumatics.html` and the short
+  links `/rq/pn1/` to `/rq/pn8/`. Past-paper questions and marking instructions 2014–2026 and the 2017
+  Specimen, reproduced for educational use, © Qualifications Scotland (SQA); each item is listed in its
+  file's credits line. Exam-style questions, the example answer and the topic mark by R Stewart,
+  November 2026.
+
 - **Engineering Science *Pneumatic components*** (added 7 October 2026) — the pages
   `classes/engineering/pneumatic-components/`, an index and one page per component, shared by S3 and
   N5, and the 19 A3 posters they link. The symbols are drawn by R Stewart to ISO 1219, as used in N5
