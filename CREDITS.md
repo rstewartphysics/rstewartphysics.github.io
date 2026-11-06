@@ -69,6 +69,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Thomas Young, engraving by Henry Adlard after Thomas Lawrence (Smithsonian Libraries) — Henry Adlard, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young_Thomas_Dibner_collection_Smithsonian_SIL14-Y001-01a.jpg).
   - A real Young's slits pattern — Graham Beards, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Young%27s_slits.jpg).
   - The Very Large Array radio telescope — Dameon Hudson, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:National_Radio_Astronomy_Observatory_Very_Large_Array_Telescope_(VLA)_-_panoramio.jpg).
+- **Photographs under open licences** (added 6 November 2026) — the Advanced Higher Physics
+  *Electric Fields 1: Point Charges* slides
+  (`classes/adv/slides/ah-i-electric-fields-1-point-charges.pdf`), credited on the deck's
+  Credits slide. Resized or cropped to fit; not otherwise changed. The deck's past-paper items
+  (AH Physics 2016-2019 and 2023-2025, questions and marking instructions) are
+  © Qualifications Scotland (SQA), reproduced for educational use and credited on the Credits slide.
+  - Two charged balloons pushing apart — MikeRun, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Repulsive-electric-force-between-balloons.jpg).
+  - Lightning from a storm cloud — US Air Force, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lightning3.jpg).
+  - Birds sitting on a high-voltage line — Vanja Kovac, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Birds_on_a_power_line.jpg).
 - **Photographs under open licences** (added 4 October 2026) — the Advanced Higher Physics
   *Interference 2: Division of Amplitude* slides
   (`classes/adv/slides/ah-n-interference-2-division-of-amplitude.pdf`), credited on the deck's
