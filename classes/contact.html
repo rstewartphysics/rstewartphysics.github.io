@@ -176,6 +176,7 @@ title: About &amp; Contact
       main.page-wrap{ padding:0 10px 3rem; }
       .panel{ padding:1rem; }
     }
+      .about-note { margin: 0 0 14px; padding: 10px 14px; border-left: 4px solid var(--accent, #0e7490); background: var(--surface-2, rgba(0,0,0,.04)); border-radius: 8px; }
   </style>
   <link rel="stylesheet" href="/assets/css/reading.css?v=rd-20261014a">
 </head>
@@ -297,5 +298,26 @@ title: About &amp; Contact
 
   {% include site-footer.html %}
 
+  <script>
+    /* The Report a problem / Request a feature button on app pages sends ?about=<page>.
+       Show it, and send it with the message, so a report says which page it is about. */
+    (function () {
+      var about = new URLSearchParams(location.search).get("about");
+      var form = document.querySelector('form[action*="formspree"]');
+      if (!about || !form) return;
+      about = about.trim().slice(0, 120);
+      var note = document.createElement("p");
+      note.className = "about-note";
+      note.innerHTML = "<strong>About:</strong> ";
+      note.appendChild(document.createTextNode(about));
+      form.insertBefore(note, form.firstChild);
+      var field = document.createElement("input");
+      field.type = "hidden"; field.name = "about"; field.value = about;
+      form.appendChild(field);
+      form.querySelector('input[name="_subject"]').value = "Problem or feature request: " + about;
+      var msg = document.getElementById("message");
+      if (msg) msg.placeholder = "What went wrong, or what would you like added?";
+    })();
+  </script>
 </body>
 </html>
