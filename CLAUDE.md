@@ -716,6 +716,25 @@ every page through the shared includes — **never add it per page**:
   `lockup-*.svg`, whose wordmark is a picture of text (D18) in fixed dark ink that vanishes on a dark
   footer.
 
+## Report a problem / Request a feature (site standard, 6 November 2026)
+
+**Every app-style page carries the feedback button** — every tool, builder, planner, test bench,
+simulation and on-screen practice test or quiz, new or rebuilt. Plain topic and hub pages don't.
+
+- **One include, never hand-written:** `{% include feedback-button.html about="<short page name>" %}`.
+  It links to `/classes/contact.html?about=…`; the contact page shows "About: <page>", sends it as a
+  hidden `about` field and puts it in the email subject. Style is `.feedback-btn` in
+  `site-menu.css` — don't restyle it per page.
+- **Place it at the top**, in the title row or beside the back link, so it is on screen when the
+  page opens. The label stays "Report a problem / Request a feature" (shipped and approved 6 Nov).
+- **Generated pages get it from the generator**, not the page: the stripboard template,
+  `practice-tests/toolkit/pagebuild.py` (`page()`), `build_graphing.py`. A new generator for an
+  app-style page adds the include too, and lists `feedback-button.html` among any allowed includes.
+- **A beta tool** also shows the orange `Beta` tag and one short line beside the button (pattern:
+  `learn-to-test.html`). Remove the tag when it comes out of beta; the button stays.
+- Check: one `.feedback-btn` on the page, 44 px tall, link carries `?about=`, no sideways scroll at
+  390 px.
+
 ## Footer
 
 Every page uses the shared include — do **not** hand-write a `<footer>` element:
