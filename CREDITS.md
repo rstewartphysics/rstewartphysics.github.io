@@ -435,7 +435,7 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Wikimedia Commons (File:Newton's cannonball cropped.png).
   - Screenshot of *Gravity and Orbits* — PhET Interactive Simulations, University of Colorado Boulder,
     https://phet.colorado.edu, CC BY-NC 4.0.
-  - Figures and questions: 2026 Higher Physics Paper 1, Q7. The Higher Physics course specification v4.1
+  - Figures and questions: 2023 Higher Physics Paper 1, Q5; 2026 Higher Physics Paper 1, Q7 and Paper 2, Q1. The Higher Physics course specification v4.1
     (September 2026), p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
