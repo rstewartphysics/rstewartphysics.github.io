@@ -426,6 +426,17 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   `classes/higher/slides/h-odu3-momentum-impulse.pdf` and its `-answers.pdf` twin. Each item is credited on
   the deck's Credits slide. The trolley, collision, graph and demo drawings are drawn by R Stewart; no photos.
   - Figures and questions: Higher Physics 2018 Section 2 Q3(c); 2019 Paper 1 Q6; 2020 Paper 1 Q7 and Paper 2 Q3(c); 2023 Paper 1 Q3 and Paper 2 Q3; 2024 Paper 1 Q6 and Paper 2 Q1(b)(ii); 2025 Paper 1 Q6 and Q7 and Paper 2 Q2; 2026 Paper 1 Q4 and Q6. The Higher Physics course specification v4.1 (September 2026), pp.7–8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **Higher Physics *Gravitation 1: Satellites in free fall*** (added 6 November 2026) — the lesson slide deck
+  `classes/higher/slides/h-odu4-1-satellites-free-fall.pdf` and its `-answers.pdf` twin. Each item is credited on
+  the deck's Credits slide. The Newton's cannon and orbit drawings are drawn by R Stewart.
+  - Photos: the International Space Station over the Earth (STS106-314-023) and an astronaut floating in the ISS
+    (iss056e032027) — NASA, via the NASA Image and Video Library (not copyrighted).
+  - Newton's cannon figure from Isaac Newton, *A Treatise of the System of the World* (1728) — public domain, via
+    Wikimedia Commons (File:Newton's cannonball cropped.png).
+  - Screenshot of *Gravity and Orbits* — PhET Interactive Simulations, University of Colorado Boulder,
+    https://phet.colorado.edu, CC BY-NC 4.0.
+  - Figures and questions: 2026 Higher Physics Paper 1, Q7. The Higher Physics course specification v4.1
+    (September 2026), p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
