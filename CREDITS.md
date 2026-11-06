@@ -534,6 +534,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - A dimmer switch — Paolomarco, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Dimmer_Light_Switch.jpg). Resized to fit.
   - A washing machine — Fanti Salms, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Front_Load_Washing_Machine.jpg). Resized to fit.
 
+- **N5 Engineering Science *Review Questions* for Booklets 5, 7a and 7b** (added 6 November 2026) —
+  eleven PDFs, one per booklet lesson: `assets/engineering-science/national-5/05-mechanisms-and-drive-systems/review-questions/`
+  (`d1-` to `d5-review-questions.pdf`) and `assets/engineering-science/national-5/07-structures-and-materials/review-questions/`
+  (`s1-` to `s4-`, `m1-` and `m2-review-questions.pdf`), linked from `classes/n5-engineering/mechanisms-and-drive-systems.html`
+  and `structures-and-materials.html` and the short links `/rq/d1/` … `/rq/m2/`. Past-paper questions and marking
+  instructions 2014–2026 and the 2017 Specimen, reproduced for educational use, © Qualifications Scotland (SQA); each
+  item is listed in its file's credits line. The Booklet 7a exam-style questions and example answers, and the topic
+  marks, by R Stewart, November 2026.
+
 ## Corrections
 
 If any material is credited incorrectly or should be removed, please get in touch via the
