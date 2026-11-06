@@ -760,6 +760,12 @@ Every topic page, all courses, uses the private SQA question bank (`Qualificatio
 through the Mac's **`web-exam-items`** skill. Pages already built get the `.exam-ref` lines in one batch
 per course; crops are added on each page's next touch.
 
+**Default check (teacher, 6 Nov 2026).** The question-bank check runs on every page built *or
+improved*, not only when asked, and is part of "done" (global CLAUDE.md §4, DECK-RULES 80): every
+question on the page that could be a real SQA item is one (crop, the bank's `Credit` wording in the
+`data-credit-note`, a ledger row); quick quizzes and retrieval items come from the bank; an invented
+question only where no current item fits, logged in the project's STATE.md.
+
 - **`.exam-ref` under each section's `.keypoint`:** the current exam items for that key area, newest
   first, each in its own `<b>`, at most 8, then "asked in N of M exam years" (counted from the bank,
   left out under 3 years). Visible text, never a `title=`.
