@@ -446,6 +446,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     https://phet.colorado.edu, CC BY-NC 4.0.
   - Figures and questions: 2023 Higher Physics Paper 1, Q5; 2026 Higher Physics Paper 1, Q7 and Paper 2, Q1. The Higher Physics course specification v4.1
     (September 2026), p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **Higher Physics *Gravitation 2: Newton's law of universal gravitation*** (added 8 November 2026) — the lesson slide
+  deck `classes/higher/slides/h-odu4-2-newtons-law.pdf` and its `-answers.pdf` twin. Each item is credited on the
+  deck's Credits slide. The two-mass, r = R + h, asteroid, satellite, moon and inverse-square drawings are by
+  R Stewart.
+  - Photo: the International Space Station over the Earth (STS106-314-023) — NASA, via the NASA Image and Video
+    Library (not copyrighted).
+  - Figures and questions: 2016 Higher Physics Section 1, Q5; 2018 Higher Physics Section 1, Q5; 2019 Higher Physics
+    Paper 2, Q4; 2023 Higher Physics Paper 1, Q6. The Higher Physics course specification v4.1 (September 2026),
+    p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
