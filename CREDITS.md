@@ -427,10 +427,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   Lesson 3 The 555 Monostable page and its build guide; the parts on the What to Collect slide are drawn by
   this site's board engine; the circuit drawings, the 555 symbol, the graph and the booklet pages are from
   the Block 6 booklet and deck; all by R Stewart, 2026. No photos.
-  - Figures and questions: National 5 Practical Electronics 2024 Q1(b)(iii), Q2, Q6 and Q11 (the stripboard
-    plan); 2025 Q3(b)(i); 2026 Q1(b)(i), Q3(a)(i) and Q6; the 2024 and 2026 marking instructions. The N5
-    Electronics course specification v3.1, pp.6–7, is quoted.
+  Updated 8 November 2026: past-paper starters, What Candidates Get Wrong slides and a past-paper slide.
+  - Figures and questions: National 5 Practical Electronics 2024 Q5(b) (figure), Q6 and Q11 (the stripboard
+    plan); 2026 Q6; the 2024 and 2026 marking instructions. The starters point to 2025 Q2 and Q9(a)(i) and
+    2026 Q1(b)(ii) and Q2, with QR codes to the papers on sqa.org.uk. What Candidates Get Wrong quotes the
+    2024, 2025 and 2026 National 5 Practical Electronics course reports. The N5 Electronics course
+    specification v3.1, pp.6–7, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use.
+  - Past-paper finder QR: J Keegan's N5 Practical Electronics past-paper compilation (Nov 2025 update),
+    used with permission.
 - **National 5 Electronics Block 6 Lesson 2 *The Op-amp Comparator*** (added 28 October 2026) — the
   lesson slide deck `classes/electronics/slides/b6-l2-op-amp-comparator.pdf` and its `-answers.pdf` twin.
   Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
