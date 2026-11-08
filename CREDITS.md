@@ -566,8 +566,11 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   deck `assets/engineering-science/national-5/06-pneumatics/slides/pn1-pneumatic-systems-and-air-types.pdf`
   with its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The pneumatic symbols,
   system diagram and CP2080 kit drawings are drawn by R Stewart.
-  - Figures and questions: N5 Engineering Science 2026 Section 1 Q1 and 2026 Section 2 Q14 (part (d) and the
-    figure), with their marking instructions; the 2026 course report (Question 1) is quoted. The N5 Engineering Science course specification v2.0, p.6, is quoted.
+  - Figures and questions: N5 Engineering Science 2026 Section 1 Q1, 2026 Section 1 Q2 (starter, updated
+    8 November 2026; its drone photograph is credited in the paper to ADragan/shutterstock.com) and 2026 Section 2
+    Q14 (part (d) and the figure), with their marking instructions; the 2019 Section 1 Q3 marking instructions and
+    the 2025 (assignment Task 5a) and 2026 (Question 1) course reports are quoted on the What Candidates Get Wrong
+    slide. The N5 Engineering Science course specification v2.0, p.6, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use.
   - Bus emergency door release — ZidaneHartono, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BPSWA_Leyland_Panther_PSUR1A-1R_(Howard_Porter)_1BPS988-Emergency_Door_Release.jpg). Resized to fit.
   - An automated assembly machine — Wikimachinespeciale, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Assemblage_automatis%C3%A9_valves_m%C3%A9dicales_-_ASM_2012.jpg). Resized to fit.
