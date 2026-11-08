@@ -17,41 +17,9 @@ palette, not its blue): `classes/higher/electricity/current-pd-power-resistance.
 Mac-side jobs left by cloud sessions are listed in **`tools/OPEN-JOBS.md`**. Read it at the
 start of a Mac session, and when asked about open work. `tools/` is excluded from the build.
 
-## Cloud or Mac — where each job runs (agreed 17 Oct 2026)
+## Cloud or Mac
 
-A cloud session (Claude Code on the web) sees only this repo. The Mac terminal also reaches the
-page generators, the deck kit, the SQA source papers and figures, the learning-standard audit
-scripts and the teacher's OneDrive. Pick the place before starting.
-
-| Job | Where | Why |
-|---|---|---|
-| Site-wide sweeps: CSS, markup, contrast, nav, includes, search, removing old notices | Cloud | Everything needed is in the repo; it can screenshot every page in both appearances |
-| Audits and plans written as repo docs (`tools/audits/`, `tools/build-guides/`) | Cloud | Reading and writing only; no Mac files needed |
-| Edits to hand-built pages (no generator) | Either | Same result; use whichever session is open |
-| **Generated pages** (practice tests, graphing, question bank, Programmable Control, pneumatic components, the four stripboard/breadboard pages) | **Mac** | The generators are in `tools/generators/` (README there), but some steps read Mac-only inputs; pneumatic components' generator is still on the Mac. A hand edit to the page is overwritten at the next run |
-| Anything needing SQA figures, past papers or MIs | Mac | The source papers and figure library are not in the repo |
-| Decks, booklets, tests, posters, then publishing their PDFs | Mac | The deck kit, OneDrive and LibreOffice are on the Mac |
-| New topic pages and rebuilds (dual coding, dyslexia audit) | Mac | Needs the image library and the audit scripts |
-| Yenka checks | Mac | Yenka runs on the Mac only |
-| Anything touching pupil data | Mac only | Pupil data never leaves the Mac |
-| Physics and wording judgement | The teacher | List what to check; don't guess |
-
-**Rules for working in both places**
-
-- **Fetch first.** Start every session with `git fetch` and work from `origin/main`. PRs are merged
-  online, so a local `main` is often behind.
-- **One session at a time on a shared stylesheet** (`assets/css/*.css` and the subject sheets). If
-  another open branch touches the same sheet, finish and merge that one first.
-- **Bump a stylesheet's `?v=` only in the last commit before the PR**, after rebasing on
-  `origin/main`. That stops two branches fighting over the same `?v=` lines.
-- **Cloud branches are `claude/<job>`; Mac branches are named for the job.** Neither commits to
-  `main`.
-- **Never hand-edit a generated page.** Change the generator, re-run it, and commit both. A cloud
-  session that finds a generated page needing a change adds the job to `tools/OPEN-JOBS.md`.
-  CI enforces this: `python3 tools/generators/regen_all.py --check` re-runs every generator in
-  `tools/generators/` and fails if any committed page changes.
-
----
+Where each job runs and the rules for working in both places: `tools/build-guides/site-workflow.md`. Mac-only: generated pages, SQA figures, decks and booklets, pupil data. Fetch first, never commit to `main`, never hand-edit a generated page.
 
 ## Site overview
 
@@ -493,196 +461,13 @@ Class names + purpose. **Exact CSS lives in the reference page / shared sheets �
 
 ---
 
-## Hub tiles — the site standard (set 27 August 2026)
+## Hub tiles
 
-**The goal this serves: every page on the site should look like the same site. What differs is the
-content and the theme colour — nothing else.** A component that exists in two subjects must be one
-component with two palettes, never two components.
+Full spec in `tools/build-guides/hub-tiles.md`; read it before touching a hub. One shared `assets/css/hub-tiles.css` tile, token-driven, whole tile is the link, no rows of filled accent buttons.
 
-`assets/css/hub-tiles.css` is the shared navigation tile. It is **token-driven and subject-agnostic**
-— it reads `--accent`, `--card`, `--text`, `--muted`, `--border`, `--surface-2`, `--shadow-soft` and
-`--shadow`, all of which every subject sheet already defines. Link it and it themes itself.
+## Slides index — the deck card
 
-```html
-<div class="hub-grid">            <!-- .hub-grid.few for one or two tiles -->
-  <a class="hub-tile" href="…" data-prog-badges="…" aria-label="…">
-    <span class="tile-head">
-      <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-x"/></svg>
-      <span class="tile-name">Title</span>
-    </span>
-    <span class="tile-body">One line on what is inside.</span>
-  </a>
-</div>
-```
-
-**The whole tile is the link.** A hub therefore never carries a row of filled accent buttons — that
-was the old `.resource-card` + `.cta` pattern, and eight orange buttons in one view is exactly the
-"the accent means nothing" problem. The accent stays reserved for *do the one main thing on this
-page*. A hub should have **at most one** `.cta`.
-
-**Every tile carries a drawn mark** from its subject's icon sprite, so a topic is recognisable by the
-same symbol wherever it appears — the hub tile, the slides hub, the topic page.
-
-- Three sprites, included as needed: `_includes/resource-icons.html` (12 generic marks — slides,
-  notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper, doc),
-  `_includes/physics-icons.html` (18 topic marks shared across the Physics levels — S3 Electricity 1
-  and Higher current/p.d./resistance are the same idea, so they are the same mark),
-  `_includes/eng-icons.html` (13), `_includes/electronics-icons.html` (26) and
-  `_includes/higher-hub-icons.html` (14 — one per Higher hub tile, `ic-hh-*`, RS-picked 29 Sep 2026), with `ah-hub-icons.html` (`ic-ah-*`) and `s3-hub-icons.html` (`ic-s3-*`) adding
-  only the marks those hubs don't share with Higher.
-- **Paint must be inline `style=` on every shape.** Document CSS cannot reach into a `<use>` shadow
-  tree and class-styled shapes render solid black. Custom properties *do* inherit in.
-- An icon's accent is `var(--ic-accent, <subject accent>)`. **In a tile band the mark sits on a
-  card-coloured chip** (`.tile-ic`, 46px, in `hub-tiles.css`) so it keeps its two colours — ink +
-  subject accent — instead of going mono on the band (RS, 26 Sep 2026; site-wide 29 Sep 2026).
-- **No emoji in tile names or section headings** — legacy. The drawn mark is the picture.
-- **External sites carry a `.tile-tag` "External" pill in the band**; the site's own tiles carry
-  none. This replaced the old in-text "Mr Stewart's / External site" badges and their legend.
-- **Draw at 48×48 and then look at it at 34px.** Hairlines radiating from a circle read as a
-  sunburst; two stacked flowchart shapes merge into an hourglass; a dome over two lines reads as an
-  earth symbol. All three were caught only by rendering and zooming — see global CLAUDE.md §7.
-
-**Per-subject palette.** The four band colours rotate down a grid so a long list does not read as one
-block. A subject opts in by declaring them; without them every band is the subject accent:
-
-```css
---tile-1: …; --tile-2: …; --tile-3: …; --tile-4: …;   /* the rotation */
---tile-ink: …;                                        /* text/icon on the band */
-```
-
-**Check `--tile-ink` against all four bands** — it must reach 4.5:1 on every one. Engineering uses
-dark ink `#1c1408` on its banner colours: green 6.36:1, teal 6.21:1, orange 8.33:1, coral 5.07:1.
-
-**Progress badges are automatic.** `progress.js` appends its `.prog-chip` into
-`tile.querySelector(".tile-head") || tile`, so naming the header `.tile-head` puts the badge in the
-band with no extra code. Keep `data-prog-badges` on the tile itself.
-
-**A tile with nothing behind it yet** is `<span class="hub-tile soon">` — a `<span>`, never an
-`<a>`, so it is not focusable and not announced as a link.
-
-**Section tile (28 Sep 2026).** A landing page's few big choices — Home's subjects, the Physics
-hub's levels — use `a.sec-tile` from the same sheet: banner art, a round badge overlapping it, then
-name and one line. `--c` colours the badge and `--c-dk` is its lifted dark-mode twin. The badge
-holds a drawn mark (`.sec-ic`) or short real text (`.sec-abbr` — the level letters S3/N5/H/AH).
-A level with no artwork of its own swaps the image and the ring for `.sec-band` (level colour into
-the page accent, a faint grid, one 60px `.sec-chip` two-colour mark with the level letters
-`.sec-lvl` beside it) — the Engineering level page, 29 Sep 2026. Never a ring and a chip together:
-they read as two icons. The Engineering hubs' banner is drawn to match (`.band-banner` in
-`engineering-science.css`, colours per page via `--bb-a`/`--bb-b`): real-text title with a chip
-beside it, both centred so the fixed logo and menu button never cover them. A level not built yet is `<span class="sec-tile soon">`: not a link, art and ring faded,
-words full contrast.
-
-**Media variant.** `.tile-head.is-media` swaps the drawn mark for bespoke artwork. Use it only where real artwork exists for that tile; the
-drawn icon is the default.
-
-**Not for document lists.** A grid of past papers or data sheets stays `.resource-card` — hub tiles
-are for navigating to a *page*, not for a list of PDFs.
-
-**Adopted so far:** all three Engineering Science hubs, Higher Physics, Electronics, S3 Physics and
-Advanced Higher — 104 tiles. Only the Science (S1/S2) hub still uses its own `a.card` /
-`.topic-tile` variants.
-
-**A subject sheet comes before the component sheet, and both come after `site-menu.css`.**
-`site-menu.css` defines generic rules at the same specificity as a subject's, so a subject sheet
-loaded before it silently loses. That is what an inline `<style>` block placed above the links does.
-
-**Stage a course before its pages exist.** The Advanced Higher hub carries all 17 topics as inert
-`soon` tiles, grouped by unit and captioned, before a single topic page is written. Publishing one
-is then a flip — `<span class="hub-tile soon">` to `<a class="hub-tile" href="…">` — and it picks
-up its band colour automatically. A hub built this way shows a pupil the shape of the whole course
-on day one, and it stops the hub drifting from the build plan.
-
-**A tile may name its own colour.** The positional rotation sets `--tile-rot`, not `--tile-accent`,
-so a class on the tile (Electronics keeps its six `.t-*` section colours) always wins over the
-rotation regardless of stylesheet order. Write it at tile specificity — `.hub-tile.t-teal` — so it
-also beats the base `.hub-tile` declaration.
-
-**Two sprites, not one per page.** `_includes/resource-icons.html` holds the generic marks every
-subject needs — slides, notes, folder, simulation, book, scholar, tutor, video, quiz, cards, paper,
-doc — and each subject adds only its own topic marks (`eng-icons.html`, `higher-icons.html`).
-Include both on a hub that needs both.
-
-**A group can override the rotation.** Set `--tile-group` on a `.hub-grid` to give every tile in it
-one colour. Use it where the grouping already carries meaning: Higher's topic index colours by course unit
-(electricity azure, dynamic universe indigo, particles teal) — the Higher *hub* instead gives every
-tile its own `.t-*` colour (darker `--g2` stop, white ink ≥7.2:1) and puts Topic pages, Lesson
-slides and Practice tests first under "Start here" (RS, 29 Sep 2026) — Advanced Higher does the same
-(rotational bronze, quanta sienna, electromagnetism teal, and slate for the non-content strand —
-Researching Physics, slides and question pages — so a resource row never reads as a course unit),
-Engineering rotates by position.
-
-**Ink is per subject, and must be checked in BOTH themes.** Engineering uses dark ink on its banner
-colours; Higher and Advanced Higher use white on their unit colours. **A subject accent is not
-automatically usable as a band** — Advanced Higher's gold `#b8860b` is only 3.25:1 against white
-ink, so its unit-1 band is a darkened bronze `#8a6508` (5.32:1) and the accent stays off the bands
-entirely (quanta 7.31:1, electromagnetism 5.47:1, research 7.58:1). A subject whose `--accent`
-lightens in dark mode needs an `--on-accent` token for anything filled with it — Higher's dark accent is a light blue, and
-white text on it measured 1.88:1.
-
----
-
-## Slides index — the deck card (site standard, 24 September 2026)
-
-Every course's `classes/<course>/slides.html` lists its decks as `.deck-card`s. **Holds at every
-level of every subject** — Physics (S3, N5, Higher, Advanced Higher), Electronics, Engineering
-Science (S3, N5, Higher) — and on any slides index built later. The deck-side rule this serves is
-`~/claude-work/_deckkit/DECK-RULES.md` rules 29 and 29a; cite those, don't restate them.
-
-**A deck with one PDF** stays as it is: the whole `<a class="deck-card">` is the link, icon + name
-+ meta + a trailing `.go` arrow.
-
-**A deck published as a PAIR** — a deck whose rounds carry answer pills ships two PDFs (rule 29a) —
-is **one card carrying two named pills**:
-
-```html
-<div class="deck-card has-answers">
-  <svg class="deck-ic" …><use href="#ic-…"/></svg>
-  <span class="deck-txt">
-    <span class="deck-name">L2 — Mass and Weight</span>
-    <span class="deck-meta">PDF · 42 slides</span>
-    <span class="deck-pills">
-      <a class="deck-pill" href="…/l2-mass-and-weight.pdf" target="_blank" rel="noopener"
-         aria-label="Mass and Weight — notes and questions, PDF, 42 slides. Opens in a new tab">Notes and Questions <span aria-hidden="true">↗</span></a>
-      <a class="deck-pill" href="…/l2-mass-and-weight-answers.pdf" target="_blank" rel="noopener"
-         aria-label="Mass and Weight — with answers, PDF, 42 slides. Opens in a new tab">With Answers <span aria-hidden="true">↗</span></a>
-    </span>
-  </span>
-</div>
-```
-
-- **The card is a `<div>`, not a link.** The two pills are the links. That is the whole point: an
-  `<a>` cannot be nested inside another `<a>`, so a card-wide link forces a stretched `::after`
-  overlay and leaves one destination unnamed. Two pills need neither. **Drop the card's `.go`
-  arrow** — each pill carries its own.
-- **The words are fixed: "Notes and Questions" then "With Answers"**, in that order, on every
-  course. A pupil who learns the pair on one index reads it on all of them.
-- **The plain filename is the questions version**; the answers copy is `<name>-answers.pdf`. Links
-  pupils already hold go on working.
-- **Both pills stay outline-style, never filled.** A list of filled accent pills is the "the accent
-  means nothing" problem from the hub-tiles standard above.
-- **One component, per-subject palettes.** The three rules — `.deck-card.has-answers:hover,
-  :focus-within`, `.deck-pills`, `.deck-pill` — are copied verbatim into the course's sheet and
-  coloured by its own `--accent-2`, `--surface-2`, `--border-strong`, `--border-accent` and
-  `--shadow-soft`. Live in `assets/css/s3-physics.css` and `assets/css/higher-physics.css`; copy
-  from either, never write a second version.
-- **Bump the sheet's `?v=` when the rules land** on a subject, or pupils keep the cached CSS and
-  see unstyled pills.
-
-**Check before it counts as done** (global `CLAUDE.md` §2, Tier 1 — it is shared CSS):
-
-- Each pill ≥44 px tall and winning `elementFromPoint` at its own centre; the two consecutive in
-  tab order; no `a a` in the card.
-- Both PDFs' real page counts (`fitz`) equal to each other, to the card's `.deck-meta` and to both
-  `aria-label`s.
-- Both breakpoints and both appearances, in headless Chrome. **For the narrow width, set the
-  viewport with the CDP device-metrics override** (or Playwright's `viewport`): `--window-size`
-  alone will not render below ~450 px — it lays out wider and crops the screenshot, which looks
-  exactly like horizontal overflow.
-
-**Adopted so far:** S3 Physics (Space L2–L10) and Higher (ODU 1), 24 September 2026. Every other
-already-published deck gets its pair, and this card, on its next touch.
-
----
+Full spec in `tools/build-guides/slides-index.md` (shared with the `deck-ship` skill); read it before editing a slides index. Decks with answer pills use the two-pill card.
 
 ## Accessibility requirements (every page)
 
@@ -799,103 +584,32 @@ uncredited.
 - **Declare AI-generated assets** (banner and logo artwork), as `CREDITS.md` already does.
 - **Unknown provenance is not publishable.** Ask before it goes live.
 
-### Images — source priority (site standard, 14 September 2026)
+### Images
 
-Every image on the site, and in every deck, booklet and worksheet, comes from the first source
-that genuinely fits, in this order:
+Source priority and licence rules: global `CLAUDE.md` §7 and the `image-sourcing` skill. Site-specific: every published image also gets a row in `CREDITS.md`, `classes/credits.html` and `copyright-provenance-checklist.csv` in the same change. Photos use `<figure>` with a linked `<figcaption>` credit.
 
-1. **Official Qualifications Scotland (SQA) figures** — `~/SQA Images`, credited
-   `© Qualifications Scotland (SQA)` plus paper, section and question. Verify the credit against
-   the paper itself: the library's attribution has been wrong.
-2. **Clearly licensed images online** — widened 15 September 2026 for real-life application photos.
-   Allowed: NASA, ESA/Webb, ESA/Hubble, NOIRLab and other public bodies (UK OGL, US federal public
-   domain); **Wikimedia Commons** (the photographer's own work, or reviewer-verified; CC0, public
-   domain, CC BY, CC BY-SA); **Geograph Britain and Ireland** (CC BY-SA 2.0). The licence is checked
-   on the image's own page. Never a general web search, stock library (free ones included), social
-   media, Flickr direct, en.wikipedia local upload, company or press page, or an NC/ND/unclear
-   licence. **Safe to publish**: no people who could be pupils, no identifiable members of the public,
-   no brand or logo as the subject, no identifiable private home, no legible number plate. Credit
-   author, licence and source, with the licence and source linked (`Photo: Kevin Payravi, CC BY-SA
-   4.0, via Wikimedia Commons`). Every file needs a `SOURCES.csv` row, is shown to the teacher on a
-   contact sheet before use, and gets a row in `CREDITS.md`, `classes/credits.html` and
-   `copyright-provenance-checklist.csv` in the same change that publishes it.
-3. **Drawn** — inline SVG to the drawing rules in `higher-topic-page-guide.md` §7, matplotlib for
-   graphs, the stripboard engine for boards.
+## Dual coding (site standard)
 
-**Never use a file that cannot be properly credited.** The procedure and scripts are in the
-`image-sourcing` skill (`~/.claude/skills/image-sourcing/`).
+Procedure and rules: the `dual-coding` skill and DECK-RULES 34. Web specifics:
 
-## Dual coding — words and picture together (site standard, 15 September 2026)
-
-The website follows the same dual-coding standard as the decks: global `CLAUDE.md` §7,
-`_deckkit/DECK-RULES.md` rules 34 and 36, and the `dual-coding` skill
-(`~/.claude/skills/dual-coding/`). **Every new or rebuilt topic page is dual coded. An existing
-page is brought up to it on its next touch**, the same way as rule 31's trim.
-
-- **What counts.** Any section whose job is to explain an idea: how something works, why
-  something happens, what a quantity means, which case is which (light- or dark-sensing, forward
-  or reverse bias). Not a question block, a resource row, a hub tile or a credits line.
-- **Together, not in sequence.** The paragraph and its figure share one block: side by side at
-  desktop, and text then figure below the mobile breakpoint. A figure further down the page is
-  not dual coding.
-- **The figure is the mechanism**, drawn as inline SVG to `higher-topic-page-guide.md` §7 with
-  the page's CSS variables. It works in both appearances, uses UK/BS-IEC symbols and axes
-  labelled with units. An SQA figure may stand beside or instead of a drawn one where it teaches
-  the same point, credited `© Qualifications Scotland (SQA)`.
-- **Same words on both.** Every term the paragraph uses for a part of the figure is a label on
-  it, spelled identically. Use the exam paper's term, bridged once where the booklet differs
-  ("exam papers call this V<sub>in</sub>").
-- **Photos join, never replace.** A real-life application photo (image priority above) sits in a
-  `<figure>` with a linked `<figcaption>` credit beside or below the diagram, never in its place.
-  A "Where you meet it" strip of 2–3 photos may close a section.
-- **Cases get a figure each.** A table or list comparing cases gives each case its own small
-  figure in the same row or card.
-- **Component.** No shared class exists yet. The first page to adopt this adds a `.dual`
-  two-column block to its subject CSS (grid, text first in the DOM, `minmax(0,1fr)` columns,
-  collapsing at the mobile breakpoint). Later pages reuse it rather than inventing another.
-- **Accessible.** The SVG has `role="img"` and a `<title>`/`aria-label` naming what it shows.
-  Photos have real `alt` text. The figure never carries meaning by colour alone.
-- **Check it.** Both breakpoints and both appearances, in headless Chrome (global `CLAUDE.md`
-  §2; no Safari checks since 28 Oct 2026). Look at every figure at the size it renders: no label clipped or
-  sitting on a line.
-- **Companion materials.** A page that links a practical sheet or deck points at it and never
-  reveals what the sheet asks pupils to predict. Worked examples on the page don't reuse a
-  question the linked sheet or practice test sets (DECK-RULES 36).
+- Paragraph and figure share one block: side by side on desktop, text then figure below the mobile breakpoint.
+- The figure is the mechanism, as inline SVG using the page's CSS variables, working in both appearances.
+- **Component:** a `.dual` two-column block (grid, text first in the DOM, `minmax(0,1fr)`, collapsing at the mobile breakpoint). The first page to adopt it adds it to its subject CSS; later pages reuse it.
+- **Accessible:** SVG `role="img"` with `<title>`/`aria-label`; photos have real `alt`; no meaning by colour alone.
+- **Check:** one headless Chrome look per changed page (both widths and appearances only if CSS or layout changes).
 
 ---
 
-## Learning standard (site standard, 18 September 2026)
+## Learning standard (site standard)
 
-Pages follow `~/claude-work/learning-standard/LEARNING-STANDARD.md`, the same standard as the
-decks (DECK-RULES rule 37). Cite its IDs; don't restate them. **New and rebuilt pages meet it;
-existing pages on their next touch**, alongside the dual-coding pass.
+The dyslexia audit and D-rules are dropped (8 Nov 2026). `assets/css/reading.css` and the reading-options
+panel already exist: **retired in the docs, no new page opts in**; existing pages are left alone unless
+touched for another reason. Still in force for pages:
 
-- **Reading (D2–D6).** 18 px body, line-height 1.5, slightly wider letter and word spacing,
-  left-aligned, never justified, 60–70 characters per line, bold for emphasis only. They live in
-  one shared module, **`assets/css/reading.css`** (26 Sep 2026): a page opts in with
-  `<body class="reading">` and links the sheet after its subject and component sheets. Don't
-  hand-roll them per page. A subject whose page ground ends in white tints that stop in its own
-  sheet under `body.reading` (Electronics: `--bg2`). **Letter and word spacing stay at the
-  font's own** — Trebuchet MS is already open, and the extra .03em/.12em read as odd gaps to a
-  dyslexic reader (learning-standard decision 65). **A page's opening two panels go in
-  `<div class="panel-pair">`**: side by side on a wide screen so the 52ch line cap doesn't leave
-  the right half empty, stacked on a phone. Adopted so far: the Electronics hub.
-- **Reading-options panel (D20).** Site-wide, text size, spacing and tint, per device in
-  `localStorage` (Phase 2c).
-- **Every symbol decoded (D11)**: a symbol glossary beside each equation, with name and unit.
-- **Questions (D10)**: command word bold and first, data in a list, marks at the end.
-- **Every quiz option teaches** (teacher, 7 Oct 2026; DECK-RULES 42): each multiple-choice option
-  carries feedback shown after it is picked. A wrong pick says why it is wrong and nudges towards
-  the right idea without naming the letter; the right one starts "Right." and shows the reasoning.
-  Pattern: the quiz on `classes/n5-engineering/checkpoint-revision.html`.
-- **Segment (C4)**: one new idea per section; long explanations use "next step" reveals.
-- **Glossary with pictures (D17, V1)** closes each topic page.
-- **Retrieval and self-rating (R2, R4, M2, R6)**: quick-quiz blocks with instant answers, a 1–3
-  confidence widget, and a "come back to these" list — **all device-only, never sent anywhere**.
-  Components arrive in Phase 4; don't invent one-off versions before then.
-- **Real text (D18–D19)**: no pictures of text; every figure has `alt`.
-- **Practice tests (D21)**: work with browser read-aloud, no timer that can't be switched off.
-- **Check it** as for dual coding: headless Chrome, both widths, both appearances.
+- **Every quiz option teaches** (DECK-RULES 42): wrong pick says why and nudges without naming the letter; the right one starts "Right." and shows the reasoning. Pattern: `classes/n5-engineering/checkpoint-revision.html`.
+- **Segment:** one new idea per section; long explanations use "next step" reveals.
+- **Retrieval and self-rating:** quick-quiz blocks, a 1–3 confidence widget and a "come back to these" list, device-only, never sent anywhere.
+- **Every symbol decoded:** a glossary with name and unit beside each equation. Every figure has `alt`.
 
 ---
 
