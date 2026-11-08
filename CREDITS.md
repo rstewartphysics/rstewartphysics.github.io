@@ -78,6 +78,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Two charged balloons pushing apart — MikeRun, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Repulsive-electric-force-between-balloons.jpg).
   - Lightning from a storm cloud — US Air Force, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lightning3.jpg).
   - Birds sitting on a high-voltage line — Vanja Kovac, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Birds_on_a_power_line.jpg).
+- **Photographs under open licences** (added 8 November 2026) — the Advanced Higher Physics
+  *Electric Fields 2: Uniform Fields* slides
+  (`classes/adv/slides/ah-i-electric-fields-2-uniform-fields.pdf`), credited on the deck's
+  Credits slide. Resized or cropped to fit; not otherwise changed. The deck's past-paper items
+  (AH Physics 2021-2026, questions, marking instructions and 2026 Q14 Figure 14A) are
+  © Qualifications Scotland (SQA), reproduced for educational use and credited on the Credits slide.
+  - An electron gun from an old TV tube — Mister rf, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:31LK3b_electron_gun.jpg).
+  - A sine wave on an analogue oscilloscope — Pittigrilli, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sine_wave_10_kHz_displayed_on_analog_oscilloscope.jpg).
+  - Millikan's oil drop apparatus, about 1916 — Daderot, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Millikan%27s_Oil_Drop_apparatus,_c._1916,_used_by_Robert_Millikan_and_Harvey_Fletcher_in_several_experiments_to_measure_an_electron%27s_charge_-_Museum_of_Science_and_Industry_(Chicago)_-_DSC06505.JPG).
 - **Photographs under open licences** (added 4 October 2026) — the Advanced Higher Physics
   *Interference 2: Division of Amplitude* slides
   (`classes/adv/slides/ah-n-interference-2-division-of-amplitude.pdf`), credited on the deck's
