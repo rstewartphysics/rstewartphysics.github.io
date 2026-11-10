@@ -416,11 +416,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   by this site's board engine; the circuit drawings, the 555 symbol, the graphs, the oscilloscope trace,
   the catalogues and the booklet pages are from the Block 6 booklet and deck; all by R Stewart, 2026.
   No photos.
+  Updated 9 November 2026: past-paper starters, What Candidates Get Wrong slides and a past-paper slide.
   - Figures and questions: National 5 Practical Electronics 2024 Q8 (the oscilloscope); 2018 Q8 (via
-    J Keegan's past-paper compilation, Nov 2025 update); 2025 Q1(b)(ii) and Q3(a)(i); 2026 Q1(c) and
-    Q3(a)(ii); the 2018 and 2024 marking instructions. The N5 Electronics course specification v3.1,
-    pp.5–7, is quoted.
+    J Keegan's past-paper compilation, Nov 2025 update); the 2018 and 2024 marking instructions. The
+    starters point to 2024 Q1(b)(ii), Q2, Q4(b) and Q8(a), with a QR code to the paper on sqa.org.uk.
+    What Candidates Get Wrong quotes the 2024, 2025 and 2026 National 5 Practical Electronics course
+    reports. The N5 Electronics course specification v3.1, pp.5–7, is quoted, with a QR code to it on
+    sqa.org.uk.
     © Qualifications Scotland (SQA), reproduced for educational use.
+  - Past-paper finder QR: J Keegan's N5 Practical Electronics past-paper compilation (Nov 2025 update),
+    used with permission.
 - **National 5 Electronics Block 6 Lesson 3 *The 555 Monostable*** (added 29 October 2026) — the
   lesson slide deck `classes/electronics/slides/b6-l3-555-monostable.pdf` and its `-answers.pdf` twin.
   Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
@@ -469,6 +474,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Figures and questions: 2016 Higher Physics Section 1, Q5; 2018 Higher Physics Section 1, Q5; 2019 Higher Physics
     Paper 2, Q4; 2023 Higher Physics Paper 1, Q6. The Higher Physics course specification v4.1 (September 2026),
     p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **S3 Physics *Space L6: Forces on Rockets*** (added 10 November 2026) — the lesson slide deck
+  `classes/s3-physics/slides/l6-forces-on-rockets.pdf` and its `-answers.pdf` twin. Each item is credited on
+  the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
+  - Photos: the Artemis II launch (2026) — NASA/Michael DeMocker; an RS-25 engine on a test stand — NASA.
+  - Figures and questions: N5 Physics 2014 Section 2 Q12; 2023 Section 1 Q8 and Section 2 Q4; 2024 Section 1 Q3
+    and Section 2 Q4(c); 2025 Section 2 Q2(a) and Q4(b)(i); 2026 Section 2 Q4(b); the specimen question paper and marking instructions;
+    the 2023–2025 course reports. The N5 Physics course specification v5.1 (September 2026), pp.6 and 8, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use. Photo in the 2025 paper: Hasbul Aerial
+    Stock/Shutterstock; in the 2026 paper: Nerthuz/shutterstock.com. The Moon (2023 Q4) — NASA, Apollo 15.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
@@ -599,6 +613,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - An automated assembly machine — Wikimachinespeciale, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Assemblage_automatis%C3%A9_valves_m%C3%A9dicales_-_ASM_2012.jpg). Resized to fit.
   - Air impact wrenches — Fumikas Sagisavas, CC0, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Wind_cannon_~_Impact_wrenches.jpg). Resized to fit.
 
+- **National 5 Engineering Science *Pneumatics*, Lesson Pn2** (added 10 November 2026) — the lesson slide
+  deck `assets/engineering-science/national-5/06-pneumatics/slides/pn2-single-acting-cylinder-and-3-2-valve.pdf`
+  with its `-answers.pdf` twin. Each item is credited on the deck's Credits slides. The pneumatic symbols,
+  circuits and CP2080 kit drawings are drawn by R Stewart; Booklet 6 page images are R Stewart's own.
+  - Figures and questions: N5 Engineering Science 2019 Section 1 Q3, 2021 Section 1 Q3 and 2026 Section 2 Q14 (parts (a)(ii) and (c)) as starters and exam items, 2018 Section 2 Q15(d) and 2024 Section 1 Q3 (the Build It clamp), with their marking instructions; the 2018 Section 1 Q7 marking instructions and the 2025 and 2026 course reports are quoted on the What Candidates Get Wrong slides. The N5 Engineering Science course specification v2.0, p.6, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use.
+  - A pneumatic cylinder in a machine — Mixabest, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Pneumatic_cylinder_2172.jpg). Resized to fit.
 - **National 5 Engineering Science *Pneumatics*, Lesson Pn3** (added 10 November 2026) — the lesson slide
   deck `assets/engineering-science/national-5/06-pneumatics/slides/pn3-double-acting-cylinder-5-2-valve-and-pilot-air.pdf`
   with its `-answers.pdf` twin. Each item is credited on the deck's Credits slides. The pneumatic symbols,
