@@ -474,6 +474,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Figures and questions: 2016 Higher Physics Section 1, Q5; 2018 Higher Physics Section 1, Q5; 2019 Higher Physics
     Paper 2, Q4; 2023 Higher Physics Paper 1, Q6. The Higher Physics course specification v4.1 (September 2026),
     p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **S3 Physics *Space L6: Forces on Rockets*** (added 10 November 2026) — the lesson slide deck
+  `classes/s3-physics/slides/l6-forces-on-rockets.pdf` and its `-answers.pdf` twin. Each item is credited on
+  the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
+  - Photos: the Artemis II launch (2026) — NASA/Michael DeMocker; an RS-25 engine on a test stand — NASA.
+  - Figures and questions: N5 Physics 2014 Section 2 Q12; 2023 Section 1 Q8 and Section 2 Q4; 2024 Section 1 Q3
+    and Section 2 Q4(c); 2025 Section 2 Q2(a) and Q4(b)(i); 2026 Section 2 Q4(b); the specimen question paper and marking instructions;
+    the 2023–2025 course reports. The N5 Physics course specification v5.1 (September 2026), pp.6 and 8, is quoted.
+    © Qualifications Scotland (SQA), reproduced for educational use. Photo in the 2025 paper: Hasbul Aerial
+    Stock/Shutterstock; in the 2026 paper: Nerthuz/shutterstock.com. The Moon (2023 Q4) — NASA, Apollo 15.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
