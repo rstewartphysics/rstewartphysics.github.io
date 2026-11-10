@@ -67,22 +67,10 @@
   }
 
   // ---------- units ----------
-  function normU(s) {
-    return String(s || "").replace(/\s+/g, "").replace(/\^/g, "").replace(/[⁻−]/g, "-").replace(/¹/g, "1").replace(/²/g, "2");
-  }
-  function unitOf(raw) {
-    var n = normU(raw), keys = Object.keys(D.units), i, j, list;
-    if (!n) { return { empty: true }; }
-    for (var pass = 0; pass < 2; pass++) {
-      for (i = 0; i < keys.length; i++) {
-        list = [keys[i]].concat(D.units[keys[i]].accept);
-        for (j = 0; j < list.length; j++) {
-          var a = normU(list[j]);
-          if (pass === 0 ? a === n : a.toLowerCase() === n.toLowerCase()) { return { key: keys[i], exact: pass === 0 }; }
-        }
-      }
-    }
-    return { key: null };
+  function unitOf(v) {
+    if (!v) { return { empty: true }; }
+    var hit = D.units.filter(function (x) { return x.u === v; })[0];
+    return hit ? { key: hit.u, quantity: hit.quantity } : { key: null };
   }
 
   // ---------- relationships ----------
@@ -275,7 +263,7 @@
         if (near(p.v, x, 0.02)) { return { msg: "Don't round in the middle of a calculation. Write every figure of the " + name + " (" + fmt(x, st.find) + " would be exact), then use it in the next step.", box: numEl }; }
         return { msg: wrongValue(r, st.find, sv, p.v), box: numEl };
       }
-      if (u.empty || u.key === want) { return { ok: true, v: x, text: fmt(x, st.find), note: u.key && !u.exact ? " Write it as " + want + "." : "" }; }
+      if (u.empty || u.key === want) { return { ok: true, v: x, text: fmt(x, st.find), note: "" }; }
     } else {
       // final: SQA rounding — the fewest figures in the data, one fewer or up to two more allowed
       var n = S.item.minSF, lo = Math.max(1, n - 1), hi = n + 2;
@@ -286,10 +274,10 @@
       var why = "The fewest significant figures in the data is " + n + " (" + S.item.minWhat + "), so give " + lo + " to " + hi + ".";
       if (!exactly(p.v, x) && p.sf < lo) { return { msg: "Too few significant figures. " + why, box: numEl }; }
       if (p.sf > hi) { return { msg: "Too many significant figures. " + why, box: numEl }; }
-      if (u.key === want) { return { ok: true, v: p.v, text: toSF(p.v, p.sf), note: u.exact ? "" : " Write it as " + want + "." }; }
+      if (u.key === want) { return { ok: true, v: p.v, text: toSF(p.v, p.sf), note: "" }; }
       if (u.empty) { return { msg: "Right number. Now add the unit: a final answer always needs its unit.", box: unitEl }; }
     }
-    if (u.key) { return { msg: "Right number. " + u.key + " is the unit of " + D.units[u.key].quantity + ". What is the " + name + " measured in?", box: unitEl }; }
+    if (u.key) { return { msg: "Right number. " + u.key + " is the unit of " + u.quantity + ". What is the " + name + " measured in?", box: unitEl }; }
     return { msg: "Right number. Check the unit: what is the " + name + " measured in?", box: unitEl };
   }
 
@@ -352,7 +340,8 @@
       var fin = S.si === S.item.steps.length - 1;
       h = "<p class=\"stp-ask\">Work out the " + sym(st.find).name + (fin ? ". Round it, and give the unit.</p>" : ". Keep every figure: don't round yet.</p>") + "<div class=\"stp-eq\"><span class=\"stp-sym\"><var>" + st.find + "</var></span> <span class=\"stp-op\">=</span> " +
         "<input class=\"stp-in stp-num\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" data-role=\"num\" aria-label=\"" + sym(st.find).name + ", number\">" +
-        "<input class=\"stp-in stp-unit\" type=\"text\" autocomplete=\"off\" autocapitalize=\"off\" spellcheck=\"false\" data-role=\"unit\" placeholder=\"unit\" aria-label=\"" + sym(st.find).name + ", unit\">" + tenBtn +
+        "<select class=\"stp-unit\" data-role=\"unit\" aria-label=\"" + sym(st.find).name + ", unit\"><option value=\"\">unit</option>" +
+          D.units.map(function (x) { return "<option>" + x.u + "</option>"; }).join("") + "</select>" + tenBtn +
         "<button type=\"button\" class=\"stp-check\" data-act=\"check\">Check</button>" + hintBtn + "</div>";
     } else {
       h = "<p class=\"stp-ask\">Use the data sheet. Where is the lander?</p><div class=\"stp-choices\">" +
