@@ -1,0 +1,167 @@
+# Calculation Stepper — N5 relationships (SPACE-PLATFORM-PLAN-v2 §5a, §8c AT5).
+# One record per relationship, used by every topic set. tools/stepper.html reads this
+# file; assets/js/stepper.js does the checking. Text may hold <var>, <b>, <sub>, <sup>.
+#
+# Forms the engine knows:
+#   product     out = a × b       (W = mg, F = ma …)
+#   difference  out = a − b       (unbalanced force = thrust − weight)
+#   sum         out = a + b       (only as a wrong choice, with its own feedback)
+# Each line of working is checked: 1 relationship, 2 substitution, 3 answer + unit.
+
+revised: November 2026
+
+symbols:
+  W: { name: weight, unit: N }
+  m: { name: mass, unit: kg }
+  g: { name: gravitational field strength, unit: N kg⁻¹ }
+  F: { name: unbalanced force, unit: N }
+  a: { name: acceleration, unit: m s⁻² }
+  T: { name: thrust, unit: N, word: thrust }
+
+# Accepted ways of typing each unit (spaces, ^ and superscripts are ignored when matching).
+units:
+  N: { quantity: force, accept: ["N", "newton", "newtons"] }
+  kg: { quantity: mass, accept: ["kg", "kilogram", "kilograms"] }
+  "N kg⁻¹": { quantity: gravitational field strength, accept: ["N kg-1", "N/kg"] }
+  "m s⁻²": { quantity: acceleration, accept: ["m s-2", "m/s2", "m/s/s"] }
+
+relationships:
+  weight:
+    form: product
+    vars: [W, m, g]
+    html: "<var>W</var> = <var>mg</var>"
+    use: "<var>W</var> = <var>mg</var> gives the weight: the pull of gravity on a mass."
+  fma:
+    form: product
+    vars: [F, m, a]
+    html: "<var>F</var> = <var>ma</var>"
+    use: "<var>F</var> = <var>ma</var> links the unbalanced force to the mass and the acceleration."
+  unbalanced:
+    form: difference
+    vars: [F, T, W]
+    html: "<var>F</var> = thrust − weight"
+    use: "Thrust − weight gives the unbalanced force on a rocket at lift-off."
+  thrust-plus:
+    form: sum
+    vars: [F, T, W]
+    html: "<var>F</var> = thrust + weight"
+    wrong: true
+    use: "Not this one. The weight pulls down, against the thrust, so it is taken away, not added."
+
+# N5 data sheet, gravitational field strength on the surface (N kg⁻¹). © Qualifications Scotland (SQA).
+g:
+  Mercury: 3.7
+  Venus: 8.9
+  Earth: 9.8
+  Moon: 1.6
+  Mars: 3.7
+  Jupiter: 23
+  Saturn: 9.0
+  Uranus: 8.7
+  Neptune: 11
+  Sun: 270
+
+bodies:
+  rocky: [Mercury, Venus, Earth, Moon, Mars]
+  planets: [Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune]
+  launch: [Earth, Earth, Earth, Earth, Moon, Mars]
+  # find-g items need a value only one body has (Mars and Mercury share 3.7)
+  unique-g: [Venus, Earth, Moon, Jupiter, Saturn, Uranus, Neptune]
+the: [Moon, Sun]     # "on the Moon", not "on Moon"
+
+# Real-paper and worked-example numbers the generator must never produce (plan §10b).
+avoid:
+  - { m: 2400, T: 36000, body: Earth }   # page B worked example
+  - { m: 550000, a: 4.1, body: Earth }   # 2026 S2 Q4(b)
+
+# Line hints. {sym}, {name}, {unit} name the quantity the line finds.
+hints:
+  pick: "You are finding the {name}, <var>{sym}</var>. Which relationship has <var>{sym}</var> in it, and only quantities you know?"
+  sub: "Put each number from the question in the box for its symbol. Use the units in the boxes: N, kg, N kg⁻¹ and m s⁻²."
+  ans:
+    out-product: "Multiply the two numbers. The {name} is measured in {unit}."
+    in-product: "Rearrange: divide {other} by the number beside <var>{sym}</var>. The {name} is measured in {unit}."
+    out-difference: "Take the second number away from the first. The {name} is measured in {unit}."
+    in-difference: "Thrust = unbalanced force + weight. Add them. The {name} is measured in {unit}."
+
+sets:
+  n5-space:
+    title: Space — forces and rockets
+    course: N5 Physics
+    back: { href: /classes/s3-physics/space.html, text: Back to Space }
+    modes:
+      - id: weight
+        tab: "Weight, <var>W</var> = <var>mg</var>"
+        intro: "Weight, mass and gravitational field strength. Look up <var>g</var> on the data sheet."
+        datasheet: true
+        choices: [weight, fma, unbalanced]
+        items:
+          - kind: single
+            rel: weight
+            find: W
+            text: "An astronaut of mass {m} stands on {body}. Calculate the astronaut's weight."
+            gen: { m: [55, 110, 1], body: rocky }
+          - kind: single
+            rel: weight
+            find: W
+            text: "A space probe of mass {m} is sent to {body}. Calculate the weight the probe would have on {body}."
+            gen: { m: [150, 900, 10], body: planets }
+          - kind: single
+            rel: weight
+            find: m
+            text: "A rover has a weight of {W} on {body}. Calculate the mass of the rover."
+            gen: { m: [180, 1100, 10], body: rocky }
+          - kind: single
+            rel: weight
+            find: g
+            then: name-body
+            text: "A lander of mass {m} has a weight of {W} on the surface of a planet or moon. Calculate the gravitational field strength there. Then use the data sheet to name the planet or moon."
+            gen: { m: [200, 900, 10], body: unique-g }
+      - id: force
+        tab: "<var>F</var> = <var>ma</var>"
+        intro: "Unbalanced force, mass and acceleration."
+        choices: [fma, weight, unbalanced]
+        items:
+          - kind: single
+            rel: fma
+            find: F
+            text: "A car of mass {m} accelerates at {a}. Calculate the unbalanced force on the car."
+            gen: { m: [800, 1800, 50], a: [0.5, 4.0, 0.1] }
+          - kind: single
+            rel: fma
+            find: a
+            text: "A cyclist and bicycle have a total mass of {m}. The unbalanced force on them is {F}. Calculate their acceleration."
+            gen: { m: [60, 110, 1], a: [0.4, 3.0, 0.1] }
+          - kind: single
+            rel: fma
+            find: m
+            text: "An unbalanced force of {F} gives a trolley an acceleration of {a}. Calculate the mass of the trolley."
+            gen: { m: [0.5, 4.0, 0.1], a: [0.5, 3.0, 0.1] }
+      - id: lift-off
+        tab: Lift-off
+        intro: "Rockets at lift-off. Find the weight, then the unbalanced force, <b>before</b> you use <var>F</var> = <var>ma</var>."
+        datasheet: true
+        choices: [weight, fma, unbalanced, thrust-plus]
+        done: "No unbalanced force worked out = only 1 mark out of 4 (2025 marking instructions)."
+        items:
+          - kind: lift-off
+            find: a
+            text: "A rocket of mass {m} lifts off from {body}. The thrust of its engines is {T}. Air resistance can be ignored. Determine the initial acceleration of the rocket."
+            gen: { m: mass-bands, ratio: [1.3, 2.4], body: launch }
+          - kind: lift-off
+            find: T
+            text: "A rocket of mass {m} lifts off from {body} with an initial acceleration of {a}. Air resistance can be ignored. Determine the thrust of its engines."
+            gen: { m: mass-bands, a: [1.5, 6.0, 0.1], body: launch }
+
+# Rocket mass bands for lift-off: small craft in kg, or launch vehicles in standard form.
+mass-bands:
+  - { min: 1500, max: 4000, step: 100, weight: 6 }
+  - { min: 100000, max: 900000, step: 10000, weight: 4 }
+
+# Step labels and the hint that opens each lift-off step.
+steps:
+  weight: { label: Weight, lead: "First find the weight. It acts down, against the thrust." }
+  unbalanced: { label: Unbalanced force, lead: "The unbalanced force is what is left of the thrust after the weight." }
+  fma: { label: Acceleration, lead: "Now use the unbalanced force, not the thrust, in <var>F</var> = <var>ma</var>." }
+  fma-F: { label: Unbalanced force, lead: "Use <var>F</var> = <var>ma</var> to find the unbalanced force that gives this acceleration." }
+  thrust: { label: Thrust, lead: "The thrust has to hold up the weight and give the unbalanced force too." }
