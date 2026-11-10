@@ -34,7 +34,10 @@
     { id: "elec1-graphs", name: "Graph Plotter", emoji: "📈", section: "Electricity",
       unlock: "page",
       href: "/classes/s3-physics/electricity1/graphing-practice.html",
-      cond: "Work through the Electricity 1 graphing practice" }
+      cond: "Work through the Electricity 1 graphing practice" },
+    { id: "space-b", name: "Space Exploration", emoji: "🚀", section: "Space", unlock: "page",
+      href: "/classes/s3-physics/space/space-exploration.html",
+      cond: "Finish every challenge on Space · Part B" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });

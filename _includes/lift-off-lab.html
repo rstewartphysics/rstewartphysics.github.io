@@ -1,0 +1,118 @@
+{%- comment -%}
+  A1 Lift-off Lab (AT1, SPACE-PLATFORM-PLAN-v2 §8b). Needs sims.css, widget-kit.js and
+  /assets/js/apps/lift-off-lab.js. One per page: ids are fixed.
+{%- endcomment -%}
+<style>
+  .lol-pad { stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
+  .lol-place, .lol-cap { fill: var(--muted); font: 800 13px var(--font-stack, "Trebuchet MS", sans-serif); }
+  .lol-body { fill: none; stroke: var(--text); stroke-width: 3; stroke-linejoin: round; }
+  .lol-fin { fill: var(--card); stroke: var(--text); stroke-width: 3; stroke-linejoin: round; }
+  .lol-window { fill: var(--card); stroke: var(--sim-ink); stroke-width: 2.5; }
+  .lol-fuel { fill: var(--surface-2); stroke: none; }
+  .lol-flame { fill: var(--sim-c2); }
+  .lol-dot { fill: var(--text); }
+  #lol-rocket { transition: transform .4s ease; }
+  .lol.is-flying #lol-rocket { transform: translateY(-14px); }
+  .lol-work { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; background: var(--surface-2); }
+  .lol-work-h { margin: 0 0 .3rem; font-weight: 900; color: var(--muted); font-size: .85rem; }
+  .lol-work ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .35rem; line-height: 1.45; }
+  .lol-work var { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.1em; }
+  .lol-status { margin: .55rem 0 0; font-weight: 800; line-height: 1.45; }
+  .lol .feedback-btn { margin-top: .2rem; }
+  .lol-speed { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; background: var(--card); }
+  .lol-speed caption { text-align: left; font-weight: 900; color: var(--muted); font-size: .85rem; padding: 0 0 4px; }
+  .lol-speed th, .lol-speed td { border: 1px solid var(--border); padding: 6px 8px; text-align: center; font-weight: 800; }
+  .lol-speed th[scope="row"] { text-align: left; white-space: nowrap; }
+  .lol-speed td { font-size: 1rem; }
+  .lol-speed tr.is-key td { color: var(--sim-ink); font-size: 1.08rem; font-weight: 900; }
+  .lol-speed var, .lol-speed-note var { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.1em; }
+  .lol-speed-note { margin: 0; color: var(--muted); font-weight: 800; font-size: .9rem; line-height: 1.4; }
+  @media (max-width: 520px) { .lol-speed th, .lol-speed td { padding: 5px 4px; font-size: .9rem; } }
+  @media (prefers-reduced-motion: reduce) { #lol-rocket { transition: none; } }
+</style>
+<div class="sim lol" id="liftOffLab">
+  <div class="sim-head">
+    <h3>Lift-off Lab</h3>
+    <p class="sim-hint">Change the mass, the thrust and the place. The arrows are drawn to scale. Turn fuel burn on in the table, or burn the fuel, and watch the acceleration grow.</p>
+    {% include feedback-button.html about="Lift-off Lab" %}
+  </div>
+
+  <div class="sim-predict" id="lol-predict">
+    <p class="sim-q"><b>Predict.</b> A rocket's thrust is smaller than its weight. What does the rocket do?</p>
+    <div class="sim-choices">
+      <button type="button" data-predict="slow" aria-pressed="false">It rises slowly<template data-feedback><p>To speed up from rest, the rocket needs an unbalanced force upwards. With the thrust smaller than the weight there isn't one. Set the thrust below the weight and see.</p></template></button>
+      <button type="button" data-predict="pad" data-key aria-pressed="false">It stays on the pad<template data-feedback><p>Right. The thrust can't beat the weight, so there is no unbalanced force upwards and the rocket does not lift off. The pad holds it up. Set the thrust below the weight and see.</p></template></button>
+      <button type="button" data-predict="fall" aria-pressed="false">It sinks into the pad<template data-feedback><p>The pad pushes up on the rocket, so it can't sink. With the thrust smaller than the weight, it just stays where it is. Set the thrust below the weight and see.</p></template></button>
+    </div>
+    <div data-reveal hidden aria-live="polite"></div>
+  </div>
+
+  <div class="sim-stage">
+    <div class="sim-view">
+      <div class="sim-figs">
+        <figure class="sim-fig">
+          <svg id="lol-draw" viewBox="0 0 380 330" role="img" aria-label="A rocket on its launch pad, with its forces drawn to scale beside it: thrust up, weight down and the unbalanced force">
+            <line class="lol-pad" x1="14" y1="296" x2="132" y2="296"/>
+            <text class="lol-place" id="lol-place" x="73" y="318" text-anchor="middle">Earth</text>
+            <g id="lol-rocket">
+              <path class="lol-flame" id="lol-flame" d="M64 276 L73 276 L82 276 L73 290 Z"/>
+              <path class="lol-fin" d="M58 222 L42 262 L42 272 L58 262 Z M88 222 L104 262 L104 272 L88 262 Z"/>
+              <rect class="lol-fuel" id="lol-fuel" x="62" y="160" width="22" height="104"/>
+              <path class="lol-body" d="M73 96 C83 108 88 124 88 140 V272 H58 V140 C58 124 63 108 73 96 Z"/>
+              <circle class="lol-window" cx="73" cy="134" r="6"/>
+            </g>
+            <circle class="lol-dot" cx="200" cy="195" r="5"/>
+            <text class="lol-cap" x="255" y="18" text-anchor="middle">Forces, drawn to scale</text>
+          </svg>
+        </figure>
+        <div class="lol-work" aria-live="polite">
+          <p class="lol-work-h">Working</p>
+          <ol id="lol-steps"></ol>
+          <p class="lol-status" id="lol-status"></p>
+        </div>
+      </div>
+      <div class="sim-readouts" id="lol-outs" aria-live="polite">
+        <div class="sim-out"><span class="k">Weight <var>W</var></span><span class="v" id="lol-w">—</span></div>
+        <div class="sim-out"><span class="k">Unbalanced force <var>F</var></span><span class="v" id="lol-f">—</span></div>
+        <div class="sim-out is-key"><span class="k">Acceleration <var>a</var></span><span class="v" id="lol-a">—</span></div>
+        <div class="sim-out"><span class="k">Mass now</span><span class="v" id="lol-mnow">—</span></div>
+      </div>
+      <table class="lol-speed" aria-describedby="lol-speed-note">
+        <caption>After lift-off, starting from rest</caption>
+        <thead><tr><th scope="row">Time <var>t</var> (s)</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Mass <var>m</var> (kg)</th><td id="lol-m1">—</td><td id="lol-m2">—</td><td id="lol-m3">—</td><td id="lol-m4">—</td></tr>
+          <tr><th scope="row">Acceleration <var>a</var> (m s<sup>−2</sup>)</th><td id="lol-a1">—</td><td id="lol-a2">—</td><td id="lol-a3">—</td><td id="lol-a4">—</td></tr>
+          <tr class="is-key"><th scope="row">Speed <var>v</var> (m s<sup>−1</sup>)</th><td id="lol-v1">—</td><td id="lol-v2">—</td><td id="lol-v3">—</td><td id="lol-v4">—</td></tr>
+        </tbody>
+      </table>
+      <p class="lol-speed-note" id="lol-speed-note">—</p>
+    </div>
+    <div class="sim-controls">
+      <div class="sim-seg" role="group" aria-label="Where is the rocket?">
+        <span class="sim-seg-label">Where</span>
+        <button type="button" data-sim-toggle="place" data-value="earth" aria-pressed="true">Earth</button>
+        <button type="button" data-sim-toggle="place" data-value="moon" aria-pressed="false">Moon</button>
+        <button type="button" data-sim-toggle="place" data-value="mars" aria-pressed="false">Mars</button>
+      </div>
+      <label class="sim-field">
+        <span class="sim-name">Mass at lift-off <var>m</var> (kg)</span>
+        <span class="sim-row"><input type="range" data-sim="m" min="500" max="3000" step="50" value="2000" aria-label="Mass at lift-off in kilograms"><input class="sim-num" type="number" data-sim="m" min="500" max="3000" step="50" value="2000" inputmode="numeric" aria-label="Mass at lift-off in kilograms, typed"></span>
+      </label>
+      <label class="sim-field">
+        <span class="sim-name">Thrust (kN)</span>
+        <span class="sim-row"><input type="range" data-sim="T" min="0" max="60" step="0.5" value="30" aria-label="Thrust in kilonewtons"><input class="sim-num" type="number" data-sim="T" min="0" max="60" step="0.5" value="30" inputmode="decimal" aria-label="Thrust in kilonewtons, typed"></span>
+      </label>
+      <div class="sim-seg" role="group" aria-label="Count the fuel burn in the table">
+        <span class="sim-seg-label">Fuel burn in the table</span>
+        <button type="button" data-sim-toggle="burnTable" data-value="off" aria-pressed="true">Off</button>
+        <button type="button" data-sim-toggle="burnTable" data-value="on" aria-pressed="false">On</button>
+      </div>
+      <div class="sim-seg" role="group" aria-label="Fuel">
+        <span class="sim-seg-label">Fuel: <span id="lol-fuel-left">100%</span> left</span>
+        <button type="button" class="sim-btn" id="lol-burn" aria-pressed="false">Burn fuel</button>
+        <button type="button" class="sim-btn" id="lol-refuel">Refuel</button>
+      </div>
+    </div>
+  </div>
+</div>
