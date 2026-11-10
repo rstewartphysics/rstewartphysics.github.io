@@ -636,6 +636,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     © Qualifications Scotland (SQA), reproduced for educational use.
   - A power hacksaw sawing metal — Korrupt, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Metallsaege.jpg). Resized to fit.
 
+- **National 5 Engineering Science *Pneumatics*, Lesson Pn4** (added 10 November 2026) — the lesson slide
+  deck `assets/engineering-science/national-5/06-pneumatics/slides/pn4-controlling-speed-restrictors.pdf`
+  with its `-answers.pdf` twin. Each item is credited on the deck's Credits slides. The pneumatic symbols,
+  circuits and CP2080 kit drawings are drawn by R Stewart; Booklet 6 page images are R Stewart's own.
+  - Figures and questions: N5 Engineering Science 2019 Section 2 Q10(a) and 2023 Section 1 Q6(a) as starters, 2016 Section 2 Q12(b) and 2024 Section 2 Q15(c) as exam items, with their marking instructions; the 2023 and 2025 course reports; the 2019 Section 2 Q10(c) marking instructions —
+    © Qualifications Scotland (SQA), reproduced for educational use.
+  - A train door open button (1996 Stock) — Oxyman, [CC BY 2.5](https://creativecommons.org/licenses/by/2.5), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Open_door_button_1996_Stock.jpg). Resized to fit.
 - **N5 Engineering Science *Review Questions* for Booklets 5, 7a and 7b** (added 6 November 2026) —
   eleven PDFs, one per booklet lesson: `assets/engineering-science/national-5/05-mechanisms-and-drive-systems/review-questions/`
   (`d1-` to `d5-review-questions.pdf`) and `assets/engineering-science/national-5/07-structures-and-materials/review-questions/`
