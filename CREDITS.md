@@ -482,6 +482,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Figures and questions: 2024 Higher Physics Paper 2, Q4; 2025 Higher Physics Paper 2, Q5; the 2024 and 2025 course
     reports. The Higher Physics course specification v4.1 (September 2026), p.8, is quoted. © Qualifications
     Scotland (SQA), reproduced for educational use.
+- **Higher Physics *Special relativity 1: Frames and the speed of light*** (added 10 November 2026) — the lesson
+  slide deck `classes/higher/slides/h-odu5-1-frames-speed-of-light.pdf` and its `-answers.pdf` twin. Each item is
+  credited on the deck's Credits slide. The train, walker, spaceship, light, clock and ruler drawings (and their
+  animations) are by R Stewart.
+  - Figures and questions: 2016 Higher Physics Section 2, Q4; 2018 Higher Physics Section 1, Q6; 2021 Higher Physics
+    Paper 1, Q9; 2023 Higher Physics Paper 2, Q4; the 2023 course report. The Higher Physics course specification
+    v4.1 (September 2026), p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use. Photo in
+    the 2023 paper: Iscotlanda Photography/shutterstock.com.
 - **S3 Physics *Space L6: Forces on Rockets*** (added 10 November 2026) — the lesson slide deck
   `classes/s3-physics/slides/l6-forces-on-rockets.pdf` and its `-answers.pdf` twin. Each item is credited on
   the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
