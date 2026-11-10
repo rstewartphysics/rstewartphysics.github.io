@@ -13,6 +13,7 @@
      WidgetKit.dragPlace(root, opts)      -> { state, reset, check, destroy }
      WidgetKit.poeCard(root, opts)        -> { choice, reset }
      WidgetKit.graph(svg, opts)           -> live axes + series
+     WidgetKit.forceArrows(svg, opts)     -> force arrows drawn to scale
      WidgetKit.clock(opts)                -> play/pause animation loop
      WidgetKit.fmt(x, sf), .si(x, unit)   -> readout text
      WidgetKit.svgLabel(textEl, "<i>V</i><sub>2</sub> = 3 V") -> SVG label with
@@ -740,6 +741,107 @@
     return api;
   }
 
+  /* ---------------------------------------------------------
+     forceArrows — force arrows drawn to scale on an SVG (AT1).
+
+     opts:
+       scale     px per unit of force. Fix it for a simulator so the
+                 arrows are to scale across every setting; leave it
+                 out to fit the largest force to maxLen on each draw.
+       maxLen    px for the largest force when scale is not set (120).
+       head      arrowhead length in px (11).
+     draw(forces) — forces is a list of
+       { key, value, dir: "up"|"down"|"left"|"right"|[dx,dy],
+         at: {x, y}, label: "<i>F</i> = 5 N" (svgLabel markup),
+         cls: "c1"|"c2"|"c3"|…, dashed, labelAt: "tip"|"side",
+         side: "left"|"right" }
+     A negative value points the other way. A force too small to draw
+     shows its label only, just above its start point; a force not passed this
+     time is hidden. Labels name every force, so colour never carries
+     the meaning alone. Returns the scale used (px per unit).
+     Returns { draw, scale, setScale }.
+  --------------------------------------------------------- */
+  function forceArrows(svg, opts) {
+    opts = opts || {};
+    var NS = "http://www.w3.org/2000/svg";
+    var scale = opts.scale || null, maxLen = opts.maxLen || 120, head = opts.head || 11;
+    var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+    var layer = doc.createElementNS(NS, "g");
+    layer.setAttribute("class", "fa-layer");
+    svg.appendChild(layer);
+    var groups = {};
+
+    function make(tag, cls) {
+      var e = doc.createElementNS(NS, tag);
+      e.setAttribute("class", cls);
+      return e;
+    }
+    function r1(v) { return Math.round(v * 10) / 10; }
+
+    function draw(forces) {
+      var k = scale;
+      if (!k) {
+        var mx = 0;
+        forces.forEach(function (f) { mx = Math.max(mx, Math.abs(f.value)); });
+        k = mx > 0 ? maxLen / mx : 0;
+      }
+      var seen = {};
+      forces.forEach(function (f) {
+        seen[f.key] = true;
+        var g = groups[f.key];
+        if (!g) {
+          g = make("g", "fa");
+          g._shaft = make("line", "fa-shaft");
+          g._head = make("path", "fa-head");
+          g._text = make("text", "fa-label");
+          g.appendChild(g._shaft); g.appendChild(g._head); g.appendChild(g._text);
+          layer.appendChild(g);
+          groups[f.key] = g;
+        }
+        g.setAttribute("class", "fa" + (f.cls ? " " + f.cls : "") + (f.dashed ? " fa-dashed" : ""));
+        g.removeAttribute("display");
+        var d = DIRS[f.dir] || f.dir;
+        var sgn = f.value < 0 ? -1 : 1, dx = d[0] * sgn, dy = d[1] * sgn;
+        var len = Math.abs(f.value) * k;
+        var x0 = f.at.x, y0 = f.at.y, x1 = x0 + dx * len, y1 = y0 + dy * len;
+        var drawn = len >= 2;
+        g._shaft.setAttribute("display", drawn ? "inline" : "none");
+        g._head.setAttribute("display", drawn ? "inline" : "none");
+        if (drawn) {
+          var h = Math.min(head, len), w = h * 0.6;
+          var bx = x1 - dx * h, by = y1 - dy * h, px = -dy * w, py = dx * w;
+          g._shaft.setAttribute("x1", r1(x0)); g._shaft.setAttribute("y1", r1(y0));
+          g._shaft.setAttribute("x2", r1(bx)); g._shaft.setAttribute("y2", r1(by));
+          g._head.setAttribute("d", "M" + r1(x1) + " " + r1(y1) + " L" + r1(bx + px) + " " + r1(by + py) +
+            " L" + r1(bx - px) + " " + r1(by - py) + " Z");
+        }
+        var t = g._text, tx, ty, anchor = "middle";
+        if (!drawn) { tx = x0; ty = y0 - 10; }
+        else if (f.labelAt === "side") {
+          var right = f.side !== "left";
+          tx = (x0 + x1) / 2 + (right ? 10 : -10);
+          ty = (y0 + y1) / 2 + 5;
+          anchor = right ? "start" : "end";
+        } else if (dy < 0) { tx = x1; ty = y1 - 8; }
+        else if (dy > 0) { tx = x1; ty = y1 + 19; }
+        else { tx = x1 + dx * 8; ty = y1 + 5; anchor = dx > 0 ? "start" : "end"; }
+        t.setAttribute("x", r1(tx)); t.setAttribute("y", r1(ty));
+        t.setAttribute("text-anchor", anchor);
+        richText(t, f.label || "");
+      });
+      Object.keys(groups).forEach(function (key) {
+        if (!seen[key]) { groups[key].setAttribute("display", "none"); }
+      });
+      return k;
+    }
+
+    return {
+      draw: draw,
+      scale: function () { return scale; },
+      setScale: function (s) { scale = s; }
+    };
+  }
+
   win.WidgetKit = {
     reducedMotion: reducedMotion,
     liveSim: liveSim,
@@ -747,6 +849,7 @@
     poeCard: poeCard,
     clock: clock,
     graph: graph,
+    forceArrows: forceArrows,
     fmt: fmt,
     si: si,
     svgLabel: richText

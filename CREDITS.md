@@ -312,6 +312,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   *Physics: general marking principles*; the reported mistakes are from the 2023 and 2024 Higher
   Physics course reports. All © Qualifications Scotland (SQA), reproduced for educational use.
 
+- **S3 Physics *Space* hub, *Space exploration* page and Calculation Stepper** (added 10 November
+  2026) — `classes/s3-physics/space.html`, `classes/s3-physics/space/space-exploration.html`,
+  `tools/stepper.html`. Text, the rocket drawings, the Lift-off Lab, the worked example, the
+  misconception cards and the Stepper © R Stewart, 2026. The exam question and its marking
+  instructions (`assets/s3/space/sqa-2026-s2-q4b-thrust.png` and `…-mi.png`) are from the National 5
+  Physics 2026 question paper (Section 2, Question 4(b)) and marking instructions; the Stepper's
+  gravitational field strengths are from the National 5 Physics data sheet. All © Qualifications
+  Scotland (SQA), reproduced for educational use. DELTA (Mr Taylor) and the Past Paper Finder
+  (Mr Davie, updated by Mr White) are linked, not copied. No photos.
+
 - **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
   `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
   Each item is credited on the slide it appears on.

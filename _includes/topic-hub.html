@@ -1,0 +1,82 @@
+{% comment %}
+  Topic hub body, generated from _data/topics/<topic>.yml.
+  Usage: {% include topic-hub.html topic="n5-space" %}
+  The page supplies the head, banner, sprites (resource, physics, higher-hub)
+  and footer; this renders Learn, Revise, Resources and the command-word strip.
+{% endcomment %}{% assign t = site.data.topics[include.topic] %}{% assign h = t.hub %}
+<a class="backlink" href="{{ t.back.href }}"><span aria-hidden="true">←</span> {{ t.back.text }}</a>
+
+<section class="panel" id="learn" aria-labelledby="learn-title">
+  <h2 id="learn-title">Learn</h2>
+  <div class="hub-grid" aria-label="{{ t.title }} lesson pages">
+{%- for p in h.learn %}
+  {%- capture inner %}
+      <span class="tile-head">
+        <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
+        <span class="tile-name">{{ p.key }} · {{ p.title }}</span>
+      </span>
+      <span class="tile-body">{{ p.lessons }} · {{ p.body }}{% unless p.live %}. Coming soon.{% endunless %}</span>
+  {%- endcapture %}
+  {%- if p.live %}
+    <a class="hub-tile" href="{{ p.url }}" data-prog-badges="{{ p.badge }}" aria-label="Part {{ p.key }} — {{ p.title }}, lessons {{ p.lessons }}">{{ inner }}
+    </a>
+  {%- else %}
+    <span class="hub-tile soon" aria-disabled="true">{{ inner }}
+    </span>
+  {%- endif %}
+{%- endfor %}
+  </div>
+</section>
+
+<section class="panel" id="revise" aria-labelledby="revise-title">
+  <h2 id="revise-title">Revise</h2>
+  <div class="hub-grid" aria-label="{{ t.title }} revision tools and tests">
+{%- for r in h.revise %}
+  {%- capture inner %}
+      <span class="tile-head">
+        <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ r.icon }}"/></svg>
+        {% if r.external %}<span class="tile-tag">External</span>{% endif %}<span class="tile-name">{{ r.name }}</span>
+      </span>
+      <span class="tile-body">{{ r.body }}{% unless r.live %} Coming soon.{% endunless %}</span>
+  {%- endcapture %}
+  {%- if r.live %}
+    <a class="hub-tile" href="{{ r.href }}"{% if r.external or r.external_pdf %} target="_blank" rel="noopener"{% endif %}{% if r.aria %} aria-label="{{ r.aria }}"{% endif %}>{{ inner }}
+    </a>
+  {%- else %}
+    <span class="hub-tile soon" aria-disabled="true">{{ inner }}
+    </span>
+  {%- endif %}
+{%- endfor %}
+  </div>
+
+  <ul class="hub-recipes" aria-label="Where to find {{ t.title }} questions">
+{%- for r in h.revise %}{% if r.recipe %}
+    <li><a href="{{ r.href }}" target="_blank" rel="noopener">{{ r.name }}</a><span class="visually-hidden"> (opens in a new tab)</span>: {{ r.recipe }}</li>
+{%- endif %}{% endfor %}
+  </ul>
+</section>
+
+<section class="panel" id="resources" aria-labelledby="resources-title">
+  <h2 id="resources-title">Resources</h2>
+  <div class="hub-grid few" aria-label="{{ t.title }} slides and booklet">
+{%- for r in h.resources %}
+    <a class="hub-tile" href="{{ r.href }}"{% if r.pdf %} target="_blank" rel="noopener"{% endif %} aria-label="{{ r.name }} — {{ r.body | strip_html }}{% if r.pdf %}. Opens in a new tab{% endif %}">
+      <span class="tile-head">
+        <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ r.icon }}"/></svg>
+        <span class="tile-name">{{ r.name }}</span>
+      </span>
+      <span class="tile-body">{{ r.body }}</span>
+    </a>
+{%- endfor %}
+  </div>
+</section>
+
+<section class="panel" id="command-words" aria-labelledby="cw-title">
+  <h2 id="cw-title">Command words: what gets the mark</h2>
+  <dl class="cmd-strip">
+{%- for c in h.command_words %}
+    <div class="cmd"><dt>{{ c.word }}</dt><dd>{{ c.marks }}</dd></div>
+{%- endfor %}
+  </dl>
+  <p class="cmd-marks">{{ h.marks_line }}</p>
+</section>
