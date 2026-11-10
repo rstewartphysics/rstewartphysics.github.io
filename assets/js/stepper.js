@@ -17,26 +17,35 @@
   function sf(x, n) { return x ? +x.toPrecision(n) : 0; }
   function near(v, x, tol) { return x === 0 ? Math.abs(v) < 1e-12 : Math.abs(v - x) <= tol * Math.abs(x); }
   function group(int) { return int.length > 4 ? int.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : int; }
+  function supE(e) { return " × 10" + String(e).split("").map(function (c) { return SUP[c]; }).join(""); }
+  function plain(s) { var p = s.split("."); p[0] = group(p[0]); return p.join("."); }
+  // x written to exactly n significant figures, as the paper would print it
+  function toSF(x, n) {
+    if (Math.abs(x) >= 1e5) {
+      var e = Math.floor(Math.log10(Math.abs(x))), m = (x / Math.pow(10, e)).toPrecision(n);
+      if (Math.abs(+m) >= 10) { e += 1; m = (x / Math.pow(10, e)).toPrecision(n); }
+      return m + supE(e);
+    }
+    var t = x.toPrecision(n);
+    return plain(t.indexOf("e") >= 0 ? String(+t) : t);
+  }
+  // full value, no rounding (up to 7 figures, trailing zeros dropped)
   function fmt(x, sym) {
     if (sym === "g" && Number.isInteger(x) && x < 10) { return x.toFixed(1); }
-    var ax = Math.abs(x);
-    if (ax >= 1e5) {
-      var e = Math.floor(Math.log10(ax)), m = +(x / Math.pow(10, e)).toPrecision(3);
-      if (Math.abs(m) >= 10) { m = +(m / 10).toPrecision(3); e += 1; }
-      return String(m) + " × 10" + String(e).split("").map(function (c) { return SUP[c]; }).join("");
+    if (Math.abs(x) >= 1e5) {
+      var e = Math.floor(Math.log10(Math.abs(x))), m = +(x / Math.pow(10, e)).toPrecision(7);
+      if (Math.abs(m) >= 10) { m = +(m / 10).toPrecision(7); e += 1; }
+      return String(m) + supE(e);
     }
-    var p = String(+x.toPrecision(4)).split(".");
-    p[0] = group(p[0]);
-    return p.join(".");
+    return plain(String(+x.toPrecision(7)));
   }
   function sym(s) { return D.symbols[s]; }
   function qty(s, x) { return fmt(x, s) + "\u00a0" + sym(s).unit; }
-  // trailing zeros in a whole number are ambiguous: "10000" may be 1 to 5 figures
+  // SQA counting: "3.0" is 2 figures, "30" is 1 (trailing zeros in a whole number don't count)
   function countSF(t) {
-    t = t.replace("-", "");
-    if (t.indexOf(".") >= 0) { var d = t.replace(".", "").replace(/^0+/, ""); return { min: Math.max(1, d.length), max: Math.max(1, d.length) }; }
-    var i = t.replace(/^0+/, "");
-    return { min: Math.max(1, i.replace(/0+$/, "").length), max: Math.max(1, i.length) };
+    t = String(t).replace(/[\s\u202f\u2009\u00a0,-]/g, "").replace(/×.*$/, "");
+    var d = t.indexOf(".") >= 0 ? t.replace(".", "").replace(/^0+/, "") : t.replace(/^0+/, "").replace(/0+$/, "");
+    return Math.max(1, d.length);
   }
   // accepts 23520, 23 520, 5.5e5, 5.5 × 10^5, 5.5x10⁵
   function parseNum(raw) {
@@ -46,20 +55,16 @@
     s = s.replace(/[x×X*·]10\^?(-?\d+)$/, "e$1");
     var m = /^(-?(?:\d+\.?\d*|\.\d+))(?:e(-?\d+))?$/i.exec(s);
     if (!m) { return null; }
-    var c = countSF(m[1]);
-    return { v: parseFloat(m[1] + "e" + (m[2] || "0")), sf: c.min, sfMax: c.max };
+    return { v: parseFloat(m[1] + "e" + (m[2] || "0")), sf: countSF(m[1]) };
   }
-  // right if within 0.2 %, or correctly rounded to the figures given (2 or more)
-  function ansOK(p, x) {
-    if (near(p.v, x, 0.002)) { return true; }
+  function exactly(v, x) { return near(v, x, 1e-9); }
+  // the pupil's figures are the full value correctly rounded at the figures they wrote
+  function roundedOK(p, x) {
+    if (exactly(p.v, x)) { return true; }
     if (!x) { return false; }
-    for (var n = Math.max(2, p.sf); n <= Math.max(2, p.sfMax); n++) {
-      var half = 0.5 * Math.pow(10, Math.floor(Math.log10(Math.abs(x))) - n + 1);
-      if (Math.abs(p.v - x) <= half * 1.0001) { return true; }
-    }
-    return false;
+    var half = 0.5 * Math.pow(10, Math.floor(Math.log10(Math.abs(x))) - p.sf + 1);
+    return Math.abs(p.v - x) <= half * 1.0001;
   }
-  function oneSF(p, x) { return p.sf === 1 && x && Math.abs(p.v - sf(x, 1)) <= 1e-9 * Math.abs(x); }
 
   // ---------- units ----------
   function normU(s) {
@@ -91,8 +96,9 @@
   function word(s) { return sym(s).word ? sym(s).word : "<var>" + s + "</var>"; }
   function op(r) { return r.form === "product" ? " × " : r.form === "difference" ? " − " : " + "; }
   // "W = 2400 × 9.8" or "12 480 = 2400 × a"
+  function show(s, v) { return S && S.item.given[s] !== undefined && exactly(v, S.item.given[s]) ? S.item.gdisp[s] : fmt(v, s); }
   function subLine(r, find, vals) {
-    var t = r.vars.map(function (s) { return s === find ? word(s) : fmt(vals[s], s); });
+    var t = r.vars.map(function (s) { return s === find ? word(s) : show(s, vals[s]); });
     return t[0] + " = " + t[1] + op(r) + t[2];
   }
 
@@ -104,7 +110,7 @@
     var r = Math.random() * tot;
     for (i = 0; i < bands.length; i++) { r -= bands[i].weight; if (r < 0) { break; } }
     var b = bands[Math.min(i, bands.length - 1)];
-    return range([b.min, b.max, b.step]);
+    return { v: range([b.min, b.max, b.step]), step: b.step };
   }
   function avoided(v, body) {
     return (D.avoid || []).some(function (a) {
@@ -113,36 +119,49 @@
   }
   function genItem(it) {
     for (var tries = 0; tries < 40; tries++) {
-      var g = it.gen, v = {}, body = null, given = {}, steps;
+      var g = it.gen, v = {}, body = null, given = {}, steps, rounded = {}, stepOf = {};
       if (g.body) { body = pick(D.bodies[g.body]); v.g = D.g[body]; }
       if (it.kind === "lift-off") {
-        v.m = g.m === "mass-bands" ? massBand() : range(g.m);
+        var mb = g.m === "mass-bands" ? massBand() : { v: range(g.m), step: g.m[2] };
+        v.m = mb.v; stepOf.m = mb.step;
         var W = v.m * v.g;
         if (it.find === "a") {
-          v.T = sf(range([g.ratio[0], g.ratio[1], 0.05]) * W, 2);
+          v.T = sf(range([g.ratio[0], g.ratio[1], 0.05]) * W, 2); rounded.T = 2;
           if (v.T < 1.15 * W) { continue; }
           given = { m: v.m, T: v.T, g: v.g };
           steps = [{ rel: "weight", find: "W", step: "weight" }, { rel: "unbalanced", find: "F", step: "unbalanced" }, { rel: "fma", find: "a", step: "fma" }];
         } else {
-          v.a = range(g.a);
+          v.a = range(g.a); stepOf.a = g.a[2];
           given = { m: v.m, a: v.a, g: v.g };
           steps = [{ rel: "weight", find: "W", step: "weight" }, { rel: "fma", find: "F", step: "fma-F" }, { rel: "unbalanced", find: "T", step: "thrust" }];
         }
       } else {
         var r = rel(it.rel), made = {};
-        Object.keys(g).forEach(function (k) { if (k !== "body") { v[k] = range(g[k]); made[k] = true; } });
+        Object.keys(g).forEach(function (k) { if (k !== "body") { v[k] = range(g[k]); made[k] = true; stepOf[k] = g[k][2]; } });
         if (body) { made.g = true; }
         r.vars.forEach(function (s) { if (v[s] === undefined) { v[s] = solve(r, s, v); } });
-        r.vars.forEach(function (s) { if (s !== it.find) { given[s] = made[s] ? v[s] : sf(v[s], 3); } });
+        r.vars.forEach(function (s) { if (s !== it.find) { given[s] = made[s] ? v[s] : sf(v[s], 3); if (!made[s]) { rounded[s] = 3; } } });
         if (it.find === "g") { delete given.g; }
         steps = [{ rel: it.rel, find: it.find, step: null }];
       }
       if (avoided(v, body)) { continue; }
+      var gdisp = {}, gsf = {};
+      Object.keys(given).forEach(function (k) {
+        var x = given[k], n;
+        if (k === "g") { gdisp.g = fmt(x, "g"); gsf.g = countSF(gdisp.g); return; }
+        if (rounded[k]) { n = rounded[k]; }
+        else if (Math.abs(x) >= 1e5) { n = Math.floor(Math.log10(x)) - Math.floor(Math.log10(stepOf[k])) + 1; }
+        if (n) { gdisp[k] = toSF(x, n); gsf[k] = Math.abs(x) >= 1e5 ? n : countSF(gdisp[k]); }
+        else { gdisp[k] = plain(x.toFixed(places(stepOf[k]))); gsf[k] = countSF(gdisp[k]); }
+      });
+      if (Object.keys(gsf).some(function (k) { return gsf[k] < 2; })) { continue; }
+      var minK = Object.keys(gsf).sort(function (a, b) { return gsf[a] - gsf[b]; })[0];
       var exact = {}; Object.keys(given).forEach(function (k) { exact[k] = given[k]; });
       steps.forEach(function (st) { exact[st.find] = solve(rel(st.rel), st.find, exact); });
-      var text = it.text.replace(/\{(\w+)\}/g, function (_, k) { return k === "body" ? bodyName(body) : qty(k, given[k]); });
+      var text = it.text.replace(/\{(\w+)\}/g, function (_, k) { return k === "body" ? bodyName(body) : gdisp[k] + "\u00a0" + sym(k).unit; });
       var big = Object.keys(exact).some(function (k) { return Math.abs(exact[k]) >= 1e5; });
-      return { it: it, text: text, given: given, body: body, steps: steps, exact: exact, big: big };
+      return { it: it, text: text, given: given, gdisp: gdisp, body: body, steps: steps, exact: exact, big: big,
+        minSF: gsf[minK], minWhat: gdisp[minK] + "\u00a0" + sym(minK).unit };
     }
     return null;
   }
@@ -249,13 +268,27 @@
     var p = parseNum(numEl.value), u = unitOf(unitEl.value), want = sym(st.find).unit;
     if (p && p.empty) { return { msg: "Type your answer in the first box.", box: numEl }; }
     if (!p) { return { msg: "Type a number, like 23 520 or 5.4 × 10^6.", box: numEl }; }
-    if (!ansOK(p, x)) {
-      if (oneSF(p, x)) { return { msg: "Right idea, but give at least two significant figures.", box: numEl }; }
-      return { msg: wrongValue(r, st.find, sv, p.v), box: numEl };
+    var name = sym(st.find).name, last = S.si === S.item.steps.length - 1;
+    if (!last) {
+      // intermediate: no rounding part-way, every figure carried to the next step
+      if (!exactly(p.v, x) && !(p.sf >= 7 && roundedOK(p, x))) {
+        if (near(p.v, x, 0.02)) { return { msg: "Don't round in the middle of a calculation. Write every figure of the " + name + " (" + fmt(x, st.find) + " would be exact), then use it in the next step.", box: numEl }; }
+        return { msg: wrongValue(r, st.find, sv, p.v), box: numEl };
+      }
+      if (u.empty || u.key === want) { return { ok: true, v: x, text: fmt(x, st.find), note: u.key && !u.exact ? " Write it as " + want + "." : "" }; }
+    } else {
+      // final: SQA rounding — the fewest figures in the data, one fewer or up to two more allowed
+      var n = S.item.minSF, lo = Math.max(1, n - 1), hi = n + 2;
+      if (!roundedOK(p, x)) {
+        if (near(p.v, x, 0.03)) { return { msg: "Nearly. Check your rounding: round the full calculator value, not a rounded one.", box: numEl }; }
+        return { msg: wrongValue(r, st.find, sv, p.v), box: numEl };
+      }
+      var why = "The fewest significant figures in the data is " + n + " (" + S.item.minWhat + "), so give " + lo + " to " + hi + ".";
+      if (!exactly(p.v, x) && p.sf < lo) { return { msg: "Too few significant figures. " + why, box: numEl }; }
+      if (p.sf > hi) { return { msg: "Too many significant figures. " + why, box: numEl }; }
+      if (u.key === want) { return { ok: true, v: p.v, text: toSF(p.v, p.sf), note: u.exact ? "" : " Write it as " + want + "." }; }
+      if (u.empty) { return { msg: "Right number. Now add the unit: a final answer always needs its unit.", box: unitEl }; }
     }
-    if (u.key === want) { return { ok: true, v: p.v, note: u.exact ? "" : " Write it as " + want + "." }; }
-    var name = sym(st.find).name;
-    if (u.empty) { return { msg: "Right number. Now add the unit.", box: unitEl }; }
     if (u.key) { return { msg: "Right number. " + u.key + " is the unit of " + D.units[u.key].quantity + ". What is the " + name + " measured in?", box: unitEl }; }
     return { msg: "Right number. Check the unit: what is the " + name + " measured in?", box: unitEl };
   }
@@ -271,10 +304,13 @@
       return h;
     }
     if (kind === "ans") {
-      var key = (st.find === r.vars[0] ? "out-" : "in-") + r.form;
-      return fill(D.hints.ans[key] || "", st.find, { other: sym(r.vars[0]).name });
+      var key = (st.find === r.vars[0] ? "out-" : "in-") + r.form, n = S.item.minSF;
+      var tail = S.si === S.item.steps.length - 1
+        ? " Round only now: the fewest significant figures in the data is " + n + ", so give " + Math.max(1, n - 1) + " to " + (n + 2) + "."
+        : " Don't round: keep every figure for the next step.";
+      return fill(D.hints.ans[key] || "", st.find, { other: sym(r.vars[0]).name }) + tail;
     }
-    return "Find " + fmt(S.rec[S.si].ans, "g") + " N kg⁻¹ in the data sheet table.";
+    return "Find " + S.rec[S.si].text + " N kg⁻¹ in the data sheet table.";
   }
 
   // ---------- render ----------
@@ -286,7 +322,7 @@
   function doneLine(st, i) {
     var rc = S.rec[i], r = rel(st.rel), parts = [r.html];
     if (rc.sub) { parts.push(subLine(r, st.find, rc.sub)); }
-    if (rc.ans !== undefined) { parts.push("<var>" + st.find + "</var> = <b>" + qty(st.find, rc.ans) + "</b>"); }
+    if (rc.ans !== undefined) { parts.push("<var>" + st.find + "</var> = <b>" + rc.text + "\u00a0" + sym(st.find).unit + "</b>"); }
     var t = parts.join("<span class=\"stp-sep\">;</span> ");
     if (rc.body) { t += "<span class=\"stp-sep\">;</span> it is <b>" + bodyName(rc.body) + "</b>"; }
     if (rc.note) { t += " <span class=\"stp-note\">" + rc.note + "</span>"; }
@@ -313,7 +349,8 @@
         " <span class=\"stp-op\">=</span> " + t[1] + " <span class=\"stp-op\">" + op(r).trim() + "</span> " + t[2] + tenBtn +
         "<button type=\"button\" class=\"stp-check\" data-act=\"check\">Check</button>" + hintBtn + "</div>";
     } else if (kind === "ans") {
-      h = "<p class=\"stp-ask\">Work out the " + sym(st.find).name + ". Give the unit.</p><div class=\"stp-eq\"><span class=\"stp-sym\"><var>" + st.find + "</var></span> <span class=\"stp-op\">=</span> " +
+      var fin = S.si === S.item.steps.length - 1;
+      h = "<p class=\"stp-ask\">Work out the " + sym(st.find).name + (fin ? ". Round it, and give the unit.</p>" : ". Keep every figure: don't round yet.</p>") + "<div class=\"stp-eq\"><span class=\"stp-sym\"><var>" + st.find + "</var></span> <span class=\"stp-op\">=</span> " +
         "<input class=\"stp-in stp-num\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" data-role=\"num\" aria-label=\"" + sym(st.find).name + ", number\">" +
         "<input class=\"stp-in stp-unit\" type=\"text\" autocomplete=\"off\" autocapitalize=\"off\" spellcheck=\"false\" data-role=\"unit\" placeholder=\"unit\" aria-label=\"" + sym(st.find).name + ", unit\">" + tenBtn +
         "<button type=\"button\" class=\"stp-check\" data-act=\"check\">Check</button>" + hintBtn + "</div>";
@@ -339,7 +376,7 @@
         var kind = kinds[k], show = "";
         if (kind === "pick") { show = rel(st.rel).html; }
         if (kind === "sub") { show = subLine(rel(st.rel), st.find, rc.sub); }
-        if (kind === "ans") { show = "<var>" + st.find + "</var> = <b>" + qty(st.find, rc.ans) + "</b>"; }
+        if (kind === "ans") { show = "<var>" + st.find + "</var> = <b>" + rc.text + "\u00a0" + sym(st.find).unit + "</b>"; }
         if (kind === "body") { show = "It is <b>" + bodyName(rc.body) + "</b>"; }
         lines += "<li class=\"stp-line is-done\"><span class=\"stp-work\">" + show + "</span>" + mark(rc.st[kind]) + (rc.note && kind === "ans" ? "<span class=\"stp-note\">" + rc.note + "</span>" : "") + "</li>";
       }
@@ -424,7 +461,7 @@
       var b = btn.dataset.id;
       if (b === S.item.body) { S.rec[S.si].body = b; advance("body", S.tries || S.hinted ? "shown" : "ok"); return; }
       btn.classList.add("is-wrong"); btn.setAttribute("aria-disabled", "true");
-      say(line, "<var>g</var> on " + bodyName(b) + " is " + fmt(D.g[b], "g") + " N kg⁻¹. Your answer was " + fmt(S.rec[S.si].ans, "g") + " N kg⁻¹. Find the one that matches."); return;
+      say(line, "<var>g</var> on " + bodyName(b) + " is " + fmt(D.g[b], "g") + " N kg⁻¹. Your answer was " + S.rec[S.si].text + " N kg⁻¹. Find the one that matches."); return;
     }
     if (a === "check" && kind === "sub") {
       res = checkSub(Array.prototype.slice.call(line.querySelectorAll(".stp-in")));
@@ -434,7 +471,7 @@
     if (a === "check" && kind === "ans") {
       res = checkAns(line.querySelector(".stp-num"), line.querySelector(".stp-unit"));
       if (res.ok) {
-        S.rec[S.si].ans = res.v; S.rec[S.si].note = res.note; S.carried[st.find] = res.v;
+        S.rec[S.si].ans = res.v; S.rec[S.si].text = res.text; S.rec[S.si].note = res.note; S.carried[st.find] = res.v;
         advance("ans", S.tries || S.hinted ? "shown" : "ok"); return;
       }
       say(line, res.msg, res.box);
@@ -454,8 +491,8 @@
       advance("sub", "shown"); return;
     }
     if (kind === "ans") {
-      var v = sf(solve(r, st.find, rc.sub), 4);
-      rc.ans = v; S.carried[st.find] = v; advance("ans", "shown"); return;
+      var x = solve(r, st.find, rc.sub), fin = S.si === S.item.steps.length - 1;
+      rc.ans = fin ? sf(x, S.item.minSF) : x; rc.text = fin ? toSF(x, S.item.minSF) : fmt(x, st.find); S.carried[st.find] = rc.ans; advance("ans", "shown"); return;
     }
     rc.body = S.item.body; advance("body", "shown");
   }
@@ -505,7 +542,7 @@
     });
     setMode(q.get("mode"), false);
     // read-only hook for the browser check (scripts), never used by the page itself
-    if (q.get("check") === "1") { window.__stepper = { state: function () { return S; }, parse: parseNum, ansOK: ansOK, unit: unitOf }; }
+    if (q.get("check") === "1") { window.__stepper = { state: function () { return S; }, parse: parseNum, countSF: countSF, toSF: toSF, unit: unitOf }; }
   }
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", start); } else { start(); }
 })();
