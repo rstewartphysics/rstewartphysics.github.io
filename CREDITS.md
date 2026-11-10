@@ -474,10 +474,10 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
   - Photos: the Artemis II launch (2026) — NASA/Michael DeMocker; an RS-25 engine on a test stand — NASA.
   - Figures and questions: N5 Physics 2014 Section 2 Q12; 2023 Section 1 Q8 and Section 2 Q4; 2024 Section 1 Q3
-    and Section 2 Q4(c); 2025 Section 2 Q2(a) and Q4(b)(i); the specimen question paper and marking instructions;
+    and Section 2 Q4(c); 2025 Section 2 Q2(a) and Q4(b)(i); 2026 Section 2 Q4(b); the specimen question paper and marking instructions;
     the 2023–2025 course reports. The N5 Physics course specification v5.1 (September 2026), pp.6 and 8, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use. Photo in the 2025 paper: Hasbul Aerial
-    Stock/Shutterstock. The Moon (2023 Q4) — NASA, Apollo 15.
+    Stock/Shutterstock; in the 2026 paper: Nerthuz/shutterstock.com. The Moon (2023 Q4) — NASA, Apollo 15.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
