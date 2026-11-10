@@ -116,6 +116,7 @@
       if (used) { return; }
       used = true;
       if (window.Progress && root.dataset.progId) { window.Progress.markSeen(root.dataset.progId); }
+      if (window.Progress && root.dataset.progChallenge) { window.Progress.complete(root.dataset.progChallenge); }
     }
     root.querySelector(".sim-stage").addEventListener("input", firstUse);
     root.querySelector(".sim-stage").addEventListener("click", firstUse);

@@ -111,10 +111,19 @@ for (const f of yamlFiles("_data/topics")) {
           if (!mm) { err(sw, `exam ref "${r}" is not "YYYY S1|S2 Qn(a)(i)"`); }
           else if (!YEARS.has(+mm[1])) { err(sw, `exam ref "${r}": no N5 paper that year`); }
         }
-        for (const k of ["crop", "mi"]) {
-          if (s.exam[k]) { const why = sitePathExists(s.exam[k]); if (why) { err(sw, `${s.exam[k]} ${why}`); } }
+        if ((s.exam.refs || []).length > 8) { err(sw, "more than 8 exam refs"); }
+        const it = s.exam.item;
+        if (it) {
+          for (const k of ["crop", "mi"]) {
+            if (!it[k]) { err(sw, `exam item has no ${k}`); continue; }
+            const why = sitePathExists(it[k]); if (why) { err(sw, `${it[k]} ${why}`); }
+          }
+          for (const k of ["label", "marks", "alt", "mi_alt"]) { if (!it[k]) { err(sw, `exam item has no ${k}`); } }
+          if (!/© Qualifications Scotland \(SQA\)/.test(it.credit || "")) { err(sw, "exam item credit must carry © Qualifications Scotland (SQA)"); }
         }
       } else { err(sw, "live section has no exam step yet"); }
+      if (s.figure && !existsSync(join(ROOT, "_includes", s.figure))) { err(sw, `figure include ${s.figure} not found`); }
+      if (s.app && !existsSync(join(ROOT, "_includes", s.app.include || ""))) { err(sw, `app include ${s.app.include} not found`); }
       if (!/^R\d+$/.test(s.retrieve || "")) { err(sw, "retrieve must name a set, R<number>"); }
     }
   }
