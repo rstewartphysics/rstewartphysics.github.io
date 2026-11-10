@@ -474,6 +474,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Figures and questions: 2016 Higher Physics Section 1, Q5; 2018 Higher Physics Section 1, Q5; 2019 Higher Physics
     Paper 2, Q4; 2023 Higher Physics Paper 1, Q6. The Higher Physics course specification v4.1 (September 2026),
     p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **Higher Physics *Gravitation 3: Beyond Higher and exam practice*** (added 10 November 2026) — the lesson slide
+  deck `classes/higher/slides/h-odu4-3-beyond-higher.pdf` and its `-answers.pdf` twin. Each item is credited on the
+  deck's Credits slide. The field-strength, g-against-distance and orbit drawings are by R Stewart.
+  - Photo: the International Space Station over the Earth (STS106-314-023) — NASA, via the NASA Image and Video
+    Library (not copyrighted).
+  - Figures and questions: 2024 Higher Physics Paper 2, Q4; 2025 Higher Physics Paper 2, Q5; the 2024 and 2025 course
+    reports. The Higher Physics course specification v4.1 (September 2026), p.8, is quoted. © Qualifications
+    Scotland (SQA), reproduced for educational use.
 - **S3 Physics *Space L6: Forces on Rockets*** (added 10 November 2026) — the lesson slide deck
   `classes/s3-physics/slides/l6-forces-on-rockets.pdf` and its `-answers.pdf` twin. Each item is credited on
   the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
