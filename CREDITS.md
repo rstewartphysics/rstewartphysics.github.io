@@ -416,11 +416,16 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   by this site's board engine; the circuit drawings, the 555 symbol, the graphs, the oscilloscope trace,
   the catalogues and the booklet pages are from the Block 6 booklet and deck; all by R Stewart, 2026.
   No photos.
+  Updated 9 November 2026: past-paper starters, What Candidates Get Wrong slides and a past-paper slide.
   - Figures and questions: National 5 Practical Electronics 2024 Q8 (the oscilloscope); 2018 Q8 (via
-    J Keegan's past-paper compilation, Nov 2025 update); 2025 Q1(b)(ii) and Q3(a)(i); 2026 Q1(c) and
-    Q3(a)(ii); the 2018 and 2024 marking instructions. The N5 Electronics course specification v3.1,
-    pp.5–7, is quoted.
+    J Keegan's past-paper compilation, Nov 2025 update); the 2018 and 2024 marking instructions. The
+    starters point to 2024 Q1(b)(ii), Q2, Q4(b) and Q8(a), with a QR code to the paper on sqa.org.uk.
+    What Candidates Get Wrong quotes the 2024, 2025 and 2026 National 5 Practical Electronics course
+    reports. The N5 Electronics course specification v3.1, pp.5–7, is quoted, with a QR code to it on
+    sqa.org.uk.
     © Qualifications Scotland (SQA), reproduced for educational use.
+  - Past-paper finder QR: J Keegan's N5 Practical Electronics past-paper compilation (Nov 2025 update),
+    used with permission.
 - **National 5 Electronics Block 6 Lesson 3 *The 555 Monostable*** (added 29 October 2026) — the
   lesson slide deck `classes/electronics/slides/b6-l3-555-monostable.pdf` and its `-answers.pdf` twin.
   Each item is credited on the deck's Credits slide. The screenshots and figures are from this site's
