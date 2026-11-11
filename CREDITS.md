@@ -321,6 +321,13 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   gravitational field strengths are from the National 5 Physics data sheet. All © Qualifications
   Scotland (SQA), reproduced for educational use. DELTA (Mr Taylor) and the Past Paper Finder
   (Mr Davie, updated by Mr White) are linked, not copied. No photos.
+- **S3 Physics *Space catch-up quiz, Lessons 1 to 6*** (added 11 November 2026) —
+  `classes/s3-physics/space/catch-up-quiz.html`. Feedback text and page © R Stewart, 2026. The 15
+  questions (`assets/s3/space/quiz/*.png`) are reproduced from National 5 Physics question papers,
+  Section 1: 2022 Q7, Q8, Q9, Q10; 2023 Q7, Q8; 2024 Q3, Q7; 2025 Q4, Q8; 2026 Q5, Q6, Q8; specimen
+  paper Q4, Q5. Answer keys from the marking instructions. All © Qualifications Scotland (SQA),
+  reproduced for educational use. Specimen paper Question 5 photograph (Mars rover):
+  sandystifler/shutterstock.com, as credited in the paper.
 
 - **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
   `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
