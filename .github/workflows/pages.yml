@@ -24,6 +24,8 @@ jobs:
     # Pinned: ubuntu-latest moved to 26.04 (Nov 2026), which has no Python 3.9, and 3.9 is what
     # the Mac runs, so the generated-page check needs it.
     runs-on: ubuntu-24.04
+    outputs:
+      newest: ${{ steps.newest.outputs.newest }}
     steps:
       - uses: actions/checkout@v4
 
@@ -40,8 +42,13 @@ jobs:
       - name: Install the generators' font and packages
         run: |
           echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ttf-mscorefonts-installer
+          # The runner's Ubuntu mirror sometimes drops out for a few minutes; try again before failing.
+          for try in 1 2 3; do
+            sudo apt-get update -qq || true
+            sudo apt-get install -y -qq --fix-missing ttf-mscorefonts-installer && break
+            [ "$try" = 3 ] && exit 1
+            echo "apt failed (try $try); waiting 60s"; sleep 60
+          done
           pip install -r tools/generators/requirements.txt
 
       - name: Check the generated pages
@@ -86,13 +93,27 @@ jobs:
       - name: Check the simulators
         run: npm run sims
 
-      - uses: actions/upload-pages-artifact@v3
+      # Re-running an older main build must not publish over a newer one (run 192's re-run did,
+      # 10 Nov 2026, and took the S3 Space pages off the site). Only main's newest commit deploys.
+      - name: Check this is still main's newest commit
+        id: newest
         if: github.event_name != 'pull_request'
+        run: |
+          git fetch -q --depth=1 origin main
+          if [ "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA" ]; then
+            echo "newest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::main has moved on to $(git rev-parse --short FETCH_HEAD); not deploying this older build."
+            echo "newest=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request' && steps.newest.outputs.newest == 'true'
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && needs.build.outputs.newest == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -104,3 +125,6 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        # Pages sometimes sits in "syncing_files" past the 10-minute default (run 183).
+        with:
+          timeout: 1800000
