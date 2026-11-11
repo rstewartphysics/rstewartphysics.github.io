@@ -629,9 +629,9 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   deck `assets/engineering-science/national-5/06-pneumatics/slides/pn1-pneumatic-systems-and-air-types.pdf`
   with its `-answers.pdf` twin. Each item is credited on the deck's Credits slide. The pneumatic symbols,
   system diagram and CP2080 kit drawings are drawn by R Stewart.
-  - Figures and questions: N5 Engineering Science 2026 Section 1 Q1, 2026 Section 1 Q2 (starter, updated
-    8 November 2026; its drone photograph is credited in the paper to ADragan/shutterstock.com) and 2026 Section 2
-    Q14 (part (d) and the figure), with their marking instructions; the 2019 Section 1 Q3 marking instructions and
+  - Figures and questions: N5 Engineering Science 2026 Section 1 Q1 and the 2026 Section 2 Q14 figure, with
+    their marking instructions. The starter (updated 11 November 2026) is a QR link to the 2026 question paper
+    (Q2, Q14(d)) and its marking instructions; nothing is reproduced. The 2019 Section 1 Q3 marking instructions and
     the 2025 (assignment Task 5a) and 2026 (Question 1) course reports are quoted on the What Candidates Get Wrong
     slide. The N5 Engineering Science course specification v2.0, p.6, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use.
