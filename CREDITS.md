@@ -320,6 +320,18 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   *Physics: general marking principles*; the reported mistakes are from the 2023 and 2024 Higher
   Physics course reports. All © Qualifications Scotland (SQA), reproduced for educational use.
 
+- **Higher Physics *Special relativity* topic page** (added 11 November 2026) —
+  `classes/higher/dynamic-universe/special-relativity.html`. Text, worked examples, practice questions and
+  the train, light, light-clock, graph, spacecraft and muon drawings © R Stewart, 2026. No photos. The past-paper
+  questions and marking instructions shown as images in `assets/higher/` (`sqa-2023-p2-q4ci-light-speed`,
+  `sqa-2017-s2-q7d-sigma-lifetime`, `sqa-2022-p2-q6cd-pions`, each with its `-mi` twin, and the multiple-choice
+  items `sqa-2018-s1-q6-light-speed`, `sqa-2024-p1-q7-signal`, `sqa-2023-p1-q7-muon-lifetime`,
+  `sqa-2026-p1-q8-spacecraft-length`, `sqa-2025-p1-q8-lhc-tunnel`, `sqa-2019-p1-q8-find-speed`) are from 2017
+  Higher Physics Section 2, Q7; 2018 Higher Physics Section 1, Q6; 2019 Higher Physics Paper 1, Q8; 2022 Higher
+  Physics Paper 2, Q6; 2023 Higher Physics Paper 1, Q7; 2023 Higher Physics Paper 2, Q4; 2024 Higher Physics
+  Paper 1, Q7; 2025 Higher Physics Paper 1, Q8; 2026 Higher Physics Paper 1, Q8; the 2023 course report is
+  quoted. All © Qualifications Scotland (SQA), reproduced for educational use.
+
 - **S3 Physics *Space* hub, *Space exploration* page and Calculation Stepper** (added 10 November
   2026) — `classes/s3-physics/space.html`, `classes/s3-physics/space/space-exploration.html`,
   `tools/stepper.html`. Text, the rocket drawings, the Lift-off Lab, the worked example, the
