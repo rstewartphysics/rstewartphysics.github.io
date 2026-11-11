@@ -669,6 +669,12 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Figures and questions: N5 Engineering Science 2019 Section 2 Q10(a) and 2023 Section 1 Q6(a) as starters, 2016 Section 2 Q12(b) and 2024 Section 2 Q15(c) as exam items, with their marking instructions; the 2023 and 2025 course reports; the 2019 Section 2 Q10(c) marking instructions —
     © Qualifications Scotland (SQA), reproduced for educational use.
   - A train door open button (1996 Stock) — Oxyman, [CC BY 2.5](https://creativecommons.org/licenses/by/2.5), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Open_door_button_1996_Stock.jpg). Resized to fit.
+- **National 5 Engineering Science *Pneumatics*, Lessons Pn5 and Pn6** (added 11 November 2026) — the lesson slide
+  decks `assets/engineering-science/national-5/06-pneumatics/slides/pn5-time-delays-the-reservoir.pdf` and
+  `pn6-and-and-or-control.pdf`, each with its `-answers.pdf` twin. Each item is credited on the deck's Credits slides.
+  The pneumatic symbols, circuits and CP2080 kit drawings are drawn by R Stewart; Booklet 6 page images are R Stewart's own.
+  - Figures and questions, Pn5: N5 Engineering Science 2019 Section 2 Q10(c), 2025 Section 1 Q2(a) and 2026 Section 1 Q5 as starters, 2014 Section 2 Q12(a), 2016 Section 2 Q12(a) and 2018 Section 2 Q15(c) as exam items, with their marking instructions; the 2023 course report and the 2017 Section 2 Q11(b) and 2017 Specimen Section 2 Q16(a) marking instructions. Pn6: 2017 Section 2 Q11(b) and 2023 Section 1 Q3 as starters, 2025 Section 2 Q8(a), 2016 Section 1 Q4(a), 2022 Section 2 Q15(a) and 2019 Section 2 Q10(b) as exam items, with their marking instructions; the 2025 and 2026 course reports and the 2017 Section 1 Q6 marking instructions. The N5 Engineering Science course specification v2.0, p.6, is quoted in both.
+    © Qualifications Scotland (SQA), reproduced for educational use.
 - **N5 Engineering Science *Review Questions* for Booklets 5, 7a and 7b** (added 6 November 2026) —
   eleven PDFs, one per booklet lesson: `assets/engineering-science/national-5/05-mechanisms-and-drive-systems/review-questions/`
   (`d1-` to `d5-review-questions.pdf`) and `assets/engineering-science/national-5/07-structures-and-materials/review-questions/`
