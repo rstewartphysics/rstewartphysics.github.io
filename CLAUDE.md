@@ -469,6 +469,10 @@ Full spec in `tools/build-guides/hub-tiles.md`; read it before touching a hub. O
 
 Full spec in `tools/build-guides/slides-index.md` (shared with the `deck-ship` skill); read it before editing a slides index. Decks with answer pills use the two-pill card.
 
+## AH lab pages
+
+Full spec in `tools/build-guides/ah-lab-pages.md` (approved 11 Nov 2026); read it before building an AH lab sheet. Copy `classes/adv/electromagnetism/lab-f-bil-top-pan-balance.html`; shared `assets/css/ah-lab.css` + `assets/js/ah-lab.js`; results table from a `#labData` JSON block; one hub tile per lab in the Lab sheets row of `classes/adv/topics.html`.
+
 ## Accessibility requirements (every page)
 
 - **No skip link** (teacher, 14 Oct 2026: removed site-wide; don't add one). Keep
