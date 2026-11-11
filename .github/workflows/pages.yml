@@ -40,8 +40,13 @@ jobs:
       - name: Install the generators' font and packages
         run: |
           echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ttf-mscorefonts-installer
+          # The runner's Ubuntu mirror sometimes drops out for a few minutes; try again before failing.
+          for try in 1 2 3; do
+            sudo apt-get update -qq || true
+            sudo apt-get install -y -qq --fix-missing ttf-mscorefonts-installer && break
+            [ "$try" = 3 ] && exit 1
+            echo "apt failed (try $try); waiting 60s"; sleep 60
+          done
           pip install -r tools/generators/requirements.txt
 
       - name: Check the generated pages
@@ -104,3 +109,6 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        # Pages sometimes sits in "syncing_files" past the 10-minute default (run 183).
+        with:
+          timeout: 1800000
