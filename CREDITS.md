@@ -500,6 +500,28 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Paper 1, Q9; 2023 Higher Physics Paper 2, Q4; the 2023 course report. The Higher Physics course specification
     v4.1 (September 2026), p.8, is quoted. © Qualifications Scotland (SQA), reproduced for educational use. Photo in
     the 2023 paper: Iscotlanda Photography/shutterstock.com.
+- **Higher Physics *Special relativity 2: Time dilation*** (added 11 November 2026) — the lesson slide deck
+  `classes/higher/slides/h-odu5-2-time-dilation.pdf` and its `-answers.pdf` twin. Each item is credited on the
+  deck's Credits slide. The light clock, spaceship, clock, muon and graph drawings (and their animations) are by
+  R Stewart.
+  - Photos: caesium beam atomic clock — Binarysequence, CC BY-SA 3.0, via Wikimedia Commons
+    (https://commons.wikimedia.org/wiki/File:HP_5061A_Cesium_Beam_Frequency_Standard.JPG); Deep Space Atomic Clock —
+    NASA/JPL-Caltech (https://images.nasa.gov/details/PIA24573); cloud chamber tracks — Cloudylabs, CC BY-SA 3.0, via
+    Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Nuclear_particle_in_a_diffusion_cloud_chamber.png).
+  - Figures and questions: 2016 Higher Physics Section 2, Q4; 2021 Higher Physics Paper 1, Q10; 2023 Higher Physics
+    Paper 1, Q7; 2024 Higher Physics Paper 1, Q7; 2025 Higher Physics Paper 2, Q4; the 2025 course report. The
+    Higher Physics course specification v4.1 (September 2026), p.8–9, is quoted. © Qualifications Scotland (SQA),
+    reproduced for educational use.
+- **Higher Physics *Special relativity 3: Length contraction and the exam*** (added 11 November 2026) — the lesson
+  slide deck `classes/higher/slides/h-odu5-3-length-contraction.pdf` and its `-answers.pdf` twin. Each item is
+  credited on the deck's Credits slide. The spaceship, muon, atmosphere and cosmic-ray shower drawings (and their
+  animations) are by R Stewart.
+  - Photo: classroom cosmic-ray (muon) detector — CusterDome, CC0, via Wikimedia Commons
+    (https://commons.wikimedia.org/wiki/File:Notre_Dame_QuarkNet_Center_classroom_cosmic_ray_detector_setup.jpg).
+  - Figures and questions: 2019 Higher Physics Paper 1, Q8; 2022 Higher Physics Paper 2, Q6; 2023 Higher Physics
+    Paper 2, Q4; 2025 Higher Physics Paper 1, Q8; 2026 Higher Physics Paper 1, Q8; Specimen Higher Physics Paper 1,
+    Q9; Specimen Higher Physics Paper 2, Q4. The Higher Physics course specification v4.1 (September 2026), p.8–9, is
+    quoted. © Qualifications Scotland (SQA), reproduced for educational use.
 - **S3 Physics *Space L6: Forces on Rockets*** (added 10 November 2026) — the lesson slide deck
   `classes/s3-physics/slides/l6-forces-on-rockets.pdf` and its `-answers.pdf` twin. Each item is credited on
   the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
