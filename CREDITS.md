@@ -78,6 +78,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   - Two charged balloons pushing apart — MikeRun, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Repulsive-electric-force-between-balloons.jpg).
   - Lightning from a storm cloud — US Air Force, public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lightning3.jpg).
   - Birds sitting on a high-voltage line — Vanja Kovac, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Birds_on_a_power_line.jpg).
+- **Photographs under open licences** (added 11 November 2026) — the Advanced Higher Physics
+  *Magnetic Fields* slides
+  (`classes/adv/slides/ah-j-magnetic-fields.pdf`), credited on the deck's
+  Credits slide. Resized or cropped to fit; not otherwise changed. The deck's past-paper items
+  (AH Physics 2016-2026, questions and marking instructions) and course specification pages are
+  © Qualifications Scotland (SQA), reproduced for educational use and credited on the Credits slide.
+  - A magnetic compass — Jacek Halicki, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:2016_Busola.JPG).
+  - An electron beam bent into a circle in a fine-beam tube — Treguel, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Electron_charge-mass_relation_experiment.jpg).
 - **Photographs under open licences** (added 8 November 2026) — the Advanced Higher Physics
   *Electric Fields 2: Uniform Fields* slides
   (`classes/adv/slides/ah-i-electric-fields-2-uniform-fields.pdf`), credited on the deck's
