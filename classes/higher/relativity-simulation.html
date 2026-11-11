@@ -17,7 +17,6 @@ title: Special relativity simulation — Higher Physics
 
   <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20261014b">
   <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
-  <link rel="stylesheet" href="/assets/css/reading.css">
   <script src="/assets/js/progress.js" defer></script>
   <script src="/assets/js/progress/higher-physics.js" defer></script>
   <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
@@ -26,24 +25,24 @@ title: Special relativity simulation — Higher Physics
   {% include site-head-icons.html %}
 
   <style>
-    :root { --warm: #c2410c; --ok: #15803d; }
-    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; --ok: #5dd693; } }
+    :root { --warm: #c2410c; --ok: #15803d; --train-b: #0a6b8a; }
+    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; --ok: #5dd693; --train-b: #6fd3f0; } }
 
-    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; }
-    .concept-tag { display:inline-block; font-size:.72rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-2); margin-bottom:.1rem; }
-    .backlink { display: inline-flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .5rem; }
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; max-width: 72ch; }
+    .concept-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .25rem; }
     .backlink:focus-visible { outline: var(--focus-ring); outline-offset: 3px; border-radius: 6px; }
     .notes { color: var(--text); font-weight: 700; line-height: 1.55; }
-    .notes ul { padding-left: 1.1rem; margin: .4rem 0 0; }
-    .notes li { margin: .35rem 0; }
-    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--text); }
+    .notes ul { padding-left: 1.1rem; margin: 0; }
+    .notes li { margin: .3rem 0; }
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--text); max-width: 80ch; }
 
-    /* ---- equation cards, real 2-D fractions and a drawn square root ---- */
-    .eq-cards { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(min(250px,100%), 1fr)); margin: .8rem 0 .2rem; }
-    .eq-card { border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; }
+    /* relationships, as on the relationships sheet */
+    .eq-row { display: flex; flex-wrap: wrap; gap: .8rem; align-items: stretch; margin: .8rem 0 .2rem; }
+    .eq-card { flex: 0 1 300px; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .7rem .9rem; }
     .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
-    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--text); text-align: center; margin: .55rem 0 .4rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
-    .eq-formula var, .calc var, .ex-conv var, .sym-gloss var { font-style: italic; font-family: "Times New Roman", Times, Georgia, serif; }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--text); text-align: center; margin: .5rem 0 .3rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-formula var, .sym-gloss var, .working var { font-style: italic; font-family: "Times New Roman", Times, Georgia, serif; }
     .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
     .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
     .frac > span { padding: 0 .3em; }
@@ -54,107 +53,100 @@ title: Special relativity simulation — Higher Physics
     .frac.sm > .fr-n { border-bottom-width: 1.5px; }
     .sqrt { display: inline-flex; align-items: stretch; vertical-align: middle; }
     .sqrt .rad { font-size: 1.45em; line-height: .9; align-self: center; margin-right: -.06em; }
-    .sqrt .rc sup { align-self: flex-start; font-size: .65em; line-height: 1; }
     .sqrt .rc { display: inline-flex; align-items: center; gap: .12em; border-top: 2px solid currentColor; padding: .1em .15em 0; }
-
-    /* symbol glossary beside each relationship (D11) */
-    .sym-gloss { display: grid; grid-template-columns: auto auto auto; width: fit-content; max-width: 100%; gap: .3rem .8rem; margin: .7rem 0 0; padding: .6rem .8rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); font-weight: 800; color: var(--text); }
+    .sqrt .rc sup { align-self: flex-start; font-size: .65em; line-height: 1; }
+    .sym-gloss { flex: 1 1 340px; display: grid; grid-template-columns: auto 1fr auto; align-content: center; gap: .3rem .8rem; margin: 0; padding: .6rem .8rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); font-weight: 800; color: var(--text); }
     .sym-gloss dt { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.2rem; text-align: center; }
     .sym-gloss dd { margin: 0; }
     .sym-gloss .u { color: var(--muted); white-space: nowrap; }
 
-    /* words and figure together (dual coding) */
-    .dual { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.3fr); gap: 1rem 1.4rem; align-items: start; margin-top: .9rem; }
-    @media (max-width: 820px) { .dual { grid-template-columns: minmax(0,1fr); } }
-
-    /* ---- worked examples ---- */
-    .example { border: 1px solid var(--border-soft); border-left: 5px solid #15803d; border-radius: 10px; background: var(--card); padding: .85rem .9rem; margin-top: .7rem; text-align: center; overflow-x: auto; }
-    .ex-type { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border-accent); border-radius: 999px; padding: 2px 9px; margin-bottom: .45rem; }
-    .ex-q { display: block; font-weight: 900; color: var(--text); margin: 0 auto .65rem; max-width: 60ch; text-align: left; }
-    .calc { display: inline-grid; grid-template-columns: auto auto auto auto; gap: .45rem .6rem; justify-content: center; align-items: center; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; color: var(--text); font-size: 1.15rem; }
-    .calc-row { display: contents; }
-    .calc .lhs { text-align: right; white-space: nowrap; }
-    .calc .eq { text-align: center; }
-    .calc .rhs { text-align: left; white-space: nowrap; }
-    .calc .note-cell { text-align: left; font-family: var(--font-stack); font-weight: 800; font-size: .8rem; color: var(--accent-2); white-space: normal; max-width: 17ch; }
-    .calc .note-cell:not(:empty)::before { content: "← "; }
-    .ex-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem 1.3rem; }
-    .ex-flow .calc { grid-column: 2; justify-self: center; }
-    .ex-conv { grid-column: 1; justify-self: end; text-align: left; font-family: "Times New Roman", Times, Georgia, serif; font-weight: 600; font-size: 1.08rem; color: var(--text); border-left: 3px solid var(--accent); padding: .2rem 0 .2rem .7rem; }
-    .ex-conv > div { margin: .15rem 0; white-space: nowrap; }
-    .ex-conv .conv-label { display: block; font-family: var(--font-stack); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: .25rem; }
-    .ex-conv .u { font-family: var(--font-stack); font-size: .72rem; font-weight: 800; color: var(--accent-2); margin-left: .3rem; }
-    @media (max-width: 600px) {
-      .ex-flow { grid-template-columns: 1fr; }
-      .ex-conv { grid-column: 1; justify-self: center; border-left: 0; border-top: 3px solid var(--accent); padding: .5rem 0 0; }
-      .ex-flow .calc { grid-column: 1; }
-      .calc { grid-template-columns: auto auto auto; }
-      .calc .note-cell { grid-column: 1 / -1; max-width: none; text-align: center; }
-      .calc .note-cell:empty { display: none; }
-      .calc .note-cell:not(:empty)::before { content: "↳ "; }
-    }
-
-    /* ---- simulation widgets ---- */
-    .widget { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-accent); border-left: 5px solid #b8860b; border-radius: 14px; background: var(--surface-2); }
-    @media (prefers-color-scheme: dark) { .widget { border-left-color: #f3c969; } }
-    .widget h3 { margin: 0 0 .2rem; font-size: 1.05rem; font-weight: 900; color: var(--text); }
-    .widget .hint { color: var(--muted); font-weight: 800; margin: 0 0 .6rem; }
-    .num { width: 5.4rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 44px; min-width: 44px; padding: .5rem .9rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    .btn:hover { border-color: var(--border-strong); }
-    .btn:focus-visible, .num:focus-visible, input[type="range"]:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-    .btn.primary { background: linear-gradient(135deg, #3bb0ff, #0a4f86); color: #fff; border-color: transparent; }
-    .btn[aria-pressed="true"] { background: var(--accent-2); color: var(--card); border-color: transparent; }
-    .btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .7rem; }
+    /* drawings */
     .rel-fig { display: block; width: 100%; height: auto; }
-    .rel-notes { font-size: 1rem; }
-    .rel-notes ul { margin: 0; }
-    .rel-outs { display: grid; gap: 8px; align-content: start; }
-    .rel-outs .sim-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .rel-outs .sim-note { margin: 0; }
-    .sim-controls .ro-v { margin: -4px 0 0; }
-    #simClock .sim-seg button, #simRocket .sim-seg button { flex: 1 1 auto; }
+    .rel-fig text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 17px; }
+    .rel-fig text.small { font-size: 15px; fill: var(--muted); }
+    .rel-fig text.sym { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 20px; }
+    .rel-fig text.light { fill: var(--accent); }
+    .rel-fig text.vb { fill: var(--train-b); }
+    .rel-fig text.warm { fill: var(--warm); }
     .rel-fig .mirror { stroke: var(--text); stroke-width: 5; stroke-linecap: round; }
-    .rel-fig .frame { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
     .rel-fig .photon { fill: var(--accent); }
-    .rel-fig .trace { stroke: var(--accent); stroke-width: 2.5; fill: none; stroke-linejoin: round; opacity: .75; }
-    .rel-fig .vert { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 3 5; }
-    .rel-fig text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 20px; }
-    .rel-fig text.small { font-size: 17px; fill: var(--muted); }
+    .rel-fig .trace { stroke: var(--accent); stroke-width: 2.5; fill: none; stroke-linejoin: round; opacity: .8; }
+    .rel-fig .beam { stroke: var(--accent); stroke-width: 3; fill: none; stroke-dasharray: 8 6; }
     .rel-fig .arrow { stroke: var(--warm); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .rel-fig text.v { fill: var(--warm); font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 26px; }
-    .rel-fig .rocket { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.5; stroke-linejoin: round; }
+    .rel-fig .arrow.b { stroke: var(--train-b); }
+    .rel-fig .arrow.l { stroke: var(--accent); }
+    .rel-fig .carriage { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.5; stroke-linejoin: round; }
+    .rel-fig .carriage.b { stroke: var(--train-b); }
+    .rel-fig .window { fill: var(--card); stroke: var(--muted); stroke-width: 1.2; }
+    .rel-fig .wheel { fill: var(--text); }
+    .rel-fig .track { stroke: var(--muted); stroke-width: 2; }
+    .rel-fig .ground { stroke: var(--text); stroke-width: 3; }
+    .rel-fig .person { stroke: var(--text); stroke-width: 3; fill: none; stroke-linecap: round; }
+    .rel-fig .person-head { fill: var(--text); }
+    .rel-fig .walker { stroke: var(--warm); }
+    .rel-fig .walker-head { fill: var(--warm); }
+    .rel-fig .torch { fill: var(--accent); }
+    .rel-fig .ship { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.5; stroke-linejoin: round; }
+    .rel-fig .bridge { fill: var(--surface-2); stroke: var(--text); stroke-width: 2.5; stroke-linejoin: round; }
     .rel-fig .ghost { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 5; }
     .rel-fig .dim { stroke: var(--text); stroke-width: 1.8; fill: none; }
-    .rel-fig text.sym { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; font-size: 26px; }
-    @media (max-width: 600px) { .rel-fig text { font-size: 24px; } .rel-fig text.small { font-size: 20px; } .rel-fig text.v, .rel-fig text.sym { font-size: 30px; } }
+    .rel-fig .air { fill: color-mix(in srgb, var(--accent) 14%, transparent); stroke: var(--accent); stroke-width: 1.5; }
+    .rel-fig .muon { fill: var(--warm); }
+    .rel-fig .mtrack { stroke: var(--warm); stroke-width: 5; stroke-linecap: round; }
+    .rel-fig .bar-bg { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .rel-fig .bar-none { fill: var(--muted); }
+    .rel-fig .bar-rel { fill: var(--warm); }
+    @media (max-width: 600px) { .rel-fig text { font-size: 21px; } .rel-fig text.small { font-size: 19px; } .rel-fig text.sym { font-size: 24px; } }
 
-    /* ---- practice ---- */
-    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--warm); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
-    .practice-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #3bb0ff, #0a4f86); padding: 3px 10px; border-radius: 999px; margin-bottom: .4rem; }
-    .stem { margin: .3rem 0 0; font-weight: 800; color: var(--text); }
-    .stem b { font-weight: 900; }
-    .data { margin: .4rem 0 0; padding-left: 1.2rem; font-weight: 800; color: var(--text); }
-    .answer-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .6rem; font-weight: 900; color: var(--text); }
-    .answer-row .num { width: 7rem; }
-    .fb-line { margin-top: .6rem; font-weight: 900; min-height: 1.2em; color: var(--text); }
-    .fb-line.ok { color: var(--ok); }
-    .fb-line.no { color: var(--warm); }
-    .working { font-family: "Times New Roman", Times, Georgia, serif; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .7rem; margin-top: .5rem; color: var(--text); font-weight: 600; font-size: 1.08rem; line-height: 1.6; }
-    .working[hidden] { display: none; }
-    details.reveal { margin-top: .8rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
+    .rel-outs .sim-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* side by side, each picture got a third of the stage and its labels fell to about 8 px on an iPad */
+    @media (min-width: 821px) {
+      .sim .sim-figs { grid-template-columns: minmax(0, 1fr); }
+      .rel-outs .sim-readouts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      #simClock .sim-figs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      #simClock .sim-figs > .sim-fig:first-child { grid-column: 1 / -1; }
+      #simClock .rel-outs .sim-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .sim-seg button { flex: 1 1 auto; }
+    .sim-controls .sim-note { margin: 0; }
+
+    /* exam-skill cards and reveals */
+    .skill { border: 1px solid var(--border-accent); border-left: 5px solid var(--ok); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; max-width: 86ch; }
+    .skill-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--ok); margin-bottom: .2rem; }
+    .skill p { margin: .3rem 0; font-weight: 800; color: var(--text); line-height: 1.5; }
+    details.reveal { margin-top: .7rem; border: 1px solid var(--border-accent); border-radius: 10px; overflow: hidden; background: var(--card); }
     details.reveal > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .6rem .8rem; font-weight: 900; color: var(--text); background: var(--surface-2); }
     details.reveal > summary::-webkit-details-marker { display: none; }
     details.reveal > summary::after { content: "▾"; margin-left: auto; font-weight: 900; opacity: .8; }
     details.reveal[open] > summary::after { transform: rotate(180deg); }
     details.reveal > summary:focus-visible { outline: var(--focus-ring); outline-offset: -3px; }
-    details.reveal .reveal-body { padding: .65rem .8rem; color: var(--text); font-weight: 700; line-height: 1.55; }
+    .reveal-body { padding: .65rem .8rem; color: var(--text); font-weight: 700; line-height: 1.55; }
+    .reveal-body ul { margin: .3rem 0; padding-left: 1.2rem; }
+    .mi { border: 1px solid var(--border-soft); border-radius: 8px; background: var(--surface-2); padding: .5rem .7rem; margin: .4rem 0; }
+    .mi-k { font-size: .72rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
 
-    /* ---- quiz: every option teaches ---- */
+    /* practice */
+    .practice { border: 1px solid var(--border-accent); border-left: 5px solid var(--warm); border-radius: 12px; background: var(--surface-2); padding: .75rem .9rem; margin-top: 1rem; }
+    .practice h3 { margin: 0 0 .2rem; font-size: 1.05rem; font-weight: 900; color: var(--text); }
+    .practice .hint { color: var(--muted); font-weight: 800; margin: 0 0 .4rem; }
+    .stem { margin: .4rem 0 0; font-weight: 800; color: var(--text); line-height: 1.55; max-width: 80ch; }
+    .answer-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .6rem; font-weight: 900; color: var(--text); }
+    .num { width: 8rem; min-height: 44px; padding: .4rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 800; font-size: 1rem; font-family: inherit; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: .5rem .9rem; border-radius: 10px; border: 1px solid var(--border-accent); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: 1rem; touch-action: manipulation; }
+    .btn:hover { border-color: var(--border-strong); }
+    .btn:focus-visible, .num:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .fb-line { margin-top: .6rem; font-weight: 900; min-height: 1.2em; color: var(--text); max-width: 80ch; }
+    .fb-line.ok { color: var(--ok); }
+    .fb-line.no { color: var(--warm); }
+    .working { font-family: "Times New Roman", Times, Georgia, serif; background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px; padding: .55rem .8rem; margin-top: .5rem; color: var(--text); font-weight: 600; font-size: 1.12rem; line-height: 1.9; display: flex; flex-direction: column; align-items: flex-start; overflow-x: auto; }
+    .working[hidden] { display: none; }
+    .working .line { display: flex; align-items: center; gap: .3rem; white-space: nowrap; }
+
+    /* check yourself */
     .mcq { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
-    .mcq .qstem { margin: 0 0 .5rem; font-weight: 900; color: var(--text); }
+    .mcq .qstem { margin: 0 0 .5rem; font-weight: 800; color: var(--text); line-height: 1.5; }
     .mcq-opts { display: grid; gap: .4rem; }
-    .mcq-opt { display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 48px; padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .mcq-opt { display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 48px; padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; text-align: left; cursor: pointer; touch-action: manipulation; }
     .mcq-opt:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     .mcq-opt .ol { flex: 0 0 auto; width: 1.8rem; height: 1.8rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border-accent); font-weight: 900; }
     .mcq-opt .om { margin-left: auto; font-weight: 900; white-space: nowrap; }
@@ -162,37 +154,25 @@ title: Special relativity simulation — Higher Physics
     .mcq-opt.right .om { color: var(--ok); }
     .mcq-opt.wrong { border-color: var(--warm); background: color-mix(in srgb, var(--warm) 10%, var(--card)); }
     .mcq-opt.wrong .om { color: var(--warm); }
-    .mcq-fb { margin: .55rem 0 0; padding: .55rem .75rem; border-radius: 10px; background: var(--surface-2); font-weight: 800; color: var(--text); }
+    .mcq-fb { margin: .55rem 0 0; padding: .55rem .75rem; border-radius: 10px; background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
     .mcq-fb:empty { display: none; }
     .score { font-weight: 900; margin-top: .8rem; color: var(--text); }
-
-    /* RAG */
-    .rag-item { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
-    .rag-item .crit { flex: 1; min-width: min(220px, 100%); font-weight: 800; color: var(--text); }
-    .rag-btns { display: inline-flex; gap: .35rem; }
-    .rag-btns button { min-width: 48px; min-height: 48px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 900; cursor: pointer; font-family: inherit; font-size: .95rem; }
-    .rag-btns button:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-    .rag-btns button[data-on="R"][aria-pressed="true"] { background: #c2410c; color: #fff; border-color: transparent; }
-    .rag-btns button[data-on="A"][aria-pressed="true"] { background: #b45309; color: #fff; border-color: transparent; }
-    .rag-btns button[data-on="G"][aria-pressed="true"] { background: #15803d; color: #fff; border-color: transparent; }
-    .rag-btns button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
-    .rag-summary { margin-top: .7rem; font-weight: 900; color: var(--text); }
-
     .words { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%),1fr)); gap: .6rem; margin: .6rem 0 0; }
     .words div { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .6rem .75rem; }
     .words dt { font-weight: 900; color: var(--text); }
     .words dd { margin: .2rem 0 0; font-weight: 700; color: var(--text); }
+    /* Part 1's QR lands here, so the heading must clear the sticky section bar */
+    #intro-title { scroll-margin-top: 170px; }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
     }
     @media print {
-      .subnav-wrap, .backlink, .widget, .btnrow, #siteMenuButton, footer { display: none !important; }
+      .subnav-wrap, .backlink, .practice, #siteMenuButton, footer { display: none !important; }
     }
   </style>
 </head>
-
-<body class="reading">
+<body>
 
   {% include site-menu.html %}
 
@@ -208,9 +188,10 @@ title: Special relativity simulation — Higher Physics
   <div class="subnav-wrap">
     <nav class="subnav" aria-label="Jump to sections">
       <div class="subnav-links">
-        <a class="subnav-link" href="#c1"><span class="sn-full">Time dilation</span><span class="sn-short">Time</span></a>
-        <a class="subnav-link" href="#c2"><span class="sn-full">Length contraction</span><span class="sn-short">Length</span></a>
-        <a class="subnav-link" href="#c3">Journey</a>
+        <a class="subnav-link" href="#intro"><span class="sn-full">Speed of light</span><span class="sn-short">Light</span></a>
+        <a class="subnav-link" href="#light-clock"><span class="sn-full">Time dilation</span><span class="sn-short">Time</span></a>
+        <a class="subnav-link" href="#length"><span class="sn-full">Length contraction</span><span class="sn-short">Length</span></a>
+        <a class="subnav-link" href="#muons">Muons</a>
         <a class="subnav-link" href="#check">Check</a>
       </div>
       <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
@@ -222,40 +203,118 @@ title: Special relativity simulation — Higher Physics
     <a class="backlink" href="/classes/higher/simulations.html"><span aria-hidden="true">←</span> Back to Higher simulations</a>
     {% include feedback-button.html about="Special relativity simulation" %}
 
-    <section class="panel" aria-labelledby="intro-title">
+    <!-- ================= SPEED OF LIGHT (Part 1 QR lands on #intro-title) ================= -->
+    <section class="panel" id="intro" aria-labelledby="intro-title">
+      <span class="concept-tag">Part 1</span>
       <h2 id="intro-title">The speed of light is the same for everyone</h2>
-      <p class="lead">Every observer measures the same speed of light in a vacuum, <var>c</var> = 3.00 × 10<sup>8</sup> m s<sup>−1</sup>, however fast they are moving. Two results follow: a moving clock runs slow, and a moving object is shorter. Set a speed below and watch both happen.</p>
+      <p class="lead">Everyday speeds add and subtract. If you walk along a moving train, your speed <strong>relative to</strong> the platform is the train's speed plus or minus yours. Light does not follow this rule. Every observer measures the speed of light in a vacuum as <var>c</var> = 3.00 × 10<sup>8</sup> m s<sup>−1</sup>.</p>
+
+      <div class="sim" id="simTrains" data-prog-challenge="sim-rel-intro">
+        <div class="sim-head">
+          <h3>Two trains and a torch</h3>
+          <p class="sim-hint">Change the train speeds and the walk. Watch which speeds change and which one never does.</p>
+        </div>
+        <div class="sim-predict" id="predictTrains">
+          <p class="sim-q"><b>Predict.</b> A passenger on train A shines a torch forwards. Train A speeds up. What speed does the person on the platform measure for the torch light?</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="more" aria-pressed="false">More than 3.00 × 10<sup>8</sup> m s<sup>−1</sup><template data-feedback><p>Not this one. That is how a thrown ball behaves: its speed adds to the train's. Light is different. Every observer measures the same speed of light, <var>c</var>.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">3.00 × 10<sup>8</sup> m s<sup>−1</sup>, the same as before<template data-feedback><p><strong>Right.</strong> The speed of light in a vacuum is the same for all observers, however fast the source or the observer is moving.</p></template></button>
+            <button type="button" data-predict="less" aria-pressed="false">Less than 3.00 × 10<sup>8</sup> m s<sup>−1</sup><template data-feedback><p>Not this one. Nothing about the train's speed slows the light down, or speeds it up. Every observer measures <var>c</var>.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+        </div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs">
+              <figure class="sim-fig">
+                <svg class="rel-fig" id="trainSvg" viewBox="0 0 600 300" role="img" aria-labelledby="trainTitle">
+                  <title id="trainTitle">Two trains on parallel tracks, a passenger walking on train A, a torch beam and a person on the platform</title>
+                  <g id="trainArt"></g>
+                </svg>
+              </figure>
+              <div class="rel-outs">
+                <div class="sim-readouts" aria-live="polite">
+                  <div class="sim-out"><span class="k">Walker, relative to the platform</span><span class="v" id="oWalkP"></span></div>
+                  <div class="sim-out"><span class="k">Walker, relative to a passenger seated on train B</span><span class="v" id="oWalkB"></span></div>
+                  <div class="sim-out"><span class="k">Train B, relative to train A</span><span class="v" id="oBA"></span></div>
+                  <div class="sim-out"><span class="k">Torch light, relative to the platform or to train B</span><span class="v" id="oLight"></span></div>
+                </div>
+                <p class="sim-note" id="trainNote" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Train A, relative to the platform (m s<sup>−1</sup>)</span>
+              <span class="sim-row"><input type="range" data-sim="va" min="0" max="40" step="0.5" value="3.5" aria-label="Speed of train A relative to the platform"><input class="sim-num" type="number" data-sim="va" min="0" max="40" step="0.5" value="3.5" inputmode="decimal" aria-label="Speed of train A, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Train B, relative to the platform (m s<sup>−1</sup>)</span>
+              <span class="sim-row"><input type="range" data-sim="vb" min="0" max="40" step="0.5" value="4" aria-label="Speed of train B relative to the platform"><input class="sim-num" type="number" data-sim="vb" min="0" max="40" step="0.5" value="4" inputmode="decimal" aria-label="Speed of train B, typed"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Walker, relative to train A (m s<sup>−1</sup>)</span>
+              <span class="sim-row"><input type="range" data-sim="w" min="0" max="3" step="0.1" value="1.3" aria-label="Walking speed relative to train A"><input class="sim-num" type="number" data-sim="w" min="0" max="3" step="0.1" value="1.3" inputmode="decimal" aria-label="Walking speed, typed"></span>
+            </label>
+            <div class="sim-seg" role="group" aria-label="Which way the passenger walks">
+              <span class="sim-seg-label">Walks</span>
+              <button type="button" data-sim-toggle="dir" data-value="fwd" aria-pressed="false">Forwards</button>
+              <button type="button" data-sim-toggle="dir" data-value="rear" aria-pressed="true">To the rear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill">
+        <span class="skill-tag">Exam skill: state, then justify</span>
+        <p>Two papers ask this (2016 and 2023): a source moves at 0.8<var>c</var> or 0.9<var>c</var> and emits light towards a stationary observer. <strong>State</strong> the speed the observer measures. <strong>Justify</strong> your answer.</p>
+        <details class="reveal">
+          <summary>Show the answer the marking instructions give</summary>
+          <div class="reveal-body">
+            <div class="mi"><span class="mi-k">Statement (1 mark)</span><br>3.00 × 10<sup>8</sup> m s<sup>−1</sup> (or <var>c</var>)</div>
+            <div class="mi"><span class="mi-k">Justification (1 mark)</span><br>The speed of light is the same for all observers.</div>
+            <ul>
+              <li>The statement is marked first. If it is wrong, both marks are lost.</li>
+              <li>A number with no unit scores 0.</li>
+              <li>Wrong physics in the justification loses that mark.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+      <p class="note">If every observer measures the same speed of light, something else has to change. Time and length are what change: the next two sections.</p>
     </section>
 
-    <!-- ================= CONCEPT 1 ================= -->
-    <section class="panel" id="c1" aria-labelledby="c1-title">
-      <span class="concept-tag">Concept 1</span>
-      <h2 id="c1-title">Time dilation</h2>
+    <!-- ================= TIME DILATION ================= -->
+    <section class="panel" id="light-clock" aria-labelledby="c1-title">
+      <span class="concept-tag">Part 2</span>
+      <h2 id="c1-title">Time dilation: the light clock</h2>
+      <p class="lead">A light clock is a pulse of light bouncing between two mirrors. One tick is one trip up and back. When the clock moves past you, its light follows a longer, slanted path at the same speed <var>c</var>, so each tick takes longer. You measure the moving clock running slow. This is <strong>time dilation</strong>.</p>
 
-      <div class="eq-cards">
+      <div class="eq-row">
         <div class="eq-card">
           <div class="eq-name">Time dilation</div>
           <div class="eq-formula" role="img" aria-label="t prime equals t divided by the square root of 1 minus v over c, all squared"><var>t</var>′ = <span class="frac"><span class="fr-n"><var>t</var></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></div>
           <div class="eq-desc">as on the relationships sheet</div>
         </div>
+        <dl class="sym-gloss" aria-label="Symbols in the time dilation relationship">
+          <dt><var>t</var></dt><dd>time in the frame of reference of the moving clock, measured by someone moving with it</dd><dd class="u">s</dd>
+          <dt><var>t</var>′</dt><dd>time measured by the stationary observer the clock moves past</dd><dd class="u">s</dd>
+          <dt><var>v</var></dt><dd>speed of the clock, relative to the observer</dd><dd class="u">m s<sup>−1</sup></dd>
+          <dt><var>c</var></dt><dd>speed of light, 3.00 × 10<sup>8</sup></dd><dd class="u">m s<sup>−1</sup></dd>
+        </dl>
       </div>
-      <dl class="sym-gloss" aria-label="Symbols in the time dilation relationship">
-        <dt><var>t</var>′</dt><dd>time measured by an observer the clock moves past</dd><dd class="u">s</dd>
-        <dt><var>t</var></dt><dd>time measured beside the clock, moving with it</dd><dd class="u">s</dd>
-        <dt><var>v</var></dt><dd>speed of the clock</dd><dd class="u">m s<sup>−1</sup></dd>
-        <dt><var>c</var></dt><dd>speed of light, 3.00 × 10<sup>8</sup></dd><dd class="u">m s<sup>−1</sup></dd>
-      </dl>
 
       <div class="sim" id="simClock" data-prog-challenge="sim-rel-clock">
         <div class="sim-head">
-          <h3>Light clocks</h3>
-          <p class="sim-hint">Set a speed, then compare the two clocks. 0.995<var>c</var> is about the speed of the muons in the worked example below.</p>
+          <h3>Two light clocks</h3>
+          <p class="sim-hint">Press Play, then change the speed. Compare the ticks.</p>
         </div>
         <div class="sim-predict" id="predictClock">
-          <p class="sim-q"><b>Predict</b> how the ticks of the moving clock compare with the clock at rest beside you.</p>
+          <p class="sim-q"><b>Predict.</b> One clock is at rest beside you. An identical clock moves past you. How do its ticks compare, as you measure them?</p>
           <div class="sim-choices">
-            <button type="button" data-predict="faster" aria-pressed="false">Its ticks are shorter<template data-feedback><p>Not this one. The moving clock's light has further to go, along the slanted <strong>light path</strong>, at the same speed <var>c</var>. A longer trip at the same speed takes <strong>longer</strong>.</p></template></button>
-            <button type="button" data-predict="slower" aria-pressed="false">Its ticks are longer<template data-feedback><p><strong>Right.</strong> The light follows a longer, slanted path at the same speed <var>c</var>, so each tick takes longer. You measure the moving clock running slow: <strong>time dilation</strong>.</p></template></button>
+            <button type="button" data-predict="faster" aria-pressed="false">Its ticks are shorter<template data-feedback><p>Not this one. The moving clock's light has further to go, along the slanted light path, at the same speed <var>c</var>. A longer trip at the same speed takes longer.</p></template></button>
+            <button type="button" data-predict="slower" aria-pressed="false">Its ticks are longer<template data-feedback><p><strong>Right.</strong> The light follows a longer, slanted path at the same speed <var>c</var>, so each tick takes longer. You measure the moving clock running slow: time dilation.</p></template></button>
             <button type="button" data-predict="same" aria-pressed="false">They are the same<template data-feedback><p>At everyday speeds you could not tell the difference, but near <var>c</var> you can. The light's path is longer and its speed is not, so each tick takes longer.</p></template></button>
           </div>
           <div data-reveal hidden aria-live="polite"></div>
@@ -264,44 +323,36 @@ title: Special relativity simulation — Higher Physics
         <div class="sim-stage">
           <div class="sim-view">
             <div class="sim-figs">
-              <div class="notes rel-notes">
-                <ul>
-                  <li>A <strong>light clock</strong> is a pulse of light bouncing between two <strong>mirrors</strong>. One tick is one trip up and back.</li>
-                  <li>To you, the <strong>moving clock</strong>'s light follows a longer, slanted <strong>light path</strong>, still at <var>c</var>, so each tick takes longer than a tick of the <strong>clock at rest</strong>.</li>
-                  <li>You measure a moving clock running slow. This is <strong>time dilation</strong>.</li>
-                </ul>
-              </div>
               <figure class="sim-fig">
-                <svg class="rel-fig" id="clockSvg" viewBox="0 0 500 300" role="img" aria-labelledby="clockTitle">
-            <title id="clockTitle">Two light clocks</title>
-            <line class="mirror" x1="42" y1="50" x2="98" y2="50"/>
-            <line class="mirror" x1="42" y1="230" x2="98" y2="230"/>
-            <circle class="photon" id="restPhoton" cx="70" cy="230" r="7"/>
-            <text x="70" y="266" text-anchor="middle">clock at rest</text>
-            <text x="70" y="290" text-anchor="middle" class="small">beside you</text>
-            <polyline class="trace" id="trace" points=""/>
-            <line class="mirror" id="mTop" x1="0" y1="50" x2="56" y2="50"/>
-            <line class="mirror" id="mBot" x1="0" y1="230" x2="56" y2="230"/>
-            <circle class="photon" id="movePhoton" cx="0" cy="230" r="7"/>
-            <text x="325" y="266" text-anchor="middle">moving clock</text>
-            <text x="325" y="290" text-anchor="middle" class="small">slanted line = light path</text>
-            <path class="arrow" d="M390 22 H470 M460 14 L470 22 L460 30"/>
-            <text class="v" x="378" y="30" text-anchor="end">v</text>
-            <text x="70" y="36" text-anchor="middle" class="small">mirror</text>
-          </svg>
+                <svg class="rel-fig" id="clockSvg" viewBox="0 0 600 300" role="img" aria-labelledby="clockTitle">
+                  <title id="clockTitle">A light clock at rest beside you and an identical light clock moving past you</title>
+                  <text x="80" y="24" text-anchor="middle" class="small">mirror</text>
+                  <line class="mirror" x1="52" y1="50" x2="108" y2="50"/>
+                  <line class="mirror" x1="52" y1="230" x2="108" y2="230"/>
+                  <circle class="photon" id="restPhoton" cx="80" cy="230" r="7"/>
+                  <text x="80" y="262" text-anchor="middle">clock at rest</text>
+                  <text x="80" y="284" text-anchor="middle" class="small">ticks: <tspan id="restTicksSvg">0</tspan></text>
+                  <polyline class="trace" id="trace" points=""/>
+                  <line class="mirror" id="mTop" x1="0" y1="50" x2="56" y2="50"/>
+                  <line class="mirror" id="mBot" x1="0" y1="230" x2="56" y2="230"/>
+                  <circle class="photon" id="movePhoton" cx="0" cy="230" r="7"/>
+                  <text x="390" y="262" text-anchor="middle">moving clock</text>
+                  <text x="390" y="284" text-anchor="middle" class="small">ticks: <tspan id="moveTicksSvg">0</tspan> · slanted line = light path</text>
+                  <path class="arrow" d="M420 22 H500 M490 14 L500 22 L490 30"/>
+                  <text class="sym warm" x="410" y="29" text-anchor="end">v</text>
+                </svg>
               </figure>
               <figure class="sim-fig sim-graph">
                 <svg id="graphT"></svg>
               </figure>
               <div class="rel-outs">
                 <div class="sim-readouts" aria-live="polite">
-                  <div class="sim-out"><span class="k">Time on your clock, <var>t</var>′</span><span class="v" id="tYour"></span></div>
-                  <div class="sim-out"><span class="k">Time on the moving clock, <var>t</var></span><span class="v" id="tMove"></span></div>
-                  <div class="sim-out"><span class="k">Ticks: yours</span><span class="v" id="restTicks">0</span></div>
-                  <div class="sim-out"><span class="k">Ticks: moving clock</span><span class="v" id="moveTicks">0</span></div>
+                  <div class="sim-out"><span class="k">Time in the clock's frame, <var>t</var></span><span class="v" id="oT"></span></div>
+                  <div class="sim-out"><span class="k">Time for the stationary observer, <var>t</var>′</span><span class="v" id="oTp"></span></div>
+                  <div class="sim-out"><span class="k"><var>t</var>′ ÷ <var>t</var></span><span class="v" id="oTr"></span></div>
+                  <div class="sim-out"><span class="k">Speed <var>v</var></span><span class="v" id="oTv"></span></div>
                 </div>
-                <p class="sim-note" id="tickRatio" aria-live="polite"></p>
-                <p class="sim-note"><var>t</var>′ is always bigger than <var>t</var>. If your answer is smaller, you multiplied when you should have divided.</p>
+                <p class="sim-note" id="clockNote" aria-live="polite"></p>
               </div>
             </div>
           </div>
@@ -310,15 +361,14 @@ title: Special relativity simulation — Higher Physics
               <span class="sim-name">Speed <var>v</var> (fraction of <var>c</var>)</span>
               <span class="sim-row"><input type="range" data-sim="v" data-scale="near" data-min="0" data-max="0.999" data-step="0.001" min="0" max="1000" step="1" aria-label="Speed, as a fraction of the speed of light"><input class="sim-num" type="number" data-sim="v" min="0" max="0.999" step="0.001" value="0.8" inputmode="decimal" aria-label="Speed, typed, as a fraction of the speed of light"></span>
             </label>
-            <p class="sim-note ro-v" aria-live="polite"></p>
-            <div class="sim-seg" role="group" aria-label="Preset speeds">
-              <span class="sim-seg-label">Presets</span>
-              <button type="button" data-b="0.5" aria-pressed="false">0.50<var>c</var></button>
-              <button type="button" data-b="0.8" aria-pressed="false">0.80<var>c</var></button>
-              <button type="button" data-b="0.9" aria-pressed="false">0.90<var>c</var></button>
-              <button type="button" data-b="0.99" aria-pressed="false">0.99<var>c</var></button>
-              <button type="button" data-b="0.995" aria-pressed="false">0.995<var>c</var></button>
-            </div>
+            <label class="sim-field">
+              <span class="sim-name">or speed <var>v</var> (× 10<sup>8</sup> m s<sup>−1</sup>)</span>
+              <span class="sim-row"><input class="sim-num" type="number" id="vmsClock" min="0" max="2.997" step="0.001" value="2.4" inputmode="decimal" aria-label="Speed, typed, in units of 10 to the 8 metres per second"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Time in the clock's frame, <var>t</var> (s)</span>
+              <span class="sim-row"><input class="sim-num" type="number" data-sim="t" min="0.01" max="100000" step="any" value="1.00" inputmode="decimal" aria-label="Time in the clock's frame of reference, in seconds"></span>
+            </label>
             <div class="sim-seg" role="group" aria-label="Clocks">
               <span class="sim-seg-label">Clocks</span>
               <button class="sim-btn" type="button" id="playBtn" aria-pressed="false" data-play-text="Play" data-pause-text="Pause">Play</button>
@@ -328,48 +378,15 @@ title: Special relativity simulation — Higher Physics
         </div>
       </div>
 
-      <h3 class="ex-divider">Worked examples</h3>
-      <div class="example">
-        <span class="ex-type">Substitute &amp; solve</span>
-        <div class="ex-q">A muon lives for 2.2 μs, measured in its own frame. It travels towards Earth at 0.995<var>c</var>. Calculate its lifetime measured by an observer on Earth.</div>
-        <div class="ex-flow">
-          <div class="ex-conv">
-            <span class="conv-label">Convert first</span>
-            <div><var>t</var> = 2.2 × 10<sup>−6</sup> s <span class="u">μs → s</span></div>
-            <div><var>v</var>/<var>c</var> = 0.995 <span class="u">read off 0.995<var>c</var></span></div>
-          </div>
-          <div class="calc">
-            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n"><var>t</var></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></span><span class="note-cell"></span></div>
-            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n">2.2 × 10<sup>−6</sup></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − 0.995<sup>2</sup></span></span></span></span></span><span class="note-cell">numbers in</span></div>
-            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs">2.2 × 10<sup>−6</sup> ÷ 0.0999</span><span class="note-cell">square, take from 1, root</span></div>
-            <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs">2.2 × 10<sup>−5</sup> s</span><span class="note-cell">ten times longer</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="example">
-        <span class="ex-type">Rearrange — numbers in first</span>
-        <div class="ex-q">A clock on a spacecraft records a journey time of 30 minutes. Observers on Earth measure the same journey as 50 minutes. Calculate the speed of the spacecraft.</div>
-        <div class="calc">
-          <div class="calc-row"><span class="lhs"><var>t</var>′</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n"><var>t</var></span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></span><span class="note-cell"></span></div>
-          <div class="calc-row"><span class="lhs">50</span><span class="eq">=</span><span class="rhs"><span class="frac"><span class="fr-n">30</span><span class="fr-d"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span></span></span><span class="note-cell">numbers in first; minutes cancel</span></div>
-          <div class="calc-row"><span class="lhs"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="eq">=</span><span class="rhs">30 ÷ 50 = 0.60</span><span class="note-cell">now rearrange</span></div>
-          <div class="calc-row"><span class="lhs">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.36</span><span class="note-cell">square both sides</span></div>
-          <div class="calc-row"><span class="lhs">(<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.64</span><span class="note-cell"></span></div>
-          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">0.80 × 3.00 × 10<sup>8</sup></span><span class="note-cell">root, then × <var>c</var></span></div>
-          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">2.4 × 10<sup>8</sup> m s<sup>−1</sup></span><span class="note-cell"></span></div>
-        </div>
-      </div>
-
       <div class="practice" id="pt">
-        <span class="practice-tag">Practice 1</span>
+        <h3>Calculate it: time dilation</h3>
+        <p class="hint">Questions in the style of the exam. Type your answer in the unit shown, then check it.</p>
         <p class="stem" id="pt-stem"></p>
-        <ul class="data" id="pt-data"></ul>
         <div class="answer-row">
-          <label for="pt-in">Your answer</label>
+          <label for="pt-in" id="pt-lab"></label>
           <input class="num" id="pt-in" type="text" inputmode="decimal" autocomplete="off">
           <span id="pt-unit"></span>
-          <button class="btn primary" type="button" id="pt-check">Check</button>
+          <button class="btn" type="button" id="pt-check">Check</button>
           <button class="btn" type="button" id="pt-new">New question</button>
         </div>
         <p class="fb-line" id="pt-fb" aria-live="polite"></p>
@@ -377,34 +394,35 @@ title: Special relativity simulation — Higher Physics
       </div>
     </section>
 
-    <!-- ================= CONCEPT 2 ================= -->
-    <section class="panel" id="c2" aria-labelledby="c2-title">
-      <span class="concept-tag">Concept 2</span>
+    <!-- ================= LENGTH CONTRACTION ================= -->
+    <section class="panel" id="length" aria-labelledby="c2-title">
+      <span class="concept-tag">Part 3</span>
       <h2 id="c2-title">Length contraction</h2>
+      <p class="lead">A length along the direction of motion is measured shorter by an observer moving relative to it. This is <strong>length contraction</strong>. Check who is at rest relative to the object: they measure <var>l</var>. Sometimes the object moves past the observer; sometimes the observer moves past the object.</p>
 
-      <div class="eq-cards">
+      <div class="eq-row">
         <div class="eq-card">
           <div class="eq-name">Length contraction</div>
           <div class="eq-formula" role="img" aria-label="l prime equals l times the square root of 1 minus v over c, all squared"><var>l</var>′ = <var>l</var> <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></div>
           <div class="eq-desc">as on the relationships sheet</div>
         </div>
+        <dl class="sym-gloss" aria-label="Symbols in the length contraction relationship">
+          <dt><var>l</var></dt><dd>length measured by an observer at rest relative to the object</dd><dd class="u">m</dd>
+          <dt><var>l</var>′</dt><dd>length measured by an observer moving relative to the object</dd><dd class="u">m</dd>
+          <dt><var>v</var></dt><dd>speed of one, relative to the other</dd><dd class="u">m s<sup>−1</sup></dd>
+          <dt><var>c</var></dt><dd>speed of light, 3.00 × 10<sup>8</sup></dd><dd class="u">m s<sup>−1</sup></dd>
+        </dl>
       </div>
-      <dl class="sym-gloss" aria-label="Symbols in the length contraction relationship">
-        <dt><var>l</var>′</dt><dd>length measured by an observer the object moves past</dd><dd class="u">m</dd>
-        <dt><var>l</var></dt><dd>length measured at rest beside the object</dd><dd class="u">m</dd>
-        <dt><var>v</var></dt><dd>speed of the object</dd><dd class="u">m s<sup>−1</sup></dd>
-        <dt><var>c</var></dt><dd>speed of light, 3.00 × 10<sup>8</sup></dd><dd class="u">m s<sup>−1</sup></dd>
-      </dl>
 
       <div class="sim" id="simRocket" data-prog-challenge="sim-rel-rocket">
         <div class="sim-head">
-          <h3>Rocket and ruler</h3>
-          <p class="sim-hint">The same speed as the light clocks: change it in either place.</p>
+          <h3>Who measures <var>l</var>?</h3>
+          <p class="sim-hint">Try both cases. In each one, find the observer who is at rest relative to the object.</p>
         </div>
         <div class="sim-predict" id="predictRocket">
-          <p class="sim-q">At 0.60<var>c</var> a rocket is measured 0.80 times as long as at rest. <b>Predict</b> what happens to its height.</p>
+          <p class="sim-q"><b>Predict.</b> A spacecraft moves past you at 0.80<var>c</var>. Its length shrinks to 0.60 of its length. What happens to its height?</p>
           <div class="sim-choices">
-            <button type="button" data-predict="shrink" aria-pressed="false">It shrinks to 0.80 of its height<template data-feedback><p>Not this one. Only the length <strong>along the direction of motion</strong> contracts. The rocket moves sideways past you, so its height is unchanged.</p></template></button>
+            <button type="button" data-predict="shrink" aria-pressed="false">It shrinks to 0.60 of its height too<template data-feedback><p>Not this one. Only the length <strong>along the direction of motion</strong> contracts. The spacecraft moves sideways past you, so its height is unchanged.</p></template></button>
             <button type="button" data-predict="same" aria-pressed="false">It stays the same<template data-feedback><p><strong>Right.</strong> Length contraction only happens along the direction of motion. The height is across the motion, so it does not change.</p></template></button>
             <button type="button" data-predict="grow" aria-pressed="false">It grows<template data-feedback><p>Nothing grows. Lengths along the motion get shorter; lengths across the motion, like the height, stay as they are.</p></template></button>
           </div>
@@ -414,101 +432,54 @@ title: Special relativity simulation — Higher Physics
         <div class="sim-stage">
           <div class="sim-view">
             <div class="sim-figs">
-              <div class="notes rel-notes">
-                <ul>
-                  <li>The rocket <strong>at rest</strong> has length <var>l</var>, measured by someone beside it.</li>
-                  <li>To an observer it is <strong>moving</strong> past, it is shorter: length <var>l</var>′. This is <strong>length contraction</strong>. Its height does not change.</li>
-                  <li>The same factor as time dilation, <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<var>v</var>/<var>c</var>)<sup>2</sup></span></span>: <strong>multiply</strong> for lengths, <strong>divide</strong> for times.</li>
-                </ul>
-              </div>
               <figure class="sim-fig">
-                <svg class="rel-fig" id="rocketSvg" viewBox="0 0 420 284" role="img" aria-labelledby="rocketTitle">
-            <title id="rocketTitle">A rocket at rest and the same rocket moving</title>
-            <text x="24" y="32">at rest</text>
-            <polygon class="rocket" id="restRocket" points=""/>
-            <path class="dim" d="M24 104 V116 M364 104 V116 M24 110 H364"/>
-            <text class="sym" x="194" y="136" text-anchor="middle">l</text>
-            <text x="24" y="174">moving</text>
-            <path class="arrow" d="M118 167 H178 M168 159 L178 167 L168 175"/>
-            <text class="v" x="186" y="175">v</text>
-            <polygon class="ghost" id="ghostRocket" points=""/>
-            <polygon class="rocket" id="moveRocket" points=""/>
-            <path class="dim" id="moveDim" d=""/>
-            <text class="sym" id="moveLab" x="194" y="276" text-anchor="middle">l′</text>
-          </svg>
-              </figure>
-              <figure class="sim-fig sim-graph">
-                <svg id="graphL"></svg>
+                <svg class="rel-fig" id="lenSvg" viewBox="0 0 600 300" role="img" aria-labelledby="lenTitle">
+                  <title id="lenTitle">The object as measured by an observer at rest relative to it, and as measured by an observer moving relative to it</title>
+                  <g id="lenArt"></g>
+                </svg>
               </figure>
               <div class="rel-outs">
                 <div class="sim-readouts" aria-live="polite">
-                  <div class="sim-out"><span class="k">Factor <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<var>v</var>/<var>c</var>)<sup>2</sup></span></span></span><span class="v" id="lenFactor"></span></div>
-                  <div class="sim-out is-key"><span class="k">Moving length</span><span class="v" id="lenRatio"></span></div>
+                  <div class="sim-out"><span class="k" id="kL">Length, <var>l</var></span><span class="v" id="oL"></span></div>
+                  <div class="sim-out"><span class="k" id="kLp">Length, <var>l</var>′</span><span class="v" id="oLp"></span></div>
+                  <div class="sim-out"><span class="k"><var>l</var>′ ÷ <var>l</var></span><span class="v" id="oLr"></span></div>
+                  <div class="sim-out"><span class="k">Speed <var>v</var></span><span class="v" id="oLv"></span></div>
                 </div>
-                <p class="sim-note"><var>l</var>′ is always smaller than <var>l</var>.</p>
+                <p class="sim-note" id="lenNote" aria-live="polite"></p>
               </div>
             </div>
           </div>
           <div class="sim-controls">
+            <div class="sim-seg" role="group" aria-label="Which one moves">
+              <span class="sim-seg-label">Case</span>
+              <button type="button" data-sim-toggle="mode" data-value="ship" aria-pressed="true">Spacecraft moves past you</button>
+              <button type="button" data-sim-toggle="mode" data-value="bridge" aria-pressed="false">You move past a bridge</button>
+            </div>
             <label class="sim-field">
               <span class="sim-name">Speed <var>v</var> (fraction of <var>c</var>)</span>
               <span class="sim-row"><input type="range" data-sim="v" data-scale="near" data-min="0" data-max="0.999" data-step="0.001" min="0" max="1000" step="1" aria-label="Speed, as a fraction of the speed of light"><input class="sim-num" type="number" data-sim="v" min="0" max="0.999" step="0.001" value="0.8" inputmode="decimal" aria-label="Speed, typed, as a fraction of the speed of light"></span>
             </label>
-            <p class="sim-note ro-v" aria-live="polite"></p>
-            <div class="sim-seg" role="group" aria-label="Preset speeds">
-              <span class="sim-seg-label">Presets</span>
-              <button type="button" data-b="0.5" aria-pressed="false">0.50<var>c</var></button>
-              <button type="button" data-b="0.8" aria-pressed="false">0.80<var>c</var></button>
-              <button type="button" data-b="0.9" aria-pressed="false">0.90<var>c</var></button>
-              <button type="button" data-b="0.99" aria-pressed="false">0.99<var>c</var></button>
-              <button type="button" data-b="0.995" aria-pressed="false">0.995<var>c</var></button>
-            </div>
+            <label class="sim-field">
+              <span class="sim-name">or speed <var>v</var> (× 10<sup>8</sup> m s<sup>−1</sup>)</span>
+              <span class="sim-row"><input class="sim-num" type="number" id="vmsLen" min="0" max="2.997" step="0.001" value="2.4" inputmode="decimal" aria-label="Speed, typed, in units of 10 to the 8 metres per second"></span>
+            </label>
+            <label class="sim-field">
+              <span class="sim-name">Length <var>l</var> (m)</span>
+              <span class="sim-row"><input class="sim-num" type="number" data-sim="l" min="1" max="100000" step="any" value="80" inputmode="decimal" aria-label="Length measured by the observer at rest relative to the object, in metres"></span>
+            </label>
           </div>
-        </div>
-      </div>
-
-      <h3 class="ex-divider">Worked examples</h3>
-      <div class="example">
-        <span class="ex-type">Substitute &amp; solve</span>
-        <div class="ex-q">A spacecraft is 120 m long when at rest. It passes Earth at 1.8 × 10<sup>8</sup> m s<sup>−1</sup>. Calculate its length measured by an observer on Earth.</div>
-        <div class="ex-flow">
-          <div class="ex-conv">
-            <span class="conv-label">Convert first</span>
-            <div><var>v</var>/<var>c</var> = 1.8 × 10<sup>8</sup> ÷ 3.00 × 10<sup>8</sup> <span class="u">speed as a fraction of <var>c</var></span></div>
-            <div><var>v</var>/<var>c</var> = 0.60</div>
-          </div>
-          <div class="calc">
-            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs"><var>l</var> <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="note-cell"></span></div>
-            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs">120 × <span class="sqrt"><span class="rad">√</span><span class="rc">1 − 0.60<sup>2</sup></span></span></span><span class="note-cell">numbers in</span></div>
-            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs">120 × 0.80</span><span class="note-cell"></span></div>
-            <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs">96 m</span><span class="note-cell">shorter, as it should be</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="example">
-        <span class="ex-type">Rearrange — numbers in first</span>
-        <div class="ex-q">A probe is 50 m long at rest. An observer measures its length as 40 m as it flies past. Calculate the speed of the probe.</div>
-        <div class="calc">
-          <div class="calc-row"><span class="lhs"><var>l</var>′</span><span class="eq">=</span><span class="rhs"><var>l</var> <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="note-cell"></span></div>
-          <div class="calc-row"><span class="lhs">40</span><span class="eq">=</span><span class="rhs">50 × <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="note-cell">numbers in first</span></div>
-          <div class="calc-row"><span class="lhs"><span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span></span></span><span class="eq">=</span><span class="rhs">40 ÷ 50 = 0.80</span><span class="note-cell">metres cancel</span></div>
-          <div class="calc-row"><span class="lhs">1 − (<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.64</span><span class="note-cell">square both sides</span></div>
-          <div class="calc-row"><span class="lhs">(<span class="frac sm"><span class="fr-n"><var>v</var></span><span class="fr-d"><var>c</var></span></span>)<sup>2</sup></span><span class="eq">=</span><span class="rhs">0.36</span><span class="note-cell"></span></div>
-          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">0.60 × 3.00 × 10<sup>8</sup></span><span class="note-cell">root, then × <var>c</var></span></div>
-          <div class="calc-row"><span class="lhs"><var>v</var></span><span class="eq">=</span><span class="rhs">1.8 × 10<sup>8</sup> m s<sup>−1</sup></span><span class="note-cell"></span></div>
         </div>
       </div>
 
       <div class="practice" id="pl">
-        <span class="practice-tag">Practice 2</span>
+        <h3>Calculate it: length contraction</h3>
+        <p class="hint">Some questions ask for <var>l</var>′, some for <var>l</var>, and some for the speed. Read who measures what.</p>
         <p class="stem" id="pl-stem"></p>
-        <ul class="data" id="pl-data"></ul>
         <div class="answer-row">
-          <label for="pl-in">Your answer</label>
+          <label for="pl-in" id="pl-lab"></label>
           <input class="num" id="pl-in" type="text" inputmode="decimal" autocomplete="off">
           <span id="pl-unit"></span>
-          <button class="btn primary" type="button" id="pl-check">Check</button>
+          <button class="btn" type="button" id="pl-check">Check</button>
           <button class="btn" type="button" id="pl-new">New question</button>
         </div>
         <p class="fb-line" id="pl-fb" aria-live="polite"></p>
@@ -516,18 +487,76 @@ title: Special relativity simulation — Higher Physics
       </div>
     </section>
 
-    <!-- ================= CONCEPT 3 ================= -->
-    <section class="panel" id="c3" aria-labelledby="c3-title">
-      <span class="concept-tag">Go further</span>
-      <h2 id="c3-title">A journey to a star</h2>
-      <p class="lead">The traveller and Earth disagree about the time and the distance, but they agree on what happens. Earth sees a slow clock. The traveller sees a shorter distance. Both give the same reading on the traveller's clock.</p>
-      <div class="widget">
-        <h3 id="tripTitle">The journey</h3>
-        <p class="stem" id="tripStem"></p>
-        <div class="btnrow"><button class="btn" type="button" id="tripNew">New journey</button></div>
+    <!-- ================= MUONS ================= -->
+    <section class="panel" id="muons" aria-labelledby="c3-title">
+      <span class="concept-tag">Part 3</span>
+      <h2 id="c3-title">Muons: two frames, one answer</h2>
+      <p class="lead">Muons are made when cosmic rays enter the atmosphere, about 10 km above the surface of the Earth. They have a mean lifetime of 2.2 × 10<sup>−6</sup> s in their frame of reference and travel at about 0.995<var>c</var> relative to an observer on Earth. Without relativity, very few would reach the ground. Far more are detected.</p>
+
+      <div class="sim" id="simMuon" data-prog-challenge="sim-rel-muon">
+        <div class="sim-head">
+          <h3>Muons in the atmosphere</h3>
+          <p class="sim-hint">Switch between the frames. Compare how far the average muon gets in each.</p>
+        </div>
+        <div class="sim-predict" id="predictMuon">
+          <p class="sim-q"><b>Predict.</b> Without relativity, a muon at 0.995<var>c</var> travels a mean distance of 660 m in its lifetime. The ground is 10 km below. What does relativity do?</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="fewer" aria-pressed="false">Fewer muons reach the ground<template data-feedback><p>Not this one. Relativity works in the muons' favour. From Earth, their mean lifetime is longer; to the muon, the distance is shorter. Both let more muons through.</p></template></button>
+            <button type="button" data-predict="more" aria-pressed="false">More muons reach the ground<template data-feedback><p><strong>Right.</strong> In Earth's frame of reference, the muon's mean lifetime is greater. In the muon's frame of reference, the distance to the ground is shorter. Either way, many more muons are detected.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">No change: relativity only affects clocks<template data-feedback><p>Not this one. A muon's mean lifetime is its own clock, so time dilation does affect it. And lengths change too.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+        </div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-figs">
+              <figure class="sim-fig">
+                <svg class="rel-fig" id="muonSvg" viewBox="0 0 600 330" role="img" aria-labelledby="muonTitle">
+                  <title id="muonTitle">A column of atmosphere with muons made at the top and a detector on the ground, in the chosen frame of reference</title>
+                  <g id="muonArt"></g>
+                </svg>
+              </figure>
+              <div class="rel-outs">
+                <div class="sim-readouts" aria-live="polite">
+                  <div class="sim-out"><span class="k">Mean lifetime</span><span class="v" id="oMt"></span></div>
+                  <div class="sim-out"><span class="k">Distance to the ground</span><span class="v" id="oMh"></span></div>
+                  <div class="sim-out"><span class="k">Mean distance travelled</span><span class="v" id="oMd"></span></div>
+                  <div class="sim-out"><span class="k">How far the average muon gets</span><span class="v" id="oMs"></span></div>
+                </div>
+                <p class="sim-note" id="muonNote" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <div class="sim-seg" role="group" aria-label="Frame of reference">
+              <span class="sim-seg-label">Frame</span>
+              <button type="button" data-sim-toggle="frame" data-value="none" aria-pressed="false">No relativity</button>
+              <button type="button" data-sim-toggle="frame" data-value="earth" aria-pressed="true">Earth's frame</button>
+              <button type="button" data-sim-toggle="frame" data-value="muon" aria-pressed="false">Muon's frame</button>
+            </div>
+            <label class="sim-field">
+              <span class="sim-name">Speed <var>v</var> (fraction of <var>c</var>)</span>
+              <span class="sim-row"><input type="range" data-sim="v" data-scale="near" data-min="0.9" data-max="0.999" data-step="0.001" min="0" max="1000" step="1" aria-label="Muon speed, as a fraction of the speed of light"><input class="sim-num" type="number" data-sim="v" min="0.9" max="0.999" step="0.001" value="0.995" inputmode="decimal" aria-label="Muon speed, typed, as a fraction of the speed of light"></span>
+            </label>
+            <p class="sim-note">Fixed, as in the specimen paper: mean lifetime 2.2 × 10<sup>−6</sup> s in the muon's frame; atmosphere 10 km deep in Earth's frame.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill">
+        <span class="skill-tag">Exam skill: name the frame</span>
+        <p><strong>Explain</strong> why a greater number of muons are detected on the surface of the Earth than would be expected if relativistic effects were not taken into account. (1 mark: 2019 specimen paper; the same question about pions in 2022.)</p>
         <details class="reveal">
-          <summary>Show both points of view</summary>
-          <div class="reveal-body" id="tripBody"></div>
+          <summary>Show the answers the marking instructions accept</summary>
+          <div class="reveal-body">
+            <div class="mi"><span class="mi-k">Either</span><br>The mean lifetime of the muon is greater for an observer in Earth's frame of reference.</div>
+            <div class="mi"><span class="mi-k">Or</span><br>The mean distance travelled by a muon is shorter in the muon's frame of reference.</div>
+            <ul>
+              <li>The answer must name, or clearly imply, a frame of reference. "Because of time dilation" on its own scores 0.</li>
+              <li>Do not mix the frames. In its own frame, the muon's mean lifetime is still 2.2 × 10<sup>−6</sup> s.</li>
+            </ul>
+          </div>
         </details>
       </div>
     </section>
@@ -535,31 +564,22 @@ title: Special relativity simulation — Higher Physics
     <!-- ================= CHECK ================= -->
     <section class="panel" id="check" aria-labelledby="check-title">
       <h2 id="check-title">Check yourself</h2>
+      <p class="lead">Pick an answer to see feedback on it. You can then try the others to see why they are wrong. Your score counts first tries only.</p>
+      <div id="quiz" data-prog-challenge="mcq-rel"></div>
+      <p class="score" id="quizScore" aria-live="polite"></p>
 
-      <div class="widget">
-        <h3>Multiple choice</h3>
-        <p class="hint">Pick an answer to see feedback on it. You can then try the others to see why they are wrong. Your score counts first tries only.</p>
-        <div id="quiz" data-prog-challenge="mcq-rel"></div>
-        <p class="score" id="quizScore" aria-live="polite"></p>
-      </div>
-
-      <div class="widget">
-        <h3>Rate your confidence</h3>
-        <p class="hint">Red = not yet, Amber = getting there, Green = confident. Saved on this device only.</p>
-        <div id="rag"></div>
-        <p class="rag-summary" id="ragSummary" aria-live="polite"></p>
-      </div>
-
-      <h3 class="ex-divider">Words to know</h3>
+      <h3>Words to know</h3>
       <dl class="words">
-        <div><dt>Light clock</dt><dd>Light bouncing between two mirrors. One trip up and back is one tick.</dd></div>
-        <div><dt>Time dilation</dt><dd>A moving clock is measured to run slow: <var>t</var>′ is longer than <var>t</var>.</dd></div>
-        <div><dt>Length contraction</dt><dd>A moving object is measured to be shorter along its direction of motion: <var>l</var>′ is shorter than <var>l</var>.</dd></div>
         <div><dt>Frame of reference</dt><dd>The point of view an observer measures from, and moves with.</dd></div>
+        <div><dt>Relative speed</dt><dd>A speed measured by a stated observer. Always say what it is relative to.</dd></div>
+        <div><dt>Time dilation</dt><dd>A moving clock is measured to run slow: <var>t</var>′ is longer than <var>t</var>.</dd></div>
+        <div><dt>Length contraction</dt><dd>A length along the direction of motion is measured shorter by an observer moving relative to it: <var>l</var>′ is shorter than <var>l</var>.</dd></div>
+        <div><dt>Mean lifetime</dt><dd>The average time a particle such as a muon exists before it decays, measured in its own frame of reference.</dd></div>
+        <div><dt>Relativistic speed</dt><dd>A speed of about 0.1<var>c</var> or more, where the effects become significant.</dd></div>
       </dl>
     </section>
 
-    <p data-credit-note style="max-width:1100px;margin:0.5rem auto 0;padding:0 12px;font-size:0.82rem;opacity:0.78;">Sources &amp; credits: simulation, diagrams, worked examples and questions by R Stewart. The relationships follow the Higher Physics relationships sheet, &copy; Qualifications Scotland (SQA).</p>
+    <p data-credit-note style="max-width:1100px;margin:0.5rem auto 0;padding:0 12px;font-size:0.82rem;opacity:0.78;">Sources &amp; credits: simulation, drawings and questions by R Stewart. The relationships follow the Higher Physics relationships sheet. Muon data from the Higher Physics Specimen Question Paper (2019), Paper 2 Q4; marking wording from the 2016 Section 2 Q4, 2019 specimen Paper 2 Q4, 2022 Paper 2 Q6 and 2023 Paper 2 Q4 marking instructions; &copy; Qualifications Scotland (SQA). R Stewart - November 2026.</p>
   </main>
 
   {% include site-footer.html %}
@@ -568,389 +588,510 @@ title: Special relativity simulation — Higher Physics
   (function () {
     "use strict";
     var C = 3.00e8;
-    var beta = 0.80;
-    function root(b) { return Math.sqrt(1 - b * b); }
+    var SVGNS = "http://www.w3.org/2000/svg";
     function $(id) { return document.getElementById(id); }
-    function sig(x, n) {
-      var s = Number(x).toPrecision(n || 3);
-      return s.indexOf("e") === -1 ? s : String(Number(s));
-    }
-    function sci8(b) { return (b * 3).toPrecision(3) + " × 10⁸"; }
-    function bstr(b) { return Math.round(b * 1000) % 10 ? b.toFixed(3) : b.toFixed(2); }
+    function root(b) { return Math.sqrt(1 - b * b); }
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    var SUPS = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
 
-    /* ---------- the two simulators (WidgetKit) share one speed ---------- */
+    /* a value in standard form when it is very big or very small */
+    function parts(x, sf) {
+      sf = sf || 3;
+      var a = Math.abs(x);
+      if (a === 0 || (a >= 0.01 && a < 1e5)) { return null; }
+      var e = Math.floor(Math.log10(a)), m = (x / Math.pow(10, e)).toFixed(sf - 1);
+      if (Math.abs(parseFloat(m)) >= 10) { e += 1; m = (x / Math.pow(10, e)).toFixed(sf - 1); }
+      return [m, e];
+    }
+    function numH(x, sf) {
+      var K = window.WidgetKit, p = parts(x, sf);
+      if (!p) { return K.fmt(x, sf || 3); }
+      return p[0] + " × 10<sup>" + String(p[1]).replace("-", "−") + "</sup>";
+    }
+    function numT(x, sf) {
+      var K = window.WidgetKit, p = parts(x, sf);
+      if (!p) { return K.fmt(x, sf || 3); }
+      return p[0] + " × 10" + String(p[1]).split("").map(function (ch) { return SUPS[ch]; }).join("");
+    }
+    function bStr(b) { return (Math.round(b * 1000) % 10 ? b.toFixed(3) : b.toFixed(2)); }
+    function speedH(b) { return bStr(b) + "<var>c</var> = " + (b * 3).toFixed(2) + " × 10<sup>8</sup> m s<sup>−1</sup>"; }
+
+    function svgEl(name, attrs, parent, text) {
+      var e = document.createElementNS(SVGNS, name);
+      Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+      if (text !== undefined) { e.textContent = text; }
+      if (parent) { parent.appendChild(e); }
+      return e;
+    }
+    function clear(g) { while (g.firstChild) { g.removeChild(g.firstChild); } }
+    function arrowR(g, x, y, len, cls) {
+      var d = len >= 0 ? 1 : -1, x2 = x + len;
+      svgEl("path", { "class": "arrow " + (cls || ""), d: "M" + x + " " + y + " H" + x2 + (Math.abs(len) > 10 ? " M" + (x2 - 10 * d) + " " + (y - 8) + " L" + x2 + " " + y + " L" + (x2 - 10 * d) + " " + (y + 8) : "") }, g);
+    }
+    function dimLine(g, x1, x2, y, label, cls) {
+      svgEl("path", { "class": "dim", d: "M" + x1 + " " + (y - 7) + " V" + (y + 7) + " M" + x2 + " " + (y - 7) + " V" + (y + 7) + " M" + x1 + " " + y + " H" + x2 }, g);
+      svgEl("text", { x: (x1 + x2) / 2, y: y - 9, "text-anchor": "middle", "class": cls || "" }, g, label);
+    }
+    function person(g, x, yFoot, cls) {
+      var c = cls || "person";
+      svgEl("circle", { cx: x, cy: yFoot - 38, r: 6, "class": c === "person" ? "person-head" : "walker-head" }, g);
+      svgEl("path", { "class": "person " + (c === "person" ? "" : "walker"), d: "M" + x + " " + (yFoot - 32) + " V" + (yFoot - 14) + " M" + x + " " + (yFoot - 14) + " L" + (x - 7) + " " + yFoot + " M" + x + " " + (yFoot - 14) + " L" + (x + 7) + " " + yFoot + " M" + (x - 9) + " " + (yFoot - 26) + " H" + (x + 9) }, g);
+    }
+
+    var used = {}, predicted = {};
+    function done(simId, ch) {
+      if (used[simId] && predicted[simId] && window.Progress && window.Progress.complete) { window.Progress.complete(ch); }
+    }
+    function touch(simId, ch) {
+      if (window.Progress && window.Progress.markSeen) { window.Progress.markSeen("hp-rel"); }
+      used[simId] = true; done(simId, ch);
+    }
+
+    /* ---------- marking a typed answer the way the MIs do ---------- */
+    function mark(str, ans) {
+      var s = String(str).trim().replace(/\s+/g, "").replace(",", ".");
+      if (!/^\d*\.?\d+$/.test(s)) { return { kind: "bad" }; }
+      var x = parseFloat(s), dec = (s.split(".")[1] || "").length, half, sf;
+      var digits = s.replace(".", "").replace(/^0+/, "");
+      if (s.indexOf(".") === -1) {
+        var tz = (s.match(/0+$/) || [""])[0].length;
+        half = 0.5 * Math.pow(10, tz); sf = digits.length - tz;
+        /* "90" for 90.0 is how pupils write it and the MIs accept it: trailing zeros count when they are exact */
+        if (tz > 0 && Math.abs(x - ans) <= 0.5001) { half = 0.5; sf = digits.length; }
+      } else { half = 0.5 * Math.pow(10, -dec); sf = digits.length; }
+      var rounds = Math.abs(x - ans) <= half * 1.0001 + 1e-12;
+      if (rounds && sf >= 2) { return { kind: "ok", x: x }; }
+      if (rounds) { return { kind: "fewsf", x: x }; }
+      if (Math.abs(x - ans) / ans < 0.02) { return { kind: "near", x: x }; }
+      return { kind: "wrong", x: x };
+    }
+
+    function practice(pre, makeQ, simId) {
+      var q = null;
+      function show() {
+        q = makeQ();
+        $(pre + "-stem").innerHTML = q.stem;
+        $(pre + "-lab").innerHTML = q.label;
+        $(pre + "-unit").innerHTML = q.unitH;
+        $(pre + "-in").value = "";
+        $(pre + "-fb").textContent = ""; $(pre + "-fb").className = "fb-line";
+        $(pre + "-work").hidden = true;
+      }
+      function check() {
+        var r = mark($(pre + "-in").value, q.ans), fb = $(pre + "-fb"), msg;
+        if (r.kind === "bad") { fb.className = "fb-line no"; fb.textContent = "Type a number only, for example 4.80. The unit is shown beside the box."; return; }
+        if (r.kind === "ok") { msg = "Right. In the exam, write the unit too: " + q.unitT + "."; fb.className = "fb-line ok"; }
+        else if (r.kind === "fewsf") { msg = "Right value, but give at least 2 significant figures."; fb.className = "fb-line no"; }
+        else if (r.kind === "near") { msg = "Nearly. Check your rounding: carry the full value through, and round only at the end."; fb.className = "fb-line no"; }
+        else {
+          msg = "Not this one. Look at the working below.";
+          q.wrongs.some(function (w) {
+            if (isFinite(w[0]) && w[0] > 0 && Math.abs(r.x - w[0]) / w[0] < 0.015) { msg = "Not this one. " + w[1]; return true; }
+            return false;
+          });
+          fb.className = "fb-line no";
+        }
+        fb.textContent = msg;
+        $(pre + "-work").innerHTML = q.work;
+        $(pre + "-work").hidden = false;
+        if (simId) { touch(simId, simId === "simClock" ? "sim-rel-clock" : "sim-rel-rocket"); }
+      }
+      $(pre + "-new").addEventListener("click", show);
+      $(pre + "-check").addEventListener("click", check);
+      $(pre + "-in").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); check(); } });
+      show();
+    }
+
+    /* speed in a question: as a fraction of c, or in m s-1 (both appear in papers) */
+    function qSpeed(bs) {
+      var b = pick(bs);
+      if (Math.random() < 0.5) { return { b: b, h: bStr(b) + "<var>c</var>", w: "(" + bStr(b) + "<var>c</var> / <var>c</var>)", inMs: false }; }
+      var m = (b * 3).toPrecision(3), bb = parseFloat(m) / 3;
+      return { b: bb, h: m + " × 10<sup>8</sup> m s<sup>−1</sup>", w: "(" + m + " × 10<sup>8</sup> / 3.00 × 10<sup>8</sup>)", inMs: true };
+    }
+    function sq(sp) { return '<span class="sqrt"><span class="rad">√</span><span class="rc">1 − ' + sp.w + "<sup>2</sup></span></span>"; }
+    function line(h) { return '<div class="line">' + h + "</div>"; }
+
+    var TIME_B = [0.20, 0.40, 0.45, 0.50, 0.60, 0.75, 0.80, 0.90, 0.95, 0.98, 0.99];
+    function timeQ() {
+      var kind = pick(["tech", "tech", "particle", "reverse"]), sp = qSpeed(TIME_B), r = root(sp.b), t, tp, stem, ans, unitH, unitT, label, work, wrongs;
+      if (kind === "tech") {
+        t = pick([2.5, 6.0, 20.0, 45.0, 120, 245]);
+        stem = pick([
+          "A spacecraft is travelling at a constant speed of " + sp.h + " relative to a nearby planet. A technician on the spacecraft measures a time interval to be " + t + " s. <strong>Calculate</strong> the time interval as measured by an observer on the planet.",
+          "A spacecraft passes the Earth at a speed of " + sp.h + ". A light on the spacecraft pulses on and off. A passenger on the spacecraft measures the time between pulses as " + t + " s. <strong>Calculate</strong> the time between the pulses measured by an observer on Earth."
+        ]);
+        ans = t / r; unitH = "s"; unitT = "s"; label = "<var>t</var>′ =";
+        work = line("<var>t</var>′ = <var>t</var> / √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line("<var>t</var>′ = " + t + " / " + sq(sp)) + line("<var>t</var>′ = " + numH(ans) + " s");
+        wrongs = [[t * r, "You multiplied by √(1 − (v/c)²). The observer the clock moves past measures a longer time, so divide."],
+                  [t / Math.sqrt(1 - sp.b), "You did not square v/c. Square it before taking it from 1."],
+                  [t / sp.b, "You divided by v/c. Divide by √(1 − (v/c)²) instead."],
+                  [t * sp.b, "You multiplied by v/c. Find √(1 − (v/c)²) first, then divide by it."]];
+      } else if (kind === "particle") {
+        var pt = pick([["Muons", 2.20, "µs"], ["Pions", 26.0, "ns"], ["Kaons", 12.4, "ns"]]);
+        t = pt[1];
+        stem = pt[0] + " have a mean lifetime of " + t + " " + pt[2] + " in their frame of reference. They are travelling at " + sp.h + " relative to a stationary observer. <strong>Calculate</strong> the mean lifetime of the " + pt[0].toLowerCase() + " as measured by this observer.";
+        ans = t / r; unitH = pt[2]; unitT = pt[2]; label = "<var>t</var>′ =";
+        work = line("<var>t</var>′ = <var>t</var> / √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line("<var>t</var>′ = " + t + " " + pt[2] + " / " + sq(sp)) + line("<var>t</var>′ = " + numH(ans) + " " + pt[2]);
+        wrongs = [[t * r, "You multiplied. The stationary observer measures the longer mean lifetime, so divide by √(1 − (v/c)²)."],
+                  [t / Math.sqrt(1 - sp.b), "You did not square v/c."],
+                  [t, "That is the lifetime in the particles' own frame. The stationary observer measures a longer time."]];
+      } else {
+        tp = pick([10.0, 50.0, 72.0, 90.0]);
+        stem = "A spacecraft is travelling at a speed of " + sp.h + " relative to Earth. An observer on Earth measures the time taken for the spacecraft to travel between two points to be " + tp + " hours. <strong>Calculate</strong> the time taken to travel between these two points, as measured by an observer on the spacecraft.";
+        ans = tp * r; unitH = "hours"; unitT = "hours"; label = "<var>t</var> =";
+        work = line("The observer on the spacecraft moves with the clock, so they measure <var>t</var>. Earth measures <var>t</var>′ = " + tp + " hours.") + line("<var>t</var>′ = <var>t</var> / √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line(tp + " = <var>t</var> / " + sq(sp)) + line("<var>t</var> = " + numH(ans) + " hours");
+        wrongs = [[tp / r, "That is longer than Earth's time. The spacecraft observer moves with the clock, so they measure the shorter time, t. Rearrange: t = t′ × √(1 − (v/c)²)."],
+                  [tp * Math.sqrt(1 - sp.b), "You did not square v/c."],
+                  [tp * sp.b, "You multiplied by v/c. Multiply by √(1 − (v/c)²) instead."]];
+      }
+      return { stem: stem, ans: ans, unitH: unitH, unitT: unitT, label: label, work: work, wrongs: wrongs };
+    }
+
+    var LEN_B = [0.20, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.99];
+    function lenQ() {
+      var kind = pick(["ship", "pass", "reverse", "speed"]), sp, r, l, lp, stem, ans, unitH = "m", unitT = "m", label, work, wrongs;
+      if (kind === "speed") {
+        l = pick([125, 200, 275, 80.0]); var b0 = pick([0.6, 0.8, 0.9, 0.5]); lp = Number((l * root(b0)).toPrecision(3));
+        ans = 3 * Math.sqrt(1 - Math.pow(lp / l, 2));
+        stem = "A spacecraft is travelling at a constant speed relative to a nearby planet. A technician on the spacecraft measures the length of the spacecraft as " + l + " m. An observer on the planet measures the length of the spacecraft as " + lp + " m. <strong>Calculate</strong> the speed of the spacecraft relative to the observer on the planet.";
+        unitH = "× 10<sup>8</sup> m s<sup>−1</sup>"; unitT = "m s⁻¹"; label = "<var>v</var> =";
+        work = line("The technician is at rest relative to the spacecraft: <var>l</var> = " + l + " m. The planet observer measures <var>l</var>′ = " + lp + " m.") + line("<var>l</var>′ = <var>l</var> √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line(lp + " = " + l + ' <span class="sqrt"><span class="rad">√</span><span class="rc">1 − (<var>v</var> / 3.00 × 10<sup>8</sup>)<sup>2</sup></span></span>') + line("<var>v</var> = " + ans.toPrecision(3) + " × 10<sup>8</sup> m s<sup>−1</sup>");
+        wrongs = [[ans / 3, "That is v/c. Multiply by 3.00 × 10⁸ m s⁻¹ and give the answer in × 10⁸ m s⁻¹."],
+                  [3 * (lp / l), "You used l′/l as v/c. Rearrange: (v/c)² = 1 − (l′/l)²."],
+                  [3 * (1 - lp / l), "Square both sides before you rearrange: (l′/l)² = 1 − (v/c)²."]];
+        return { stem: stem, ans: ans, unitH: unitH, unitT: unitT, label: label, work: work, wrongs: wrongs };
+      }
+      sp = qSpeed(LEN_B); r = root(sp.b);
+      if (kind === "ship") {
+        l = pick([25.0, 71.0, 80.0, 125, 142, 150]);
+        stem = pick([
+          "An astronaut in a spacecraft measures the length of the spacecraft as " + l + " m. The spacecraft is travelling at a speed of " + sp.h + " as it passes a planet. <strong>Calculate</strong> the length of the spacecraft measured by an observer on the planet.",
+          "A train has a length of " + l + " m, as measured in the frame of reference of the passengers on the train. <strong>Calculate</strong> the length of the train when travelling at " + sp.h + ", as measured by a stationary observer."
+        ]);
+        ans = l * r; label = "<var>l</var>′ =";
+        work = line("At rest relative to the object: <var>l</var> = " + l + " m.") + line("<var>l</var>′ = <var>l</var> √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line("<var>l</var>′ = " + l + " " + sq(sp)) + line("<var>l</var>′ = " + numH(ans) + " m");
+      } else if (kind === "pass") {
+        var ob = pick([["The detectors are", 30.0, "m", "apart as measured by a stationary observer. A beam of pions passes between them at ", "the distance between the two detectors in the frame of reference of the pions"],
+                       ["The Queensferry Crossing has a length of", 2700, "m", "as measured by a stationary observer on Earth. A spaceship travels past Earth at ", "the length of the Queensferry Crossing as measured by an observer on the spaceship"],
+                       ["A connecting tube has a length of", 13.0, "m", "in the frame of reference of a stationary observer. Ions travel along it at ", "the length of the tube in the frame of reference of the ions"]]);
+        l = ob[1];
+        stem = ob[0] + " " + l + " " + ob[2] + " " + ob[3] + sp.h + ". <strong>Calculate</strong> " + ob[4] + ".";
+        ans = l * r; label = "<var>l</var>′ =";
+        work = line("Here the stationary observer is at rest relative to the object, so they measure <var>l</var> = " + l + " m. The moving frame measures <var>l</var>′.") + line("<var>l</var>′ = <var>l</var> √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line("<var>l</var>′ = " + l + " " + sq(sp)) + line("<var>l</var>′ = " + numH(ans) + " m");
+      } else {
+        lp = pick([48.0, 60.0, 112, 190]);
+        stem = "A spacecraft is travelling at a constant speed of " + sp.h + " relative to the Moon. An observer on the Moon measures the length of the moving spacecraft to be " + lp + " m. <strong>Calculate</strong> the length of the spacecraft as measured by an astronaut on the spacecraft.";
+        ans = lp / r; label = "<var>l</var> =";
+        work = line("The astronaut is at rest relative to the spacecraft, so they measure <var>l</var>. The Moon observer measures <var>l</var>′ = " + lp + " m.") + line("<var>l</var>′ = <var>l</var> √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>)") + line(lp + " = <var>l</var> " + sq(sp)) + line("<var>l</var> = " + numH(ans) + " m");
+        wrongs = [[lp * r, "That is shorter than the Moon observer's length. The astronaut is at rest relative to the spacecraft and measures the longer length: l = l′ ÷ √(1 − (v/c)²)."],
+                  [lp / Math.sqrt(1 - sp.b), "You did not square v/c."],
+                  [lp / sp.b, "You divided by v/c. Divide by √(1 − (v/c)²) instead."]];
+        return { stem: stem, ans: ans, unitH: unitH, unitT: unitT, label: label, work: work, wrongs: wrongs };
+      }
+      wrongs = [[l / r, "That is longer than l. A length measured from a moving frame is shorter, so multiply by √(1 − (v/c)²)."],
+                [l * Math.sqrt(1 - sp.b), "You did not square v/c."],
+                [l * sp.b, "You multiplied by v/c. Multiply by √(1 − (v/c)²) instead."],
+                [l, "That is the length in the object's own frame. The moving observer measures it shorter."]];
+      return { stem: stem, ans: ans, unitH: unitH, unitT: unitT, label: label, work: work, wrongs: wrongs };
+    }
+
+    /* ---------- check yourself ---------- */
+    var QS = [
+      { q: "A spacecraft is travelling at 0.30<var>c</var> relative to a star. An observer on the spacecraft measures the speed of light emitted by the star. What speed is measured?",
+        o: [["2.10 × 10<sup>8</sup> m s<sup>−1</sup>", "You took the spacecraft's speed away from c. Speeds of light do not subtract: every observer measures c."],
+            ["2.70 × 10<sup>8</sup> m s<sup>−1</sup>", "Not this one. Light's speed does not depend on the observer's motion."],
+            ["3.00 × 10<sup>8</sup> m s<sup>−1</sup>", "Right. The speed of light in a vacuum is the same for all observers."],
+            ["3.90 × 10<sup>8</sup> m s<sup>−1</sup>", "You added the spacecraft's speed to c. Speeds of light do not add: every observer measures c."]], a: 2 },
+      { q: "Train A travels at 3.0 m s<sup>−1</sup> and train B at 4.5 m s<sup>−1</sup>, both relative to the platform, in the same direction. A passenger on train A walks towards the rear at 1.0 m s<sup>−1</sup>. What is the passenger's speed relative to a passenger seated on train B?",
+        o: [["0.5 m s<sup>−1</sup>", "That would be right if the passenger walked forwards. Walking to the rear subtracts: 3.0 − 1.0 = 2.0 m s⁻¹ relative to the platform."],
+            ["2.0 m s<sup>−1</sup>", "That is the speed relative to the platform. Now compare it with train B: 4.5 − 2.0."],
+            ["2.5 m s<sup>−1</sup>", "Right. Relative to the platform: 3.0 − 1.0 = 2.0 m s⁻¹. Relative to train B: 4.5 − 2.0 = 2.5 m s⁻¹."],
+            ["3.5 m s<sup>−1</sup>", "You left out train A's speed. Find the passenger's speed relative to the platform first."]], a: 2 },
+      { q: "Muons have a mean lifetime of 2.2 µs in their frame of reference. They travel at 0.98<var>c</var> relative to an observer on Earth. In <var>t</var>′ = <var>t</var> / √(1 − (<var>v</var>/<var>c</var>)<sup>2</sup>), which statement is right?",
+        o: [["<var>t</var> is the mean lifetime measured on Earth", "The other way round. t is the time in the frame of the moving clock: here, the muon's own frame."],
+            ["<var>t</var> = 2.2 µs, the mean lifetime in the muons' frame of reference", "Right. The muon carries its own clock, so its own frame gives t. The observer on Earth measures t′, which is longer."],
+            ["<var>t</var>′ is shorter than <var>t</var>", "t′ is always longer than t. If your answer is shorter, you multiplied when you should have divided."],
+            ["<var>t</var>′ = 2.2 µs, because the observer is stationary", "The observer on Earth measures the longer, dilated time. 2.2 µs is the muons' own value, t."]], a: 1 },
+      { q: "Two detectors are 50.0 m apart as measured by a stationary observer. A beam of particles passes between them at 0.80<var>c</var>. What is the distance between the detectors in the frame of reference of the particles?",
+        o: [["30.0 m", "Right. The stationary observer is at rest relative to the detectors, so l = 50.0 m. In the particles' frame: l′ = 50.0 × √(1 − 0.80²) = 30.0 m."],
+            ["40.0 m", "You multiplied by v/c. Use √(1 − 0.80²) = 0.60."],
+            ["50.0 m", "The particles are moving relative to the detectors, so they measure a shorter distance."],
+            ["83.3 m", "You divided. A distance measured from the moving frame is shorter, so multiply by √(1 − (v/c)²)."]], a: 0 },
+      { q: "A technician on a spacecraft measures its length as 200 m. An observer on a planet measures it as 120 m. What is the speed of the spacecraft relative to the planet?",
+        o: [["1.20 × 10<sup>8</sup> m s<sup>−1</sup>", "You found 1 − l′/l = 0.4. Square both sides first: (v/c)² = 1 − (120/200)² = 0.64."],
+            ["1.80 × 10<sup>8</sup> m s<sup>−1</sup>", "You used l′/l = 0.60 as v/c. (v/c)² = 1 − 0.60² = 0.64, so v/c = 0.80."],
+            ["2.40 × 10<sup>8</sup> m s<sup>−1</sup>", "Right. 120 = 200 √(1 − (v/c)²), so (v/c)² = 0.64, v/c = 0.80, v = 2.40 × 10⁸ m s⁻¹."],
+            ["3.75 × 10<sup>8</sup> m s<sup>−1</sup>", "That is faster than light, which is not possible. Rearrange l′ = l √(1 − (v/c)²) for v."]], a: 2 },
+      { q: "<strong>Explain</strong> why more muons reach the ground than expected without relativity. Which answer scores the mark?",
+        o: [["Because of time dilation.", "No frame of reference is named, so this scores 0. Say whose frame: Earth's or the muon's."],
+            ["In the muon's frame of reference, the distance to the ground is shorter.", "Right. This names the frame. The other accepted answer: in Earth's frame of reference, the muon's mean lifetime is greater."],
+            ["In the muon's frame of reference, its mean lifetime is greater.", "This mixes the frames. In its own frame, the muon's mean lifetime is 2.2 µs. It is longer in Earth's frame."],
+            ["The muons travel faster than light.", "Nothing travels faster than light. Muons travel just below c."]], a: 1 },
+      { q: "A pupil says: “Train drivers who travel at 80 m s<sup>−1</sup> for many hours will have to reset their watches, because of time dilation.” Which reply is right?",
+        o: [["Correct: the train moves, so its clocks run slow.", "At 80 m s⁻¹ the effect is far too small to notice. Relativistic effects become significant at about 0.1c."],
+            ["Incorrect: the train does not travel at relativistic speeds.", "Right. 80 m s⁻¹ is far below 0.1c, so time dilation is negligible."],
+            ["Incorrect: time dilation only happens to light.", "Time dilation happens to any clock moving relative to the observer. It is just tiny at train speeds."],
+            ["Correct: the watches gain time.", "A moving clock runs slow, not fast. And at train speeds the effect is negligible."]], a: 1 },
+      { q: "A pupil says: “The clocks on board a spacecraft run slower when it travels at 0.8<var>c</var>.” Which reply scores the mark?",
+        o: [["Correct: clocks always slow down when they move.", "No frame of reference is named, so this scores 0."],
+            ["Correct: from the perspective of a stationary observer, there will be time dilation.", "Right. It names a frame. Also accepted: incorrect, because the astronauts are in the same frame as the clock; or it depends on the frame, which is not stated."],
+            ["Incorrect: time is the same for everyone.", "Time is not the same for everyone. Observers moving relative to each other measure different times."],
+            ["Correct: the clocks are damaged by the speed.", "The clocks work perfectly. Time dilation is about measuring time from different frames."]], a: 1 }
+    ];
+    function buildQuiz() {
+      var first = {}, everRight = {}, LET = "ABCD", quiz = $("quiz");
+      QS.forEach(function (it, qi) {
+        var box = document.createElement("div"); box.className = "mcq";
+        var html = '<p class="qstem">' + (qi + 1) + ". " + it.q + '</p><div class="mcq-opts" role="group" aria-label="Answers for question ' + (qi + 1) + '">';
+        it.o.forEach(function (o, oi) {
+          html += '<button type="button" class="mcq-opt" data-q="' + qi + '" data-o="' + oi + '" aria-pressed="false"><span class="ol">' + LET[oi] + '</span><span class="ot">' + o[0] + '</span><span class="om" aria-hidden="true"></span></button>';
+        });
+        box.innerHTML = html + '</div><p class="mcq-fb" aria-live="polite"></p>';
+        quiz.appendChild(box);
+      });
+      quiz.addEventListener("click", function (e) {
+        var b = e.target.closest(".mcq-opt"); if (!b) { return; }
+        var qi = +b.dataset.q, oi = +b.dataset.o, it = QS[qi], box = b.closest(".mcq"), ok = oi === it.a;
+        box.querySelectorAll(".mcq-opt").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+        b.setAttribute("aria-pressed", "true");
+        b.classList.add(ok ? "right" : "wrong");
+        b.querySelector(".om").textContent = ok ? "Right" : "Not this";
+        box.querySelector(".mcq-fb").textContent = it.o[oi][1];
+        if (!(qi in first)) { first[qi] = ok; }
+        if (ok) { everRight[qi] = true; }
+        if (Object.keys(everRight).length === QS.length && window.Progress) { window.Progress.complete("mcq-rel"); }
+        var n = Object.keys(first).length, got = Object.keys(first).filter(function (k) { return first[k]; }).length;
+        $("quizScore").textContent = "First tries: " + got + " right out of " + n + " answered (" + QS.length + " questions).";
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
       var K = window.WidgetKit;
-      if (!K || !$("simClock")) { return; }
+      if (!K) { return; }
 
-      /* light clocks: SPAN px per half tick; your clock's light moves CPX px per second */
-      var SPAN = 180, TOP = 50, BOT = 230, LANE0 = 170, LANE1 = 470, CPX = 150;
-      var restY = 0, moveY = 0, moveX = 0, restDir = -1, moveDir = -1;
-      var restTicks = 0, moveTicks = 0, trace = [], tYour = 0;
+      /* ===== 1. trains ===== */
+      var trainArt = $("trainArt");
+      var sTrains = K.liveSim($("simTrains"), { render: function (s) {
+        var va = s.va, vb = s.vb, w = s.w, dir = s.dir === "fwd" ? 1 : -1;
+        var wp = va + dir * w, wb = Math.abs(wp - vb), ba = Math.abs(vb - va);
+        $("oWalkP").textContent = K.fmt(Math.abs(wp), 2) + " m s⁻¹" + (wp < 0 ? " backwards" : "");
+        $("oWalkB").textContent = K.fmt(wb, 2) + " m s⁻¹";
+        $("oBA").textContent = K.fmt(ba, 2) + " m s⁻¹";
+        $("oLight").textContent = "3.00 × 10⁸ m s⁻¹";
+        $("trainNote").textContent = "Walker relative to the platform: " + K.fmt(va, 2) + (dir > 0 ? " + " : " − ") + K.fmt(w, 2) + " = " + K.fmt(wp, 2) + " m s⁻¹. Relative to train B: " +
+          (wp >= 0 ? "the difference, " + K.fmt(vb, 2) + " and " + K.fmt(wp, 2)
+                   : "they move opposite ways, so add, " + K.fmt(-wp, 2) + " + " + K.fmt(vb, 2)) +
+          " = " + K.fmt(wb, 2) + " m s⁻¹. The light: c for everyone.";
+        clear(trainArt);
+        var g = trainArt;
+        // train B (far track)
+        svgEl("line", { "class": "track", x1: 10, y1: 104, x2: 590, y2: 104 }, g);
+        svgEl("rect", { "class": "carriage b", x: 20, y: 54, width: 290, height: 44, rx: 8 }, g);
+        for (var i = 0; i < 6; i++) { svgEl("rect", { "class": "window", x: 34 + i * 46, y: 62, width: 32, height: 16, rx: 3 }, g); }
+        svgEl("circle", { "class": "wheel", cx: 60, cy: 100, r: 5 }, g); svgEl("circle", { "class": "wheel", cx: 270, cy: 100, r: 5 }, g);
+        svgEl("text", { x: 30, y: 46, "class": "vb" }, g, "train B");
+        arrowR(g, 320, 76, Math.max(4, vb * 5), "b");
+        svgEl("text", { x: 320, y: 62, "class": "vb" }, g, K.fmt(vb, 2) + " m s⁻¹");
+        // train A (near track), cut away to show the walker
+        svgEl("line", { "class": "track", x1: 10, y1: 230, x2: 590, y2: 230 }, g);
+        svgEl("rect", { "class": "carriage", x: 20, y: 150, width: 290, height: 74, rx: 8 }, g);
+        svgEl("line", { "class": "track", x1: 24, y1: 212, x2: 306, y2: 212 }, g);
+        svgEl("circle", { "class": "wheel", cx: 60, cy: 226, r: 5 }, g); svgEl("circle", { "class": "wheel", cx: 270, cy: 226, r: 5 }, g);
+        svgEl("text", { x: 30, y: 142 }, g, "train A");
+        arrowR(g, 320, 166, Math.max(4, va * 5));
+        svgEl("text", { x: 320, y: 152, "class": "warm" }, g, K.fmt(va, 2) + " m s⁻¹");
+        person(g, 150, 212, "walker");
+        if (w > 0) { arrowR(g, 150 + dir * 14, 182, dir * (16 + w * 22)); }
+        svgEl("text", { x: 150, y: 164, "text-anchor": "middle", "class": "small" }, g, "walks " + K.fmt(w, 2) + (dir > 0 ? " forwards" : " to the rear"));
+        // torch at the front of train A, beam out to the platform person
+        svgEl("rect", { "class": "torch", x: 288, y: 186, width: 14, height: 8, rx: 2 }, g);
+        svgEl("path", { "class": "beam", d: "M304 190 H560" }, g);
+        svgEl("text", { x: 430, y: 216, "text-anchor": "middle", "class": "light" }, g, "light: 3.00 × 10⁸ m s⁻¹");
+        // platform and observer
+        svgEl("line", { "class": "ground", x1: 10, y1: 282, x2: 590, y2: 282 }, g);
+        person(g, 560, 282, "person");
+        svgEl("text", { x: 20, y: 274, "class": "small" }, g, "platform");
+        svgEl("text", { x: 548, y: 274, "text-anchor": "end", "class": "small" }, g, "observer");
+      } });
+      $("simTrains").addEventListener("input", function () { touch("simTrains", "sim-rel-intro"); });
+      $("simTrains").querySelectorAll("[data-sim-toggle]").forEach(function (b) { b.addEventListener("click", function () { touch("simTrains", "sim-rel-intro"); }); });
+      K.poeCard($("predictTrains"), { answer: "same", onPredict: function () { predicted.simTrains = true; done("simTrains", "sim-rel-intro"); } });
 
-      function resetClocks() {
-        restY = 0; moveY = 0; restDir = -1; moveDir = -1; moveX = LANE0;
-        restTicks = 0; moveTicks = 0; trace = [[moveX, BOT]]; tYour = 0;
+      /* ===== 2. light clocks ===== */
+      var SPAN = 180, TOP = 50, BOT = 230, LANE0 = 200, LANE1 = 560, CPX = 150;
+      /* the slider snaps v/c to 0.001; a speed typed in m s-1 keeps its exact value or t' is off in the third figure */
+      var exactClock = null, exactLen = null;
+      function exactOr(ex, v) { return ex !== null && Math.abs(ex - v) < 0.0006 ? ex : v; }
+      var beta = 0.8, restY = 0, restDir = -1, moveY = 0, moveDir = -1, moveX = LANE0, restTicks = 0, moveTicks = 0, trace = [];
+      var gT = K.graph($("graphT"), {
+        x: { min: 0, max: 1, label: "<i>v</i>/<i>c</i>", unit: "", step: 0.2 },
+        y: { min: 0, max: 8, label: "<i>t</i>′/<i>t</i>", unit: "", step: 2 },
+        title: "Graph of t prime over t against v over c",
+        layouts: [{ maxWidth: 520, w: 360, h: 280 }, { w: 600, h: 260 }]
+      });
+      gT.line("f", function (x) { return Math.min(8, 1 / root(Math.min(x, 0.99999))); }, { samples: 240 });
+      gT.ref("tenth", "x", 0.1, { label: "0.1<i>c</i>", side: "right" });
+
+      function drawClocks() {
+        $("restPhoton").setAttribute("cy", BOT - restY);
+        var x0 = moveX - 28, x1 = moveX + 28;
+        ["mTop", "mBot"].forEach(function (id) { $(id).setAttribute("x1", x0); $(id).setAttribute("x2", x1); });
+        $("movePhoton").setAttribute("cx", moveX); $("movePhoton").setAttribute("cy", BOT - moveY);
+        $("trace").setAttribute("points", trace.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + " " + moveX.toFixed(1) + "," + (BOT - moveY).toFixed(1));
+        $("restTicksSvg").textContent = restTicks; $("moveTicksSvg").textContent = moveTicks;
+      }
+      function staticPath() {
+        // with no motion, show one half-tick of the slanted light path at this speed
+        moveX = LANE0; moveY = 0; trace = [];
+        var r = root(beta), dx = beta > 0 ? SPAN * beta / Math.max(r, 1e-6) : 0, room = LANE1 - LANE0;
+        var xe = LANE0 + Math.min(dx, room), ye = dx > 0 ? SPAN * Math.min(1, room / dx) : SPAN;
+        trace = [[LANE0, BOT]];
+        moveX = xe; moveY = ye;
         drawClocks();
+        moveX = LANE0; moveY = 0; trace = [[LANE0, BOT]];
+      }
+      function resetClocks() {
+        restY = 0; restDir = -1; moveY = 0; moveDir = -1; moveX = LANE0; restTicks = 0; moveTicks = 0; trace = [[LANE0, BOT]];
+        if (clk && clk.running()) { drawClocks(); } else { staticPath(); }
       }
       function step(dt) {
         var r = root(beta);
-        tYour += dt;
-        restY += CPX * dt;
-        while (restY >= SPAN) { restY -= SPAN; restDir = -restDir; if (restDir < 0) { restTicks++; } }
-        moveY += CPX * r * dt;
-        while (moveY >= SPAN) { moveY -= SPAN; moveDir = -moveDir; if (moveDir < 0) { moveTicks++; } }
+        restY += -restDir * CPX * dt;
+        if (restY >= SPAN) { restY = 2 * SPAN - restY; restDir = 1; }
+        if (restY <= 0) { restY = -restY; restDir = -1; restTicks++; }
+        var oldDir = moveDir;
+        moveY += -moveDir * CPX * r * dt;
         moveX += CPX * beta * dt;
-        if (moveX > LANE1) { moveX = LANE0; trace = []; }
+        if (moveY >= SPAN) { moveY = 2 * SPAN - moveY; moveDir = 1; }
+        if (moveY <= 0) { moveY = -moveY; moveDir = -1; moveTicks++; }
+        if (oldDir !== moveDir) { trace.push([moveX, BOT - moveY]); }
+        if (moveX > LANE1) { moveX = LANE0 + (moveX - LANE1); trace = [[moveX, BOT - moveY]]; }
+        if (trace.length > 8) { trace.shift(); }
+        drawClocks();
       }
-      function yOf(y, dir) { return dir < 0 ? BOT - y : TOP + y; }
-      function drawClocks() {
-        $("restPhoton").setAttribute("cy", yOf(restY, restDir));
-        var py = yOf(moveY, moveDir);
-        $("movePhoton").setAttribute("cx", moveX);
-        $("movePhoton").setAttribute("cy", py);
-        ["mTop", "mBot"].forEach(function (id) {
-          $(id).setAttribute("x1", moveX - 28); $(id).setAttribute("x2", moveX + 28);
-        });
-        trace.push([moveX, py]);
-        if (trace.length > 400) { trace.shift(); }
-        $("trace").setAttribute("points", trace.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" "));
-        $("restTicks").textContent = restTicks;
-        $("moveTicks").textContent = moveTicks;
-        $("tYour").textContent = K.fmt(tYour) + " s";
-        $("tMove").textContent = K.fmt(tYour * root(beta)) + " s";
-      }
-      var clock = K.clock({
-        autoplay: true, button: $("playBtn"),
-        onFrame: function (dt) { step(dt); drawClocks(); }
-      });
+      var clk = K.clock({ onFrame: function (dt) { step(dt); }, button: $("playBtn") });
+      $("playBtn").addEventListener("click", function () { if (clk.running()) { trace = [[moveX, BOT - moveY]]; } touch("simClock", "sim-rel-clock"); });
       $("resetBtn").addEventListener("click", resetClocks);
 
-      /* rockets */
-      var RX = 24, RL = 340, RH = 46;
-      function rocketPts(x, y, len) {
-        var body = x + len * 0.84;
-        return [[x, y], [body, y], [x + len, y + RH / 2], [body, y + RH], [x, y + RH]]
-          .map(function (p) { return p[0].toFixed(1) + "," + p[1]; }).join(" ");
-      }
-      function drawRockets() {
-        var len = RL * root(beta), end = RX + len;
-        $("restRocket").setAttribute("points", rocketPts(RX, 48, RL));
-        $("ghostRocket").setAttribute("points", rocketPts(RX, 186, RL));
-        $("moveRocket").setAttribute("points", rocketPts(RX, 186, len));
-        $("moveDim").setAttribute("d", "M" + RX + " 240 V252 M" + end.toFixed(1) + " 240 V252 M" + RX + " 246 H" + end.toFixed(1));
-        $("moveLab").setAttribute("x", (RX + len / 2).toFixed(1));
-      }
-
-      /* graphs: the factor against speed, with this speed marked */
-      var LAYOUTS = [{ maxWidth: 420, w: 380, h: 250, m: { l: 50, r: 14, t: 12, b: 46 } },
-                     { w: 420, h: 250, m: { l: 52, r: 16, t: 12, b: 46 } }];
-      var gT = K.graph($("graphT"), {
-        x: { min: 0, max: 1, label: "speed <i>v</i>", unit: "fraction of c", step: 0.2 },
-        y: { min: 0, max: 10, label: "<i>t</i>′ ÷ <i>t</i>", step: 2 },
-        title: "Graph of how many times longer a moving clock's tick lasts, against speed",
-        layouts: LAYOUTS
+      var sClock = K.liveSim($("simClock"), { render: function (s) {
+        beta = exactOr(exactClock, s.v); if (beta === s.v) { exactClock = null; }
+        var t = s.t > 0 ? s.t : 1, tp = t / root(beta);
+        $("oT").innerHTML = numH(t) + " s";
+        $("oTp").innerHTML = numH(tp) + " s";
+        $("oTr").textContent = K.fmt(tp / t, 3);
+        $("oTv").innerHTML = speedH(beta);
+        if (document.activeElement !== $("vmsClock")) { $("vmsClock").value = (beta * 3).toFixed(3); }
+        $("clockNote").textContent = beta < 0.1
+          ? "Below about 0.1c the difference is too small to notice: t′ is within 0.5 % of t."
+          : "The stationary observer measures " + K.fmt(tp / t, 3) + " times as long as the time in the clock's own frame.";
+        gT.marker("now", beta, Math.min(8, tp / t), { label: "" });
+        gT.describe("At " + bStr(beta) + "c, t prime over t is " + K.fmt(tp / t, 3) + ".");
+        if (!clk.running()) { staticPath(); }
+      } });
+      $("vmsClock").addEventListener("change", function () {
+        var x = parseFloat(this.value); if (!isFinite(x)) { return; }
+        x = Math.min(2.997, Math.max(0, x)); this.value = x; exactClock = x / 3; sClock.set("v", Math.round(x / 3 * 1000) / 1000); touch("simClock", "sim-rel-clock");
       });
-      gT.line("f", function (v) { return 1 / Math.sqrt(1 - v * v); }, { samples: 400 });
-      var gL = K.graph($("graphL"), {
-        x: { min: 0, max: 1, label: "speed <i>v</i>", unit: "fraction of c", step: 0.2 },
-        y: { min: 0, max: 1, label: "<i>l</i>′ ÷ <i>l</i>", step: 0.2 },
-        title: "Graph of the moving length as a fraction of the rest length, against speed",
-        layouts: LAYOUTS
-      });
-      gL.line("f", function (v) { return Math.sqrt(Math.max(0, 1 - v * v)); }, { samples: 400 });
-
-      function show() {
-        var r = root(beta), g = 1 / r;
-        document.querySelectorAll(".ro-v").forEach(function (o) {
-          o.textContent = "v = " + bstr(beta) + "c = " + sci8(beta) + " m s⁻¹";
-        });
-        document.querySelectorAll("[data-b]").forEach(function (p) {
-          p.setAttribute("aria-pressed", String(Math.abs(parseFloat(p.dataset.b) - beta) < 1e-6));
-        });
-        $("tickRatio").textContent = "√(1 − (v/c)²) = " + K.fmt(r) + ", so one tick of the moving clock lasts " +
-          K.fmt(g) + " ticks of yours.";
-        gT.marker("now", beta, Math.min(g, 10), { label: "<i>t</i>′ = " + K.fmt(g) + " <i>t</i>" + (g > 10 ? " (off the top)" : "") });
-        gT.describe("At " + bstr(beta) + "c the moving clock's tick lasts " + K.fmt(g) + " times as long");
-        gL.marker("now", beta, r, { label: "<i>l</i>′ = " + K.fmt(r) + " <i>l</i>", cls: "kg-c1" });
-        gL.describe("At " + bstr(beta) + "c the moving length is " + K.fmt(r) + " of the rest length");
-        $("lenFactor").textContent = K.fmt(r);
-        $("lenRatio").textContent = "l′ = " + K.fmt(r) + " × l";
-        $("clockSvg").setAttribute("aria-label", "Two light clocks. At " + bstr(beta) + "c, one tick of the moving clock lasts " +
-          K.fmt(g) + " ticks of the clock at rest.");
-        $("rocketSvg").setAttribute("aria-label", "A rocket at rest, and the same rocket moving at " + bstr(beta) +
-          "c. The moving rocket is " + K.fmt(r) + " times as long; its height is unchanged.");
-        drawRockets();
-      }
-
-      var sims = [], first = 0, used = {};
-      ["simClock", "simRocket"].forEach(function (id, i) {
-        sims[i] = K.liveSim($(id), {
-          render: function (st) {
-            var changed = Math.abs(st.v - beta) > 1e-9;
-            beta = st.v;
-            sims.forEach(function (o, j) { if (o && j !== i && Math.abs(o.state.v - beta) > 1e-9) { o.set("v", beta); } });
-            show();
-            if (changed) { resetClocks(); }
-            if (first < 2) { first++; } else { touch(id); }
-          }
-        });
-        $(id).querySelectorAll("[data-b]").forEach(function (p) {
-          p.addEventListener("click", function () { sims[i].set("v", parseFloat(p.dataset.b)); });
-        });
-      });
-
-      /* predict first, then use the simulator: one challenge each */
-      var predicted = {};
-      function touch(id) {
-        if (window.Progress && window.Progress.markSeen) { window.Progress.markSeen("hp-rel"); }
-        used[id] = true;
-        if (predicted[id] && window.Progress) { window.Progress.complete(id === "simClock" ? "sim-rel-clock" : "sim-rel-rocket"); }
-      }
-      [["predictClock", "simClock", "slower"], ["predictRocket", "simRocket", "same"]].forEach(function (x) {
-        K.poeCard($(x[0]), { answer: x[2], onPredict: function () {
-          predicted[x[1]] = true;
-          if (used[x[1]] && window.Progress) { window.Progress.complete(x[1] === "simClock" ? "sim-rel-clock" : "sim-rel-rocket"); }
-        } });
-      });
+      $("simClock").addEventListener("input", function () { touch("simClock", "sim-rel-clock"); });
+      K.poeCard($("predictClock"), { answer: "slower", onPredict: function () { predicted.simClock = true; done("simClock", "sim-rel-clock"); } });
       resetClocks();
-    });
+      practice("pt", timeQ, "simClock");
 
-    /* ---------- practice generators ---------- */
-    var BETAS = [0.50, 0.60, 0.80, 0.90, 0.95, 0.99];
-    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
-    function makePractice(prefix, build) {
-      var q = null;
-      function fresh() {
-        q = build();
-        $(prefix + "-stem").innerHTML = q.stem;
-        $(prefix + "-data").innerHTML = q.data.map(function (d) { return "<li>" + d + "</li>"; }).join("");
-        $(prefix + "-unit").textContent = q.unit;
-        $(prefix + "-in").setAttribute("placeholder", q.placeholder || "");
-        $(prefix + "-in").value = "";
-        $(prefix + "-in").setAttribute("aria-label", "Your answer, in " + q.unit);
-        $(prefix + "-fb").textContent = ""; $(prefix + "-fb").className = "fb-line";
-        $(prefix + "-work").hidden = true;
+      /* ===== 3. length ===== */
+      var lenArt = $("lenArt");
+      function shipShape(g, x, y, w, h) {
+        svgEl("path", { "class": "ship", d: "M" + x + " " + (y + h * 0.15) + " H" + (x + w * 0.8) + " L" + (x + w) + " " + (y + h / 2) + " L" + (x + w * 0.8) + " " + (y + h * 0.85) + " H" + x + " Z" }, g);
+        svgEl("path", { "class": "ship", d: "M" + x + " " + (y + h * 0.15) + " L" + (x - w * 0.06) + " " + y + " V" + (y + h) + " L" + x + " " + (y + h * 0.85) }, g);
       }
-      $(prefix + "-new").addEventListener("click", fresh);
-      $(prefix + "-check").addEventListener("click", function () {
-        var raw = $(prefix + "-in").value.replace(",", ".").trim();
-        var x = parseFloat(raw), fb = $(prefix + "-fb");
-        if (q.norm) { x = q.norm(x); }
-        if (raw === "" || !isFinite(x)) { fb.className = "fb-line no"; fb.textContent = "Type a number first, in " + q.unit + "."; return; }
-        var near = function (a, b) { return Math.abs(a - b) <= Math.abs(b) * 0.02; };
-        if (near(x, q.ans)) { fb.className = "fb-line ok"; fb.textContent = "Right. " + q.right; }
-        else { fb.className = "fb-line no"; fb.textContent = q.why(x, near); }
-        $(prefix + "-work").innerHTML = q.work;
-        $(prefix + "-work").hidden = false;
-      });
-      $(prefix + "-in").addEventListener("keydown", function (e) { if (e.key === "Enter") $(prefix + "-check").click(); });
-      fresh();
-    }
-
-
-    /* "find the speed": numbers in first, then rearrange (the second worked example) */
-    var PAIRS = [0.60, 0.80, 0.50, 0.90, 0.95];
-    function findSpeed(kind) {
-      var b = pick(PAIRS), r = root(b), q;
-      if (kind === "t") {
-        var t = pick([{ v: 30, u: "minutes" }, { v: 12, u: "s" }, { v: 4.0, u: "hours" }, { v: 2.2, u: "μs" }]);
-        var tp = Number(sig(t.v / r, 3));
-        q = { a: t.v, ap: tp, u: t.u, ratio: t.v / tp,
-          stem: "<b>Calculate</b> the speed of the spacecraft. (4)",
-          data: ["time on the spacecraft's own clock: " + sig(t.v, 2) + " " + t.u,
-                 "time for the same journey measured on Earth: " + sig(tp, 3) + " " + t.u],
-          line1: "√(1 − (v/c)²) = t ÷ t′ = " + sig(t.v, 2) + " ÷ " + sig(tp, 3) };
-      } else {
-        var l = pick([{ v: 50, u: "m" }, { v: 120, u: "m" }, { v: 2.0, u: "km" }, { v: 8.5, u: "m" }]);
-        var lp = Number(sig(l.v * r, 3));
-        q = { a: l.v, ap: lp, u: l.u, ratio: lp / l.v,
-          stem: "<b>Calculate</b> the speed of the probe. (4)",
-          data: ["length of the probe at rest: " + sig(l.v, 2) + " " + l.u,
-                 "length measured as it flies past: " + sig(lp, 3) + " " + l.u],
-          line1: "√(1 − (v/c)²) = l′ ÷ l = " + sig(lp, 3) + " ÷ " + sig(l.v, 2) };
+      function bridgeShape(g, x, y, w, h) {
+        svgEl("rect", { "class": "bridge", x: x, y: y, width: w, height: h * 0.28 }, g);
+        for (var i = 0; i <= 3; i++) { var px = x + i * w / 3 - (i === 3 ? 6 : 0); svgEl("rect", { "class": "bridge", x: Math.max(x, px - (i === 0 ? 0 : 3)), y: y + h * 0.28, width: 6, height: h * 0.72 }, g); }
       }
-      var k = q.ratio, vc = Math.sqrt(1 - k * k), ans = vc * 3;
-      return {
-        stem: q.stem, data: q.data,
-        unit: "× 10⁸ m s⁻¹", placeholder: "e.g. 2.4", ans: ans,
-        norm: function (x) { return x > 1e5 ? x / 1e8 : x; },
-        right: "v/c = " + vc.toFixed(2) + ", so v = " + sig(ans, 3) + " × 10⁸ m s⁻¹, below c as it must be.",
-        why: function (x, near) {
-          if (near(x, vc)) return "That is v/c, the speed as a fraction of c. Multiply by 3.00 × 10⁸ m s⁻¹.";
-          if (near(x, (1 - k * k) * 3)) return "You found (v/c)² but did not take its square root.";
-          if (near(x, Math.sqrt(1 - k) * 3)) return "Square both sides first: 1 − (v/c)² = " + k.toFixed(2) + "² = " + (k * k).toFixed(2) + ".";
-          if (near(x, k * 3)) return "That uses the factor √(1 − (v/c)²) as if it were v/c. Rearrange: square it, take it from 1, then square root.";
-          if (x >= 3) return "Nothing with mass reaches c, 3.00 × 10⁸ m s⁻¹. Check your rearranging.";
-          return "Not yet. Put the numbers in first, then: divide, square both sides, take from 1, square root, × c.";
-        },
-        work: q.line1 + " = " + k.toFixed(3) + "<br>" +
-          "1 − (v/c)² = " + k.toFixed(3) + "² = " + (k * k).toFixed(3) + "<br>" +
-          "(v/c)² = " + (1 - k * k).toFixed(3) + ", so v/c = " + vc.toFixed(3) + "<br>" +
-          "v = " + vc.toFixed(3) + " × 3.00 × 10⁸ = <b>" + sig(ans, 3) + " × 10⁸ m s⁻¹</b>"
-      };
-    }
-
-    makePractice("pt", function () {
-      if (Math.random() < 0.35) { return findSpeed("t"); }
-      var b = pick(BETAS), r = root(b);
-      var t = pick([{ v: 12, u: "minutes" }, { v: 45, u: "s" }, { v: 3.0, u: "hours" }, { v: 2.6, u: "μs" }, { v: 8.0, u: "years" }]);
-      var ans = t.v / r;
-      return {
-        stem: "<b>Calculate</b> the time an observer on Earth measures for this journey. Give your answer in " + t.u + ". (3)",
-        data: ["speed of the spacecraft: " + sci8(b) + " m s⁻¹", "time on the spacecraft's own clock: " + sig(t.v, 2) + " " + t.u],
-        unit: t.u, ans: ans,
-        right: "Longer than " + sig(t.v, 2) + " " + t.u + ", as a moving clock runs slow.",
-        why: function (x, near) {
-          if (near(x, t.v * r)) return "That is shorter than the spacecraft's time. Earth sees the moving clock run slow, so t′ is longer: divide by √(1 − (v/c)²).";
-          if (near(x, t.v / (1 - b * b))) return "Close, but you left out the square root. Work out 1 − (v/c)², then take its square root.";
-          if (x < t.v) return "Earth's time must be longer than the clock's own time. Check that you divided.";
-          return "Not yet. First find v/c by dividing the speed by 3.00 × 10⁸, then work out √(1 − (v/c)²).";
-        },
-        work: "v/c = " + sci8(b) + " ÷ 3.00 × 10⁸ = " + b.toFixed(2) + "<br>" +
-          "√(1 − " + b.toFixed(2) + "²) = " + r.toPrecision(3) + "<br>" +
-          "t′ = " + sig(t.v, 2) + " ÷ " + r.toPrecision(3) + " = <b>" + sig(ans, 3) + " " + t.u + "</b>"
-      };
-    });
-
-    makePractice("pl", function () {
-      if (Math.random() < 0.35) { return findSpeed("l"); }
-      var b = pick(BETAS), r = root(b);
-      var l = pick([{ v: 120, u: "m" }, { v: 35, u: "m" }, { v: 2.0, u: "km" }, { v: 8.5, u: "m" }, { v: 460, u: "m" }]);
-      var ans = l.v * r;
-      return {
-        stem: "<b>Calculate</b> the length of the spacecraft measured by an observer it flies past. Give your answer in " + l.u + ". (3)",
-        data: ["length of the spacecraft at rest: " + sig(l.v, 2) + " " + l.u, "speed of the spacecraft: " + sci8(b) + " m s⁻¹"],
-        unit: l.u, ans: ans,
-        right: "Shorter than " + sig(l.v, 2) + " " + l.u + ", as a moving object is contracted.",
-        why: function (x, near) {
-          if (near(x, l.v / r)) return "That is longer than the rest length. A moving object is shorter, so multiply by √(1 − (v/c)²).";
-          if (near(x, l.v * (1 - b * b))) return "Close, but you left out the square root. Work out 1 − (v/c)², then take its square root.";
-          if (x > l.v) return "The moving length must be shorter than the rest length. Check that you multiplied.";
-          return "Not yet. First find v/c by dividing the speed by 3.00 × 10⁸, then work out √(1 − (v/c)²).";
-        },
-        work: "v/c = " + sci8(b) + " ÷ 3.00 × 10⁸ = " + b.toFixed(2) + "<br>" +
-          "√(1 − " + b.toFixed(2) + "²) = " + r.toPrecision(3) + "<br>" +
-          "l′ = " + sig(l.v, 2) + " × " + r.toPrecision(3) + " = <b>" + sig(ans, 3) + " " + l.u + "</b>"
-      };
-    });
-
-    /* ---------- journey ---------- */
-    var STARS = [{ n: "Proxima Centauri", d: 4.2 }, { n: "Sirius", d: 8.6 }, { n: "Tau Ceti", d: 11.9 }, { n: "Vega", d: 25 }];
-    function trip() {
-      var s = pick(STARS), b = pick([0.60, 0.80, 0.90, 0.95, 0.99]), r = root(b);
-      var tEarth = s.d / b, tShip = tEarth * r, dShip = s.d * r;
-      $("tripStem").innerHTML = "A spacecraft travels to <b>" + s.n + "</b>, " + s.d + " light-years from Earth, at " +
-        b.toFixed(2) + "<var>c</var>. A light-year is the distance light travels in a year, so the spacecraft covers " +
-        b.toFixed(2) + " light-years each year.";
-      $("tripBody").innerHTML =
-        "<p><b>Earth's view.</b> The trip takes " + s.d + " ÷ " + b.toFixed(2) + " = " + sig(tEarth, 3) +
-        " years. The traveller's clock is the moving clock, so it records less: " + sig(tEarth, 3) + " × " + r.toPrecision(3) +
-        " = <b>" + sig(tShip, 3) + " years</b>.</p>" +
-        "<p><b>The traveller's view.</b> The distance to the star is the moving length, so it is contracted: " + s.d + " × " +
-        r.toPrecision(3) + " = " + sig(dShip, 3) + " light-years. At " + b.toFixed(2) + "<var>c</var> that takes " + sig(dShip, 3) +
-        " ÷ " + b.toFixed(2) + " = <b>" + sig(dShip / b, 3) + " years</b>.</p>" +
-        "<p>The same answer both ways. Earth explains it with time dilation; the traveller explains it with length contraction.</p>";
-    }
-    $("tripNew").addEventListener("click", trip);
-
-    /* ---------- quiz: every option teaches ---------- */
-    var QS = [
-      { q: "A clock moves past you at a high, constant speed. How does it run, compared with your own clock?",
-        o: [["It runs fast", "A moving clock does not gain time. Its light travels a longer path at the same speed, so its ticks take longer."],
-            ["It runs slow", "Right. Its light follows a longer, slanted path at the same speed c, so each tick takes longer. That is time dilation."],
-            ["It runs at the same rate", "That is true at everyday speeds, but not close to c. Watch the light clocks at 0.90c."],
-            ["It stops completely", "It would only stop if it reached c, which it cannot. At any speed below c it runs slow but keeps going."]], a: 1 },
-      { q: "A spacecraft moves at 0.60c. Which effect is bigger: time dilation or length contraction?",
-        o: [["Time dilation", "Both use the same factor, √(1 − (v/c)²) = 0.80. Times are divided by it and lengths multiplied by it, by the same amount."],
-            ["Length contraction", "Both use the same factor, √(1 − (v/c)²) = 0.80. Neither is bigger at any speed."],
-            ["Neither: they use the same factor", "Right. √(1 − 0.60²) = 0.80 for both. A time is measured 1 ÷ 0.80 = 1.25 times longer; a length 0.80 times as long."],
-            ["It depends on the mass of the spacecraft", "Mass does not appear in either relationship. Only v and c do."]], a: 2 },
-      { q: "A clock on a spacecraft records 6.0 s. The spacecraft moves at 2.4 × 10⁸ m s⁻¹. What time does an observer on Earth measure?",
-        o: [["3.6 s", "You multiplied by 0.60. The observer measures a longer time, so divide by √(1 − (v/c)²)."],
-            ["4.8 s", "You multiplied by v/c. First find √(1 − (v/c)²) = 0.60, then divide 6.0 s by it."],
-            ["7.5 s", "You divided by v/c = 0.80. Divide by √(1 − 0.80²) = 0.60 instead."],
-            ["10 s", "Right. v/c = 0.80, √(1 − 0.80²) = 0.60, and 6.0 ÷ 0.60 = 10 s."]], a: 3 },
-      { q: "A rocket is 60 m long at rest. It passes an observer at 1.8 × 10⁸ m s⁻¹. What length does the observer measure?",
-        o: [["75 m", "That is longer than the rest length. A moving object is shorter, so multiply by √(1 − (v/c)²)."],
-            ["48 m", "Right. v/c = 0.60, √(1 − 0.60²) = 0.80, and 60 × 0.80 = 48 m."],
-            ["36 m", "You multiplied by v/c. Find √(1 − 0.60²) = 0.80 first, then multiply."],
-            ["60 m", "Length along the direction of motion does change at this speed. Only the height stays the same."]], a: 1 },
-      { q: "Which is the rest length l of a train?",
-        o: [["The length measured by someone the train moves past", "That observer measures the contracted length, l′."],
-            ["The length measured by someone at rest beside the train", "Right. l is measured by someone moving with the train. It is the longest length anyone measures."],
-            ["The shorter of the two lengths", "The rest length is the longer one. Every observer the train moves past measures it shorter."],
-            ["The length measured at the speed of light", "Nothing with mass reaches c, so no one can measure from there."]], a: 1 },
-      { q: "Muons are made high in the atmosphere and live for about 2.2 μs. Many still reach the ground. Why?",
-        o: [["They travel faster than light", "Nothing travels faster than light. Muons travel just below c."],
-            ["From Earth, their lifetime is dilated, so they last long enough", "Right. Earth sees the muon's clock run slow, so its lifetime is many times longer than 2.2 μs."],
-            ["From the muon's view, the atmosphere is thicker", "The other way round. To the muon, the atmosphere is moving, so it is contracted and thinner."],
-            ["They speed up as they fall", "Gravity barely changes a muon's speed. The reason is relativity."]], a: 1 }
-    ];
-    var first = {}, everRight = {}, LET = "ABCD";
-    var quiz = $("quiz");
-    QS.forEach(function (it, qi) {
-      var box = document.createElement("div"); box.className = "mcq";
-      var html = '<p class="qstem">' + (qi + 1) + ". " + it.q + '</p><div class="mcq-opts" role="group" aria-label="Answers for question ' + (qi + 1) + '">';
-      it.o.forEach(function (o, oi) {
-        html += '<button type="button" class="mcq-opt" data-q="' + qi + '" data-o="' + oi + '" aria-pressed="false"><span class="ol">' + LET[oi] +
-          '</span><span class="ot">' + o[0] + '</span><span class="om" aria-hidden="true"></span></button>';
+      var sLen = K.liveSim($("simRocket"), { render: function (s) {
+        var b = exactOr(exactLen, s.v); if (b === s.v) { exactLen = null; }
+        var r = root(b), l = s.l > 0 ? s.l : 80, lp = l * r, ship = s.mode === "ship";
+        $("kL").innerHTML = ship ? "Length for the astronaut, <var>l</var>" : "Length for the stationary observer, <var>l</var>";
+        $("kLp").innerHTML = ship ? "Length for you, <var>l</var>′" : "Length for you on the spacecraft, <var>l</var>′";
+        $("oL").textContent = numT(l) + " m"; $("oLp").textContent = numT(lp) + " m";
+        $("oLr").textContent = K.fmt(r, 3); $("oLv").innerHTML = speedH(b);
+        if (document.activeElement !== $("vmsLen")) { $("vmsLen").value = (b * 3).toFixed(3); }
+        $("lenNote").textContent = ship
+          ? "The astronaut is at rest relative to the spacecraft, so the astronaut measures l. You see it move past and measure l′, shorter along the motion. Its height does not change."
+          : "The stationary observer is at rest relative to the bridge, so they measure l. You are moving relative to the bridge and measure l′. Here the moving observer measures l′: this is how the pion, tunnel and bridge questions work.";
+        clear(lenArt);
+        var g = lenArt, W = 420, X0 = 90, H = 56;
+        svgEl("text", { x: 20, y: 28 }, g, ship ? "Measured by the astronaut, at rest relative to it" : "Measured by a stationary observer on the ground");
+        if (ship) { shipShape(g, X0, 44, W, H); } else { bridgeShape(g, X0, 50, W, H); }
+        dimLine(g, X0, X0 + W, 126, "l = " + numT(l) + " m", "sym");
+        svgEl("text", { x: 20, y: 172 }, g, ship ? "Measured by you, as it moves past at v" : "Measured by you, on a spacecraft moving past at v");
+        var w2 = Math.max(4, W * r);
+        svgEl("rect", { "class": "ghost", x: X0, y: 188, width: W, height: H }, g);
+        if (ship) { shipShape(g, X0, 188, w2, H); arrowR(g, X0 + w2 + 14, 216, 50); svgEl("text", { x: X0 + w2 + 42, y: 206, "class": "sym warm", "text-anchor": "middle" }, g, "v"); }
+        else { bridgeShape(g, X0, 194, w2, H); arrowR(g, X0 + w2 + 64, 216, -50); svgEl("text", { x: X0 + w2 + 40, y: 206, "class": "sym warm", "text-anchor": "middle" }, g, "v"); }
+        dimLine(g, X0, X0 + w2, 276, "l′ = " + numT(lp) + " m", "sym");
+        svgEl("text", { x: 12, y: 222, "class": "small" }, g, "height");
+        svgEl("text", { x: 12, y: 240, "class": "small" }, g, "same");
+      } });
+      $("vmsLen").addEventListener("change", function () {
+        var x = parseFloat(this.value); if (!isFinite(x)) { return; }
+        x = Math.min(2.997, Math.max(0, x)); this.value = x; exactLen = x / 3; sLen.set("v", Math.round(x / 3 * 1000) / 1000); touch("simRocket", "sim-rel-rocket");
       });
-      box.innerHTML = html + '</div><p class="mcq-fb" aria-live="polite"></p>';
-      quiz.appendChild(box);
-    });
-    quiz.addEventListener("click", function (e) {
-      var b = e.target.closest(".mcq-opt"); if (!b) return;
-      var qi = +b.dataset.q, oi = +b.dataset.o, it = QS[qi], box = b.closest(".mcq");
-      box.querySelectorAll(".mcq-opt").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-      b.setAttribute("aria-pressed", "true");
-      var ok = oi === it.a;
-      b.classList.add(ok ? "right" : "wrong");
-      b.querySelector(".om").textContent = ok ? "✓ right" : "✗ not this";
-      box.querySelector(".mcq-fb").textContent = it.o[oi][1];
-      if (!(qi in first)) first[qi] = ok;
-      if (ok) { everRight[qi] = true; }
-      if (Object.keys(everRight).length === QS.length && window.Progress) { window.Progress.complete("mcq-rel"); }
-      var done = Object.keys(first).length, got = Object.keys(first).filter(function (k) { return first[k]; }).length;
-      $("quizScore").textContent = "First tries: " + got + " out of " + done + " answered (" + QS.length + " questions).";
-    });
+      $("simRocket").addEventListener("input", function () { touch("simRocket", "sim-rel-rocket"); });
+      $("simRocket").querySelectorAll("[data-sim-toggle]").forEach(function (b) { b.addEventListener("click", function () { touch("simRocket", "sim-rel-rocket"); }); });
+      K.poeCard($("predictRocket"), { answer: "same", onPredict: function () { predicted.simRocket = true; done("simRocket", "sim-rel-rocket"); } });
+      practice("pl", lenQ, "simRocket");
 
-    /* ---------- RAG self-rating (device only) ---------- */
-    var CRIT = [
-      "I can explain, with a light clock, why a moving clock is measured to run slow.",
-      "I can use t′ = t ÷ √(1 − (v/c)²), and rearrange it to find v.",
-      "I can use l′ = l √(1 − (v/c)²), and say which length is the rest length.",
-      "I can turn a speed in m s⁻¹ into a fraction of c."
-    ];
-    var KEY = "hp-rel-rag", rag = {};
-    try { rag = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { rag = {}; }
-    var ragBox = $("rag");
-    CRIT.forEach(function (c, i) {
-      var row = document.createElement("div"); row.className = "rag-item";
-      row.innerHTML = '<span class="crit" id="crit' + i + '">' + c + '</span><span class="rag-btns" role="group" aria-labelledby="crit' + i + '">' +
-        ["R", "A", "G"].map(function (k) {
-          var name = { R: "Red, not yet", A: "Amber, getting there", G: "Green, confident" }[k];
-          return '<button type="button" data-i="' + i + '" data-on="' + k + '" aria-label="' + name + '" aria-pressed="' + (rag[i] === k) + '">' + k + "</button>";
-        }).join("") + "</span>";
-      ragBox.appendChild(row);
-    });
-    function ragSum() {
-      var n = { R: 0, A: 0, G: 0 };
-      Object.keys(rag).forEach(function (k) { n[rag[k]]++; });
-      $("ragSummary").textContent = (n.R + n.A + n.G) ? "Green " + n.G + ", amber " + n.A + ", red " + n.R + "." : "";
-    }
-    ragBox.addEventListener("click", function (e) {
-      var b = e.target.closest("button"); if (!b) return;
-      var i = b.dataset.i;
-      rag[i] = b.dataset.on;
-      b.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      try { localStorage.setItem(KEY, JSON.stringify(rag)); } catch (err) {}
-      ragSum();
-    });
-    ragSum();
+      /* ===== 4. muons ===== */
+      var TAU = 2.2e-6, HKM = 10, muonArt = $("muonArt");
+      K.liveSim($("simMuon"), { render: function (s) {
+        var b = s.v, r = root(b), f = s.frame, life = f === "earth" ? TAU / r : TAU;
+        var need = f === "muon" ? HKM * r : HKM, dist = b * C * life / 1000, share = dist / need;
+        $("oMt").innerHTML = numH(life, 2) + " s";
+        $("oMh").textContent = K.fmt(need, need < 1 ? 2 : 3) + " km";
+        $("oMd").textContent = (dist < 1 ? K.fmt(dist * 1000, 2) + " m" : K.fmt(dist, 2) + " km");
+        $("oMs").textContent = share >= 1 ? "all the way, and more" : Math.round(share * 100) + " % of the way down";
+        var noneShare = b * C * TAU / 1000 / HKM;
+        $("muonNote").textContent = f === "none"
+          ? "Without relativity the average muon gets only " + Math.round(noneShare * 100) + " % of the way down, so very few would be detected."
+          : (f === "earth"
+            ? "In Earth's frame of reference, the muon's mean lifetime is greater, so it travels further. The share of the way down is the same as in the muon's frame."
+            : "In the muon's frame of reference, its mean lifetime is 2.2 × 10⁻⁶ s, but the distance to the ground is shorter. The share of the way down is the same as in Earth's frame.");
+        clear(muonArt);
+        var g = muonArt, GY = 300, PXKM = 26, CX0 = 70, CX1 = 210, colH = need * PXKM, top = GY - colH;
+        if (f === "muon") { svgEl("rect", { "class": "ghost", x: CX0, y: GY - HKM * PXKM, width: CX1 - CX0, height: HKM * PXKM }, g); }
+        svgEl("rect", { "class": "air", x: CX0, y: top, width: CX1 - CX0, height: Math.max(colH, 2) }, g);
+        svgEl("line", { "class": "ground", x1: 20, y1: GY, x2: 260, y2: GY }, g);
+        svgEl("rect", { "class": "torch", x: 120, y: GY + 2, width: 40, height: 10, rx: 2 }, g);
+        svgEl("text", { x: 140, y: GY + 25, "text-anchor": "middle", "class": "small" }, g, "detector");
+        var trk = Math.min(dist * PXKM, colH);
+        svgEl("line", { "class": "mtrack", x1: 140, y1: top, x2: 140, y2: top + trk }, g);
+        svgEl("circle", { "class": "muon", cx: 140, cy: top, r: 7 }, g);
+        svgEl("text", { x: 14, y: top + 6, "class": "small" }, g, "muon");
+        svgEl("path", { "class": "dim", d: "M226 " + top + " H234 M226 " + GY + " H234 M230 " + top + " V" + GY }, g);
+        svgEl("text", { x: 240, y: (top + GY) / 2 + 6 }, g, K.fmt(need, need < 1 ? 2 : 3) + " km");
+        if (f === "muon") { svgEl("text", { x: CX0, y: GY - HKM * PXKM - 8, "class": "small" }, g, "10 km in Earth's frame"); }
+        // share bars: no relativity, and this frame
+        var BX = 330, BW = 240;
+        svgEl("text", { x: BX, y: 26 }, g, "How far the average");
+        svgEl("text", { x: BX, y: 48 }, g, "muon gets down");
+        function bar(y, val, cls, label) {
+          svgEl("rect", { "class": "bar-bg", x: BX, y: y, width: BW, height: 26, rx: 4 }, g);
+          svgEl("rect", { "class": cls, x: BX, y: y, width: Math.max(2, BW * Math.min(1, val)), height: 26, rx: 4 }, g);
+          svgEl("text", { x: BX, y: y - 8, "class": "small" }, g, label + ": " + (val >= 1 ? "all the way" : Math.round(val * 100) + " %"));
+        }
+        bar(80, noneShare, "bar-none", "No relativity");
+        bar(150, b * C * (TAU / r) / 1000 / HKM, "bar-rel", "Earth's frame");
+        bar(220, b * C * TAU / 1000 / (HKM * r), "bar-rel", "Muon's frame");
+        svgEl("text", { x: BX, y: 284, "class": "small" }, g, "Both frames agree:");
+        svgEl("text", { x: BX, y: 304, "class": "small" }, g, "many more get through.");
+      } });
+      $("simMuon").addEventListener("input", function () { touch("simMuon", "sim-rel-muon"); });
+      $("simMuon").querySelectorAll("[data-sim-toggle]").forEach(function (b) { b.addEventListener("click", function () { touch("simMuon", "sim-rel-muon"); }); });
+      K.poeCard($("predictMuon"), { answer: "more", onPredict: function () { predicted.simMuon = true; done("simMuon", "sim-rel-muon"); } });
 
-    /* ---------- start ---------- */
-    trip();
+      buildQuiz();
+    });
   })();
   </script>
 </body>
