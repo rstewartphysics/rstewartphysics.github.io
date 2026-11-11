@@ -24,6 +24,8 @@ jobs:
     # Pinned: ubuntu-latest moved to 26.04 (Nov 2026), which has no Python 3.9, and 3.9 is what
     # the Mac runs, so the generated-page check needs it.
     runs-on: ubuntu-24.04
+    outputs:
+      newest: ${{ steps.newest.outputs.newest }}
     steps:
       - uses: actions/checkout@v4
 
@@ -91,13 +93,27 @@ jobs:
       - name: Check the simulators
         run: npm run sims
 
-      - uses: actions/upload-pages-artifact@v3
+      # Re-running an older main build must not publish over a newer one (run 192's re-run did,
+      # 10 Nov 2026, and took the S3 Space pages off the site). Only main's newest commit deploys.
+      - name: Check this is still main's newest commit
+        id: newest
         if: github.event_name != 'pull_request'
+        run: |
+          git fetch -q --depth=1 origin main
+          if [ "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA" ]; then
+            echo "newest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::main has moved on to $(git rev-parse --short FETCH_HEAD); not deploying this older build."
+            echo "newest=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request' && steps.newest.outputs.newest == 'true'
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && needs.build.outputs.newest == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
