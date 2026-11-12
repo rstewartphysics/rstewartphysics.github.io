@@ -406,6 +406,21 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   reproduced for educational use: N5 Engineering Science 2021 Q12(c); 2022 Q15(b), Q15(c); 2024 Q3(a); 2025 Q8(a), Q8(d); and
   2026 Q14(b), each named on its deck's Credits slide and on the booklet's last page.
 
+- **N5 Engineering Science *Booklet 6, Pneumatics*** (added 12 November 2026) —
+  `assets/engineering-science/national-5/06-pneumatics/n5-engineering-booklet-6-pneumatics.pdf`, linked from
+  `classes/n5-engineering/pneumatics.html`. Booklet and diagrams by R Stewart; past-paper items © Qualifications
+  Scotland (SQA), each named on the booklet's last page.
+- **Mark it yourself *Readers and worksheets*** (added 12 November 2026) — `assets/higher/assignment/`,
+  `assets/adv/project/`, `assets/engineering-science/national-5/assignment-prep/`, linked from the Higher and AH
+  hubs and the N5 Assignment Prep page. Candidate evidence and commentary from Understanding Standards (public
+  site, not Secure): Higher Physics Assignment 2023-24, AH Physics Project 2023-24, N5 Engineering Science
+  Assignment 2024; tasks and marking instructions © Qualifications Scotland (SQA), reproduced for educational
+  use; N5 task photos credited in the file as on the paper. A Scottish Borders Council resource, curated by
+  R Stewart, November 2026.
+- **N5 Practical Electronics *Exam Practice by topic*** (added 12 November 2026) —
+  `assets/electronics/revision/n5-practical-electronics-exam-practice.pdf`, linked from `classes/electronics.html`.
+  Every current past-paper question (2018, 2019, 2021, 2024–2026, 2026 specimen) with its marking instructions,
+  © Qualifications Scotland (SQA), reproduced for educational use; items and photo credits listed in the file.
 - **N5 Engineering Science *Pneumatics Review Questions*** (added 6 November 2026) — eight PDFs,
   `assets/engineering-science/national-5/06-pneumatics/review-questions/pn1-review-questions.pdf` to
   `pn8-…`, one per Booklet 6 lesson, linked from `classes/n5-engineering/pneumatics.html` and the short
