@@ -798,6 +798,7 @@ L 255.108125 162.432
   </div>
   <p class="split" id="splitLine"></p>
   <p class="split">Bands are indicative only — they are a guide to where you are, not a grade.</p>
+  <p class="split"><a href="#paper">Go back to question 1 and read each mark scheme.</a></p>
   <button type="button" class="reset" id="resetBtn">Clear my answers and start again</button>
 </section>
 
@@ -826,17 +827,36 @@ L 255.108125 162.432
     return o;
   }
   var UNITS = {"Ω": [1, "R"], "kΩ": [1000, "R"], "A": [1, "I"], "mA": [0.001, "I"], "V": [1, "V"], "C": [1, "Q"], "W": [1, "P"]};
-  var revealed = {}, marked = false;
+  /* selfMarks is the one record of every self-mark, keyed by radio name, so a
+     mark scheme box can be redrawn (peek, then Finish, then a reload) without
+     losing a tick (PT-1). autoById freezes each question's auto-mark at Finish
+     so the section bars and the headline agree (PT-6). */
+  var revealed = {}, marked = false, selfMarks = {}, autoById = {}, autoSum = 0;
+  var ATTEMPT = null;
 
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
-  /* ---------- persistence: answers only, never the progress key ---------- */
+  /* ---------- persistence: never the progress key ---------- */
   function store(k, v) {
     try { localStorage.setItem(PREFIX + k, v); } catch (e) {}
   }
-  function fetch(k) {
+  function load(k) {
     try { return localStorage.getItem(PREFIX + k); } catch (e) { return null; }
+  }
+  function saveMarks() {
+    store("sm", JSON.stringify(selfMarks));
+    store("marked", marked ? "1" : "");
+  }
+  /* The badge keeps the best of finished attempts, and within one attempt the
+     latest self-marked score, so a correction downwards sticks (PT-2). A new
+     attempt starts after "Clear my answers", which removes this key. */
+  function attemptId() {
+    if (!ATTEMPT) {
+      ATTEMPT = load("attempt");
+      if (!ATTEMPT) { ATTEMPT = String(Date.now()); store("attempt", ATTEMPT); }
+    }
+    return ATTEMPT;
   }
   function saveAll() {
     var o = {};
@@ -849,7 +869,7 @@ L 255.108125 162.432
     store("peek", JSON.stringify(revealed));
   }
   function restore() {
-    var raw = fetch("ans");
+    var raw = load("ans");
     if (raw) {
       var o = {};
       try { o = JSON.parse(raw); } catch (e) { o = {}; }
@@ -862,8 +882,20 @@ L 255.108125 162.432
         if (u.length) { u[0].value = o[k]; }
       });
     }
-    try { revealed = JSON.parse(fetch("peek") || "{}"); } catch (e) { revealed = {}; }
-    if (fetch("begun") === "1") { showPaper(); }
+    try { revealed = JSON.parse(load("peek") || "{}"); } catch (e) { revealed = {}; }
+    try { selfMarks = JSON.parse(load("sm") || "{}"); } catch (e) { selfMarks = {}; }
+    if (load("begun") === "1") { showPaper(); }
+    /* a peeked mark scheme comes back with the page, so "you revealed the mark
+       scheme for N questions" never refers to something the pupil cannot see */
+    Object.keys(revealed).forEach(function (id) {
+      var q = byId(id), b = $('.peek[data-peek="' + id + '"]');
+      if (q) { markQuestion(q, true); }
+      if (b) { b.hidden = true; }
+    });
+    if (load("marked") === "1") { finish(true); }
+  }
+  function byId(id) {
+    return DATA.filter(function (x) { return x.id === id; })[0];
   }
 
   /* ---------- the cover gate ---------- */
@@ -885,7 +917,12 @@ L 255.108125 162.432
      but no ×, so those are the keys pupils actually reach for. */
   function normNum(s) {
     if (s === null || s === undefined) { return ""; }
-    s = String(s).replace(/·/g, ".").replace(/[\s,]/g, "");
+    s = String(s).replace(/·/g, ".").replace(/\s/g, "");
+    /* "12,000" is a thousands comma; a lone comma with no point, as in "2,5",
+       is a decimal comma. It used to be stripped, so "2,5" read as 25 (PT-5). */
+    if (/^[+\-−–]?\d{1,3}(?:,\d{3})+(?![\d,])/.test(s)) { s = s.replace(/,/g, ""); }
+    else if (/^[^,]*,[^,]*$/.test(s) && s.indexOf(".") < 0) { s = s.replace(",", "."); }
+    else { s = s.replace(/,/g, ""); }
     /* superscript exponents, which is how a pupil copies 7·2 × 10⁻¹⁶ off the
        page: rewrite them as an ordinary caret exponent, before the minus
        signs are normalised, so the ⁻ stays attached to its own digits. */
@@ -946,7 +983,44 @@ L 255.108125 162.432
     }
     return t.replace(/0+$/, "").length || 1;
   }
+  /* A pupil writes "= 12 V." because that is how an answer is written on
+     paper. The "=", a unit typed in the box and a closing full stop are set
+     aside before the number is read; the unit is still marked from the list
+     (PT-5). The unit starts at the first letter that is not the e of "2.5e4"
+     or the x of "2.5x10^4". */
+  function unitStart(s) {
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i), rest = s.slice(i + 1);
+      if (/[eE]/.test(c) && i > 0 && /[\d.·]/.test(s.charAt(i - 1)) &&
+          /^[+\-−–]?\d/.test(rest)) { continue; }
+      if (/[xX]/.test(c) && /^\s*10/.test(rest)) { continue; }
+      if (/[A-Za-z°µͰ-ϿΩ%]/.test(c)) { return i; }
+    }
+    return -1;
+  }
+  function cleanAnswer(raw) {
+    var s = String(raw === null || raw === undefined ? "" : raw).trim();
+    s = s.replace(/^=+\s*/, "");
+    var i = unitStart(s);
+    var unit = i < 0 ? "" : s.slice(i).trim().replace(/[.]+$/, "");
+    s = (i < 0 ? s : s.slice(0, i)).trim().replace(/[.·]+$/, "");
+    return { text: s, unit: unit };
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
   function markNumber(rawText, gUnit, want, wUnit, sf, idealStr, tol) {
+    var c = cleanAnswer(rawText);
+    var res = markClean(c.text, gUnit, want, wUnit, sf, idealStr, tol);
+    if (c.unit && !gUnit && res.why === "no unit chosen — SQA needs the unit") {
+      res.why = "no unit chosen. You typed <b>" + esc(c.unit) + "</b> in the box," +
+                " but only the list is marked. Choose the unit there";
+    } else if (c.unit) {
+      res.typedUnit = c.unit;
+    }
+    return res;
+  }
+  function markClean(rawText, gUnit, want, wUnit, sf, idealStr, tol) {
     var g = parseNum(rawText);
     if (g.err === "empty") { return { ok: false, why: "no answer given" }; }
     if (g.err) {
@@ -975,8 +1049,8 @@ L 255.108125 162.432
       return { ok: false, why: "written to " + n + " significant figure" +
                (n === 1 ? "" : "s") + "; this question takes " + lo + " to " + hi };
     }
-    var t = String(rawText).replace(/·/g, ".").replace(/[\s,+]/g, "");
-    var i = String(idealStr || "").replace(/·/g, ".").replace(/[\s,+]/g, "");
+    var t = normNum(rawText).replace(/\+/g, "");
+    var i = normNum(idealStr || "").replace(/\+/g, "");
     if (n !== sf && t !== i) { return { ok: true, sfWarn: sf }; }
     return { ok: true };
   }
@@ -993,10 +1067,11 @@ L 255.108125 162.432
   }
 
   function selfControl(id, max) {
-    var opts = "";
+    var opts = "", had = selfMarks["sm-" + id];
+    var on = (typeof had === "number" && had >= 0 && had <= max) ? had : 0;
     for (var i = 0; i <= max; i++) {
       opts += '<label><input type="radio" name="sm-' + id + '" value="' + i + '"' +
-              (i === 0 ? " checked" : "") + '>' + i + "</label>";
+              (i === on ? " checked" : "") + '>' + i + "</label>";
     }
     var ask = max === 1 ? "did you earn this mark?"
                         : "how many of these " + max + " marks did you earn?";
@@ -1059,6 +1134,10 @@ L 255.108125 162.432
                  + res.sfWarn + " significant figure"
                  + (res.sfWarn === 1 ? "" : "s") + "</span>";
           }
+          if (res.typedUnit) {
+            msg += " (You typed the unit <b>" + esc(res.typedUnit) + "</b> in the box." +
+                   " The box only reads the number. The unit is marked from the list.)";
+          }
           lines.push('<p class="automark"><strong>Answer:</strong> ' + msg + "</p>");
         }
       }
@@ -1082,61 +1161,53 @@ L 255.108125 162.432
     return pc >= 70 ? "A" : pc >= 60 ? "B" : pc >= 50 ? "C" : pc >= 40 ? "D" : "no award";
   }
 
-  function finish() {
-    if (marked) { return; }
+  /* restoring: the page is coming back after a reload, so the pupil is left
+     where the browser puts them rather than thrown to the score card */
+  function finish(restoring) {
+    if (marked && restoring !== true) { return; }
     marked = true;
-    var totals = zeroes();
-    var auto = 0, selfMax = 0;
+    autoSum = 0;
     DATA.forEach(function (q) {
       var r = markQuestion(q, true);
-      auto += r.auto;
-      selfMax += r.selfMax;
-      totals[q.section][1] += q.marks;
-      totals[q.section][0] += r.auto;
+      autoById[q.id] = r.auto;
+      autoSum += r.auto;
     });
     $$(".peek").forEach(function (b) { b.hidden = true; });
     $("#finishBtn").disabled = true;
     $("#finishBtn").textContent = "Marked";
-    $$(".selfmark input").forEach(function (el) {
-      el.addEventListener("change", function () { recount(totals, auto); });
-    });
-    recount(totals, auto);
+    saveMarks();
+    recount();
     $("#scoreCard").hidden = false;
-    $("#scoreCard").scrollIntoView({ block: "start" });
-    $("#scoreCard").focus();
+    if (restoring !== true) {
+      $("#scoreCard").scrollIntoView({ block: "start" });
+      $("#scoreCard").focus();
+    }
   }
 
-  function recount(totals, auto) {
-    var self = 0;
-    $$(".selfmark input:checked").forEach(function (el) { self += +el.value; });
-    var score = auto + self;
-    var pc = Math.round((score / TOTAL) * 100);
-    var peeked = Object.keys(revealed).length;
-    var sec = zeroes();
+  /* each question's own self-mark groups, by exact name: a prefix match made
+     sm-A1 also pick up sm-A10 to sm-A13 (PT-6) */
+  function selfNames(q) {
+    if (q.type === "mcq") { return []; }
+    if (q.type === "open") { return q.self > 0 ? ["sm-" + q.id] : []; }
+    return q.parts.filter(function (p) { return p.self > 0; })
+                  .map(function (p) { return "sm-" + q.id + p.id; });
+  }
+
+  function recount() {
+    var self = 0, sec = zeroes();
     DATA.forEach(function (q) {
       sec[q.section][1] += q.marks;
       var s = 0;
-      if (q.type === "mcq") {
-        var c = $('input[name="' + q.id + '"]:checked');
-        if (c && +c.value === q.key) { s += q.auto; }
-      }
-      $$('[name^="sm-' + q.id + '"]:checked').forEach(function (el) { s += +el.value; });
-      if (q.parts) {
-        q.parts.forEach(function (p) {
-          var pid = q.id + p.id, g = 0;
-          var rs = document.getElementById(pid + "-rel");
-          if (typeof p.rel === "number" && rs && +rs.value === p.rel) { g += 1; }
-          if (p.num) {
-            var inp = document.getElementById(pid + "-num");
-            var us = $('.ans-unit[data-part="' + pid + '"]');
-            if (inp && markNumber(inp.value, us ? us.value : "",
-                                  p.num[0], p.num[1], p.sf, p.sfstr, p.tol).ok) { g += 1; }
-          }
-          s += Math.min(g, p.auto);
-        });
-      }
-      sec[q.section][0] += s;
+      selfNames(q).forEach(function (n) {
+        var c = $('input[name="' + n + '"]:checked');
+        if (c) { s += +c.value; }
+      });
+      self += s;
+      sec[q.section][0] += (autoById[q.id] || 0) + s;
     });
+    var auto = autoSum, score = auto + self;
+    var pc = Math.round((score / TOTAL) * 100);
+    var peeked = Object.keys(revealed).length;
     $("#scoreVal").textContent = score;
     $("#scorePc").textContent = pc + "%";
     $("#scoreBand").textContent = band(pc);
@@ -1149,7 +1220,9 @@ L 255.108125 162.432
       $("#bar-" + k + " i").style.width = Math.round((got / max) * 100) + "%";
       $("#barv-" + k).textContent = got + " / " + max;
     });
-    if (window.Progress && Progress.record) { Progress.record(BADGE, score, TOTAL); }
+    if (window.Progress && Progress.record) {
+      Progress.record(BADGE, score, TOTAL, { attempt: attemptId() });
+    }
   }
 
   function autoTotal() {
@@ -1165,16 +1238,54 @@ L 255.108125 162.432
   $$(".peek").forEach(function (b) {
     b.addEventListener("click", function () {
       var id = b.dataset.peek;
-      var q = DATA.filter(function (x) { return x.id === id; })[0];
       revealed[id] = 1;
-      markQuestion(q, true);
+      markQuestion(byId(id), true);
       b.hidden = true;
       saveAll();
     });
   });
-  $("#finishBtn").addEventListener("click", finish);
+
+  /* Finish takes two taps, like Clear, and the first tap says what is still
+     blank (PT-4). No dialog: the site never uses confirm(). */
+  function unanswered() {
+    return DATA.filter(function (q) {
+      var art = document.getElementById("q-" + q.id);
+      if (!art) { return false; }
+      return !$$("[data-part], .mcq input", art).some(function (el) {
+        return el.type === "radio" ? el.checked : (el.value || "").trim() !== "";
+      });
+    }).length;
+  }
+  var finishArmed = false, finishTimer = null;
+  $("#finishBtn").addEventListener("click", function () {
+    if (marked) { return; }
+    if (!finishArmed) {
+      finishArmed = true;
+      var n = unanswered();
+      $("#finishBtn").textContent = n
+        ? n + (n === 1 ? " question has" : " questions have") + " no answer. Tap again to mark"
+        : "Tap again to mark your paper";
+      finishTimer = setTimeout(function () {
+        finishArmed = false;
+        $("#finishBtn").textContent = "Finish & mark";
+      }, 5000);
+      return;
+    }
+    clearTimeout(finishTimer);
+    finish();
+  });
+  /* one listener for every self-mark, whenever its box was drawn (PT-1) */
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t && t.matches && t.matches(".selfmark input")) {
+      selfMarks[t.name] = +t.value;
+      saveMarks();
+      if (marked) { recount(); }
+      return;
+    }
+    if (!marked) { saveAll(); }
+  });
   document.addEventListener("input", function () { if (!marked) { saveAll(); } });
-  document.addEventListener("change", function () { if (!marked) { saveAll(); } });
 
   var resetArmed = false;
   $("#resetBtn").addEventListener("click", function () {
