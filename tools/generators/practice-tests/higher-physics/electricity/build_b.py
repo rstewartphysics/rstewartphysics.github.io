@@ -134,7 +134,7 @@ def compute(v):
     d["c2_q_sci"] = P.sci(q2, 3)
     d["c2_c_disp"] = P.sci(c2, 2)
     d["c2_r_k"] = P.fm(n["c2_r_k"])
-    d["c2_r_sci"] = P.sci(r2, 2)
+    d["c2_r_sci"] = sci_always(r2, 2)
     d["c2_t_disp"] = P.fm_sf(t2, 2)
     q += [(v2, "V"), (q2, "C"), (r2, "Ω")]
 

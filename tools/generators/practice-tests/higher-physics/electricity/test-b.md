@@ -98,14 +98,14 @@ option: Combination D
 option: Combination E
 key: B
 mi: A: two in parallel, <var>R</var>/2. <strong>B: one in series with a parallel pair, <var>R</var> + <var>R</var>/2 = 1·5<var>R</var></strong>. C: two in series, in parallel with one, 2<var>R</var>/3. D: two parallel pairs in series, <var>R</var>/2 + <var>R</var>/2 = <var>R</var>. E: three in parallel, <var>R</var>/3. The greatest is <strong>B</strong>.
-wrong: Choosing C because it has the most resistors forgets that putting a branch in parallel always <em>lowers</em> the resistance — the combined resistance of a parallel group is less than its smallest branch.
+wrong: Choosing D because it has the most resistors forgets that putting a branch in parallel always <em>lowers</em> the resistance — the combined resistance of a parallel group is less than its smallest branch.
 @end
 
 @q W5 | warmup | mcq | 1 | auto 1
 keyarea: E.m.f., terminal potential difference and internal resistance
 parent: SQA Higher 2025 P1 Q21 — the same "which row shows the EMF and the voltmeter reading" idiom, with a new internal resistance, load and current, so the published row is not reproduced.
 diagram: w5_circuit
-stem: A cell of internal resistance {w5_r}&nbsp;Ω is connected to a {w5_load}&nbsp;Ω resistor as shown. The voltmeter is connected across the terminals of the cell. The switch is closed and the reading on the ammeter is {w5_i}&nbsp;A. Which row shows the e.m.f. of the cell and the reading on the voltmeter?
+stem: A cell of internal resistance {w5_r}&nbsp;Ω is connected to an {w5_load}&nbsp;Ω resistor as shown. The voltmeter is connected across the terminals of the cell. The switch is closed and the reading on the ammeter is {w5_i}&nbsp;A. Which row shows the e.m.f. of the cell and the reading on the voltmeter?
 options_from: w5
 key: computed
 mi: <var>E</var> = <var>I</var>(<var>R</var> + <var>r</var>) = {w5_i} × ({w5_load} + {w5_r}) = <strong>{w5_emf} V</strong>.<br>The voltmeter reads the terminal p.d.: <var>V</var> = <var>I</var><var>R</var> = {w5_i} × {w5_load} = <strong>{w5_tpd} V</strong>.
@@ -149,7 +149,7 @@ wrong: Choosing an answer that includes II or III swaps forward and reverse bias
 
 @q C1 | core | struct | 6
 keyarea: E.m.f. and internal resistance from two meter readings
-parent: SQA Higher 2022 P2 Q12(c) and (d) — the same demands (how the e.m.f. is measured, and why the terminal p.d. falls when current is drawn), set with an open-circuit reading and one loaded reading in place of a graph, so the published e.m.f. and internal resistance are not reproduced.
+parent: SQA Higher 2019 P2 Q12(a) (and 2022 P2 Q12(c), (d)) — the same demands (how the e.m.f. is measured, and why the terminal p.d. falls when current is drawn), set with an open-circuit reading and one loaded reading in place of a graph, so the published e.m.f. and internal resistance are not reproduced.
 context: A student uses the circuit shown to investigate the battery of a head torch. When switch S is open, the reading on the voltmeter is {c1_open}&nbsp;V. Switch S is closed: the reading on the voltmeter is now {c1_closed}&nbsp;V and the reading on the ammeter is {c1_i}&nbsp;A.
 diagram: c1_circuit
 @part a | 1 | value | auto 1
@@ -277,7 +277,7 @@ mi: A smaller total resistance means a larger current in the circuit **(1)**.<br
 
 @q P2 | push | struct | 5
 keyarea: The charging current of a capacitor, and what sets the charge stored
-parent: SQA Higher 2017 P2 Q13 — the same circuit of a capacitor, two equal resistors and a second switch across one of them, with a new capacitor, resistors and supply; (a) asks for the initial current with both resistors in the circuit, and (b) replaces the published "why is the charging time shorter" with the effect on the charge stored.
+parent: SQA Higher 2017 P2 Q13 — the same circuit of a capacitor, two equal resistors and a second switch that lowers the circuit resistance (in 2017 it adds the second resistor in parallel; here it shorts one of two in series), with a new capacitor, resistors and supply; (a) asks for the initial current with both resistors in the circuit, and (b) replaces the published "why is the charging time shorter" with the effect on the charge stored.
 context: An uncharged {p2_c_uf}&nbsp;μF capacitor is connected in the circuit shown. The {p2_vs}&nbsp;V battery has negligible internal resistance. Switch S<sub>2</sub> is open.
 diagram: p2_circuit
 @part a | 3 | calc | auto 2
