@@ -15,7 +15,7 @@ import types
 HERE = os.path.dirname(os.path.abspath(__file__))
 # The blacklists list what the real tests and decks use, so they stay on the Mac and out of
 # this public repo. Without them (CI) the check is skipped, not failed.
-MAC = os.path.expanduser("~/claude-work/practice-tests")
+MAC = os.path.expanduser("~/claude-work/10 Physics/practice-tests")
 _DEFAULT = object()
 
 
