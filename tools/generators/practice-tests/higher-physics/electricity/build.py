@@ -59,8 +59,9 @@ def compute(v):
     d["w1_peak"] = P.fm_sf(pk, 3)
     d["w1_div"] = P.fm_sf(vr / SQRT2, 3)
     d["w1_double"] = P.fm_sf(2 * vr, 3)
+    d["w1_half"] = P.fm_sf(vr / 2, 2)
     d["w1_options"], d["w1_key"] = options(
-        [(P.fm_sf(vr / 2, 2), False), (d["w1_div"], False), (d["w1_vrms"], False),
+        [(d["w1_half"], False), (d["w1_div"], False), (d["w1_vrms"], False),
          (d["w1_peak"], True), (d["w1_double"], False)], "V")
     q += [(vr, "V")]
 
@@ -75,9 +76,11 @@ def compute(v):
     d["w2_f"] = P.fm(f)
     d["w2_half"] = P.fm(2 * f)
     d["w2_ms"] = P.fm_sf(1.0 / t_ms, 2)
+    d["w2_10div"] = P.fm(1000.0 / (10 * tb))
+    d["w2_1div"] = P.fm(1000.0 / tb)
     d["w2_options"], d["w2_key"] = options(
-        [(d["w2_ms"], False), (P.fm(1000.0 / (10 * tb)), False), (d["w2_f"], True),
-         (d["w2_half"], False), (P.fm(1000.0 / tb), False)], "Hz")
+        [(d["w2_ms"], False), (d["w2_10div"], False), (d["w2_f"], True),
+         (d["w2_half"], False), (d["w2_1div"], False)], "Hz")
     q += [(tb / 1000.0, "s")]
 
     # W3 — current from power and resistance
@@ -88,9 +91,11 @@ def compute(v):
     d["w3_i"] = P.fm_sf(i3, 2)
     d["w3_nosqrt"] = P.sci(p3 / r3, 2)
     d["w3_v"] = P.fm_sf(math.sqrt(p3 * r3), 2)
+    d["w3_sqrtp"] = P.fm_sf(math.sqrt(p3), 2)
+    d["w3_pr"] = P.fm_sf(p3 * r3, 2)
     d["w3_options"], d["w3_key"] = options(
-        [(d["w3_nosqrt"], False), (d["w3_i"], True), (P.fm_sf(math.sqrt(p3), 2), False),
-         (d["w3_v"], False), (P.fm_sf(p3 * r3, 2), False)], "A")
+        [(d["w3_nosqrt"], False), (d["w3_i"], True), (d["w3_sqrtp"], False),
+         (d["w3_v"], False), (d["w3_pr"], False)], "A")
     q += [(r3, "Ω"), (p3, "W")]
 
     # W4 — voltmeter across the series resistor of a series-parallel divider
@@ -104,9 +109,11 @@ def compute(v):
     d["w4_v1"] = P.fm_sf(v1, 2)
     d["w4_vp"] = P.fm_sf(vs - v1, 2)
     d["w4_nopar"] = P.fm_sf(vs * r1 / (r1 + 2 * r2), 2)
+    d["w4_half"] = P.fm_sf(vs / 2, 2)
+    d["w4_pser"] = P.fm_sf(vs * 2 * r2 / (r1 + 2 * r2), 2)
     d["w4_options"], d["w4_key"] = options(
-        [(d["w4_nopar"], False), (d["w4_vp"], False), (P.fm_sf(vs / 2, 2), False),
-         (d["w4_v1"], True), (P.fm_sf(vs * 2 * r2 / (r1 + 2 * r2), 2), False)], "V")
+        [(d["w4_nopar"], False), (d["w4_vp"], False), (d["w4_half"], False),
+         (d["w4_v1"], True), (d["w4_pser"], False)], "V")
     q += [(vs, "V"), (r1 * 1e3, "Ω"), (r2 * 1e3, "Ω")]
 
     # W5 — lost volts
@@ -133,9 +140,11 @@ def compute(v):
     d["w6_q"] = P.sci(q6, 2)
     d["w6_nou"] = sci_always(n["w6_c_uf"] * v6, 2)
     d["w6_half"] = P.sci(q6 / 2, 2)
+    d["w6_cv"] = P.sci(c6 / v6, 2)
+    d["w6_vc"] = P.sci(v6 / c6, 2)
     d["w6_options"], d["w6_key"] = options(
-        [(P.sci(c6 / v6, 2), False), (d["w6_half"], False), (d["w6_q"], True),
-         (d["w6_nou"], False), (P.sci(v6 / c6, 2), False)], "C")
+        [(d["w6_cv"], False), (d["w6_half"], False), (d["w6_q"], True),
+         (d["w6_nou"], False), (d["w6_vc"], False)], "C")
     q += [(c6, "F"), (v6, "V")]
 
     # C1 — oscilloscope: peak, frequency, r.m.s., r.m.s. current
@@ -199,7 +208,7 @@ def compute(v):
     d["p1_i1_disp"] = P.fm_sf(ia, 2)
     d["p1_p1_disp"] = P.fm_sf(pa, 2)
     d["p1_pr_disp"] = P.fm_sf(ia * ia * ri1, 2)
-    d["p1_i2_disp"] = P.fm_sf(ib, 3)
+    d["p1_i2_disp"] = P.fm_sf(ib, 4)
     d["p1_p2_disp"] = P.fm_sf(pb, 3)
     assert pb > pa
     q += [(e1, "V"), (ri1, "Ω"), (ra, "Ω"), (rb, "Ω")]
