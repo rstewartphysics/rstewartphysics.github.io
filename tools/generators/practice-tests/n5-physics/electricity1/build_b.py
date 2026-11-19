@@ -109,7 +109,7 @@ def compute(v):
     d["p1_velement"] = P.fixed(vel, 1)
     d["p1_element"] = P.fm(rel, 3)
     d["p1_total"] = P.fm(sup / cur, 4)
-    d["_num"].update({"p1_current": (cur, "A"), "p1_element": (rel, "Ω")})
+    d["_num"].update({"p1_element": (rel, "Ω")})
     return d
 
 

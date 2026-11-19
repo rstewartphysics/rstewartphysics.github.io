@@ -23,8 +23,8 @@ w3_supply: 9.0
 w3_v1: 6.3
 w4_a1: 0.84
 w4_a2: 0.52
-w5_series: 18
-w5_parallel: 18
+w5_series: 30
+w5_parallel: 30
 c1_bands: brown,grey,red,gold
 c1_measured_k: 1.84
 c2_supply: 12
@@ -98,10 +98,10 @@ stem: Three {w5_series} Ω resistors are connected as shown. The total resistanc
 options_from: w5
 key: computed
 mi: The two resistors in parallel combine first: 1/R<sub>P</sub> = 1/{w5_parallel} + 1/{w5_parallel}, so R<sub>P</sub> = {w5_rp} Ω. That is in series with the third resistor: R<sub>T</sub> = {w5_rp} + {w5_series} = {w5_total} Ω.
-wrong: Adding all three in series gives 54 Ω; treating all three as parallel gives 6·0 Ω. Work out the parallel pair first, then add the series resistor.
+wrong: Adding all three in series gives 90 Ω; treating all three as parallel gives 10·0 Ω. Work out the parallel pair first, then add the series resistor.
 @end
 
-@q C1 | core | struct | 4
+@q C1 | core | struct | 3
 keyarea: Resistor colour code and tolerance (booklet L3)
 given: c1_value_k
 parent: ORIGINAL — the resistor colour code is taught in Booklet 1 L3 but does not appear in the N5 past papers, so there is no SQA parent to vary.
@@ -123,13 +123,9 @@ answer: c1_max
 unit: Ω
 mi: A {c1_b4} band is a tolerance of ±{c1_tol}%. <br>{c1_tol}% of {c1_value} Ω = {c1_tol_ohms} Ω **(1)**<br>Maximum = {c1_value} + {c1_tol_ohms} = **{c1_max} Ω** **(1)**<br>Accept {c1_max_k} kΩ. Carry through an incorrect value from part (a).
 @end
-@part c | 1 | short | self 1
-ask: The resistor is measured with an ohmmeter, which reads {c1_measured_k} kΩ. State whether the resistor is within its stated tolerance. You must justify your answer.
-mi: Yes / it is within tolerance **(1)**, because {c1_measured} Ω lies between the minimum {c1_min} Ω and the maximum {c1_max} Ω. <br>No mark for "yes" on its own — the justification must quote the range.
-@end
 @end
 
-@q C2 | core | struct | 6
+@q C2 | core | struct | 7
 keyarea: Ohm's law and resistors in series (booklet L4, L5)
 given: c2_supply,c2_r1_k,c2_r2_k
 parent: SQA 2022 Section 2 Q6(b) — same series pair with the supply given, but kilohm values, a current asked for in milliamperes, and a different quantity in the final part. The published answer is 1·2 V; none of the answers here match it.
@@ -148,12 +144,12 @@ answer: c2_current_ma
 unit: mA
 mi: V = IR **(1)**<br>{c2_supply} = I × {c2_total} **(1)**<br>I = {c2_current} A = **{c2_current_ma} mA** **(1)**<br>The unit is required. Accept {c2_current} A written in standard form.
 @end
-@part c | 2 | calc | auto 2
+@part c | 3 | calc | auto 2
 ask: Calculate the potential difference across the {c2_r1_k} kΩ resistor.
 relationship: ohm
 answer: c2_v1
 unit: V
-mi: V = IR<br>V = {c2_current} × {c2_r1} **(1)**<br>V = **{c2_v1} V** **(1)**<br>Accept {c2_v1_2sf} V. Carry through an incorrect current from part (b).
+mi: V = IR **(1)**<br>V = {c2_current} × {c2_r1} **(1)**<br>V = **{c2_v1} V** **(1)**<br>Accept {c2_v1_2sf} V. Carry through an incorrect current from part (b).
 @end
 @end
 
@@ -178,30 +174,23 @@ mi: The resistance increases / is not constant / the lamp is non-ohmic **(1)**.<
 @end
 @end
 
-@q P1 | push | struct | 5
+@q P1 | push | struct | 4
 keyarea: Combination circuit — parallel then series (booklet L6)
 parent: SQA 2023 Section 2 Q6 — same switched parallel-plus-series structure, new resistances, a new context and a different question order. The published answers are 0·20 A and 42 Ω; neither appears here.
 context: A gardener builds a soil-warming system for a greenhouse, powered from a {p1_supply} V supply. Two heating cables, each of resistance {p1_cable} Ω, are connected in parallel. A {p1_protect} Ω resistor protects the supply. Switch S brings the second cable into the circuit.
 diagram: p1_circuit
-@part a | 3 | calc | auto 2
+@part _ | 4 | calc | auto 2
 ask: Determine the total resistance of the circuit when switch S is closed.
 relationship: parallel
 answer: p1_total
 unit: Ω
-mi: 1/R<sub>P</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> **(1)**<br>1/R<sub>P</sub> = 1/{p1_cable} + 1/{p1_cable}, so R<sub>P</sub> = {p1_parallel} Ω **(1)**<br>R<sub>T</sub> = {p1_parallel} + {p1_protect} = **{p1_total} Ω** **(1)**<br>Using R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> for the parallel pair scores 0 for the whole part.
-@end
-@part b | 2 | calc | auto 2
-ask: Determine the reading on the ammeter when switch S is closed.
-relationship: ohm
-answer: p1_current
-unit: A
-mi: V = IR<br>{p1_supply} = I × {p1_total} **(1)**<br>I = **{p1_current} A** **(1)**<br>Carry through an incorrect total resistance from part (a). The unit is required.
+mi: 1/R<sub>P</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> **(1)**<br>1/R<sub>P</sub> = 1/{p1_cable} + 1/{p1_cable} **(1)**<br>R<sub>P</sub> = {p1_parallel} Ω **(1)**<br>R<sub>T</sub> = {p1_parallel} + {p1_protect} = **{p1_total} Ω** **(1)**<br>Using R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> for the parallel pair scores 0 for the whole part.
 @end
 @end
 
-@q P2 | push | open | 2 | self 2
+@q P2 | push | open | 3 | self 3
 keyarea: Reasoning about parallel circuits (booklet L6)
 parent: SQA 2022 Section 2 Q6(c)(ii) and SQA 2023 Section 2 Q6(b)(ii) — the same "state the effect and justify it" demand, moved into the greenhouse context and framed as a claim to be judged.
 stem: With switch S closed, the gardener now connects a third identical {p1_cable} Ω heating cable in parallel with the other two. A friend says:<blockquote>"Adding another cable adds more resistance to the circuit, so the reading on the ammeter will fall."</blockquote>State whether the friend is correct, and justify your answer using the physics of parallel circuits.
-mi: The ammeter reading increases, so the friend is **not** correct **(1)**.<br>Adding another cable in parallel gives the current more paths, so the <strong>total resistance of the circuit decreases</strong> (and with the same supply voltage, V = IR gives a larger current) **(1)**.<br>Award the first mark only if a justification is attempted. A justification by calculation is acceptable: with three cables R<sub>P</sub> = {p1_parallel3} Ω, R<sub>T</sub> = {p1_total3} Ω and I = {p1_current3} A, which is larger than {p1_current} A.
+mi: The ammeter reading increases, so the friend is **not** correct **(1)**.<br>Adding another cable in parallel gives the current more paths, so the <strong>total resistance of the circuit decreases</strong> **(1)**.<br>The supply voltage is unchanged, so by V = IR the current is <strong>larger</strong> **(1)**.<br>Award the first mark only if a justification is attempted. A justification by calculation is acceptable: with three cables R<sub>P</sub> = {p1_parallel3} Ω, R<sub>T</sub> = {p1_total3} Ω and I = {p1_current3} A, which is larger than the {p1_current} A with two cables.
 @end

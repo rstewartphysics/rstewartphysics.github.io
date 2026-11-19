@@ -187,7 +187,7 @@ mi: <strong>Gravitational potential</strong> energy changes into <strong>kinetic
 @end
 
 @part c | 1 | explain | self 1
-ask: Explain why the marble stops on the flat section. Use the words <em>kinetic energy</em> and <em>friction</em> in your answer.
+ask: Explain why the marble stops on the flat section. Use the word <em>friction</em> in your answer.
 mi: On the flat section there is no drop, so the marble gains no more kinetic energy (what); friction keeps changing its kinetic energy into heat until none is left, so it stops (why). (1)
 @end
 
