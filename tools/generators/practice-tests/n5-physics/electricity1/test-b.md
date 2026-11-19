@@ -38,21 +38,21 @@ p1_vprotect: 4.4
 
 @q W1 | warmup | mcq | 1 | auto 1
 keyarea: Connecting meters to measure resistance (booklet L2, L3)
-parent: SQA 2020 Paper 1 Q13 — the same "which arrangement lets the resistance of R be found" test, put into words rather than five small circuit diagrams so it reads on a phone.
+parent: SQA 2020 Section 1 Q13 — the same "which arrangement lets the resistance of R be found" test, put into words rather than five small circuit diagrams so it reads on a phone.
 stem: A pupil wants to measure the resistance of a resistor R. Which row describes how the meters must be connected?
-option: ammeter in parallel with R, voltmeter in series with R
 option: ammeter in series with R, voltmeter in parallel with R
+option: ammeter in parallel with R, voltmeter in series with R
 option: ammeter in series with R, voltmeter in series with R
 option: ammeter in parallel with R, voltmeter in parallel with R
-option: ammeter in series with R, voltmeter across the supply
-key: B
+option: ammeter in series with R, voltmeter in parallel with the ammeter
+key: A
 mi: The ammeter must be in series so the whole current passes through it, and the voltmeter must be in parallel with R so it measures the voltage across R alone. R is then found from <var>R</var> = <var>V</var> ÷ <var>I</var>.
 wrong: An ammeter in parallel short-circuits the component it is meant to measure; a voltmeter in series stops almost all the current.
 @end
 
 @q W2 | warmup | mcq | 1 | auto 1
 keyarea: Definition of voltage (booklet L2)
-parent: SQA 2014 Paper 1 Q1 — the same "the voltage of a supply is a measure of" stem with a reordered option set.
+parent: SQA 2014 Section 1 Q1 — the same "the voltage of a supply is a measure of" stem with a reordered option set.
 stem: The voltage of an electrical supply is a measure of the
 option: resistance of the circuit
 option: current in the circuit
@@ -61,12 +61,12 @@ option: charge passing a point in the circuit each second
 option: speed of the charges in the wires
 key: C
 mi: Voltage is the energy transferred to each coulomb of charge passing through the supply — that is why one volt is one joule per coulomb.
-wrong: "Charge passing a point each second" is the definition of <em>current</em>, not voltage. Charges drift slowly; their speed has nothing to do with the supply voltage.
+wrong: "Charge passing a point each second" is the definition of <em>current</em>, not voltage. Voltage is not a speed: it is the energy given to each coulomb, not how fast the charges move.
 @end
 
 @q W3 | warmup | mcq | 1 | auto 1
 keyarea: Resistors in parallel (booklet L6)
-parent: SQA 2016 Paper 1 Q4 — the same two-unequal-resistors-between-two-terminals question, with different values so the answer is not the published one.
+parent: SQA 2016 Section 1 Q4 — the same two-unequal-resistors-between-two-terminals question, with different values so the answer is not the published one.
 diagram: w3_network
 stem: Two resistors are connected as shown. The total resistance between P and Q is
 options_from: w3
@@ -77,7 +77,7 @@ wrong: Stopping at 1/R<sub>T</sub> = {w3_recip} and not inverting gives {w3_unin
 
 @q W4 | warmup | mcq | 1 | auto 1
 keyarea: Ohm's law, one step (booklet L4)
-parent: SQA 2025 Paper 1 Q13 — the same single-resistor application of V = IR, rearranged to ask for the voltage rather than the resistance, with new values.
+parent: SQA 2025 Section 1 Q13 — a series pair read through a voltmeter, cut here to one resistor and one step of V = IR asking for the voltage.
 stem: A {w4_r} Ω resistor carries a current of {w4_i} A. The voltage across the resistor is
 options_from: w4
 key: computed
@@ -91,10 +91,10 @@ parent: ORIGINAL — booklet L4 teaches the temperature-resistance relationship 
 stem: A metal wire is connected across a supply of constant voltage. The temperature of the wire rises. Which row describes the resistance of the wire and the current in it?
 option: resistance decreases, current decreases
 option: resistance decreases, current increases
-option: resistance increases, current decreases
 option: resistance increases, current increases
+option: resistance increases, current decreases
 option: resistance stays the same, current stays the same
-key: C
+key: D
 mi: Heating a metal makes its ions vibrate more, so the electrons collide with them more often and the resistance <strong>increases</strong>. The supply voltage is unchanged, so by V = IR a larger resistance means a <strong>smaller</strong> current.
 wrong: A thermistor's resistance falls as it warms, but a plain metal wire behaves the opposite way. Resistance and current cannot both rise at a fixed voltage.
 @end
@@ -102,10 +102,12 @@ wrong: A thermistor's resistance falls as it warms, but a plain metal wire behav
 @q C1 | core | struct | 4
 keyarea: Resistors in series and Ohm's law (booklet L4, L5)
 given: c1_supply,c1_r1,c1_r2
-parent: SQA 2017 Paper 2 Q2(a)(i) — the same series pair across a known supply, with new resistances and the current asked for rather than the voltage across one resistor. The published answer is 7·50 V.
+parent: SQA 2017 Section 2 Q2(a)(i) — the same series pair across a known supply, with new resistances and the current asked for rather than the voltage across one resistor. The published answer is 7·50 V.
 context: A pupil sets up the circuit shown.
 diagram: c1_series
 @part a | 1 | value | auto 1
+sf: 0
+tol: 0.001
 ask: Calculate the total resistance of the circuit.
 answer: c1_total
 unit: Ω
@@ -148,7 +150,7 @@ mi: Yes / it is within tolerance **(1)**, because {c2_measured} Ω lies between 
 @q C3 | core | struct | 5
 keyarea: Resistors in parallel (booklet L6)
 given: c3_supply,c3_r1,c3_r2
-parent: SQA 2014 Paper 2 Q1(b)(i) — the same parallel network across a supply, with two unequal resistors instead of the published three and new values. The published answer is 20 Ω.
+parent: SQA 2014 Section 2 Q1(b)(i) — the same parallel network across a supply, with two unequal resistors instead of the published three and new values. The published answer is 20 Ω.
 context: Two resistors are connected in parallel across a {c3_supply} V supply, as shown.
 diagram: c3_parallel
 @part a | 3 | calc | auto 2
@@ -169,7 +171,7 @@ mi: Both resistors have the full supply voltage across them, because they are in
 
 @q P1 | push | struct | 5
 keyarea: Series voltage sharing to find an unknown resistance (booklet L2, L4)
-parent: SQA 2018 Paper 2 Q6(b)(ii) — the same "component in series with a protection resistor, find the unknown value from the shared voltage" problem, moved out of an LED circuit into a heating element so no electronics knowledge is needed. The published answer is 72 Ω.
+parent: SQA 2018 Section 2 Q6(b)(ii) — the same "component in series with a protection resistor, find the unknown value from the shared voltage" problem, moved out of an LED circuit into a heating element so no electronics knowledge is needed. The published answer is 72 Ω.
 context: A technician tests a heating element. The element is connected in series with a {p1_protect} Ω protection resistor across a {p1_supply} V supply. A voltmeter across the protection resistor reads {p1_vprotect} V.
 diagram: p1_circuit
 @part a | 2 | calc | auto 2
@@ -190,7 +192,7 @@ mi: In series the supply voltage is shared: V<sub>element</sub> = {p1_supply} �
 
 @q P2 | push | open | 2 | self 2
 keyarea: Reasoning about series circuits (booklet L2, L4)
-parent: SQA 2017 Paper 2 Q2(b)(ii) — the same "state the effect on a meter reading and justify it" demand, applied to the voltmeter in this circuit rather than to the power in a motor.
+parent: SQA 2017 Section 2 Q2(b)(ii) — the same "state the effect on a meter reading and justify it" demand, applied to the voltmeter in this circuit rather than to the power in a motor.
 stem: The technician now fits a different heating element, one with a <strong>lower</strong> resistance than the first. The {p1_protect} Ω protection resistor and the {p1_supply} V supply are unchanged.<br><br>State what happens to the reading on the voltmeter, and justify your answer.
 mi: The reading <strong>increases</strong> **(1)**.<br>A lower element resistance makes the <strong>total resistance of the circuit smaller</strong>, so the current is larger. That larger current passes through the {p1_protect} Ω protection resistor too, and by V = IR a larger current through an unchanged resistance gives a larger voltage across it **(1)**.<br>Award the first mark only if a justification is attempted. A justification by calculation is acceptable.
 @end

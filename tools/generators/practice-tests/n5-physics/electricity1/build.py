@@ -45,10 +45,10 @@ def compute(v):
     d["w4_a2"] = P.fixed(a2, 2)
     d["w4_a3"] = P.fixed(a3, 2)
     d["w4_sum"] = P.fixed(a1 + a2, 2)
-    d["w4_options"] = [P.fixed(a3 / 2.0, 2) + " A", P.fixed(a3, 2) + " A",
+    d["w4_options"] = [P.fixed(a3, 2) + " A", P.fixed(a1 / 2.0, 2) + " A",
                        P.fixed(a2, 2) + " A", P.fixed(a1, 2) + " A",
                        P.fixed(a1 + a2, 2) + " A"]
-    d["w4_key"] = 1
+    d["w4_key"] = 0
 
     # W5 — one resistor in series with a parallel pair
     rp = 1.0 / (1.0 / n["w5_parallel"] + 1.0 / n["w5_parallel"])
@@ -102,7 +102,7 @@ def compute(v):
     d["c2_current"] = P.fm(cur * 1000, 2) + " × 10⁻³"
     d["c2_current_ma"] = P.fm(cur * 1000, 2)
     d["c2_v1"] = P.fm(v1, 3)
-    d["c2_v1_2sf"] = P.fm(v1, 2)
+    d["c2_v1_2sf"] = P.fm_sf(v1, 2)
     d["_num"].update({"c2_total_k": (tot2 / 1000.0, "kΩ"),
                       "c2_current_ma": (cur * 1000, "mA"),
                       "c2_v1": (v1, "V")})

@@ -137,6 +137,7 @@ def main():
     d = compute(values)
     dia = diagrams(values, d)
     data = P.payload(qs, d)
+    P.use(credit=P.PROFILE["credit"].replace("the resistor colour-code question is original", "the resistor colour-code question and question 5 are original"))
     html = P.page(meta, qs, d, dia, data)
 
     errs, warns = P.check(html, meta, qs, d, values)
