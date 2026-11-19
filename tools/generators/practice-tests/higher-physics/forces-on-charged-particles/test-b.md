@@ -23,14 +23,14 @@ e_charge: 1.60e-19
 m_proton: 1.673e-27
 m_electron: 9.11e-31
 m_alpha: 6.645e-27
-w3_charge: 8.0e-6
+w3_charge: 7.5e-6
 w3_work: 3.6e-3
-c1_pd: 3200
+c1_pd: 3500
 c2_pd: 15000
-p1_pd: 9000
+p1_pd: 5330
 p1_mass: 3.82e-26
-p1_u: 5.0e5
-p1_v: 1.4e6
+p1_u: 1.4e5
+p1_v: 3.3e5
 @end
 
 @q W1 | warmup | mcq | 1 | auto 1
@@ -60,7 +60,7 @@ option: towards the bottom of the page
 option: towards the left of the page
 key: D
 mi: An alpha particle is <strong>positive</strong>, so the conventional current is in its own direction of travel — to the right. Left hand: first finger out of the page, second finger to the right, and the thumb points <strong>towards the bottom of the page</strong>.
-wrong: "Towards the top" is the answer for a field into the page — check the dots against the crosses before you start. "Into" or "out of the page" is a field direction, never a force direction: the force is at right angles to both the field and the direction of travel.
+wrong: "Towards the top" is the answer for a field into the page — check the dots against the crosses before you start. "Into" or "out of the page" cannot be right here: the force is at right angles to the field, and this field is already out of the page.
 @end
 
 @q W3 | warmup | mcq | 1 | auto 1
@@ -70,7 +70,7 @@ stem: A charge of {w3_charge} C is moved between two points in an electric field
 options_from: w3
 key: computed
 mi: E<sub>w</sub> = QV, so V = E<sub>w</sub> ÷ Q = {w3_work} ÷ {w3_charge} = <strong>{w3_pd} V</strong>.
-wrong: Multiplying instead of dividing gives {w3_mult} V; dividing the other way round gives {w3_flip} V. Write the relationship down before rearranging it and neither mistake is available.
+wrong: Multiplying instead of dividing gives {w3_mult} V; dividing the other way round gives {w3_flip} V. {w3_work} V is the work done copied across, not a potential difference. Half the right answer comes from E = ½QV, the energy stored in a capacitor, not the work done moving a charge. Write E<sub>w</sub> = QV down before rearranging it.
 @end
 
 @q W4 | warmup | mcq | 1 | auto 1
@@ -126,18 +126,18 @@ mi: All the work done becomes kinetic energy, so E<sub>k</sub> = ½<var>m</var><
 @q C2 | core | struct | 5
 keyarea: Accelerating an electron in a linear accelerator
 given: c2_pd_kv
-parent: SQA Higher 2017 Paper 2 Q8(a) — the same X-ray linear accelerator with electrons crossing the gap between drift tubes, given a new accelerating voltage, so the answer differs from the published 4·00 × 10⁻¹⁶ J.
-context: An X-ray machine contains a linear accelerator that accelerates electrons towards a metal target. The electrons are accelerated across the gap from P to Q by a potential difference of {c2_pd_kv} kV.
+parent: SQA Higher 2017 Paper 2 Q8(a)(i) — the same X-ray linear accelerator with electrons crossing the gap between drift tubes, given a new accelerating voltage, so the answer differs from the published 4·00 × 10⁻¹⁶ J.
+context: An X-ray machine contains a linear accelerator that accelerates electrons towards a metal target. The electrons are accelerated across each gap between the tubes by a potential difference of {c2_pd_kv} kV.
 diagram: c2_linac
 @part a | 2 | calc | auto 2
-ask: Calculate the work done on an electron as it accelerates from P to Q.
+ask: Calculate the work done on an electron as it is accelerated across gap P.
 relationship: work
 answer: c2_work
 unit: J
 mi: E<sub>w</sub> = QV **(1)**<br>= {e_charge_disp} × {c2_pd} = <strong>{c2_work_disp} J</strong> **(1)**<br>Ignore a negative sign on the charge.
 @end
 @part b | 3 | calc | auto 2
-ask: The electron starts from rest at P. Determine its speed as it reaches Q.
+ask: An electron enters gap P from rest. Determine its speed as it leaves gap P.
 relationship: ek
 answer: c2_speed
 unit: m s⁻¹
@@ -164,7 +164,7 @@ mi: <strong>Upwards</strong> — towards the positive plate **(1)**.<br>A negati
 keyarea: Finding the charge on an ion from the kinetic energy it gains
 given: p1_u_disp,p1_v_disp
 parent: SQA Higher 2022 Paper 2 Q7(b)(iii) — the same "kinetic energy at the far plate, given the energy at the near plate" chain, turned round so the unknown is the charge on the particle rather than its final speed. The published answer is a speed of 8·3 × 10⁵ m s⁻¹; this question does not ask for a speed.
-context: An ion of mass {p1_mass_disp} kg enters the gap between two charged plates travelling at {p1_u_disp} m s⁻¹, and leaves it travelling at {p1_v_disp} m s⁻¹. The potential difference across the gap is {p1_pd_kv} kV.
+context: A positive ion of mass {p1_mass_disp} kg passes through a small hole in plate A travelling at {p1_u_disp} m s⁻¹, and reaches plate B travelling at {p1_v_disp} m s⁻¹. The potential difference between the plates is {p1_pd_kv} kV.
 diagram: p1_plates
 @part a | 3 | calc | auto 2
 ask: Calculate the kinetic energy gained by the ion as it crosses the gap.
@@ -178,7 +178,7 @@ ask: Determine the charge on the ion.
 relationship: work
 answer: p1_charge
 unit: C
-mi: All the work done on the ion becomes kinetic energy, so E<sub>w</sub> = QV **(1)**<br>Q = {p1_gain_disp} ÷ {p1_pd} = <strong>{p1_charge_disp} C</strong> **(1)**<br>Or consistent with part (a). That is about {p1_charge_n} times the charge on an electron, which is reasonable for a heavily ionised atom.
+mi: All the work done on the ion becomes kinetic energy, so E<sub>w</sub> = QV **(1)**<br>Q = {p1_gain_disp} ÷ {p1_pd} = <strong>{p1_charge_disp} C</strong> **(1)**<br>Or consistent with part (a). That is {p1_charge_n} times the charge on an electron: the ion has lost {p1_charge_n} electrons.
 @end
 @end
 

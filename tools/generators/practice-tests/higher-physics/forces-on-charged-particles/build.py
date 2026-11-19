@@ -46,6 +46,7 @@ def compute(v):
     d["w3_pd"] = P.fm(v3)
     d["w3_work"] = P.sci(w3, 2)
     d["w3_div"] = P.sci(q3 / v3, 2)
+    d["w3_flip"] = P.sci(v3 / q3, 2)
     d["w3_options"] = [P.sci(q3 / v3, 2) + " J", P.sci(w3, 2) + " J",
                        P.sci(v3 / q3, 2) + " J", P.sci(q3, 2) + " J",
                        P.fm(v3) + " J"]
@@ -106,7 +107,7 @@ def diagrams(v, d):
         "w1_charges": F.charge_row(
             [-1, 1, 1], ["Q", "R", "S"],
             "Three point charges. The field lines around Q point inwards "
-            "towards it; those around R and S point outwards away from them."),
+            "towards it; those around R and S point outwards away from them.", mark=False),
         "w2_field": F.particle_in_field(
             into=True, particle="electron", motion="down",
             region_label="region of magnetic field into page",
@@ -134,7 +135,7 @@ def diagrams(v, d):
             label="A linear accelerator: four hollow metal drift tubes of "
                   "increasing length in a line, wired alternately to an "
                   "alternating supply. The proton beam travels along the axis, "
-                  "crossing the gap R and then the gap S."),
+                  "crossing the first gap, from R on one side to S on the other."),
     }
 
 
