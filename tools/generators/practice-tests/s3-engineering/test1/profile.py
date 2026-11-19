@@ -63,7 +63,7 @@ CREDIT = ("Sources &amp; credits: questions written for this site for S3 Enginee
 
 
 def apply(meta):
-    P.use(css="/assets/css/engineering-science.css?v=eng-20261014c",
+    P.use(css="/assets/css/engineering-science.css?v=eng-20261119a",
           band={"style": "--bb-a:#006e74; --bb-b:#0a5f57", "icon": "ic-quiz",
                 "icon_style": "--ic-accent:var(--eng-ink-teal)", "sub": "S3 Engineering Science"},
           progress_js="/assets/js/progress/eng-s3.js",
