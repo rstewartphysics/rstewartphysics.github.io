@@ -112,7 +112,7 @@ mi: To find any faults and fix them (what) <strong>before</strong> they are unde
 
 @part c | 1 | explain | self 1
 ask: Describe <strong>one positive</strong> effect the scheme could have on the people living on the islands.
-mi: Any one, with its reason, for example: a reliable local electricity supply, so homes are less likely to lose power · new jobs for local people, so families can stay on the islands. (1)
+mi: Any one, with its reason, for example: a reliable local electricity supply, so homes are less likely to lose power · new transport links or facilities built for the scheme, so islanders can travel or use them. (1)<br>Jobs or money are economic effects, credited in (d), not here.
 @end
 
 @part d | 1 | explain | self 1
@@ -131,7 +131,7 @@ mi: A real named project, for example Whitelee Wind Farm, the Pitlochry hydro sc
 @end
 @end
 
-@q A12 | s2 | struct | 8 | auto 4
+@q A12 | s2 | struct | 8 | auto 2
 keyarea: SC 12–16 — energy in the tidal scheme
 parent: ORIGINAL — numbers checked against the real test, L4 and all mini tests.
 context: An electric drill is used to build the turbine frames.
@@ -141,24 +141,22 @@ ask: In your jotter, draw an energy transfer diagram for the electric drill. Sho
 mi: {q12a_model}Mark 1: <strong>electrical</strong> in, <strong>kinetic</strong> as the useful output. (1)<br>Mark 2: <strong>heat</strong> or <strong>sound</strong> shown as wasted, on its own arrow. (1)<br>If heat or sound is drawn as a useful output, the second mark is lost.
 @end
 
-@part b | 2 | calc | auto 2
+@part b | 2 | calc | auto 1
 ask: One tidal turbine takes in {eff_in_d} J of kinetic energy from the water and gives out {eff_out_d} J of electrical energy. Calculate its percentage efficiency.
-relationship: eff
 answer: eff
 unit: %
 sf: 0
 tol: 0.005
-mi: Relationship: <var>η</var> = <var>E</var><sub>out</sub> / <var>E</var><sub>in</sub> × 100 (1)<br>Substitution and answer: {eff_out_d} / {eff_in_d} × 100 = <strong>{eff_ans} %</strong> (1)<br>0·{eff_ans} with no × 100 and no % does not get the second mark.
+mi: Substitution: {eff_out_d} / {eff_in_d} (× 100) (1)<br>Answer: <strong>{eff_ans} %</strong> (1)<br>The substitution mark stands whether or not × 100 is shown. 0·{eff_ans} with no conversion to a percentage does not get the second mark.
 @end
 
-@part c | 2 | calc | auto 2
+@part c | 2 | calc | auto 1
 ask: The drill transfers {pow_e_d} J of energy in {pow_t} s. Calculate its power.
-relationship: power
 answer: pow
 unit: W
 sf: 0
 tol: 0.005
-mi: Relationship: <var>P</var> = <var>E</var> / <var>t</var> (1)<br>Substitution and answer: {pow_e_d} / {pow_t} = <strong>{pow_ans} W</strong> (1)
+mi: Substitution: <var>P</var> = {pow_e_d} / {pow_t} (1)<br>Answer: <strong>{pow_ans} W</strong> (1)<br>Accept 0·6 kW or 600 J/s. Wrong or missing unit: final mark = 0.
 @end
 
 @part d | 1 | explain | self 1
@@ -180,16 +178,16 @@ diagram: run
 
 @part a | 1 | explain | self 1
 ask: Name the form of energy the marble has at the start, before it is let go.
-mi: <strong>Gravitational potential</strong> energy. (1)<br>Bare "potential" = 0.
+mi: <strong>Gravitational potential</strong> energy. (1)<br>Accept "potential energy" (the data booklet's name for <var>E</var><sub>p</sub>). Do not accept "stored" or "elastic".
 @end
 
 @part b | 1 | explain | self 1
 ask: Describe the energy change as the marble rolls down the first slope.
-mi: <strong>Gravitational potential</strong> energy changes into <strong>kinetic</strong> energy. (1)
+mi: <strong>Gravitational potential</strong> energy changes into <strong>kinetic</strong> energy. (1)<br>Accept "potential energy" for gravitational potential energy.
 @end
 
 @part c | 1 | explain | self 1
-ask: Explain why the marble stops on the flat section. Use the words <em>kinetic energy</em> and <em>friction</em> in your answer.
+ask: Explain why the marble stops on the flat section. Use the word <em>friction</em> in your answer.
 mi: On the flat section there is no drop, so the marble gains no more kinetic energy (what); friction keeps changing its kinetic energy into heat until none is left, so it stops (why). (1)
 @end
 

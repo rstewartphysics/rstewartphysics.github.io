@@ -109,7 +109,7 @@ def compute(v):
     d["p1_velement"] = P.fixed(vel, 1)
     d["p1_element"] = P.fm(rel, 3)
     d["p1_total"] = P.fm(sup / cur, 4)
-    d["_num"].update({"p1_current": (cur, "A"), "p1_element": (rel, "Ω")})
+    d["_num"].update({"p1_element": (rel, "Ω")})
     return d
 
 
@@ -137,6 +137,7 @@ def main():
     d = compute(values)
     dia = diagrams(values, d)
     data = P.payload(qs, d)
+    P.use(credit=P.PROFILE["credit"].replace("the resistor colour-code question is original", "the resistor colour-code question and question 5 are original"))
     html = P.page(meta, qs, d, dia, data)
 
     errs, warns = P.check(html, meta, qs, d, values)
