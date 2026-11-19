@@ -59,7 +59,7 @@ def compute_a(n):
         "p2_thot_disp": P.sci(n["p2_thot"], 2).replace("8500", "8.5 × 10³"),
         "p2_tcool_disp": P.sci(n["p2_tcool"], 2).replace("3800", "3.8 × 10³"),
         "p3_sun": temp(n["p3_sun"]), "p3_vega": temp(n["p3_vega"]),
-        "p3_wd_disp": temp(n["p3_wd"]),
+        "p3_wd_disp": temp(n["p3_wd"]), "p3_mu": temp(n["p2_tcool"]),
     })
     # the four panels, in an order that is not the published one
     panels = [("the Sun", n["p3_sun"]), ("40 Eridani B", n["p3_wd"]),
@@ -121,16 +121,15 @@ def diagrams_a(n, d):
                     (6000, 1.5, "D")],
             label="An H-R diagram of luminosity in solar units against surface "
                   "temperature, hot on the left. The main sequence runs from top "
-                  "left to bottom right. Star A is on the main sequence near the "
-                  "top left. Star B is hot and very faint, at the bottom left. "
-                  "Star C is cool and very luminous, above and to the right of "
-                  "the main sequence. Star D is on the main sequence near the Sun."),
+                  "left to bottom right. Star A: about 25 000 K, 2 × 10⁴ solar "
+                  "units. Star B: about 12 000 K, 4 × 10⁻³ solar units. Star C: "
+                  "about 4200 K, 250 solar units. Star D: about 6000 K, 1.5 solar "
+                  "units."),
         "p1_hr": HR.hr_diagram(
             points=[(n["p1_t"], HR.luminosity(n["p1_t"], n["p1_rsol"]), "X")],
             label="An H-R diagram with dashed lines of constant radius from "
                   "10⁻³ to 10³ solar radii. Star X is at a surface temperature of "
-                  "about %s K and a luminosity of about 6 × 10⁻³ solar units, in "
-                  "the bottom-left region, on the 10⁻² solar radii line." % d["p1_t"]),
+                  "about %s K and a luminosity of about 6 × 10⁻³ solar units." % d["p1_t"]),
         "p3_spectra": HR.spectra(
             [("spectrum " + "ABCD"[i], T) for i, (_, T) in enumerate(d["_panels"])],
             label="Four graphs of intensity against wavelength from 0 to 1200 nm, "
@@ -145,9 +144,9 @@ def diagrams_b(n, d):
         "w1_hr": HR.hr_diagram(
             region_labels={"main sequence": "P", "giants": "Q",
                            "supergiants": "R", "white dwarfs": "S"},
-            label="An H-R diagram with four regions labelled. P is beside the "
-                  "main-sequence line that runs from top left to bottom right. "
-                  "Q is above the main sequence on the cool, right-hand side. R "
+            label="An H-R diagram with four regions labelled. A thick line runs "
+                  "from top left to bottom right, and P is beside it. "
+                  "Q is above that line on the cool, right-hand side. R "
                   "is at the very top. S is at the bottom left, hot but faint."),
     }
 

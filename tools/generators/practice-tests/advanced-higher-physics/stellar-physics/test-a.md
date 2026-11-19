@@ -23,7 +23,7 @@ c1_d: 5.3e18
 c1_b: 8.5e-8
 c1_r: 4.7e11
 c2_t: 5340
-c2_r: 5.52e8
+c2_r: 5.56e8
 c2_ly: 11.9
 p1_t: 16000
 p1_rsol: 0.01
@@ -36,7 +36,7 @@ p3_wd: 16500
 
 @q W1 | warmup | mcq | 1 | auto 1
 keyarea: The proton–proton chain
-parent: SQA Advanced Higher 2020 Q6(a) — "state the name given to the series of fusion reactions", set as multiple choice for a new star.
+parent: SQA Advanced Higher 2021 Q6(a) — "state the name given to the series of fusion reactions", set as multiple choice for a new star.
 stem: Tau Ceti is a main-sequence star a little smaller than the Sun. In its core, hydrogen is converted to helium by a series of fusion reactions. What is this series of reactions called?
 option: nuclear fission
 option: the proton–proton chain
@@ -45,7 +45,7 @@ option: the triple-alpha process
 option: pair production
 key: B
 mi: <strong>The proton–proton chain</strong> (the p–p chain). Hydrogen nuclei fuse, step by step, to make helium-4.
-wrong: Fission splits heavy nuclei. It does not power stars. The triple-alpha process fuses <em>helium</em> to carbon. That happens later, in a giant's core.
+wrong: Fission splits heavy nuclei. It does not power stars. Beta decay and pair production are single events, not a chain of fusions. The triple-alpha process fuses <em>helium</em> to carbon. That happens later, in a giant's core.
 @end
 
 @q W2 | warmup | mcq | 1 | auto 1
@@ -59,7 +59,7 @@ option: Star C
 option: Star D
 key: C
 mi: <strong>Star C.</strong> It is cool (about 4000 K, on the right) but very luminous (about 250 times the Sun). Cool and bright means it must be very large. That is a red giant.<br>A and D lie on the main sequence. B is hot but faint, so it is a white dwarf.
-wrong: Star A is the most luminous, but it lies on the main sequence and is hot and blue-white. Giants sit <strong>above and to the right</strong> of the main sequence.
+wrong: Star A is very luminous, but it is hot and on the main sequence. Star D is on the main sequence too. Star B is hot but faint: a white dwarf. Giants sit <strong>above and to the right</strong> of the main sequence.
 @end
 
 @q W3 | warmup | mcq | 1 | auto 1
@@ -73,7 +73,7 @@ option: Hydrogen nuclei in the core begin to split.
 option: Iron fusion in the core begins.
 key: A
 mi: <strong>Hydrogen fusion in the core stops</strong>, because the hydrogen in the core runs out.
-wrong: Helium fusion has not started yet at this point. It starts later, when the core has shrunk and heated up.
+wrong: Helium fusion has not started yet at this point. It starts later, when the core has shrunk and heated up. Core hydrogen fusion does not speed up: the core hydrogen has run out. Stars fuse nuclei; they do not split them. Iron is never fused for energy.
 @end
 
 @q W4 | warmup | mcq | 1 | auto 1
@@ -87,7 +87,7 @@ option: The star gains mass from the space around it.
 option: Fusion stops everywhere in the star, so it cools and expands.
 key: A
 mi: <strong>Thermal pressure is greater than gravity.</strong> Hydrogen fuses in a shell around the core. This raises the outward pressure, so the outer layers are pushed out.<br>The mark needs a <strong>comparison</strong> of the two forces.
-wrong: "Balanced" describes a main-sequence star. A balanced star stays the same size.
+wrong: "Balanced" describes a main-sequence star, which stays the same size. If gravity were greater, the star would shrink. The star gains no mass, and fusion does not stop: hydrogen now fuses in a shell around the core.
 @end
 
 @q W5 | warmup | mcq | 1 | auto 1
@@ -128,7 +128,7 @@ mi: <var>L</var> = 4π<var>r</var><sup>2</sup><var>σT</var><sup>4</sup> **(1)**
 @q C2 | core | struct | 7
 keyarea: Luminosity from radius and temperature, then apparent brightness over a distance in light-years
 given: c2_t,c2_r,c2_ly
-parent: SQA Advanced Higher 2020 Q6(b)(i)–(ii) — the same two steps for a new Sun-like star, with every number changed. The published answers are 6.74 × 10²⁶ W and 2.37 × 10⁻¹¹ W m⁻²; these are not.
+parent: SQA Advanced Higher 2021 Q6(b)(i)–(ii) — the same two steps for a new Sun-like star, with every number changed. The published answers are 6.74 × 10²⁶ W and 2.37 × 10⁻¹¹ W m⁻²; these are not.
 context: Tau Ceti is a Sun-like star. Its surface temperature is {c2_t} K and its radius is {c2_r_disp} m.
 @part a | 3 | calc | auto 2
 ask: Calculate the luminosity of Tau Ceti.
@@ -174,7 +174,7 @@ mi: <strong>Greater than</strong> **(1)**.<br>The luminosities are about the sam
 @q P3 | push | struct | 3
 keyarea: Matching black-body spectra to stars by peak wavelength
 parent: SQA Advanced Higher 2025 Q5(c) — the same four-spectra table, for four new stars with their temperatures given. The published stars were Betelgeuse, Rigel, Sirius B and the Sun.
-context: A star's spectrum can be approximated as a black-body spectrum. The surface temperatures of four stars are: the Sun, {p3_sun} K; Vega, {p3_vega} K; 40 Eridani B, {p3_wd_disp} K; Mu Cephei, {p2_tcool_disp} K. The black-body spectra of the four stars are shown below.
+context: A star's spectrum can be approximated as a black-body spectrum. The surface temperatures of four stars are: the Sun, {p3_sun} K; Vega, {p3_vega} K; 40 Eridani B, {p3_wd_disp} K; Mu Cephei, {p3_mu} K. The black-body spectra of the four stars are shown below.
 diagram: p3_spectra
 @part _ | 3 | explain | self 3
 ask: By considering the peak wavelength of each spectrum, match each star to its spectrum. Write each star and its spectrum letter in your jotter.
