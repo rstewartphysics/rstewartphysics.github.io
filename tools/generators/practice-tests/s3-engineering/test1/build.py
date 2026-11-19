@@ -119,7 +119,7 @@ def marble_run_fault():
     s.append('<line x1="408" y1="150" x2="80" y2="198" %s/>' % rail)
     s.append('<line x1="36" y1="180" x2="36" y2="238" %s/>' % wall)
     s.append('<line x1="44" y1="238" x2="360" y2="238" %s/>' % rail)
-    s.append('<path d="M366 206 L372 244 L414 244 L420 206" style="fill:none;stroke:%s;'
+    s.append('<path d="M364 240 L370 264 L414 264 L420 240" style="fill:none;stroke:%s;'
              'stroke-width:4;stroke-linejoin:round"/>' % INK)
     s.append('<circle cx="60" cy="58" r="10" style="fill:none;stroke:%s;stroke-width:2;'
              'stroke-dasharray:4 3"/>' % INK)
@@ -129,7 +129,7 @@ def marble_run_fault():
     s.append(text(300, 84, "slope 1", size=20))
     s.append(text(236, 148, "slope 2", size=20))
     s.append(text(200, 262, "flat section", size=20))
-    s.append(text(393, 194, "cup", size=19))
+    s.append(text(392, 230, "cup", size=19))
     s.append(text(236, 209, "marble stops here", size=16, weight=900))
     s.append("</svg>")
     return "".join(s)

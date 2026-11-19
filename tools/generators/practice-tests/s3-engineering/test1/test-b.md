@@ -39,8 +39,8 @@ mi: <strong>Mechanical</strong> engineering. (1)
 @q B2 | s1 | open | 1 | self 1
 keyarea: SC 2 — what engineers do
 parent: ORIGINAL — written for this test.
-stem: Describe <strong>one</strong> task a <strong>chemical</strong> engineer might carry out.
-mi: Any one task, for example: develop a new fuel or plastic · design the process that makes a medicine · develop a paint or coating that stops metal rusting. (1)<br>A bare "works with chemicals" is too vague for the mark.
+stem: A chemical engineer works for a company that makes paint. Describe <strong>one</strong> task they might carry out.
+mi: Any one, for example: develop a paint that stops metal rusting · develop a paint that dries faster or lasts longer · test that the paint is safe to use. (1)<br>A bare "works with chemicals" is too vague for the mark.
 @end
 
 @q B3 | s1 | open | 1 | self 1
@@ -97,14 +97,14 @@ mi: {eff_out_d} / {eff_in_d} × 100 = <strong>{eff_ans} %</strong> (1)
 keyarea: SC 16 — energy use, cost and the environment
 parent: ORIGINAL — written for this test.
 stem: State <strong>one</strong> way a school could reduce its electricity bill.
-mi: Any one, for example: switch off lights and computers when rooms are empty · fit motion sensors or timers · replace old lamps with LEDs · insulate the building. (1)
+mi: Any one, for example: switch off lights and computers when rooms are empty · fit motion sensors or timers · replace old lamps with LEDs · insulate the building (if it is heated electrically). (1)
 @end
 
 @q B10 | s1 | open | 1 | self 1
 keyarea: SC 18 — teamwork
 parent: ORIGINAL — written for this test.
-stem: A team's model bridge keeps breaking. State <strong>one</strong> thing a good team would do next.
-mi: Any one, for example: test it together to find where it breaks · share ideas for a fix and agree on the best one · give one person the job of making the improvement. (1)
+stem: A team's model crane keeps tipping over. State <strong>one</strong> thing a good team would do next.
+mi: Any one, for example: test it together to find out why it tips over · share ideas for a fix and agree on the best one · give one person the job of making the improvement. (1)
 @end
 
 @q B11 | s2 | struct | 8 | self 8
@@ -113,13 +113,13 @@ parent: ORIGINAL — hypothetical context written for this test.
 context: A new hospital is to be built on the edge of Edinburgh. It will have operating theatres, lifts, a heating system and solar panels on the roof. Building work will take three years.
 
 @part a | 1 | explain | self 1
-ask: Name the type of engineer who would design the hospital's lighting and power supply.
+ask: The operating theatres need a back-up generator that starts if the mains supply fails. Name the type of engineer who would design this system.
 mi: <strong>Electrical</strong> engineer. (1)
 @end
 
 @part b | 1 | explain | self 1
-ask: Describe <strong>one</strong> task a <strong>mechanical</strong> engineer would carry out on the hospital.
-mi: Any one, for example: design the lifts · design the pumps for the heating system · design the fans for the ventilation. (1)
+ask: Describe <strong>one</strong> task a <strong>civil</strong> engineer would carry out on the hospital.
+mi: Any one, for example: design the foundations so the building does not sink · design the frame so it is strong enough to hold the roof and solar panels · design the access roads and car park. (1)
 @end
 
 @part c | 2 | explain | self 2
@@ -138,7 +138,7 @@ mi: A real named example, for example the fish ladder at Pitlochry Dam, Whitelee
 @end
 @end
 
-@q B12 | s2 | struct | 8 | auto 2
+@q B12 | s2 | struct | 8 | auto 1
 keyarea: SC 11, 12, 14, 15, 16 — energy in the hospital
 parent: ORIGINAL — numbers checked against the real test, L4, the mini tests, Practice A and the revision page.
 context: The hospital has electric hand dryers in its toilets and electric motors to drive its lifts.
@@ -148,14 +148,13 @@ ask: In your jotter, draw an energy transfer diagram for an electric hand dryer.
 mi: {q12a_model}Mark 1: <strong>electrical</strong> in; <strong>heat</strong> and <strong>kinetic</strong> (moving air) as useful outputs. Either useful output alone is accepted. (1)<br>Mark 2: <strong>sound</strong> shown as wasted, on its own arrow. (1)<br>Here heat <strong>is</strong> useful — it dries your hands.
 @end
 
-@part b | 2 | calc | auto 2
+@part b | 2 | calc | auto 1
 ask: One lift motor transfers {pow_e_d} J of energy in {pow_t} s. Calculate its power.
-relationship: power
 answer: pow
 unit: W
 sf: 0
 tol: 0.005
-mi: Relationship: <var>P</var> = <var>E</var> / <var>t</var> (1)<br>Substitution and answer: {pow_e_d} / {pow_t} = <strong>{pow_ans} W</strong> (1)
+mi: Substitution: <var>P</var> = {pow_e_d} / {pow_t} (1)<br>Answer: <strong>{pow_ans} W</strong> (1)<br>Accept 6 kW. Wrong or missing unit: final mark = 0.
 @end
 
 @part c | 2 | explain | self 2
@@ -169,8 +168,8 @@ mi: Less electricity is used (what), so less fuel is burned at power stations an
 @end
 
 @part e | 1 | explain | self 1
-ask: Explain why heat is a <strong>useful</strong> output of the hand dryer but a <strong>wasted</strong> output of the lift motor.
-mi: The hand dryer's job is to dry hands, and heat helps to do that; the lift motor's job is to move the lift, and heat does not help to do that. (1)
+ask: Both the hand dryer and the lift motor produce heat. For each one, state whether the heat is useful or wasted, and explain why.
+mi: Hand dryer: heat is <strong>useful</strong> — its job is to dry hands and heat helps do that. Lift motor: heat is <strong>wasted</strong> — its job is to move the lift and heat does not help. Both needed for the mark. (1)
 @end
 @end
 
@@ -182,12 +181,12 @@ diagram: coaster
 
 @part a | 1 | explain | self 1
 ask: Name the form of energy the car has at the top of the first hill.
-mi: <strong>Gravitational potential</strong> energy. (1)<br>Bare "potential" = 0.
+mi: <strong>Gravitational potential</strong> energy. (1)<br>Accept "potential energy" (the data booklet's name for <var>E</var><sub>p</sub>). Do not accept "stored" or "elastic".
 @end
 
 @part b | 2 | explain | self 2
 ask: Describe the energy change as the car goes down the first drop, <strong>and</strong> explain why each hill must be lower than the one before.
-mi: Gravitational potential energy changes into kinetic energy. (1)<br>Friction and air resistance transfer some energy to heat and sound (what), so the car has less energy left and can't climb as high again (why). (1)
+mi: Gravitational potential energy changes into kinetic energy. (1) Accept "potential energy" for gravitational potential energy.<br>Friction and air resistance transfer some energy to heat and sound (what), so the car has less energy left and can't climb as high again (why). (1)
 @end
 
 @part c | 1 | explain | self 1
