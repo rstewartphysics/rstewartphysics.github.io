@@ -78,6 +78,28 @@ jobs:
       - name: Build the search index
         run: npm run search
 
+      # Phase 2 of the website audit: the static standards checks, against a baseline of accepted
+      # findings. Fails on a NEW P1 or P2 in a page the PR touches (every page if a shared file
+      # changed); new P3 only warns. To accept a finding or refresh the baseline, run
+      # `python3 scripts/audit-site.py --build _site --update-baseline` on a clean main build.
+      - name: Check the site against the standards baseline
+        run: |
+          pip install -q lxml==6.1.1
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch -q --depth=1 origin "${{ github.base_ref }}"
+            git diff --name-only FETCH_HEAD HEAD > "$RUNNER_TEMP/changed.txt"
+            python3 scripts/audit-site.py --build _site --changed "$RUNNER_TEMP/changed.txt" --summary "$GITHUB_STEP_SUMMARY"
+          else
+            python3 scripts/audit-site.py --build _site --summary "$GITHUB_STEP_SUMMARY" || echo "::warning::main has new P1/P2 findings against the baseline"
+          fi
+
+      # GitHub Pages publishes at most 1 GB; main's build was 622 MB on 19 Nov 2026.
+      - name: Check the site size
+        run: |
+          mb=$(du -sm _site | cut -f1)
+          echo "Built site: ${mb} MB (Pages limit 1000 MB)" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$mb" -ge 800 ]; then echo "::warning::Built site is ${mb} MB; warning level is 800 MB, Pages limit is 1000 MB."; fi
+
       # The stripboard bundle is built from tools/generators/stripboard/engine/; a stale copy fails here.
       - name: Check the shared stripboard renderer
         run: npm run stripboard -- --check

@@ -1,0 +1,58 @@
+# Monthly audit of main (website audit Phase 2, 19 Nov 2026): every external link, plus the static
+# standards drift against scripts/audit-baseline.json. Opens one dated issue; read at the start of each
+# term. Plain scripts only (decision D7): no Claude in Actions. Run it by hand from the Actions tab too.
+
+name: Monthly audit
+
+on:
+  schedule:
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Build with Jekyll
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAGES_REPO_NWO: ${{ github.repository }}
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+
+      - name: Static drift against the baseline
+        run: |
+          pip install -q lxml==6.1.1
+          python3 scripts/audit-site.py --build _site --summary drift.md || true
+          [ -f drift.md ] || echo "Static audit did not run." > drift.md
+
+      - name: External links (2 s between requests to one host, backs off on 429)
+        run: python3 scripts/check-external-links.py --build _site --out links.md
+
+      - name: Open the dated issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          d=$(date -u +%Y-%m-%d)
+          { echo "Automated audit of \`main\` on $d. Read at the start of each term with the Scottish-resources refresh."
+            echo; cat drift.md; echo; cat links.md
+            echo; echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; } > issue.md
+          gh issue create --title "Monthly site audit $d" --body-file issue.md
