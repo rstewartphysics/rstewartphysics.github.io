@@ -209,7 +209,7 @@ dark teal grounds, not navy.
 1. Home `/` · 2. **Physics** (group): All Physics courses (`physics.html`) / S3 / National 5 /
 Higher / Advanced Higher · 3. **Electronics** (group): Electronics hub / Slides ·
 4. **Engineering Science** (group): All Engineering courses (`engineering-science.html`) / S3 /
-National 5 / Higher (coming soon, `.site-menu-soon`) · then, below a line (`.site-menu-info`),
+National 5 (Higher Engineering is not planned) · then, below a line (`.site-menu-info`),
 5. About & Contact · 6. Credits. Every subject is a group, so every subject row does the same thing
 when tapped: it opens. Level names inside a group are short and match across subjects (S3,
 National 5, Higher); the toggles' `aria-label`s carry the full name. **Do not add individual topic
@@ -533,7 +533,7 @@ Every page uses the shared include — do **not** hand-write a `<footer>` elemen
 ```
 
 The include (`_includes/site-footer.html`) renders the single canonical line
-`© Mr Stewart's Physics, Electronics and Engineering` plus a `.footer-nav` with three links —
+`© R Stewart Physics, Electronics and Engineering` plus a `.footer-nav` with three links —
 **Home** (`/`), **About &amp; Contact** (`/classes/contact.html`), **Credits**
 (`/classes/credits.html`) — and carries its own scoped link styling. The same string/links apply on
 every subject, Science included (no shorter variant). The `footer` element itself is still styled per
@@ -745,8 +745,7 @@ joining the existing `eng-contexts`/`eng-energy` in `progress/eng-n5.js`), **S3*
 aggregated on the S3 hub tile). Each writes a single
 `progress-<ns>-v1` key. The legacy `electronics-progress.js` engine and its `window.ElProgress` API
 have been deleted — `progress.js` + `progress/electronics.js` are the only electronics path.
-**Remaining:** Higher Engineering Science (Coming Soon — its
-`eng-higher.js` config drops in when those pages are built); coming-soon topic stubs stay unwired until
+**Remaining:** coming-soon topic stubs stay unwired until
 they have content (behind-content guardrail). **New interactive pages ship with tracking by default** —
 run **`/add-progress`** and follow `progress-system-guide.md` (API) + the rollout plan's §5 guardrails;
 the `new-page` skill and the topic-page guides bake this in.
