@@ -40,6 +40,7 @@ def compute(v):
     d["w2_period"] = P.fm_sf(t2, 2)
     d["w2_inv"] = P.fm_sf(1.0 / w2, 2)            # the 2π left out
     d["w2_mult"] = P.fm_sf(TWO_PI * w2, 2)        # multiplying, not dividing
+    d["w2_half"] = P.fm_sf(math.pi / w2, 2)
     d["w2_freq"] = P.fm_sf(w2 / TWO_PI, 2)        # the frequency, not the period
     d["w2_options"] = [P.fm_sf(1.0 / w2, 2) + " s",
                        P.fm_sf(math.pi / w2, 2) + " s",

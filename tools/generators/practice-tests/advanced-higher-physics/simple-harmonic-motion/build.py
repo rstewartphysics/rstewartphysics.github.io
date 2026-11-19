@@ -44,6 +44,7 @@ def compute(v):
     d["w2_omega"] = P.fm_sf(w2, 2)
     d["w2_half"] = P.fm_sf(math.pi / t2, 2)            # the halving slip
     d["w2_inv"] = P.fm_sf(TWO_PI * t2, 2)              # multiplying by T
+    d["w2_upside"] = P.fm_sf(t2 / TWO_PI, 2)
     d["w2_options"] = [P.fm_sf(t2 / TWO_PI, 2) + " rad s⁻¹",
                        P.fm_sf(TWO_PI * t2, 2) + " rad s⁻¹",
                        P.fm_sf(1.0 / t2, 2) + " rad s⁻¹",

@@ -77,7 +77,7 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Advanced Higher Phy
           "instructions &copy; Qualifications Scotland (SQA). Stars, numbers and contexts "
           "have been changed, and questions marked as original were written for this site. "
           "H-R diagrams and spectra drawn for this site &copy; R Stewart, 2026. "
-          "R Stewart - September 2026.")
+          "R Stewart - November 2026.")
 
 
 def apply(meta, builder):

@@ -35,7 +35,7 @@ p2_disp: 0.011
 
 @q W1 | warmup | mcq | 1 | auto 1
 keyarea: The definition of simple harmonic motion
-parent: SQA Advanced Higher 2020 Q9(a) — the definition question, which the marking instructions state word for word and which has been asked in 2016, 2020, 2022 and 2023. Set here as a statement-selection question rather than a written mark, with the 2020 "do not accept" caveat built into the distractors.
+parent: SQA Advanced Higher 2021 Q9(a) — the definition question, which the marking instructions state word for word and which has been asked in 2016, 2021, 2022, 2023 and 2026. Set here as a statement-selection question rather than a written mark, with the 2021 "do not accept" caveat built into the distractors.
 stem: A pupil makes the following statements about a body moving with simple harmonic motion.<ol class="stmts"><li>The unbalanced force on the body is proportional to its displacement from the rest position.</li><li>The unbalanced force on the body acts in the opposite direction to its displacement.</li><li>The acceleration of the body is constant.</li></ol>Which of these statements is/are correct?
 option: I only
 option: II only
@@ -44,7 +44,7 @@ option: II and III only
 option: I, II and III
 key: C
 mi: Statements I and II together are the definition as it is marked: the unbalanced force, and therefore the acceleration, is <strong>proportional to the displacement</strong> and acts <strong>in the opposite direction</strong> to it — <var>F</var> = −<var>ky</var>.<br>Statement III is wrong: the acceleration is largest at maximum displacement and zero as the body passes through the rest position, so it is never constant.
-wrong: Choosing "I only" is exactly what the 2020 marking instructions refuse — they will not accept "force is proportional to displacement" without reference to direction. The minus sign in <var>F</var> = −<var>ky</var> <em>is</em> the direction, so it has to be said.
+wrong: Choosing "I only" is exactly what the 2021 and 2023 marking instructions refuse — they will not accept "force is proportional to displacement" without reference to direction. The minus sign in <var>F</var> = −<var>ky</var> <em>is</em> the direction, so it has to be said. "II only" leaves out the proportionality, the other half of the definition. Any option with III is wrong: the acceleration changes with displacement.
 @end
 
 @q W2 | warmup | mcq | 1 | auto 1
@@ -54,7 +54,7 @@ stem: A body oscillates with simple harmonic motion. The period of its motion is
 options_from: w2
 key: computed
 mi: <var>f</var> = 1 / <var>T</var> = 1 / {w2_period} = {w2_freq} Hz, so <var>ω</var> = 2π<var>f</var> = <strong>{w2_omega} rad s⁻¹</strong>.<br>Reaching for <var>ω</var> = 2π / <var>T</var> in one step is the same arithmetic and is just as acceptable.
-wrong: {w2_freq} rad s⁻¹ is the frequency, not the angular frequency — the 2π has been left out. {w2_half} rad s⁻¹ comes from π / <var>T</var>, and {w2_inv} rad s⁻¹ from 2π<var>T</var>, which multiplies where it should divide.
+wrong: {w2_freq} rad s⁻¹ is the frequency, not the angular frequency — the 2π has been left out. {w2_half} rad s⁻¹ comes from π / <var>T</var>, and {w2_inv} rad s⁻¹ from 2π<var>T</var>, which multiplies where it should divide. {w2_upside} rad s⁻¹ is <var>T</var> / 2π — the relationship upside down.
 @end
 
 @q W3 | warmup | mcq | 1 | auto 1
@@ -68,7 +68,7 @@ option: Graph C
 option: Graph D
 key: C
 mi: <strong>C.</strong> Critical damping returns the system to the rest position in the <strong>shortest time without oscillating</strong> — the line falls to zero and stays there, without crossing the axis.<br>A is underdamped: it oscillates with a decreasing amplitude. B is overdamped: it also never crosses the axis, but takes noticeably longer to settle. D is undamped SHM, whose amplitude never decreases.
-wrong: B is the answer most often chosen. Both B and C return without oscillating; the difference is <strong>how long it takes</strong>, and the critically damped one is always the quicker of the two.
+wrong: B is the answer most often chosen. Both B and C return without oscillating; the difference is <strong>how long it takes</strong>, and the critically damped one is always the quicker of the two. A oscillates, so it is underdamped; D never loses amplitude, so it is undamped.
 @end
 
 @q W4 | warmup | mcq | 1 | auto 1
@@ -82,7 +82,7 @@ option: II and III only
 option: I, II and III
 key: C
 mi: I and II are both right, and they are the two ends of the same idea: <var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>) is largest when <var>y</var> = 0, and <var>a</var> = −<var>ω</var><sup>2</sup><var>y</var> is largest in magnitude when <var>y</var> = ±<var>A</var>.<br>III is therefore wrong: the speed peaks where the acceleration is <strong>zero</strong>, a quarter of a period apart.
-wrong: Choosing "I, II and III" usually means the velocity–time and acceleration–time graphs have been remembered as being in step. Sketch them under one another: <var>v</var> leads <var>y</var> by a quarter period, and <var>a</var> is a further quarter period on.
+wrong: Choosing "I, II and III" usually means the velocity–time and acceleration–time graphs have been remembered as being in step. Sketch them under one another: <var>v</var> leads <var>y</var> by a quarter period, and <var>a</var> is a further quarter period on. "I only" or "II only" leaves out a true statement; "II and III only" drops the one about speed.
 @end
 
 @q W5 | warmup | mcq | 1 | auto 1
@@ -96,7 +96,7 @@ option: 2<var>ω</var>
 option: 4<var>ω</var>
 key: B
 mi: <strong><var>ω</var> / 2.</strong> For a mass on a spring <var>ω</var> = √(<var>k</var> / <var>m</var>), so <var>ω</var> ∝ 1 / √<var>m</var>. Four times the mass divides the angular frequency by √4 = 2.<br>The spring is unchanged, so <var>k</var> is unchanged — the amplitude has no effect on <var>ω</var> either.
-wrong: "<var>ω</var> / 4" treats <var>ω</var> as inversely proportional to the mass itself and forgets the square root. "<var>ω</var>" unchanged is the answer to the 2024 question about amplitude, not about mass.
+wrong: "<var>ω</var> / 4" treats <var>ω</var> as inversely proportional to the mass itself and forgets the square root. "<var>ω</var>" unchanged would only be right if neither <var>k</var> nor <var>m</var> changed — as in the 2021 question with the shorter cord. Here the mass has changed. 2<var>ω</var> and 4<var>ω</var> have the change the wrong way round: a heavier mass oscillates more slowly.
 @end
 
 @q C1 | core | struct | 7
@@ -105,37 +105,38 @@ given: c1_time,c1_amp
 parent: SQA Advanced Higher 2016 Q10 — the same apparatus and the same three demands (show the cosine expression is a solution, find ω from a count of oscillations, find the maximum velocity), on a new context and with every number changed. The published answers are 5.2 rad s⁻¹ and 0.21 m s⁻¹; these are not.
 context: A hanging basket is suspended from a spring bracket outside a shop. The basket has a mass of {c1_mass} kg. It is pulled down {c1_amp} m from its equilibrium position and released, and then oscillates vertically. The basket completes {c1_osc} oscillations in {c1_time} s. Frictional forces are negligible.
 diagram: c1_basket
-@part a | 3 | derive | self 3
+@part a | 2 | derive | self 2
 ask: The vertical displacement <var>y</var> of the basket can be described by the expression <var>y</var> = <var>A</var> cos <var>ωt</var>, where the symbols have their usual meaning. Using calculus methods, show that this expression is a solution to the equation d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> + <var>ω</var><sup>2</sup><var>y</var> = 0.
-mi: <ol class="deriv"><li><var>y</var> = <var>A</var> cos <var>ωt</var> — the given displacement.</li><li>d<var>y</var>/d<var>t</var> = −<var>Aω</var> sin <var>ωt</var> — differentiate once. **(1)**</li><li>d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> = −<var>Aω</var><sup>2</sup> cos <var>ωt</var> — differentiate again. **(1)**</li><li><var>A</var> cos <var>ωt</var> is <var>y</var>, so d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> = −<var>ω</var><sup>2</sup><var>y</var> — substitute <var>y</var> back in.</li><li>d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> + <var>ω</var><sup>2</sup><var>y</var> = 0 — the line the question asked for. **(1)**</li></ol>Both differentiations must appear, and both must be right, or the first mark is lost — the 2016 marking instructions award zero if sin appears in the first derivative. **The final line must be written down**, or the scheme caps this at 2 of 3.
+mi: <ol class="deriv"><li><var>y</var> = <var>A</var> cos <var>ωt</var> — the given displacement.</li><li>d<var>y</var>/d<var>t</var> = −<var>Aω</var> sin <var>ωt</var> — differentiate once.</li><li>d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> = −<var>Aω</var><sup>2</sup> cos <var>ωt</var> — differentiate again. **(1)**</li><li><var>A</var> cos <var>ωt</var> is <var>y</var>, so d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> = −<var>ω</var><sup>2</sup><var>y</var> — substitute <var>y</var> back in. **(1)**</li><li>d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> + <var>ω</var><sup>2</sup><var>y</var> = 0 — the line the question asked for.</li></ol>The first mark needs both differentiations, and both must be right — the 2016 marking instructions award zero if d<var>y</var>/d<var>t</var> = +<var>Aω</var> sin <var>ωt</var> appears (the minus sign lost). **The final line must be written down**, or the scheme caps this at 1 of 2.
 @end
 @part b | 2 | calc | auto 2
 ask: Calculate the angular frequency of the oscillation of the basket.
 relationship: omega
 answer: c1_omega
 unit: rad s⁻¹
-mi: <var>f</var> = {c1_osc} / {c1_time} = {c1_freq} Hz **(1)**<br><var>ω</var> = 2π<var>f</var> = <strong>{c1_omega_disp} rad s⁻¹</strong> **(1)**<br><var>T</var> = {c1_time} / {c1_osc} = {c1_period} s followed by <var>ω</var> = 2π / <var>T</var> is the same two marks. A count of oscillations is exact, so it is the time that fixes the significant figures.
+sf: 3
+mi: <var>f</var> = {c1_osc} / {c1_time} = {c1_freq} Hz **(1)**<br><var>ω</var> = 2π<var>f</var> = <strong>{c1_omega_disp} rad s⁻¹</strong> **(1)**<br>On paper, <var>T</var> = {c1_time} / {c1_osc} = {c1_period} s then <var>ω</var> = 2π / <var>T</var> earns the same two marks; the page's relationship box marks <var>ω</var> = 2π<var>f</var>. A count of oscillations is exact, so it is the time that fixes the significant figures.
 @end
-@part c | 2 | calc | auto 2
+@part c | 3 | calc | auto 2
 ask: Calculate the maximum speed of the basket during its oscillation.
 relationship: vel
 answer: c1_vmax
 unit: m s⁻¹
-mi: <var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>), and the speed is greatest at <var>y</var> = 0 **(1)**<br><var>v</var> = {c1_omega_disp} × {c1_amp} = <strong>{c1_vmax_disp} m s⁻¹</strong> **(1)**<br><var>v</var><sub>max</sub> = <var>ωA</var> quoted directly is accepted as the starting point.
+mi: <var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>) **(1)**<br><var>v</var> = {c1_omega_disp} × √({c1_amp}<sup>2</sup> − 0<sup>2</sup>) — the speed is greatest at <var>y</var> = 0 **(1)**<br>= <strong>{c1_vmax_disp} m s⁻¹</strong> **(1)**<br><var>v</var><sub>max</sub> = <var>ωA</var> quoted directly is accepted as the starting point.
 @end
 @end
 
 @q C2 | core | struct | 6
 keyarea: Energy stored in an oscillating system, and identifying the damping
 given: c2_mass,c2_omega,c2_amp
-parent: SQA Advanced Higher 2020 Q9(c)(iii) and 2024 Q9(c)(i)–(ii) — the energy calculation from the first, the damping trace and the change asked for from the second, both on a new context and with every number changed. The published answers are 1.3 × 10⁴ J and "underdamping"; the energy here is not, and the damping question now asks for a change that would reach the rest position fastest.
+parent: SQA Advanced Higher 2021 Q9(c)(iii) and 2024 Q9(c)(i)–(ii) — the energy calculation from the first, the damping trace and the change asked for from the second, both on a new context and with every number changed. The published answers are 1.3 × 10⁴ J and "underdamping"; the energy here is not, and the damping question now asks for a change that would reach the rest position fastest.
 context: A tall building is protected from swaying by a tuned mass damper — a heavy block hung from springs near the top of the building, free to oscillate. A working model of one is built in a laboratory. The block of the model has a mass of {c2_mass} kg, its oscillation has an angular frequency of {c2_omega} rad s⁻¹, and it is released from an amplitude of {c2_amp} m.
 @part a | 3 | calc | auto 2
 ask: Calculate the maximum potential energy stored in the springs of the model.
 relationship: ep
 answer: c2_ep
 unit: J
-mi: <var>E</var><sub>p</sub> = ½<var>mω</var><sup>2</sup><var>y</var><sup>2</sup>, and the potential energy is greatest at <var>y</var> = <var>A</var> **(1)**<br>= ½ × {c2_mass} × {c2_omega}<sup>2</sup> × {c2_amp}<sup>2</sup> **(1)**<br>= <strong>{c2_ep_disp} J</strong> **(1)**<br>Working from the other end — the maximum kinetic energy, ½<var>mω</var><sup>2</sup>(<var>A</var><sup>2</sup> − 0) at <var>y</var> = 0 — gives the same number, because the total energy is constant.
+mi: <var>E</var><sub>p</sub> = ½<var>mω</var><sup>2</sup><var>y</var><sup>2</sup>, and the potential energy is greatest at <var>y</var> = <var>A</var> **(1)**<br>= ½ × {c2_mass} × {c2_omega}<sup>2</sup> × {c2_amp}<sup>2</sup> **(1)**<br>= <strong>{c2_ep_disp} J</strong> **(1)**<br>Working from the other end — the maximum kinetic energy, ½<var>mω</var><sup>2</sup>(<var>A</var><sup>2</sup> − 0) at <var>y</var> = 0 — gives the same number, because the total energy is constant. On paper that route earns the same marks; the page's relationship box marks <var>E</var><sub>p</sub>.
 @end
 @part b | 1 | explain | self 1
 ask: The model is displaced and released, and its motion is recorded. State the type of damping shown in the graph.
@@ -150,7 +151,7 @@ mi: <strong>Critical damping</strong> **(1)**, which returns the system to rest 
 
 @q P1 | push | struct | 4
 keyarea: Deriving the velocity of a body moving with SHM
-parent: ORIGINAL — the course specification's "I can derive v = ±ω√(A² − y²)" is examinable but has not been set in the nine diets from 2016 to 2025, so there is no parent to vary. The statement in part (b) is the deck's own check-yourself point.
+parent: ORIGINAL — the course specification's "I can derive v = ±ω√(A² − y²)" is examinable but has not been set in the ten diets from 2016 to 2026, so there is no parent to vary. The statement in part (b) is the deck's own check-yourself point.
 context: A body oscillates with simple harmonic motion of amplitude <var>A</var> and angular frequency <var>ω</var>. Its displacement at time <var>t</var> is <var>y</var> = <var>A</var> sin <var>ωt</var>.
 @part a | 3 | derive | self 3
 ask: Using calculus methods, derive the relationship <var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>).
@@ -173,6 +174,6 @@ ask: Determine the speed of the middle of the deck at the instant its displaceme
 relationship: vel
 answer: p2_speed
 unit: m s⁻¹
-mi: Comparing <var>y</var> = {p2_amp} sin {p2_omega}<var>t</var> with <var>y</var> = <var>A</var> sin <var>ωt</var> gives <var>A</var> = {p2_amp} m and <var>ω</var> = {p2_omega} rad s⁻¹ **(1)**<br><var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>) = ±{p2_omega}√({p2_amp}<sup>2</sup> − {p2_disp}<sup>2</sup>) **(1)**<br>= <strong>{p2_speed_disp} m s⁻¹</strong> **(1)**<br>The ± is not wrong here — the deck passes this displacement moving upwards and moving downwards — but a speed is asked for, so the magnitude alone is enough.<br>A candidate who reads the amplitude as {p2_omega} m and the angular frequency as {p2_amp} rad s⁻¹ has the two the wrong way round; the number multiplying <var>t</var> is always <var>ω</var>.
+mi: <var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>) **(1)**<br><var>v</var> = ±{p2_omega}√({p2_amp}<sup>2</sup> − {p2_disp}<sup>2</sup>) — with <var>A</var> = {p2_amp} m and <var>ω</var> = {p2_omega} rad s⁻¹ read from the equation **(1)**<br>= <strong>{p2_speed_disp} m s⁻¹</strong> **(1)**<br>The ± is not wrong here — the deck passes this displacement moving upwards and moving downwards — but a speed is asked for, so the magnitude alone is enough.<br>A candidate who reads the amplitude as {p2_omega} m and the angular frequency as {p2_amp} rad s⁻¹ has the two the wrong way round; the number multiplying <var>t</var> is always <var>ω</var>.
 @end
 @end

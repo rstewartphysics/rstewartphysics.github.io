@@ -109,7 +109,7 @@ def sci(x, n):
     if x == 0:
         return "0"
     e = int(math.floor(math.log10(abs(round_sig(x, n)))))
-    if -2 <= e <= 4:
+    if -2 <= e <= 4 and sig_figs(fm_sf(x, n)) == n:
         return fm_sf(x, n)
     m = round_sig(x, n) / (10.0 ** e)
     mant = dot(("%." + str(max(n - 1, 0)) + "f") % m)

@@ -39,7 +39,7 @@ option: Region R
 option: Region S
 key: A
 mi: <strong>Region P — the main sequence.</strong> Stars that fuse hydrogen in their core lie on the main sequence.<br>Q is the giants, R the supergiants and S the white dwarfs.
-wrong: The Sun will become a giant (Q) later in its life. Right now it is on the main sequence.
+wrong: The Sun will become a giant (Q) later in its life. Right now it is on the main sequence. R holds the supergiants, the most luminous stars of all. S holds the white dwarfs, hot but faint, which no longer fuse hydrogen.
 @end
 
 @q W2 | warmup | struct | 2
@@ -63,7 +63,7 @@ option: 27
 option: 81
 key: C
 mi: <strong>9.</strong> <var>L</var> = 4π<var>r</var><sup>2</sup><var>σT</var><sup>4</sup>. The temperature is the same, so <var>L</var> ∝ <var>r</var><sup>2</sup>. 3<sup>2</sup> = 9.
-wrong: 3 forgets to square the radius. 81 uses the fourth power, which belongs to the temperature, not the radius.
+wrong: 3 forgets to square the radius. 81 uses the fourth power, which belongs to the temperature, not the radius. 6 doubles the 3 instead of squaring it, and 27 cubes it: <var>L</var> = 4π<var>r</var><sup>2</sup><var>σT</var><sup>4</sup> has <var>r</var> squared.
 @end
 
 @q W4 | warmup | mcq | 1 | auto 1
@@ -74,10 +74,10 @@ option: 2
 option: ½
 option: ¼
 option: ⅛
-option: 1 / 16
+option: ¹⁄₁₆
 key: C
 mi: <strong>¼.</strong> <var>b</var> = <var>L</var> / (4π<var>d</var><sup>2</sup>). The luminosity is the same, so <var>b</var> ∝ 1 / <var>d</var><sup>2</sup>. Twice the distance gives 1 / 2<sup>2</sup> = ¼ of the brightness.
-wrong: ½ forgets to square the distance. The light spreads over a sphere, and its area grows as <var>d</var><sup>2</sup>.
+wrong: ½ forgets to square the distance. The light spreads over a sphere, and its area grows as <var>d</var><sup>2</sup>. 2 has the ratio upside down: the further star looks fainter. ⅛ cubes the distance and ¹⁄₁₆ uses its fourth power; only the square belongs here.
 @end
 
 @q C1 | core | struct | 6
@@ -121,7 +121,7 @@ parent: SQA Advanced Higher 2025 Q5(b)(i) — the same "show that the luminosity
 context: Canopus is the second-brightest star in the night sky. It is {c3_d_disp} m from Earth. Its apparent brightness is {c3_b_disp} W m⁻².
 @part _ | 2 | explain | self 2
 ask: Show that the luminosity of Canopus is {c3_lum_disp} W. Write your working in your jotter.
-mi: <var>b</var> = <var>L</var> / (4π<var>d</var><sup>2</sup>) and {c3_b_disp} = <var>L</var> / (4π × ({c3_d_disp})<sup>2</sup>) **(1)**<br><var>L</var> = <strong>{c3_lum_disp} W</strong> **(1)**<br>This is a SHOW question. The final line must be written down, or the most you can have is 1 mark.
+mi: <var>b</var> = <var>L</var> / (4π<var>d</var><sup>2</sup>) **(1)**<br>{c3_b_disp} = <var>L</var> / (4π × ({c3_d_disp})<sup>2</sup>) **(1)**<br><var>L</var> = <strong>{c3_lum_disp} W</strong><br>This is a SHOW question. The final line must be written down, or the most you can have is 1 mark.
 @end
 @end
 
@@ -129,7 +129,7 @@ mi: <var>b</var> = <var>L</var> / (4π<var>d</var><sup>2</sup>) and {c3_b_disp} 
 keyarea: Colour, apparent brightness and distance — an open-ended discussion
 parent: SQA Advanced Higher 2022 Q5(d) — the same four-voice discussion, rewritten about two new stars. The published pair was Rigel and Betelgeuse.
 stem: A group of pupils are talking about the stars Capella and Regulus.<ul class="discuss"><li><strong>Pupil 1:</strong> "Why does Regulus look blue-white, while Capella looks yellow?"</li><li><strong>Pupil 2:</strong> "Capella looks brighter than Regulus, so it must be closer to us."</li><li><strong>Pupil 3:</strong> "Two stars that look close together in the sky must be close together in space."</li><li><strong>Pupil 4:</strong> "A star's colour tells you nothing about its temperature."</li></ul>Use your knowledge of physics to comment on the discussion.
-mi: This is an open-ended question. Mark the answer as a whole: <strong>3</strong> for good understanding, <strong>2</strong> for reasonable, <strong>1</strong> for limited, <strong>0</strong> for none.<br>Physics a good answer might use:<br>• Colour depends on <strong>surface temperature</strong>. Regulus is hotter, so its peak wavelength is shorter and it looks blue-white. So Pupil 4 is wrong.<br>• Apparent brightness depends on <strong>luminosity and distance</strong>: <var>b</var> = <var>L</var> / (4π<var>d</var><sup>2</sup>). A brighter-looking star could be closer, or it could be more luminous. So Pupil 2's reasoning does not hold on its own.<br>• The sky is a 2-D view. Stars that look close together can be at very different distances along our line of sight. So Pupil 3 is wrong.<br>• A star's position on the H-R diagram links its colour, temperature and luminosity.
+mi: This is an open-ended question. Mark the answer as a whole: <strong>3</strong> for good understanding, <strong>2</strong> for reasonable, <strong>1</strong> for limited, <strong>0</strong> for none.<br>Physics a good answer might use:<br>• Colour depends on <strong>surface temperature</strong>. Regulus is hotter, so its peak wavelength is shorter and it looks blue-white. So Pupil 4 is wrong.<br>• Apparent brightness depends on <strong>luminosity and distance</strong>: <var>b</var> = <var>L</var> / (4π<var>d</var><sup>2</sup>). A brighter-looking star could be closer, or it could be more luminous. So Pupil 2's reasoning does not hold on its own. (Capella is in fact the closer star — but its brightness alone cannot show it.)<br>• The sky is a 2-D view. Stars that look close together can be at very different distances along our line of sight. So Pupil 3 is wrong.<br>• A star's position on the H-R diagram links its colour, temperature and luminosity.
 @end
 
 @q P2 | push | open | 3 | self 3
