@@ -70,7 +70,7 @@ def apply(meta):
           banner="/assets/s3-engineering-science-banner.jpeg",
           banner_alt="S3 Engineering Science banner",
           theme_light="#fbf6ef", theme_dark="#15110b",
-          back_href=HUB, back_label="⬅ Back to Contexts and Energy",
+          back_href=HUB, back_label="← Back to Contexts and Energy",
           back_class="backlink", subnav=None,
           relationships=RELATIONSHIPS, relationships_html=RELATIONSHIPS_HTML,
           rel_key=REL_KEY, units=UNITS, unit_js=UNIT_JS, refs=REFS,

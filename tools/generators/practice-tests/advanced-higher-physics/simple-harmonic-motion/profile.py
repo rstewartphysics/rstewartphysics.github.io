@@ -90,7 +90,7 @@ EXTRA_CSS = """
   --good:#15803d; --warm:#9a3412; --bad:var(--warm);
 }
 @media (prefers-color-scheme: dark) { :root { --good:#5dd693; --warm:#ff9d6e; } }
-.backlink { display:inline-flex; align-items:center; gap:.4rem; font-weight:900;
+.backlink { display:inline-flex; align-items:center; gap:.4rem; min-height:44px; font-weight:900;
   color:var(--accent-2); text-decoration:none; margin:0 0 .5rem; }
 .backlink:focus-visible { outline:3px solid var(--accent); outline-offset:3px; border-radius:6px; }
 .dia svg { --dia-page: var(--card); }
