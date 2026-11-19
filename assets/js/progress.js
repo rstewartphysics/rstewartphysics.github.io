@@ -161,7 +161,13 @@
     refreshAll();
   }
 
-  function record(id, score, max) {
+  /* opts.attempt (self-marked practice tests): a score the pupil can correct.
+     Within one attempt the latest score stands, even when it is lower; best is
+     the highest of the attempts before it and this one, and the badge follows
+     best both ways. Points and the toast come only on the first unlock ever,
+     so ticking a self-mark up and down cannot farm them. Without opts the
+     behaviour is unchanged: best only rises and an unlock is permanent. */
+  function record(id, score, max, opts) {
     var def = TOPIC_BY_ID[id];
     if (!def) { return { unlocked: false, justUnlocked: false, newAchievements: [] }; }
     score = Math.max(0, Number(score) || 0);
@@ -169,25 +175,37 @@
 
     var data = load();
     var s = data.badges[id] || (data.badges[id] = {});
-    var wasUnlocked = !!s.unlocked;
+    var wasUnlocked = !!s.unlocked, hadAt = !!s.at;
+    var attempt = opts && opts.attempt ? String(opts.attempt) : null;
 
     s.seen = true;
     s.max = max;
-    s.best = Math.max(typeof s.best === "number" ? s.best : 0, Math.min(score, max));
+    if (attempt) {
+      if (s.attempt !== attempt) {
+        var prior = typeof s.cur === "number" ? s.cur
+                  : (typeof s.best === "number" ? s.best : 0);
+        s.done = Math.max(typeof s.done === "number" ? s.done : 0, prior);
+        s.attempt = attempt;
+      }
+      s.cur = Math.min(score, max);
+      s.best = Math.max(s.done, s.cur);
+    } else {
+      s.best = Math.max(typeof s.best === "number" ? s.best : 0, Math.min(score, max));
+    }
 
     var thr = typeof def.thr === "number" ? def.thr : THRESHOLD;
-    var nowUnlocked = wasUnlocked || (s.best / s.max >= thr);
-    if (nowUnlocked) {
-      s.unlocked = true;
-      if (!s.at) { s.at = today(); }
-    }
-    var justUnlocked = !wasUnlocked && !!s.unlocked;
-    if (justUnlocked && LAYERS.pointsStreak) { data.points += POINTS.badge; }
+    var reached = s.best / s.max >= thr;
+    var nowUnlocked = attempt ? reached : (wasUnlocked || reached);
+    s.unlocked = nowUnlocked;
+    if (nowUnlocked && !s.at) { s.at = today(); }
+    var justUnlocked = !wasUnlocked && nowUnlocked;
+    var firstUnlock = justUnlocked && !hadAt;
+    if (firstUnlock && LAYERS.pointsStreak) { data.points += POINTS.badge; }
 
     var newAch = recomputeAchievements(data);
     save(data);
     refreshAll();
-    if (justUnlocked) { toast(def); }
+    if (firstUnlock) { toast(def); }
     newAch.forEach(function (a) { toast(a); });
 
     return {
