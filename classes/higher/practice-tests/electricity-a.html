@@ -162,24 +162,71 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 .mi .sfnote { display: block; margin-top: .35rem; font-size: .88rem; color: var(--muted); }
 .sfwarn { color: var(--pt-warm); font-weight: 900; }
 .selfmark { margin: .6rem 0 0; padding: .55rem .7rem; border: 1px dashed var(--border-strong);
-  border-radius: 10px; background: var(--bg2); }
-.selfmark p { margin: 0 0 .4rem; font-size: .82rem; font-weight: 900; color: var(--muted); }
-.selfmark .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+  border-radius: 10px; background: var(--bg2); min-width: 0; }
+.selfmark.is-todo { border: 2px dashed var(--pt-warm); }
+/* floated, so the legend sits inside the box rather than on its border */
+.selfmark legend { float: left; width: 100%; padding: 0; margin: 0 0 .4rem;
+  font-size: .82rem; font-weight: 900; color: var(--muted); line-height: 1.5; }
+.selfmark .opts { clear: both; display: flex; gap: 8px; flex-wrap: wrap; }
+.sm-chip { display: inline-block; margin-left: .3rem; padding: .05rem .55rem; border-radius: 99px;
+  background: var(--pt-warm); color: var(--card); font-size: .75rem; font-weight: 900; }
+.sm-chip.is-set { background: var(--cta-2); color: #fff; }
 .selfmark label { display: inline-flex; align-items: center; gap: .3rem; min-height: 44px;
   padding: .35rem .7rem; border: 1px solid var(--border-soft); border-radius: 999px;
   background: var(--card); font-weight: 900; cursor: pointer; }
 .selfmark input { width: 18px; height: 18px; accent-color: var(--pt-accent); }
 
-.finish-wrap { text-align: center; margin: 1.6rem 0 0; }
-.finish { min-height: 54px; padding: .85rem 2.2rem; border: 0; border-radius: 14px;
-  background: linear-gradient(135deg, var(--cta-1), var(--cta-2)); color: #fff;
-  font-family: inherit; font-weight: 900; font-size: 1.05rem; cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0,138,145,.32); touch-action: manipulation; }
-.finish:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
-.reset { display: block; margin: .8rem auto 0; background: none; border: 0; color: var(--muted);
-  font-family: inherit; font-weight: 800; font-size: .84rem; cursor: pointer; min-height: 44px; }
+/* ---- the sticky bar: answering, marking one step at a time, the result ---- */
+.paper [hidden] { display: none !important; }
+.pt-bar { position: sticky; top: 0; z-index: 40; margin: 0 auto .9rem;
+  background: var(--card); border: 1px solid var(--border-accent); border-top: 0;
+  border-radius: 0 0 14px 14px; box-shadow: var(--shadow-soft); padding: .55rem 64px .6rem; }
+.pt-bar-row { display: flex; align-items: center; gap: .4rem .9rem; flex-wrap: wrap; }
+.pt-bar-txt { flex: 1 1 14rem; margin: 0; font-weight: 900; font-size: .95rem; color: var(--text);
+  line-height: 1.35; }
+.pt-bar-sub { display: block; font-weight: 800; font-size: .8rem; color: var(--muted); }
+.pt-bar-acts { display: flex; align-items: center; gap: .3rem .6rem; flex-wrap: wrap; }
+.pt-btn { min-height: 44px; padding: .5rem 1rem; border-radius: 12px; border: 0; cursor: pointer;
+  font-family: inherit; font-weight: 900; font-size: .9rem; color: #fff;
+  background: linear-gradient(135deg, var(--cta-1), var(--cta-2));
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.pt-btn.ghost { background: var(--card); color: var(--text); border: 1px solid var(--border-strong); }
+.pt-link { min-height: 44px; padding: .3rem .4rem; background: none; border: 0; cursor: pointer;
+  font-family: inherit; font-weight: 800; font-size: .84rem; color: var(--muted);
+  text-decoration: underline; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.pt-btn:focus-visible, .pt-link:focus-visible, .pt-warn a:focus-visible, .card-next a:focus-visible {
+  outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+.pt-steps { display: flex; gap: 4px; margin: .45rem 0 0; padding: 0 0 3px; list-style: none;
+  overflow-x: auto; scrollbar-width: thin; }
+.pt-steps li { flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  gap: 3px; min-width: 2.6rem; padding: .12rem .45rem; border-radius: 99px;
+  border: 1px solid var(--border-soft); background: var(--surface-2); color: var(--muted);
+  font-size: .72rem; font-weight: 900; white-space: nowrap; }
+.pt-steps li.is-now { background: var(--cta-1); border-color: var(--cta-1); color: #fff; }
+.pt-steps li.is-done { background: var(--cta-2); border-color: var(--cta-2); color: #fff; }
+.pt-steps li.is-todo { border: 1px dashed var(--pt-warm); color: var(--text); }
+.st-tick { width: 11px; height: 11px; flex: none; }
+.pt-warn { margin: .55rem 0 .1rem; border: 2px solid var(--pt-warm); border-radius: 14px;
+  background: var(--card); padding: .8rem .9rem; }
+.pt-warn p { margin: 0 0 .6rem; font-weight: 900; line-height: 1.45; color: var(--text); }
+.pt-qlist { display: flex; flex-wrap: wrap; gap: 6px; }
+.pt-qlist a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px;
+  min-height: 44px; border: 1px solid var(--border-strong); border-radius: 10px;
+  background: var(--surface-2); color: var(--text); font-weight: 900; }
+.mk-row { display: flex; gap: .6rem; flex-wrap: wrap; }
+.mk-next { display: flex; justify-content: space-between; gap: .6rem; margin: 1rem 0 0; flex-wrap: wrap; }
+.mk-done { display: inline-block; margin: 0 0 .45rem; padding: .1rem .6rem; border-radius: 99px;
+  border: 1px solid var(--border-accent); font-size: .78rem; font-weight: 900; color: var(--muted); }
+.q { scroll-margin-top: calc(var(--ptbar, 0px) + 10px); }
+.q:focus { outline: none; }
+.q:focus-visible { outline: var(--focus-ring); outline-offset: -3px; }
+.card-score, #paper { scroll-margin-top: calc(var(--ptbar, 0px) + 10px); }
+.q.is-locked .mcq-opt { cursor: default; }
+.q.is-locked .ans-num, .q.is-locked .ans-area, .q.is-locked .ans-text { background: var(--surface-2); }
+/* the corner badge would sit on the marking; the live score is in the bar (B1) */
+body.pt-marking .prog-counter { display: none !important; }
 
-.card-score { margin: 1.4rem auto 0; border: 1px solid var(--border-accent); border-radius: var(--radius);
+.card-score { margin: 0 auto 1rem; border: 1px solid var(--border-accent); border-radius: var(--radius);
   background: var(--card); box-shadow: var(--shadow-soft); padding: 1.1rem 1rem 1.2rem; }
 .card-score h2 { margin: 0 0 .8rem; font-size: 1.2rem; font-weight: 900; text-align: center; }
 .score-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
@@ -192,6 +239,25 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--cta-1), var(--cta-2)); }
 .split { font-size: .86rem; color: var(--muted); font-weight: 800; text-align: center; line-height: 1.6; }
 .split b { color: var(--text); }
+.card-line { margin: -.4rem 0 .8rem; text-align: center; font-size: .86rem; font-weight: 800;
+  color: var(--muted); }
+.bar-row.is-untried .bar { border-style: dashed; background: transparent; }
+.bar-row.is-untried > span:last-child { color: var(--muted); font-weight: 800; }
+.card-next { margin: 1rem 0 0; padding: .8rem .95rem; border-radius: 12px; text-align: left;
+  border: 1px solid var(--border-accent); background: var(--surface-2); }
+.card-next h3 { margin: 0 0 .3rem; font-size: 1rem; font-weight: 900; color: var(--text); }
+.card-next ul { margin: 0; padding-left: 1.1rem; }
+.card-next li { margin: .3rem 0; line-height: 1.5; }
+.nx-ka { display: block; font-size: .88rem; font-weight: 800; color: var(--muted); }
+.nx-links { display: flex; flex-wrap: wrap; gap: 0 .9rem; }
+.nx-q, .nx-links a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 900;
+  color: var(--text); }
+.mk-actions { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0 0; }
+.card-score .pt-warn { text-align: left; }
+.card-attempts { margin: .9rem 0 0; font-size: .86rem; font-weight: 800; color: var(--muted);
+  text-align: center; }
+.card-attempts p { margin: 0; }
+.card-attempts ul { list-style: none; margin: .25rem 0 .35rem; padding: 0; color: var(--text); }
 
 [data-credit-note] { max-width: 860px; margin: 1.5rem auto 0; }
 
@@ -199,6 +265,10 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
   .q { grid-template-columns: 38px 1fr; }
   .q-body { padding: .85rem .7rem 1rem; }
   .ans-numrow { grid-template-columns: 1fr 84px; }
+  .pt-bar { padding: .5rem 50px .55rem; border-radius: 0 0 12px 12px; }
+  .pt-bar-row { gap: .3rem .6rem; }
+  .pt-bar-txt { font-size: .88rem; }
+  .pt-btn { padding: .5rem .8rem; font-size: .85rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
@@ -207,7 +277,7 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 @media print {
   @page { size: A4; margin: 12.7mm; }
   .banner-wrap, .subnav-wrap, footer,
-  .begin, .finish-wrap, .peek, .reset, .back-to-s3, .backlink,
+  .begin, .pt-bar, .mk-next, .mk-done, .mk-actions, .peek, .back-to-s3, .backlink,
   .cover-note,
   .site-menu-button, .site-menu-drawer, .site-menu-overlay,
   .prog-counter, .prog-toast, .prog-dialog, .prog-dialog-overlay { display: none !important; }
@@ -298,7 +368,7 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 <div class="cover" id="cover">
   <p class="eyebrow">Higher Physics · Electricity</p>
   <h2>Practice Test A</h2>
-  <p class="sub">Answer everything, then mark it in one go.</p>
+  <p class="sub">Answer everything, then mark it one question at a time.</p>
   <div class="cover-facts">
     <div class="fact"><b>45</b><span>marks</span></div>
     <div class="fact"><b>60 min</b><span>suggested</span></div>
@@ -325,6 +395,60 @@ blockquote { margin: .6rem 0; padding: .55rem .8rem; border-left: 4px solid var(
 
 
 <div class="paper" id="paper" hidden>
+
+<div class="pt-bar" id="ptBar" role="region" aria-label="Your test">
+  <div class="pt-bar-row">
+    <p class="pt-bar-txt"><span id="barMain" aria-live="polite">Answered 0 of 14 questions</span><span class="pt-bar-sub" id="barSub">Saved on this device as you go</span></p>
+    <div class="pt-bar-acts">
+      <button type="button" class="pt-btn" id="finishBtn">Finish &amp; mark</button>
+      <button type="button" class="pt-btn ghost" id="barBack" hidden>Back to the paper</button>
+      <button type="button" class="pt-btn" id="barResume" hidden>Carry on marking</button>
+      <button type="button" class="pt-link" id="clearBtn">Clear this test</button>
+    </div>
+  </div>
+  <ol class="pt-steps" id="ptSteps" aria-label="Marking steps" hidden></ol>
+  <div class="pt-warn" id="finishWarn" role="group" aria-labelledby="finishMsg" hidden>
+    <div id="finishMsg"></div>
+    <div class="mk-row"><button type="button" class="pt-btn" id="markGo">Mark my paper</button><button type="button" class="pt-btn ghost" id="markBack">Back to the paper</button></div>
+  </div>
+  <div class="pt-warn" id="clearWarn" role="group" aria-labelledby="clearMsg" hidden>
+    <p id="clearMsg">Clear this test? Every answer, mark and past attempt for this test is removed from this device. Your badge is kept.</p>
+    <div class="mk-row"><button type="button" class="pt-btn" id="clearGo">Clear this test</button><button type="button" class="pt-btn ghost" id="clearKeep">Keep my answers</button></div>
+  </div>
+</div>
+
+
+<section class="card-score" id="scoreCard" hidden tabindex="-1" aria-label="Your result">
+  <h2>Your result</h2>
+  <p class="card-line" id="cardLine"></p>
+  <div class="score-row" aria-live="polite">
+    <div class="fact"><b id="scoreVal">0</b><span>out of 45</span></div>
+    <div class="fact"><b id="scorePc">0%</b><span>percentage</span></div>
+    <div class="fact"><b id="scoreBand">—</b><span>indicative band</span></div>
+  </div>
+  <div class="bars">
+    <div class="bar-row"><span>Warm-up</span><span class="bar" id="bar-warmup"><i style="width:0"></i></span><span id="barv-warmup">0 / 8</span></div>
+    <div class="bar-row"><span>Core</span><span class="bar" id="bar-core"><i style="width:0"></i></span><span id="barv-core">0 / 24</span></div>
+    <div class="bar-row"><span>Push</span><span class="bar" id="bar-push"><i style="width:0"></i></span><span id="barv-push">0 / 13</span></div>
+  </div>
+  <p class="split" id="splitLine"></p>
+  <p class="split">Bands are indicative only — they are a guide to where you are, not a grade.</p>
+  <div class="card-next"><h3>What to do next</h3><ul id="nextList"></ul></div>
+  <div class="mk-actions">
+    <button type="button" class="pt-btn" id="readBtn">Read the mark schemes from question 1</button>
+    <button type="button" class="pt-btn ghost" id="againBtn">Try again</button>
+  </div>
+  <div class="pt-warn" id="againWarn" role="group" aria-labelledby="againMsg" hidden>
+    <p id="againMsg">Start a new attempt? Your answers and self-marks clear. This score stays in your last attempts, and your badge keeps your best.</p>
+    <div class="mk-row"><button type="button" class="pt-btn" id="againGo">Start again</button><button type="button" class="pt-btn ghost" id="againKeep">Keep this attempt</button></div>
+  </div>
+  <div class="card-attempts" id="attemptWrap" hidden>
+    <p>Your last attempts on this device</p>
+    <ul id="attemptList"></ul>
+    <p>Your badge counts your best score.</p>
+  </div>
+</section>
+
 <p class="jotter-note">Working goes in your jotter. On this page you give the relationship and the final answer only — the mark scheme at the end shows the substitution you should have written down.</p>
 <section class="sec" aria-label="Warm-up section, 8 marks"><div class="sec-head"><h2>Warm-up</h2><span class="sec-marks">8 marks</span><p>Everyone should aim for full marks here. One step, no rearranging.</p></div><article class="q q-warmup" id="q-W1" data-q="W1"><div class="q-head"><span class="q-num">1</span><span class="q-marks">1 mark</span></div><div class="q-body"><p class="stem">The r.m.s. voltage of the output from a low-voltage a.c. supply is 18·0&nbsp;V. The peak voltage of the output is</p><fieldset class="mcq" data-part="W1"><legend class="visually-hidden">Options for question 1</legend><label class="mcq-opt"><input type="radio" name="W1" value="0"><span class="mcq-let">A</span><span class="mcq-txt">9·0 V</span></label><label class="mcq-opt"><input type="radio" name="W1" value="1"><span class="mcq-let">B</span><span class="mcq-txt">12·7 V</span></label><label class="mcq-opt"><input type="radio" name="W1" value="2"><span class="mcq-let">C</span><span class="mcq-txt">18·0 V</span></label><label class="mcq-opt"><input type="radio" name="W1" value="3"><span class="mcq-let">D</span><span class="mcq-txt">25·5 V</span></label><label class="mcq-opt"><input type="radio" name="W1" value="4"><span class="mcq-let">E</span><span class="mcq-txt">36·0 V</span></label></fieldset><div class="mi" id="mi-W1" hidden></div><button type="button" class="peek" data-peek="W1">Show the mark scheme for this question</button></div></article><article class="q q-warmup" id="q-W2" data-q="W2"><div class="q-head"><span class="q-num">2</span><span class="q-marks">1 mark</span></div><div class="q-body"><p class="stem">The output from a signal generator is displayed on an oscilloscope. The trace is shown. The timebase of the oscilloscope is set at 2·5&nbsp;ms/div. The frequency of the output signal is</p><figure class="dia"><svg style="width:min(100%, 346px);height:auto" class="ckt" role="img" aria-label="An oscilloscope screen with a grid of 10 divisions across and 8 up. A sine wave trace completes one wave every 4 divisions." preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink"   viewBox="0 0 247.248 200.6784" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
@@ -2291,28 +2415,6 @@ L 3.5 3.5
  </defs>
 </svg>
 </figure><div class="ans-grid"><label class="ans-lab" for="C2a-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="C2a-num" type="text" inputmode="decimal" autocomplete="off" data-part="C2a" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="C2a" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-C2a" hidden></div></div><div class="part" id="p-C2b"><p class="part-ask"><span class="part-let">(b)</span> Use the graph to determine the e.m.f. of the battery.<span class="part-marks">2</span></p><div class="ans-grid"><label class="ans-lab" for="C2b-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="C2b-num" type="text" inputmode="decimal" autocomplete="off" data-part="C2b" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="C2b" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-C2b" hidden></div></div><div class="part" id="p-C2c"><p class="part-ask"><span class="part-let">(c)</span> The battery is accidentally short-circuited. Calculate the current in the battery when this happens.<span class="part-marks">3</span></p><div class="ans-grid"><label class="ans-lab" for="C2c-rel">Relationship</label><select class="ans-rel" id="C2c-rel" data-part="C2c"><option value="">— choose a relationship —</option><option value="0">V peak = √2 V rms</option><option value="1">I peak = √2 I rms</option><option value="2">T = 1 / f</option><option value="3">Q = It</option><option value="4">V = IR</option><option value="5">P = IV</option><option value="6">P = I²R</option><option value="7">P = V² / R</option><option value="8">R T = R₁ + R₂ + …</option><option value="9">1 / R T = 1 / R₁ + 1 / R₂ + …</option><option value="10">E = V + Ir</option><option value="11">V₁ = (R₁ / (R₁ + R₂)) V S</option><option value="12">C = Q / V</option><option value="13">E = ½QV</option><option value="14">E = ½CV²</option><option value="15">E = ½Q² / C</option></select><label class="ans-lab" for="C2c-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="C2c-num" type="text" inputmode="decimal" autocomplete="off" data-part="C2c" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="C2c" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-C2c" hidden></div></div><button type="button" class="peek" data-peek="C2">Show the mark scheme for this question</button></div></article><article class="q q-core" id="q-C3" data-q="C3"><div class="q-head"><span class="q-num">11</span><span class="q-marks">7 marks</span></div><div class="q-body"><p class="stem">A 330&nbsp;μF capacitor is charged using the circuit shown. The 5·0&nbsp;V battery has negligible internal resistance. The capacitor is initially uncharged. The switch S is closed, and the charging current is kept constant at 25&nbsp;μA by adjusting the resistance of the variable resistor R.</p><figure class="dia"><svg style="width:min(100%, 331px);height:auto" class="ckt" viewBox="0 0 276 184" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A 5·0 volt battery and switch S in series with an ammeter, a variable resistor R and a 330 microfarad capacitor."><line x1="42.0" y1="52.0" x2="64.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="64.0" y1="52.0" x2="80.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="124.0" y1="52.0" x2="140.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="86.0" y1="37.0" x2="86.0" y2="67.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="95.0" y1="45.0" x2="95.0" y2="59.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="109.0" y1="37.0" x2="109.0" y2="67.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="118.0" y1="45.0" x2="118.0" y2="59.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><text x="102.0" y="19.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle">5·0 V</text><line x1="140.0" y1="52.0" x2="156.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="196.0" y1="52.0" x2="212.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><circle cx="156.0" cy="52.0" r="3.4" fill="var(--dia-ink, currentColor)"/><circle cx="196.0" cy="52.0" r="3.4" fill="var(--dia-ink, currentColor)"/><line x1="156.0" y1="52.0" x2="192.0" y2="34.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><text x="176.0" y="21.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle">S</text><line x1="212.0" y1="52.0" x2="234.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="18.0" y1="142.0" x2="40.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="40.0" y1="142.0" x2="56.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="90.0" y1="142.0" x2="106.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><circle cx="73.0" cy="142.0" r="17.0" fill="none" stroke="var(--dia-ink, currentColor)" stroke-width="2.0"/><text x="73.0" y="147.5" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="15" font-weight="800" text-anchor="middle">A</text><line x1="106.0" y1="142.0" x2="122.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="166.0" y1="142.0" x2="182.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><rect x="122.0" y="132.0" width="44.0" height="20.0" rx="1.5" fill="none" stroke="var(--dia-ink, currentColor)" stroke-width="2.0"/><line x1="125.0" y1="157.0" x2="163.0" y2="127.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><path d="M 163.0 127.0 L 153.5 130.2 L 159.8 136.5 Z" fill="var(--dia-ink, currentColor)"/><text x="144.0" y="109.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle">R</text><line x1="182.0" y1="142.0" x2="198.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="220.0" y1="142.0" x2="236.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="198.0" y1="142.0" x2="205.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="213.0" y1="142.0" x2="220.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="205.0" y1="127.0" x2="205.0" y2="157.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.6" stroke-linecap="round"/><line x1="213.0" y1="127.0" x2="213.0" y2="157.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.6" stroke-linecap="round"/><text x="209.0" y="120.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle">330 μF</text><line x1="236.0" y1="142.0" x2="258.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="18.0" y1="52.0" x2="42.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="234.0" y1="52.0" x2="258.0" y2="52.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="18.0" y1="52.0" x2="18.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="258.0" y1="52.0" x2="258.0" y2="142.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/></svg></figure><div class="part" id="p-C3a"><p class="part-ask"><span class="part-let">(a)</span> Calculate the resistance of the variable resistor R just after the switch is closed.<span class="part-marks">3</span></p><div class="ans-grid"><label class="ans-lab" for="C3a-rel">Relationship</label><select class="ans-rel" id="C3a-rel" data-part="C3a"><option value="">— choose a relationship —</option><option value="0">V peak = √2 V rms</option><option value="1">I peak = √2 I rms</option><option value="2">T = 1 / f</option><option value="3">Q = It</option><option value="4">V = IR</option><option value="5">P = IV</option><option value="6">P = I²R</option><option value="7">P = V² / R</option><option value="8">R T = R₁ + R₂ + …</option><option value="9">1 / R T = 1 / R₁ + 1 / R₂ + …</option><option value="10">E = V + Ir</option><option value="11">V₁ = (R₁ / (R₁ + R₂)) V S</option><option value="12">C = Q / V</option><option value="13">E = ½QV</option><option value="14">E = ½CV²</option><option value="15">E = ½Q² / C</option></select><label class="ans-lab" for="C3a-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="C3a-num" type="text" inputmode="decimal" autocomplete="off" data-part="C3a" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="C3a" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-C3a" hidden></div></div><div class="part" id="p-C3b"><p class="part-ask"><span class="part-let">(b)</span> Calculate the charge on the capacitor 36&nbsp;s after the switch is closed.<span class="part-marks">2</span></p><div class="ans-grid"><label class="ans-lab" for="C3b-rel">Relationship</label><select class="ans-rel" id="C3b-rel" data-part="C3b"><option value="">— choose a relationship —</option><option value="0">V peak = √2 V rms</option><option value="1">I peak = √2 I rms</option><option value="2">T = 1 / f</option><option value="3">Q = It</option><option value="4">V = IR</option><option value="5">P = IV</option><option value="6">P = I²R</option><option value="7">P = V² / R</option><option value="8">R T = R₁ + R₂ + …</option><option value="9">1 / R T = 1 / R₁ + 1 / R₂ + …</option><option value="10">E = V + Ir</option><option value="11">V₁ = (R₁ / (R₁ + R₂)) V S</option><option value="12">C = Q / V</option><option value="13">E = ½QV</option><option value="14">E = ½CV²</option><option value="15">E = ½Q² / C</option></select><label class="ans-lab" for="C3b-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="C3b-num" type="text" inputmode="decimal" autocomplete="off" data-part="C3b" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="C3b" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-C3b" hidden></div></div><div class="part" id="p-C3c"><p class="part-ask"><span class="part-let">(c)</span> Explain why the resistance of the variable resistor must be decreased as the capacitor charges, to keep the current constant.<span class="part-marks">2</span></p><label class="ans-lab" for="C3c-txt">Your answer</label><textarea class="ans-area" id="C3c-txt" rows="2" data-part="C3c"></textarea><div class="mi" id="mi-C3c" hidden></div></div><button type="button" class="peek" data-peek="C3">Show the mark scheme for this question</button></div></article><article class="q q-core" id="q-C4" data-q="C4"><div class="q-head"><span class="q-num">12</span><span class="q-marks">4 marks</span></div><div class="q-body"><p class="stem">An intruder alarm uses a beam of light shining onto a photodiode. A photodiode is a p–n junction. While light is incident on the photodiode it produces a potential difference; when an intruder breaks the beam, the potential difference drops and the alarm sounds.</p><div class="part" id="p-C4a"><p class="part-ask"><span class="part-let">(a)</span> Using band theory, explain how a potential difference is produced when photons of light are incident on the photodiode.<span class="part-marks">3</span></p><label class="ans-lab" for="C4a-txt">Your answer</label><textarea class="ans-area" id="C4a-txt" rows="2" data-part="C4a"></textarea><div class="mi" id="mi-C4a" hidden></div></div><div class="part" id="p-C4b"><p class="part-ask"><span class="part-let">(b)</span> Explain, in terms of the conduction band, why the potential difference drops when the beam is broken.<span class="part-marks">1</span></p><label class="ans-lab" for="C4b-txt">Your answer</label><textarea class="ans-area" id="C4b-txt" rows="2" data-part="C4b"></textarea><div class="mi" id="mi-C4b" hidden></div></div><button type="button" class="peek" data-peek="C4">Show the mark scheme for this question</button></div></article></section><section class="sec" aria-label="Push section, 13 marks"><div class="sec-head"><h2>Push</h2><span class="sec-marks">13 marks</span><p>Two or more steps, an unfamiliar context, and a judgement to justify.</p></div><article class="q q-push" id="q-P1" data-q="P1"><div class="q-head"><span class="q-num">13</span><span class="q-marks">8 marks</span></div><div class="q-body"><p class="stem">A battery of e.m.f. 6·8&nbsp;V and internal resistance 2·4&nbsp;Ω is connected to a variable resistor R as shown. The resistance of R is set to 1·6&nbsp;Ω.</p><figure class="dia"><svg style="width:min(100%, 276px);height:auto" class="ckt" viewBox="0 0 230 190" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A battery of e.m.f. E and internal resistance r, drawn inside a dashed box, connected to a variable resistor R."><line x1="18.0" y1="54.0" x2="40.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="40.0" y1="54.0" x2="56.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="174.0" y1="54.0" x2="190.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><rect x="56.0" y="28.0" width="118.0" height="52.0" rx="4" fill="none" stroke="var(--dia-ink, currentColor)" stroke-width="1.4" stroke-dasharray="5 4"/><line x1="56.0" y1="54.0" x2="64.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="76.0" y1="39.0" x2="76.0" y2="69.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="86.0" y1="47.0" x2="86.0" y2="61.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="64.0" y1="54.0" x2="76.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="86.0" y1="54.0" x2="104.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><rect x="104.0" y="44.0" width="40.0" height="20.0" rx="1.5" fill="none" stroke="var(--dia-ink, currentColor)" stroke-width="2.0"/><line x1="144.0" y1="54.0" x2="174.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><text x="80.0" y="21.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle" font-style="italic">E</text><text x="124.0" y="21.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle" font-style="italic">r</text><line x1="190.0" y1="54.0" x2="212.0" y2="54.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="55.0" y1="148.0" x2="77.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="77.0" y1="148.0" x2="93.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="137.0" y1="148.0" x2="153.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><rect x="93.0" y="138.0" width="44.0" height="20.0" rx="1.5" fill="none" stroke="var(--dia-ink, currentColor)" stroke-width="2.0"/><line x1="96.0" y1="163.0" x2="134.0" y2="133.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><path d="M 134.0 133.0 L 124.5 136.2 L 130.8 142.5 Z" fill="var(--dia-ink, currentColor)"/><text x="115.0" y="115.0" fill="var(--dia-ink, currentColor)" font-family='"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif' font-size="13" font-weight="700" text-anchor="middle">R</text><line x1="153.0" y1="148.0" x2="175.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="18.0" y1="148.0" x2="55.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="175.0" y1="148.0" x2="212.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="18.0" y1="54.0" x2="18.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/><line x1="212.0" y1="54.0" x2="212.0" y2="148.0" stroke="var(--dia-ink, currentColor)" stroke-width="2.0" stroke-linecap="round"/></svg></figure><div class="part" id="p-P1a"><p class="part-ask"><span class="part-let">(a)</span> Calculate the current in the circuit.<span class="part-marks">3</span></p><div class="ans-grid"><label class="ans-lab" for="P1a-rel">Relationship</label><select class="ans-rel" id="P1a-rel" data-part="P1a"><option value="">— choose a relationship —</option><option value="0">V peak = √2 V rms</option><option value="1">I peak = √2 I rms</option><option value="2">T = 1 / f</option><option value="3">Q = It</option><option value="4">V = IR</option><option value="5">P = IV</option><option value="6">P = I²R</option><option value="7">P = V² / R</option><option value="8">R T = R₁ + R₂ + …</option><option value="9">1 / R T = 1 / R₁ + 1 / R₂ + …</option><option value="10">E = V + Ir</option><option value="11">V₁ = (R₁ / (R₁ + R₂)) V S</option><option value="12">C = Q / V</option><option value="13">E = ½QV</option><option value="14">E = ½CV²</option><option value="15">E = ½Q² / C</option></select><label class="ans-lab" for="P1a-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="P1a-num" type="text" inputmode="decimal" autocomplete="off" data-part="P1a" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="P1a" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-P1a" hidden></div></div><div class="part" id="p-P1b"><p class="part-ask"><span class="part-let">(b)</span> Calculate the power dissipated in the variable resistor.<span class="part-marks">3</span></p><div class="ans-grid"><label class="ans-lab" for="P1b-rel">Relationship</label><select class="ans-rel" id="P1b-rel" data-part="P1b"><option value="">— choose a relationship —</option><option value="0">V peak = √2 V rms</option><option value="1">I peak = √2 I rms</option><option value="2">T = 1 / f</option><option value="3">Q = It</option><option value="4">V = IR</option><option value="5">P = IV</option><option value="6">P = I²R</option><option value="7">P = V² / R</option><option value="8">R T = R₁ + R₂ + …</option><option value="9">1 / R T = 1 / R₁ + 1 / R₂ + …</option><option value="10">E = V + Ir</option><option value="11">V₁ = (R₁ / (R₁ + R₂)) V S</option><option value="12">C = Q / V</option><option value="13">E = ½QV</option><option value="14">E = ½CV²</option><option value="15">E = ½Q² / C</option></select><label class="ans-lab" for="P1b-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="P1b-num" type="text" inputmode="decimal" autocomplete="off" data-part="P1b" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="P1b" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-P1b" hidden></div></div><div class="part" id="p-P1c"><p class="part-ask"><span class="part-let">(c)</span> The resistance of R is now increased to 2·4&nbsp;Ω. State whether the power dissipated in R increases, decreases or stays the same. You must justify your answer by calculation.<span class="part-marks">2</span></p><label class="ans-lab" for="P1c-txt">Your answer</label><textarea class="ans-area" id="P1c-txt" rows="3" data-part="P1c"></textarea><div class="mi" id="mi-P1c" hidden></div></div><button type="button" class="peek" data-peek="P1">Show the mark scheme for this question</button></div></article><article class="q q-push" id="q-P2" data-q="P2"><div class="q-head"><span class="q-num">14</span><span class="q-marks">5 marks</span></div><div class="q-body"><p class="stem">An emergency exit sign contains a 120&nbsp;mF capacitor. While mains power is on, the capacitor is kept charged to 3·3&nbsp;V. During a power cut the capacitor discharges through a small lamp, keeping the sign lit for a short time.</p><div class="part" id="p-P2a"><p class="part-ask"><span class="part-let">(a)</span> Calculate the maximum energy stored in the capacitor.<span class="part-marks">3</span></p><div class="ans-grid"><label class="ans-lab" for="P2a-rel">Relationship</label><select class="ans-rel" id="P2a-rel" data-part="P2a"><option value="">— choose a relationship —</option><option value="0">V peak = √2 V rms</option><option value="1">I peak = √2 I rms</option><option value="2">T = 1 / f</option><option value="3">Q = It</option><option value="4">V = IR</option><option value="5">P = IV</option><option value="6">P = I²R</option><option value="7">P = V² / R</option><option value="8">R T = R₁ + R₂ + …</option><option value="9">1 / R T = 1 / R₁ + 1 / R₂ + …</option><option value="10">E = V + Ir</option><option value="11">V₁ = (R₁ / (R₁ + R₂)) V S</option><option value="12">C = Q / V</option><option value="13">E = ½QV</option><option value="14">E = ½CV²</option><option value="15">E = ½Q² / C</option></select><label class="ans-lab" for="P2a-num">Answer</label><span class="ans-numrow"><input class="ans-num" id="P2a-num" type="text" inputmode="decimal" autocomplete="off" data-part="P2a" placeholder="e.g. 2.5e4" aria-label="Answer value"><select class="ans-unit" data-part="P2a" aria-label="Answer unit"><option value="" selected>&mdash;</option><option>V</option><option>mV</option><option>A</option><option>mA</option><option>Ω</option><option>kΩ</option><option>W</option><option>J</option><option>C</option><option>mC</option><option>F</option><option>μF</option><option>Hz</option><option>s</option><option>ms</option></select></span></div><div class="mi" id="mi-P2a" hidden></div></div><div class="part" id="p-P2b"><p class="part-ask"><span class="part-let">(b)</span> The capacitor is replaced by one of greater capacitance, which is also kept charged to 3·3&nbsp;V. State the effect this has on the time the lamp stays lit during a power cut. You must justify your answer.<span class="part-marks">2</span></p><label class="ans-lab" for="P2b-txt">Your answer</label><textarea class="ans-area" id="P2b-txt" rows="3" data-part="P2b"></textarea><div class="mi" id="mi-P2b" hidden></div></div><button type="button" class="peek" data-peek="P2">Show the mark scheme for this question</button></div></article></section>
-<div class="finish-wrap">
-  <button type="button" class="finish" id="finishBtn">Finish &amp; mark</button>
-</div>
-
-<section class="card-score" id="scoreCard" hidden tabindex="-1" aria-live="polite" aria-label="Your result">
-  <h2>Your result</h2>
-  <div class="score-row">
-    <div class="fact"><b id="scoreVal">0</b><span>out of 45</span></div>
-    <div class="fact"><b id="scorePc">0%</b><span>percentage</span></div>
-    <div class="fact"><b id="scoreBand">—</b><span>indicative band</span></div>
-  </div>
-  <div class="bars">
-    <div class="bar-row"><span>Warm-up</span><span class="bar" id="bar-warmup"><i style="width:0"></i></span><span id="barv-warmup">0 / 8</span></div>
-    <div class="bar-row"><span>Core</span><span class="bar" id="bar-core"><i style="width:0"></i></span><span id="barv-core">0 / 24</span></div>
-    <div class="bar-row"><span>Push</span><span class="bar" id="bar-push"><i style="width:0"></i></span><span id="barv-push">0 / 13</span></div>
-  </div>
-  <p class="split" id="splitLine"></p>
-  <p class="split">Bands are indicative only — they are a guide to where you are, not a grade.</p>
-  <p class="split"><a href="#paper">Go back to question 1 and read each mark scheme.</a></p>
-  <button type="button" class="reset" id="resetBtn">Clear my answers and start again</button>
-</section>
-
 </div>
 
 <p data-credit-note style="font-size:0.82rem;opacity:0.78;margin-top:1.5rem;">Sources &amp; credits: questions are adapted from Higher Physics past papers, reproduced and adapted for educational use — past papers and marking instructions &copy; Qualifications Scotland (SQA). Numbers, circuits and contexts have been changed, and some questions are original to this site. Circuit diagrams, oscilloscope traces, graphs and band diagrams drawn for this site &copy; R Stewart Physics, Electronics and Engineering, 2026.</p>
@@ -2338,12 +2440,19 @@ L 3.5 3.5
     return o;
   }
   var UNITS = {"V": [1, "V"], "mV": [0.001, "V"], "A": [1, "I"], "mA": [0.001, "I"], "Ω": [1, "R"], "kΩ": [1000, "R"], "W": [1, "P"], "J": [1, "E"], "C": [1, "Q"], "mC": [0.001, "Q"], "F": [1, "C"], "μF": [1e-06, "C"], "Hz": [1, "f"], "s": [1, "t"], "ms": [0.001, "t"]};
+  var SECNAMES = {"warmup": "Warm-up", "core": "Core", "push": "Push"};
+  var REVISE = {"W1": ["/classes/higher/electricity/monitoring-measuring-ac.html#c2", "Topic page: Peak and r.m.s. values"], "W2": ["/classes/higher/electricity/monitoring-measuring-ac.html#c3", "Topic page: Reading the oscilloscope"], "W3": ["/classes/higher/electricity/current-pd-power-resistance.html#c4", "Topic page: Electrical power and energy"], "W4": ["/classes/higher/electricity/current-pd-power-resistance.html#c3", "Topic page: Resistors in series and parallel"], "W5": ["/classes/higher/electricity/electrical-sources-internal-resistance.html#c1", "Topic page: E.m.f., terminal p.d. and lost volts"], "W6": ["/classes/higher/electricity/capacitors.html#c1", "Topic page: Capacitance and charge"], "W7": ["/classes/higher/electricity/capacitors.html#c3", "Topic page: Charging and discharging in RC circuits"], "W8": ["/classes/higher/electricity/semiconductors-pn-junctions.html#c1", "Topic page: Energy bands"], "C1": ["/classes/higher/electricity/monitoring-measuring-ac.html#c3", "Topic page: Reading the oscilloscope"], "C2": ["/classes/higher/electricity/electrical-sources-internal-resistance.html#c3", "Topic page: Measuring e.m.f. and internal resistance"], "C3": ["/classes/higher/electricity/capacitors.html#c1", "Topic page: Capacitance and charge"], "C4": ["/classes/higher/electricity/semiconductors-pn-junctions.html#c3", "Topic page: p–n junction devices"], "P1": ["/classes/higher/electricity/electrical-sources-internal-resistance.html#c2", "Topic page: Solving circuits with internal resistance"], "P2": ["/classes/higher/electricity/capacitors.html#c2", "Topic page: Energy stored in a capacitor"]};
   /* selfMarks is the one record of every self-mark, keyed by radio name, so a
-     mark scheme box can be redrawn (peek, then Finish, then a reload) without
-     losing a tick (PT-1). autoById freezes each question's auto-mark at Finish
-     so the section bars and the headline agree (PT-6). */
-  var revealed = {}, marked = false, selfMarks = {}, autoById = {}, autoSum = 0;
-  var ATTEMPT = null;
+     mark scheme box can be redrawn (peek, then marking, then a reload) without
+     losing a tick (PT-1). A name that is missing has not been marked yet,
+     which is not the same as 0 (PT-8). autoById and autoByPart freeze the
+     auto-marks when marking starts, so the bars, the headline and "what to do
+     next" agree (PT-6). */
+  var revealed = {}, selfMarks = {}, autoById = {}, autoByPart = {}, autoSum = 0;
+  /* phase: "answer" (working on the paper), "marking" (one step at a time),
+     "paused" (marking, but looking at the whole paper) or "result" */
+  var phase = "answer", step = 0, visited = [], drawn = {};
+  var ATTEMPT = null, STEPS = [], STEP_OF = {};
 
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -2355,13 +2464,20 @@ L 3.5 3.5
   function load(k) {
     try { return localStorage.getItem(PREFIX + k); } catch (e) { return null; }
   }
+  function unstore(k) {
+    try { localStorage.removeItem(PREFIX + k); } catch (e) {}
+  }
+  function stamp() { store("saved", String(Date.now())); }
   function saveMarks() {
     store("sm", JSON.stringify(selfMarks));
-    store("marked", marked ? "1" : "");
+    store("phase", phase === "answer" ? "" : phase);
+    store("step", String(step));
+    store("visited", JSON.stringify(visited));
+    stamp();
   }
   /* The badge keeps the best of finished attempts, and within one attempt the
-     latest self-marked score, so a correction downwards sticks (PT-2). A new
-     attempt starts after "Clear my answers", which removes this key. */
+     latest self-marked score, so a correction downwards sticks (PT-2). "Try
+     again" starts a new attempt and keeps this one in the list (D11). */
   function attemptId() {
     if (!ATTEMPT) {
       ATTEMPT = load("attempt");
@@ -2378,32 +2494,43 @@ L 3.5 3.5
     $$(".mcq input[type=radio]:checked").forEach(function (el) { o[el.name] = el.value; });
     store("ans", JSON.stringify(o));
     store("peek", JSON.stringify(revealed));
+    stamp();
+    renderBar();
+  }
+  function parsed(k, dflt) {
+    try { var v = JSON.parse(load(k) || "null"); return v === null ? dflt : v; }
+    catch (e) { return dflt; }
   }
   function restore() {
-    var raw = load("ans");
-    if (raw) {
-      var o = {};
-      try { o = JSON.parse(raw); } catch (e) { o = {}; }
-      Object.keys(o).forEach(function (k) {
-        var el = document.getElementById(k);
-        if (el) { el.value = o[k]; return; }
-        var r = $$('input[name="' + k + '"]');
-        if (r.length && o[k] !== "") { r[+o[k]] && (r[+o[k]].checked = true); }
-        var u = $$('.ans-unit[data-part="' + k.replace(/-u$/, "") + '"]');
-        if (u.length) { u[0].value = o[k]; }
-      });
+    var o = parsed("ans", {});
+    Object.keys(o).forEach(function (k) {
+      var el = document.getElementById(k);
+      if (el) { el.value = o[k]; return; }
+      var r = $$('input[name="' + k + '"]');
+      if (r.length && o[k] !== "") { r[+o[k]] && (r[+o[k]].checked = true); }
+      var u = $$('.ans-unit[data-part="' + k.replace(/-u$/, "") + '"]');
+      if (u.length) { u[0].value = o[k]; }
+    });
+    revealed = parsed("peek", {});
+    selfMarks = parsed("sm", {});
+    visited = parsed("visited", []);
+    step = Math.min(Math.max(0, +(load("step") || 0)), STEPS.length - 1);
+    phase = load("phase") || "";
+    /* a paper marked before marking went step by step comes back as a result */
+    if (!phase && load("marked") === "1") {
+      phase = "result";
+      visited = STEPS.map(function (s, i) { return i; });
     }
-    try { revealed = JSON.parse(load("peek") || "{}"); } catch (e) { revealed = {}; }
-    try { selfMarks = JSON.parse(load("sm") || "{}"); } catch (e) { selfMarks = {}; }
+    if (["marking", "paused", "result"].indexOf(phase) < 0) { phase = "answer"; }
     if (load("begun") === "1") { showPaper(); }
     /* a peeked mark scheme comes back with the page, so "you revealed the mark
        scheme for N questions" never refers to something the pupil cannot see */
     Object.keys(revealed).forEach(function (id) {
       var q = byId(id), b = $('.peek[data-peek="' + id + '"]');
-      if (q) { markQuestion(q, true); }
+      if (q) { draw(q); lockQ(q); }
       if (b) { b.hidden = true; }
     });
-    if (load("marked") === "1") { finish(true); }
+    if (phase !== "answer") { startMarking(true); } else { render(false); }
   }
   function byId(id) {
     return DATA.filter(function (x) { return x.id === id; })[0];
@@ -2577,17 +2704,27 @@ L 3.5 3.5
     box.hidden = false;
   }
 
+  function chipHtml(name) {
+    var had = selfMarks[name];
+    return typeof had === "number"
+      ? '<span class="sm-chip is-set">You gave ' + had + "</span>"
+      : '<span class="sm-chip">Not marked yet</span>';
+  }
+  /* No radio starts ticked: an unmarked part must not look like a 0 (PT-8).
+     A fieldset and legend, so a screen reader hears the question with the
+     numbers (PT-10). */
   function selfControl(id, max) {
-    var opts = "", had = selfMarks["sm-" + id];
-    var on = (typeof had === "number" && had >= 0 && had <= max) ? had : 0;
+    var name = "sm-" + id, opts = "", had = selfMarks[name];
+    var on = (typeof had === "number" && had >= 0 && had <= max) ? had : -1;
     for (var i = 0; i <= max; i++) {
-      opts += '<label><input type="radio" name="sm-' + id + '" value="' + i + '"' +
+      opts += '<label><input type="radio" name="' + name + '" value="' + i + '"' +
               (i === on ? " checked" : "") + '>' + i + "</label>";
     }
     var ask = max === 1 ? "did you earn this mark?"
                         : "how many of these " + max + " marks did you earn?";
-    return '<div class="selfmark"><p>Check the working in your jotter against the scheme above — ' + ask +
-           '</p><div class="opts">' + opts + "</div></div>";
+    return '<fieldset class="selfmark' + (on < 0 ? " is-todo" : "") + '" data-sm="' + name + '">' +
+           "<legend>Check the working in your jotter against the scheme above — " + ask + " " + chipHtml(name) + "</legend>" +
+           '<div class="opts">' + opts + "</div></fieldset>";
   }
 
   /* ---------- marking ---------- */
@@ -2610,6 +2747,7 @@ L 3.5 3.5
                                   : "The answer is " + "ABCDE"[q.key] + " — 0 marks") });
       }
       if (right) { auto = q.auto; }
+      autoByPart[q.id] = auto;
       return { auto: auto, selfMax: 0 };
     }
     if (q.type === "open") {
@@ -2653,6 +2791,7 @@ L 3.5 3.5
         }
       }
       got = Math.min(got, p.auto);
+      autoByPart[pid] = got;
       auto += got;
       selfMax += p.self;
       if (live) {
@@ -2672,29 +2811,6 @@ L 3.5 3.5
     return pc >= 70 ? "A" : pc >= 60 ? "B" : pc >= 50 ? "C" : pc >= 40 ? "D" : "no award";
   }
 
-  /* restoring: the page is coming back after a reload, so the pupil is left
-     where the browser puts them rather than thrown to the score card */
-  function finish(restoring) {
-    if (marked && restoring !== true) { return; }
-    marked = true;
-    autoSum = 0;
-    DATA.forEach(function (q) {
-      var r = markQuestion(q, true);
-      autoById[q.id] = r.auto;
-      autoSum += r.auto;
-    });
-    $$(".peek").forEach(function (b) { b.hidden = true; });
-    $("#finishBtn").disabled = true;
-    $("#finishBtn").textContent = "Marked";
-    saveMarks();
-    recount();
-    $("#scoreCard").hidden = false;
-    if (restoring !== true) {
-      $("#scoreCard").scrollIntoView({ block: "start" });
-      $("#scoreCard").focus();
-    }
-  }
-
   /* each question's own self-mark groups, by exact name: a prefix match made
      sm-A1 also pick up sm-A10 to sm-A13 (PT-6) */
   function selfNames(q) {
@@ -2703,38 +2819,7 @@ L 3.5 3.5
     return q.parts.filter(function (p) { return p.self > 0; })
                   .map(function (p) { return "sm-" + q.id + p.id; });
   }
-
-  function recount() {
-    var self = 0, sec = zeroes();
-    DATA.forEach(function (q) {
-      sec[q.section][1] += q.marks;
-      var s = 0;
-      selfNames(q).forEach(function (n) {
-        var c = $('input[name="' + n + '"]:checked');
-        if (c) { s += +c.value; }
-      });
-      self += s;
-      sec[q.section][0] += (autoById[q.id] || 0) + s;
-    });
-    var auto = autoSum, score = auto + self;
-    var pc = Math.round((score / TOTAL) * 100);
-    var peeked = Object.keys(revealed).length;
-    $("#scoreVal").textContent = score;
-    $("#scorePc").textContent = pc + "%";
-    $("#scoreBand").textContent = band(pc);
-    $("#splitLine").innerHTML = "Marked by the page: <b>" + auto + "</b>. " +
-      "Marked by you: <b>" + self + "</b> of " + (TOTAL - autoTotal()) + " self-marked marks." +
-      (peeked ? " You revealed the mark scheme for <b>" + peeked +
-                "</b> question" + (peeked === 1 ? "" : "s") + " before marking." : "");
-    SECKEYS.forEach(function (k) {
-      var got = sec[k][0], max = sec[k][1];
-      $("#bar-" + k + " i").style.width = Math.round((got / max) * 100) + "%";
-      $("#barv-" + k).textContent = got + " / " + max;
-    });
-    if (window.Progress && Progress.record) {
-      Progress.record(BADGE, score, TOTAL, { attempt: attemptId() });
-    }
-  }
+  function smVal(n) { return typeof selfMarks[n] === "number" ? selfMarks[n] : null; }
 
   function autoTotal() {
     var t = 0;
@@ -2745,77 +2830,457 @@ L 3.5 3.5
     return t;
   }
 
+  /* ---------- the paper's own questions ---------- */
+  function qNum(id) {
+    var n = $("#q-" + id + " .q-num");
+    return n ? n.textContent : id;
+  }
+  function inputsOf(q) {
+    var art = document.getElementById("q-" + q.id);
+    return art ? $$(".ans-rel, .ans-num, .ans-unit, .ans-area, .ans-text, .mcq input", art) : [];
+  }
+  /* a question with nothing to type (a derivation or a drawing) is done in
+     the jotter, so it never counts as left blank */
+  function answeredQ(q) {
+    var els = inputsOf(q);
+    if (!els.length) { return true; }
+    return els.some(function (el) {
+      return el.type === "radio" ? el.checked
+           : (el.classList.contains("ans-unit") ? false : (el.value || "").trim() !== "");
+    });
+  }
+  function hasInputs(q) { return inputsOf(q).length > 0; }
+  /* answers lock once their mark scheme has been seen (PT-7, D11) */
+  function lockQ(q) {
+    inputsOf(q).forEach(function (el) {
+      if (el.tagName === "SELECT" || el.type === "radio") { el.disabled = true; }
+      else { el.readOnly = true; }
+    });
+    var art = document.getElementById("q-" + q.id);
+    if (art) { art.classList.add("is-locked"); }
+  }
+  function draw(q) {
+    if (drawn[q.id]) { return; }
+    drawn[q.id] = 1;
+    markQuestion(q, true);
+  }
+
+  /* ---------- marking steps ---------- */
+  /* Every multiple-choice question is one step, marked by the page in one go
+     (teacher, 19 Nov 2026: B6); every other question is a step of its own. */
+  function buildSteps() {
+    var mcq = DATA.filter(function (q) { return q.type === "mcq"; });
+    if (mcq.length) {
+      var secs = mcq.map(function (q) { return q.section; })
+                    .filter(function (s, i, a) { return a.indexOf(s) === i; });
+      var name = secs.length === 1 ? SECNAMES[secs[0]] : "Multiple choice";
+      STEPS.push({ label: name, long: "the " + name.toLowerCase(), back: name,
+                   ids: mcq.map(function (q) { return q.id; }) });
+    }
+    DATA.forEach(function (q) {
+      if (q.type === "mcq") { return; }
+      var n = qNum(q.id);
+      STEPS.push({ label: "Q" + n, long: "question " + n, back: "Question " + n, ids: [q.id] });
+    });
+    STEPS.forEach(function (s, i) { s.ids.forEach(function (id) { STEP_OF[id] = i; }); });
+  }
+  function stepNames(i) {
+    var out = [];
+    STEPS[i].ids.forEach(function (id) { out = out.concat(selfNames(byId(id))); });
+    return out;
+  }
+  function stepComplete(i) {
+    return stepNames(i).every(function (n) { return smVal(n) !== null; });
+  }
+  function isVisited(i) { return visited.indexOf(i) >= 0; }
+
+  function totals() {
+    var t = { self: 0, sec: zeroes(), setN: 0, groups: 0, soFar: 0, tried: {} };
+    SECKEYS.forEach(function (k) { t.tried[k] = false; });
+    DATA.forEach(function (q) {
+      t.sec[q.section][1] += q.marks;
+      var s = 0, anySelf = false;
+      selfNames(q).forEach(function (n) {
+        t.groups += 1;
+        var v = smVal(n);
+        if (v !== null) { t.setN += 1; s += v; if (v > 0) { anySelf = true; } }
+      });
+      t.self += s;
+      t.sec[q.section][0] += (autoById[q.id] || 0) + s;
+      if (isVisited(STEP_OF[q.id])) { t.soFar += (autoById[q.id] || 0) + s; }
+      if ((hasInputs(q) && answeredQ(q)) || anySelf) { t.tried[q.section] = true; }
+    });
+    t.score = autoSum + t.self;
+    t.pc = Math.round((t.score / TOTAL) * 100);
+    return t;
+  }
+
+  /* ---------- saved time and attempts ---------- */
+  function when(ms) {
+    var d = new Date(+ms), now = new Date();
+    var time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    if (d.toDateString() === now.toDateString()) { return "at " + time; }
+    return "on " + d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) +
+           " at " + time;
+  }
+  function savedLine() {
+    var t = load("saved");
+    return t ? "Saved on this device " + when(t) : "Saved on this device as you go";
+  }
+  function pastAttempts() {
+    var h = parsed("hist", []);
+    return Array.isArray(h) ? h : [];
+  }
+  function noteAttempt(score) {
+    var h = pastAttempts(), a = attemptId();
+    var e = h.filter(function (x) { return x.a === a; })[0];
+    if (!e) { e = { a: a, t: Date.now() }; h.unshift(e); }
+    e.s = score;
+    e.m = TOTAL;
+    store("hist", JSON.stringify(h.slice(0, 3)));
+  }
+
+  /* ---------- drawing the page for its phase ---------- */
+  var TICK = '<svg class="st-tick" viewBox="0 0 12 12" aria-hidden="true" focusable="false">' +
+             '<path d="M2.2 6.4l2.5 2.5 5.1-5.6" fill="none" stroke="currentColor" ' +
+             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var stepNav = document.createElement("div");
+  stepNav.className = "mk-next";
+
+  function show(el, on) { if (el) { el.hidden = !on; } }
+
+  function renderBar() {
+    var main = $("#barMain"), sub = $("#barSub");
+    show($("#finishBtn"), phase === "answer");
+    show($("#barBack"), phase === "marking");
+    show($("#barResume"), phase === "paused");
+    show($("#ptSteps"), phase === "marking" || phase === "paused");
+    if (phase === "answer") {
+      var n = DATA.filter(answeredQ).length;
+      main.textContent = "Answered " + n + " of " + DATA.length + " questions";
+      sub.textContent = savedLine();
+      return;
+    }
+    var t = totals();
+    var selfLine = t.groups ? " · self-marked " + t.setN + " of " + t.groups +
+                              (t.groups === 1 ? " part" : " parts") : "";
+    if (phase === "marking") {
+      main.textContent = "Marking " + STEPS[step].long + " · step " + (step + 1) +
+                         " of " + STEPS.length;
+      sub.textContent = "Score so far " + t.soFar + selfLine;
+    } else if (phase === "paused") {
+      main.textContent = "Marked " + STEPS.filter(function (s, i) { return isVisited(i); }).length +
+                         " of " + STEPS.length + " steps";
+      sub.textContent = "Score so far " + t.soFar + selfLine;
+    } else {
+      main.textContent = "Your score: " + t.score + " out of " + TOTAL + " (" + t.pc + "%)";
+      sub.textContent = savedLine();
+    }
+    $("#ptSteps").innerHTML = STEPS.map(function (s, i) {
+      var now = phase === "marking" && i === step;
+      var done = isVisited(i) && !now && stepComplete(i);
+      var todo = isVisited(i) && !now && !done;
+      return '<li class="' + (done ? "is-done" : todo ? "is-todo" : now ? "is-now" : "") + '"' +
+             (now ? ' aria-current="step"' : "") + ">" + (done ? TICK : "") + s.label +
+             (done ? '<span class="visually-hidden"> marked</span>'
+                   : todo ? '<span class="visually-hidden"> not all self-marked</span>' : "") +
+             "</li>";
+    }).join("");
+    var cur = $("#ptSteps .is-now");
+    if (cur) { cur.parentNode.scrollLeft = Math.max(0, cur.offsetLeft - 40); }
+  }
+
+  function render(move) {
+    document.body.classList.toggle("pt-marking", phase === "marking" || phase === "paused");
+    DATA.forEach(function (q) {
+      var si = STEP_OF[q.id], vis;
+      if (phase === "answer") { vis = !!revealed[q.id]; }
+      else if (phase === "marking") { vis = si === step; }
+      else if (phase === "paused") { vis = isVisited(si) || !!revealed[q.id]; }
+      else { vis = true; }
+      if (vis) { draw(q); }
+      var art = document.getElementById("q-" + q.id);
+      $$(".mi", art).forEach(function (m) { if (m.innerHTML) { m.hidden = !vis; } });
+      var marked = phase === "result" || (phase !== "answer" && isVisited(si) &&
+                                          !(phase === "marking" && si === step));
+      show($(".mk-done", art), marked);
+    });
+    if (phase === "marking") {
+      var s = STEPS[step], last = document.getElementById("q-" + s.ids[s.ids.length - 1]);
+      var prev = step > 0 ? '<button type="button" class="pt-btn ghost" data-go="' + (step - 1) +
+                 '">&larr; ' + STEPS[step - 1].back + "</button>" : "<span></span>";
+      var next = step < STEPS.length - 1
+        ? '<button type="button" class="pt-btn" data-go="' + (step + 1) + '">Next: ' +
+          STEPS[step + 1].long + " &rarr;</button>"
+        : '<button type="button" class="pt-btn" data-go="result">See my result &rarr;</button>';
+      stepNav.innerHTML = prev + next;
+      $(".q-body", last).appendChild(stepNav);
+      stepNav.hidden = false;
+    } else {
+      stepNav.hidden = true;
+    }
+    show($("#scoreCard"), phase === "result");
+    if (phase !== "answer") { recount(); }
+    renderBar();
+    sizeBar();
+    if (!move) { return; }
+    if (phase === "marking") {
+      var first = document.getElementById("q-" + STEPS[step].ids[0]);
+      first.scrollIntoView({ block: "start" });
+      first.focus({ preventScroll: true });
+    } else if (phase === "result") {
+      $("#scoreCard").scrollIntoView({ block: "start" });
+      $("#scoreCard").focus({ preventScroll: true });
+    } else if (phase === "paused") {
+      $("#paper").scrollIntoView({ block: "start" });
+      $("#barResume").focus({ preventScroll: true });
+    }
+  }
+  /* the questions scroll to just under the sticky bar, whatever its height */
+  function sizeBar() {
+    var bar = $("#ptBar");
+    if (bar) { document.documentElement.style.setProperty("--ptbar", bar.offsetHeight + "px"); }
+  }
+  window.addEventListener("resize", sizeBar);
+
+  function computeAuto() {
+    autoSum = 0;
+    DATA.forEach(function (q) {
+      var r = markQuestion(q, false);
+      autoById[q.id] = r.auto;
+      autoSum += r.auto;
+    });
+  }
+  function startMarking(restoring) {
+    computeAuto();
+    DATA.forEach(lockQ);
+    $$(".peek").forEach(function (b) { b.hidden = true; });
+    if (!restoring) {
+      phase = "marking";
+      step = 0;
+      visited = [0];
+      saveMarks();
+    }
+    render(!restoring);
+  }
+  function goStep(i) {
+    if (i === "result") {
+      phase = "result";
+      STEPS.forEach(function (s, k) { if (!isVisited(k)) { visited.push(k); } });
+    } else {
+      phase = "marking";
+      step = +i;
+      if (!isVisited(step)) { visited.push(step); }
+    }
+    saveMarks();
+    render(true);
+  }
+
+  function recount() {
+    var t = totals();
+    var peeked = Object.keys(revealed).length;
+    $("#scoreVal").textContent = t.score;
+    $("#scorePc").textContent = t.pc + "%";
+    $("#scoreBand").textContent = band(t.pc);
+    $("#cardLine").textContent = "Marked " + STEPS.length + " of " + STEPS.length +
+      (t.groups ? " · self-marked " + t.setN + " of " + t.groups +
+                  (t.groups === 1 ? " part" : " parts") : "");
+    $("#splitLine").innerHTML = "Marked by the page: <b>" + autoSum + "</b>. " +
+      "Marked by you: <b>" + t.self + "</b> of " + (TOTAL - autoTotal()) + " self-marked marks." +
+      (peeked ? " You revealed the mark scheme for <b>" + peeked +
+                "</b> question" + (peeked === 1 ? "" : "s") + " before marking." : "");
+    SECKEYS.forEach(function (k) {
+      var got = t.sec[k][0], max = t.sec[k][1], row = $("#bar-" + k).parentNode;
+      /* a section with nothing written in it was not tried, which an empty
+         bar would make look like 0 marks earned (B5) */
+      var untried = !t.tried[k];
+      row.classList.toggle("is-untried", untried);
+      $("#bar-" + k + " i").style.width = untried ? "0" : Math.round((got / max) * 100) + "%";
+      $("#barv-" + k).textContent = untried ? "not tried" : got + " / " + max;
+    });
+    if (phase === "result") {
+      noteAttempt(t.score);
+      nextSteps();
+      attempts();
+    }
+    if (window.Progress && Progress.record) {
+      Progress.record(BADGE, t.score, TOTAL, { attempt: attemptId() });
+    }
+  }
+
+  /* "What to do next": every question that lost marks, the parts that lost
+     them, and where on the site to go over it (teacher, 19 Nov 2026: B2) */
+  function nextSteps() {
+    var items = [];
+    DATA.forEach(function (q) {
+      var lost = 0, parts = [], unmarked = false;
+      if (q.type === "mcq") {
+        lost = q.marks - (autoById[q.id] || 0);
+      } else if (q.type === "open") {
+        var v = smVal("sm-" + q.id);
+        if (v === null) { unmarked = true; }
+        lost = q.marks - (v || 0);
+      } else {
+        q.parts.forEach(function (p) {
+          var pv = p.self > 0 ? smVal("sm-" + q.id + p.id) : 0;
+          if (pv === null) { unmarked = true; }
+          var got = (autoByPart[q.id + p.id] || 0) + (pv || 0);
+          if (got < p.marks) {
+            lost += p.marks - got;
+            if (p.id !== "_") { parts.push("(" + p.id + ")"); }
+          }
+        });
+      }
+      if (lost <= 0) { return; }
+      var r = REVISE[q.id] || [];
+      var links = "";
+      if (r[0]) { links += '<a href="' + r[0] + '">' + r[1] + "</a>"; }
+      if (r[2]) { links += '<a href="' + r[2] + '">Review Questions</a>'; }
+      items.push("<li><a class=\"nx-q\" href=\"#q-" + q.id + "\">Question " + qNum(q.id) +
+                 (parts.length && parts.length < q.parts.length ? " " + parts.join(" ") : "") +
+                 "</a>: " + lost + " of " + q.marks + (q.marks === 1 ? " mark" : " marks") +
+                 " lost" + (unmarked ? " (not all self-marked yet)" : "") + ". " +
+                 (q.keyarea ? '<span class="nx-ka">' + q.keyarea + "</span>" : "") +
+                 (links ? '<span class="nx-links">' + links + "</span>" : "") + "</li>");
+    });
+    $("#nextList").innerHTML = items.length ? items.join("")
+      : "<li>Full marks. Nothing from this test to go over: try the other practice test.</li>";
+  }
+  function attempts() {
+    var h = pastAttempts(), a = attemptId();
+    show($("#attemptWrap"), h.length > 1);
+    $("#attemptList").innerHTML = h.map(function (e) {
+      return "<li>" + when(e.t).replace(/^(at|on) /, "") + ": <b>" + e.s + " / " + e.m +
+             "</b> (" + Math.round(e.s / e.m * 100) + "%)" +
+             (e.a === a ? " — this attempt" : "") + "</li>";
+    }).join("");
+  }
+
+  /* ---------- inline confirms: the site never uses confirm() ---------- */
+  var opener = null;
+  function openWarn(id, from) {
+    $$(".pt-warn").forEach(function (w) { w.hidden = true; });
+    opener = from || null;
+    var w = document.getElementById(id);
+    w.hidden = false;
+    sizeBar();
+    $(".pt-btn", w).focus();
+  }
+  function closeWarn(w) {
+    w.hidden = true;
+    sizeBar();
+    if (opener) { opener.focus(); opener = null; }
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") { return; }
+    $$(".pt-warn").forEach(function (w) { if (!w.hidden) { closeWarn(w); } });
+  });
+
   /* ---------- wiring ---------- */
   $$(".peek").forEach(function (b) {
     b.addEventListener("click", function () {
-      var id = b.dataset.peek;
+      var id = b.dataset.peek, q = byId(id);
       revealed[id] = 1;
-      markQuestion(byId(id), true);
+      draw(q);
+      lockQ(q);
       b.hidden = true;
       saveAll();
     });
   });
 
-  /* Finish takes two taps, like Clear, and the first tap says what is still
-     blank (PT-4). No dialog: the site never uses confirm(). */
-  function unanswered() {
-    return DATA.filter(function (q) {
-      var art = document.getElementById("q-" + q.id);
-      if (!art) { return false; }
-      return !$$("[data-part], .mcq input", art).some(function (el) {
-        return el.type === "radio" ? el.checked : (el.value || "").trim() !== "";
-      });
-    }).length;
-  }
-  var finishArmed = false, finishTimer = null;
+  /* Finish says what is still blank, with links to it, and that marking
+     locks the answers; nothing is marked until the pupil says so (PT-4, B3) */
   $("#finishBtn").addEventListener("click", function () {
-    if (marked) { return; }
-    if (!finishArmed) {
-      finishArmed = true;
-      var n = unanswered();
-      $("#finishBtn").textContent = n
-        ? n + (n === 1 ? " question has" : " questions have") + " no answer. Tap again to mark"
-        : "Tap again to mark your paper";
-      finishTimer = setTimeout(function () {
-        finishArmed = false;
-        $("#finishBtn").textContent = "Finish & mark";
-      }, 5000);
-      return;
-    }
-    clearTimeout(finishTimer);
-    finish();
+    var blank = DATA.filter(function (q) { return !answeredQ(q); });
+    var chips = blank.map(function (q) {
+      return '<a href="#q-' + q.id + '" aria-label="Question ' + qNum(q.id) + '">' +
+             qNum(q.id) + "</a>";
+    }).join("");
+    $("#finishMsg").innerHTML = (blank.length
+      ? "<p>" + (blank.length === 1 ? "1 question has" : blank.length + " questions have") +
+        ' no answer. Tap a number to go to it.</p><p class="pt-qlist">' + chips + "</p>"
+      : "<p>Every question has an answer.</p>") +
+      "<p>Once you mark your paper, your answers lock.</p>";
+    $("#markGo").textContent = blank.length ? "Mark my paper anyway" : "Mark my paper";
+    openWarn("finishWarn", $("#finishBtn"));
   });
+  $("#finishMsg").addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a");
+    if (!a) { return; }
+    e.preventDefault();
+    closeWarn($("#finishWarn"));
+    var art = document.querySelector(a.getAttribute("href"));
+    art.scrollIntoView({ block: "start" });
+    var f = $(".ans-rel, .ans-num, .ans-area, .mcq input", art);
+    (f || art).focus({ preventScroll: true });
+  });
+  $("#markGo").addEventListener("click", function () {
+    $("#finishWarn").hidden = true;
+    opener = null;
+    startMarking(false);
+  });
+  $("#markBack").addEventListener("click", function () { closeWarn($("#finishWarn")); });
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-go]");
+    if (b) { goStep(b.getAttribute("data-go")); }
+  });
+  $("#barBack").addEventListener("click", function () {
+    phase = "paused";
+    saveMarks();
+    render(true);
+  });
+  $("#barResume").addEventListener("click", function () { goStep(step); });
+  $("#readBtn").addEventListener("click", function () {
+    var first = document.getElementById("q-" + DATA[0].id);
+    first.scrollIntoView({ block: "start" });
+    first.focus({ preventScroll: true });
+  });
+
   /* one listener for every self-mark, whenever its box was drawn (PT-1) */
   document.addEventListener("change", function (e) {
     var t = e.target;
     if (t && t.matches && t.matches(".selfmark input")) {
       selfMarks[t.name] = +t.value;
+      var fs = t.closest(".selfmark");
+      fs.classList.remove("is-todo");
+      var chip = $(".sm-chip", fs);
+      if (chip) { chip.outerHTML = chipHtml(t.name); }
       saveMarks();
-      if (marked) { recount(); }
+      if (phase !== "answer") { recount(); renderBar(); }
       return;
     }
-    if (!marked) { saveAll(); }
+    if (phase === "answer") { saveAll(); }
   });
-  document.addEventListener("input", function () { if (!marked) { saveAll(); } });
+  document.addEventListener("input", function () { if (phase === "answer") { saveAll(); } });
 
-  var resetArmed = false;
-  $("#resetBtn").addEventListener("click", function () {
-    if (!resetArmed) {
-      resetArmed = true;
-      $("#resetBtn").textContent = "Tap again to clear every answer";
-      setTimeout(function () {
-        resetArmed = false;
-        $("#resetBtn").textContent = "Clear my answers and start again";
-      }, 4000);
-      return;
-    }
+  /* "Clear this test" lives in the bar only, behind one confirm (B4). It is
+     for a shared PC: every answer, mark and attempt for this test goes. */
+  $("#clearBtn").addEventListener("click", function () { openWarn("clearWarn", $("#clearBtn")); });
+  $("#clearKeep").addEventListener("click", function () { closeWarn($("#clearWarn")); });
+  $("#clearGo").addEventListener("click", function () {
     try {
       Object.keys(localStorage).filter(function (k) { return k.indexOf(PREFIX) === 0; })
         .forEach(function (k) { localStorage.removeItem(k); });
     } catch (e) {}
     location.reload();
   });
+  /* "Try again" keeps this attempt's score in the list and the badge on the
+     best; the answers and self-marks clear for a fresh go (D11) */
+  $("#againBtn").addEventListener("click", function () { openWarn("againWarn", $("#againBtn")); });
+  $("#againKeep").addEventListener("click", function () { closeWarn($("#againWarn")); });
+  $("#againGo").addEventListener("click", function () {
+    noteAttempt(totals().score);
+    ["ans", "peek", "sm", "phase", "step", "visited", "attempt", "marked"].forEach(unstore);
+    stamp();
+    location.reload();
+  });
 
+  $$(".q").forEach(function (art) {
+    art.setAttribute("tabindex", "-1");
+    $(".q-body", art).insertAdjacentHTML("afterbegin", '<span class="mk-done" hidden>Marked</span>');
+  });
+  buildSteps();
   if (window.Progress && Progress.markSeen) { Progress.markSeen(BADGE); }
   restore();
 })();
