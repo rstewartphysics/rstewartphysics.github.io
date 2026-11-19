@@ -1374,7 +1374,7 @@
       var t = btn("pr-btn pr-btn-quiet pr-tb-toggle", p.label, function () { togglePanel(p.id); });
       t.dataset.panel = p.id;
       t.setAttribute("aria-pressed", openPanel === p.id ? "true" : "false");
-      t.setAttribute("aria-controls", "prPanel");
+      if (openPanel === p.id) { t.setAttribute("aria-controls", "prPanel"); }
       mid.appendChild(t);
     });
     inner.appendChild(mid);

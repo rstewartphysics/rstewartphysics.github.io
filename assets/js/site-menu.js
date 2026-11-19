@@ -47,6 +47,7 @@
       button.setAttribute("aria-expanded", "true");
       button.setAttribute("aria-label", "Close site menu");
       drawer.setAttribute("aria-hidden", "false");
+      drawer.inert = false;
 
       /* The drawer, not its first row: iOS Safari draws a focus ring on whatever takes focus
          after a tap, and a ring round the top row on every open looked like a fault. */
@@ -109,6 +110,7 @@
     button.setAttribute("aria-expanded", "false");
     button.setAttribute("aria-label", "Open site menu");
     drawer.setAttribute("aria-hidden", "true");
+    drawer.inert = true;
 
     window.setTimeout(function () {
       overlay.hidden = true;
@@ -259,6 +261,7 @@
 
     overlay.hidden = true;
     drawer.setAttribute("aria-hidden", "true");
+    drawer.inert = true;
     button.setAttribute("aria-expanded", "false");
 
     button.addEventListener("click", toggleMenu);
