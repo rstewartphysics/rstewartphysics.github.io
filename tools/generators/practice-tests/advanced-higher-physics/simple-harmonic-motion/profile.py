@@ -108,7 +108,8 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Advanced Higher Phy
           "papers, reproduced and adapted for educational use — past papers and marking "
           "instructions &copy; Qualifications Scotland (SQA). Numbers, apparatus and "
           "contexts have been changed, and two questions are original to this site. "
-          "Oscillation diagrams and graphs drawn for this site &copy; R Stewart, 2026.")
+          "Oscillation diagrams and graphs drawn for this site &copy; R Stewart, 2026. "
+          "R Stewart - November 2026.")
 
 
 def apply(meta):
