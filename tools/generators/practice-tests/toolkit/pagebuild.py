@@ -110,7 +110,7 @@ def sci(x, n):
     if x == 0:
         return "0"
     e = int(math.floor(math.log10(abs(round_sig(x, n)))))
-    if -2 <= e <= 4:
+    if -2 <= e <= 4 and sig_figs(fm_sf(x, n)) == n:
         return fm_sf(x, n)
     m = round_sig(x, n) / (10.0 ** e)
     mant = dot(("%." + str(max(n - 1, 0)) + "f") % m)
@@ -867,7 +867,7 @@ JS = r"""
     if (/^[+\-−–]?\d{1,3}(?:,\d{3})+(?![\d,])/.test(s)) { s = s.replace(/,/g, ""); }
     else if (/^[^,]*,[^,]*$/.test(s) && s.indexOf(".") < 0) { s = s.replace(",", "."); }
     else { s = s.replace(/,/g, ""); }
-    /* superscript exponents, which is how a pupil copies 7·2 × 10⁻¹⁶ off the
+    /* superscript exponents, which is how a pupil copies a power of ten off the
        page: rewrite them as an ordinary caret exponent, before the minus
        signs are normalised, so the ⁻ stays attached to its own digits. */
     s = s.replace(/⁻?[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, function (m) {

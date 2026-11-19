@@ -81,24 +81,25 @@ def svg(parts, w, h, label, cls="fld"):
 CHARGE_R = 13.0
 
 
-def _charge(cx, cy, sign, r=CHARGE_R):
+def _charge(cx, cy, sign, r=CHARGE_R, mark=True):
     """The charge itself: a circle carrying + or −, drawn not filled so the
     symbol inside stays legible in both themes."""
     out = ['<circle cx="%.1f" cy="%.1f" r="%.1f" fill="var(--dia-page, transparent)" '
            'stroke="%s" stroke-width="%.1f"/>' % (cx, cy, r, INK, SW)]
-    out.append(_line(cx - 6, cy, cx + 6, cy, 2.4))
-    if sign > 0:
+    if mark:
+        out.append(_line(cx - 6, cy, cx + 6, cy, 2.4))
+    if mark and sign > 0:
         out.append(_line(cx, cy - 6, cx, cy + 6, 2.4))
     return "".join(out)
 
 
-def point_charge(cx, cy, sign, reach=52.0, n=8, r=CHARGE_R):
+def point_charge(cx, cy, sign, reach=52.0, n=8, r=CHARGE_R, mark=True):
     """Radial field lines around a single point charge, evenly spread.
 
     Lines point away from a positive charge and towards a negative one — the
     single most-marked mistake in this topic, so the arrowhead is drawn on
     every line, not just one."""
-    out = [_charge(cx, cy, sign, r)]
+    out = [_charge(cx, cy, sign, r, mark)]
     for i in range(n):
         a = 2 * math.pi * i / n - math.pi / 2
         x0, y0 = cx + (r + 3) * math.cos(a), cy + (r + 3) * math.sin(a)
@@ -111,14 +112,14 @@ def point_charge(cx, cy, sign, reach=52.0, n=8, r=CHARGE_R):
     return "".join(out)
 
 
-def charge_row(signs, letters, label=""):
+def charge_row(signs, letters, label="", mark=True):
     """A row of independent point-charge patterns, lettered — the SQA
     "which row in the table shows the charges" idiom."""
     cell, h = 132.0, 150.0
     parts = []
     for i, s in enumerate(signs):
         cx = i * cell + cell / 2.0
-        parts.append(point_charge(cx, 78, s))
+        parts.append(point_charge(cx, 78, s, mark=mark))
         parts.append(_text(cx, 142, letters[i], size=15, weight=800))
     return svg(parts, cell * len(signs), h, label)
 
@@ -275,14 +276,16 @@ def curved_beam(into=True, curve="up", beam="beam of electrons",
              % (bx, by, bw, bh, INK)]
     y = by + bh * (0.72 if curve == "up" else 0.28)
     ctrl = by + bh * (0.12 if curve == "up" else 0.88)
-    d = ("M %.1f %.1f Q %.1f %.1f %.1f %.1f"
-         % (bx - 44, y, bx + bw * 0.55, ctrl, bx + bw + 26,
-            by + bh * (0.16 if curve == "up" else 0.84)))
+    # straight outside the field, curved only inside the box
+    yend = by + bh * (0.16 if curve == "up" else 0.84)
+    cx_, ex = bx + bw * 0.5, bx + bw
+    slope = (yend - y) / (ex - cx_)
+    tx, ty = ex + 26, yend + slope * 26
+    d = ("M %.1f %.1f L %.1f %.1f Q %.1f %.1f %.1f %.1f L %.1f %.1f"
+         % (bx - 44, y, bx, y, cx_, y, ex, yend, tx, ty))
     parts.append('<path d="%s" fill="none" stroke="%s" stroke-width="%.1f"/>'
                  % (d, INK, SW))
-    ang = -0.85 if curve == "up" else 0.85
-    parts.append(_head(bx + bw + 26, by + bh * (0.16 if curve == "up" else 0.84),
-                       ang, 7.5))
+    parts.append(_head(tx, ty, math.atan2(ty - yend, tx - ex), 7.5))
     parts.append(_text(bx - 46, by - 10, beam, size=12, anchor="start", weight=700))
     parts.append(_text(W / 2.0, by + bh + 30, region_label, size=11.5, weight=600))
     return svg(parts, W, H, label)
@@ -319,8 +322,7 @@ def linac(supply="alternating supply", tubes=4, r_label="R", s_label="S",
     parts.append(_text(24, y - 30, beam, size=12, anchor="start", weight=700))
 
     # the two accelerating gaps that the question refers to
-    for lab, i in ((r_label, 0), (s_label, 1)):
-        gx = (boxes[i][1] + boxes[i + 1][0]) / 2.0
+    for lab, gx in ((r_label, boxes[0][1] - 6.0), (s_label, boxes[1][0] + 6.0)):
         parts.append(_text(gx, y - 12, lab, size=14, weight=800))
         parts.append(_line(gx, y - 8, gx, y + 2, 1.2))
 

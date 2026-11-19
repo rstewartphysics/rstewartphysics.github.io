@@ -62,6 +62,7 @@ REL_SHEET = """
 <thead><tr><th>Quantity</th><th>Relationship</th></tr></thead><tbody>
 <tr><td>Angular frequency, and period</td><td class="eqn"><var>ω</var> = 2π<var>f</var>&emsp;<var>T</var> = 1 / <var>f</var>&emsp;<var>T</var> = 2π / <var>ω</var></td></tr>
 <tr><td>The condition for SHM</td><td class="eqn"><var>a</var> = d<sup>2</sup><var>y</var>/d<var>t</var><sup>2</sup> = −<var>ω</var><sup>2</sup><var>y</var></td></tr>
+<tr><td>Restoring force</td><td class="eqn"><var>F</var> = −<var>ky</var></td></tr>
 <tr><td>Displacement</td><td class="eqn"><var>y</var> = <var>A</var> cos <var>ωt</var>&emsp;or&emsp;<var>y</var> = <var>A</var> sin <var>ωt</var></td></tr>
 <tr><td>Velocity at displacement <var>y</var></td><td class="eqn"><var>v</var> = ±<var>ω</var>√(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>)</td></tr>
 <tr><td>Kinetic and potential energy</td><td class="eqn"><var>E</var><sub>k</sub> = ½<var>mω</var><sup>2</sup>(<var>A</var><sup>2</sup> − <var>y</var><sup>2</sup>)&emsp;<var>E</var><sub>p</sub> = ½<var>mω</var><sup>2</sup><var>y</var><sup>2</sup></td></tr>
@@ -69,7 +70,7 @@ REL_SHEET = """
 <p class="refs-note">The mass–spring result <var>ω</var> = √(<var>k</var>/<var>m</var>)
 is <strong>not</strong> on the relationships sheet. The exam gives it to you when it
 needs it — or expects you to reach it from <var>F</var> = −<var>ky</var> and
-<var>F</var> = <var>ma</var>, which is exactly the derivation in this test.</p>
+<var>F</var> = <var>ma</var>.</p>
 """
 
 DATA_SHEET = """
@@ -107,7 +108,8 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Advanced Higher Phy
           "papers, reproduced and adapted for educational use — past papers and marking "
           "instructions &copy; Qualifications Scotland (SQA). Numbers, apparatus and "
           "contexts have been changed, and two questions are original to this site. "
-          "Oscillation diagrams and graphs drawn for this site &copy; R Stewart, 2026.")
+          "Oscillation diagrams and graphs drawn for this site &copy; R Stewart, 2026. "
+          "R Stewart - November 2026.")
 
 
 def apply(meta):

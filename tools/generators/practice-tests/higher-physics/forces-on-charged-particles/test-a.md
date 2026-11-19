@@ -27,12 +27,12 @@ w3_pd: 60
 c1_pd: 4500
 c2_pd: 19000
 p1_pd: 28000
-p1_speed: 1.8e6
+p1_speed: 2.2e6
 @end
 
 @q W1 | warmup | mcq | 1 | auto 1
 keyarea: Electric field patterns around point charges
-parent: SQA Higher Specimen Paper Q13 — the same "which row shows the charges" idiom read from three field patterns, with a different set of charges and a new distractor set. The published answer is row B (positive, positive, negative); this one is not.
+parent: SQA Higher Specimen Paper (2019) Paper 1 Q13 — the same "which row shows the charges" idiom read from three field patterns, with a different set of charges and a new distractor set. The published answer is row B (positive, positive, negative); this one is not.
 diagram: w1_charges
 stem: The electric field patterns around three charged particles Q, R and S are shown. Which row in the table shows the charges on particles Q, R and S?
 option: Q positive · R positive · S negative
@@ -42,12 +42,12 @@ option: Q negative · R positive · S positive
 option: Q negative · R negative · S negative
 key: D
 mi: A field line shows the direction of the force on a <strong>positive</strong> charge, so lines point <strong>away from</strong> a positive charge and <strong>towards</strong> a negative one. The arrows on Q point inwards, so Q is negative; the arrows on R and S point outwards, so R and S are both positive.
-wrong: Rows with Q positive come from reading the arrows the wrong way round. This is the single most-marked mistake in the topic — decide the direction from "the force on a positive charge" every time, not from the shape of the pattern.
+wrong: Rows with Q positive come from reading the arrows the wrong way round. This is the single most-marked mistake in the topic — decide the direction from "the force on a positive charge" every time, not from the shape of the pattern. Rows B and E read Q correctly but not R or S: judge each pattern on its own arrows.
 @end
 
 @q W2 | warmup | mcq | 1 | auto 1
 keyarea: Direction of the magnetic force on a moving charge
-parent: SQA Higher 2025 Paper 1 Q11 — the same "direction of the force as the particle enters the field" idiom, with an electron in place of the proton and a different direction of travel, so the answer is not the published E.
+parent: SQA Higher 2025 Paper 1 Q11 — the same "direction of the force as the particle enters the field" idiom, with an electron in place of the proton, so the answer is not the published E.
 diagram: w2_field
 stem: An electron enters a region of magnetic field as shown. The direction of the force exerted by the magnetic field on the electron as it enters the field is
 option: into the page
@@ -57,17 +57,17 @@ option: towards the right of the page
 option: towards the top of the page
 key: C
 mi: Use the <strong>left</strong> hand, with the <strong>conventional current</strong> as the second finger. The electron is negative and travels <em>down</em> the page, so the conventional current is <em>up</em> the page. First finger into the page, second finger up the page — the thumb points <strong>towards the left of the page</strong>.
-wrong: "Towards the right" is what you get by using the electron's own direction of travel as the current instead of reversing it. "Into" or "out of the page" is the field direction, not the force — the force is always at right angles to both.
+wrong: "Towards the right" is what you get by using the electron's own direction of travel as the current instead of reversing it. "Into the page" is the field direction and "out of the page" is its reverse; the force is always at right angles to both the field and the current. "Towards the top of the page" is the direction of the conventional current, not the force.
 @end
 
 @q W3 | warmup | mcq | 1 | auto 1
 keyarea: Work done moving a charge through a potential difference
-parent: SQA Higher 2016 Paper 2 Q7(a) — the same single-step E<sub>w</sub> = QV, set as multiple choice with a microcoulomb charge and a new potential difference, so the answer differs from the published 3·2 × 10⁻¹⁶ J.
+parent: SQA Higher 2016 Section 2 Q7(a) — the same single-step E<sub>w</sub> = QV, set as multiple choice with a microcoulomb charge and a new potential difference, so the answer differs from the published 3·2 × 10⁻¹⁶ J.
 stem: A charge of {w3_charge} C is moved through a potential difference of {w3_pd} V. The work done on the charge is
 options_from: w3
 key: computed
 mi: E<sub>w</sub> = QV = {w3_charge} × {w3_pd} = <strong>{w3_work} J</strong>.
-wrong: Dividing instead of multiplying gives {w3_div} J; the two values on their own, {w3_charge} J and {w3_pd} J, are the charge and the p.d., not the work done.
+wrong: Dividing instead of multiplying gives {w3_div} J, or {w3_flip} J if the p.d. is divided by the charge; the two values on their own, {w3_charge} J and {w3_pd} J, are the charge and the p.d., not the work done.
 @end
 
 @q W4 | warmup | mcq | 1 | auto 1
@@ -81,12 +81,12 @@ option: II and III only
 option: I, II and III
 key: C
 mi: Statements I and II are the definitions as they are marked. Statement III is the misconception: a <strong>negative</strong> charge is forced in the <strong>opposite</strong> direction to the field lines, because the lines are drawn for a positive charge.
-wrong: Choosing "I, II and III" means statement III was not read against the definition in statement II — the two contradict each other.
+wrong: Choosing "I, II and III" means statement III was not read against the definition in statement II — the two contradict each other. "I only" or "II only" leaves out a definition that is correct; "II and III" accepts the misconception that a negative charge follows the field lines.
 @end
 
 @q W5 | warmup | mcq | 1 | auto 1
 keyarea: How a linear accelerator works
-parent: SQA Higher Specimen Paper Q6(b) — the same two points the marking instructions want about a drift-tube accelerator (the alternating supply and the increasing tube lengths), set as a multiple-choice statement question rather than two written marks.
+parent: SQA Higher Specimen Paper (2019) Paper 2 Q6(b) — the same two points the marking instructions want about a drift-tube accelerator (the alternating supply and the increasing tube lengths), set as a multiple-choice statement question rather than two written marks.
 stem: A linear accelerator uses hollow metal drift tubes in a vacuum. A pupil makes the following statements about it.<ol class="stmts"><li>The protons are accelerated in the gaps between the tubes.</li><li>The supply alternates so that the field in each gap pushes the protons forwards every time they cross it.</li><li>The tubes are made longer along the accelerator because the field inside a tube gets weaker.</li></ol>Which of these statements is/are correct?
 option: I only
 option: II only
@@ -95,13 +95,13 @@ option: II and III only
 option: I, II and III
 key: C
 mi: I and II are the two points the marking instructions want. III is wrong twice over: there is <strong>no field inside a tube</strong> at all, so the proton coasts through at constant speed, and the tubes get longer because the proton is <strong>travelling faster</strong> and covers more distance in the same half-cycle.
-wrong: Anything that includes III treats the tubes as the accelerating part. The tubes are the coasting part; the gaps do the work.
+wrong: Anything that includes III treats the tubes as the accelerating part. The tubes are the coasting part; the gaps do the work. "I only" or "II only" leaves out one of the two correct points: the gaps do the accelerating, and the alternating supply keeps the force forwards.
 @end
 
 @q C1 | core | struct | 5
 keyarea: Electric fields, and the work done accelerating a charge
 given: c1_pd_kv
-parent: SQA Higher 2018 Paper 2 Q6(a) — the same cathode-and-anode accelerator, with a new accelerating voltage and the "show that" replaced by a calculation, so the answer differs from the published 2·6 × 10⁻¹⁶ J.
+parent: SQA Higher 2018 Section 2 Q6(a) — the same cathode-and-anode accelerator, with a new accelerating voltage and the "show that" replaced by a calculation, so the answer differs from the published 2·6 × 10⁻¹⁶ J. Part (a) follows SQA Higher 2022 Paper 2 Q7(a).
 context: Inside an X-ray tube, electrons are released from rest at a heated cathode and accelerated through a vacuum towards the anode. The potential difference between the cathode and the anode is {c1_pd_kv} kV.
 diagram: c1_plates
 @part a | 2 | explain | self 2
@@ -141,7 +141,7 @@ mi: All the work done becomes kinetic energy, so E<sub>k</sub> = ½<var>m</var><
 
 @q C3 | core | struct | 3
 keyarea: Finding the direction of a magnetic field from the path of a beam
-parent: SQA Higher 2024 Paper 2 Q6(b) — the same "determine the direction of the uniform magnetic field from the path of the beam", with the beam deflected the other way, so the answer is not the published "out of page". The second part follows SQA Higher 2017 Paper 2 Q8(b)(ii), which asks candidates to compare two field regions.
+parent: SQA Higher 2024 Paper 2 Q6(b) — the same "determine the direction of the uniform magnetic field from the path of the beam", with the beam deflected the other way, so the answer is not the published "out of page". The second part follows the "state the effect and justify" form of SQA Higher 2018 Section 2 Q6(b).
 context: A narrow beam of electrons is directed from left to right into a region of uniform magnetic field between two coils. The path taken by the electrons is shown.
 diagram: c3_beam
 @part a | 1 | explain | self 1
@@ -150,14 +150,14 @@ mi: <strong>Into the page.</strong> **(1)**<br>The electrons travel to the right
 @end
 @part b | 2 | explain | self 2
 ask: The current in the coils is now increased. State the effect this has on the path of the electron beam, and justify your answer.
-mi: The beam is deflected <strong>more</strong> — it follows a more sharply curved path (a smaller radius) **(1)**.<br>A larger current in the coils produces a <strong>stronger magnetic field</strong>, so there is a larger force on each electron **(1)**.<br>The first mark requires a justification to be attempted. "The beam bends more" with no reason scores 1 only.
+mi: The beam is deflected <strong>more</strong> — it follows a more sharply curved path (a smaller radius) **(1)**.<br>A larger current in the coils produces a <strong>stronger magnetic field</strong>, so there is a larger force on each electron **(1)**.<br>Look for the effect first: if it is wrong or missing, award 0. "The beam bends more" with no justification scores 0.
 @end
 @end
 
 @q P1 | push | struct | 5
 keyarea: Work done and kinetic energy in a linear accelerator
 given: p1_pd_kv,p1_speed_disp
-parent: SQA Higher Specimen Paper Q6(a) — the same drift-tube accelerator with the proton already moving at R, given a new supply voltage and a new entry speed, so neither published answer (5·6 × 10⁻¹⁵ J and 2·8 × 10⁶ m s⁻¹) is reproduced.
+parent: SQA Higher Specimen Paper (2019) Paper 2 Q6(a) — the same drift-tube accelerator with the proton already moving at R, given a new supply voltage and a new entry speed, so neither published answer (5·6 × 10⁻¹⁵ J and 2·9 × 10⁶ m s⁻¹) is reproduced.
 context: In a linear accelerator, protons are accelerated across the gap between two drift tubes by a potential difference of {p1_pd_kv} kV. A proton is already travelling at {p1_speed_disp} m s⁻¹ when it reaches R.
 diagram: p1_linac
 @part a | 2 | calc | auto 2
@@ -172,7 +172,7 @@ ask: Determine the speed of the proton as it reaches S.
 relationship: ek
 answer: p1_speed_final
 unit: m s⁻¹
-mi: The proton arrives at R with kinetic energy already: E<sub>k</sub> = ½<var>m</var><var>v</var><sup>2</sup> = ½ × {m_proton_disp} × ({p1_speed_disp})<sup>2</sup> = {p1_ek0_disp} J **(1)**<br>The work done is added to it: {p1_ek0_disp} + {p1_work_disp} = {p1_ek1_disp} J **(1)**<br>{p1_ek1_disp} = ½ × {m_proton_disp} × <var>v</var><sup>2</sup>, so <var>v</var> = <strong>{p1_speed_final_disp} m s⁻¹</strong> **(1)**<br>A candidate who forgets the kinetic energy the proton already had gets {p1_wrong_disp} m s⁻¹ — the work done alone. That is the error this question is set to catch, so award the first two marks only if the addition is attempted.
+mi: The proton arrives at R with kinetic energy already: E<sub>k</sub> = ½<var>m</var><var>v</var><sup>2</sup> = ½ × {m_proton_disp} × ({p1_speed_disp})<sup>2</sup> = {p1_ek0_disp} J **(1)**<br>The work done is added to it: {p1_ek0_disp} + {p1_work_disp} = {p1_ek1_disp} J **(1)**<br>{p1_ek1_disp} = ½ × {m_proton_disp} × <var>v</var><sup>2</sup>, so <var>v</var> = <strong>{p1_speed_final_disp} m s⁻¹</strong> **(1)**<br>A candidate who forgets the kinetic energy the proton already had gets {p1_wrong_disp} m s⁻¹ — the work done alone. That is the error this question is set to catch: if the addition is not attempted, award 1 mark at most (for E<sub>k</sub> = ½<var>m</var><var>v</var><sup>2</sup> anywhere).
 @end
 @end
 

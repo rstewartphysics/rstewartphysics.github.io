@@ -84,7 +84,8 @@ def compute(v):
                         "%g kV" % (c1v / 1000.0),
                         "%g kV" % (c2v / 1000.0),
                         "%g kV" % (p1v / 1000.0),
-                        "%g kg" % m, "%g m s⁻¹" % u, "%g m s⁻¹" % vf]
+                        "%g kg" % m, "%g m s⁻¹" % u, "%g m s⁻¹" % vf,
+                        "%g µC" % (q3 * 1e6)]
     d["_num"] = {"c1_work": (c1w, "J"), "c1_speed": (c1speed, "m s⁻¹"),
                  "c2_work": (c2w, "J"), "c2_speed": (c2speed, "m s⁻¹"),
                  "p1_gain": (gain, "J"), "p1_charge": (charge, "C")}
@@ -115,11 +116,11 @@ def diagrams(v, d):
                   "equally spaced lines pointing down from A to B. An alpha "
                   "particle is at rest at plate A."),
         "c2_linac": F.linac(
-            r_label="P", s_label="Q", beam="electron beam",
+            r_label="P", s_label="", beam="electron beam",
             label="A linear accelerator: four hollow metal drift tubes of "
                   "increasing length in a line, wired alternately to an "
                   "alternating supply. The electron beam travels along the "
-                  "axis, crossing the gap P and then the gap Q."),
+                  "axis, crossing the gaps; the first gap is labelled P."),
         "c3_plates": F.plates(
             top="+", bottom="−", field=False,
             label="Two horizontal parallel plates, the upper one positive and "
@@ -127,9 +128,12 @@ def diagrams(v, d):
                   "the field lines have not been drawn."),
         "p1_plates": F.plates(
             top="+", bottom="−", pd=d["p1_pd_kv"] + " kV", field=False,
-            beam="ion", label="Two horizontal parallel plates, the upper "
-                  "positive and the lower negative, with an ion travelling "
-                  "from left to right through the gap between them."),
+            particle=("+", 1, ""), particle_pos=0.12,
+            left_label="plate A", right_label="plate B",
+            label="Two horizontal parallel plates: a positive plate A above and "
+                  "a negative plate B below. A positive ion has just passed "
+                  "through a small hole in plate A and moves straight across "
+                  "the gap towards plate B."),
     }
 
 

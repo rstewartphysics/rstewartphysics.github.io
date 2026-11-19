@@ -27,13 +27,13 @@ jobs:
     outputs:
       newest: ${{ steps.newest.outputs.newest }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Every generated page must be exactly what its generator emits, or the next re-run quietly
       # undoes a hand edit (tools/generators/README.md). First, before anything else writes to the
       # tree. Python and the packages match the Mac; Trebuchet MS is the graphs' font, and without
       # it matplotlib lays every graph out differently.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.9"
           cache: pip
@@ -59,7 +59,7 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -77,6 +77,28 @@ jobs:
 
       - name: Build the search index
         run: npm run search
+
+      # Phase 2 of the website audit: the static standards checks, against a baseline of accepted
+      # findings. Fails on a NEW P1 or P2 in a page the PR touches (every page if a shared file
+      # changed); new P3 only warns. To accept a finding or refresh the baseline, run
+      # `python3 scripts/audit-site.py --build _site --update-baseline` on a clean main build.
+      - name: Check the site against the standards baseline
+        run: |
+          pip install -q lxml==6.1.1
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch -q --depth=1 origin "${{ github.base_ref }}"
+            git diff --name-only FETCH_HEAD HEAD > "$RUNNER_TEMP/changed.txt"
+            python3 scripts/audit-site.py --build _site --changed "$RUNNER_TEMP/changed.txt" --summary "$GITHUB_STEP_SUMMARY"
+          else
+            python3 scripts/audit-site.py --build _site --summary "$GITHUB_STEP_SUMMARY" || echo "::warning::main has new P1/P2 findings against the baseline"
+          fi
+
+      # GitHub Pages publishes at most 1 GB; main's build was 622 MB on 19 Nov 2026.
+      - name: Check the site size
+        run: |
+          mb=$(du -sm _site | cut -f1)
+          echo "Built site: ${mb} MB (Pages limit 1000 MB)" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$mb" -ge 800 ]; then echo "::warning::Built site is ${mb} MB; warning level is 800 MB, Pages limit is 1000 MB."; fi
 
       # The stripboard bundle is built from tools/generators/stripboard/engine/; a stale copy fails here.
       - name: Check the shared stripboard renderer
@@ -107,7 +129,7 @@ jobs:
             echo "newest=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request' && steps.newest.outputs.newest == 'true'
         with:
           path: _site
@@ -124,7 +146,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         # Pages sometimes sits in "syncing_files" past the 10-minute default (run 183).
         with:
           timeout: 1800000

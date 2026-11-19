@@ -113,7 +113,7 @@ def hr_diagram(points=None, mark=None, show_regions=True, show_main_sequence=Tru
                                             edgecolor="none", zorder=0))
     for name, text in (region_labels or {}).items():
         if name == "main sequence":
-            xy = (13000, 3)
+            xy = (14000, 4e2)
         else:
             xy = _REGIONS[name][1]
         ax.text(xy[0], xy[1], text, fontsize=10, color=PLOT_INK,

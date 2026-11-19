@@ -57,7 +57,6 @@ DATA_SHEET = """
 <tr><td>Magnitude of the charge on an electron</td><td class="eqn"><var>e</var></td><td>1·60 × 10⁻¹⁹ C</td></tr>
 <tr><td>Mass of electron</td><td class="eqn"><var>m</var><sub>e</sub></td><td>9·11 × 10⁻³¹ kg</td></tr>
 <tr><td>Mass of proton</td><td class="eqn"><var>m</var><sub>p</sub></td><td>1·673 × 10⁻²⁷ kg</td></tr>
-<tr><td>Mass of alpha particle</td><td class="eqn"><var>m</var><sub>α</sub></td><td>6·645 × 10⁻²⁷ kg</td></tr>
 </tbody></table>
 """
 
@@ -94,7 +93,8 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Higher Physics past
           "reproduced and adapted for educational use — past papers and marking "
           "instructions &copy; Qualifications Scotland (SQA). Numbers, particles and "
           "contexts have been changed, and one question is original to this site. "
-          "Field and accelerator diagrams drawn for this site &copy; R Stewart, 2026.")
+          "Field and accelerator diagrams drawn for this site &copy; R Stewart, 2026. "
+          "R Stewart - November 2026.")
 
 
 def apply(meta):

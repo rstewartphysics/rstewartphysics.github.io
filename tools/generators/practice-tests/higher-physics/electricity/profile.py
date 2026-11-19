@@ -97,7 +97,8 @@ CREDIT = ("Sources &amp; credits: questions are adapted from Higher Physics past
           "instructions &copy; Qualifications Scotland (SQA). Numbers, circuits and "
           "contexts have been changed, and some questions are original to this site. "
           "Circuit diagrams, oscilloscope traces, graphs and band diagrams drawn for this "
-          "site &copy; R Stewart Physics, Electronics and Engineering, 2026.")
+          "site &copy; R Stewart Physics, Electronics and Engineering, 2026. "
+          "R Stewart - November 2026.")
 
 
 def apply(meta):

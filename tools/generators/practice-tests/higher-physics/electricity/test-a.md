@@ -53,44 +53,44 @@ p2_v: 3.3
 
 @q W1 | warmup | mcq | 1 | auto 1
 keyarea: Peak and r.m.s. voltage
-parent: SQA Higher Specimen Paper P1 Q20 — the same peak-from-r.m.s. step, with a low-voltage supply in place of the mains, so the published 325 V is not reproduced.
+parent: SQA Higher Specimen Paper (2019) P1 Q20 — the same peak-from-r.m.s. step, with a low-voltage supply in place of the mains, so the published 325 V is not reproduced.
 stem: The r.m.s. voltage of the output from a low-voltage a.c. supply is {w1_vrms}&nbsp;V. The peak voltage of the output is
 options_from: w1
 key: computed
 mi: <var>V</var><sub>peak</sub> = √2 <var>V</var><sub>rms</sub> = √2 × {w1_vrms} = <strong>{w1_peak}&nbsp;V</strong>.
-wrong: {w1_div}&nbsp;V comes from dividing by √2 instead of multiplying — the peak is always the <em>larger</em> of the two. {w1_double}&nbsp;V comes from doubling the r.m.s. value, and {w1_vrms}&nbsp;V treats the r.m.s. value as the peak.
+wrong: {w1_div}&nbsp;V comes from dividing by √2 instead of multiplying — the peak is always the <em>larger</em> of the two. {w1_double}&nbsp;V comes from doubling the r.m.s. value, and {w1_vrms}&nbsp;V treats the r.m.s. value as the peak. {w1_half}&nbsp;V halves the r.m.s. value — the peak is √2 times it.
 @end
 
 @q W2 | warmup | mcq | 1 | auto 1
 keyarea: Frequency from an oscilloscope trace
-parent: SQA Higher Specimen Paper P1 Q21 — the same "frequency from the trace and the timebase" idiom, with a different timebase setting and number of cycles, so the published 8·3 Hz is not reproduced.
+parent: SQA Higher Specimen Paper (2019) P1 Q21 — the same "frequency from the trace and the timebase" idiom, with a different timebase setting and number of cycles, so the published 8·3 Hz is not reproduced.
 diagram: w2_trace
 stem: The output from a signal generator is displayed on an oscilloscope. The trace is shown. The timebase of the oscilloscope is set at {w2_tb_ms}&nbsp;ms/div. The frequency of the output signal is
 options_from: w2
 key: computed
 mi: One complete wave covers {w2_period_div} divisions, so <var>T</var> = {w2_period_div} × {w2_tb_ms}&nbsp;ms = {w2_t_ms}&nbsp;ms = {w2_t_s}&nbsp;s.<br><var>f</var> = 1 / <var>T</var> = 1 / {w2_t_s} = <strong>{w2_f}&nbsp;Hz</strong>.
-wrong: {w2_half}&nbsp;Hz comes from reading only half a wave (peak to trough) as the period. Forgetting to change ms into s gives {w2_ms}&nbsp;Hz.
+wrong: {w2_half}&nbsp;Hz comes from reading only half a wave (peak to trough) as the period. Forgetting to change ms into s gives {w2_ms}&nbsp;Hz. {w2_10div}&nbsp;Hz takes the whole screen as one period and {w2_1div}&nbsp;Hz takes one division — count the divisions in one complete wave.
 @end
 
 @q W3 | warmup | mcq | 1 | auto 1
 keyarea: Power, current and resistance
-parent: SQA Higher 2018 P1 Q16 — the same "current from power and resistance" step, with a new resistor and power, so the published 0·20 A is not reproduced.
+parent: SQA Higher 2018 Section 1 Q16 — the same "current from power and resistance" step, with a new resistor and power, so the published 0·20 A is not reproduced.
 stem: The power dissipated in a {w3_r}&nbsp;Ω resistor is {w3_p}&nbsp;W. The current in the resistor is
 options_from: w3
 key: computed
 mi: <var>P</var> = <var>I</var><sup>2</sup><var>R</var>, so {w3_p} = <var>I</var><sup>2</sup> × {w3_r} and <var>I</var> = √({w3_p} / {w3_r}) = <strong>{w3_i}&nbsp;A</strong>.
-wrong: {w3_nosqrt}&nbsp;A is <var>I</var><sup>2</sup> — the square root was not taken. {w3_v}&nbsp;A is the p.d. across the resistor in volts, not the current.
+wrong: {w3_nosqrt}&nbsp;A is <var>I</var><sup>2</sup> — the square root was not taken. {w3_v}&nbsp;A is the p.d. across the resistor in volts, not the current. {w3_sqrtp}&nbsp;A leaves out the resistance, and {w3_pr}&nbsp;A multiplies <var>P</var> by <var>R</var> instead of dividing.
 @end
 
 @q W4 | warmup | mcq | 1 | auto 1
 keyarea: Potential difference in a series–parallel circuit
-parent: SQA Higher Specimen Paper P1 Q23 — the same "p.d. across part of a resistor network" idiom, with a different network and supply and the voltmeter across the single resistor, so the published answer is not reproduced.
+parent: SQA Higher Specimen Paper (2019) P1 Q23 — the same "p.d. across part of a resistor network" idiom, with a different network and supply and the voltmeter across the single resistor, so the published answer is not reproduced.
 diagram: w4_circuit
 stem: A circuit is set up as shown. The battery has negligible internal resistance. The reading on the voltmeter is
 options_from: w4
 key: computed
 mi: The two {w4_r2_k}&nbsp;kΩ resistors in parallel have a combined resistance of {w4_rp_k}&nbsp;kΩ.<br><var>V</var><sub>1</sub> = (<var>R</var><sub>1</sub> / (<var>R</var><sub>1</sub> + <var>R</var><sub>2</sub>)) <var>V</var><sub>S</sub> = ({w4_r1_k} / ({w4_r1_k} + {w4_rp_k})) × {w4_vs} = <strong>{w4_v1}&nbsp;V</strong>.
-wrong: {w4_nopar}&nbsp;V comes from adding the two parallel resistors as if they were in series. {w4_vp}&nbsp;V is the p.d. across the parallel pair, not across the {w4_r1_k}&nbsp;kΩ resistor.
+wrong: {w4_nopar}&nbsp;V comes from adding the two parallel resistors as if they were in series. {w4_vp}&nbsp;V is the p.d. across the parallel pair, not across the {w4_r1_k}&nbsp;kΩ resistor. {w4_half}&nbsp;V assumes the supply splits equally; {w4_pser}&nbsp;V is the p.d. across the pair if they were in series.
 @end
 
 @q W5 | warmup | mcq | 1 | auto 1
@@ -101,17 +101,17 @@ stem: A battery of e.m.f. {w5_emf}&nbsp;V and internal resistance {w5_r}&nbsp;Ω
 options_from: w5
 key: computed
 mi: <var>I</var> = <var>E</var> / (<var>R</var> + <var>r</var>) = {w5_emf} / ({w5_load} + {w5_r}) = {w5_i}&nbsp;A.<br>Lost volts = <var>I</var><var>r</var> = {w5_i} × {w5_r} = <strong>{w5_lost}&nbsp;V</strong>.
-wrong: {w5_tpd}&nbsp;V is the terminal potential difference — the p.d. across the {w5_load}&nbsp;Ω resistor — not the lost volts. {w5_noR}&nbsp;V comes from leaving the internal resistance out of the total when finding the current.
+wrong: {w5_tpd}&nbsp;V is the terminal potential difference — the p.d. across the {w5_load}&nbsp;Ω resistor — not the lost volts. {w5_noR}&nbsp;V comes from leaving the internal resistance out of the total when finding the current. {w5_i}&nbsp;V is the current in amperes, not a p.d., and {w5_emf}&nbsp;V is the whole e.m.f. — the lost volts are only the part across <var>r</var>.
 @end
 
 @q W6 | warmup | mcq | 1 | auto 1
 keyarea: Capacitance, charge and potential difference
-parent: SQA Higher 2018 P1 Q17 — the same single step, <var>Q</var> = <var>C</var><var>V</var>, with a new capacitor and p.d., so the published 3·00 × 10⁻³ C is not reproduced.
+parent: SQA Higher 2018 Section 1 Q17 — the same single step, <var>Q</var> = <var>C</var><var>V</var>, with a new capacitor and p.d., so the published 3·00 × 10⁻³ C is not reproduced.
 stem: A {w6_c_uf}&nbsp;μF capacitor is charged until the potential difference across it is {w6_v}&nbsp;V. The charge stored on the capacitor is
 options_from: w6
 key: computed
 mi: <var>C</var> = <var>Q</var> / <var>V</var>, so <var>Q</var> = <var>C</var><var>V</var> = {w6_c_sci} × {w6_v} = <strong>{w6_q}&nbsp;C</strong>.
-wrong: {w6_nou}&nbsp;C comes from leaving the capacitance in microfarads. {w6_half}&nbsp;C is half the charge — the ½ belongs to the <em>energy</em> relationships, not to <var>Q</var> = <var>C</var><var>V</var>.
+wrong: {w6_nou}&nbsp;C comes from leaving the capacitance in microfarads. {w6_half}&nbsp;C is half the charge — the ½ belongs to the <em>energy</em> relationships, not to <var>Q</var> = <var>C</var><var>V</var>. {w6_cv}&nbsp;C divides <var>C</var> by <var>V</var>, and {w6_vc}&nbsp;C divides <var>V</var> by <var>C</var> — rearrange <var>C</var> = <var>Q</var>/<var>V</var> to <var>Q</var> = <var>C</var><var>V</var>.
 @end
 
 @q W7 | warmup | mcq | 1 | auto 1
@@ -125,7 +125,7 @@ option: II and III only
 option: I, II and III
 key: C
 mi: <strong>I is correct</strong>: at the instant the switch is closed the capacitor has no charge, so there is no p.d. across it and the whole supply voltage is across the resistor — the current is at its largest.<br><strong>II is wrong</strong>: the maximum charge is <var>Q</var> = <var>C</var><var>V</var>, which depends on the capacitance and the supply voltage only. A greater resistance makes the capacitor take <em>longer</em> to charge; it does not change how much charge it ends up with.<br><strong>III is correct</strong>: <var>E</var> = ½<var>C</var><var>V</var><sup>2</sup>, so a greater supply voltage stores more energy.
-wrong: Any answer that includes II treats resistance as changing the <em>amount</em> of charge. Resistance changes the <em>time</em> taken to charge, never the final charge.
+wrong: Any answer that includes II treats resistance as changing the <em>amount</em> of charge. Resistance changes the <em>time</em> taken to charge, never the final charge. A (I only) misses III: <var>E</var> = ½<var>C</var><var>V</var><sup>2</sup>, so a greater supply voltage stores more energy.
 @end
 
 @q W8 | warmup | mcq | 1 | auto 1
@@ -139,7 +139,7 @@ option: Conduction band: full · Gap: small
 option: Conduction band: full · Gap: large
 key: B
 mi: In a semiconductor the gap between the valence band and the conduction band is <strong>small</strong>, so at room temperature a few electrons gain enough energy to cross it: the conduction band is <strong>almost empty</strong> (row B).
-wrong: Row A describes an insulator — the gap is too large for electrons to cross. Row C describes a metal (a conductor).
+wrong: Row A describes an insulator — the gap is too large for electrons to cross. Row C describes a metal (a conductor). Rows D and E have a full conduction band; in a semiconductor only a few electrons have crossed the small gap, so it is almost empty.
 @end
 
 @q C1 | core | struct | 7
@@ -183,8 +183,8 @@ mi: <var>V</var> = <var>I</var><var>R</var> **(1)**<br>{c1_rms_disp} = <var>I</v
 
 @q C2 | core | struct | 6
 keyarea: E.m.f. and internal resistance from a graph of R against 1/I
-parent: SQA Higher Specimen Paper P2 Q13 — the same "R against 1/I" method, with a battery of new e.m.f. and internal resistance, so neither published value is reproduced, and a short-circuit current calculated from the graph's values.
-context: A student uses the circuit shown to determine the e.m.f. <var>E</var> and internal resistance <var>r</var> of a battery. The variable resistor provides known values of resistance <var>R</var>. For each value of <var>R</var> the switch is closed, the current <var>I</var> is noted and 1/<var>I</var> is calculated.<br>Applying conservation of energy to the circuit gives <var>R</var> = <var>E</var> × (1/<var>I</var>) − <var>r</var>, which is the equation of a straight line: the gradient is <var>E</var> and the intercept on the <var>R</var> axis is −<var>r</var>. The graph of the student's results is shown.
+parent: SQA Higher Specimen Paper (2019) P2 Q13 — the same "R against 1/I" method, with a battery of new e.m.f. and internal resistance, so neither published value is reproduced, and a short-circuit current calculated from the graph's values.
+context: A student uses the circuit shown to determine the e.m.f. <var>E</var> and internal resistance <var>r</var> of a battery. The variable resistor provides known values of resistance <var>R</var>. For each value of <var>R</var> the switch is closed, the current <var>I</var> is noted and 1/<var>I</var> is calculated.<br>Conservation of energy applied to the complete circuit gives the relationship <var>R</var> = <var>E</var> × (1/<var>I</var>) − <var>r</var>. This relationship is in the form of the equation of a straight line, <var>y</var> = <var>m</var><var>x</var> + <var>c</var>, where <var>m</var> is the gradient and <var>c</var> is the <var>y</var>-intercept. The graph of the student's results is shown.
 diagram: c2_circuit
 @part a | 1 | value | auto 1
 ask: Use the graph to determine the internal resistance of the battery.
@@ -213,7 +213,7 @@ mi: <var>E</var> = <var>V</var> + <var>I</var><var>r</var> **(1)**<br>When short
 
 @q C3 | core | struct | 7
 keyarea: Charging a capacitor with a constant current
-parent: SQA Higher Specimen Paper P2 Q14 — the same constant-current charging circuit, with a new supply, current, capacitor and time, so no published answer (4·0 × 10⁵ Ω, 7·5 × 10⁻⁴ C) is reproduced, and the last part asks for the reason the resistance must be adjusted.
+parent: SQA Higher Specimen Paper (2019) P2 Q14 — the same constant-current charging circuit, with a new supply, current, capacitor and time, so no published answer (4·0 × 10⁵ Ω, 7·5 × 10⁻⁴ C) is reproduced, and the last part asks for the reason the resistance must be adjusted.
 context: A {c3_c_uf}&nbsp;μF capacitor is charged using the circuit shown. The {c3_vs_disp}&nbsp;V battery has negligible internal resistance. The capacitor is initially uncharged. The switch S is closed, and the charging current is kept constant at {c3_i_ua}&nbsp;μA by adjusting the resistance of the variable resistor R.
 diagram: c3_circuit
 @part a | 3 | calc | auto 2
@@ -255,7 +255,7 @@ mi: With no photons absorbed, electrons are no longer given enough energy to mov
 @q P1 | push | struct | 8
 keyarea: Internal resistance and the power delivered to a load
 given: p1_emf_disp,p1_r_disp,p1_load1_disp
-parent: SQA Higher 2016 P1 Q19 — the same investigation of how the power in a variable resistor changes as its resistance is changed, set as a structured calculation with a battery of new e.m.f. and internal resistance, so the published multiple-choice answer does not apply.
+parent: SQA Higher 2016 Section 1 Q19 — the same investigation of how the power in a variable resistor changes as its resistance is changed, set as a structured calculation with a battery of new e.m.f. and internal resistance, so the published multiple-choice answer does not apply.
 context: A battery of e.m.f. {p1_emf_disp}&nbsp;V and internal resistance {p1_r_disp}&nbsp;Ω is connected to a variable resistor R as shown. The resistance of R is set to {p1_load1_disp}&nbsp;Ω.
 diagram: p1_circuit
 @part a | 3 | calc | auto 2
@@ -276,14 +276,14 @@ mi: <var>P</var> = <var>I</var><sup>2</sup><var>R</var> **(1)**<br>= {p1_i1_disp
 @end
 @part c | 2 | open | self 2
 ask: The resistance of R is now increased to {p1_load2_disp}&nbsp;Ω. State whether the power dissipated in R increases, decreases or stays the same. You must justify your answer by calculation.
-mi: <strong>Increases</strong> **(1)** — awarded only if a justification is attempted.<br><var>I</var> = {p1_emf_disp} / ({p1_load2_disp} + {p1_r_disp}) = {p1_i2_disp}&nbsp;A, and <var>P</var> = {p1_i2_disp}<sup>2</sup> × {p1_load2_disp} = {p1_p2_disp}&nbsp;W, which is greater than {p1_p1_disp}&nbsp;W **(1)**.<br>The current is smaller, but the resistance has doubled, and the product <var>I</var><sup>2</sup><var>R</var> rises. (The power in the load is greatest when the load resistance equals the internal resistance — not required.)
+mi: <strong>Increases</strong> **(1)** — awarded only if a justification is attempted.<br><var>I</var> = {p1_emf_disp} / ({p1_load2_disp} + {p1_r_disp}) = {p1_i2_disp}&nbsp;A, and <var>P</var> = {p1_i2_disp}<sup>2</sup> × {p1_load2_disp} = {p1_p2_disp}&nbsp;W, which is greater than {p1_p1_disp}&nbsp;W **(1)**.<br>The current is smaller, but the resistance is larger, and the product <var>I</var><sup>2</sup><var>R</var> rises. (The power in the load is greatest when the load resistance equals the internal resistance — not required.)
 @end
 @end
 
 @q P2 | push | struct | 5
 keyarea: Energy stored in a capacitor, and how capacitance affects discharge
 given: p2_v_disp
-parent: SQA Higher 2016 P2 Q13(a)(ii) and (c) — the same energy-stored calculation and the same "effect on the time the lamp stays lit" judgement, in a new context, with a capacitance in millifarads and the change made the other way, so neither the published 10·8 J nor "shorter" is reproduced.
+parent: SQA Higher 2016 Section 2 Q13(a)(ii) and (c) — the same energy-stored calculation and the same "effect on the time the lamp stays lit" judgement, in a new context, with a capacitance in millifarads and the change made the other way, so neither the published 10·8 J nor "shorter" is reproduced.
 context: An emergency exit sign contains a {p2_c_mf}&nbsp;mF capacitor. While mains power is on, the capacitor is kept charged to {p2_v_disp}&nbsp;V. During a power cut the capacitor discharges through a small lamp, keeping the sign lit for a short time.
 @part a | 3 | calc | auto 2
 ask: Calculate the maximum energy stored in the capacitor.
