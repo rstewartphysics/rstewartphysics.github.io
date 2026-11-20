@@ -348,6 +348,18 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   paper Q4, Q5. Answer keys from the marking instructions. All © Qualifications Scotland (SQA),
   reproduced for educational use. Specimen paper Question 5 photograph (Mars rover):
   sandystifler/shutterstock.com, as credited in the paper.
+- **S3 Physics *Cosmology* page (Light years), *Light years quiz* and *Light years practice sheet***
+  (added 20 November 2026) — `classes/s3-physics/space/cosmology.html`,
+  `classes/s3-physics/space/light-years-quiz.html`,
+  `classes/s3-physics/space/L9 Light Years - Practice Sheet.pdf`. Text, the light-year drawing, the
+  worked example (from the Space booklet), the original questions and all feedback © R Stewart, 2026.
+  Reproduced from National 5 Physics question papers and marking instructions: 2023 Section 2, Q5(c)
+  (page exam question, `assets/s3/space/sqa-2023-s2-q5c*.png`); quiz (`assets/s3/space/quiz/`)
+  2015 Section 1, Q19; 2018 Section 1, Q9; 2021 Section 1, Q8; 2025 Section 1, Q9; 2026 Section 1, Q7;
+  2024 Section 2, Q6(b)(ii); 2019 Section 2, Q4(b)(ii); practice sheet 2019 Section 2, Q4(b); 2022
+  Section 2, Q5(a)(i) and Q5(b); 2017 Section 2, Q12(a); the 2023 course report is quoted. All
+  © Qualifications Scotland (SQA), reproduced for educational use. BBC Bitesize is linked, not copied.
+  No photos.
 
 - **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
   `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
