@@ -552,8 +552,8 @@ per course; crops are added on each page's next touch.
 **Default check (teacher, 6 Nov 2026).** The question-bank check runs on every page built *or
 improved*, not only when asked, and is part of "done" (global CLAUDE.md §4, DECK-RULES 80): every
 question on the page that could be a real SQA item is one (crop, the bank's `Credit` wording in the
-`data-credit-note`, a ledger row); quick quizzes and retrieval items come from the bank; an invented
-question only where no current item fits, logged in the project's STATE.md.
+`data-credit-note`, a ledger row); quick quizzes and retrieval items come from the bank; an original
+question only where no current item fits, flagged ORIGINAL and logged in the project's STATE.md (global CLAUDE.md §4, 19 Nov 2026).
 
 - **`.exam-ref` under each section's `.keypoint`:** the current exam items for that key area, newest
   first, each in its own `<b>`, at most 8, then "asked in N of M exam years" (counted from the bank,
