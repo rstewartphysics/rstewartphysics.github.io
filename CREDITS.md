@@ -585,6 +585,46 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     Paper 2, Q4; 2025 Higher Physics Paper 1, Q8; 2026 Higher Physics Paper 1, Q8; Specimen Higher Physics Paper 1,
     Q9; Specimen Higher Physics Paper 2, Q4. The Higher Physics course specification v4.1 (September 2026), p.8–9, is
     quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **Higher Physics *Expanding universe 1: The Doppler effect*** (added 20 November 2026) — the lesson slide deck
+  `classes/higher/slides/h-odu6-1-doppler-effect.pdf` and its `-answers.pdf` twin. Each item is credited on the deck's
+  Credits slide. The wavefront, pitch-graph, sign and light-shift drawings (and the wavefront animation) are by R
+  Stewart.
+  - Third-party content in SQA items: Photo in 2017 Higher Physics Section 2, Q1: KieferPix/shutterstock.com (the
+    paper's own acknowledgement).
+  - Figures and questions: 2015 Higher Physics Section 1, Q8; 2016 Higher Physics Section 1, Q6; 2017 Higher Physics
+    Section 2, Q1; 2019 Higher Physics Paper 2, Q5; 2022 Higher Physics Paper 1, Q9; 2022 Higher Physics Paper 2,
+    Q5; 2023 Higher Physics Paper 2, Q5; 2024 Higher Physics Paper 2, Q1; 2025 Higher Physics Paper 2, Q2; 2026
+    Higher Physics Paper 1, Q9; Specimen Higher Physics Section 1, Q8. The Higher Physics course specification v4.1
+    (September 2026), p.9, is quoted. © Qualifications Scotland (SQA), reproduced for educational use.
+- **Higher Physics *Expanding universe 2: Redshift and Hubble's law*** (added 20 November 2026) — the lesson slide
+  deck `classes/higher/slides/h-odu6-2-redshift-hubbles-law.pdf` and its `-answers.pdf` twin. Each item is credited on
+  the deck's Credits slide. The spectrum, expansion, Hubble graph and washers drawings are by R Stewart.
+  - Figures and questions: 2016 Higher Physics Section 2, Q5; 2017 Higher Physics Section 1, Q5; 2018 Higher Physics
+    Section 2, Q5; 2018 Higher Physics Section 2, Q10; 2019 Higher Physics Paper 1, Q9; 2021 Higher Physics Paper 1,
+    Q11; 2024 Higher Physics Paper 2, Q5; 2026 Higher Physics Paper 2, Q3; Specimen Higher Physics Paper 2, Q5. The
+    Higher Physics course specification v4.1 (September 2026), p.9, is quoted. © Qualifications Scotland (SQA),
+    reproduced for educational use.
+- **Higher Physics *Expanding universe 3: Dark matter and dark energy*** (added 20 November 2026) — the lesson slide
+  deck `classes/higher/slides/h-odu6-3-dark-matter-dark-energy.pdf` and its `-answers.pdf` twin. Each item is credited
+  on the deck's Credits slide. The galaxy-orbit, rotation-curve and expansion-rate drawings are by R Stewart.
+  - Figures and questions: 2017 Higher Physics Section 1, Q6; 2017 Higher Physics Section 2, Q5; 2018 Higher Physics
+    Section 2, Q5; 2019 Higher Physics Paper 1, Q10; 2021 Higher Physics Paper 1, Q12; 2022 Higher Physics Paper 1,
+    Q8; 2023 Higher Physics Paper 2, Q10; 2025 Higher Physics Paper 2, Q10; 2026 Higher Physics Paper 1, Q10. The
+    Higher Physics course specification v4.1 (September 2026), p.10, is quoted. © Qualifications Scotland (SQA),
+    reproduced for educational use.
+- **Higher Physics *Expanding universe 4: Stellar temperature and the Big Bang*** (added 20 November 2026) — the
+  lesson slide deck `classes/higher/slides/h-odu6-4-stellar-temperature-big-bang.pdf` and its `-answers.pdf` twin.
+  Each item is credited on the deck's Credits slide. The black-body, star-colour, CMB, Olbers' paradox and hydrogen-
+  helium drawings are by R Stewart.
+  - Third-party content in SQA items: Images in 2021 Higher Physics Paper 2, Q4: Pixabay, Creative Commons; lyrics
+    in 2023 Higher Physics Paper 2, Q6: 'The History of Everything' by Ed Robertson and Steven Page (the papers' own
+    acknowledgements).
+  - Figures and questions: 2015 Higher Physics Section 2, Q5; 2016 Higher Physics Section 1, Q7; 2017 Higher Physics
+    Section 1, Q7; 2018 Higher Physics Section 2, Q5; 2019 Higher Physics Paper 2, Q6; 2021 Higher Physics Paper 2,
+    Q4; 2023 Higher Physics Paper 1, Q9; 2023 Higher Physics Paper 2, Q6; 2024 Higher Physics Paper 1, Q9; 2024
+    Higher Physics Paper 2, Q5; 2025 Higher Physics Paper 1, Q9; 2025 Higher Physics Paper 2, Q5; Specimen Higher
+    Physics Paper 1, Q11. The Higher Physics course specification v4.1 (September 2026), p.10, is quoted. ©
+    Qualifications Scotland (SQA), reproduced for educational use.
 - **S3 Physics *Space L6: Forces on Rockets*** (added 10 November 2026) — the lesson slide deck
   `classes/s3-physics/slides/l6-forces-on-rockets.pdf` and its `-answers.pdf` twin. Each item is credited on
   the deck's Credits slide. The force-arrow and rocket drawings are by R Stewart.
