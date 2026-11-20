@@ -86,6 +86,7 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   © Qualifications Scotland (SQA), reproduced for educational use and credited on the Credits slide.
   - A magnetic compass — Jacek Halicki, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:2016_Busola.JPG).
   - An electron beam bent into a circle in a fine-beam tube — Treguel, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Electron_charge-mass_relation_experiment.jpg).
+  - Updated 20 November 2026: the AH Physics 2024 Q15 crop carries the paper's own aurora photograph, credited as the paper credits it — Luca Quadrio/shutterstock.com. The homework slide links (does not copy) Isaac Science (University of Cambridge) board H4 and the question *Between Two Wires*.
 - **Photographs under open licences** (added 8 November 2026) — the Advanced Higher Physics
   *Electric Fields 2: Uniform Fields* slides
   (`classes/adv/slides/ah-i-electric-fields-2-uniform-fields.pdf`), credited on the deck's
