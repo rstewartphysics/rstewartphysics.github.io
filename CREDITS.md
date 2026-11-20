@@ -585,6 +585,15 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
     the 2023–2025 course reports. The N5 Physics course specification v5.1 (September 2026), pp.6 and 8, is quoted.
     © Qualifications Scotland (SQA), reproduced for educational use. Photo in the 2025 paper: Hasbul Aerial
     Stock/Shutterstock; in the 2026 paper: Nerthuz/shutterstock.com. The Moon (2023 Q4) — NASA, Apollo 15.
+- **S3 Physics *Space L9: Light Years*** (added 20 November 2026) — the lesson slide deck
+  `classes/s3-physics/slides/l9-light-years.pdf` and its `-answers.pdf` twin. Each item is credited on
+  the deck's Credits slide. The drawings are by R Stewart.
+  - Photos: Proxima Centauri — ESA/Hubble & NASA; the Whirlpool galaxy — NASA/ESA Hubble Space Telescope;
+    the Andromeda galaxy — NASA/JPL/California Institute of Technology.
+  - Figures and questions: N5 Physics 2019 Paper 2 Q4(b); 2022 Paper 2 Q5(a)(i), Q5(b) and Q5(c)(ii) (MI);
+    2023 Section 2 Q5(c); 2024 Section 2 Q6(b)(ii); 2025 Section 1 Q9; 2026 Section 1 Q7; the 2023–2025
+    course reports. The N5 Physics course specification, p.8, is quoted. © Qualifications Scotland (SQA),
+    reproduced for educational use.
 - **National 5 Engineering Science *Programmable Control* topic page** (added 11 October 2026) —
   `classes/n5-engineering/programmable-control.html`. The text, programs, flowcharts and wiring drawings are
   by R Stewart (the drawings are cut from the Booklet 4b lesson decks; the breadboards are drawn with the
