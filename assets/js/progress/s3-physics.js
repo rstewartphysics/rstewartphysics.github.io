@@ -37,7 +37,10 @@
       cond: "Work through the Electricity 1 graphing practice" },
     { id: "space-b", name: "Space Exploration", emoji: "🚀", section: "Space", unlock: "page",
       href: "/classes/s3-physics/space/space-exploration.html",
-      cond: "Finish every challenge on Space · Part B" }
+      cond: "Finish every challenge on Space · Part B" },
+    { id: "space-c", name: "Cosmology", emoji: "🔭", section: "Space", unlock: "page",
+      href: "/classes/s3-physics/space/cosmology.html",
+      cond: "Finish every challenge on Space · Part C" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });
