@@ -1,0 +1,699 @@
+---
+layout: none
+title: Hubble simulation — Higher Physics
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eef8ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)" />
+
+  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <script src="/assets/js/site-menu.js" defer></script>
+
+  <link rel="stylesheet" href="/assets/css/higher-physics.css?v=hp-20261014b">
+  <link rel="stylesheet" href="/assets/css/sims.css?v=sim-20261013a">
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/higher-physics.js" defer></script>
+  <script src="/assets/js/widget-kit.js?v=wk-20261013a" defer></script>
+
+  <title>Hubble simulation — Higher Physics</title>
+  {% include site-head-icons.html %}
+
+  <style>
+    :root { --warm: #c2410c; --ok: #15803d; --gal: #7c3aed; --gal-core: #f59e0b; }
+    @media (prefers-color-scheme: dark) { :root { --warm: #ff9d6e; --ok: #5dd693; --gal: #c4a8ff; --gal-core: #ffd27a; } }
+
+    .lead { color: var(--muted); font-weight: 800; line-height: 1.55; margin: .25rem 0 0; max-width: 72ch; }
+    .concept-tag { display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-2); margin-bottom: .1rem; }
+    .backlink { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; font-weight: 900; color: var(--accent-2); text-decoration: none; margin-bottom: .25rem; }
+    .backlink:focus-visible { outline: var(--focus-ring); outline-offset: 3px; border-radius: 6px; }
+    .note { border-left: 4px solid var(--accent); background: var(--surface-2); padding: .55rem .8rem; border-radius: 0 10px 10px 0; margin-top: .8rem; font-weight: 800; color: var(--text); max-width: 80ch; }
+    .note ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+    .note li { margin: .25rem 0; }
+    var { font-family: "Times New Roman", Times, Georgia, serif; font-style: italic; }
+
+    .eq-row { display: flex; flex-wrap: wrap; gap: .8rem; align-items: stretch; margin: .8rem 0 .2rem; }
+    .eq-card { flex: 0 1 280px; border: 1px solid var(--border-accent); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface-2); padding: .7rem .9rem; }
+    .eq-name { font-size: .74rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    .eq-formula { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--text); text-align: center; margin: .5rem 0 .3rem; display: flex; align-items: center; justify-content: center; gap: .3rem; flex-wrap: wrap; }
+    .eq-desc { font-size: .86rem; font-weight: 800; color: var(--muted); text-align: center; }
+    .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.1; }
+    .frac > span { padding: 0 .3em; }
+    .frac > .fr-n { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
+    .frac > .fr-d { padding-top: 2px; }
+    .sym-gloss { flex: 1 1 340px; display: grid; grid-template-columns: auto 1fr auto; align-content: center; gap: .3rem .8rem; margin: 0; padding: .6rem .8rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); font-weight: 800; color: var(--text); }
+    .sym-gloss dt { font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.2rem; text-align: center; }
+    .sym-gloss dd { margin: 0; }
+    .sym-gloss .u { color: var(--muted); white-space: nowrap; }
+
+    /* drawings */
+    .hub-fig { display: block; width: 100%; height: auto; }
+    .hub-fig text { fill: var(--text); font-family: var(--font-stack); font-weight: 800; font-size: 17px; }
+    .hub-fig text.small { font-size: 15px; fill: var(--muted); }
+    .hub-fig text.home { fill: var(--warm); }
+    .hub-fig .arm { fill: none; stroke: var(--gal); stroke-width: 2.4; stroke-linecap: round; }
+    .hub-fig .disc { fill: color-mix(in srgb, var(--gal) 30%, transparent); stroke: var(--gal); stroke-width: 1.6; }
+    .hub-fig .core { fill: var(--gal-core); }
+    .hub-fig .ghost { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+    .hub-fig .ring { fill: none; stroke: var(--warm); stroke-width: 3; }
+    .hub-fig .move { stroke: var(--warm); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .hub-fig .row { stroke: var(--border); stroke-width: 1.5; }
+    .hub-fig .gal-hit { fill: transparent; cursor: pointer; }
+    .hub-fig .gal-hit:focus-visible { outline: none; stroke: var(--accent); stroke-width: 3; }
+    @media (max-width: 600px) { .hub-fig text { font-size: 21px; } .hub-fig text.small { font-size: 19px; } }
+
+    /* graph points drawn as small galaxies */
+    .kg-marker.gal { fill: var(--gal-core); stroke: var(--gal); stroke-width: 3.5; }
+    .kg-marker.gal2 { fill: var(--gal-core); stroke: var(--warm); stroke-width: 3.5; }
+    .kg-line.fit { stroke: var(--ok); stroke-dasharray: 8 6; }
+    .kg-line.today { stroke: var(--warm); }
+    #hubGraph { touch-action: none; cursor: crosshair; }
+
+    .sim-controls .sim-note { margin: 0; }
+    .sim-seg button { flex: 1 1 auto; }
+    @media (min-width: 821px) { #simWashers .sim-stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+    #homeBtns button { min-width: 44px; flex: 0 0 auto; }
+    .tbl-wrap { overflow-x: auto; }
+    table.hub-t { border-collapse: collapse; width: 100%; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+    table.hub-t th, table.hub-t td { border: 1px solid var(--border-soft); padding: .3rem .45rem; text-align: center; }
+    table.hub-t th { background: var(--surface-2); font-size: .85rem; color: var(--muted); }
+    table.hub-t tr.is-home td { color: var(--warm); }
+    .wd-in { width: 100%; min-width: 4.5rem; min-height: 44px; padding: .3rem .4rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; text-align: center; }
+    .wd-in:focus-visible, .unit-in:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
+    .wd-in.bad { border-color: var(--warm); border-width: 2px; }
+    .unit-in { min-height: 44px; width: 9rem; padding: .3rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; }
+    .unit-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-weight: 900; color: var(--text); }
+    .flags { margin: .2rem 0 0; padding-left: 1.1rem; color: var(--warm); font-weight: 800; }
+    .flags:empty { display: none; }
+    .prompts { margin: 0; padding-left: 1.1rem; font-weight: 800; color: var(--text); line-height: 1.5; }
+
+    /* check yourself */
+    .mcq { margin-top: .9rem; padding: .8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--card); }
+    .mcq .qstem { margin: 0 0 .5rem; font-weight: 800; color: var(--text); line-height: 1.5; }
+    .mcq .qsrc { display: block; font-size: .8rem; color: var(--muted); font-weight: 800; margin-top: .15rem; }
+    .mcq-opts { display: grid; gap: .4rem; }
+    .mcq-opt { display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 48px; padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 800; text-align: left; cursor: pointer; touch-action: manipulation; }
+    .mcq-opt:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .mcq-opt .ol { flex: 0 0 auto; width: 1.8rem; height: 1.8rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border-accent); font-weight: 900; }
+    .mcq-opt .om { margin-left: auto; font-weight: 900; white-space: nowrap; }
+    .mcq-opt.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--card)); }
+    .mcq-opt.right .om { color: var(--ok); }
+    .mcq-opt.wrong { border-color: var(--warm); background: color-mix(in srgb, var(--warm) 10%, var(--card)); }
+    .mcq-opt.wrong .om { color: var(--warm); }
+    .mcq-fb { margin: .55rem 0 0; padding: .55rem .75rem; border-radius: 10px; background: var(--surface-2); font-weight: 800; color: var(--text); line-height: 1.5; }
+    .mcq-fb:empty { display: none; }
+    .score { font-weight: 900; margin-top: .8rem; color: var(--text); }
+    .words { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px,100%),1fr)); gap: .6rem; margin: .6rem 0 0; }
+    .words div { border: 1px solid var(--border-soft); border-radius: 10px; background: var(--card); padding: .6rem .75rem; }
+    .words dt { font-weight: 900; color: var(--text); }
+    .words dd { margin: .2rem 0 0; font-weight: 700; color: var(--text); }
+    /* deck QR codes land on these headings, so they must clear the sticky section bar */
+    #chain-title, #washers-title, #graph-title, #check-title { scroll-margin-top: 170px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+    @media print {
+      .subnav-wrap, .backlink, #siteMenuButton, footer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  {% include site-menu.html %}
+
+  <header class="banner-wrap">
+    <img src="/assets/higher-physics-banner.jpeg" alt="Higher Physics banner" class="banner" loading="eager" decoding="async">
+    <div class="banner-tint"></div>
+    <div class="banner-overlay-text">
+      <h1>Hubble simulation</h1>
+      <p>Higher Physics · Our Dynamic Universe</p>
+    </div>
+  </header>
+
+  <div class="subnav-wrap">
+    <nav class="subnav" aria-label="Jump to sections">
+      <div class="subnav-links">
+        <a class="subnav-link" href="#chain"><span class="sn-full">Expanding chain</span><span class="sn-short">Chain</span></a>
+        <a class="subnav-link" href="#washers"><span class="sn-full">Your washers data</span><span class="sn-short">Washers</span></a>
+        <a class="subnav-link" href="#hubble-graph"><span class="sn-full">Hubble's graph</span><span class="sn-short">Graph</span></a>
+        <a class="subnav-link" href="#check">Check</a>
+      </div>
+      <a class="subnav-cta" href="/classes/higher-physics.html">Higher hub</a>
+    </nav>
+  </div>
+
+  <main class="page-wrap" id="mainContent">
+    <h1 class="visually-hidden">Hubble simulation</h1>
+    <a class="backlink" href="/classes/higher/simulations.html"><span aria-hidden="true">←</span> Back to Higher simulations</a>
+    {% include feedback-button.html about="Hubble simulation" %}
+
+    <!-- ================= THE EXPANDING CHAIN ================= -->
+    <section class="panel" id="chain" aria-labelledby="chain-title">
+      <span class="concept-tag">Part 2</span>
+      <h2 id="chain-title">The expanding chain</h2>
+      <p class="lead">Galaxies are not flying apart through space. The space between them is stretching. Stretch a chain of galaxies and watch how far each one moves away from a home galaxy.</p>
+
+      <div class="sim" id="simChain" data-prog-challenge="sim-hub-chain">
+        <div class="sim-head">
+          <h3>Stretch the chain</h3>
+          <p class="sim-hint">Press Play, or move the stretch. Then tap another galaxy to make it home.</p>
+        </div>
+        <div class="sim-predict" id="predictChain">
+          <p class="sim-q"><b>Predict.</b> The whole chain stretches evenly. Which galaxy moves furthest away from the home galaxy?</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="near" aria-pressed="false">The nearest galaxy<template data-feedback><p>Not this one. The nearest galaxy has the least stretched space between it and home, so it moves the least.</p></template></button>
+            <button type="button" data-predict="far" aria-pressed="false">The furthest galaxy<template data-feedback><p><strong>Right.</strong> The furthest galaxy has the most space between it and home. Every piece of that space stretches, so it moves the furthest.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">They all move the same distance<template data-feedback><p>Not this one. Every gap stretches by the same fraction, so a galaxy with more gaps between it and home moves further.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+        </div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <figure class="sim-fig">
+              <svg class="hub-fig" id="chainSvg" viewBox="0 0 600 250" role="img" aria-labelledby="chainTitle">
+                <title id="chainTitle">A row of seven galaxies before stretching, and the same row after stretching, with arrows showing how far each galaxy moved away from the home galaxy</title>
+                <g id="chainArt"></g>
+              </svg>
+            </figure>
+            <div class="sim-figs">
+              <div class="tbl-wrap">
+                <table class="hub-t" aria-label="Distances from the home galaxy">
+                  <thead><tr><th scope="col">Galaxy</th><th scope="col">original distance <var>d</var> (cm)</th><th scope="col">new distance <var>d</var>′ (cm)</th><th scope="col">increase (cm)</th></tr></thead>
+                  <tbody id="chainRows"></tbody>
+                </table>
+              </div>
+              <div class="sim-graph"><svg id="chainGraph"></svg></div>
+            </div>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Gradient: increase ÷ original distance</span><span class="v" id="oChainGrad"></span></div>
+              <div class="sim-out"><span class="k">Home galaxy</span><span class="v" id="oHome"></span></div>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Stretch: new length ÷ old length</span>
+              <span class="sim-row"><input type="range" data-sim="s" min="1" max="2" step="0.01" value="1.5" aria-label="Stretch factor"><input class="sim-num" type="number" data-sim="s" min="1" max="2" step="0.01" value="1.5" inputmode="decimal" aria-label="Stretch factor, typed"></span>
+            </label>
+            <div class="sim-seg">
+              <button type="button" class="sim-btn" id="chainPlay" data-play-text="Play" data-pause-text="Pause">Play</button>
+            </div>
+            <div class="sim-seg" role="group" aria-label="Home galaxy" id="homeBtns">
+              <span class="sim-seg-label">Home galaxy</span>
+            </div>
+            <p class="sim-note" id="chainNote" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+      <p class="note">Change the home galaxy. The gradient stays the same. Every galaxy sees the others moving away, and the further away a galaxy is, the faster it moves away. There is no centre to the expansion.</p>
+    </section>
+
+    <!-- ================= YOUR WASHERS DATA ================= -->
+    <section class="panel" id="washers" aria-labelledby="washers-title">
+      <span class="concept-tag">Part 2 · practical</span>
+      <h2 id="washers-title">Your washers data</h2>
+      <p class="lead">Type in your group's measurements from the washers practical. The graph plots each washer as a galaxy and draws the best-fit line through the origin. Copy the gradient onto your sheet. Nothing you type is saved or sent: it clears when you leave the page.</p>
+
+      <div class="sim" id="simWashers" data-prog-challenge="sim-hub-washers">
+        <div class="sim-head">
+          <h3>Plot your chain</h3>
+          <p class="sim-hint">Each group picks a different home galaxy. Measure every distance from yours, in any unit you like.</p>
+        </div>
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-graph"><svg id="washGraph"></svg></div>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Gradient of the best-fit line (no unit)</span><span class="v" id="oWashGrad">–</span></div>
+              <div class="sim-out"><span class="k">Galaxies plotted</span><span class="v" id="oWashN">0</span></div>
+            </div>
+            <ul class="prompts">
+              <li><strong>Compare</strong> your gradient with a group who used a different unit, and a group who chose a different home galaxy.</li>
+              <li><strong>Describe</strong> how far the far galaxies moved, compared with the near ones.</li>
+            </ul>
+          </div>
+          <div class="sim-controls">
+            <div class="unit-row"><label for="washUnit">Unit used</label><input class="unit-in" id="washUnit" type="text" value="cm" maxlength="16" autocomplete="off"></div>
+            <div class="tbl-wrap">
+              <table class="hub-t" aria-label="Your washers data">
+                <thead><tr><th scope="col">Row</th><th scope="col">original distance <var>d</var></th><th scope="col">new distance <var>d</var>′</th><th scope="col">increase</th></tr></thead>
+                <tbody id="washRows"></tbody>
+              </table>
+            </div>
+            <ul class="flags" id="washFlags" aria-live="polite"></ul>
+            <div class="sim-seg"><button type="button" class="sim-btn" id="washClear">Clear the table</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HUBBLE'S GRAPH ================= -->
+    <section class="panel" id="hubble-graph" aria-labelledby="graph-title">
+      <span class="concept-tag">Part 2</span>
+      <h2 id="graph-title">Hubble's graph and the age of the Universe</h2>
+      <p class="lead">In 1929 Edwin Hubble plotted the recessional velocity of galaxies against their distance from us. The graph is a straight line through the origin, just like your washers graph. This is the <strong>Hubble–Lemaître law</strong>. Older papers call it Hubble's law.</p>
+
+      <div class="eq-row">
+        <div class="eq-card">
+          <div class="eq-name">Hubble–Lemaître law</div>
+          <div class="eq-formula" role="img" aria-label="v equals H nought d"><span><var>v</var> = <var>H</var><sub>0</sub><var>d</var></span></div>
+          <div class="eq-desc">as on the relationships sheet</div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-name">Age of the Universe</div>
+          <div class="eq-formula" role="img" aria-label="age of the Universe equals 1 over H nought"><span>age =</span> <span class="frac"><span class="fr-n">1</span><span class="fr-d"><var>H</var><sub>0</sub></span></span></div>
+          <div class="eq-desc">in s; divide by 3.15 × 10<sup>7</sup> s for years</div>
+        </div>
+        <dl class="sym-gloss" aria-label="Symbols in the Hubble–Lemaître law">
+          <dt><var>v</var></dt><dd>recessional velocity of the galaxy</dd><dd class="u">m s<sup>−1</sup></dd>
+          <dt><var>H</var><sub>0</sub></dt><dd>Hubble constant, the gradient of the graph</dd><dd class="u">s<sup>−1</sup></dd>
+          <dt><var>d</var></dt><dd>distance of the galaxy from us</dd><dd class="u">m</dd>
+        </dl>
+      </div>
+
+      <div class="sim" id="simHubble" data-prog-challenge="sim-hub-graph">
+        <div class="sim-head">
+          <h3>Fit Hubble's line</h3>
+          <p class="sim-hint">Drag on the graph, or move the gradient, until the line fits the galaxies.</p>
+        </div>
+        <div class="sim-predict" id="predictHubble">
+          <p class="sim-q"><b>Predict.</b> Today's estimate for the age of the Universe is 13.8 × 10<sup>9</sup> years. What age does Hubble's 1929 data give?</p>
+          <div class="sim-choices">
+            <button type="button" data-predict="short" aria-pressed="false">Much less than 13.8 × 10<sup>9</sup> years<template data-feedback><p><strong>Right.</strong> Hubble's line is far too steep, so <var>H</var><sub>0</sub> is too large and 1/<var>H</var><sub>0</sub> is too small. His data gives about 2 × 10<sup>9</sup> years.</p></template></button>
+            <button type="button" data-predict="same" aria-pressed="false">About 13.8 × 10<sup>9</sup> years<template data-feedback><p>Not this one. Hubble only had a few nearby galaxies, and his distances were too small. Fit the line and see how short the age comes out.</p></template></button>
+            <button type="button" data-predict="long" aria-pressed="false">Much more than 13.8 × 10<sup>9</sup> years<template data-feedback><p>Not this one. Hubble's distances were too small, which makes the gradient too large. A larger <var>H</var><sub>0</sub> gives a smaller age, not a larger one.</p></template></button>
+          </div>
+          <div data-reveal hidden aria-live="polite"></div>
+        </div>
+
+        <div class="sim-stage">
+          <div class="sim-view">
+            <div class="sim-graph"><svg id="hubGraph"></svg></div>
+            <p class="sim-note">Solid blue line: your line. Green dashed line: best fit. Orange line: today's value.</p>
+            <div class="sim-readouts" aria-live="polite">
+              <div class="sim-out is-key"><span class="k">Your <var>H</var><sub>0</sub> (gradient)</span><span class="v" id="oH0"></span></div>
+              <div class="sim-out"><span class="k">Age = 1/<var>H</var><sub>0</sub></span><span class="v" id="oAgeS"></span></div>
+              <div class="sim-out is-key"><span class="k">Age in years</span><span class="v" id="oAgeY"></span></div>
+              <div class="sim-out"><span class="k">Today's estimate</span><span class="v">13.8 × 10⁹ years</span></div>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <label class="sim-field">
+              <span class="sim-name">Gradient of your line (× 10<sup>−17</sup> s<sup>−1</sup>)</span>
+              <span class="sim-row"><input type="range" data-sim="g" min="0.1" max="4" step="0.01" value="3" aria-label="Gradient of your line"><input class="sim-num" type="number" data-sim="g" min="0.1" max="4" step="0.01" value="3" inputmode="decimal" aria-label="Gradient of your line, typed"></span>
+            </label>
+            <div class="sim-seg">
+              <button type="button" class="sim-btn" id="showFit" aria-pressed="false">Show the best-fit line</button>
+              <button type="button" class="sim-btn" id="showToday" aria-pressed="false">Show today's value</button>
+            </div>
+            <p class="sim-note" id="hubNote" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <p style="margin:0"><strong>Why Hubble's age is so short.</strong> The 2018 paper asks this (Section 2 Q5). Answers the marking instructions accept:</p>
+        <ul>
+          <li><strong>State</strong> why the value is different: the value for <var>H</var><sub>0</sub> is too large; or there is not enough data at large distances; or new, more accurate data is available.</li>
+          <li><strong>Suggest</strong> a change to the graph: draw the correct line of best fit; or use a larger sample, all of the 1929 data; or use current data.</li>
+        </ul>
+        <p style="margin:.4rem 0 0">Hubble's distances were later found to be too small. With today's distances the same galaxies sit much further out, so the line is much less steep. Today's value, <var>H</var><sub>0</sub> = 2.3 × 10<sup>−18</sup> s<sup>−1</sup>, gives 13.8 × 10<sup>9</sup> years.</p>
+      </div>
+    </section>
+
+    <!-- ================= CHECK ================= -->
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check yourself</h2>
+      <p class="lead">Real exam questions. Pick an answer to see feedback on it. You can then try the others to see why they are wrong. Your score counts first tries only. Use <var>H</var><sub>0</sub> = 2.3 × 10<sup>−18</sup> s<sup>−1</sup> from the data sheet.</p>
+      <div id="quiz" data-prog-challenge="mcq-hub"></div>
+      <p class="score" id="quizScore" aria-live="polite"></p>
+
+      <h3>Words to know</h3>
+      <dl class="words">
+        <div><dt>Recessional velocity</dt><dd>The velocity of a galaxy moving away from us.</dd></div>
+        <div><dt>Hubble constant, <var>H</var><sub>0</sub></dt><dd>The gradient of the graph of recessional velocity against distance. Unit: s<sup>−1</sup>.</dd></div>
+        <div><dt>Hubble–Lemaître law</dt><dd>The recessional velocity of a galaxy is directly proportional to its distance from us: <var>v</var> = <var>H</var><sub>0</sub><var>d</var>.</dd></div>
+        <div><dt>Expanding Universe</dt><dd>Space itself is stretching, so every galaxy sees the others moving away.</dd></div>
+      </dl>
+    </section>
+
+    <p data-credit-note style="max-width:1100px;margin:0.5rem auto 0;padding:0 12px;font-size:0.82rem;opacity:0.78;">Sources &amp; credits: simulation and drawings by R Stewart. Galaxy data from E. Hubble (1929), "A relation between distance and radial velocity among extra-galactic nebulae", <i>Proceedings of the National Academy of Sciences</i> 15, 168–173, converted to m and m s<sup>−1</sup>. Questions re-typed from the 2017 Section 1 Q5, 2019 Paper 1 Q9, 2021 Paper 1 Q11 and 2018 Section 2 Q5 question papers and marking instructions; <var>H</var><sub>0</sub> from the Higher Physics data sheet; &copy; Qualifications Scotland (SQA). R Stewart - November 2026.</p>
+  </main>
+
+  {% include site-footer.html %}
+
+  <script>
+  (function () {
+    "use strict";
+    var SVGNS = "http://www.w3.org/2000/svg";
+    var YEAR = 365 * 24 * 3600;
+    var H_TODAY = 2.3e-18;
+    function $(id) { return document.getElementById(id); }
+    function svgEl(name, attrs, parent, text) {
+      var e = document.createElementNS(SVGNS, name);
+      Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+      if (text !== undefined) { e.textContent = text; }
+      if (parent) { parent.appendChild(e); }
+      return e;
+    }
+    function clear(g) { while (g.firstChild) { g.removeChild(g.firstChild); } }
+    var SUPS = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
+    function sci(x, sf) {
+      var a = Math.abs(x); if (a === 0) { return "0"; }
+      var e = Math.floor(Math.log10(a)), m = (x / Math.pow(10, e)).toFixed(sf - 1);
+      if (Math.abs(parseFloat(m)) >= 10) { e += 1; m = (x / Math.pow(10, e)).toFixed(sf - 1); }
+      return m + " × 10" + String(e).split("").map(function (ch) { return SUPS[ch]; }).join("");
+    }
+    function sf(x, n) {
+      if (x === 0) { return "0"; }
+      var a = Math.abs(x);
+      if (a >= 1e5 || a < 0.01) { return sci(x, n); }
+      return Number(x.toPrecision(n)).toString();
+    }
+    function niceMax(v) {
+      if (!(v > 0)) { return 10; }
+      var p = Math.pow(10, Math.floor(Math.log10(v))), m = v / p;
+      var n = m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10;
+      return n * p;
+    }
+
+    /* a galaxy mark: spiral or elliptical */
+    function galaxy(g, x, y, r, kind) {
+      if (kind === "e") {
+        svgEl("ellipse", { "class": "disc", cx: x, cy: y, rx: r, ry: r * 0.65 }, g);
+      } else {
+        svgEl("ellipse", { "class": "disc", cx: x, cy: y, rx: r * 0.9, ry: r * 0.5, transform: "rotate(-20 " + x + " " + y + ")" }, g);
+        svgEl("path", { "class": "arm", d: "M" + (x - r * 0.15) + " " + (y - r * 0.2) + " Q" + (x + r * 0.9) + " " + (y - r * 0.9) + " " + (x + r * 1.05) + " " + (y + r * 0.1) }, g);
+        svgEl("path", { "class": "arm", d: "M" + (x + r * 0.15) + " " + (y + r * 0.2) + " Q" + (x - r * 0.9) + " " + (y + r * 0.9) + " " + (x - r * 1.05) + " " + (y - r * 0.1) }, g);
+      }
+      svgEl("circle", { "class": "core", cx: x, cy: y, r: r * 0.28 }, g);
+    }
+
+    var used = {}, predicted = {};
+    function done(simId, ch) {
+      if (used[simId] && (predicted[simId] || simId === "simWashers") && window.Progress && window.Progress.complete) { window.Progress.complete(ch); }
+    }
+    function touch(simId, ch) {
+      if (window.Progress && window.Progress.markSeen) { window.Progress.markSeen("hp-hub"); }
+      used[simId] = true; done(simId, ch);
+    }
+
+    /* ---------- check yourself: real SQA items, re-typed, SQA option order kept ---------- */
+    var QS = [
+      { q: "A galaxy has a recessional velocity of 0.30<var>c</var>. Hubble's Law predicts that the distance between Earth and this galaxy is", src: "2017 Section 1 Q5",
+        o: [["1.3 × 10<sup>17</sup> m", "You divided 0.30 by H₀. The velocity is 0.30 × 3.00 × 10⁸ = 9.0 × 10⁷ m s⁻¹: use that."],
+            ["3.9 × 10<sup>25</sup> m", "Right. v = 0.30 × 3.00 × 10⁸ = 9.0 × 10⁷ m s⁻¹, and d = v ÷ H₀ = 9.0 × 10⁷ ÷ 2.3 × 10⁻¹⁸ = 3.9 × 10²⁵ m."],
+            ["1.3 × 10<sup>26</sup> m", "You used the speed of light as v. The galaxy moves at 0.30c, so multiply by 0.30 first."],
+            ["1.4 × 10<sup>41</sup> m", "Far too large. Rearrange v = H₀d to d = v ÷ H₀, and divide by H₀ only once."],
+            ["4.5 × 10<sup>42</sup> m.", "Far too large. Rearrange v = H₀d to d = v ÷ H₀, with v = 0.30 × 3.00 × 10⁸ m s⁻¹."]], a: 1 },
+      { q: "The redshift of a distant galaxy is 0.014. According to Hubble's law, the distance of the galaxy from Earth is", src: "2019 Paper 1 Q9",
+        o: [["9.66 × 10<sup>−12</sup> m", "You multiplied v by H₀. Rearrange v = H₀d: d = v ÷ H₀."],
+            ["1.83 × 10<sup>24</sup> m", "Right. v = zc = 0.014 × 3.00 × 10⁸ = 4.2 × 10⁶ m s⁻¹, and d = v ÷ H₀ = 1.83 × 10²⁴ m."],
+            ["1.30 × 10<sup>26</sup> m", "You used the speed of light as v. First find v from the redshift: v = zc."],
+            ["9.32 × 10<sup>27</sup> m", "You divided c by z. Redshift z = v/c, so v = zc: multiply."],
+            ["6.33 × 10<sup>39</sup> m.", "Far too large. Find v = zc, then d = v ÷ H₀."]], a: 1 },
+      { q: "The redshift of light from a distant galaxy is 0.125. The approximate distance to this distant galaxy is", src: "2021 Paper 1 Q11",
+        o: [["3.75 × 10<sup>7</sup> m", "This is the recessional velocity in m s⁻¹, v = zc. One more step: d = v ÷ H₀."],
+            ["1.81 × 10<sup>8</sup> m", "Not a distance from this data. Find v = zc, then d = v ÷ H₀."],
+            ["5.43 × 10<sup>16</sup> m", "You divided z by H₀. Find the velocity first: v = zc = 3.75 × 10⁷ m s⁻¹."],
+            ["1.63 × 10<sup>25</sup> m", "Right. v = zc = 0.125 × 3.00 × 10⁸ = 3.75 × 10⁷ m s⁻¹, and d = v ÷ H₀ = 1.63 × 10²⁵ m."],
+            ["1.30 × 10<sup>26</sup> m.", "You used the speed of light as v. First find v from the redshift: v = zc."]], a: 3 },
+      { q: "A student plots some of Hubble's 1929 data and finds a value for the Hubble constant of 2.0 × 10<sup>−17</sup> s<sup>−1</sup>. Which is the age of the Universe, in years, from this value?", src: "from 2018 Section 2 Q5(b)(i)",
+        o: [["5.0 × 10<sup>16</sup> years", "That is the age in seconds: 1 ÷ 2.0 × 10⁻¹⁷ = 5.0 × 10¹⁶ s. The question asks for years: divide by 3.15 × 10⁷ s."],
+            ["2.0 × 10<sup>−17</sup> years", "That is H₀ itself. The age is 1 ÷ H₀."],
+            ["1.6 × 10<sup>9</sup> years", "Right. Age = 1 ÷ 2.0 × 10⁻¹⁷ = 5.0 × 10¹⁶ s, and 5.0 × 10¹⁶ ÷ (365 × 24 × 60 × 60) = 1.6 × 10⁹ years."],
+            ["13.8 × 10<sup>9</sup> years", "That is today's estimate, not the age from the student's value. Work out 1 ÷ H₀, then change seconds to years."]], a: 2 },
+      { q: "The current estimate for the age of the Universe is 13.8 × 10<sup>9</sup> years. <strong>State</strong> why the student's value is different. Which answer scores the mark?", src: "from 2018 Section 2 Q5(b)(ii)(A)",
+        o: [["There is not enough data at large distances.", "Right. The marking instructions also accept: the value for H₀ is too large; or the line of best fit is wrong; or newer, more accurate data is available."],
+            ["H₀ is different.", "This scores 0. The marking instructions say do not accept “H₀ is different”. Say how: it is too large."],
+            ["The Universe was younger in 1929.", "The Universe has only aged by about 100 years since 1929. The difference is in the data, not the Universe."],
+            ["Light from the galaxies is redshifted.", "True, but it does not explain the difference. The problem is the student's value for H₀, which is too large."]], a: 0 }
+    ];
+    function buildQuiz() {
+      var first = {}, everRight = {}, LET = "ABCDE", quiz = $("quiz");
+      QS.forEach(function (it, qi) {
+        var box = document.createElement("div"); box.className = "mcq";
+        var html = '<p class="qstem">' + (qi + 1) + ". " + it.q + '<span class="qsrc">' + it.src + '</span></p><div class="mcq-opts" role="group" aria-label="Answers for question ' + (qi + 1) + '">';
+        it.o.forEach(function (o, oi) {
+          html += '<button type="button" class="mcq-opt" data-q="' + qi + '" data-o="' + oi + '" aria-pressed="false"><span class="ol">' + LET[oi] + '</span><span class="ot">' + o[0] + '</span><span class="om" aria-hidden="true"></span></button>';
+        });
+        box.innerHTML = html + '</div><p class="mcq-fb" aria-live="polite"></p>';
+        quiz.appendChild(box);
+      });
+      quiz.addEventListener("click", function (e) {
+        var b = e.target.closest(".mcq-opt"); if (!b) { return; }
+        var qi = +b.dataset.q, oi = +b.dataset.o, it = QS[qi], box = b.closest(".mcq"), ok = oi === it.a;
+        box.querySelectorAll(".mcq-opt").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+        b.setAttribute("aria-pressed", "true");
+        b.classList.add(ok ? "right" : "wrong");
+        b.querySelector(".om").textContent = ok ? "Right" : "Not this";
+        box.querySelector(".mcq-fb").textContent = it.o[oi][1];
+        if (window.Progress && window.Progress.markSeen) { window.Progress.markSeen("hp-hub"); }
+        if (!(qi in first)) { first[qi] = ok; }
+        if (ok) { everRight[qi] = true; }
+        if (Object.keys(everRight).length === QS.length && window.Progress) { window.Progress.complete("mcq-hub"); }
+        var n = Object.keys(first).length, got = Object.keys(first).filter(function (k) { return first[k]; }).length;
+        $("quizScore").textContent = "First tries: " + got + " right out of " + n + " answered (" + QS.length + " questions).";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var K = window.WidgetKit;
+      if (!K) { return; }
+      var LAYOUT = [{ maxWidth: 520, w: 360, h: 280 }, { w: 600, h: 300 }];
+
+      /* ===== 1. the expanding chain ===== */
+      var NAMES = ["A", "B", "C", "D", "E", "F", "G"];
+      var POS = [0, 7, 16, 24, 37, 45, 58];
+      var KIND = ["s", "e", "s", "s", "e", "s", "e"];
+      var K_PX = 4.8;
+      var home = 3, sNow = 1.5;
+      function homePx() { return 20 + POS[home] / 58 * 560; }
+      function pxBefore(x) { return homePx() + (x - POS[home]) * K_PX; }
+      function pxAfter(x, s) { return homePx() + (x - POS[home]) * s * K_PX; }
+
+      var homeBox = $("homeBtns");
+      NAMES.forEach(function (n, i) {
+        var b = document.createElement("button");
+        b.type = "button"; b.textContent = n; b.setAttribute("aria-pressed", i === home ? "true" : "false");
+        b.setAttribute("aria-label", "Make galaxy " + n + " home");
+        b.addEventListener("click", function () { setHome(i); });
+        homeBox.appendChild(b);
+      });
+      function setHome(i) {
+        home = i;
+        [].forEach.call(homeBox.querySelectorAll("button"), function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+        touch("simChain", "sim-hub-chain");
+        sChain.refresh();
+      }
+
+      var gChain = K.graph($("chainGraph"), {
+        x: { min: 0, max: 60, label: "original distance <i>d</i>", unit: "cm", step: 10 },
+        y: { min: 0, max: 60, label: "increase", unit: "cm", step: 10 },
+        title: "Graph of increase in distance against original distance from the home galaxy",
+        layouts: [{ maxWidth: 520, w: 360, h: 260 }, { w: 420, h: 260 }]
+      });
+
+      var chainArt = $("chainArt");
+      function drawChain(s) {
+        clear(chainArt);
+        var g = chainArt, yB = 58, yA = 168;
+        svgEl("text", { x: 8, y: 20, "class": "small" }, g, "Before stretching");
+        svgEl("text", { x: 8, y: 116, "class": "small" }, g, "After stretching (× " + s.toFixed(2) + ")");
+        svgEl("text", { x: 592, y: 20, "text-anchor": "end", "class": "small home" }, g, "ringed: home galaxy");
+        svgEl("line", { "class": "row", x1: pxBefore(POS[0]) - 14, y1: yB, x2: pxBefore(POS[6]) + 14, y2: yB }, g);
+        svgEl("line", { "class": "row", x1: pxAfter(POS[0], s) - 14, y1: yA, x2: pxAfter(POS[6], s) + 14, y2: yA }, g);
+        POS.forEach(function (x, i) {
+          var xb = pxBefore(x), xa = pxAfter(x, s);
+          galaxy(g, xb, yB, 11, KIND[i]);
+          svgEl("text", { x: xb, y: yB + 34, "text-anchor": "middle", "class": i === home ? "home" : "" }, g, NAMES[i]);
+          if (i !== home) {
+            svgEl("circle", { "class": "ghost", cx: xb, cy: yA, r: 9 }, g);
+            if (Math.abs(xa - xb) > 6) {
+              var d = xa > xb ? 1 : -1, yy = yA + 26;
+              svgEl("path", { "class": "move", d: "M" + xb + " " + yy + " H" + xa + " M" + (xa - 7 * d) + " " + (yy - 5) + " L" + xa + " " + yy + " L" + (xa - 7 * d) + " " + (yy + 5) }, g);
+            }
+          }
+          galaxy(g, xa, yA, 11, KIND[i]);
+          if (i === home) {
+            svgEl("circle", { "class": "ring", cx: xb, cy: yB, r: 17 }, g);
+            svgEl("circle", { "class": "ring", cx: xa, cy: yA, r: 17 }, g);
+            svgEl("text", { x: xa, y: yA - 24, "text-anchor": "middle", "class": "home" }, g, NAMES[i]);
+          } else {
+            svgEl("text", { x: xa, y: yA - 22, "text-anchor": "middle" }, g, NAMES[i]);
+          }
+          var hit = svgEl("circle", { "class": "gal-hit", cx: xa, cy: yA, r: 18, tabindex: "-1" }, g);
+          hit.addEventListener("click", function () { setHome(i); });
+          var hit2 = svgEl("circle", { "class": "gal-hit", cx: xb, cy: yB, r: 18, tabindex: "-1" }, g);
+          hit2.addEventListener("click", function () { setHome(i); });
+        });
+        svgEl("text", { x: 588, y: 242, "text-anchor": "end", "class": "small" }, g, "arrow: how far each galaxy moved away from home");
+      }
+
+      var sChain = K.liveSim($("simChain"), { render: function (st) {
+        var s = st.s; sNow = s;
+        drawChain(s);
+        var rows = "", far = -1, farI = 0;
+        POS.forEach(function (x, i) {
+          if (i === home) { return; }
+          var d = Math.abs(x - POS[home]), dp = d * s, inc = dp - d;
+          if (d > far) { far = d; farI = i; }
+          rows += "<tr><td>" + NAMES[i] + "</td><td>" + d.toFixed(1) + "</td><td>" + dp.toFixed(1) + "</td><td>" + inc.toFixed(1) + "</td></tr>";
+          gChain.marker("p" + i, d, inc, { cls: "gal" });
+        });
+        gChain.remove("p" + home);
+        $("chainRows").innerHTML = rows;
+        gChain.line("fit", [[0, 0], [60, 60 * (s - 1)]], {});
+        gChain.describe("Every point lies on a straight line through the origin with gradient " + (s - 1).toFixed(2) + ".");
+        $("oChainGrad").textContent = (s - 1).toFixed(2);
+        $("oHome").textContent = NAMES[home];
+        $("chainNote").textContent = "Galaxy " + NAMES[farI] + " is furthest from home, so it moved the furthest: " + (far * (s - 1)).toFixed(1) + " cm. The gradient is the stretch minus 1, from any home.";
+      } });
+      var chainClk = K.clock({ button: $("chainPlay"), onFrame: function (dt) {
+        var s = sNow + dt / 3;
+        if (s >= 2) { s = 2; chainClk.pause ? chainClk.pause() : chainClk.toggle(); }
+        sChain.set("s", Math.round(s * 100) / 100);
+        sNow = s;
+      } });
+      $("chainPlay").addEventListener("click", function () {
+        if (chainClk.running() && sNow >= 1.995) { sNow = 1; sChain.set("s", 1); }
+        touch("simChain", "sim-hub-chain");
+      });
+      $("simChain").addEventListener("input", function () { touch("simChain", "sim-hub-chain"); });
+      K.poeCard($("predictChain"), { answer: "far", onPredict: function () { predicted.simChain = true; done("simChain", "sim-hub-chain"); } });
+
+      /* ===== 2. your washers data (nothing stored or sent) ===== */
+      var ROWS = 8, washRows = $("washRows");
+      for (var r = 0; r < ROWS; r++) {
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + (r + 1) + "</td>" +
+          '<td><input class="wd-in" type="text" inputmode="decimal" autocomplete="off" data-r="' + r + '" data-c="d" aria-label="Galaxy ' + (r + 1) + ' original distance"></td>' +
+          '<td><input class="wd-in" type="text" inputmode="decimal" autocomplete="off" data-r="' + r + '" data-c="dp" aria-label="Galaxy ' + (r + 1) + ' new distance"></td>' +
+          '<td data-inc="' + r + '"></td>';
+        washRows.appendChild(tr);
+      }
+      var gWash = K.graph($("washGraph"), {
+        x: { min: 0, max: 10, label: "original distance <i>d</i>", unit: "cm" },
+        y: { min: 0, max: 10, label: "increase in distance", unit: "cm" },
+        title: "Graph of increase in distance against original distance for your washers data",
+        layouts: LAYOUT
+      });
+      function readNum(el) {
+        var t = el.value.trim().replace(",", ".");
+        if (t === "") { return null; }
+        return /^-?\d*\.?\d+$/.test(t) ? parseFloat(t) : NaN;
+      }
+      var drawn = 0;
+      function updateWashers() {
+        var unit = $("washUnit").value.trim() || "unit";
+        var pts = [], flags = [];
+        for (var i = 0; i < drawn; i++) { gWash.remove("w" + i); }
+        drawn = ROWS;
+        for (var r2 = 0; r2 < ROWS; r2++) {
+          var eD = washRows.querySelector('[data-r="' + r2 + '"][data-c="d"]'), eP = washRows.querySelector('[data-r="' + r2 + '"][data-c="dp"]');
+          var d = readNum(eD), dp = readNum(eP), cell = washRows.querySelector('[data-inc="' + r2 + '"]');
+          eD.classList.remove("bad"); eP.classList.remove("bad"); cell.textContent = "";
+          if (d === null && dp === null) { continue; }
+          var n = "Galaxy " + (r2 + 1) + ": ";
+          if (d === null || dp === null) { flags.push(n + "type both distances."); (d === null ? eD : eP).classList.add("bad"); continue; }
+          if (isNaN(d) || isNaN(dp)) { flags.push(n + "type a number only, for example 12.5."); (isNaN(d) ? eD : eP).classList.add("bad"); continue; }
+          if (d < 0 || dp < 0) { flags.push(n + "a distance cannot be negative. Measure from the home galaxy."); (d < 0 ? eD : eP).classList.add("bad"); continue; }
+          if (d === 0) { flags.push(n + "an original distance of 0 is the home galaxy itself. Leave it out."); eD.classList.add("bad"); continue; }
+          cell.textContent = sf(dp - d, 3).replace("-", "−");
+          if (dp < d) { flags.push(n + "the new distance is less than the original. Stretching moves galaxies further away: check your readings. Left off the graph."); eP.classList.add("bad"); continue; }
+          pts.push([d, dp - d]);
+        }
+        $("washFlags").innerHTML = flags.map(function (f) { return "<li>" + f.replace(/</g, "&lt;") + "</li>"; }).join("");
+        var mx = 0, my = 0;
+        pts.forEach(function (p) { mx = Math.max(mx, p[0]); my = Math.max(my, p[1]); });
+        var X = niceMax(mx * 1.05), Y = niceMax(Math.max(my, 0) * 1.1);
+        gWash.setX({ max: X, unit: unit, step: undefined }); gWash.setY({ min: Math.min(0, niceMin(pts)), max: Y, unit: unit });
+        pts.forEach(function (p, i) { gWash.marker("w" + i, p[0], p[1], { cls: "gal" }); });
+        $("oWashN").textContent = pts.length;
+        if (pts.length >= 2) {
+          var sxy = 0, sxx = 0;
+          pts.forEach(function (p) { sxy += p[0] * p[1]; sxx += p[0] * p[0]; });
+          var m = sxy / sxx;
+          gWash.line("fit", [[0, 0], [X, m * X]], { cls: "fit" });
+          $("oWashGrad").textContent = sf(m, 2);
+          gWash.describe(pts.length + " galaxies plotted. Best-fit line through the origin, gradient " + sf(m, 2) + ".");
+        } else {
+          gWash.remove("fit");
+          $("oWashGrad").textContent = "–";
+          gWash.describe(pts.length ? "One galaxy plotted. Add another for a gradient." : "No galaxies plotted yet.");
+        }
+      }
+      function niceMin(pts) {
+        var lo = 0; pts.forEach(function (p) { lo = Math.min(lo, p[1]); });
+        return lo < 0 ? -niceMax(-lo * 1.1) : 0;
+      }
+      $("simWashers").addEventListener("input", function () { updateWashers(); touch("simWashers", "sim-hub-washers"); });
+      $("washClear").addEventListener("click", function () {
+        [].forEach.call(washRows.querySelectorAll(".wd-in"), function (el) { el.value = ""; });
+        updateWashers();
+      });
+      updateWashers();
+
+      /* ===== 3. Hubble's 1929 data: distance and velocity in the units of his Table 1 ===== */
+      var U_DIST = 3.086e22;
+      var H29 = [[0.032, 170], [0.034, 290], [0.214, -130], [0.263, -70], [0.275, -185], [0.275, -220], [0.45, 200], [0.5, 290], [0.5, 270], [0.63, 200], [0.8, 300], [0.9, -30], [0.9, 650], [0.9, 150], [0.9, 500], [1.0, 920], [1.1, 450], [1.1, 500], [1.4, 500], [1.7, 960], [2.0, 500], [2.0, 850], [2.0, 800], [2.0, 1090]];
+      /* plotted in units of 10^21 m and 10^5 m s-1 */
+      var PTS = H29.map(function (p) { return [p[0] * U_DIST / 1e21, p[1] * 1e3 / 1e5]; });
+      var sxy = 0, sxx = 0;
+      PTS.forEach(function (p) { sxy += p[0] * p[1]; sxx += p[0] * p[0]; });
+      var FIT = (sxy / sxx) * 1e5 / 1e21;
+      var gH = K.graph($("hubGraph"), {
+        x: { min: 0, max: 70, label: "distance", unit: "× 10²¹ m", step: 10 },
+        y: { min: -4, max: 12, label: "recessional velocity", unit: "× 10⁵ m s⁻¹", step: 2 },
+        title: "Graph of recessional velocity against distance for Hubble's 1929 galaxies",
+        layouts: [{ maxWidth: 520, w: 360, h: 340 }, { w: 600, h: 380 }]
+      });
+      PTS.forEach(function (p, i) { gH.marker("h" + i, p[0], p[1], { cls: "gal" }); });
+      var showFit = false, showToday = false;
+      function lineFor(H) { var k = H * 1e21 / 1e5; return [[0, 0], [70, 70 * k]]; }
+      var sHub = K.liveSim($("simHubble"), { render: function (st) {
+        var H = st.g * 1e-17, age = 1 / H, ageY = age / YEAR;
+        gH.line("you", lineFor(H), {});
+        if (showFit) { gH.line("fit", lineFor(FIT), { cls: "fit" }); } else { gH.remove("fit"); }
+        if (showToday) { gH.line("today", lineFor(H_TODAY), { cls: "today" }); } else { gH.remove("today"); }
+        $("oH0").textContent = sci(H, 2) + " s⁻¹";
+        $("oAgeS").textContent = sci(age, 2) + " s";
+        $("oAgeY").textContent = sci(ageY, 2) + " years";
+        var msg = "Your age is about " + Math.round(13.8e9 / ageY * 10) / 10 + " times shorter than today's estimate.";
+        if (showFit) { msg = "Best fit through the origin for all 24 galaxies: " + sci(FIT, 2) + " s⁻¹, an age of " + sci(1 / FIT / YEAR, 2) + " years. " + msg; }
+        if (showToday) { msg += " Today's value, 2.3 × 10⁻¹⁸ s⁻¹ (data sheet), is the much shallower line: 13.8 × 10⁹ years."; }
+        $("hubNote").textContent = msg;
+        gH.describe("Your line has gradient " + sci(H, 2) + " per second." + (showFit ? " The best-fit line is shown." : "") + (showToday ? " Today's value is shown." : ""));
+      } });
+      $("showFit").addEventListener("click", function () { showFit = !showFit; this.setAttribute("aria-pressed", showFit ? "true" : "false"); touch("simHubble", "sim-hub-graph"); sHub.refresh(); });
+      $("showToday").addEventListener("click", function () { showToday = !showToday; this.setAttribute("aria-pressed", showToday ? "true" : "false"); touch("simHubble", "sim-hub-graph"); sHub.refresh(); });
+      $("simHubble").addEventListener("input", function () { touch("simHubble", "sim-hub-graph"); });
+      /* drag on the graph: the line always goes through the origin, through the pointer */
+      var hubSvg = $("hubGraph"), dragging = false;
+      function dragTo(ev) {
+        var ctm = hubSvg.getScreenCTM(); if (!ctm) { return; }
+        var pt = hubSvg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+        var p = pt.matrixTransform(ctm.inverse());
+        var x0 = gH.px(0), x1 = gH.px(1), y0 = gH.py(0), y1 = gH.py(1);
+        var dx = (p.x - x0) / (x1 - x0), dy = (p.y - y0) / (y1 - y0);
+        if (dx < 2) { return; }
+        var H = (dy / dx) * 1e5 / 1e21 / 1e-17;
+        sHub.set("g", Math.max(0.1, Math.min(4, Math.round(H * 100) / 100)));
+        touch("simHubble", "sim-hub-graph");
+      }
+      hubSvg.addEventListener("pointerdown", function (ev) { dragging = true; if (hubSvg.setPointerCapture) { hubSvg.setPointerCapture(ev.pointerId); } dragTo(ev); });
+      hubSvg.addEventListener("pointermove", function (ev) { if (dragging) { dragTo(ev); } });
+      ["pointerup", "pointercancel"].forEach(function (t) { hubSvg.addEventListener(t, function () { dragging = false; }); });
+      K.poeCard($("predictHubble"), { answer: "short", onPredict: function () { predicted.simHubble = true; done("simHubble", "sim-hub-graph"); } });
+
+      buildQuiz();
+    });
+  })();
+  </script>
+</body>
+</html>

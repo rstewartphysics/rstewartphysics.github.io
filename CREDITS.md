@@ -321,6 +321,14 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   *Physics: general marking principles*; the reported mistakes are from the 2023 and 2024 Higher
   Physics course reports. All © Qualifications Scotland (SQA), reproduced for educational use.
 
+- **Higher Physics *Hubble simulation*** (added 20 November 2026) — `classes/higher/hubble-simulation.html`.
+  Simulation, text and galaxy drawings © R Stewart, 2026. No photos. Galaxy data from E. Hubble (1929), "A relation
+  between distance and radial velocity among extra-galactic nebulae", *Proceedings of the National Academy of
+  Sciences* 15, 168–173, converted to m and m s⁻¹. The check questions are re-typed from 2017 Higher Physics
+  Section 1, Q5; 2019 Higher Physics Paper 1, Q9; 2021 Higher Physics Paper 1, Q11; and 2018 Higher Physics
+  Section 2, Q5 (question paper and marking instructions); H₀ from the Higher Physics data sheet. All
+  © Qualifications Scotland (SQA), reproduced for educational use.
+
 - **Higher Physics *Special relativity* topic page** (added 11 November 2026) —
   `classes/higher/dynamic-universe/special-relativity.html`. Text, worked examples, practice questions and
   the train, light, light-clock, graph, spacecraft and muon drawings © R Stewart, 2026. No photos. The past-paper
