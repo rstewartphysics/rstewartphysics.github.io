@@ -6,7 +6,7 @@ description: Scaffold a new HTML/CSS page for mrstewartphysics.co.uk (a class hu
 # /new-page — build a new page
 
 1. **Read** `.claude/skills/shared/page-checklist.md` and the canonical references it lists.
-   For a Higher topic page, also read `higher-topic-page-guide.md` in full.
+   No new Higher, AH or N5 Engineering topic pages: practice pages replace them (CLAUDE.md, Site overview).
 2. **Confirm scope** only if genuinely ambiguous: subject/theme, file location, and what
    interactives (if any) belong on the page. Otherwise infer from the request and proceed.
 3. **Place the file** in the correct folder (see CLAUDE.md "File layout"). Higher topics:
