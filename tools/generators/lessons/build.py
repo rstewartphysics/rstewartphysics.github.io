@@ -1,7 +1,7 @@
 """Lessons page: one card per topic, one row per deck part (HIGHER-HUB-PRACTICE-PLAN, 23 Nov 2026).
 
     python3 tools/generators/lessons/build.py          every src/*.json
-    python3 tools/generators/lessons/build.py higher   one course
+    python3 tools/generators/lessons/build.py higher   one course (or ah)
 
 Writes the cards between the <!-- lessons:start --> and <!-- lessons:end --> markers of the
 course's slides page; the page's head, banner and credits stay hand-written. Edit the JSON,
@@ -39,8 +39,11 @@ def part_row(c, t, p, n, multi):
     pills = [pill(base + ".pdf", "Slides", f"{who} — slides, PDF, {slides}. {NEW_TAB}")]
     if p.get("answers"):
         pills.append(pill(base + "-answers.pdf", "With answers", f"{who} — slides with answers, PDF, {slides}. {NEW_TAB}"))
-    if p.get("practice"):
-        pills.append(pill(p["practice"]["href"], "Practice", f"{who} — practice page", new_tab=False))
+    pr = p.get("practice")
+    if isinstance(pr, list):        # one deck in several parts: a Practice pill per part (AH j)
+        pills += [pill(x["href"], x["label"], f'{who} — {x["say"]} practice page', new_tab=False) for x in pr]
+    elif pr:
+        pills.append(pill(pr["href"], "Practice", f"{who} — practice page", new_tab=False))
     rid = f'{t["id"]}-{n}' if multi else f'{t["id"]}-slides'
     name = (f'<span class="lp-name"><span class="lp-num" aria-hidden="true">{n}</span>{p["name"]}</span>'
             if multi else "")
@@ -63,7 +66,8 @@ def extra_row(e):
 
 
 def badges(t):
-    ids = [p["practice"]["badge"] for p in t.get("parts", []) if p.get("practice")]
+    ids = [x["badge"] for p in t.get("parts", []) if p.get("practice")
+           for x in (p["practice"] if isinstance(p["practice"], list) else [p["practice"]])]
     ids += [x["badge"] for x in [t.get("topic_page"), t.get("sim"), *t.get("tests", [])] if x and x.get("badge")]
     return " ".join(ids)
 

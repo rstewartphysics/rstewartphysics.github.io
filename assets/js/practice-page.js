@@ -27,7 +27,7 @@
         ? "Right first time: " + first + " of " + qs.length + ". Answered right in the end: " + right + " of " + qs.length + "."
         : "";
     }
-    if (right === qs.length && window.Progress && Progress.complete) { Progress.complete("mc-all"); }
+    if (qs.length && right === qs.length && window.Progress && Progress.complete) { Progress.complete("mc-all"); }
   }
 
   qs.forEach(function (q) {
