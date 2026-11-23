@@ -60,3 +60,24 @@ is **one card carrying two named pills**:
 already-published deck gets its pair, and this card, on its next touch.
 
 ---
+
+## The Lessons page — one card per topic (Higher, 23 November 2026)
+
+Teacher's plan `HIGHER-HUB-PRACTICE-PLAN.md` (approved 23 Nov 2026). Higher's slides index is now
+**Lessons** (`classes/higher/slides.html`, URL kept). Other courses move to it as they get
+multi-part decks; until then they keep the deck card above.
+
+- **Generated.** The cards are written by `tools/generators/lessons/build.py` from
+  `src/<course>.json` between the `<!-- lessons:start -->` / `<!-- lessons:end -->` markers. Edit
+  the JSON, never the cards. A shipped deck or practice page is a JSON edit plus a re-run.
+- **One card per topic, one row per deck part.** Each row: part number and name (multi-part
+  topics only), "PDF · n slides", then the pills **Slides · With answers · Practice** (teacher's
+  words for this page; they replace "Notes and Questions / With Answers" here). Practice shows only
+  where a practice page exists; no "coming soon" pill.
+- **Row anchors** `#<topic>-<n>` (`#odu6-2`); a practice page's back link and a deck's
+  Independent Practice QR point at its row.
+- **Until a topic has practice pages**, its card's foot carries **Topic page** / **Practice test**
+  pills. When practice pages arrive, those pages are archived (unlinked, kept).
+- **One sim link** under the topic name where the topic has a standalone sim.
+- **Badges:** the card carries `data-prog-badges` for its practice pages, topic page, sim and tests.
+- Checks as for the deck card: pills ≥44 px and hit-tested, no `a a`, both widths and appearances.

@@ -132,6 +132,11 @@ def answers(d, warm, mcs, p2s):
     return "\n        ".join(out)
 
 
+def answers_href(d):
+    """DECK-RULES 29a: the answers copy is <name>-answers.pdf beside the plain file."""
+    return d["deck"]["href"][:-4] + "-answers.pdf"
+
+
 def page(d):
     warm, mcs, p2s = order(d["warmup_mc"]), order(d["mc"]), order(d["paper2"])
     warm_p2 = order(d.get("warmup_p2", []))
@@ -194,8 +199,7 @@ search_keywords: {d["search_keywords"]}
   <main class="page-wrap" id="mainContent" data-pp-store="{s}">
     <h1 class="visually-hidden">{title_plain}</h1>
     <div class="pp-top">
-      <a class="backlink" href="{d["hub"]["href"]}"><span aria-hidden="true">←</span> Back to {d["hub"]["label"]}</a>
-      {{% include feedback-button.html about="{d["about"]}" %}}
+      <a class="backlink" href="/classes/higher/slides.html#{d["lessons_anchor"]}"><span aria-hidden="true">←</span> Back to Lessons</a>
     </div>
 
     <section class="panel" id="intro" aria-labelledby="intro-title">
@@ -203,6 +207,7 @@ search_keywords: {d["search_keywords"]}
       <ul class="ican">{ican}</ul>
       <div class="top-pills">
         <a class="top-pill" href="{d["deck"]["href"]}" target="_blank" rel="noopener" aria-label="{esc(d["deck"]["aria"])}">{d["deck"]["label"]}</a>
+        <a class="top-pill" href="{answers_href(d)}" target="_blank" rel="noopener" aria-label="{esc(d["deck"]["aria"].replace(". PDF", ", with answers. PDF"))}">{d["deck"]["label"].replace(" (PDF)", " with answers (PDF)")}</a>
       </div>
     </section>
 

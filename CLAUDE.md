@@ -467,7 +467,7 @@ Full spec in `tools/build-guides/hub-tiles.md`; read it before touching a hub. O
 
 ## Slides index — the deck card
 
-Full spec in `tools/build-guides/slides-index.md` (shared with the `deck-ship` skill); read it before editing a slides index. Decks with answer pills use the two-pill card.
+Full spec in `tools/build-guides/slides-index.md` (shared with the `deck-ship` skill); read it before editing a slides index. Decks with answer pills use the two-pill card. **Higher's index is the generated Lessons page** (one card per topic, a row per part, Slides · With answers · Practice): edit `tools/generators/lessons/src/higher.json`, never the page.
 
 ## AH lab pages
 
@@ -514,6 +514,7 @@ simulation and on-screen practice test or quiz, new or rebuilt. Plain topic and 
   It links to `/classes/contact.html?about=…`; the contact page shows "About: <page>", sends it as a
   hidden `about` field and puts it in the email subject. Style is `.feedback-btn` in
   `site-menu.css` — don't restyle it per page.
+- **Not on practice pages** (teacher, 23 Nov 2026): `tools/generators/practice-pages/` pages carry no feedback button.
 - **Place it at the top**, in the title row or beside the back link, so it is on screen when the
   page opens. The label stays "Report a problem / Request a feature" (shipped and approved 6 Nov).
 - **Generated pages get it from the generator**, not the page: the stripboard template,
