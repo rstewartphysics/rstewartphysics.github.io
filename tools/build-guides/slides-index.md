@@ -66,7 +66,7 @@ already-published deck gets its pair, and this card, on its next touch.
 Teacher's plan `HIGHER-HUB-PRACTICE-PLAN.md` (approved 23 Nov 2026). Higher's slides index is now
 **Lessons** (`classes/higher/slides.html`, URL kept). Other courses move to it as they get
 multi-part decks; until then they keep the deck card above. **Advanced Higher** moved the same day
-(`src/ah.json`): topic letters stay in the card names; deck j (one PDF, three parts) is one row with
+(`src/ah.json`): no topic letters on the page (they are the teacher's OneDrive reference only); deck j (one PDF, three parts) is one row with
 three pills, **Practice 1 · 2 · 3** (`practice` as a list).
 
 - **Generated.** The cards are written by `tools/generators/lessons/build.py` from
