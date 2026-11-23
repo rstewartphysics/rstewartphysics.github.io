@@ -467,7 +467,7 @@ Full spec in `tools/build-guides/hub-tiles.md`; read it before touching a hub. O
 
 ## Slides index — the deck card
 
-Full spec in `tools/build-guides/slides-index.md` (shared with the `deck-ship` skill); read it before editing a slides index. Decks with answer pills use the two-pill card. **Higher's index is the generated Lessons page** (one card per topic, a row per part, Slides · With answers · Practice): edit `tools/generators/lessons/src/higher.json`, never the page.
+Full spec in `tools/build-guides/slides-index.md` (shared with the `deck-ship` skill); read it before editing a slides index. Decks with answer pills use the two-pill card. **Higher's and Advanced Higher's indexes are generated Lessons pages** (one card per topic, a row per part, Slides · With answers · Practice; a one-deck, several-part topic gets one row with Practice 1, 2, 3): edit `tools/generators/lessons/src/higher.json` / `ah.json`, never the page.
 
 ## AH lab pages
 
