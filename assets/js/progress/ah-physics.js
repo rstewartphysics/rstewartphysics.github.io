@@ -31,7 +31,17 @@
       cond: "Score 80% or more on Stellar Physics Practice Test A" },
     { id: "ah-stellar-test-b", name: "Supergiant", emoji: "🌟", section: "Rotational Motion & Astrophysics",
       href: "/classes/adv/practice-tests/stellar-physics-b.html",
-      cond: "Score 80% or more on Stellar Physics Practice Test B" }
+      cond: "Score 80% or more on Stellar Physics Practice Test B" },
+    // Practice pages (rule 99): AH has no multiple choice, so the gap-fill earns the badge
+    { id: "ah-mf1p", name: "Field Sketcher", emoji: "🧲", section: "Electromagnetism", unlock: "page",
+      href: "/classes/adv/electromagnetism/magnetic-fields-practice-1.html",
+      cond: "Finish the gap-fill on Magnetism and field patterns practice" },
+    { id: "ah-mf2p", name: "Wire Puller", emoji: "⚡", section: "Electromagnetism", unlock: "page",
+      href: "/classes/adv/electromagnetism/magnetic-fields-practice-2.html",
+      cond: "Finish the gap-fill on Wires in a magnetic field practice" },
+    { id: "ah-mf3p", name: "Spiral Tracker", emoji: "🌀", section: "Electromagnetism", unlock: "page",
+      href: "/classes/adv/electromagnetism/magnetic-fields-practice-3.html",
+      cond: "Finish the gap-fill on Charged particles in a magnetic field practice" }
   ];
 
   var SHM_IDS = ["ah-shm-test-a", "ah-shm-test-b"];
