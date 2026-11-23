@@ -4,7 +4,7 @@ The sibling of `circuit.py`, built for Higher Particles and Waves: point-charge
 field patterns, charged parallel plates, regions of magnetic field drawn as
 crosses or dots, and the two accelerator geometries.
 
-Same conventions as `circuit.py` and the site's `higher-topic-page-guide.md`
+Same conventions as `circuit.py` and the site's `docs/archive/higher-topic-page-guide.md`
 §7 — themed with `var(--dia-ink)` so dark mode inverts, arrowheads drawn as
 polygons rather than SVG markers (a marker needs an id, and two diagrams on one
 page would collide), field lines evenly spaced and always carrying a direction.

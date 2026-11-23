@@ -1,7 +1,7 @@
 # N5 Electronics sub-page — construction guide (for Claude)
 
 Read this before building or editing any National 5 Electronics sub-page. It is the Electronics
-sibling of [`higher-topic-page-guide.md`](higher-topic-page-guide.md): the **structure** is the same
+sibling of [`higher-topic-page-guide.md`](docs/archive/higher-topic-page-guide.md): the **structure** is the same
 as the Higher topic pages, but the **palette is Electronics teal-green** and several **conventions
 diverge** (symbols, content framing). The **source of truth for content** is the
 SQA course spec C884 75 v3.0 (Jan 2026) in `assets/electronics/sqa-source-docs/`.

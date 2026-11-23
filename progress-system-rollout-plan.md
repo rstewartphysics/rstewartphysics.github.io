@@ -494,3 +494,36 @@ A representative v1 store: 3 topic badges unlocked (incl. a perfect `thy-ts` →
 seen-not-unlocked, one fully-done page (→ `ach-curious`), 4 challenges done — **5/17 earned**.
 Carries an `expectedBehaviour` block so Phase 0/1 tests can assert sticky-unlock, best-score retention
 and the **lossless migration shim** (v1 → `progress-electronics-v1` v2) against a real before-state.
+
+---
+
+## Status and model (moved from CLAUDE.md, 23 Nov 2026)
+
+The site is standardising on **one progress + badge engine across all interactive subjects** —
+**Electronics, Higher Physics, and the three Engineering Science levels (S3 / N5 / Higher)** — with
+each **level hub aggregating its own progress**. The full design, build order and **hard guardrails**
+live in **[`progress-system-rollout-plan.md`](progress-system-rollout-plan.md)** (repo root) — read it
+before touching any progress/badge code.
+
+**The model (two tiers + gamification, identical everywhere):** cross-page **mastery badges** +
+per-page **points / streak / section-challenge meter** + a **corner counter**, **per-level hub totals**
+("% explored", points, badge count) and a **named rank ladder** per subject. No cross-subject profile.
+
+
+**Current status (rollout essentially complete — default on):** the shared engine `assets/js/progress.js`
+(`window.Progress`) is live with five subject configs — `progress/electronics.js`,
+`progress/higher-physics.js`, `progress/eng-n5.js`, `progress/eng-s3.js`, `progress/s3-physics.js`.
+**Migrated and live:** **Electronics** (all pages + hub, via the lossless `migrateFrom` shim),
+**Higher Physics** (all 5 electricity pages + hub aggregation on `classes/higher-physics.html`),
+**Engineering Science N5** (all 8 topic pages + hub — topics 3–8 added July 2026 on the
+`n5-engineering-pages` branch, badges `eng-electronics`/`eng-control`/`eng-mechanisms`/`eng-pneumatics`/`eng-structures`/`eng-assignment`
+joining the existing `eng-contexts`/`eng-energy` in `progress/eng-n5.js`), **S3** live topic pages + their hubs, and **S3 Physics** (Electricity 1 hub
++ its three lesson pages, two practice tests and a graphing practice under
+`classes/s3-physics/electricity1/`, badges `elec1a`/`elec1b`/`elec1c`/`elec1-test-a`/`elec1-test-b`/`elec1-graphs`
+aggregated on the S3 hub tile). Each writes a single
+`progress-<ns>-v1` key. The legacy `electronics-progress.js` engine and its `window.ElProgress` API
+have been deleted — `progress.js` + `progress/electronics.js` are the only electronics path.
+**Remaining:** coming-soon topic stubs stay unwired until
+they have content (behind-content guardrail). **New interactive pages ship with tracking by default** —
+run **`/add-progress`** and follow `progress-system-guide.md` (API) + the rollout plan's §5 guardrails;
+the `new-page` skill and the topic-page guides bake this in.

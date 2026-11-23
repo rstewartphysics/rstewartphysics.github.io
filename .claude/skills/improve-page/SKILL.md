@@ -6,7 +6,7 @@ description: Improve or refine an existing HTML/CSS page on mrstewartphysics.co.
 # /improve-page — refine an existing page
 
 1. **Read** the target page in full, plus `.claude/skills/shared/page-checklist.md` and the
-   references it lists. For a Higher topic page, also read `higher-topic-page-guide.md`.
+   references it lists. For an existing Higher topic page (no new ones are built), also read `docs/archive/higher-topic-page-guide.md`.
 2. **Audit** the page against: the subject's correct theme/palette, the standard head block,
    the component patterns in CLAUDE.md, every a11y requirement, and the platform guardrails.
    For a topic page, include the past-paper items rule (shared checklist): missing `.exam-ref`

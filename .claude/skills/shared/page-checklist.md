@@ -6,7 +6,7 @@ Used by `/new-page`, `/improve-page`, `/from-pdf`. Read this once per task.
 - **Design system + rules:** `/CLAUDE.md` (repo root).
 - **Reference implementation (copy its structure/conventions, NOT its colours):**
   `classes/higher/electricity/current-pd-power-resistance.html`.
-- **Higher topic pages only:** also read `/higher-topic-page-guide.md`.
+- **Higher topic pages only:** also read `/docs/archive/higher-topic-page-guide.md`.
 - **Any page with progress/badges:** also read `/progress-system-rollout-plan.md` (the site-wide
   progress engine — its model, hooks and **hard guardrails**).
 
@@ -46,4 +46,4 @@ from memory.
 - Tags balanced: `<section> <div> <details> <svg> <figure> <script> <style>` open == close.
 - JS `{} () []` balanced; every element ID referenced by JS exists in the HTML.
 - `grep -nE "\{\{|\{%|%\}"` returns only the menu include.
-- For Higher pages also run the checklist in `higher-topic-page-guide.md` §11.
+- For Higher pages also run the checklist in `docs/archive/higher-topic-page-guide.md` §11.

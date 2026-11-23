@@ -1,3 +1,5 @@
+> **Archived 23 Nov 2026.** No new Higher or Advanced Higher topic pages are built: practice pages replace them (`tools/generators/practice-pages/`, DECK-RULES-physics 99). Use this only to edit a Higher topic page still live.
+
 # Higher Physics topic page — construction guide (for Claude)
 
 Read this before building any new Higher Physics topic page. The **reference implementation** is
@@ -230,3 +232,37 @@ All diagrams are **inline SVG** (crisp on retina, themeable, zero asset weight).
 - JS `{} () []` balanced; all element IDs referenced by JS exist in the HTML.
 - Then commit and (if asked) push to `main`.
 </content>
+
+## Filing and components (moved from CLAUDE.md, 23 Nov 2026)
+
+### Higher Physics topic pages — filing structure
+
+Grouped by course unit so new pages drop in cleanly:
+
+```
+classes/higher-physics.html                      — the hub
+classes/higher/electricity/<topic>.html          — Electricity unit
+classes/higher/dynamic-universe/<topic>.html     — Our Dynamic Universe unit
+classes/higher/particles-waves/<topic>.html      — Particles & Waves unit
+classes/higher/simulations.html, *.pdf           — shared Higher assets
+```
+
+Topic file = kebab-case of the hub's topic label (e.g. `current-pd-power-resistance.html`). Every
+topic page links `/assets/css/higher-physics.css` for chrome + dark mode and keeps its own widget
+CSS/JS inline. All asset/menu links are absolute (`/assets/…`, `/classes/…`) so nesting depth never
+matters. To publish a topic, build it then flip the hub placeholder from
+`<span class="topic-link soon">` to `<a class="topic-link" href="…">… <span class="go">→</span></a>`.
+Per-page `localStorage` keys use a unique topic prefix (e.g. `hp-cpr-`).
+
+
+### Higher topic pages (reference page, inline)
+- `.eq-cards` / `.eq-card` (`.eq-name` / `.eq-formula` / `.eq-desc`) — standout equation cards.
+- `.frac` with `.fr-n` / `.fr-d` — **real 2-D fractions; never `num`/`den`** (collides with input
+  styling). Every `.frac` needs a worded `aria-label`.
+- `.calc` (4-col grid: `.lhs` `.eq` `.rhs` `.note-cell`) — aligned worked-example working.
+- `.example` / `.ex-type` / `.ex-q` / `.ex-conv` / `.ex-flow` — worked examples (two per equation).
+- `.practice` / `.practice-tag` + `details.reveal` — per-concept practice with mark scheme.
+- `.concept-tag`, `.backlink`, `.notes`, `.lead`. Higher hub uses `.class-tile` tiles (retained
+  exception, not `a.card`). Coming-soon topics are inert `<span class="topic-link soon">`.
+
+Higher tokens from the shared sheet (reuse, don't reinvent): `--accent-2`, `--border-accent`, `--surface-2`, `--font-stack`, `--warm` (`#c2410c` light / `#ff9d6e` dark).
