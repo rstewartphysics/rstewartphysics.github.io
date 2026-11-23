@@ -23,6 +23,7 @@ RUNS = [
     ("programmable-control", "build_page.py", []),
     ("logic-and-digital-control", "build_page.py", []),
     ("mcq-bank", "build_all.py", []),
+    ("practice-pages", "build.py", []),
     ("stripboard/page", "build.py", []),
     ("practice-tests/n5-physics/electricity1", "build.py", []),
     ("practice-tests/n5-physics/electricity1", "build_b.py", []),
