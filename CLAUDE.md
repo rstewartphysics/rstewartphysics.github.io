@@ -67,7 +67,7 @@ matters. To publish a topic, build it then flip the hub placeholder from
 `<span class="topic-link soon">` to `<a class="topic-link" href="…">… <span class="go">→</span></a>`.
 Per-page `localStorage` keys use a unique topic prefix (e.g. `hp-cpr-`).
 
-**Before building any Higher topic page, read [`higher-topic-page-guide.md`](higher-topic-page-guide.md)**
+**No new Higher or Advanced Higher topic pages** (teacher, 23 Nov 2026): practice pages replace them (`tools/generators/practice-pages/`, DECK-RULES-physics 99). For an existing Higher topic page, read [`higher-topic-page-guide.md`](higher-topic-page-guide.md)
 (repo root) — the full construction spec: concept-block layout, equation cards with real 2-D
 fractions (`fr-n`/`fr-d`, never `num`/`den`), two worked examples per equation, `.calc` grid,
 question rules, UK SVG symbol/diagram rules, and the pre-commit checklist.
@@ -217,7 +217,7 @@ pages to the drawer.**
 
 **Level rows (28 Sep 2026).** A level with more than its hub is a `.site-menu-level` split row: the
 name links to the hub, and a separate arrow (`<details class="site-menu-level-more">`) opens its
-hub, Topic pages, Slides and Practice tests (Higher adds Past papers, 12 Oct 2026). A level with only a hub is a plain link with no arrow —
+hub, Topic pages, Slides and Practice tests (Higher adds Past papers, 12 Oct 2026). Higher and Advanced Higher now list only the hub and **Lessons** (Higher also Past papers; 23 Nov 2026). A level with only a hub is a plain link with no arrow —
 never an arrow that opens onto nothing. When a level gains an index page, give it a split row (or
 add the link to its list). Groups share `name="site-menu-group"` and level lists
 `name="site-menu-level"`, so opening one closes the other with no JS. The list icons are drawer
