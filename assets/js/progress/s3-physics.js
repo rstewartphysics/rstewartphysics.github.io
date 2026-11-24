@@ -1,5 +1,5 @@
 /* ============================================================
-   S3 Physics — progress config for the shared engine.
+   S3 & N5 Physics — progress config for the shared engine.
    Loaded AFTER progress.js:
      <script src="/assets/js/progress.js" defer></script>
      <script src="/assets/js/progress/s3-physics.js" defer></script>
@@ -73,7 +73,7 @@
 
   window.Progress.init({
     ns: "s3-physics",
-    hubTitle: "🎖 S3 Physics badges",
+    hubTitle: "S3 & N5 Physics badges",
     threshold: 0.8,
     topic: TOPIC,
     ach: ACH,
