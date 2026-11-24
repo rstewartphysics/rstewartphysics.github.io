@@ -83,11 +83,10 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
     .area-card.soon .area-body > p { color: var(--muted); font-weight: 700; }
 
     #learn + .panel-pair { margin-top: 1.4rem; }
-    .practise-group { scroll-margin-top: 80px; }
-    .practise-group h3 { margin: 1.1rem 0 0.5rem; font-size: 1.15rem; font-weight: 900; }
-    .tile-kind { display: inline-block; margin: 0 0 4px; padding: 1px 9px; border: 1px solid var(--border-strong); border-radius: 999px;
+    .area-sub { margin: 4px 0 0; font-size: 1rem; font-weight: 900; color: var(--text); scroll-margin-top: 80px; }
+    .area-link.is-practice { min-height: 48px; padding: 6px 10px; }
+    .al-kind { align-self: flex-start; margin-top: 2px; padding: 0 8px; border: 1px solid var(--border-strong); border-radius: 999px;
       font-size: 0.8rem; font-weight: 900; color: var(--accent-2); }
-    .tile-kind + .tile-line { display: block; }
 
     @media (max-width: 760px) { .area-grid { grid-template-columns: minmax(0, 1fr); } }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -111,7 +110,7 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
   <main class="page-wrap" id="mainContent">
     <section id="start" aria-labelledby="start-title">
       <h2 class="section-title" id="start-title">Start here</h2>
-      <div class="hub-grid" aria-label="Start here">
+      <div class="hub-grid few" aria-label="Start here">
         <a class="hub-tile b-indigo" href="/classes/s3-physics/slides.html" aria-label="Lesson slides — every class deck as a PDF, by topic">
           <span class="tile-head">
             <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-slides"/></svg>
@@ -119,19 +118,12 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
           </span>
           <span class="tile-body">Every class deck as a PDF, by topic.</span>
         </a>
-        <a class="hub-tile b-teal" href="#practise" aria-label="Practise — practice pages, quizzes and tests by topic">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-quiz"/></svg>
-            <span class="tile-name">Practise</span>
-          </span>
-          <span class="tile-body">Practice pages, quizzes and tests by topic.</span>
-        </a>
-        <a class="hub-tile b-rose" href="#practise-papers" aria-label="Past papers — DELTA and the Past Paper Finder">
+        <a class="hub-tile b-rose" href="#past-papers" aria-label="Past papers — DELTA and the Past Paper Finder">
           <span class="tile-head">
             <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-papers"/></svg>
             <span class="tile-name">Past papers</span>
           </span>
-          <span class="tile-body">Real exam questions, by topic.</span>
+          <span class="tile-body">Real exam questions on every topic.</span>
         </a>
       </div>
     </section>
@@ -166,10 +158,20 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
             {%- endfor %}
             </ul>
             {%- assign has_decks = false %}{% for b in a.blocks %}{% if b.lessons.size > 0 %}{% assign has_decks = true %}{% endif %}{% endfor %}
-            {%- assign has_practise = hub.practise | where: "area", a.id %}
+            {%- assign items = hub.practise | where: "area", a.id %}
+            {%- if items.size > 0 %}
+            <h4 class="area-sub" id="practise-{{ a.id }}">Practise</h4>
+            <ul class="area-links" aria-label="{{ a.title }} practice">
+            {%- for x in items %}
+              <li><a class="area-link is-practice" href="{{ x.href }}"{% if x.badge %} data-prog-badges="{{ x.badge }}"{% endif %} aria-label="{{ x.kind }}: {{ x.title }}. {{ x.line }}">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
+                <span class="al-txt"><span class="al-name">{{ x.title }}</span><span class="al-kind">{{ x.kind }}</span></span>
+              </a></li>
+            {%- endfor %}
+            </ul>
+            {%- endif %}
             <p class="area-more">
               {%- if has_decks %}<a href="/classes/s3-physics/slides.html#{{ a.id }}" aria-label="{{ a.title }} lesson slides">Lesson slides</a>{% endif %}
-              {%- if has_practise.size > 0 %}<a href="#practise-{{ a.id }}" aria-label="Practise {{ a.title }}: {{ has_practise.size }} items">Practise ({{ has_practise.size }})</a>{% endif %}
             </p>
           </div>
         </article>
@@ -189,32 +191,10 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
       </div>
     </section>
 
-    <section id="practise" aria-labelledby="practise-title">
-      <h2 class="section-title" id="practise-title">Practise</h2>
-      <p class="section-sub">Practice pages, quizzes and tests by topic, then past papers.</p>
-      {%- for a in hub.areas %}
-        {%- assign items = hub.practise | where: "area", a.id %}
-        {%- if items.size > 0 %}
-      <div class="practise-group" id="practise-{{ a.id }}">
-        <h3>{{ a.title }}</h3>
-        <div class="hub-grid" aria-label="{{ a.title }} practice">
-        {%- for p in items %}
-          <a class="hub-tile {{ a.band }}" href="{{ p.href }}"{% if p.badge %} data-prog-badges="{{ p.badge }}"{% endif %} aria-label="{{ p.kind }}: {{ p.title }}. {{ p.line }}">
-            <span class="tile-head">
-              <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
-              <span class="tile-name">{{ p.title }}</span>
-            </span>
-            <span class="tile-body"><span class="tile-kind">{{ p.kind }}</span><span class="tile-line">{{ p.line }}</span></span>
-          </a>
-        {%- endfor %}
-        </div>
-      </div>
-        {%- endif %}
-      {%- endfor %}
-
-      <div class="practise-group" id="practise-papers">
-        <h3>Past papers, every topic</h3>
-        <div class="hub-grid" aria-label="Past papers">
+    <section id="past-papers" aria-labelledby="past-papers-title">
+      <h2 class="section-title" id="past-papers-title">Past papers</h2>
+      <p class="section-sub">Real National 5 exam questions on every topic.</p>
+      <div class="hub-grid few" aria-label="Past papers">
         {%- for p in hub.past_papers %}
           <a class="hub-tile {{ p.band }} is-rec" href="{{ p.href }}" target="_blank" rel="noopener" aria-label="{{ p.aria }}">
             <span class="tile-head">
@@ -225,7 +205,6 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
           </a>
         {%- endfor %}
         </div>
-      </div>
     </section>
 
     <section id="learn" aria-labelledby="learn-title">
