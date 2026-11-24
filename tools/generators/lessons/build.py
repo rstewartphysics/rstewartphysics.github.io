@@ -177,6 +177,8 @@ def s3_area(c, a):
                 f'      <h2 id="{a["id"]}-title">{a["title"]}</h2>\n      <p class="unit-note">{c["soon_line"]}</p>\n    </section>')
     blocks = []
     for b in a["blocks"]:
+        if not b["lessons"]:
+            continue
         head = "" if b["title"] == a["title"] else f'\n      <h3 id="{b["id"]}">{b["title"]}</h3>'
         note = f'\n      <p class="unit-note">{b["note"]}</p>' if b.get("note") and head else ""
         cards = "\n\n        ".join(s3_card(c["base"], l) for l in b["lessons"])
