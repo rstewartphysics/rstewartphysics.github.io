@@ -48,7 +48,7 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
     }
 
     /* area cards: one per N5 area, the band is the area's tile colour */
-    .area-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .area-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
     .area-card { display: flex; flex-direction: column; background: var(--glass); border: 1px solid var(--border);
       border-radius: 18px; box-shadow: var(--shadow-soft); overflow: hidden; scroll-margin-top: 80px; }
     .area-card.b-blue { --area: #1b3aa0; } .area-card.b-navy { --area: #172554; }
@@ -75,12 +75,19 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
     .area-more a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px;
       border: 1px solid var(--border-strong); color: var(--accent-2); font-weight: 900; text-decoration: none; }
     .area-more a:hover { border-color: var(--accent); }
+    /* not yet built: slate band (white 7.6:1), no links, so it reads as not tappable */
+    .area-card.soon { --area: #475569; box-shadow: none; }
     .area-card.soon .area-ic { opacity: 0.6; }
-    .area-card.soon .soon-line { color: var(--muted); font-weight: 800; }
+    .soon-pill { margin-left: auto; padding: 2px 10px; border: 1px solid rgba(255,255,255,.7); border-radius: 999px;
+      font-size: 0.85rem; font-weight: 900; white-space: nowrap; }
+    .area-card.soon .area-body > p { color: var(--muted); font-weight: 700; }
 
+    #learn + .panel-pair { margin-top: 1.4rem; }
     .practise-group { scroll-margin-top: 80px; }
     .practise-group h3 { margin: 1.1rem 0 0.5rem; font-size: 1.15rem; font-weight: 900; }
-    .tile-kind { display: block; font-weight: 900; }
+    .tile-kind { display: inline-block; margin: 0 0 4px; padding: 1px 9px; border: 1px solid var(--border-strong); border-radius: 999px;
+      font-size: 0.8rem; font-weight: 900; color: var(--accent-2); }
+    .tile-kind + .tile-line { display: block; }
 
     @media (max-width: 760px) { .area-grid { grid-template-columns: minmax(0, 1fr); } }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -102,6 +109,141 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
   {% include resource-icons.html %}
 
   <main class="page-wrap" id="mainContent">
+    <section id="start" aria-labelledby="start-title">
+      <h2 class="section-title" id="start-title">Start here</h2>
+      <div class="hub-grid" aria-label="Start here">
+        <a class="hub-tile b-indigo" href="/classes/s3-physics/slides.html" aria-label="Lesson slides — every class deck as a PDF, by topic">
+          <span class="tile-head">
+            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-slides"/></svg>
+            <span class="tile-name">Lesson slides</span>
+          </span>
+          <span class="tile-body">Every class deck as a PDF, by topic.</span>
+        </a>
+        <a class="hub-tile b-teal" href="#practise" aria-label="Practise — practice pages, quizzes and tests by topic">
+          <span class="tile-head">
+            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-quiz"/></svg>
+            <span class="tile-name">Practise</span>
+          </span>
+          <span class="tile-body">Practice pages, quizzes and tests by topic.</span>
+        </a>
+        <a class="hub-tile b-rose" href="#practise-papers" aria-label="Past papers — DELTA and the Past Paper Finder">
+          <span class="tile-head">
+            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-papers"/></svg>
+            <span class="tile-name">Past papers</span>
+          </span>
+          <span class="tile-body">Real exam questions, by topic.</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="topics" aria-labelledby="topics-title">
+      <h2 class="section-title" id="topics-title">Topics</h2>
+      <p class="section-sub">The six National 5 areas, in course order.</p>
+      <!-- Built from _data/s3-n5/hub.json. Edit the data, not this list. -->
+      <div class="area-grid">
+      {%- for a in hub.areas %}
+        {%- if a.status == "live" %}
+        <article class="area-card {{ a.band }}" id="area-{{ a.id }}" aria-labelledby="area-{{ a.id }}-title">
+          <div class="area-head">
+            <svg class="area-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ a.icon }}"/></svg>
+            <h3 id="area-{{ a.id }}-title">{{ a.title }}</h3>
+          </div>
+          <div class="area-body">
+            <p>{{ a.note }}</p>
+            <ul class="area-links" aria-label="{{ a.title }} topic pages">
+            {%- for b in a.blocks %}{% if b.hub_page %}
+              {%- assign bname = b.hub_page.label | default: b.title | split: " — " | first %}
+              <li><a class="area-link" href="{{ b.hub_page.href }}"{% if b.hub_page.badges %} data-prog-badges="{{ b.hub_page.badges | join: ' ' }}"{% endif %} aria-label="{{ bname }}: {{ b.hub_page.line }}">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ b.hub_page.icon }}"/></svg>
+                <span class="al-txt"><span class="al-name">{{ bname }}</span><span class="al-line">{{ b.hub_page.line }}</span></span>
+              </a></li>
+            {%- endif %}{% endfor %}
+            {%- for x in a.n5_extras %}
+              <li><a class="area-link" href="{{ x.href }}" aria-label="{{ x.title }}: {{ x.line }}">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
+                <span class="al-txt"><span class="al-name">{{ x.title }}</span><span class="al-line">{{ x.line }}</span></span>
+              </a></li>
+            {%- endfor %}
+            </ul>
+            {%- assign has_decks = false %}{% for b in a.blocks %}{% if b.lessons.size > 0 %}{% assign has_decks = true %}{% endif %}{% endfor %}
+            {%- assign has_practise = hub.practise | where: "area", a.id %}
+            <p class="area-more">
+              {%- if has_decks %}<a href="/classes/s3-physics/slides.html#{{ a.id }}" aria-label="{{ a.title }} lesson slides">Lesson slides</a>{% endif %}
+              {%- if has_practise.size > 0 %}<a href="#practise-{{ a.id }}" aria-label="Practise {{ a.title }}: {{ has_practise.size }} items">Practise ({{ has_practise.size }})</a>{% endif %}
+            </p>
+          </div>
+        </article>
+        {%- else %}
+        <article class="area-card soon" id="area-{{ a.id }}" aria-labelledby="area-{{ a.id }}-title">
+          <div class="area-head">
+            <svg class="area-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ a.icon }}"/></svg>
+            <h3 id="area-{{ a.id }}-title">{{ a.title }}</h3>
+            <span class="soon-pill">{{ hub.soon_line | remove: '.' }}</span>
+          </div>
+          <div class="area-body">
+            <p>{{ a.outline }}</p>
+          </div>
+        </article>
+        {%- endif %}
+      {%- endfor %}
+      </div>
+    </section>
+
+    <section id="practise" aria-labelledby="practise-title">
+      <h2 class="section-title" id="practise-title">Practise</h2>
+      <p class="section-sub">Practice pages, quizzes and tests by topic, then past papers.</p>
+      {%- for a in hub.areas %}
+        {%- assign items = hub.practise | where: "area", a.id %}
+        {%- if items.size > 0 %}
+      <div class="practise-group" id="practise-{{ a.id }}">
+        <h3>{{ a.title }}</h3>
+        <div class="hub-grid" aria-label="{{ a.title }} practice">
+        {%- for p in items %}
+          <a class="hub-tile {{ a.band }}" href="{{ p.href }}"{% if p.badge %} data-prog-badges="{{ p.badge }}"{% endif %} aria-label="{{ p.kind }}: {{ p.title }}. {{ p.line }}">
+            <span class="tile-head">
+              <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
+              <span class="tile-name">{{ p.title }}</span>
+            </span>
+            <span class="tile-body"><span class="tile-kind">{{ p.kind }}</span><span class="tile-line">{{ p.line }}</span></span>
+          </a>
+        {%- endfor %}
+        </div>
+      </div>
+        {%- endif %}
+      {%- endfor %}
+
+      <div class="practise-group" id="practise-papers">
+        <h3>Past papers, every topic</h3>
+        <div class="hub-grid" aria-label="Past papers">
+        {%- for p in hub.past_papers %}
+          <a class="hub-tile {{ p.band }} is-rec" href="{{ p.href }}" target="_blank" rel="noopener" aria-label="{{ p.aria }}">
+            <span class="tile-head">
+              <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
+              {% if p.external %}<span class="tile-tag">External</span>{% endif %}<span class="tile-name">{{ p.title }}</span>
+            </span>
+            <span class="tile-body"><span class="rec-pill">Recommended</span>{{ p.line }}</span>
+          </a>
+        {%- endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section id="learn" aria-labelledby="learn-title">
+      <h2 class="section-title" id="learn-title">Learn &amp; revise</h2>
+      <p class="section-sub">Notes and videos from other sites, to catch up or go over a lesson.</p>
+      <div class="hub-grid" aria-label="Learning resources">
+      {%- for x in hub.outside_links %}
+        <a class="hub-tile {{ x.band }}" href="{{ x.href }}" target="_blank" rel="noopener" aria-label="{{ x.aria }}">
+          <span class="tile-head">
+            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
+            <span class="tile-tag">External</span><span class="tile-name">{{ x.title }}</span>
+          </span>
+          <span class="tile-body">{{ x.line }}</span>
+        </a>
+      {%- endfor %}
+      </div>
+    </section>
+
     <div class="panel-pair">
     <section class="panel" id="overview" aria-labelledby="overview-title">
       <h2 id="overview-title">Overview</h2>
@@ -142,121 +284,6 @@ search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dy
       <div id="progressHub"></div>
     </section>
     </div>
-
-    <section id="topics" aria-labelledby="topics-title">
-      <h2 class="section-title" id="topics-title">Topics</h2>
-      <p class="section-sub">The six National 5 areas, in course order.</p>
-      <!-- Built from _data/s3-n5/hub.json. Edit the data, not this list. -->
-      <div class="area-grid">
-      {%- for a in hub.areas %}
-        {%- if a.status == "live" %}
-        <article class="area-card {{ a.band }}" id="area-{{ a.id }}" aria-labelledby="area-{{ a.id }}-title">
-          <div class="area-head">
-            <svg class="area-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ a.icon }}"/></svg>
-            <h3 id="area-{{ a.id }}-title">{{ a.title }}</h3>
-          </div>
-          <div class="area-body">
-            <p>{{ a.note }}</p>
-            <ul class="area-links" aria-label="{{ a.title }} topic pages">
-            {%- for b in a.blocks %}{% if b.hub_page %}
-              {%- assign bname = b.title | split: " — " | first %}
-              <li><a class="area-link" href="{{ b.hub_page.href }}"{% if b.hub_page.badges %} data-prog-badges="{{ b.hub_page.badges | join: ' ' }}"{% endif %} aria-label="{{ bname }}: {{ b.hub_page.line }}">
-                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ b.hub_page.icon }}"/></svg>
-                <span class="al-txt"><span class="al-name">{{ bname }}</span><span class="al-line">{{ b.hub_page.line }}</span></span>
-              </a></li>
-            {%- endif %}{% endfor %}
-            {%- for x in a.n5_extras %}
-              <li><a class="area-link" href="{{ x.href }}" aria-label="{{ x.title }}: {{ x.line }}">
-                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
-                <span class="al-txt"><span class="al-name">{{ x.title }}</span><span class="al-line">{{ x.line }}</span></span>
-              </a></li>
-            {%- endfor %}
-            </ul>
-            {%- assign has_decks = false %}{% for b in a.blocks %}{% if b.lessons.size > 0 %}{% assign has_decks = true %}{% endif %}{% endfor %}
-            {%- assign has_practise = hub.practise | where: "area", a.id %}
-            <p class="area-more">
-              {%- if has_decks %}<a href="/classes/s3-physics/slides.html#{{ a.id }}" aria-label="{{ a.title }} lesson slides">Lesson slides</a>{% endif %}
-              {%- if has_practise.size > 0 %}<a href="#practise-{{ a.id }}" aria-label="Practise {{ a.title }}">Practise</a>{% endif %}
-            </p>
-          </div>
-        </article>
-        {%- else %}
-        <article class="area-card soon {{ a.band }}" id="area-{{ a.id }}" aria-labelledby="area-{{ a.id }}-title">
-          <div class="area-head">
-            <svg class="area-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ a.icon }}"/></svg>
-            <h3 id="area-{{ a.id }}-title">{{ a.title }}</h3>
-          </div>
-          <div class="area-body">
-            <p>{{ a.outline }}</p>
-            <p class="soon-line">{{ hub.soon_line }}</p>
-          </div>
-        </article>
-        {%- endif %}
-      {%- endfor %}
-      </div>
-    </section>
-
-    <section id="practise" aria-labelledby="practise-title">
-      <h2 class="section-title" id="practise-title">Practise</h2>
-      <p class="section-sub">Practice pages, quizzes and tests by topic, then past papers.</p>
-      {%- for a in hub.areas %}
-        {%- assign items = hub.practise | where: "area", a.id %}
-        {%- if items.size > 0 %}
-      <div class="practise-group" id="practise-{{ a.id }}">
-        <h3>{{ a.title }}</h3>
-        <div class="hub-grid" aria-label="{{ a.title }} practice">
-        {%- for p in items %}
-          <a class="hub-tile {{ a.band }}" href="{{ p.href }}"{% if p.badge %} data-prog-badges="{{ p.badge }}"{% endif %} aria-label="{{ p.kind }}: {{ p.title }}. {{ p.line }}">
-            <span class="tile-head">
-              <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
-              <span class="tile-name">{{ p.title }}</span>
-            </span>
-            <span class="tile-body"><span class="tile-kind">{{ p.kind }}</span>{{ p.line }}</span>
-          </a>
-        {%- endfor %}
-        </div>
-      </div>
-        {%- endif %}
-      {%- endfor %}
-
-      <div class="practise-group" id="practise-papers">
-        <h3>Past papers, every topic</h3>
-        <div class="hub-grid" aria-label="Past papers">
-        {%- for p in hub.past_papers %}
-          <a class="hub-tile {{ p.band }} is-rec" href="{{ p.href }}" target="_blank" rel="noopener" aria-label="{{ p.aria }}">
-            <span class="tile-head">
-              <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
-              {% if p.external %}<span class="tile-tag">External</span>{% endif %}<span class="tile-name">{{ p.title }}</span>
-            </span>
-            <span class="tile-body"><span class="rec-pill">Recommended</span>{{ p.line }}</span>
-          </a>
-        {%- endfor %}
-        </div>
-      </div>
-    </section>
-
-    <section id="learn" aria-labelledby="learn-title">
-      <h2 class="section-title" id="learn-title">Learn &amp; revise</h2>
-      <p class="section-sub">Slides, notes and videos to catch up or go over a lesson.</p>
-      <div class="hub-grid" aria-label="Learning resources">
-        <a class="hub-tile b-indigo" href="/classes/s3-physics/slides.html" aria-label="Lesson slides — every S3 and N5 class deck as a PDF, by topic">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-slides"/></svg>
-            <span class="tile-name">Lesson slides</span>
-          </span>
-          <span class="tile-body">Every class deck as a PDF, by topic.</span>
-        </a>
-      {%- for x in hub.outside_links %}
-        <a class="hub-tile {{ x.band }}" href="{{ x.href }}" target="_blank" rel="noopener" aria-label="{{ x.aria }}">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
-            <span class="tile-tag">External</span><span class="tile-name">{{ x.title }}</span>
-          </span>
-          <span class="tile-body">{{ x.line }}</span>
-        </a>
-      {%- endfor %}
-      </div>
-    </section>
 
     <p class="muted" data-credit-note><strong>Sources &amp; credits:</strong> the Past Paper Finder is
       compiled by Mr Davie (September 2026 update by Mr White); DELTA is by Mr Taylor; past-paper
