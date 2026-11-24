@@ -40,7 +40,13 @@
       cond: "Finish every challenge on Space · Part B" },
     { id: "space-c", name: "Cosmology", emoji: "🔭", section: "Space", unlock: "page",
       href: "/classes/s3-physics/space/cosmology.html",
-      cond: "Finish every challenge on Space · Part C" }
+      cond: "Finish every challenge on Space · Part C" },
+    { id: "space-l6", name: "Lift-Off", emoji: "🚀", section: "Space", unlock: "page",
+      href: "/classes/s3-physics/space/l6-forces-on-rockets-practice.html",
+      cond: "Finish the gap-fill and get every multiple choice right on Forces on rockets practice" },
+    { id: "space-l9", name: "Light Traveller", emoji: "✨", section: "Space", unlock: "page",
+      href: "/classes/s3-physics/space/l9-light-years-practice.html",
+      cond: "Finish the gap-fill and get every multiple choice right on Light-years practice" }
   ];
 
   var ALL_IDS = TOPIC.map(function (t) { return t.id; });

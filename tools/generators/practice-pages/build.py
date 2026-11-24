@@ -62,6 +62,8 @@ def strip_tags(s):
 def img(d, cls="pp-img"):
     """A tall crop may come as "pieces" cut at paragraph gaps, so each prints on one A4 page;
     on screen they stack as one picture and the first carries the alt text."""
+    if d.get("text") and not (d.get("img") or d.get("pieces")):
+        return f'<div class="pp-text">{d["text"]}</div>'   # ORIGINAL item, no crop (S3, rule 99a)
     ps = d.get("pieces") or [d]
     tags = "".join(
         f'<img class="{cls}{" pp-piece" if len(ps) > 1 else ""}" src="{p["img"]}" width="{p["w"]}" height="{p["h"]}" '
@@ -221,7 +223,7 @@ search_keywords: {d["search_keywords"]}
   <script src="/assets/js/practice-page.js" defer></script>
 
   <link rel="stylesheet" href="{c["css"]}">
-  <link rel="stylesheet" href="/assets/css/practice-page.css?v=pp-20261123j">
+  <link rel="stylesheet" href="/assets/css/practice-page.css?v=pp-20261124s3">
 
   <title>{title_plain} — {c["name"]}</title>
   {{% include site-head-icons.html %}}
@@ -250,7 +252,7 @@ search_keywords: {d["search_keywords"]}
       <ul class="ican">{ican}</ul>
       <div class="top-pills">
         <a class="top-pill" href="{d["deck"]["href"]}" target="_blank" rel="noopener" aria-label="{esc(d["deck"]["aria"])}">{d["deck"]["label"]}</a>
-        <a class="top-pill" href="{answers_href(d)}" target="_blank" rel="noopener" aria-label="{esc(d["deck"]["aria"].replace(". PDF", ", with answers. PDF"))}">{d["deck"]["label"].replace(" (PDF)", " with answers (PDF)")}</a>
+        <a class="top-pill" href="{answers_href(d)}" target="_blank" rel="noopener" aria-label="{esc(d["deck"]["aria"].replace(". PDF", ", with answers. PDF"))}">{d["deck"]["label"].replace(" (PDF)", " with answers (PDF)")}</a>{"".join(f'{chr(10)}        <a class="top-pill" href="{x["href"]}"{" target=" + chr(34) + "_blank" + chr(34) + " rel=" + chr(34) + "noopener" + chr(34) if x.get("new_tab", True) else ""} aria-label="{esc(x["aria"])}">{x["label"]}</a>' for x in d.get("links", []))}
       </div>
     </section>
 
@@ -261,7 +263,7 @@ search_keywords: {d["search_keywords"]}
 {mc_section}{errors_section}
     <section class="panel" id="paper2" aria-labelledby="p2-title">
       <h2 id="p2-title">{c["p2_title"]}</h2>
-      <p class="hint{"" if p2s else " p2-note"}">{p2_hint}</p>
+      <p class="hint{"" if p2s else " p2-note"}">{p2_hint}</p>{f'{chr(10)}      <p class="p2-tip">{d["p2_tip"]}</p>' if d.get("p2_tip") else ""}
       <div class="pp-list">
         {p2_html}
       </div>
@@ -278,7 +280,7 @@ search_keywords: {d["search_keywords"]}
     </section>
 
     <p class="done-line">Done in class, so not repeated here: {done}.</p>
-    <p data-credit-note>Sources &amp; credits: past-paper questions and marking instructions from {cred}. © Qualifications Scotland (SQA), reproduced for educational use. Answer feedback and the gap-fill by R Stewart. {d["owner"]}.</p>
+    <p data-credit-note>Sources &amp; credits: past-paper questions and marking instructions from {cred}. © Qualifications Scotland (SQA), reproduced for educational use. Answer feedback and the gap-fill by R Stewart.{" " + d["credit_extra"] if d.get("credit_extra") else ""} {d["owner"]}.</p>
   </main>
 
   {{% include site-footer.html %}}

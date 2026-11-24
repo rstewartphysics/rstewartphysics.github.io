@@ -401,18 +401,36 @@ open-licensed, or reproduced for educational use. The site-facing version of thi
   paper Q4, Q5. Answer keys from the marking instructions. All © Qualifications Scotland (SQA),
   reproduced for educational use. Specimen paper Question 5 photograph (Mars rover):
   sandystifler/shutterstock.com, as credited in the paper.
-- **S3 Physics *Cosmology* page (Light years), *Light years quiz* and *Light years practice sheet***
-  (added 20 November 2026) — `classes/s3-physics/space/cosmology.html`,
-  `classes/s3-physics/space/light-years-quiz.html`,
-  `classes/s3-physics/space/L9 Light Years - Practice Sheet.pdf`. Text, the light-year drawing, the
+- **S3 Physics *Cosmology* page (Light years) and *Light years quiz***
+  (added 20 November 2026; the practice sheet was retired 24 November 2026 and folded into the
+  Light-years practice page below) — `classes/s3-physics/space/cosmology.html`,
+  `classes/s3-physics/space/light-years-quiz.html`. Text, the light-year drawing, the
   worked example (from the Space booklet), the original questions and all feedback © R Stewart, 2026.
   Reproduced from National 5 Physics question papers and marking instructions: 2023 Section 2, Q5(c)
   (page exam question, `assets/s3/space/sqa-2023-s2-q5c*.png`); quiz (`assets/s3/space/quiz/`)
   2015 Section 1, Q19; 2018 Section 1, Q9; 2021 Section 1, Q8; 2025 Section 1, Q9; 2026 Section 1, Q7;
-  2024 Section 2, Q6(b)(ii); 2019 Section 2, Q4(b)(ii); practice sheet 2019 Section 2, Q4(b); 2022
-  Section 2, Q5(a)(i) and Q5(b); 2017 Section 2, Q12(a); the 2023 course report is quoted. All
+  2024 Section 2, Q6(b)(ii); 2019 Section 2, Q4(b)(ii). All
   © Qualifications Scotland (SQA), reproduced for educational use. BBC Bitesize is linked, not copied.
   No photos.
+- **S3 Physics Space practice pages: *Forces on rockets* (Lesson 6) and *Light-years* (Lesson 9)**
+  (added 24 November 2026, R Stewart - November 2026) —
+  `classes/s3-physics/space/l6-forces-on-rockets-practice.html`,
+  `classes/s3-physics/space/l9-light-years-practice.html`, generated from
+  `tools/generators/practice-pages/src/s3-space-l6.json` and `s3-space-l9.json`; crops in
+  `assets/s3-physics/space/`. Gap-fills, answer feedback and the two metres-to-light-years questions
+  (Altair, Vega) © R Stewart, 2026. Reproduced from National 5 Physics question papers and marking
+  instructions, cropped from the original papers (SQA; 2014–2022 from scotpapers.com archive copies):
+  Lesson 6 — 2026 Section 1, Q6, Section 2, Q4(b)(ii); 2025 Section 2, Q2(a)(i) and Q4(b)(i); 2024
+  Section 2, Q4(a) and (c); 2022 Section 1, Q4 and Q9, Section 2, Q3; 2019 Section 2, Q8(a); 2017
+  Section 1, Q17; 2016 Section 2, Q12(a) and (c); 2014 Section 1, Q18, Section 2, Q12(a), (d) and (e);
+  specimen question paper Section 2, Q2(a). Lesson 9 — 2024 Section 1, Q6 and Q8, Section 2, Q6(b)(ii);
+  2023 Section 2, Q5(c); 2022 Section 2, Q5; 2019 Section 2, Q4(b)(i); 2017 Section 2, Q12; 2016
+  Section 2, Q13(c) and (d); the 2023 course report is quoted. All © Qualifications Scotland (SQA),
+  reproduced for educational use. Photographs as credited in the papers: 2025 Q4
+  24K-Production/shutterstock.com; 2022 Q3 R-Type/shutterstock.com; 2022 Q5 ployy/shutterstock.com;
+  2017 Q12 kojihirano/shutterstock.com; 2016 Q13 AstroStar/shutterstock.com. Scotland facility figures
+  from Qualifications Scotland Centre Data (all centres, 2023–2026). The SQA relationships sheet, Isaac
+  Science and BBC Bitesize are linked, not copied. Banner: AI-generated artwork.
 
 - **National 5 Engineering Science *Voltage Dividers & Sensors* slides** (added 15 September 2026,
   `assets/engineering-science/national-5/03-electronics-and-analogue-control/slides/L5-voltage-dividers-and-sensors.pdf`).
