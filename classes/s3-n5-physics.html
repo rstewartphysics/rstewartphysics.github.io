@@ -1,63 +1,240 @@
 ---
 layout: none
-title: National 5 Physics
+title: S3 & N5 Physics
+search_keywords: S3 Physics, National 5 Physics, N5, hub, space, electricity, dynamics, waves, radiation, properties of matter, past papers, practice
 ---
-
+{%- assign hub = site.data["s3-n5"].hub -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#fff0f7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#1d0b14" media="(prefers-color-scheme: dark)" />
-  <title>National 5 Physics</title>
+  <meta name="theme-color" content="#eaf7fa" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0d1f1a" media="(prefers-color-scheme: dark)" />
+  <title>S3 &amp; N5 Physics</title>
   {% include site-head-icons.html %}
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/national-5-physics.css?v=n5p-20261014b">
+  <link rel="stylesheet" href="/assets/css/s3-physics.css?v=s3-20261014c">
   <link rel="stylesheet" href="/assets/css/hub-tiles.css?v=ht-20260929e">
   <link rel="stylesheet" href="/assets/css/reading.css?v=rd-20261014a">
   <script src="/assets/js/site-menu.js" defer></script>
+  <script src="/assets/js/progress.js" defer></script>
+  <script src="/assets/js/progress/s3-physics.js" defer></script>
 
   <style>
     .hub-tile .tile-ic { --ic-accent: var(--accent); }
     main a:not([class]) { color: var(--accent-2); font-weight: 800; }
+    @media (prefers-color-scheme: light) {
+      body.reading { --bg2:#eef8f6; --glass:rgba(246,251,250,0.86); --summary-bg:rgba(246,251,250,0.70); }
+    }
+    /* drawn banner (engineering-science.css .band-banner, S3 colours); title is real text */
+    .band-banner{display:flex;align-items:center;justify-content:center;gap:22px;height:240px;padding:20px 90px;
+      background-color:#006e74;
+      background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.14) 0 1px,transparent 1px 14px),
+        repeating-linear-gradient(90deg,rgba(255,255,255,.14) 0 1px,transparent 1px 14px),
+        linear-gradient(135deg,#006e74,#0a5f57);
+      box-shadow:0 10px 24px rgba(0,80,85,.16)}
+    .band-banner .bb-chip{flex:none;width:96px;height:96px;border-radius:24px;background:var(--card);
+      display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+    .band-banner .bb-chip svg{width:78px;height:78px;color:var(--text);--ic-accent:var(--accent)}
+    .band-banner h1{margin:0;color:#fff;font:900 clamp(1.9rem,5vw,3.4rem)/1.1 var(--font-stack)}
+    .band-banner p{margin:4px 0 0;color:#fff;font-weight:800}
+    @media (max-width:600px){
+      .band-banner{height:auto;min-height:170px;padding:64px 16px 22px;gap:12px}
+      .band-banner .bb-chip{width:60px;height:60px;border-radius:15px}
+      .band-banner .bb-chip svg{width:48px;height:48px}
+    }
+
+    /* area cards: one per N5 area, the band is the area's tile colour */
+    .area-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .area-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; align-items: start; }
+    .area-cols > div { display: grid; gap: 8px; }
+    .area-card { display: flex; flex-direction: column; background: var(--glass); border: 1px solid var(--border);
+      border-radius: 18px; box-shadow: var(--shadow-soft); overflow: hidden; scroll-margin-top: 80px; }
+    .area-card.b-blue { --area: #1b3aa0; } .area-card.b-navy { --area: #172554; }
+    .area-card.b-purple { --area: #6b21a8; } .area-card.b-orange { --area: #9a3412; }
+    .area-card.b-teal { --area: #0a5f57; } .area-card.b-green { --area: #14532d; }
+    .area-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--area); color: #fff; }
+    .area-head h3 { margin: 0; font-size: 1.3rem; font-weight: 900; line-height: 1.3; color: #fff; }
+    .area-ic { flex: none; width: 46px; height: 46px; padding: 5px; border-radius: 12px; background: var(--card);
+      color: var(--text); --ic-accent: var(--accent); }
+    .area-body { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 14px; flex: 1; }
+    .area-body > p { margin: 0; line-height: 1.55; }
+    .area-note { margin: 0 0 4px; line-height: 1.55; }
+    .area-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .area-link { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 10px; border-radius: 12px;
+      border: 1px solid var(--border-accent); background: var(--card); color: var(--text); text-decoration: none;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    .area-link:hover { border-color: var(--accent); box-shadow: var(--shadow-soft); }
+    .area-link:focus-visible, .area-more a:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+    .area-link svg { flex: none; width: 34px; height: 34px; color: var(--text); --ic-accent: var(--accent); }
+    .al-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .al-name { font-weight: 900; }
+    .al-line { color: var(--muted); font-weight: 700; font-size: 0.92rem; }
+    .area-link .prog-chip { margin-left: auto; }
+    .area-more { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 0; }
+    .area-more a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px;
+      border: 1px solid var(--border-strong); color: var(--accent-2); font-weight: 900; text-decoration: none; }
+    .area-more a:hover { border-color: var(--accent); }
+    /* not yet built: slate band (white 7.6:1), no links, so it reads as not tappable */
+    .area-card.soon { --area: #475569; box-shadow: none; }
+    .area-card.soon .area-ic { opacity: 0.6; }
+    .soon-pill { margin-left: auto; padding: 2px 10px; border: 1px solid rgba(255,255,255,.7); border-radius: 999px;
+      font-size: 0.85rem; font-weight: 900; white-space: nowrap; }
+    .area-card.soon .area-head { flex-wrap: wrap; row-gap: 2px; padding: 8px 14px; }
+    .area-card.soon .area-ic { width: 38px; height: 38px; padding: 4px; }
+    .area-card.soon h3 { font-size: 1.15rem; }
+    .soon-outline { flex: 1 1 260px; color: #fff; font-weight: 700; font-size: 0.95rem; }
+
+    #learn + .panel-pair { margin-top: 1.4rem; }
+    .area-sub { margin: 2px 0 0; font-size: 1rem; font-weight: 900; color: var(--text); scroll-margin-top: 80px; }
+    .area-link.is-practice { min-height: 48px; padding: 6px 10px; }
+    .al-kind { align-self: flex-start; margin-top: 2px; padding: 0 8px; border: 1px solid var(--border-strong); border-radius: 999px;
+      font-size: 0.8rem; font-weight: 900; color: var(--accent-2); }
+
+    @media (max-width: 760px) { .area-cols { grid-template-columns: minmax(0, 1fr); } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
 </head>
 
 <body class="reading">
   {% include site-menu.html %}
 
-  <header class="banner-wrap is-hub">
-    <img src="/assets/national-5-physics-banner.jpeg" alt="National 5 Physics banner" class="banner" loading="eager">
-    <div class="banner-tint"></div>
-    <div class="banner-overlay-text">
-      <h1>National 5 Physics</h1>
-    </div>
+  <header class="band-banner">
+    <span class="bb-chip"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-atom"/></svg></span>
+    <div><h1>S3 &amp; N5 Physics</h1><p>Lessons, practice and past papers</p></div>
   </header>
 
   {% include higher-hub-icons.html %}
   {% include s3-hub-icons.html %}
   {% include ah-hub-icons.html %}
+  {% include physics-icons.html %}
+  {% include resource-icons.html %}
 
   <main class="page-wrap" id="mainContent">
-    <h1 class="visually-hidden">National 5 Physics hub</h1>
+    <section id="start" aria-labelledby="start-title">
+      <h2 class="section-title" id="start-title">Start here</h2>
+      <div class="hub-grid" aria-label="Start here">
+        <a class="hub-tile b-indigo" href="/classes/s3-physics/slides.html" aria-label="Lesson slides — every class deck as a PDF, by topic">
+          <span class="tile-head">
+            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-slides"/></svg>
+            <span class="tile-name">Lesson slides</span>
+          </span>
+          <span class="tile-body">Every class deck as a PDF, by topic.</span>
+        </a>
+        {%- for p in hub.past_papers %}
+          <a class="hub-tile {{ p.band }} is-rec" href="{{ p.href }}" target="_blank" rel="noopener" aria-label="{{ p.aria }}">
+            <span class="tile-head">
+              <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ p.icon }}"/></svg>
+              {% if p.external %}<span class="tile-tag">External</span>{% endif %}<span class="tile-name">{{ p.title }}</span>
+            </span>
+            <span class="tile-body"><span class="rec-pill">Recommended</span>{{ p.line }}</span>
+          </a>
+        {%- endfor %}
+      </div>
+    </section>
+
+    <section id="topics" aria-labelledby="topics-title">
+      <h2 class="section-title" id="topics-title">Topics</h2>
+      <p class="section-sub">The six National 5 areas, in course order.</p>
+      <!-- Built from _data/s3-n5/hub.json. Edit the data, not this list. -->
+      <div class="area-grid">
+      {%- for a in hub.areas %}
+        {%- if a.status == "live" %}
+        <article class="area-card {{ a.band }}" id="area-{{ a.id }}" aria-labelledby="area-{{ a.id }}-title">
+          <div class="area-head">
+            <svg class="area-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ a.icon }}"/></svg>
+            <h3 id="area-{{ a.id }}-title">{{ a.title }}</h3>
+          </div>
+          <div class="area-body">
+            <div class="area-cols">
+            <div>
+            <p class="area-note">{{ a.note }}</p>
+            <h4 class="area-sub">Topic pages</h4>
+            <ul class="area-links" aria-label="{{ a.title }} topic pages">
+            {%- for b in a.blocks %}{% if b.hub_page %}
+              {%- assign bname = b.hub_page.label | default: b.title | split: " — " | first %}
+              <li><a class="area-link" href="{{ b.hub_page.href }}"{% if b.hub_page.badges %} data-prog-badges="{{ b.hub_page.badges | join: ' ' }}"{% endif %} aria-label="{{ bname }}: {{ b.hub_page.line }}">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ b.hub_page.icon }}"/></svg>
+                <span class="al-txt"><span class="al-name">{{ bname }}</span><span class="al-line">{{ b.hub_page.line }}</span></span>
+              </a></li>
+            {%- endif %}{% endfor %}
+            {%- for x in a.n5_extras %}
+              <li><a class="area-link" href="{{ x.href }}" aria-label="{{ x.title }}: {{ x.line }}">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
+                <span class="al-txt"><span class="al-name">{{ x.title }}</span><span class="al-line">{{ x.line }}</span></span>
+              </a></li>
+            {%- endfor %}
+            </ul>
+            {%- assign has_decks = false %}{% for b in a.blocks %}{% if b.lessons.size > 0 %}{% assign has_decks = true %}{% endif %}{% endfor %}
+            <p class="area-more">
+              {%- if has_decks %}<a href="/classes/s3-physics/slides.html#{{ a.id }}" aria-label="{{ a.title }} lesson slides">Lesson slides</a>{% endif %}
+            </p>
+            </div>
+            {%- assign items = hub.practise | where: "area", a.id %}
+            {%- if items.size > 0 %}
+            <div>
+            <h4 class="area-sub" id="practise-{{ a.id }}">Practise</h4>
+            <ul class="area-links" aria-label="{{ a.title }} practice">
+            {%- for x in items %}
+              <li><a class="area-link is-practice" href="{{ x.href }}"{% if x.badge %} data-prog-badges="{{ x.badge }}"{% endif %} aria-label="{{ x.kind }}: {{ x.title }}. {{ x.line }}">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
+                <span class="al-txt"><span class="al-name">{{ x.title }}</span><span class="al-kind">{{ x.kind }}</span></span>
+              </a></li>
+            {%- endfor %}
+            </ul>
+            </div>
+            {%- endif %}
+            </div>
+          </div>
+        </article>
+        {%- else %}
+        <article class="area-card soon" id="area-{{ a.id }}" aria-labelledby="area-{{ a.id }}-title">
+          <div class="area-head">
+            <svg class="area-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ a.icon }}"/></svg>
+            <h3 id="area-{{ a.id }}-title">{{ a.title }}</h3>
+            <span class="soon-outline">{{ a.outline }}</span>
+            <span class="soon-pill">{{ hub.soon_line | remove: '.' }}</span>
+          </div>
+        </article>
+        {%- endif %}
+      {%- endfor %}
+      </div>
+    </section>
+
+    <section id="learn" aria-labelledby="learn-title">
+      <h2 class="section-title" id="learn-title">Learn &amp; revise</h2>
+      <p class="section-sub">Notes and videos from other sites, to catch up or go over a lesson.</p>
+      <div class="hub-grid" aria-label="Learning resources">
+      {%- for x in hub.outside_links %}
+        <a class="hub-tile {{ x.band }}" href="{{ x.href }}" target="_blank" rel="noopener" aria-label="{{ x.aria }}">
+          <span class="tile-head">
+            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#{{ x.icon }}"/></svg>
+            <span class="tile-tag">External</span><span class="tile-name">{{ x.title }}</span>
+          </span>
+          <span class="tile-body">{{ x.line }}</span>
+        </a>
+      {%- endfor %}
+      </div>
+    </section>
 
     <div class="panel-pair">
     <section class="panel" id="overview" aria-labelledby="overview-title">
       <h2 id="overview-title">Overview</h2>
-      <p>Everything for National 5 Physics in one place.</p>
+      <p>S3 Physics is National 5 level work. S3 and N5 share this page, topic by topic.
+        What you learn in S3 carries straight on into National 5.</p>
 
       <div class="collapsible-panel">
       <details>
-        <summary>A simple revision plan</summary>
+        <summary>A weekly routine that works</summary>
         <div class="details-inner">
           <ul>
-            <li><strong>1)</strong> Learn key ideas — short, visual notes and videos.</li>
-            <li><strong>2)</strong> Practise problems until they feel routine.</li>
-            <li><strong>3)</strong> Do past papers by topic to spot weak areas.</li>
-            <li><strong>4)</strong> Little and often — consistency beats cramming.</li>
+            <li><strong>1)</strong> Go over the lesson on the topic page or in the slides.</li>
+            <li><strong>2)</strong> Do the tasks, then check your answers.</li>
+            <li><strong>3)</strong> Try past-paper questions, then fix what you got wrong.</li>
+            <li><strong>Stuck?</strong> Write down what you <strong>know</strong>, the <strong>equation</strong> and the <strong>units</strong> before you use the calculator.</li>
           </ul>
         </div>
       </details>
@@ -65,12 +242,12 @@ title: National 5 Physics
 
       <div class="collapsible-panel">
       <details>
-        <summary>SQA marking principles</summary>
+        <summary>How marks are given</summary>
         <div class="details-inner">
           <ul>
             <li><strong>Calculations:</strong> formula, substitution, final answer with unit.</li>
             <li><strong>Show questions:</strong> show all working.</li>
-            <li><strong>Explain/justify:</strong> link cause to effect clearly and simply.</li>
+            <li><strong>Explain:</strong> link cause to effect, clearly and simply.</li>
             <li><strong>Graphs:</strong> label axes and units, sensible scale, clear line.</li>
           </ul>
         </div>
@@ -78,86 +255,15 @@ title: National 5 Physics
       </div>
     </section>
 
-    <section class="panel" id="outline" aria-labelledby="outline-title">
-      <h2 id="outline-title">Course outline</h2>
-      <ul>
-        <li><strong>Dynamics:</strong> forces, motion, Newton's laws, energy and power.</li>
-        <li><strong>Properties of Matter:</strong> density, specific heat, specific latent heat, gas laws.</li>
-        <li><strong>Waves and Optics:</strong> waves, sound, light, refraction, lenses, diffraction.</li>
-        <li><strong>Electricity:</strong> voltage, current, resistance, AC/DC, power, energy.</li>
-        <li><strong>Magnetism &amp; Electromagnetism:</strong> field patterns, motors, transformers, induction.</li>
-        <li><strong>Nuclear Physics:</strong> atomic structure, nuclear processes, fission, fusion.</li>
-      </ul>
+    <section class="panel" aria-label="My progress and badges">
+      <h2>My progress</h2>
+      <div id="progressHub"></div>
     </section>
     </div>
 
-    <section id="practise" aria-labelledby="practise-title">
-      <h2 class="section-title" id="practise-title">Practise</h2>
-      <p class="section-sub">The two best ways to practise past-paper questions.</p>
-      <div class="hub-grid" aria-label="Recommended practice">
-        <a class="hub-tile b-purple is-rec" href="https://deltaphysics.co.uk/mc%20physics%20nat5/index.html" target="_blank" rel="noopener" aria-label="Recommended: DELTA, by Mr Taylor — every past-paper multiple choice question, with the 2026 paper. It marks itself. Opens in a new tab">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-delta"/></svg>
-            <span class="tile-tag">External</span><span class="tile-name">DELTA by Mr Taylor</span>
-          </span>
-          <span class="tile-body"><span class="rec-pill">Recommended</span>Past-paper multiple choice, 2026 included. It marks itself. Pick a topic, or try exam mode.</span>
-        </a>
-        <a class="hub-tile b-rose is-rec" href="/classes/n5-physics/N5%20Physics%20Past%20Papers%20%28September%202026%20Update%29.pdf" target="_blank" rel="noopener" aria-label="Recommended: Past Paper Finder, compiled by Mr Davie and updated by Mr White — every past-paper question by topic, with the 2026 paper. Large PDF, 24 megabytes. Opens in a new tab">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-papers"/></svg>
-            <span class="tile-name">Past Paper Finder</span>
-          </span>
-          <span class="tile-body"><span class="rec-pill">Recommended</span>Every past-paper question by topic, 2026 included. By Mr Davie, updated by Mr White. Large PDF (24 MB).</span>
-        </a>
-        <span class="hub-tile soon" aria-disabled="true">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-qs"/></svg>
-            <span class="tile-name">Mark Scheme Booklets</span>
-          </span>
-          <span class="tile-body">How marks are awarded. Coming soon.</span>
-        </span>
-      </div>
-    </section>
-
-    <section id="learn" aria-labelledby="learn-title">
-      <h2 class="section-title" id="learn-title">Learn &amp; revise</h2>
-      <p class="section-sub">Notes, videos and worked examples for every topic.</p>
-      <div class="hub-grid" aria-label="Learning resources">
-        <a class="hub-tile b-navy" href="https://www.bbc.co.uk/bitesize/subjects/z6fsgk7" target="_blank" rel="noopener" aria-label="BBC Bitesize — revision notes and tests. Opens in a new tab">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-bite"/></svg>
-            <span class="tile-tag">External</span><span class="tile-name">BBC Bitesize</span>
-          </span>
-          <span class="tile-body">Short notes and quick tests on every topic.</span>
-        </a>
-        <a class="hub-tile b-maroon" href="https://www.youtube.com/@mrstewartphysics/playlists" target="_blank" rel="noopener" aria-label="The other (better) Mr Stewart — YouTube playlists. Opens in a new tab">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-s3-video"/></svg>
-            <span class="tile-tag">External</span><span class="tile-name">The other (better) Mr Stewart</span>
-          </span>
-          <span class="tile-body">Video walkthroughs by topic.</span>
-        </a>
-        <a class="hub-tile b-cyan" href="https://mrsphysics.co.uk/index.php/n5/" target="_blank" rel="noopener" aria-label="Mrs Physics — clear notes and examples. Opens in a new tab">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-hh-mrs"/></svg>
-            <span class="tile-tag">External</span><span class="tile-name">Mrs Physics</span>
-          </span>
-          <span class="tile-body">Clear written explanations and worked examples.</span>
-        </a>
-        <a class="hub-tile b-teal" href="https://www.sqa.org.uk/sqa/45912.html" target="_blank" rel="noopener" aria-label="SQA National 5 Physics — official course pages and key documents. Opens in a new tab">
-          <span class="tile-head">
-            <svg class="tile-ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-ah-official"/></svg>
-            <span class="tile-tag">External</span><span class="tile-name">SQA National 5 Physics</span>
-          </span>
-          <span class="tile-body">Official course pages and key documents.</span>
-        </a>
-      </div>
-    </section>
-
     <p class="muted" data-credit-note><strong>Sources &amp; credits:</strong> the Past Paper Finder is
       compiled by Mr Davie (September 2026 update by Mr White); DELTA is by Mr Taylor; past-paper
-      questions and marking instructions &copy; Qualifications Scotland (SQA). The banner is
-      AI-generated artwork. Full site credits are on the
+      questions and marking instructions &copy; Qualifications Scotland (SQA). Full site credits are on the
       <a href="/classes/credits.html">credits page</a>. R Stewart - November 2026</p>
   </main>
 

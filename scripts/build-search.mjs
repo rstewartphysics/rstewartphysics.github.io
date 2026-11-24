@@ -19,7 +19,7 @@ const SITE = path.resolve(process.argv[2] || "_site");
 // and Engineering chips and the colour of the result's label.
 const COURSES = [
   { prefix: "/classes/s3-physics", label: "S3 Physics", subject: "physics", levels: ["s3"] },
-  { prefix: "/classes/s3-n5-physics", label: "N5 Physics", subject: "physics", levels: ["n5"] },
+  { prefix: "/classes/s3-n5-physics", label: "S3 & N5 Physics", subject: "physics", levels: ["s3", "n5"] },
   { prefix: "/classes/n5-physics", label: "N5 Physics", subject: "physics", levels: ["n5"] },
   { prefix: "/classes/higher-physics", label: "Higher Physics", subject: "physics", levels: ["higher"] },
   { prefix: "/classes/higher/", label: "Higher Physics", subject: "physics", levels: ["higher"] },
