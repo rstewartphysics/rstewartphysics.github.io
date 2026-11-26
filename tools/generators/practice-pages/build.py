@@ -23,10 +23,14 @@ COURSE = {
     "name": "Higher Physics", "short": "Higher",
     "progress": "/assets/js/progress/higher-physics.js",
     "css": "/assets/css/higher-physics.css?v=hp-20261014b",
-    "banner": "/assets/higher-physics-banner.jpeg", "banner_alt": "Higher Physics banner",
+    "bb": "higher",  # drawn banner subject, _includes/band-banner.html
     "lessons": "/classes/higher/slides.html",
     "p2_title": "Paper 2 questions", "theme_dark": "#0a0f1f",
 }
+
+
+def q(s):
+    return s.replace('"', "&quot;")
 
 
 def band(fac):
@@ -217,6 +221,7 @@ search_keywords: {d["search_keywords"]}
   <meta name="theme-color" content="{c["theme_dark"]}" media="(prefers-color-scheme: dark)" />
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126b">
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="{c["progress"]}" defer></script>
@@ -232,17 +237,9 @@ search_keywords: {d["search_keywords"]}
 <body>
   {{% include site-menu.html %}}
 
-  <header class="banner-wrap">
-    <img src="{c["banner"]}" alt="{c["banner_alt"]}" class="banner" loading="eager" decoding="async">
-    <div class="banner-tint"></div>
-    <div class="banner-overlay-text">
-      <h1>{d["title"]}</h1>
-      <p>{d["kicker"]}</p>
-    </div>
-  </header>
+  {{% include band-banner.html s="{c["bb"]}" title="{q(d["title"])}" sub="{q(d["kicker"])}" %}}
 
   <main class="page-wrap" id="mainContent" data-pp-store="{s}">
-    <h1 class="visually-hidden">{title_plain}</h1>
     <div class="pp-top">
       <a class="backlink" href="{c["lessons"]}#{d["lessons_anchor"]}"><span aria-hidden="true">←</span> Back to Lessons</a>
     </div>

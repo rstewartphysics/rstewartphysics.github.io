@@ -101,8 +101,7 @@ def apply(meta):
     """Point the shared builder at Higher, for the test described by `meta`."""
     P.use(css="/assets/css/higher-physics.css?v=hp-20261014b",
           progress_js="/assets/js/progress/higher-physics.js",
-          banner="/assets/higher-physics-banner.jpeg",
-          banner_alt="Higher Physics banner",
+          bb="higher",
           theme_light="#eef8ff", theme_dark="#0a0f1f",
           back_href="/classes/higher/practice-tests.html",
           back_label="← Back to Higher practice tests",

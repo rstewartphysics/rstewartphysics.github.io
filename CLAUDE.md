@@ -78,6 +78,7 @@ title: Page Title
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
   <script src="/assets/js/site-menu.js" defer></script>
+  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-YYYYMMDD">
   <!-- the subject sheet, e.g. /assets/css/higher-physics.css?v=hp-YYYYMMDDx -->
 
   <style>
@@ -91,16 +92,9 @@ title: Page Title
 <body>
   {% include site-menu.html %}
 
-  <header class="banner-wrap">
-    <img src="/assets/pagebanner.png" alt="Descriptive alt text" class="banner" loading="eager">
-    <div class="banner-tint"></div>
-    <div class="banner-overlay-text">
-      <h1>Page Title</h1><p>One-line descriptor.</p>
-    </div>
-  </header>
+  {% include band-banner.html s="higher" title="Page Title" sub="One-line descriptor." %}
 
   <main class="page-wrap" id="mainContent">
-    <h1 class="visually-hidden">Page Title</h1>
     <!-- page content -->
   </main>
 
@@ -169,10 +163,15 @@ Engineering: `--eng-ink-accent` (light `#9a5410`, dark `#f5c97a`) is the AA-safe
 
 ## Banner
 
-Banners are finished 3:1 artwork in `/assets/` (`<subject>-banner.jpeg`; topic pages reuse their
-subject's). `.banner-wrap` is `aspect-ratio: 3 / 1`, **never a fixed height** (that crops the art);
-`.banner` is `object-fit:cover`; `.banner-tint` stays in the markup, disabled. Hubs hide the overlay
-title (`<header class="banner-wrap is-hub">`) because the art shows the subject; topic pages keep it.
+Every page opens with the **drawn banner** (RS, 26 Nov 2026; the AI banner artwork is retired):
+`{% include band-banner.html s="…" title="…" sub="…" %}` and a link to `assets/css/band-banner.css`.
+`s` picks the colours and mark — `home` (logo mark), `physics` (spectrum), `s3n5` (atom), `higher`
+(energy), `ah` (relativity clock), `elec` (circuit); colours in the CSS, marks in
+`_includes/band-marks/` (copies of the sprite symbols). The banner's `<h1>` is the page's only one —
+no visually-hidden duplicate. Tool pages pass `tool=1`: a slim band whose title is the subject name,
+not an `<h1>`. Generated pages set it in their generator (`bb` in the practice-test profile and the
+practice-page course). Engineering pages keep their own `.band-banner` (above). Landing-page section
+tiles use the `.sec-band` variant (`hub-tiles.css`) with the subject's `bb-*` class.
 
 ## Main layout
 
