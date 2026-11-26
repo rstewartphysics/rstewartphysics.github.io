@@ -697,7 +697,7 @@ body.pt-marking .prog-counter { display: none !important; }
 
 @media print {
   @page { size: A4; margin: 12.7mm; }
-  .banner-wrap, .subnav-wrap, footer,
+  .band-banner, .subnav-wrap, footer,
   .begin, .pt-bar, .mk-next, .mk-done, .mk-actions, .peek, .back-to-s3, .backlink,
   .cover-note,
   .site-menu-button, .site-menu-drawer, .site-menu-overlay,
@@ -1623,11 +1623,12 @@ COLOUR_SHEET = """
 
 # The N5/S3 Electricity 1 profile — the defaults, because it is what the pilot
 # was built against.  A Higher test calls `use(...)` to swap the parts it needs.
+BB_SUB = {"s3n5": "S3 &amp; N5 Physics", "higher": "Higher Physics", "ah": "Advanced Higher Physics"}
+
 PROFILE = {
     "css": "/assets/css/s3-physics.css?v=s3-20261014c",
     "progress_js": "/assets/js/progress/s3-physics.js",
-    "banner": "/assets/s3-physics-banner.jpeg",
-    "banner_alt": "S3 Physics banner",
+    "bb": "s3n5",                         # the drawn banner's subject (_includes/band-banner.html)
     "theme_light": "#eaf7fa",
     "theme_dark": "#0d1f1a",
     "back_href": "/classes/s3-physics/electricity1.html",
@@ -1654,7 +1655,8 @@ PROFILE = {
                    "page asks only for the relationship you used and your final answer "
                    "with its unit."),
     "extra_css": "",
-    # the drawn banner, as {"style": …, "icon": …, "icon_style": …, "sub": …}; None = the photo
+    # Engineering's own drawn banner, as {"style": …, "icon": …, "icon_style": …, "sub": …};
+    # None = the shared subject banner named by "bb"
     "band": None,
     "sections": SECTIONS,                 # [(key, name, blurb), …] — split follows this order
     "powers_note": True,
@@ -1855,9 +1857,9 @@ def page(meta, qs, d, dia, data):
 
     title = "%s · %s" % (meta["topic"], meta["short"])
     band = PROFILE["band"]
+    bbcss = ""
     if band:
         # the drawn banner carries the page's only <h1>
-        css = CSS.replace("  .banner-wrap, .subnav-wrap, footer,", "  .band-banner, .subnav-wrap, footer,")
         banner_html = ('<header class="band-banner" style="%s">\n'
                        '  <span class="bb-chip" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false" '
                        'style="%s"><use href="#%s"/></svg></span>\n'
@@ -1865,13 +1867,11 @@ def page(meta, qs, d, dia, data):
                        % (band["style"], band["icon_style"], band["icon"], title, band["sub"]))
         icons, hidden_h1 = "\n  {% include resource-icons.html %}", ""
     else:
-        css = CSS
-        banner_html = ('<div class="banner-wrap">\n'
-                       '  <img src="%s" alt="%s" class="banner" loading="eager">\n'
-                       '  <div class="banner-tint"></div>\n'
-                       '  <div class="banner-overlay-text">\n    <h1>%s</h1>\n  </div>\n</div>'
-                       % (PROFILE["banner"], PROFILE["banner_alt"], title))
-        icons, hidden_h1 = "", '<h1 class="visually-hidden">%s</h1>\n' % meta["title"]
+        banner_html = '{%% include band-banner.html s="%s" title="%s" sub="%s" %%}' % (
+            PROFILE["bb"], title.replace('"', "&quot;"), BB_SUB[PROFILE["bb"]])
+        icons, hidden_h1 = "", ""
+        bbcss = '\n  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126">'
+    css = CSS
     return """---
 layout: none
 ---
@@ -1887,7 +1887,7 @@ layout: none
 <title>%(title)s</title>
 {%% include site-head-icons.html %%}
 
-  <link rel="stylesheet" href="/assets/css/site-menu.css">
+  <link rel="stylesheet" href="/assets/css/site-menu.css">%(bbcss)s
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="%(progressjs)s" defer></script>
@@ -1941,7 +1941,7 @@ layout: none
        "tlight": PROFILE["theme_light"], "tdark": PROFILE["theme_dark"],
        "progressjs": PROFILE["progress_js"], "sitecss": PROFILE["css"],
        "builder": PROFILE["builder"], "extracss": PROFILE["extra_css"],
-       "banner_html": banner_html, "icons": icons, "hidden_h1": hidden_h1,
+       "banner_html": banner_html, "bbcss": bbcss, "icons": icons, "hidden_h1": hidden_h1,
        "backhref": PROFILE["back_href"], "backclass": PROFILE["back_class"],
        "backlabel": PROFILE["back_label"], "credit": PROFILE["credit"],
        "papernote": PROFILE["paper_note"],
@@ -1988,7 +1988,7 @@ def check(html, meta, qs, d, values):
         if ('id="%s"' % ident) not in html:
             errs.append("JS references missing id #%s" % ident)
 
-    ALLOWED_INCLUDES = ("site-menu.html", "site-footer.html", "site-head-icons.html",
+    ALLOWED_INCLUDES = ("site-menu.html", "band-banner.html", "site-footer.html", "site-head-icons.html",
                         "resource-icons.html", "feedback-button.html")
     liquid = [m for m in re.findall(r"\{\{.*?\}\}|\{%.*?%\}", html)
               if not any(("include " + i) in m for i in ALLOWED_INCLUDES)]

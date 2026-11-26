@@ -67,8 +67,6 @@ def apply(meta):
           band={"style": "--bb-a:#006e74; --bb-b:#0a5f57", "icon": "ic-quiz",
                 "icon_style": "--ic-accent:var(--eng-ink-teal)", "sub": "S3 Engineering Science"},
           progress_js="/assets/js/progress/eng-s3.js",
-          banner="/assets/s3-engineering-science-banner.jpeg",
-          banner_alt="S3 Engineering Science banner",
           theme_light="#fbf6ef", theme_dark="#15110b",
           back_href=HUB, back_label="← Back to Contexts and Energy",
           back_class="backlink", subnav=None,

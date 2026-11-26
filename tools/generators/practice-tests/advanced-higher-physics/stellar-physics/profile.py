@@ -84,8 +84,7 @@ def apply(meta, builder):
     """Point the shared builder at Advanced Higher, for the test in `meta`."""
     P.use(css="/assets/css/adv-higher-physics.css?v=ah-20261119a",
           progress_js="/assets/js/progress/ah-physics.js",
-          banner="/assets/advanced-higher-physics-banner.jpeg",
-          banner_alt="Advanced Higher Physics banner",
+          bb="ah",
           theme_light="#f6efdc", theme_dark="#14100a",
           back_href="/classes/adv/practice-tests.html",
           back_label="← Back to Advanced Higher practice tests",
