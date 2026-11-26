@@ -27,6 +27,8 @@ COURSE = {
     "lessons": "/classes/higher/slides.html",
     "p2_title": "Paper 2 questions", "theme_dark": "#0a0f1f",
 }
+# N5 Engineering Science (26 Nov 2026, rule 106): the Engineering sheet, its own drawn banner (a
+# hub-tile sprite mark on the chip) and <main class="container">. "eng_mark" switches it on.
 
 
 def q(s):
@@ -145,8 +147,49 @@ def mi_body(q, cls="pp-img"):
     return f'<p class="mi-note">{q["mi_note"]}</p>'
 
 
+def check(x, n):
+    """Check your understanding (rule 106): the booklet's own questions, with its answers."""
+    return f'''<article class="q pp-check" id="check-{n}">
+          <p class="qno">{n}. {x["q"]}</p>
+          <details class="reveal"><summary>Show the answer</summary><div class="reveal-body"><p>{x["a"]}</p></div></details>
+        </article>'''
+
+
+def check_section(d):
+    xs = d.get("check", [])
+    if not xs:
+        return ""
+    items = "\n        ".join(check(x, n) for n, x in enumerate(xs, 1))
+    return f'''
+    <section class="panel" id="check" aria-labelledby="check-title">
+      <h2 id="check-title">Check your understanding</h2>
+      <p class="hint">{d.get("check_hint", "Answer in your jotter first. Then open the answer.")}</p>
+      <div class="pp-list">
+        {items}
+      </div>
+    </section>
+'''
+
+
+def banner(d, c):
+    if not c.get("eng_mark"):
+        return f'{{% include band-banner.html s="{c["bb"]}" title="{q(d["title"])}" sub="{q(d["kicker"])}" %}}'
+    return f'''{{% include eng-icons.html %}}
+
+  <header class="band-banner" style="--bb-a:{c["bb_a"]};--bb-b:{c["bb_b"]}">
+    <span class="bb-chip" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><use href="#{c["eng_mark"]}"/></svg></span>
+    <div>
+      <h1>{d["title"]}</h1>
+      <p>{d["kicker"]}</p>
+    </div>
+  </header>'''
+
+
 def answers(d, warm, mcs, p2s):
     out = [f'<h3>Say it the exam way</h3><p>{cloze_answers(d["cloze"])}</p>']
+    if d.get("check"):
+        out.append('<h3>Check your understanding</h3><ol>'
+                   + "".join(f'<li>{x["a"]}</li>' for x in d["check"]) + '</ol>')
     for n, q in enumerate(warm + mcs, 1):
         fb = "".join(f"<li><b>{L}</b> {f}</li>" for L, f in zip(LETTERS, q["fb"]))
         out.append(f'<div class="ans-mc"><h3>{q["ref"]}: answer {q["key"]}</h3><ul>{fb}</ul></div>')
@@ -171,7 +214,7 @@ def page(d):
     p2_html = "\n        ".join(p2(q, i) for i, q in enumerate(p2s, 1))
     p2_hint = ("Answer on paper first. Then open the marking and mark your own answer." if p2s
                else d["paper2_note"])
-    done = "; ".join(esc(x) for x in d["done_in_class"])
+    done = "; ".join(esc(x) for x in d.get("done_in_class", []))
     errs = d.get("errors", [])
     errors_section = ("" if not errs else
         '\n    <section class="panel" id="errors" aria-labelledby="err-title">\n'
@@ -221,8 +264,7 @@ search_keywords: {d["search_keywords"]}
   <meta name="theme-color" content="{c["theme_dark"]}" media="(prefers-color-scheme: dark)" />
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126b">
-  <script src="/assets/js/site-menu.js" defer></script>
+{"" if c.get("eng_mark") else chr(10).join(["  <link rel=" + chr(34) + "stylesheet" + chr(34) + " href=" + chr(34) + "/assets/css/band-banner.css?v=bb-20261126b" + chr(34) + ">", ""])}  <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="{c["progress"]}" defer></script>
   <script src="/assets/js/practice-page.js" defer></script>
@@ -237,9 +279,9 @@ search_keywords: {d["search_keywords"]}
 <body>
   {{% include site-menu.html %}}
 
-  {{% include band-banner.html s="{c["bb"]}" title="{q(d["title"])}" sub="{q(d["kicker"])}" %}}
+  {banner(d, c)}
 
-  <main class="page-wrap" id="mainContent" data-pp-store="{s}">
+  <main class="{c.get("main_class", "page-wrap")}" id="mainContent" data-pp-store="{s}">
     <div class="pp-top">
       <a class="backlink" href="{c["lessons"]}#{d["lessons_anchor"]}"><span aria-hidden="true">←</span> Back to Lessons</a>
     </div>
@@ -257,7 +299,7 @@ search_keywords: {d["search_keywords"]}
       <h2 id="warm-title">Warm-up</h2>
       {cloze(d["cloze"])}{warm_list}
     </section>
-{mc_section}{errors_section}
+{check_section(d)}{mc_section}{errors_section}
     <section class="panel" id="paper2" aria-labelledby="p2-title">
       <h2 id="p2-title">{c["p2_title"]}</h2>
       <p class="hint{"" if p2s else " p2-note"}">{p2_hint}</p>{f'{chr(10)}      <p class="p2-tip">{d["p2_tip"]}</p>' if d.get("p2_tip") else ""}
@@ -276,8 +318,7 @@ search_keywords: {d["search_keywords"]}
       {answers(d, warm, mcs, warm_p2 + p2s)}
     </section>
 
-    <p class="done-line">Done in class, so not repeated here: {done}.</p>
-    <p data-credit-note>Sources &amp; credits: past-paper questions and marking instructions from {cred}. © Qualifications Scotland (SQA), reproduced for educational use. Answer feedback and the gap-fill by R Stewart.{" " + d["credit_extra"] if d.get("credit_extra") else ""} {d["owner"]}.</p>
+{f'    <p class="done-line">Done in class, so not repeated here: {done}.</p>{chr(10)}' if done else ""}    <p data-credit-note>Sources &amp; credits: past-paper questions and marking instructions from {cred}. © Qualifications Scotland (SQA), reproduced for educational use. Answer feedback and the gap-fill by R Stewart.{" " + d["credit_extra"] if d.get("credit_extra") else ""} {d["owner"]}.</p>
   </main>
 
   {{% include site-footer.html %}}
