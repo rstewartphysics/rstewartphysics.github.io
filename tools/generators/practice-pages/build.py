@@ -221,7 +221,7 @@ search_keywords: {d["search_keywords"]}
   <meta name="theme-color" content="{c["theme_dark"]}" media="(prefers-color-scheme: dark)" />
 
   <link rel="stylesheet" href="/assets/css/site-menu.css">
-  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126">
+  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126b">
   <script src="/assets/js/site-menu.js" defer></script>
   <script src="/assets/js/progress.js" defer></script>
   <script src="{c["progress"]}" defer></script>

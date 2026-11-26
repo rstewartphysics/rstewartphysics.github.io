@@ -1870,7 +1870,7 @@ def page(meta, qs, d, dia, data):
         banner_html = '{%% include band-banner.html s="%s" title="%s" sub="%s" %%}' % (
             PROFILE["bb"], title.replace('"', "&quot;"), BB_SUB[PROFILE["bb"]])
         icons, hidden_h1 = "", ""
-        bbcss = '\n  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126">'
+        bbcss = '\n  <link rel="stylesheet" href="/assets/css/band-banner.css?v=bb-20261126b">'
     css = CSS
     return """---
 layout: none
